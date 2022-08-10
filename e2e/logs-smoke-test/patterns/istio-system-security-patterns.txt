@@ -1,4 +1,0 @@
-^\S+T\S+Z	info	
-^\S+$
-^-----END CERTIFICATE-----$
-^\s*$

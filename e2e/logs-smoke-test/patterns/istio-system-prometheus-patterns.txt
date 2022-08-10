@@ -1,3 +1,0 @@
-^level=info ts=
-^level=warn ts=\S+ caller=\S+ component=\S+ func=\S+ msg="\S+ watch of \*v1.Endpoints ended with: too old resource version: \S+ \S+"
-^level=warn ts=\S+ caller=\S+ component=\S+ func=\S+ msg="\S+ watch of \*v1.Pod ended with: too old resource version: \S+ \S+"
