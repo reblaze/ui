@@ -74,11 +74,6 @@
     "webpack": "^5.70.0",
     "y18n": ">=4.0.1"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run lint:ts && npm run lint:js:fix && npm run lint:style:fix"
-    }
-  },
   "browserslist": [
     "> 1%",
     "last 2 versions",
