@@ -15,6 +15,7 @@
                 </label>
                 <div class="control">
                   <input class="input is-small document-name"
+                         data-qa="security-policies-name-input"
                          title="Document name"
                          placeholder="Document name"
                          @change="emitDocUpdate"
@@ -28,6 +29,7 @@
                 <div class="control has-icons-left">
                   <input type="text"
                          class="input is-small document-domain-name"
+                         data-qa="security-policies-match-input"
                          placeholder="(api|service).company.(io|com)"
                          @change="emitDocUpdate"
                          @input="validateInput($event, isSelectedDomainMatchValid)"
@@ -90,7 +92,7 @@
                 <td class="is-size-7"
                     :rowspan="mapEntryIndex === mapIndex ? '2' : '1'">
                   <a class="has-text-grey"
-                     title="more details">
+                     title="more details" data-qa="expand-path-btn">
                     {{ mapEntryIndex === mapIndex ? 'close' : 'expand' }}
                   </a>
                 </td>
@@ -112,6 +114,7 @@
                                 <input class="input is-small current-entry-name"
                                        @input="emitDocUpdate"
                                        type="text"
+                                       data-qa="expanded-path-name-input"
                                        ref="profileName"
                                        title="Name"
                                        v-model="mapEntry.name"
@@ -127,6 +130,7 @@
                                        type="text"
                                        @input="emitDocUpdate();
                                                validateInput($event, isSelectedMapEntryMatchValid(mapIndex))"
+                                       data-qa="expanded-path-input"
                                        title="matchingDomainTitle"
                                        placeholder="Matching domain(s) regex"
                                        required
@@ -160,6 +164,7 @@
                                     <a v-if="limitRuleNames && mapEntry.limit_ids &&
                                              limitRuleNames.length > existingRateLimitIDs(mapEntry).length"
                                        class="has-text-grey-dark is-small rate-limit-add-button"
+                                       data-qa="add-existing-ratelimit"
                                        title="Add new"
                                        tabindex="0"
                                        @click="limitNewEntryModeMapEntryId = mapIndex"
@@ -192,6 +197,7 @@
                                     </td>
                                     <td class="has-text-centered is-size-7 width-60px">
                                       <a class="is-small has-text-grey rate-limit-remove-button"
+                                         data-qa="remove-ratelimit-btn"
                                          title="Remove entry"
                                          tabindex="0"
                                          @click="removeRateLimitFromEntry(mapEntry, limitIndex)"
@@ -255,6 +261,7 @@
                                 <div class="select is-fullwidth is-small">
                                   <select v-model="mapEntry.content_filter_profile"
                                           @change="emitDocUpdate"
+                                          data-qa="content-filter-dropdown"
                                           class="current-entry-content-filter-selection"
                                           title="Content Filter profile">
                                     <option v-for="contentfilter in contentFilterProfileNames"
@@ -270,6 +277,7 @@
                               <label class="checkbox is-size-7">
                                 <input type="checkbox"
                                        @change="emitDocUpdate"
+                                       data-qa="content-filter-active-checkbox"
                                        class="current-entry-content-filter-active"
                                        v-model="mapEntry.content_filter_active">
                                 Active Mode
@@ -284,6 +292,7 @@
                                 <div class="select is-fullwidth is-small">
                                   <select v-model="mapEntry.acl_profile"
                                           @change="emitDocUpdate"
+                                          data-qa="acl-dropdown"
                                           class="current-entry-acl-selection"
                                           title="ACL profile">
                                     <option v-for="acl in aclProfileNames" :value="acl[0]" :key="acl[0]">
@@ -297,6 +306,7 @@
                               <label class="checkbox is-size-7">
                                 <input type="checkbox"
                                        @change="emitDocUpdate"
+                                       data-qa="acl-active-checkbox"
                                        class="current-entry-acl-active"
                                        v-model="mapEntry.acl_active">
                                 Active Mode
@@ -305,6 +315,7 @@
                             <hr/>
                             <div class="field">
                               <button title="Create a new profile based on this one"
+                                      data-qa="fork-btn"
                                       class="button is-small is-pulled-left is-light fork-entry-button"
                                       @click="addNewProfile(mapEntry, mapIndex)">
                                 <span class="icon"><i class="fas fa-code-branch"></i></span>
@@ -313,6 +324,7 @@
                               </span>
                               </button>
                               <button title="Delete this profile"
+                                      data-qa="delete-location-btn"
                                       class="button is-small is-pulled-right is-danger is-light remove-entry-button"
                                       @click="removeMapEntry(mapIndex)"
                                       v-if="isRemoveEntryEnabled">

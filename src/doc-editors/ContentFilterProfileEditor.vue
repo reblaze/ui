@@ -15,6 +15,7 @@
               <div class="control">
                 <input class="input is-small document-name"
                        title="Document name"
+                       data-qa="waf-document-name"
                        placeholder="Document name"
                        @change="emitDocUpdate"
                        v-model="localDoc.name"/>
@@ -27,6 +28,7 @@
               <div class="control">
                 <input class="input is-small document-masking-seed"
                        title="Masking seed"
+                       data-qa="waf-masking"
                        placeholder="Masking seed"
                        type="password"
                        @change="emitDocUpdate"
@@ -37,6 +39,7 @@
                  :title="additionalInfoIgnoreAlphanumericInput">
               <label class="checkbox is-size-7">
                 <input type="checkbox"
+                       data-qa="ignore-alphanumeric-btn"
                        class="checkbox-input ignore-alphanumeric-input"
                        @change="emitDocUpdate"
                        v-model="localDoc.ignore_alphanum"/>
@@ -50,7 +53,8 @@
           <div class="column is-4">
             <div class="field">
               <label class="label is-small"
-                     :title="additionalInfoContentType">
+                     :title="additionalInfoContentType"
+                     data-qa="restrict-content-type-label">
                 Restrict Content Type
                 <span class="icon is-small info-icon">
                       <i class="fas fa-info-circle"></i>
@@ -64,6 +68,7 @@
                     <input type="checkbox"
                            @change="updateContentType(contentTypeOption.value, $event.target.checked)"
                            class="checkbox-input"
+                           :data-qa="`content-type-${contentTypeOption.value}-checkbox`"
                            :class="`content-type-${contentTypeOption.value}-input`"
                            :checked="getContentTypeStatus(contentTypeOption.value)">
                     {{ contentTypeOption.displayName }}
@@ -74,7 +79,8 @@
           </div>
           <div class="column is-4">
             <div class="field">
-              <label class="label is-small">
+              <label class="label is-small"
+              data-qa="field-label">
                 Decoding
               </label>
               <div class="control">
@@ -85,6 +91,7 @@
                     <input type="checkbox"
                            @change="emitDocUpdate"
                            class="checkbox-input"
+                           :data-qa="`decoding-${decodingOption.value}-checkbox`"
                            :class="`decoding-${decodingOption.value}-input`"
                            v-model="localDoc.decoding[decodingOption.value]">
                     {{ decodingOption.displayName }}
@@ -111,6 +118,7 @@
                   </td>
                   <td class="is-size-7 width-20px">
                     <a title="remove entry"
+                       data-qa="remove-entry-btn"
                        tabindex="0"
                        class="is-small has-text-grey remove-entry-button"
                        @click="removeTag(section, idx)"
@@ -136,6 +144,7 @@
                   </td>
                   <td class="is-size-7 width-20px">
                     <a title="add new entry"
+                       data-qa="new-entry-btn"
                        tabindex="0"
                        class="is-size-7 width-20px is-small has-text-grey add-new-entry-button"
                        @click="openTagInput(section)"
@@ -174,6 +183,7 @@
                 <td>
                   <input required
                          class="input is-small max-header-length-input"
+                         data-qa="max-header-length-input"
                          type="number"
                          @change="emitDocUpdate"
                          title="Max header length"
@@ -182,6 +192,7 @@
                 <td>
                   <input required
                          class="input is-small max-cookie-length-input"
+                         data-qa="max-cookies-length-input"
                          type="number"
                          @change="emitDocUpdate"
                          title="Max cookie length"
@@ -190,6 +201,7 @@
                 <td>
                   <input required
                          class="input is-small max-arg-length-input"
+                         data-qa="max-argument-length-input"
                          type="number"
                          @change="emitDocUpdate"
                          title="Max argument length"
@@ -201,6 +213,7 @@
                 <td>
                   <input required
                          class="input is-small max-headers-count-input"
+                         data-qa="max-header-count-input"
                          type="number"
                          @change="emitDocUpdate"
                          title="Max headers count"
@@ -209,6 +222,7 @@
                 <td>
                   <input required
                          class="input is-small max-cookies-count-input"
+                         data-qa="max-cookies-count-input"
                          type="number"
                          @change="emitDocUpdate"
                          title="Max cookies count"
@@ -217,6 +231,7 @@
                 <td>
                   <input required
                          class="input is-small max-args-count-input"
+                         data-qa="max-argument-count-input"
                          type="number"
                          @change="emitDocUpdate"
                          title="Max arguments count"
@@ -236,7 +251,7 @@
                     <div class="tabs is-centered">
                       <ul>
                         <li :class=" tab === 'headers' ? 'is-active' : '' "
-                            class="headers-tab">
+                            class="headers-tab" data-qa="headers-tab-btn">
                           <a tabindex="0"
                              @click='tab="headers"'
                              @keypress.space.prevent
@@ -246,7 +261,7 @@
                           </a>
                         </li>
                         <li :class=" tab === 'cookies' ? 'is-active' : '' "
-                            class="cookies-tab">
+                            class="cookies-tab" data-qa="cookies-tab-btn">
                           <a tabindex="0"
                              @click='tab="cookies"'
                              @keypress.space.prevent
@@ -256,7 +271,7 @@
                           </a>
                         </li>
                         <li :class=" tab === 'args' ? 'is-active' : '' "
-                            class="args-tab">
+                            class="args-tab" data-qa="arguments-tab-btn">
                           <a tabindex="0"
                              @click='tab="args"'
                              @keypress.space.prevent
@@ -283,6 +298,7 @@
                         <th class="has-text-centered width-5pct">
                           <a v-show="newContentFilterLine !== tab"
                              class="has-text-grey-dark is-small new-parameter-button"
+                             data-qa="add-new-parameter-btn"
                              title="Add new parameter"
                              tabindex="0"
                              @click="openAddNewParameter(tab)"
@@ -294,6 +310,7 @@
                           <a v-show="newContentFilterLine === tab"
                              class="has-text-grey-dark is-small cancel-new-parameter"
                              title="Cancel adding new parameter"
+                             data-qa="cancel-new-parameter-btn"
                              tabindex="0"
                              @click="cancelNewParameter"
                              @keypress.space.prevent
@@ -315,12 +332,13 @@
                                   <div class="control">
                                     <div class="select is-small">
                                       <select v-model="newEntry.type"
+                                              data-qa="add-new-entry-btn"
                                               class="new-entry-type"
                                               title="Type">
-                                        <option value="names">
+                                        <option value="names" data-qa="parameter-name-dropdown">
                                           {{ titles.names }}
                                         </option>
-                                        <option value="regex">
+                                        <option value="regex" data-qa="paramater-regex-dropdown">
                                           {{ titles.regex }}
                                         </option>
                                       </select>
@@ -334,6 +352,7 @@
                                     <div>
                                       <input required
                                              class="input is-small new-entry-key"
+                                             data-qa="new-key-input"
                                              :class="{ 'is-danger': !newEntry.key && newEntry.keyDirty }"
                                              @input="newEntry.keyDirty = true"
                                              type="text"
@@ -351,6 +370,7 @@
                           <p class="control has-icons-left">
                             <input required
                                    class="input is-small new-entry-reg"
+                                   data-qa="new-value-input"
                                    type="text"
                                    v-model="newEntry.reg"
                                    :class="{ 'is-danger': entryMatchingValueInvalid(newEntry) && newEntry.regDirty }"
@@ -365,6 +385,7 @@
                         <td class="has-text-centered width-5pct">
                           <label class="checkbox">
                             <input type="checkbox"
+                                   data-qa="restrict-checkbox"
                                    class="new-entry-restrict"
                                    v-model="newEntry.restrict"/>
                           </label>
@@ -372,6 +393,7 @@
                         <td class="has-text-centered width-5pct">
                           <label class="checkbox">
                             <input type="checkbox"
+                                   data-qa="masking-checkbox"
                                    class="new-entry-mask"
                                    v-model="newEntry.mask"/>
                           </label>
@@ -382,12 +404,14 @@
                               :clear-input-after-selection="false"
                               :auto-focus="false"
                               class="new-entry-exclusions"
+                              :data-qa="autocompleteTitle"
                               selection-type="multiple"
                               :title="autocompleteTitle"
                               @value-submitted="updateEntryExclusions(newEntry, $event)"/>
                         </td>
                         <td class="has-text-centered width-5pct">
                           <button class="button is-light is-small confirm-add-new-parameter"
+                                  data-qa="confirm-add-new-parameter-btn"
                                   :disabled="!newEntry.key || entryMatchingValueInvalid(newEntry)"
                                   :title="addNewParameterTitle"
                                   @click="addNewParameter">

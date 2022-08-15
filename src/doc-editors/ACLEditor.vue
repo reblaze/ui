@@ -8,7 +8,7 @@
               <div class="field">
                 <label class="label is-small">
                   Name
-                  <span class="has-text-grey is-pulled-right document-id" title="Document id">
+                  <span class="has-text-grey is-pulled-right document-id" title="Document id" data-qa="document-id">
                     {{ localDoc.id }}
                   </span>
                 </label>
@@ -17,6 +17,7 @@
                          title="Document name"
                          placeholder="Document name"
                          @change="emitDocUpdate"
+                         data-qa="acl-document-name"
                          v-model="localDoc.name"/>
                 </div>
               </div>
@@ -29,11 +30,11 @@
         <hr/>
         <div class="columns">
           <div class="column is-2" v-for="operation in operations" :key="operation">
-            <p class="title is-7 is-uppercase">{{ titles[operation] }}</p>
+            <p class="title is-7 is-uppercase" :data-qa="titles[operation]">{{ titles[operation]}}</p>
             <hr class="bar" :class="`bar-${operationClassName(operation)}`"/>
             <table class="table is-narrow is-fullwidth">
               <tbody>
-              <tr v-for="(tag, idx) in localDoc[operation]" :key="idx">
+              <tr v-for="(tag, idx) in localDoc[operation]" :key="idx" >
                 <td class="tag-cell ellipsis"
                     :class=" { 'has-text-danger': duplicateTags[tag], 'tag-crossed': allPrior(operation) }"
                     :title="tagMessage(tag, operation) || tag">
@@ -42,6 +43,7 @@
                 <td class="is-size-7 width-20px">
                   <a title="remove entry"
                      tabindex="0"
+                     data-qa="acl-btn-remove-tag"
                      class="is-small has-text-grey remove-entry-button"
                      @click="removeTag(operation, idx)"
                      @keypress.space.prevent
@@ -64,6 +66,7 @@
                 </td>
                 <td class="is-size-7 width-20px">
                   <a title="add new entry"
+                     data-qa="acl-btn-new-tag"
                      tabindex="0"
                      class="is-size-7 width-20px is-small has-text-grey add-new-entry-button"
                      @click="openTagInput(operation)"

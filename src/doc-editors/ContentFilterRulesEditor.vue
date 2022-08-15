@@ -15,6 +15,7 @@
                   </label>
                   <div class="control">
                     <input class="input is-small document-name"
+                           data-qa="document-name-input"
                            title="Document name"
                            placeholder="Document name"
                            v-model="localDoc.name"
@@ -25,6 +26,7 @@
                   <label class="label is-small">Description</label>
                   <div class="control">
                     <textarea class="is-small textarea document-description"
+                              data-qa="description-input"
                               title="description"
                               v-model="localDoc.description"
                               @change="emitDocUpdate()"
@@ -38,6 +40,7 @@
                   <label class="label is-small">Category</label>
                   <div class="control">
                     <input class="input is-small document-category"
+                           data-qa="category-input"
                            title="Category"
                            placeholder="Category"
                            v-model="localDoc.category"
@@ -48,6 +51,7 @@
                   <label class="label is-small">Subcategory</label>
                   <div class="control">
                     <input class="input is-small document-subcategory"
+                           data-qa="subcategory-input"
                            title="Subcategory"
                            placeholder="Subcategory"
                            v-model="localDoc.subcategory"
@@ -59,6 +63,7 @@
                   <div class="control select is-small">
                     <select v-model="localDoc.risk"
                             @change="emitDocUpdate"
+                            data-qa="risk-level-dropdown"
                             class="risk-level-selection"
                             title="Risk level">
                       <option v-for="(riskLevel, index) in riskLevels"
@@ -75,6 +80,7 @@
                   <label class="label is-small">Tags</label>
                   <div class="control">
                     <input class="input is-small document-tags"
+                           data-qa="tags-input"
                            title="Tags"
                            placeholder="Space separated tags"
                            v-model="selectedDocTags"
@@ -91,6 +97,7 @@
               <label class="label is-small">Log Message</label>
               <div class="control">
                 <input class="input is-small document-msg"
+                       data-qa="log-message-input"
                        type="text"
                        title="Message to appear in the logs"
                        placeholder="Log message"
@@ -103,6 +110,7 @@
               <label class="label is-small">Match</label>
               <div class="control has-icons-left">
                 <input class="input is-small document-operand"
+                       data-qa="matching-regex-input"
                        type="text"
                        title="Match"
                        placeholder="matching regex"

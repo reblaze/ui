@@ -33,6 +33,7 @@
                 </div>
                 <p class="control">
                   <button
+                      data-qa="publish-changes"
                       class="button is-small publish-button"
                       :class="{'is-loading': isPublishLoading}"
                       @click="publish"
