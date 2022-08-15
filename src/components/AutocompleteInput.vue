@@ -56,7 +56,7 @@
 </template>
 
 <script lang="ts">
-import Utils from '@/assets/Utils.ts'
+import Utils from '@/assets/Utils'
 import Vue, {PropType, VueConstructor} from 'vue'
 
 export type AutocompleteSuggestion = {
