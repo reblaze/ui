@@ -106,12 +106,13 @@
             <div class="column is-4"
                  v-for="section in sections"
                  :key="section">
-              <p class="title is-7 is-uppercase">{{ titles[section] }}</p>
+              <p class="title is-7 is-uppercase" :data-qa="`tag-${section}`">{{ titles[section] }}</p>
               <hr class="bar" :class="`bar-${section}`"/>
               <table class="table is-narrow is-fullwidth">
                 <tbody>
                 <tr v-for="(tag, idx) in localDoc[section]" :key="idx">
                   <td class="tag-cell ellipsis"
+                      :data-qa="`${tag}`"
                       :class=" { 'has-text-danger': duplicateTags[tag] }"
                       :title="tagMessage(tag) || tag">
                     {{ tag }}
