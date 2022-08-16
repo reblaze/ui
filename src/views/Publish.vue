@@ -11,6 +11,7 @@
                     <select v-model="selectedBranchName"
                             class="branch-selection"
                             title="Switch branch"
+                            data-qa="switch-branch-dropdown"
                             @change="switchBranch">
                       <option v-for="name in branchNames"
                               :key="name"
@@ -60,6 +61,7 @@
               <tbody>
               <tr @click="selectCommit(commit)"
                   class="commit-row"
+                  data-qa="commit-row-btn"
                   v-for="commit in commitLines"
                   :key="commit.version"
                   :class="getVersionRowClass(commit.version)">
@@ -97,6 +99,7 @@
               <tr
                   v-for="bucket in buckets"
                   :key="bucket.name"
+                  :data-qa="bucket.name"
                   class="bucket-row"
                   :class="{'has-background-warning-light': !publishMode && selectedBucketNames.includes(bucket.name)}"
                   @click="bucketNameClicked(bucket.name)">
