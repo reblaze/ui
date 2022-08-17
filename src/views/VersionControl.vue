@@ -7,7 +7,8 @@
             <div class="column">
               <div class="field is-grouped">
                 <div class="control" v-if="branchNames.length">
-                  <div data-qa="branch-selection" class="select is-small" >
+                  <div class="select is-small"
+                          data-qa="branch-selection">
                     <select v-model="selectedBranch"
                             title="Switch Branch"
                             @change="switchBranch()"
