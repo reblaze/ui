@@ -92,7 +92,8 @@
                 <td class="is-size-7"
                     :rowspan="mapEntryIndex === mapIndex ? '2' : '1'">
                   <a class="has-text-grey"
-                     title="more details" data-qa="expand-path-btn">
+                     title="more details"
+                     data-qa="expand-path-btn">
                     {{ mapEntryIndex === mapIndex ? 'close' : 'expand' }}
                   </a>
                 </td>
