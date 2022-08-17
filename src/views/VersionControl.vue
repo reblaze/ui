@@ -125,7 +125,8 @@
                              type="text">
                     </span>
                     <span class="control" v-if="deleteBranchInputOpen">
-                      <button class="button is-danger is-small delete-branch-cancel" data-qa="cancel-delete-branch-btn"
+                      <button class="button is-danger is-small delete-branch-cancel"
+                                     data-qa="cancel-delete-branch-btn"
                               @click="toggleBranchDelete">
                         <span class="icon is-small">
                           <i class="fas fa-times"></i>
