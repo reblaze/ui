@@ -9,6 +9,7 @@
                 <div class="control" v-if="branchNames.length">
                   <div class="select is-small">
                     <select v-model="selectedBranch"
+                            data-qa="policies-switch-branch"
                             title="Switch branch"
                             @change="switchBranch()"
                             class="branch-selection">
@@ -23,6 +24,7 @@
                 <div class="control">
                   <div class="select is-small">
                     <select v-model="selectedDocType"
+                            data-qa="switch-document-dropdown"
                             title="Switch document type"
                             @change="switchDocType()"
                             class="doc-type-selection">
@@ -39,7 +41,8 @@
                           :class="{'is-loading': isDownloadLoading}"
                           :disabled="!selectedDoc"
                           @click="downloadDoc()"
-                          title="Download document">
+                          title="Download document"
+                          data-qa="download-document">
                     <span class="icon is-small">
                       <i class="fas fa-download"></i>
                     </span>
@@ -79,7 +82,8 @@
                     <select v-model="selectedDocID"
                             title="Switch document ID"
                             @change="switchDocID()"
-                            class="doc-selection">
+                            class="doc-selection"
+                            data-qa="switch-document">
                       <option v-for="pair in docIdNames"
                               :key="pair[0]"
                               :value="pair[0]">
@@ -94,7 +98,8 @@
                           :class="{'is-loading': isForkLoading}"
                           @click="forkDoc()"
                           title="Duplicate document"
-                          :disabled="!selectedDoc">
+                          :disabled="!selectedDoc"
+                          data-qa="duplicate-document">
                     <span class="icon is-small">
                       <i class="fas fa-clone"></i>
                     </span>
@@ -106,7 +111,8 @@
                           :class="{'is-loading': isNewLoading}"
                           @click="addNewDoc()"
                           title="Add new document"
-                          :disabled="!selectedBranch || !selectedDocType">
+                          :disabled="!selectedBranch || !selectedDocType"
+                          data-qa="add-new-document">
                     <span class="icon is-small">
                       <i class="fas fa-plus"></i>
                     </span>
@@ -118,7 +124,8 @@
                           :class="{'is-loading': isSaveLoading}"
                           @click="saveChanges()"
                           title="Save changes"
-                          :disabled="isDocumentInvalid || !selectedDoc">
+                          :disabled="isDocumentInvalid || !selectedDoc"
+                          data-qa="save-changes">
                     <span class="icon is-small">
                       <i class="fas fa-save"></i>
                     </span>
@@ -130,7 +137,8 @@
                           :class="{'is-loading': isDeleteLoading}"
                           @click="deleteDoc"
                           title="Delete document"
-                          :disabled="selectedDocNotDeletable">
+                          :disabled="selectedDocNotDeletable"
+                          data-qa="delete-document">
                     <span class="icon is-small">
                       <i class="fas fa-trash"></i>
                     </span>

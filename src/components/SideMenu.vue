@@ -8,6 +8,7 @@
       <ul class="menu-list">
         <li v-for="(menuItemDetails, menuItemKey) in sectionItems" :key="menuItemKey" class="section-item">
           <a v-if="menuItemDetails.external"
+             :data-qa="menuItemDetails.title"
              :data-curie="menuItemKey"
              :href="menuItemDetails.url"
              target="_blank">
@@ -15,6 +16,7 @@
           </a>
           <router-link v-else
                        :data-curie="menuItemKey"
+                       :data-qa="menuItemDetails.title"
                        :to="menuItemKey"
                        :class="{ 'is-active': currentRoutePath.includes(menuItemKey) }">
             {{ menuItemDetails.title }}

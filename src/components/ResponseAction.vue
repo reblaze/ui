@@ -30,10 +30,12 @@
         <div class="control select is-fullwidth is-small action-type-selection" v-if="localAction">
           <select v-model="localAction.type"
                   title="Action type"
+                  data-qa="action-dropdown"
                   @change="changeActionType()">
             <option v-for="(value, id) in options"
                     :value="id"
-                    :key="id">
+                    :key="id"
+                    :data-qa="value.title">
               {{ value.title }}
             </option>
           </select>

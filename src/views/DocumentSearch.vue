@@ -1,6 +1,7 @@
 <template>
   <div class="card">
-    <div class="card-content">
+    <div class="card-content"
+            data-qa="search-page">
       <div class="media">
         <div class="media-content">
           <div class="columns">
@@ -11,7 +12,8 @@
                     <select v-model="selectedBranch"
                             title="Switch branch"
                             @change="switchBranch"
-                            class="branch-selection">
+                            class="branch-selection"
+                            data-qa="search-switch-branch">
                       <option v-for="name in branchNames"
                               :key="name"
                               :value="name">
@@ -24,7 +26,8 @@
                   <div class="select is-small">
                     <select v-model="selectedSearchType"
                             title="Switch search type"
-                            class="search-type-selection">
+                            class="search-type-selection"
+                            data-qa="search-type-selection">
                       <option v-for="(searchType, propertyName) in searchTypeMap"
                               :key="propertyName"
                               :value="propertyName">
@@ -37,6 +40,7 @@
                   <input class="input is-small search-input"
                          title="Search"
                          placeholder="Search"
+                         data-qa="search-input"
                          v-model="searchValue"/>
                   <span class="icon is-small is-left has-text-grey-light"><i class="fa fa-search"></i></span>
                 </div>

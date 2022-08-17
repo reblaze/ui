@@ -13,6 +13,7 @@
               </label>
               <div class="control">
                 <input class="input is-small document-name"
+                       data-qa="flowcontrol-name-input"
                        title="Flow control policy name"
                        placeholder="Flow control policy name"
                        @change="emitDocUpdate"
@@ -22,6 +23,7 @@
             <div class="field">
               <label class="checkbox is-size-7">
                 <input type="checkbox"
+                       data-qa="active-checkbox"
                        class="document-active"
                        @change="emitDocUpdate"
                        v-model="localDoc.active">
@@ -34,6 +36,7 @@
               </label>
               <div class="control suffix seconds-suffix">
                 <input class="input is-small document-timeframe"
+                       data-qa="timeframe-input"
                        type="number"
                        title="Flow control policy duration"
                        placeholder="Flow control policy duration"
@@ -54,6 +57,7 @@
                             :key="getOptionTextKey(option, index)"/>
               <a title="Add new option rule"
                  class="is-text is-small is-size-7 ml-3 add-key-button"
+                 data-qa="add-new-key-btn"
                  tabindex="0"
                  @click="addKey()"
                  @keypress.space.prevent
@@ -157,6 +161,7 @@
                       <td colspan="2">
                         <div class="select is-small is-fullwidth">
                           <select v-model="sequenceItem.method"
+                                  data-qa="method-dropdown"
                                   title="Method"
                                   class="select method-entry-input"
                                   @change="emitDocUpdate">
@@ -179,6 +184,7 @@
                       <td colspan="2">
                         <div class="control is-fullwidth">
                           <input class="input is-small host-entry-input"
+                                 data-qa="host-input"
                                  title="Host"
                                  v-model="sequenceItem.headers.host"
                                  @input="emitDocUpdate"/>
@@ -197,6 +203,7 @@
                       <td colspan="2">
                         <div class="control is-fullwidth">
                           <input class="input is-small uri-entry-input"
+                                 data-qa="path-input"
                                  title="Path"
                                  v-model="sequenceItem.uri"
                                  @input="emitDocUpdate"/>
@@ -222,6 +229,7 @@
                       </td>
                       <td class="width-80px">
                         <a class="is-small has-text-grey remove-entry-button"
+                           data-qa="remove-sequence-btn"
                            title="Remove sequence entry"
                            tabindex="0"
                            @click="removeSequenceItemEntry(
@@ -238,6 +246,7 @@
                     <tr v-if="newEntrySectionIndex !== sequenceIndex">
                       <td>
                         <a class="is-size-7 has-text-grey-lighter add-button add-entry-button"
+                           data-qa="add-new-row-btn"
                            title="add new row"
                            tabindex="0"
                            @click="setNewEntryIndex(sequenceIndex)"
@@ -321,6 +330,7 @@
                 </div>
               </div>
               <button class="button is-small new-sequence-button"
+                             data-qa="new-sequence-btn"
                       @click="addSequenceItem()">
                 Create new sequence section
               </button>

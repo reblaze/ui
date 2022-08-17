@@ -7,7 +7,8 @@
             <div class="column">
               <div class="field is-grouped">
                 <div class="control" v-if="branchNames.length">
-                  <div class="select is-small">
+                  <div class="select is-small"
+                          data-qa="branch-selection">
                     <select v-model="selectedBranch"
                             title="Switch Branch"
                             @change="switchBranch()"
@@ -54,6 +55,7 @@
                   <span class="field has-addons">
                     <span class="control">
                       <button class="button is-small fork-branch-toggle"
+                                    data-qa="fork-branch-btn"
                               @click="toggleBranchFork()">
                         <span class="icon is-small">
                           <i class="fas fa-code-branch"></i>
@@ -64,6 +66,7 @@
                           v-if="forkBranchInputOpen">
                       <input class="input is-small fork-branch-input"
                              title="Forked branch name"
+                             data-qa="fork-branch-name-input"
                              @input="validateInput($event, isSelectedBranchForkNameValid)"
                              placeholder="Forked Branch Name"
                              v-model="forkBranchName"
@@ -71,6 +74,7 @@
                     </span>
                     <span class="control" v-if="forkBranchInputOpen">
                       <button class="button is-danger is-small fork-branch-cancel"
+                              data-qa="cancel-branch-fork-btn"
                               @click="toggleBranchFork">
                         <span class="icon is-small">
                           <i class="fas fa-times"></i>
@@ -79,6 +83,7 @@
                     </span>
                     <span class="control" v-if="forkBranchInputOpen">
                       <button class="button is-primary is-small fork-branch-confirm"
+                              data-qa="confirm-branch-fork-btn"
                               @click="forkBranch"
                               :disabled="!isSelectedBranchForkNameValid">
                         <span class="icon is-small">
@@ -93,6 +98,7 @@
                   <button class="button is-small download-branch-button"
                           :class="{'is-loading': isDownloadLoading}"
                           @click="downloadBranch()"
+                          data-qa="download-branch-btn"
                           title="Download branch">
                     <span class="icon is-small">
                       <i class="fas fa-download"></i>
@@ -104,6 +110,7 @@
                   <span class="field has-addons">
                     <span class="control">
                       <button class="button is-small has-text-danger delete-branch-toggle"
+                              data-qa="delete-branch-btn"
                               @click="toggleBranchDelete()">
                         <span class="icon is-small">
                           <i class="fas fa-trash"></i>
@@ -113,6 +120,7 @@
                     <span class="control is-expanded"
                           v-if="deleteBranchInputOpen">
                       <input class="input is-small delete-branch-input"
+                             data-qa="confirm-branch-name-input"
                              title="Confirm branch name"
                              placeholder="Confirm Branch Name"
                              v-model="deleteBranchName"
@@ -120,6 +128,7 @@
                     </span>
                     <span class="control" v-if="deleteBranchInputOpen">
                       <button class="button is-danger is-small delete-branch-cancel"
+                                     data-qa="cancel-delete-branch-btn"
                               @click="toggleBranchDelete">
                         <span class="icon is-small">
                           <i class="fas fa-times"></i>
@@ -128,6 +137,7 @@
                     </span>
                     <span class="control" v-if="deleteBranchInputOpen">
                       <button class="button is-primary is-small delete-branch-confirm"
+                              data-qa="confirm-delete-branch-btn"
                               @click="deleteBranch"
                               :disabled="!isSelectedBranchDeleteNameValid">
                         <span class="icon is-small">
