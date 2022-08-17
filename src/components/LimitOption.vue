@@ -15,7 +15,8 @@
         <div class="control select is-small is-fullwidth">
           <select v-model="selectedType"
                   class="option-type-selection"
-                  title="Type" data-qa="countby-dropdown">
+                  title="Type"
+                  data-qa="countby-dropdown">
             <option v-if="useDefaultSelf" value="self">HTTP request</option>
             <option v-for="(value, id) in options" :selected="value === selectedType" :value="id" :key="id"
                 :data-qa="`${value}`">
