@@ -39,7 +39,8 @@
           <div class="select is-fullwidth">
             <select v-model="selectedName"
                     class="option-attribute-selection"
-                    title="Name" data-qa="countby-key-dropdown">
+                    title="Name"
+                    data-qa="countby-key-dropdown">
               <option v-for="(value, id) in attributes" :value="id" :key="id" :data-qa="value">{{ value }}</option>
             </select>
           </div>
