@@ -1,6 +1,6 @@
 import ContentFilterRuleGroupEditor from '@/doc-editors/ContentFilterRuleGroupEditor.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
-import {shallowMount, Wrapper} from '@vue/test-utils'
+import {shallowMount} from '@vue/test-utils'
 import Vue from 'vue'
 import {ContentFilterRuleGroup, ContentFilterRule} from '@/types'
 import axios from 'axios'
@@ -9,7 +9,7 @@ jest.mock('axios')
 
 describe('ContentFilterRuleGroupEditor.vue', () => {
   let rules: ContentFilterRule[]
-  let wrapper: Wrapper<Vue>
+  let wrapper: any
   let selectedDoc: ContentFilterRuleGroup
   const ALL_RULES_NUMBER = 30
   const DOC_RULES_NUMBER = 25
@@ -49,7 +49,7 @@ describe('ContentFilterRuleGroupEditor.vue', () => {
       wrapper.setProps({selectedDoc})
     }
     wrapper = shallowMount(ContentFilterRuleGroupEditor, {
-      propsData: {
+      props: {
         selectedDoc,
         selectedBranch,
       },

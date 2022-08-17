@@ -27,8 +27,8 @@
              class="autocomplete-input input is-small"
              aria-haspopup="true"
              aria-controls="dropdown-menu"
-             @keyup.enter="selectValue"
-             @keyup.space="selectValue"
+             @keyup.enter="onEnter"
+             @keyup.space="onEnter"
              @keyup.down="focusNextSuggestion"
              @keyup.up="focusPreviousSuggestion"
              @keyup.esc="closeDropdown"
@@ -57,7 +57,7 @@
 
 <script lang="ts">
 import Utils from '@/assets/Utils'
-import Vue, {PropType, VueConstructor} from 'vue'
+import {PropType, defineComponent} from 'vue'
 
 export type AutocompleteSuggestion = {
   prefix?: string
@@ -66,20 +66,18 @@ export type AutocompleteSuggestion = {
 
 export type AutocompleteInputEvents = 'keyup' | 'keydown' | 'keypress' | 'focus' | 'blur'
 
-export default (Vue as VueConstructor<Vue & {
-  $refs: {
-    autocompleteInput: HTMLInputElement
-  },
-  divider: string,
-  autocompleteValue: string,
-}>).extend({
+export type InputTypes = 'input' | 'textarea'
+
+export default defineComponent({
   name: 'AutocompleteInput',
+
+  // const autocompleteInput = ref(0),
 
   props: {
     inputType: {
       type: String,
       default: 'input',
-      validator: (val: string) => ['input', 'textarea'].includes(val),
+      validator: (val: InputTypes) => ['input', 'textarea'].includes(val),
     },
     initialValue: {
       type: String,
@@ -93,7 +91,7 @@ export default (Vue as VueConstructor<Vue & {
     autoFocus: Boolean,
     selectionType: {
       type: String,
-      validator(val) {
+      validator(val: string) {
         if (!val) {
           return false
         }
@@ -114,22 +112,24 @@ export default (Vue as VueConstructor<Vue & {
   },
 
   watch: {
-    initialValue(newVal) {
-      if (this.skipNextWatchUpdate) {
-        this.skipNextWatchUpdate = false
-        return
-      }
-      const newValFiltered = this.filterFunction ? this.filterFunction(newVal) : newVal
-      if (this.autocompleteValue !== newVal) {
-        this.autocompleteValue = newValFiltered
-        this.closeDropdown()
-      }
+    initialValue: {
+      handler(newVal) {
+        if (this.skipNextWatchUpdate) {
+          this.skipNextWatchUpdate = false
+          return
+        }
+        const newValFiltered = this.filterFunction ? this.filterFunction(newVal) : newVal
+        if (this.autocompleteValue !== newVal) {
+          this.autocompleteValue = newValFiltered
+          this.closeDropdown()
+        }
+      },
     },
   },
 
   mounted() {
     const events: AutocompleteInputEvents[] = ['keyup', 'keydown', 'keypress', 'focus', 'blur']
-    events.map((event) => {
+    events.map((event: string) => {
       this.$refs.autocompleteInput.addEventListener(event,
           ($event: Event): void => {
             this.$emit(event, $event)
@@ -234,7 +234,7 @@ export default (Vue as VueConstructor<Vue & {
       this.skipNextWatchUpdate = true
     },
 
-    moveCursorToEnd(event: KeyboardEvent) {
+    moveCursorToEnd(event: Event) {
       const element = event.target as HTMLTextAreaElement
       element.focus()
       element.setSelectionRange(element.value.length, element.value.length)
@@ -264,10 +264,14 @@ export default (Vue as VueConstructor<Vue & {
       this.valueSubmitted()
     },
 
-    onInput({target}: KeyboardEvent) {
-      this.autocompleteValue = (target as HTMLTextAreaElement).value
+    onInput(event: Event) {
+      this.autocompleteValue = (event.target as HTMLTextAreaElement).value
       this.openDropdown()
       this.valueSubmitted()
+    },
+
+    onEnter(event: Event) {
+      this.selectValue(true)
     },
 
     selectValue(skipFocus?: boolean) {

@@ -142,7 +142,7 @@ export const responseActions = {
   'request_header': {'title': 'Header', 'params': {'headers': ''}},
 }
 
-export default Vue.extend({
+export default Vue.defineComponent({
   name: 'ResponseAction',
   props: {
     action: Object as PropType<ResponseActionType>,
@@ -182,6 +182,7 @@ export default Vue.extend({
       return !this.labelSeparatedLine && !!this.label
     },
   },
+  emits: ['update:action'],
   methods: {
     emitActionUpdate() {
       this.$emit('update:action', this.localAction)

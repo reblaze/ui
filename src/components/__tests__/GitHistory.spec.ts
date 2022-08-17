@@ -1,6 +1,6 @@
 import GitHistory from '@/components/GitHistory.vue'
 import {describe, test, expect, beforeEach} from '@jest/globals'
-import {mount, Wrapper} from '@vue/test-utils'
+import {mount, VueWrapper} from '@vue/test-utils'
 
 describe('GitHistory.vue', () => {
   // Number of log items = 7
@@ -77,10 +77,10 @@ describe('GitHistory.vue', () => {
     },
   ]
   const apiPath = '/conf/api/v2/configs/master/d/aclprofiles/e/__default__/v/'
-  let wrapper: Wrapper<Vue>
+  let wrapper: any
   beforeEach(() => {
     wrapper = mount(GitHistory, {
-      propsData: {
+      props: {
         gitLog,
         apiPath,
       },
@@ -114,7 +114,7 @@ describe('GitHistory.vue', () => {
     test('should not render footer if less than five items are present', async () => {
       const shortGitLog = gitLog.slice(0, 4)
       wrapper = mount(GitHistory, {
-        propsData: {
+        props: {
           gitLog: shortGitLog,
           apiPath,
         },

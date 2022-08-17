@@ -16,7 +16,7 @@
 import {version} from '@/../package.json'
 import Vue from 'vue'
 
-export default Vue.extend({
+export default Vue.defineComponent({
 
   name: 'HeaderMain',
   data() {

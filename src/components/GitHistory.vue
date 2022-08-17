@@ -77,7 +77,7 @@ import Vue, {PropType} from 'vue'
 import {Commit} from '@/types'
 import DateTimeUtils from '@/assets/DateTimeUtils'
 
-export default Vue.extend({
+export default Vue.defineComponent({
   name: 'GitHistory',
 
   props: {
@@ -105,7 +105,7 @@ export default Vue.extend({
       return this.gitLog.slice(0, this.init_max_rows)
     },
   },
-
+  emits: ['restore-version'],
   methods: {
     restoreVersion(commit: Commit) {
       this.$emit('restore-version', commit)

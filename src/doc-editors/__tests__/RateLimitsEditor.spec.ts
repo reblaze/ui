@@ -2,7 +2,7 @@ import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
 import LimitOption from '@/components/LimitOption.vue'
 import ResponseAction from '@/components/ResponseAction.vue'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
-import {mount, shallowMount, Wrapper} from '@vue/test-utils'
+import {mount, shallowMount} from '@vue/test-utils'
 import Vue from 'vue'
 import {RateLimit, SecurityPolicy} from '@/types'
 import axios from 'axios'
@@ -15,7 +15,7 @@ describe('RateLimitsEditor.vue', () => {
   let rateLimitsDocs: RateLimit[]
   let securityPoliciesDocs: SecurityPolicy[]
   let mockRouter: any
-  let wrapper: Wrapper<Vue>
+  let wrapper: any
   let enableListener: Boolean
   beforeEach(() => {
     rateLimitsDocs = [{
@@ -109,7 +109,7 @@ describe('RateLimitsEditor.vue', () => {
     }
     enableListener = false
     wrapper = mount(RateLimitsEditor, {
-      propsData: {
+      props: {
         selectedDoc: rateLimitsDocs[0],
         selectedBranch: 'master',
       },
@@ -238,7 +238,7 @@ describe('RateLimitsEditor.vue', () => {
     test('should handle key with no value', async () => {
       rateLimitsDocs[0].key = [{'headers': null}]
       wrapper = mount(RateLimitsEditor, {
-        propsData: {
+        props: {
           selectedDoc: rateLimitsDocs[0],
         },
       })
@@ -294,7 +294,7 @@ describe('RateLimitsEditor.vue', () => {
       try {
         rateLimitsDocs[0].key = [{'headers': null}, undefined]
         wrapper = mount(RateLimitsEditor, {
-          propsData: {
+          props: {
             selectedDoc: rateLimitsDocs[0],
           },
         })
@@ -362,7 +362,7 @@ describe('RateLimitsEditor.vue', () => {
     test('should handle key with no value', async () => {
       rateLimitsDocs[0].pairwith = {'self': null}
       wrapper = mount(RateLimitsEditor, {
-        propsData: {
+        props: {
           selectedDoc: rateLimitsDocs[0],
         },
       })
@@ -391,7 +391,7 @@ describe('RateLimitsEditor.vue', () => {
       try {
         delete rateLimitsDocs[0].pairwith
         wrapper = mount(RateLimitsEditor, {
-          propsData: {
+          props: {
             selectedDoc: rateLimitsDocs[0],
           },
         })
@@ -524,7 +524,7 @@ describe('RateLimitsEditor.vue', () => {
       securityPoliciesDocs[0].map[1].limit_ids.push(rateLimitsDocs[0].id)
       securityPoliciesDocs[1].map[1].limit_ids.push(rateLimitsDocs[0].id)
       wrapper = shallowMount(RateLimitsEditor, {
-        propsData: {
+        props: {
           selectedDoc: rateLimitsDocs[0],
           selectedBranch: 'master',
         },

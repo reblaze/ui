@@ -150,9 +150,9 @@
         <component
             v-if="selectedBranch && selectedDocType && selectedDoc"
             :is="componentsMap[selectedDocType].component"
-            :selectedBranch.sync="selectedBranch"
-            :selectedDoc.sync="selectedDoc"
-            :docs.sync="docs"
+            v-model="selectedBranch"
+            :selectedDoc="selectedDoc"
+            :docs="docs"
             :apiPath="documentAPIPath"
             @form-invalid="isDocumentInvalid = $event"
             ref="currentComponent">
@@ -188,7 +188,7 @@
             <span v-else-if="!Object.keys(componentsMap).includes(selectedDocType)">
               Missing document type. Please select one from the dropdown above
             </span>
-            <span v-else-if="!docIdNames.find((docIdName) => docIdName.includes(selectedDoc))">
+            <span v-else-if="!docIdNames.find((docIdName) => docIdName[0].includes(selectedDoc.id))">
               Missing document. To create a new one, click
               <a title="Add new"
                  @click="addNewDoc()">
@@ -204,9 +204,9 @@
 
 <script lang="ts">
 import _ from 'lodash'
-import DatasetsUtils from '@/assets/DatasetsUtils.ts'
-import RequestsUtils from '@/assets/RequestsUtils.ts'
-import Utils from '@/assets/Utils.ts'
+import DatasetsUtils from '@/assets/DatasetsUtils'
+import RequestsUtils from '@/assets/RequestsUtils'
+import Utils from '@/assets/Utils'
 import ACLEditor from '@/doc-editors/ACLEditor.vue'
 import ContentFilterEditor from '@/doc-editors/ContentFilterProfileEditor.vue'
 import ContentFilterRulesEditor from '@/doc-editors/ContentFilterRulesEditor.vue'
@@ -216,11 +216,11 @@ import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
 import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
-import Vue from 'vue'
+import {defineComponent} from 'vue'
 import {BasicDocument, Commit, Document, DocumentType, HttpRequestMethods, SecurityPolicy} from '@/types'
 import axios, {AxiosResponse} from 'axios'
 
-export default Vue.extend({
+export default defineComponent({
 
   name: 'DocumentEditor',
   props: {},
@@ -306,7 +306,7 @@ export default Vue.extend({
         return this.docs?.[this.selectedDocIndex]
       },
       set(newDoc): void {
-        this.$set(this.docs, this.selectedDocIndex, newDoc)
+        this.docs[this.selectedDocIndex] = newDoc
       },
     },
 

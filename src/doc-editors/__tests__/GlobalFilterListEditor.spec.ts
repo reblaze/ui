@@ -1,6 +1,6 @@
 import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
-import {shallowMount, Wrapper} from '@vue/test-utils'
+import {shallowMount} from '@vue/test-utils'
 import {GlobalFilter, GlobalFilterSectionEntry} from '@/types'
 import Vue from 'vue'
 import ResponseAction from '@/components/ResponseAction.vue'
@@ -13,7 +13,7 @@ jest.mock('axios')
 
 describe('GlobalFilterListEditor.vue', () => {
   let docs: GlobalFilter[]
-  let wrapper: Wrapper<Vue>
+  let wrapper: any
   beforeEach(() => {
     docs = [{
       'id': 'xlbp148c',
@@ -71,7 +71,7 @@ describe('GlobalFilterListEditor.vue', () => {
       },
     }]
     wrapper = shallowMount(GlobalFilterListEditor, {
-      propsData: {
+      props: {
         selectedDoc: docs[0],
       },
     })
@@ -129,7 +129,7 @@ describe('GlobalFilterListEditor.vue', () => {
       test('should display correct zero amount of sections', async () => {
         docs[0].rule.sections = []
         wrapper = shallowMount(GlobalFilterListEditor, {
-          propsData: {
+          props: {
             selectedDoc: docs[0],
           },
         })
@@ -143,7 +143,7 @@ describe('GlobalFilterListEditor.vue', () => {
           {'relation': 'OR', 'entries': []},
         ]
         wrapper = shallowMount(GlobalFilterListEditor, {
-          propsData: {
+          props: {
             selectedDoc: docs[0],
           },
         })
@@ -157,7 +157,7 @@ describe('GlobalFilterListEditor.vue', () => {
           {'relation': 'OR', 'entries': [['ip', '1.1.1.1', null]]},
         ]
         wrapper = shallowMount(GlobalFilterListEditor, {
-          propsData: {
+          props: {
             selectedDoc: docs[0],
           },
         })
@@ -171,7 +171,7 @@ describe('GlobalFilterListEditor.vue', () => {
           {'relation': 'OR', 'entries': [['ip', '1.1.1.1', null]]},
         ]
         wrapper = shallowMount(GlobalFilterListEditor, {
-          propsData: {
+          props: {
             selectedDoc: docs[0],
           },
         })
@@ -197,7 +197,7 @@ describe('GlobalFilterListEditor.vue', () => {
     beforeEach(async () => {
       docs[0].source = 'https://example.com'
       wrapper = shallowMount(GlobalFilterListEditor, {
-        propsData: {
+        props: {
           selectedDoc: docs[0],
         },
       })
@@ -264,7 +264,7 @@ describe('GlobalFilterListEditor.vue', () => {
     test('should set tags input to be an empty string if document tags do not exist', async () => {
       delete docs[0].tags
       wrapper = shallowMount(GlobalFilterListEditor, {
-        propsData: {
+        props: {
           selectedDoc: docs[0],
         },
       })
@@ -276,7 +276,7 @@ describe('GlobalFilterListEditor.vue', () => {
     test('should set tags input to be an empty string if document tags is empty', async () => {
       docs[0].tags = []
       wrapper = shallowMount(GlobalFilterListEditor, {
-        propsData: {
+        props: {
           selectedDoc: docs[0],
         },
       })
@@ -289,9 +289,9 @@ describe('GlobalFilterListEditor.vue', () => {
   describe('rule relation', () => {
     // AND - span at 0
     // OR - span at 1
-    let container: Wrapper<Vue>
-    let andElement: Wrapper<Vue>
-    let orElement: Wrapper<Vue>
+    let container: any
+    let andElement: any
+    let orElement: any
     beforeEach(() => {
       container = wrapper.find('.document-sections-relation')
       andElement = container.findAll('span').at(0)
@@ -377,7 +377,7 @@ describe('GlobalFilterListEditor.vue', () => {
       })
       docs[0].source = 'https://example.com'
       wrapper = shallowMount(GlobalFilterListEditor, {
-        propsData: {
+        props: {
           selectedDoc: docs[0],
         },
       })

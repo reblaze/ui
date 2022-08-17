@@ -1,12 +1,13 @@
 module.exports = {
-  'root': [
-    'plugin:vue/vue3-essential',
-    'eslint:recommended',
-    '@vue/typescript',
-    'google',
-    '@vue/typescript/recommended',
-    'plugin:prettier/recommended',
-  ],
+  'root': true,
+  // [
+  //   'plugin:vue/vue3-essential',
+  //   'eslint:recommended',
+  //   '@vue/typescript',
+  //   'google',
+  //   '@vue/typescript/recommended',
+  //   'plugin:prettier/recommended',
+  // ],
 
   'env': {
     'browser': true,

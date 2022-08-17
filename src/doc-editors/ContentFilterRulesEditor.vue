@@ -17,8 +17,7 @@
                     <input class="input is-small document-name"
                            title="Document name"
                            placeholder="Document name"
-                           v-model="localDoc.name"
-                           @change="emitDocUpdate()"/>
+                           v-model="localDoc.name"/>
                   </div>
                 </div>
                 <div class="field textarea-field">
@@ -122,18 +121,18 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import {defineComponent} from 'vue'
 import {ContentFilterRule} from '@/types'
 import _ from 'lodash'
 
-export default Vue.extend({
+export default defineComponent({
   name: 'ContentFilterRulesEditor',
   props: {
     selectedDoc: Object,
   },
   computed: {
     localDoc(): ContentFilterRule {
-      return _.cloneDeep(this.selectedDoc)
+      return _.cloneDeep(this.selectedDoc as ContentFilterRule)
     },
 
     selectedDocTags: {

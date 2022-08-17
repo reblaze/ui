@@ -92,7 +92,7 @@
               </p>
             </div>
             <div class="field">
-              <response-action :action.sync="localDoc.action"
+              <response-action v-model="localDoc.action"
                                :ignore="['ban']"
                                @update:action="emitDocUpdate"
                                label-separated-line
@@ -123,7 +123,7 @@
 
           </div>
           <div class="column is-9">
-            <entries-relation-list :rule.sync="localDoc.rule"
+            <entries-relation-list v-model="localDoc.rule"
                                    :editable="editable"
                                    ref="entriesRelationList"
                                    @update:rule="emitDocUpdate"
@@ -139,16 +139,16 @@
 
 <script lang="ts">
 import _ from 'lodash'
-import RequestsUtils from '@/assets/RequestsUtils.ts'
+import RequestsUtils from '@/assets/RequestsUtils'
 import ResponseAction from '@/components/ResponseAction.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import EntriesRelationList from '@/components/EntriesRelationList.vue'
-import Vue from 'vue'
+import {defineComponent} from 'vue'
 import {Category, Relation, GlobalFilter, GlobalFilterSection, GlobalFilterSectionEntry} from '@/types'
 import {AxiosResponse} from 'axios'
 import DateTimeUtils from '@/assets/DateTimeUtils'
 
-export default Vue.extend({
+export default defineComponent({
   name: 'GlobalFilterListEditor',
 
   components: {
@@ -156,6 +156,8 @@ export default Vue.extend({
     EntriesRelationList,
     TagAutocompleteInput,
   },
+
+  emits: ['update:selectedDoc', 'form-invalid'],
 
   props: {
     selectedDoc: Object,
@@ -211,7 +213,7 @@ export default Vue.extend({
     },
 
     localDoc(): GlobalFilter {
-      return _.cloneDeep(this.selectedDoc)
+      return _.cloneDeep(this.selectedDoc as GlobalFilter)
     },
 
     localDocTotalEntries(): number {

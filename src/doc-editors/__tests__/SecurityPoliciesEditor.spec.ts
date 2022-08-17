@@ -1,6 +1,6 @@
 import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
-import {shallowMount, Wrapper} from '@vue/test-utils'
+import {shallowMount} from '@vue/test-utils'
 import {ACLProfile, ContentFilterProfile, RateLimit, SecurityPolicy} from '@/types'
 import axios from 'axios'
 import Vue from 'vue'
@@ -14,7 +14,7 @@ describe('SecurityPoliciesEditor.vue', () => {
   let contentFilterDocs: ContentFilterProfile[]
   let rateLimitsDocs: RateLimit[]
   let selectedBranch: string
-  let wrapper: Wrapper<Vue>
+  let wrapper: any
   let mockRouter
   let axiosGetSpy: any
   beforeEach(() => {
@@ -288,7 +288,7 @@ describe('SecurityPoliciesEditor.vue', () => {
       push: jest.fn(),
     }
     wrapper = shallowMount(SecurityPoliciesEditor, {
-      propsData: {
+      props: {
         selectedDoc: securityPoliciesDocs[0],
         selectedBranch,
       },
@@ -332,7 +332,7 @@ describe('SecurityPoliciesEditor.vue', () => {
       ],
     }
     wrapper = shallowMount(SecurityPoliciesEditor, {
-      propsData: {
+      props: {
         selectedDoc: basicDataPolicy,
         selectedBranch,
       },
@@ -378,7 +378,7 @@ describe('SecurityPoliciesEditor.vue', () => {
       ],
     }
     wrapper = shallowMount(SecurityPoliciesEditor, {
-      propsData: {
+      props: {
         selectedDoc: basicDataPolicy,
         selectedBranch,
       },
@@ -926,9 +926,9 @@ describe('SecurityPoliciesEditor.vue', () => {
     })
 
     describe('validation after add or remove map entries', () => {
-      let currentEntryRow: Wrapper<Vue>
-      let forkButton: Wrapper<Vue>
-      let removeButton: Wrapper<Vue>
+      let currentEntryRow: any
+      let forkButton: any
+      let removeButton: any
       beforeEach(async () => {
         const table = wrapper.find('.entries-table')
         const entryRow = table.findAll('.entry-row').at(1)
@@ -1063,8 +1063,8 @@ describe('SecurityPoliciesEditor.vue', () => {
   })
 
   describe('add and remove map entries', () => {
-    let forkButton: Wrapper<Vue>
-    let removeButton: Wrapper<Vue>
+    let forkButton: any
+    let removeButton: any
     beforeEach(async () => {
       const table = wrapper.find('.entries-table')
       const entryRow = table.findAll('.entry-row').at(1)
@@ -1274,7 +1274,7 @@ describe('SecurityPoliciesEditor.vue', () => {
       document.body.appendChild(elem)
     }
     wrapper = shallowMount(SecurityPoliciesEditor, {
-      propsData: {
+      props: {
         selectedDoc: securityPoliciesDocs[0],
         selectedBranch,
       },

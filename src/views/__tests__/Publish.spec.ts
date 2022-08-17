@@ -1,6 +1,6 @@
 import Publish from '@/views/Publish.vue'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
-import {mount, Wrapper} from '@vue/test-utils'
+import {mount} from '@vue/test-utils'
 import axios from 'axios'
 import Vue from 'vue'
 import {Branch} from '@/types'
@@ -10,7 +10,7 @@ import {Options} from 'bulma-toast'
 jest.mock('axios')
 
 describe('Publish.vue', () => {
-  let wrapper: Wrapper<Vue>
+  let wrapper: any
   let gitData: Branch[]
   let publishInfoData: any
   beforeEach(async () => {
@@ -340,7 +340,7 @@ describe('Publish.vue', () => {
   })
 
   describe('publish button', () => {
-    let publishButton: Wrapper<Vue>
+    let publishButton: any
     let putSpy: any
     beforeEach(() => {
       jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve({data: {}}))
@@ -404,7 +404,7 @@ describe('Publish.vue', () => {
   })
 
   describe('publish request succeeded with okay status true', () => {
-    let publishButton: Wrapper<Vue>
+    let publishButton: any
     let response: any
     let successMessage: string
     let successMessageClass: string
@@ -465,7 +465,7 @@ describe('Publish.vue', () => {
   })
 
   describe('publish request succeeded with okay status false', () => {
-    let publishButton: Wrapper<Vue>
+    let publishButton: any
     let response: any
     let failureMessage: string
     let failureMessageClass: string
@@ -532,7 +532,7 @@ describe('Publish.vue', () => {
   })
 
   describe('publish request failed', () => {
-    let publishButton: Wrapper<Vue>
+    let publishButton: any
     let failureMessage: string
     let failureMessageClass: string
     let toastOutput: Options[]

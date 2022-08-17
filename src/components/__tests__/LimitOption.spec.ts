@@ -1,18 +1,18 @@
 // @ts-ignore
 import LimitOption, {OptionObject} from '@/components/LimitOption.vue'
 import {beforeEach, describe, expect, test} from '@jest/globals'
-import {mount, Wrapper} from '@vue/test-utils'
+import {mount} from '@vue/test-utils'
 import Vue from 'vue'
 
 describe('LimitOption.vue', () => {
   let option: OptionObject
-  let wrapper: Wrapper<Vue>
+  let wrapper: any
   beforeEach(async () => {
     option = {
       type: 'self',
     }
     wrapper = mount(LimitOption, {
-      propsData: {
+      props: {
         option: option,
         useDefaultSelf: true,
         useValue: true,
@@ -45,7 +45,7 @@ describe('LimitOption.vue', () => {
   describe('label prop', () => {
     test('should not render label if no label provided', () => {
       wrapper = mount(LimitOption, {
-        propsData: {
+        props: {
           option: option,
         },
       })
@@ -56,7 +56,7 @@ describe('LimitOption.vue', () => {
     test('should render label', () => {
       const wantedLabel = 'Test'
       wrapper = mount(LimitOption, {
-        propsData: {
+        props: {
           option: option,
           label: wantedLabel,
         },
@@ -69,7 +69,7 @@ describe('LimitOption.vue', () => {
   describe('showRemove prop', () => {
     test('should show button if showRemove prop is true', async () => {
       wrapper = mount(LimitOption, {
-        propsData: {
+        props: {
           option: option,
           showRemove: true,
         },
@@ -81,7 +81,7 @@ describe('LimitOption.vue', () => {
 
     test('should not show button if showRemove prop is false', async () => {
       wrapper = mount(LimitOption, {
-        propsData: {
+        props: {
           option: option,
           showRemove: false,
         },
@@ -93,7 +93,7 @@ describe('LimitOption.vue', () => {
 
     test('should not show button if showRemove prop does not exist', async () => {
       wrapper = mount(LimitOption, {
-        propsData: {
+        props: {
           option: option,
         },
       })
@@ -109,7 +109,7 @@ describe('LimitOption.vue', () => {
         type: 'attrs',
       }
       wrapper = mount(LimitOption, {
-        propsData: {
+        props: {
           option: option,
           ignoreAttributes: ['tags', 'method'],
         },
@@ -132,7 +132,7 @@ describe('LimitOption.vue', () => {
         type: 'attrs',
       }
       wrapper = mount(LimitOption, {
-        propsData: {
+        props: {
           option: option,
           ignoreAttributes: ['ip', 'uri', 'country'],
         },
@@ -154,7 +154,7 @@ describe('LimitOption.vue', () => {
         type: 'attrs',
       }
       wrapper = mount(LimitOption, {
-        propsData: {
+        props: {
           option: option,
           ignoreAttributes: [],
         },
@@ -405,7 +405,7 @@ describe('LimitOption.vue', () => {
       describe('semi-given options prop', () => {
         beforeEach(async () => {
           wrapper = mount(LimitOption, {
-            propsData: {
+            props: {
               option: {
                 oldKey: '',
               },
@@ -462,7 +462,7 @@ describe('LimitOption.vue', () => {
       describe('no options prop', () => {
         beforeEach(async () => {
           wrapper = mount(LimitOption, {
-            propsData: {
+            props: {
               option: undefined,
               useValue: true,
             },
@@ -518,7 +518,7 @@ describe('LimitOption.vue', () => {
     describe('remove', () => {
       test('should emit remove correctly', async () => {
         wrapper = mount(LimitOption, {
-          propsData: {
+          props: {
             option: option,
             showRemove: true,
             removable: true,
@@ -533,7 +533,7 @@ describe('LimitOption.vue', () => {
 
       test('should not emit key change if removable prop is false', async () => {
         wrapper = mount(LimitOption, {
-          propsData: {
+          props: {
             option: option,
             showRemove: true,
             removable: false,

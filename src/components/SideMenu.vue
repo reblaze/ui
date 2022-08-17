@@ -15,16 +15,16 @@
           </a>
           <router-link v-else
                        :data-curie="menuItemKey"
-                       :to="menuItemKey"
-                       :class="{ 'is-active': currentRoutePath.includes(menuItemKey) }">
+                       :to="menuItemKey as string"
+                       :class="{ 'is-active': currentRoutePath.includes(menuItemKey as string) }">
             {{ menuItemDetails.title }}
           </router-link>
           <ul v-if="menuItemDetails.items"
               class="my-0">
             <li v-for="(menuSubItemDetails, menuSubItemKey) in menuItemDetails.items" :key="menuSubItemKey">
               <router-link :data-curie="menuSubItemKey"
-                           :to="menuSubItemKey"
-                           :class="{ 'is-active': currentRoutePath.includes(menuSubItemKey) }">
+                           :to="menuSubItemKey.toString"
+                           :class="{ 'is-active': currentRoutePath.includes(menuSubItemKey.toString()) }">
                 {{ menuSubItemDetails.title }}
               </router-link>
             </li>
@@ -37,7 +37,7 @@
 </template>
 
 <script lang="ts">
-import RequestsUtils from '@/assets/RequestsUtils.ts'
+import RequestsUtils from '@/assets/RequestsUtils'
 import Vue from 'vue'
 
 type menuItem = {
@@ -49,7 +49,7 @@ type menuItem = {
   }
 }
 
-export default Vue.extend({
+export default Vue.defineComponent({
   name: 'SideMenu',
   data() {
     const swaggerURL = `${location.protocol}//${location.hostname}:30000/api/v2/`

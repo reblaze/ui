@@ -1,6 +1,6 @@
 import DocumentSearch from '@/views/DocumentSearch.vue'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
-import {shallowMount, Wrapper} from '@vue/test-utils'
+import {shallowMount} from '@vue/test-utils'
 import axios from 'axios'
 import Vue from 'vue'
 import {
@@ -18,7 +18,7 @@ jest.useFakeTimers()
 jest.mock('axios')
 
 describe('DocumentSearch.vue', () => {
-  let wrapper: Wrapper<Vue>
+  let wrapper: any
   let mockRouter
   let gitData: Branch[]
   let aclDocs: ACLProfile[]
@@ -437,7 +437,7 @@ describe('DocumentSearch.vue', () => {
     const isInModel = (wrapper.vm as any).filteredDocs.some((doc: any) => {
       return doc.id === item.id && doc.docType === doctype
     })
-    const isInView = wrapper.findAll('.doc-id-cell').filter((w) => {
+    const isInView = wrapper.findAll('.doc-id-cell').filter((w: any) => {
       return w.text().includes(item.id)
     }).length > 0
     return isInModel && isInView

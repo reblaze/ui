@@ -21,14 +21,14 @@
 
 <script lang="ts">
 import _ from 'lodash'
-import RequestsUtils from '@/assets/RequestsUtils.ts'
+import RequestsUtils from '@/assets/RequestsUtils'
 import AutocompleteInput, {AutocompleteInputEvents, AutocompleteSuggestion} from '@/components/AutocompleteInput.vue'
 import Vue from 'vue'
 import {AxiosResponse} from 'axios'
 import {TagsNamespaceValue} from '@/types'
 import Utils from '@/assets/Utils'
 
-export default Vue.extend({
+export default Vue.defineComponent({
   name: 'TagAutocompleteInput',
 
   components: {
@@ -37,8 +37,8 @@ export default Vue.extend({
 
   props: {
     initialTag: {
-      type: String,
       default: '',
+      type: String,
     },
     clearInputAfterSelection: {
       type: Boolean,
@@ -50,7 +50,7 @@ export default Vue.extend({
     },
     selectionType: {
       type: String,
-      validator(val) {
+      validator(val: String) {
         if (!val) {
           return false
         }
@@ -103,7 +103,7 @@ export default Vue.extend({
 
     currentTag(): string {
       let currentTag
-      if (this?.selectionType.toLowerCase() === 'multiple') {
+      if (this?.selectionType === 'multiple') {
         const tags = this.tag.split(' ')
         currentTag = tags[tags.length - 1].trim()
       } else {
@@ -113,7 +113,7 @@ export default Vue.extend({
     },
 
     inputTitle(): string {
-      return this.selectionType.toLowerCase() === 'multiple' ? 'Space separated tags' : 'Tag'
+      return this.selectionType === 'multiple' ? 'Space separated tags' : 'Tag'
     },
   },
 
@@ -245,7 +245,7 @@ export default Vue.extend({
 @import 'node_modules/bulma/sass/utilities/derived-variables.sass';
 @import 'node_modules/bulma/sass/helpers/color.sass';
 
-::v-deep .dot {
+:deep(.dot) {
   @extend .has-background-info;
   border-radius: 50%;
   display: inline-block;
@@ -255,15 +255,15 @@ export default Vue.extend({
   width: 0.5rem;
 }
 
-::v-deep .dot.legitimate {
+:deep(.dot.legitimate) {
   @extend .has-background-success;
 }
 
-::v-deep .dot.malicious {
+:deep(.dot.malicious) {
   @extend .has-background-danger;
 }
 
-::v-deep .dot.neutral {
+:deep(.dot.neutral) {
   @extend .has-background-grey-light ;
 }
 </style>

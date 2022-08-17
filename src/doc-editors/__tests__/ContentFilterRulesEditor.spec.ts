@@ -1,12 +1,12 @@
 import ContentFilterRulesEditor from '@/doc-editors/ContentFilterRulesEditor.vue'
 import {beforeEach, describe, expect, test} from '@jest/globals'
-import {shallowMount, Wrapper} from '@vue/test-utils'
+import {shallowMount} from '@vue/test-utils'
 import Vue from 'vue'
 import {ContentFilterRule} from '@/types'
 
 describe('ContentFilterRulesEditor.vue', () => {
   let docs: ContentFilterRule[]
-  let wrapper: Wrapper<Vue>
+  let wrapper: any
   beforeEach(async () => {
     docs = [{
       'id': '100000',
@@ -20,7 +20,7 @@ describe('ContentFilterRulesEditor.vue', () => {
       'tags': [],
     }]
     wrapper = shallowMount(ContentFilterRulesEditor, {
-      propsData: {
+      props: {
         selectedDoc: docs[0],
       },
     })

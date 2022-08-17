@@ -3,7 +3,7 @@ import LimitOption from '@/components/LimitOption.vue'
 import ResponseAction from '@/components/ResponseAction.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import {beforeEach, describe, expect, test, jest} from '@jest/globals'
-import {shallowMount, Wrapper} from '@vue/test-utils'
+import {shallowMount} from '@vue/test-utils'
 import Vue from 'vue'
 import axios from 'axios'
 import {FlowControlPolicy} from '@/types'
@@ -12,7 +12,7 @@ jest.mock('axios')
 
 describe('FlowControlPolicyEditor.vue', () => {
   let docs: FlowControlPolicy[]
-  let wrapper: Wrapper<Vue>
+  let wrapper: any
   beforeEach(() => {
     docs = [
       {
@@ -59,7 +59,7 @@ describe('FlowControlPolicyEditor.vue', () => {
       },
     ]
     wrapper = shallowMount(FlowControlPolicyEditor, {
-      propsData: {
+      props: {
         selectedDoc: docs[0],
       },
     })
@@ -138,7 +138,7 @@ describe('FlowControlPolicyEditor.vue', () => {
     test('should handle key with no value', async () => {
       docs[0].key = [{'headers': null}]
       wrapper = shallowMount(FlowControlPolicyEditor, {
-        propsData: {
+        props: {
           selectedDoc: docs[0],
         },
       })

@@ -1,6 +1,6 @@
 import ContentFilterEditor from '@/doc-editors/ContentFilterProfileEditor.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
-import {shallowMount, Wrapper} from '@vue/test-utils'
+import {shallowMount} from '@vue/test-utils'
 import Vue from 'vue'
 import {
   ArgsCookiesHeadersType,
@@ -20,7 +20,7 @@ jest.mock('axios')
 
 describe('ContentFilterProfileEditor.vue', () => {
   let docs: ContentFilterProfile[]
-  let wrapper: Wrapper<Vue>
+  let wrapper: any
   let contentFilterRulesDocs: ContentFilterRule[]
   let contentFilterGroupsDocs: ContentFilterRuleGroup[]
   beforeEach(async () => {
@@ -135,7 +135,7 @@ describe('ContentFilterProfileEditor.vue', () => {
       wrapper.setProps({selectedDoc: doc})
     }
     wrapper = shallowMount(ContentFilterEditor, {
-      propsData: {
+      props: {
         selectedDoc: docs[0],
         selectedBranch: 'master',
       },
@@ -222,7 +222,7 @@ describe('ContentFilterProfileEditor.vue', () => {
           max_length: 0,
         }
         wrapper = shallowMount(ContentFilterEditor, {
-          propsData: {
+          props: {
             selectedDoc: docsForNormalization[0],
             selectedBranch: 'master',
           },
@@ -294,7 +294,7 @@ describe('ContentFilterProfileEditor.vue', () => {
           'ignore': [],
         }]
         wrapper = shallowMount(ContentFilterEditor, {
-          propsData: {
+          props: {
             selectedDoc: docsShouldNotNormalize[0],
             selectedBranch: 'master',
           },
@@ -352,7 +352,7 @@ describe('ContentFilterProfileEditor.vue', () => {
 
       function buildNamesRegexDescribe(type: NamesRegexType, typeIndex: number) {
         describe(`type ${type}`, () => {
-          let newRow: Wrapper<Vue>
+          let newRow: any
 
           beforeEach(async () => {
             const button = wrapper.find('.new-parameter-button')

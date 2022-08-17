@@ -132,13 +132,13 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import {defineComponent} from 'vue'
 import {ContentFilterRuleGroup, ContentFilterRule} from '@/types'
 import _ from 'lodash'
 import {AxiosResponse} from 'axios'
 import RequestsUtils from '@/assets/RequestsUtils'
 
-export default Vue.extend({
+export default defineComponent({
   name: 'ContentFilterRuleGroupEditor',
   props: {
     selectedDoc: Object,
@@ -155,7 +155,7 @@ export default Vue.extend({
   },
   computed: {
     localDoc(): ContentFilterRuleGroup {
-      return _.cloneDeep(this.selectedDoc)
+      return _.cloneDeep(this.selectedDoc as ContentFilterRuleGroup)
     },
     localContentFilterRules(): ContentFilterRule[] {
       return this.contentFilterRules.filter(({id}) => !this.localDoc.content_filter_rule_ids?.includes(id))

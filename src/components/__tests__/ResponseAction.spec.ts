@@ -1,18 +1,18 @@
 import ResponseAction from '@/components/ResponseAction.vue'
 import {beforeEach, describe, expect, test} from '@jest/globals'
-import {mount, Wrapper} from '@vue/test-utils'
+import {mount} from '@vue/test-utils'
 import Vue from 'vue'
 import {ResponseActionType} from '@/types'
 
 describe('ResponseAction.vue', () => {
   let action: ResponseActionType
-  let wrapper: Wrapper<Vue>
+  let wrapper: any
   beforeEach(() => {
     action = {
       type: 'default',
     }
     wrapper = mount(ResponseAction, {
-      propsData: {
+      props: {
         action: action,
       },
     })
@@ -33,7 +33,7 @@ describe('ResponseAction.vue', () => {
   describe('label prop', () => {
     test('should render default label if no label provided', () => {
       wrapper = mount(ResponseAction, {
-        propsData: {
+        props: {
           action: action,
         },
       })
@@ -44,7 +44,7 @@ describe('ResponseAction.vue', () => {
     test('should render label', () => {
       const wantedLabel = 'Test'
       wrapper = mount(ResponseAction, {
-        propsData: {
+        props: {
           action: action,
           label: wantedLabel,
         },
@@ -57,7 +57,7 @@ describe('ResponseAction.vue', () => {
   describe('ignore prop', () => {
     test('should render dropdown correctly without ignored action types (default, ban)', () => {
       wrapper = mount(ResponseAction, {
-        propsData: {
+        props: {
           action: action,
           ignore: ['default', 'ban'],
         },
@@ -73,7 +73,7 @@ describe('ResponseAction.vue', () => {
 
     test('should render dropdown correctly without ignored action types (monitor, redirect, header)', () => {
       wrapper = mount(ResponseAction, {
-        propsData: {
+        props: {
           action: action,
           ignore: ['monitor', 'redirect', 'request_header'],
         },
@@ -88,7 +88,7 @@ describe('ResponseAction.vue', () => {
 
     test('should render dropdown correctly with all types if ignore is empty array', () => {
       wrapper = mount(ResponseAction, {
-        propsData: {
+        props: {
           action: action,
           ignore: [],
         },
@@ -219,7 +219,7 @@ describe('ResponseAction.vue', () => {
           },
         }
         wrapper = mount(ResponseAction, {
-          propsData: {
+          props: {
             action: action,
           },
         })
@@ -251,7 +251,7 @@ describe('ResponseAction.vue', () => {
           },
         }
         wrapper = mount(ResponseAction, {
-          propsData: {
+          props: {
             action: action,
           },
         })
@@ -285,7 +285,7 @@ describe('ResponseAction.vue', () => {
           },
         }
         wrapper = mount(ResponseAction, {
-          propsData: {
+          props: {
             action: action,
           },
         })
@@ -314,7 +314,7 @@ describe('ResponseAction.vue', () => {
           },
         }
         wrapper = mount(ResponseAction, {
-          propsData: {
+          props: {
             action: action,
           },
         })
@@ -343,7 +343,7 @@ describe('ResponseAction.vue', () => {
           },
         }
         wrapper = mount(ResponseAction, {
-          propsData: {
+          props: {
             action: action,
           },
         })
@@ -372,7 +372,7 @@ describe('ResponseAction.vue', () => {
           },
         }
         wrapper = mount(ResponseAction, {
-          propsData: {
+          props: {
             action: action,
           },
         })
@@ -405,7 +405,7 @@ describe('ResponseAction.vue', () => {
           },
         }
         wrapper = mount(ResponseAction, {
-          propsData: {
+          props: {
             action: action,
           },
         })
@@ -438,7 +438,7 @@ describe('ResponseAction.vue', () => {
           },
         }
         wrapper = mount(ResponseAction, {
-          propsData: {
+          props: {
             action: action,
           },
         })
@@ -464,7 +464,7 @@ describe('ResponseAction.vue', () => {
           },
         }
         wrapper = mount(ResponseAction, {
-          propsData: {
+          props: {
             action: action,
           },
         })
@@ -495,7 +495,7 @@ describe('ResponseAction.vue', () => {
           },
         }
         wrapper = mount(ResponseAction, {
-          propsData: {
+          props: {
             action: action,
           },
         })
@@ -524,7 +524,7 @@ describe('ResponseAction.vue', () => {
           },
         }
         wrapper = mount(ResponseAction, {
-          propsData: {
+          props: {
             action: action,
           },
         })
@@ -553,7 +553,7 @@ describe('ResponseAction.vue', () => {
           },
         }
         wrapper = mount(ResponseAction, {
-          propsData: {
+          props: {
             action: action,
           },
         })
@@ -582,7 +582,7 @@ describe('ResponseAction.vue', () => {
           },
         }
         wrapper = mount(ResponseAction, {
-          propsData: {
+          props: {
             action: action,
           },
         })
@@ -615,7 +615,7 @@ describe('ResponseAction.vue', () => {
           },
         }
         wrapper = mount(ResponseAction, {
-          propsData: {
+          props: {
             action: action,
           },
         })
@@ -648,7 +648,7 @@ describe('ResponseAction.vue', () => {
           },
         }
         wrapper = mount(ResponseAction, {
-          propsData: {
+          props: {
             action: action,
           },
         })
@@ -674,7 +674,7 @@ describe('ResponseAction.vue', () => {
           },
         }
         wrapper = mount(ResponseAction, {
-          propsData: {
+          props: {
             action: action,
           },
         })
@@ -694,7 +694,7 @@ describe('ResponseAction.vue', () => {
           type: 'default',
         }
         wrapper = mount(ResponseAction, {
-          propsData: {
+          props: {
             action: undefined,
           },
         })
@@ -715,7 +715,7 @@ describe('ResponseAction.vue', () => {
           type: 'response',
         }
         wrapper = mount(ResponseAction, {
-          propsData: {
+          props: {
             action: action,
           },
         })
@@ -736,7 +736,7 @@ describe('ResponseAction.vue', () => {
           type: 'redirect',
         }
         wrapper = mount(ResponseAction, {
-          propsData: {
+          props: {
             action: action,
           },
         })
@@ -759,7 +759,7 @@ describe('ResponseAction.vue', () => {
           type: 'ban',
         }
         wrapper = mount(ResponseAction, {
-          propsData: {
+          props: {
             action: action,
           },
         })
@@ -779,7 +779,7 @@ describe('ResponseAction.vue', () => {
           type: 'request_header',
         }
         wrapper = mount(ResponseAction, {
-          propsData: {
+          props: {
             action: action,
           },
         })

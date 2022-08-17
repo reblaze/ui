@@ -1,12 +1,13 @@
-import EntriesRelationList from '@/components/EntriesRelationList.vue'
+import EntriesRelationList, { Rule } from '@/components/EntriesRelationList.vue'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
-import {mount, Wrapper, WrapperArray} from '@vue/test-utils'
+import {mount, DOMWrapper, VueWrapper} from '@vue/test-utils'
 import _ from 'lodash'
 import Vue from 'vue'
 import {GlobalFilter, GlobalFilterSection} from '@/types'
+import { DefinedComponent } from '@vue/test-utils/dist/types'
 
 describe('EntriesRelationList.vue', () => {
-  let wrapper: Wrapper<Vue>
+  let wrapper = mount(EntriesRelationList)
   let ruleData: GlobalFilter['rule']
   let entryData1: GlobalFilterSection
   let entryData2: GlobalFilterSection
@@ -48,7 +49,7 @@ describe('EntriesRelationList.vue', () => {
       wrapper.setProps({rule})
     }
     wrapper = mount(EntriesRelationList, {
-      propsData: {
+      props: {
         rule: ruleData,
         editable: true,
       },
@@ -141,8 +142,8 @@ describe('EntriesRelationList.vue', () => {
   })
 
   describe('large data pagination', () => {
-    let checkedComponent: Wrapper<Vue>
-    let checkedTable: Wrapper<Vue>
+    let checkedComponent: any
+    let checkedTable: any
     beforeEach(() => {
       entryData1 = {
         relation: 'AND',
@@ -189,7 +190,7 @@ describe('EntriesRelationList.vue', () => {
         wrapper.setProps({rule})
       }
       wrapper = mount(EntriesRelationList, {
-        propsData: {
+        props: {
           rule: ruleData,
           editable: true,
         },
@@ -307,7 +308,7 @@ describe('EntriesRelationList.vue', () => {
 
     test('should not have the option to add component if not editable', () => {
       wrapper = mount(EntriesRelationList, {
-        propsData: {
+        props: {
           rule: ruleData,
           editable: false,
         },
@@ -331,7 +332,7 @@ describe('EntriesRelationList.vue', () => {
     test('should not have the option to remove section if no sections exist', () => {
       ruleData.sections = []
       wrapper = mount(EntriesRelationList, {
-        propsData: {
+        props: {
           rule: ruleData,
           editable: true,
         },
@@ -343,7 +344,7 @@ describe('EntriesRelationList.vue', () => {
 
     test('should not have the option to remove component if not editable', () => {
       wrapper = mount(EntriesRelationList, {
-        propsData: {
+        props: {
           rule: ruleData,
           editable: false,
         },
@@ -440,7 +441,7 @@ describe('EntriesRelationList.vue', () => {
       const typeSelection = newEntryRow.find('.new-entry-type-selection')
       typeSelection.trigger('click')
       const options = typeSelection.findAll('option')
-      options.at(7).setSelected()
+      typeSelection.setValue(options.at(7).element.value)
       await Vue.nextTick()
       const newEntryInputName = newEntryRow.find('.new-entry-name-input')
       newEntryInputName.setValue('something')
@@ -463,7 +464,7 @@ describe('EntriesRelationList.vue', () => {
       const typeSelection = newEntryRow.find('.new-entry-type-selection')
       typeSelection.trigger('click')
       const options = typeSelection.findAll('option')
-      options.at(7).setSelected()
+      typeSelection.setValue(options.at(7).element.value)
       await Vue.nextTick()
       const newEntryInputName = newEntryRow.find('.new-entry-name-input')
       newEntryInputName.setValue('something')
@@ -477,7 +478,7 @@ describe('EntriesRelationList.vue', () => {
 
     test('should not show new entry button if not editable', () => {
       wrapper = mount(EntriesRelationList, {
-        propsData: {
+        props: {
           rule: ruleData,
           editable: false,
         },
@@ -556,7 +557,7 @@ describe('EntriesRelationList.vue', () => {
       let typeSelection = newEntryRow.find('.new-entry-type-selection')
       typeSelection.trigger('click')
       let options = typeSelection.findAll('option')
-      options.at(7).setSelected()
+      typeSelection.setValue(options.at(7).element.value)
       await Vue.nextTick()
       // add input to new entry row
       let newEntryTextarea = newEntryRow.find('.new-entry-textarea')
@@ -574,7 +575,7 @@ describe('EntriesRelationList.vue', () => {
       typeSelection = newEntryRow.find('.new-entry-type-selection')
       typeSelection.trigger('click')
       options = typeSelection.findAll('option')
-      options.at(7).setSelected()
+      typeSelection.setValue(options.at(7).element.value)
       await Vue.nextTick()
       // add input to new entry row - second time
       newEntryTextarea = newEntryRow.find('.new-entry-textarea')
@@ -601,7 +602,7 @@ describe('EntriesRelationList.vue', () => {
     })
     test('should remove empty section', async () => {
       wrapper = mount(EntriesRelationList, {
-        propsData: {
+        props: {
           rule: {
             relation: 'OR',
             sections: [],
@@ -629,7 +630,7 @@ describe('EntriesRelationList.vue', () => {
       expect((wrapper.vm as any).rule.sections[0].entries.length).toEqual(1)
     })
     test('should remove section if no entries left', async () => {
-      const entryData3 = {
+      const entryData3: GlobalFilterSection = {
         relation: 'AND',
         entries: [
           [
@@ -638,7 +639,7 @@ describe('EntriesRelationList.vue', () => {
           ],
         ],
       }
-      const rule = {
+      const rule: Rule = {
         relation: 'AND',
         sections: [
           entryData1,
@@ -646,7 +647,7 @@ describe('EntriesRelationList.vue', () => {
         ],
       }
       wrapper = mount(EntriesRelationList, {
-        propsData: {
+        props: {
           rule,
           editable: true,
         },
@@ -661,13 +662,13 @@ describe('EntriesRelationList.vue', () => {
   })
 
   describe('validators', () => {
-    let newEntryTextarea: Wrapper<Vue>
-    let newEntrySecondAttr: Wrapper<Vue>
-    let component: Wrapper<Vue>
-    let newEntryRows: WrapperArray<Vue>
-    let newEntryRow: Wrapper<Vue>
-    let confirmAddEntryButton: Wrapper<Vue>
-    let options: WrapperArray<Vue>
+    let newEntryTextarea: DOMWrapper<Element>
+    let newEntrySecondAttr: DOMWrapper<Element>
+    let component: VueWrapper
+    let newEntryRows: DOMWrapper<Element>[]
+    let newEntryRow: DOMWrapper<Element>
+    let confirmAddEntryButton: DOMWrapper<Element>
+    let options: DOMWrapper<HTMLOptionElement>[]
     beforeEach(async () => {
       component = wrapper.findComponent(EntriesRelationList)
       // open new entry row
@@ -704,12 +705,15 @@ describe('EntriesRelationList.vue', () => {
     })
     test('should validate duplicated entries if category is args, cookies, headers', async () => {
       // open new entry row
-      const section = component.findAll('.section').at(1)
+      const section = component.find('.section')
       const addEntryButton = section.find('.add-entry-button')
       addEntryButton.trigger('click')
       await Vue.nextTick()
       // change entry type to headers
-      options.at(7).setSelected()
+      const typeSelection = newEntryRow.find('.new-entry-type-selection')
+      typeSelection.trigger('click')
+      options = typeSelection.findAll('option')
+      typeSelection.setValue(options.at(7).element.value)
       await Vue.nextTick()
       // add input to new entry row
       newEntryRow = section.find('.new-entry-row')
@@ -735,7 +739,10 @@ describe('EntriesRelationList.vue', () => {
     // })
     test('should validate value as ip if category is ip', async () => {
       // change entry type to ip
-      options.at(4).setSelected()
+      const typeSelection = newEntryRow.find('.new-entry-type-selection')
+      typeSelection.trigger('click')
+      options = typeSelection.findAll('option')
+      typeSelection.setValue(options.at(4).element.value)
       await Vue.nextTick()
       newEntryTextarea.setValue('1.1.1.1.')
       // check
@@ -743,7 +750,10 @@ describe('EntriesRelationList.vue', () => {
     })
     test('should validate value as non-empty if category is not ip, path, query, uri', async () => {
       // change entry type to method
-      options.at(3).setSelected()
+      const typeSelection = newEntryRow.find('.new-entry-type-selection')
+      typeSelection.trigger('click')
+      options = typeSelection.findAll('option')
+      typeSelection.setValue(options.at(3).element.value)
       await Vue.nextTick()
       newEntryTextarea.setValue(' ')
       // check
@@ -760,7 +770,10 @@ describe('EntriesRelationList.vue', () => {
     // })
     test('should clear errors', async () => {
       // change entry type to headers
-      options.at(7).setSelected()
+      const typeSelection = newEntryRow.find('.new-entry-type-selection')
+      typeSelection.trigger('click')
+      options = typeSelection.findAll('option')
+      typeSelection.setValue(options.at(7).element.value)
       await Vue.nextTick()
       newEntrySecondAttr.setValue('\\')
       await Vue.nextTick()

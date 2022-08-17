@@ -13,7 +13,13 @@ module.exports = {
     'selector-pseudo-element-no-unknown': [
       true,
       {
-        ignorePseudoElements: ['v-deep']
+        ignorePseudoElements: ['deep'],
+      }
+    ],
+    'selector-pseudo-class-no-unknown': [
+      true,
+      {
+        ignorePseudoClasses: ['deep'],
       }
     ],
     'scss/at-extend-no-missing-placeholder': null,

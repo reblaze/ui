@@ -337,19 +337,14 @@
 </template>
 <script lang="ts">
 import _ from 'lodash'
-import DatasetsUtils from '@/assets/DatasetsUtils.ts'
-import RequestsUtils from '@/assets/RequestsUtils.ts'
-import Vue, {VueConstructor} from 'vue'
+import DatasetsUtils from '@/assets/DatasetsUtils'
+import RequestsUtils from '@/assets/RequestsUtils'
+import {defineComponent} from 'vue'
 import {ACLProfile, ContentFilterProfile, RateLimit, SecurityPolicy, SecurityPolicyEntryMatch} from '@/types'
 import {AxiosResponse} from 'axios'
 import Utils from '@/assets/Utils'
 
-export default (Vue as VueConstructor<Vue & {
-  $refs: {
-    profileName: HTMLInputElement[]
-    mapEntryMatch: HTMLInputElement[]
-  }
-}>).extend({
+export default defineComponent({
   name: 'SecurityPoliciesEditor',
 
   props: {
@@ -383,7 +378,7 @@ export default (Vue as VueConstructor<Vue & {
 
   computed: {
     localDoc(): SecurityPolicy {
-      return _.cloneDeep(this.selectedDoc)
+      return _.cloneDeep(this.selectedDoc as SecurityPolicy)
     },
 
     isFormInvalid(): boolean {
@@ -528,7 +523,7 @@ export default (Vue as VueConstructor<Vue & {
           this.localDoc.map[this.mapEntryIndex].match = this.initialMapEntryMatch
         }
         this.mapEntryIndex = (this.mapEntryIndex === index ? -1 : index)
-        Utils.clearInputValidationClasses(this.$refs.mapEntryMatch[0])
+        Utils.clearInputValidationClasses(this.$refs. mapEntryMatch[0])
         this.emitDocUpdate()
         this.emitCurrentDocInvalidity()
       } else {

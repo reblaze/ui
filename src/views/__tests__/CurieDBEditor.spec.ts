@@ -2,7 +2,7 @@ import CurieDBEditor from '@/views/CurieDBEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import Utils from '@/assets/Utils'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
-import {mount, Wrapper} from '@vue/test-utils'
+import {mount} from '@vue/test-utils'
 import Vue from 'vue'
 import axios from 'axios'
 import JSONEditor from 'jsoneditor'
@@ -12,7 +12,7 @@ jest.mock('axios')
 jest.mock('jsoneditor')
 
 describe('CurieDBEditor.vue', () => {
-  let wrapper: Wrapper<Vue>
+  let wrapper: any
   let dbData: any
   let publishInfoData: any
   let dbKeyLogs: Commit[]

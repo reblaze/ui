@@ -3,7 +3,7 @@ import GitHistory from '@/components/GitHistory.vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import Utils from '@/assets/Utils'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
-import {shallowMount, Wrapper} from '@vue/test-utils'
+import {shallowMount} from '@vue/test-utils'
 import Vue from 'vue'
 import axios from 'axios'
 import _ from 'lodash'
@@ -22,7 +22,7 @@ import {
 jest.mock('axios')
 
 describe('DocumentEditor.vue', () => {
-  let wrapper: Wrapper<Vue>
+  let wrapper: any
   let mockRoute: any
   let mockRouter: any
   let gitData: Branch[]

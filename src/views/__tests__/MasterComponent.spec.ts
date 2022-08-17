@@ -1,9 +1,9 @@
 import MasterComponent from '@/views/MasterComponent.vue'
 import {describe, test, expect, beforeEach} from '@jest/globals'
-import {shallowMount, Wrapper} from '@vue/test-utils'
+import {shallowMount} from '@vue/test-utils'
 
 describe('MasterComponent.vue', () => {
-  let wrapper: Wrapper<Vue>
+  let wrapper: any
   beforeEach(() => {
     const $route = {
       path: '/config',

@@ -1,7 +1,7 @@
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import AutocompleteInput from '@/components/AutocompleteInput.vue'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
-import {mount, Wrapper} from '@vue/test-utils'
+import {mount} from '@vue/test-utils'
 import Vue from 'vue'
 import axios from 'axios'
 import {TagsNamespaceValue} from '@/types'
@@ -9,7 +9,7 @@ import {TagsNamespaceValue} from '@/types'
 jest.mock('axios')
 
 describe('TagAutocompleteInput.vue', () => {
-  let wrapper: Wrapper<Vue>
+  let wrapper: any
   let tagsData: {
     data: TagsNamespaceValue,
   }
@@ -34,7 +34,7 @@ describe('TagAutocompleteInput.vue', () => {
     jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
     jest.spyOn(axios, 'post').mockImplementation(() => Promise.resolve())
     wrapper = mount(TagAutocompleteInput, {
-      propsData: {
+      props: {
         autoFocus: true,
         clearInputAfterSelection: false,
       },
@@ -101,7 +101,7 @@ describe('TagAutocompleteInput.vue', () => {
   test('should send request to add tag neutral list in DB' +
     ' if unknown tag selected - selectionType single, tags added after db loaded', async (done) => {
     wrapper = mount(TagAutocompleteInput, {
-      propsData: {
+      props: {
         selectionType: 'single',
       },
     })
@@ -122,7 +122,7 @@ describe('TagAutocompleteInput.vue', () => {
   test('should send request to add tag neutral list in DB' +
     ' if unknown tag selected - selectionType multiple, tags added after db loaded', async (done) => {
     wrapper = mount(TagAutocompleteInput, {
-      propsData: {
+      props: {
         selectionType: 'multiple',
       },
     })
@@ -147,7 +147,7 @@ describe('TagAutocompleteInput.vue', () => {
   test('should send request to add tag neutral list in DB' +
     ' if unknown tag selected - selectionType single, tags added before db loaded', async (done) => {
     wrapper = mount(TagAutocompleteInput, {
-      propsData: {
+      props: {
         selectionType: 'single',
       },
     })
@@ -167,7 +167,7 @@ describe('TagAutocompleteInput.vue', () => {
   test('should send request to add tag neutral list in DB' +
     ' if unknown tag selected - selectionType multiple, tags added before db loaded', async (done) => {
     wrapper = mount(TagAutocompleteInput, {
-      propsData: {
+      props: {
         selectionType: 'multiple',
       },
     })
@@ -191,7 +191,7 @@ describe('TagAutocompleteInput.vue', () => {
   test('should not send request to add tag list in DB' +
     ' if unknown tag selected before db loaded but exists in legitimate tags list in db', async () => {
     wrapper = mount(TagAutocompleteInput, {
-      propsData: {
+      props: {
         selectionType: 'single',
       },
     })
@@ -208,7 +208,7 @@ describe('TagAutocompleteInput.vue', () => {
   test('should not send request to add tag list in DB' +
     ' if unknown tag selected before db loaded but exists in malicious tags list in db', async () => {
     wrapper = mount(TagAutocompleteInput, {
-      propsData: {
+      props: {
         selectionType: 'single',
       },
     })
@@ -225,7 +225,7 @@ describe('TagAutocompleteInput.vue', () => {
   test('should not send request to add tag list in DB' +
     ' if unknown tag selected before db loaded but exists in neutral tags list in db', async () => {
     wrapper = mount(TagAutocompleteInput, {
-      propsData: {
+      props: {
         selectionType: 'single',
       },
     })
@@ -254,7 +254,7 @@ describe('TagAutocompleteInput.vue', () => {
     }
     jest.spyOn(axios, 'get').mockImplementation(() => Promise.resolve(tagsData))
     wrapper = mount(TagAutocompleteInput, {
-      propsData: {
+      props: {
         selectionType: 'single',
       },
     })
@@ -286,7 +286,7 @@ describe('TagAutocompleteInput.vue', () => {
     }
     jest.spyOn(axios, 'get').mockImplementation(() => Promise.resolve(tagsData))
     wrapper = mount(TagAutocompleteInput, {
-      propsData: {
+      props: {
         selectionType: 'single',
       },
     })
@@ -319,7 +319,7 @@ describe('TagAutocompleteInput.vue', () => {
     }
     jest.spyOn(axios, 'get').mockImplementation(() => Promise.resolve(tagsData))
     wrapper = mount(TagAutocompleteInput, {
-      propsData: {
+      props: {
         selectionType: 'single',
       },
     })
@@ -406,7 +406,7 @@ describe('TagAutocompleteInput.vue', () => {
     const propSelectionType = 'multiple'
     beforeEach(async () => {
       wrapper = mount(TagAutocompleteInput, {
-        propsData: {
+        props: {
           initialTag: propInitialTag,
           clearInputAfterSelection: propClearInputAfterSelection,
           autoFocus: propAutoFocus,

@@ -76,7 +76,7 @@
                 <limit-option use-default-self
                               label-separated-line
                               label="Event"
-                              :option.sync="eventOption"
+                              v-model="eventOption"
                               :key="eventOption.type + localDoc.id"
                               :ignore-attributes="['tags']"
                               @change="updateEvent"/>
@@ -116,7 +116,7 @@
                       </a>
                     </div>
                   </div>
-                  <response-action :action.sync="threshold.action"
+                  <response-action v-model="threshold.action"
                                   label-separated-line
                                   @update:action="emitDocUpdate"/>
                 </div>
@@ -348,7 +348,7 @@ import _ from 'lodash'
 import ResponseAction from '@/components/ResponseAction.vue'
 import LimitOption, {OptionObject} from '@/components/LimitOption.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
-import Vue from 'vue'
+import {defineComponent} from 'vue'
 import {
   IncludeExcludeType,
   LimitOptionType,
@@ -357,13 +357,13 @@ import {
   SecurityPolicy,
   SecurityPolicyEntryMatch,
   ThresholdActionPair,
+  Dictionary,
 } from '@/types'
-import {Dictionary} from 'vue-router/types/router'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import {AxiosResponse} from 'axios'
 
-export default Vue.extend({
+export default defineComponent({
   name: 'RateLimits',
   props: {
     selectedDoc: Object,
@@ -392,11 +392,12 @@ export default Vue.extend({
       newSecurityPolicyConnectionOpened: false,
       connectedSecurityPoliciesEntries: [],
       keysAreValid: true,
+      removable: false,
     }
   },
   computed: {
     localDoc(): RateLimit {
-      return _.cloneDeep(this.selectedDoc)
+      return _.cloneDeep(this.selectedDoc as RateLimit)
     },
 
     duplicateTags(): Dictionary<string> {

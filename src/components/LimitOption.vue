@@ -72,7 +72,7 @@
 
 <script lang="ts">
 import _ from 'lodash'
-import DatasetsUtils from '@/assets/DatasetsUtils.ts'
+import DatasetsUtils from '@/assets/DatasetsUtils'
 import Vue, {PropType} from 'vue'
 import {LimitRuleType} from '@/types'
 
@@ -96,7 +96,7 @@ export const limitAttributes = {
   'authority': 'Authority',
 }
 
-export default Vue.extend({
+export default Vue.defineComponent({
   name: 'LimitOption',
   props: {
     label: {
@@ -195,6 +195,7 @@ export default Vue.extend({
   updated() {
     this.$emit('change', {...this.selectedOption})
   },
+  emits: ['change', 'remove'],
   methods: {
     isCategoryArgsCookiesHeaders(limitRuleType: LimitRuleType) {
       return (new RegExp('(args|cookies|headers)')).test(limitRuleType)

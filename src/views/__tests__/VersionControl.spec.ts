@@ -2,7 +2,7 @@ import VersionControl from '@/views/VersionControl.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import Utils from '@/assets/Utils'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
-import {mount, Wrapper} from '@vue/test-utils'
+import {mount} from '@vue/test-utils'
 import Vue from 'vue'
 import axios from 'axios'
 import {Branch} from '@/types'
@@ -10,7 +10,7 @@ import {Branch} from '@/types'
 jest.mock('axios')
 
 describe('VersionControl.vue', () => {
-  let wrapper: Wrapper<Vue>
+  let wrapper: any
   let gitData: Branch[]
   beforeEach(() => {
     gitData = [

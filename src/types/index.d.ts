@@ -4,6 +4,8 @@ declare module CuriefenseClient {
 
   type GenericObject = { [key: string]: any }
 
+  type Dictionary<T> = { [key: string]: T }
+  
   type TagsNamespaceValue = {
     neutral?: string[]
     malicious?: string[]
@@ -88,7 +90,7 @@ declare module CuriefenseClient {
 
   type Document = BasicDocument & (ACLProfile | FlowControlPolicy | GlobalFilter | RateLimit | SecurityPolicy | ContentFilterProfile | ContentFilterRule)
 
-  type DocumentType = 'aclprofiles' | 'flowcontrol' | 'globalfilters' | 'ratelimits' | 'securitypolicies' | 'contentfilterprofiles' | 'contentfilterrules' | 'contentfiltergroups'
+  type DocumentType = 'aclprofiles' | 'flowcontrol' | 'globalfilters' | 'ratelimits' | 'securitypolicies' | 'contentfilterprofiles' | 'contentfilterrules'
 
   // Document types helpers - END
 

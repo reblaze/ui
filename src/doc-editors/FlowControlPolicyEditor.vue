@@ -67,7 +67,7 @@
               </p>
             </div>
             <div class="field">
-              <response-action :action.sync="localDoc.action"
+              <response-action v-model="localDoc.action"
                                @update:action="emitDocUpdate"
                                label-separated-line/>
             </div>
@@ -212,7 +212,7 @@
                         AND
                       </td>
                       <td class="width-80px is-vcentered">
-                        {{ listEntryTypes[sequenceEntry[0]].title }}
+                        {{ getListEntryTitle(sequenceEntry[0] as ArgsCookiesHeadersType) }}
                       </td>
                       <td class="width-100px">
                         {{ sequenceEntry[1][0] }}
@@ -225,12 +225,12 @@
                            title="Remove sequence entry"
                            tabindex="0"
                            @click="removeSequenceItemEntry(
-                               sequenceIndex, sequenceEntry[0], sequenceEntry[1][0])"
+                               sequenceIndex, sequenceEntry[0] as ArgsCookiesHeadersType, sequenceEntry[1][0])"
                            @keypress.space.prevent
                            @keypress.space="removeSequenceItemEntry(
-                               sequenceIndex, sequenceEntry[0], sequenceEntry[1][0])"
+                               sequenceIndex, sequenceEntry[0] as ArgsCookiesHeadersType, sequenceEntry[1][0])"
                            @keypress.enter="removeSequenceItemEntry(
-                               sequenceIndex, sequenceEntry[0], sequenceEntry[1][0])">
+                               sequenceIndex, sequenceEntry[0] as ArgsCookiesHeadersType, sequenceEntry[1][0])">
                           remove
                         </a>
                       </td>
@@ -338,15 +338,16 @@ import _ from 'lodash'
 import ResponseAction from '@/components/ResponseAction.vue'
 import LimitOption, {OptionObject} from '@/components/LimitOption.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
-import DatasetsUtils from '@/assets/DatasetsUtils.ts'
-import Vue from 'vue'
-import {ArgsCookiesHeadersType, FlowControlPolicy, IncludeExcludeType, LimitOptionType, LimitRuleType} from '@/types'
+import DatasetsUtils from '@/assets/DatasetsUtils'
+import {defineComponent} from 'vue'
+import {ArgsCookiesHeadersType, FlowControlPolicy, IncludeExcludeType} from '@/types'
+import {LimitOptionType, LimitRuleType, Dictionary} from '@/types'
 import {httpRequestMethods} from '@/types/const'
-import {Dictionary} from 'vue-router/types/router'
 
-export default Vue.extend({
+
+export default defineComponent({
   name: 'FlowControlPolicy',
-
+  emits: ['update:selectedDoc'],
   props: {
     selectedDoc: Object,
     apiPath: String,
@@ -382,7 +383,11 @@ export default Vue.extend({
 
   computed: {
     localDoc(): FlowControlPolicy {
-      return _.cloneDeep(this.selectedDoc)
+      return _.cloneDeep(this.selectedDoc as FlowControlPolicy)
+    },
+
+    pickType(val: IncludeExcludeType[]): IncludeExcludeType[] {
+      return val
     },
 
     duplicateTags(): Dictionary<string> {
@@ -394,6 +399,10 @@ export default Vue.extend({
   },
 
   methods: {
+    getListEntryTitle(seqEntry: ArgsCookiesHeadersType): string {
+      return this.listEntryTypes[seqEntry].title
+    },
+
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
     },
@@ -477,6 +486,7 @@ export default Vue.extend({
       for (let i = 0; i < cookiesEntries.length; i++) {
         mergedEntries.push(['cookies', cookiesEntries[i]])
       }
+      console.log('mergedEntries:', mergedEntries)
       return mergedEntries
     },
 
@@ -583,7 +593,7 @@ export default Vue.extend({
   }
 }
 
-::v-deep .tag-input {
+:deep(.tag-input) {
   font-size: 0.58rem;
 }
 

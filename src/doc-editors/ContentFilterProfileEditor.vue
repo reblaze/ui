@@ -62,10 +62,11 @@
                      class="content-type-option-wrapper mb-3">
                   <label class="checkbox is-size-7">
                     <input type="checkbox"
-                           @change="updateContentType(contentTypeOption.value, $event.target.checked)"
+                           @change="updateContentType(contentTypeOption.value, contentTypeOption.checked)"
                            class="checkbox-input"
                            :class="`content-type-${contentTypeOption.value}-input`"
-                           :checked="getContentTypeStatus(contentTypeOption.value)">
+                           v-model="contentTypeOption.checked"
+                           >
                     {{ contentTypeOption.displayName }}
                   </label>
                 </div>
@@ -557,8 +558,8 @@
 
 <script lang="ts">
 import _ from 'lodash'
-import DatasetsUtils from '@/assets/DatasetsUtils.ts'
-import Vue from 'vue'
+import DatasetsUtils from '@/assets/DatasetsUtils'
+import {defineComponent} from 'vue'
 import {
   ArgsCookiesHeadersType,
   ContentFilterEntryMatch,
@@ -567,12 +568,13 @@ import {
   ContentFilterProfileSectionType,
   ContentFilterProfileTagLists,
   NamesRegexType,
+  Dictionary,
 } from '@/types'
 import AutocompleteInput, {AutocompleteSuggestion} from '@/components/AutocompleteInput.vue'
-import {Dictionary} from 'vue-router/types/router'
+
 import Utils from '@/assets/Utils'
 
-export default Vue.extend({
+export default defineComponent({
   name: 'ContentFilterEditor',
   components: {AutocompleteInput},
   props: {
@@ -622,19 +624,19 @@ export default Vue.extend({
           'Malformed data will get rejected',
       decodingOptions: [
         {
-          value: 'base64',
+          value: 'base64' as keyof ContentFilterProfile['decoding'],
           displayName: 'Base64',
         },
         {
-          value: 'dual',
+          value: 'dual' as keyof ContentFilterProfile['decoding'],
           displayName: 'URL',
         },
         {
-          value: 'html',
+          value: 'html' as keyof ContentFilterProfile['decoding'],
           displayName: 'HTML',
         },
         {
-          value: 'unicode',
+          value: 'unicode' as keyof ContentFilterProfile['decoding'],
           displayName: 'Unicode',
         },
       ],
@@ -642,18 +644,24 @@ export default Vue.extend({
         {
           value: 'json',
           displayName: 'JSON',
+          checked?: false,
         },
         {
           value: 'multipart_form',
           displayName: 'Multipart Form',
+          checked?: false,
+
         },
         {
           value: 'url_encoded',
           displayName: 'URL Encoded',
+          checked?: false,
+
         },
         {
           value: 'xml',
           displayName: 'XML',
+          checked?: false,
         },
       ],
     }
@@ -661,7 +669,7 @@ export default Vue.extend({
 
   computed: {
     localDoc(): ContentFilterProfile {
-      return _.cloneDeep(this.selectedDoc)
+      return _.cloneDeep(this.selectedDoc) as ContentFilterProfile
     },
 
     duplicateTags(): Dictionary<string> {
@@ -859,7 +867,7 @@ export default Vue.extend({
   @extend .has-background-grey-light;
 }
 
-::v-deep .tag-input {
+:deep(.tag-input) {
   font-size: 0.58rem;
 }
 

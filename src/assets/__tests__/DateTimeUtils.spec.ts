@@ -216,7 +216,7 @@ describe('DateTimeUtils.ts', () => {
           let spy: any
           beforeEach(() => {
             original = DateTimeUtils.isoToNowFullCuriefenseFormat
-            spy = DateTimeUtils.isoToNowFullCuriefenseFormat = jest.fn()
+            spy = DateTimeUtils.isoToNowFullCuriefenseFormat = jest.fn() as typeof DateTimeUtils.isoToNowFullCuriefenseFormat
           })
           afterEach(() => {
             DateTimeUtils.isoToNowFullCuriefenseFormat = original

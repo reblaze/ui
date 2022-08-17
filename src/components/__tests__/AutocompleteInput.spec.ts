@@ -1,6 +1,6 @@
 import AutocompleteInput from '@/components/AutocompleteInput.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
-import {mount, Wrapper, WrapperArray} from '@vue/test-utils'
+import {mount} from '@vue/test-utils'
 import Vue from 'vue'
 import axios from 'axios'
 import * as bulmaToast from 'bulma-toast'
@@ -9,7 +9,7 @@ import {Options} from 'bulma-toast'
 jest.mock('axios')
 
 describe('AutocompleteInput.vue', () => {
-  let wrapper: Wrapper<Vue>
+  let wrapper = mount(AutocompleteInput)
   let suggestions: any[]
   beforeEach(() => {
     suggestions = [
@@ -35,7 +35,7 @@ describe('AutocompleteInput.vue', () => {
       },
     ]
     wrapper = mount(AutocompleteInput, {
-      propsData: {
+      props: {
         suggestions: suggestions,
         autoFocus: true,
         clearInputAfterSelection: false,
@@ -185,7 +185,7 @@ describe('AutocompleteInput.vue', () => {
     input.setValue('value')
     input.trigger('input')
     input.trigger('blur')
-    wrapper.destroy()
+    wrapper.unmount() // destroy()
     await Vue.nextTick()
     setTimeout(() => {
       expect(wrapper.emitted('value-submitted')).toBeFalsy()
@@ -200,7 +200,7 @@ describe('AutocompleteInput.vue', () => {
       document.body.appendChild(elem)
     }
     wrapper = mount(AutocompleteInput, {
-      propsData: {
+      props: {
         suggestions: suggestions,
         autoFocus: true,
         clearInputAfterSelection: false,
@@ -227,7 +227,7 @@ describe('AutocompleteInput.vue', () => {
       document.body.appendChild(elem)
     }
     wrapper = mount(AutocompleteInput, {
-      propsData: {
+      props: {
         suggestions: suggestions,
         autoFocus: false,
         clearInputAfterSelection: false,
@@ -248,8 +248,8 @@ describe('AutocompleteInput.vue', () => {
   })
 
   describe('keyboard control', () => {
-    let input: Wrapper<Vue>
-    let dropdownItems: WrapperArray<Vue>
+    let input: typeof wrapper | any
+    let dropdownItems: typeof wrapper | any
     beforeEach(async () => {
       input = wrapper.find('.autocomplete-input')
       input.setValue('value')
@@ -432,10 +432,10 @@ describe('AutocompleteInput.vue', () => {
   })
 
   describe('multiple values selection', () => {
-    let input: Wrapper<Vue>
+    let input: any
     beforeEach(async () => {
       wrapper = mount(AutocompleteInput, {
-        propsData: {
+        props: {
           suggestions: suggestions,
           autoFocus: true,
           selectionType: 'multiple',
@@ -527,7 +527,7 @@ describe('AutocompleteInput.vue', () => {
         },
       ]
       wrapper = mount(AutocompleteInput, {
-        propsData: {
+        props: {
           suggestions,
           initialValue,
           inputType: 'textarea',
