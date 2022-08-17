@@ -62,7 +62,8 @@
             </div>
             <div class="field">
               <label class="label is-small">Tags</label>
-              <div class="control" data-qa="tag-input">
+              <div class="control"
+                      data-qa="tag-input">
                 <tag-autocomplete-input :initial-tag="selectedDocTags"
                                         :selection-type="'multiple'"
                                         @tag-changed="selectedDocTags = $event">
