@@ -252,7 +252,8 @@
                     <div class="tabs is-centered">
                       <ul>
                         <li :class=" tab === 'headers' ? 'is-active' : '' "
-                            class="headers-tab" data-qa="headers-tab-btn">
+                            class="headers-tab"
+                            data-qa="headers-tab-btn">
                           <a tabindex="0"
                              @click='tab="headers"'
                              @keypress.space.prevent
