@@ -342,7 +342,8 @@
                                                       data-qa="parameter-name-dropdown">
                                           {{ titles.names }}
                                         </option>
-                                        <option value="regex" data-qa="paramater-regex-dropdown">
+                                        <option value="regex"
+                                                      data-qa="paramater-regex-dropdown">
                                           {{ titles.regex }}
                                         </option>
                                       </select>
