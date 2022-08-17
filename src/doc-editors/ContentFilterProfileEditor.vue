@@ -338,7 +338,8 @@
                                               data-qa="add-new-entry-btn"
                                               class="new-entry-type"
                                               title="Type">
-                                        <option value="names" data-qa="parameter-name-dropdown">
+                                        <option value="names"
+                                                      data-qa="parameter-name-dropdown">
                                           {{ titles.names }}
                                         </option>
                                         <option value="regex" data-qa="paramater-regex-dropdown">
