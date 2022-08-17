@@ -262,7 +262,8 @@
                           </a>
                         </li>
                         <li :class=" tab === 'cookies' ? 'is-active' : '' "
-                            class="cookies-tab" data-qa="cookies-tab-btn">
+                            class="cookies-tab"
+                            data-qa="cookies-tab-btn">
                           <a tabindex="0"
                              @click='tab="cookies"'
                              @keypress.space.prevent
