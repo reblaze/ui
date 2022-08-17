@@ -53,7 +53,8 @@
                 <p class="control">
                   <span class="field has-addons">
                     <span class="control">
-                      <button class="button is-small fork-branch-toggle" data-qa="fork-branch-btn"
+                      <button class="button is-small fork-branch-toggle"
+                                    data-qa="fork-branch-btn"
                               @click="toggleBranchFork()">
                         <span class="icon is-small">
                           <i class="fas fa-code-branch"></i>
