@@ -273,7 +273,8 @@
                           </a>
                         </li>
                         <li :class=" tab === 'args' ? 'is-active' : '' "
-                            class="args-tab" data-qa="arguments-tab-btn">
+                            class="args-tab"
+                            data-qa="arguments-tab-btn">
                           <a tabindex="0"
                              @click='tab="args"'
                              @keypress.space.prevent
