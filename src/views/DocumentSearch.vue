@@ -1,6 +1,7 @@
 <template>
   <div class="card">
-    <div class="card-content" data-qa="search-page">
+    <div class="card-content"
+            data-qa="search-page">
       <div class="media">
         <div class="media-content">
           <div class="columns">
