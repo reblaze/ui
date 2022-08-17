@@ -34,7 +34,7 @@
             <hr class="bar" :class="`bar-${operationClassName(operation)}`"/>
             <table class="table is-narrow is-fullwidth">
               <tbody>
-              <tr v-for="(tag, idx) in localDoc[operation]" :key="idx" >
+              <tr v-for="(tag, idx) in localDoc[operation]" :key="idx">
                 <td class="tag-cell ellipsis"
                     :class=" { 'has-text-danger': duplicateTags[tag], 'tag-crossed': allPrior(operation) }"
                     :title="tagMessage(tag, operation) || tag">
