@@ -329,7 +329,8 @@
                   </span>
                 </div>
               </div>
-              <button class="button is-small new-sequence-button" data-qa="new-sequence-btn"
+              <button class="button is-small new-sequence-button"
+                             data-qa="new-sequence-btn"
                       @click="addSequenceItem()">
                 Create new sequence section
               </button>
