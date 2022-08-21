@@ -76,7 +76,7 @@
                 <limit-option use-default-self
                               label-separated-line
                               label="Event"
-                              v-model="eventOption"
+                              v-model:option="eventOption"
                               :key="eventOption.type + localDoc.id"
                               :ignore-attributes="['tags']"
                               @change="updateEvent"/>

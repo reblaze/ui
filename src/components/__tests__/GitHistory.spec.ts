@@ -1,6 +1,6 @@
 import GitHistory from '@/components/GitHistory.vue'
 import {describe, test, expect, beforeEach} from '@jest/globals'
-import {mount, VueWrapper} from '@vue/test-utils'
+import {mount} from '@vue/test-utils'
 
 describe('GitHistory.vue', () => {
   // Number of log items = 7

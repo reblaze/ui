@@ -7,10 +7,7 @@
     "importHelpers": true,
     "moduleResolution": "node",
     "skipLibCheck": true,
-    "esModuleInterop": true,
     "strictNullChecks": false,
-    "allowSyntheticDefaultImports": true,
-    "resolveJsonModule": true,
     "sourceMap": true,
     "baseUrl": ".",
     "allowJs": true,
@@ -34,7 +31,10 @@
       "dom",
       "dom.iterable",
       "scripthost"
-    ]
+    ],
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
   },
   "include": [
     "src/**/*.ts",

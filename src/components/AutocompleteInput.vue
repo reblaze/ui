@@ -71,7 +71,6 @@ export type InputTypes = 'input' | 'textarea'
 export default defineComponent({
   name: 'AutocompleteInput',
 
-  // const autocompleteInput = ref(0),
 
   props: {
     inputType: {
@@ -91,7 +90,7 @@ export default defineComponent({
     autoFocus: Boolean,
     selectionType: {
       type: String,
-      validator(val: string) {
+      validator: (val: string) => {
         if (!val) {
           return false
         }
@@ -113,7 +112,7 @@ export default defineComponent({
 
   watch: {
     initialValue: {
-      handler(newVal) {
+      handler: function(newVal) {
         if (this.skipNextWatchUpdate) {
           this.skipNextWatchUpdate = false
           return
@@ -129,7 +128,7 @@ export default defineComponent({
 
   mounted() {
     const events: AutocompleteInputEvents[] = ['keyup', 'keydown', 'keypress', 'focus', 'blur']
-    events.map((event: string) => {
+    events.map((event: AutocompleteInputEvents) => {
       this.$refs.autocompleteInput.addEventListener(event,
           ($event: Event): void => {
             this.$emit(event, $event)
@@ -196,6 +195,8 @@ export default defineComponent({
       ).join(this.divider)
     },
   },
+
+  emits: ['tag-changed', 'value-changed', 'value-submitted', 'keyup', 'keydown', 'keypress', 'focus', 'blur'],
 
   methods: {
 

@@ -73,11 +73,11 @@
 </template>
 
 <script lang="ts">
-import Vue, {PropType} from 'vue'
+import {defineComponent, PropType} from 'vue'
 import {Commit} from '@/types'
 import DateTimeUtils from '@/assets/DateTimeUtils'
 
-export default Vue.defineComponent({
+export default defineComponent({
   name: 'GitHistory',
 
   props: {

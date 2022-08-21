@@ -23,12 +23,12 @@
 import _ from 'lodash'
 import RequestsUtils from '@/assets/RequestsUtils'
 import AutocompleteInput, {AutocompleteInputEvents, AutocompleteSuggestion} from '@/components/AutocompleteInput.vue'
-import Vue from 'vue'
+import {defineComponent} from 'vue'
 import {AxiosResponse} from 'axios'
 import {TagsNamespaceValue} from '@/types'
 import Utils from '@/assets/Utils'
 
-export default Vue.defineComponent({
+export default defineComponent({
   name: 'TagAutocompleteInput',
 
   components: {
@@ -50,7 +50,7 @@ export default Vue.defineComponent({
     },
     selectionType: {
       type: String,
-      validator(val: String) {
+      validator: (val: String) => {
         if (!val) {
           return false
         }
@@ -90,7 +90,7 @@ export default Vue.defineComponent({
 
   watch: {
     initialTag: {
-      handler(newVal) {
+      handler: function(newVal) {
         if (newVal !== this.tag) {
           this.tag = newVal
         }
@@ -102,12 +102,12 @@ export default Vue.defineComponent({
   computed: {
 
     currentTag(): string {
-      let currentTag
+      let currentTag: string
       if (this?.selectionType === 'multiple') {
-        const tags = this.tag.split(' ')
-        currentTag = tags[tags.length - 1].trim()
+        const tags = this.tag.toString().split(' ')
+        currentTag = tags[tags.length - 1].trim() as string
       } else {
-        currentTag = this.tag.trim()
+        currentTag = this.tag.toString().trim() as string
       }
       return currentTag
     },
@@ -116,7 +116,7 @@ export default Vue.defineComponent({
       return this.selectionType === 'multiple' ? 'Space separated tags' : 'Tag'
     },
   },
-
+  emits: ['tag-changed', 'tag-submitted', 'keyup', 'keydown', 'keypress', 'focus', 'blur'],
   methods: {
 
     async loadAutocompleteSuggestions() {
@@ -181,6 +181,7 @@ export default Vue.defineComponent({
     },
 
     bubbleEvent(eventName: AutocompleteInputEvents, event: Event) {
+      // this.currentEventName = eventName
       this.$emit(eventName, event)
     },
 

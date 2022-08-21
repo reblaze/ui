@@ -73,7 +73,7 @@
 <script lang="ts">
 import _ from 'lodash'
 import DatasetsUtils from '@/assets/DatasetsUtils'
-import Vue, {PropType} from 'vue'
+import {defineComponent, PropType} from 'vue'
 import {LimitRuleType} from '@/types'
 
 export type OptionObject = {
@@ -96,7 +96,7 @@ export const limitAttributes = {
   'authority': 'Authority',
 }
 
-export default Vue.defineComponent({
+export default defineComponent({
   name: 'LimitOption',
   props: {
     label: {

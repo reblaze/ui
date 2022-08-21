@@ -644,24 +644,24 @@ export default defineComponent({
         {
           value: 'json',
           displayName: 'JSON',
-          checked?: false,
+          checked: false,
         },
         {
           value: 'multipart_form',
           displayName: 'Multipart Form',
-          checked?: false,
+          checked: false,
 
         },
         {
           value: 'url_encoded',
           displayName: 'URL Encoded',
-          checked?: false,
+          checked: false,
 
         },
         {
           value: 'xml',
           displayName: 'XML',
-          checked?: false,
+          checked: false,
         },
       ],
     }

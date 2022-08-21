@@ -150,9 +150,9 @@
         <component
             v-if="selectedBranch && selectedDocType && selectedDoc"
             :is="componentsMap[selectedDocType].component"
-            v-model="selectedBranch"
-            :selectedDoc="selectedDoc"
-            :docs="docs"
+            v-model:selectedBranch="selectedBranch"
+            v-model:selectedDoc="selectedDoc"
+            v-model:docs="docs"
             :apiPath="documentAPIPath"
             @form-invalid="isDocumentInvalid = $event"
             ref="currentComponent">
@@ -271,7 +271,13 @@ export default defineComponent({
       commits: 0,
       branches: 0,
 
-      componentsMap: {
+      apiRoot: RequestsUtils.confAPIRoot,
+      apiVersion: RequestsUtils.confAPIVersion,
+    }
+  },
+  computed: {
+    componentsMap() {
+      return {
         'globalfilters': {component: GlobalFilterListEditor},
         'flowcontrol': {component: FlowControlPolicyEditor},
         'securitypolicies': {component: SecurityPoliciesEditor},
@@ -279,13 +285,8 @@ export default defineComponent({
         'aclprofiles': {component: ACLEditor},
         'contentfilterprofiles': {component: ContentFilterEditor},
         'contentfilterrules': {component: ContentFilterRulesEditor},
-      },
-
-      apiRoot: RequestsUtils.confAPIRoot,
-      apiVersion: RequestsUtils.confAPIVersion,
-    }
-  },
-  computed: {
+      }
+    },
 
     documentAPIPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`

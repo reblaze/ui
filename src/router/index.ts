@@ -46,7 +46,7 @@ const routes: Array<RouteRecordRaw> = [
     ],
   },
   {
-    path: '*',
+    path: '/:pathMatch(.*)*',
     redirect: '/config',
   },
 ]

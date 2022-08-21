@@ -203,7 +203,7 @@
 
 <script lang="ts">
 import _ from 'lodash'
-import Vue, {PropType} from 'vue'
+import {defineComponent, PropType} from 'vue'
 import Utils from '@/assets/Utils'
 import {Category, GlobalFilter, GlobalFilterSection, GlobalFilterSectionEntry, Relation} from '@/types'
 
@@ -212,7 +212,7 @@ export type Rule = {
           sections: GlobalFilterSection[],
         }
 
-export default Vue.defineComponent({
+export default defineComponent({
   name: 'EntriesRelationList',
 
   props: {
@@ -224,7 +224,7 @@ export default Vue.defineComponent({
           sections: [] as GlobalFilterSection[],
         }
       },
-      validator(value: Rule) {
+      validator: (value: Rule) => {
         if (!value || !value.relation || !value.sections) {
           return false
         }

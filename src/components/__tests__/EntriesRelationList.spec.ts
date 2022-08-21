@@ -1,10 +1,9 @@
-import EntriesRelationList, { Rule } from '@/components/EntriesRelationList.vue'
+import EntriesRelationList, {Rule} from '@/components/EntriesRelationList.vue'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {mount, DOMWrapper, VueWrapper} from '@vue/test-utils'
 import _ from 'lodash'
 import Vue from 'vue'
 import {GlobalFilter, GlobalFilterSection} from '@/types'
-import { DefinedComponent } from '@vue/test-utils/dist/types'
 
 describe('EntriesRelationList.vue', () => {
   let wrapper = mount(EntriesRelationList)

@@ -1,6 +1,6 @@
 import AutocompleteInput from '@/components/AutocompleteInput.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
-import {mount} from '@vue/test-utils'
+import {mount, VueWrapper} from '@vue/test-utils'
 import Vue from 'vue'
 import axios from 'axios'
 import * as bulmaToast from 'bulma-toast'
@@ -8,7 +8,7 @@ import {Options} from 'bulma-toast'
 
 jest.mock('axios')
 
-describe('AutocompleteInput.vue', () => {
+describe('AutocompleteInput', () => {
   let wrapper = mount(AutocompleteInput)
   let suggestions: any[]
   beforeEach(() => {
@@ -233,7 +233,7 @@ describe('AutocompleteInput.vue', () => {
         clearInputAfterSelection: false,
       },
       attachTo: elem,
-    })
+    }) as VueWrapper<any>
     await Vue.nextTick()
     const input = wrapper.find('.autocomplete-input')
     input.setValue('value')

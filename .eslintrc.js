@@ -1,3 +1,5 @@
+const { mdiShoppingMusic } = require("@mdi/js");
+
 module.exports = {
   'root': true,
   // [
@@ -33,7 +35,7 @@ module.exports = {
     'vue',
     '@typescript-eslint',
   ],
-  'ignorePatterns': ['public/*', 'dist/*', 'coverage/*', '**/*.js'],
+  'ignorePatterns': ['public/*', 'dist/*', 'coverage/*', '**/*.js', 'vue-shims.d.ts'],
   'rules': {
     'semi': ['error', 'never'],
     'max-len': ['warn', {
@@ -43,6 +45,7 @@ module.exports = {
       'ignoreUrls': true,
     }],
     'require-jsdoc': 'off',
+    'vue/no-v-model-argument': 'off',
     'indent': ['error', 2, {
       'FunctionDeclaration': {
         'parameters': 'first',

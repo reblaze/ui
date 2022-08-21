@@ -117,7 +117,7 @@
       </template>
     </div>
     <div class="content" v-if="localAction && localAction.type === 'ban' && localAction.params.action">
-      <response-action :action.sync="localAction.params.action"
+      <response-action v-model:action="localAction.params.action"
                        :label-separated-line="labelSeparatedLine"
                        :is-single-input-column="isSingleInputColumn"
                        :ignore="['ban']"
@@ -129,7 +129,7 @@
 
 <script lang="ts">
 import _ from 'lodash'
-import Vue, {PropType} from 'vue'
+import {defineComponent, PropType} from 'vue'
 import {ResponseActionType} from '@/types'
 
 export const responseActions = {
@@ -142,7 +142,7 @@ export const responseActions = {
   'request_header': {'title': 'Header', 'params': {'headers': ''}},
 }
 
-export default Vue.defineComponent({
+export default defineComponent({
   name: 'ResponseAction',
   props: {
     action: Object as PropType<ResponseActionType>,
