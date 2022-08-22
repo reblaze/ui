@@ -167,7 +167,7 @@ export default defineComponent({
     selectedDoc: {
       handler: function(val, oldVal) {
         if (!val || !oldVal || val.id !== oldVal.id) {
-          (this.$refs.entriesRelationList as any)?.cancelAllEntries()
+          (this.$refs.entriesRelationList as typeof EntriesRelationList)?.cancelAllEntries()
         }
       },
       immediate: true,

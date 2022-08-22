@@ -441,6 +441,7 @@ export default defineComponent({
       })
     },
   },
+  emits: ['update:selectedDoc'],
   methods: {
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
@@ -649,7 +650,7 @@ export default defineComponent({
     selectedDoc: {
       handler: function() {
         this.getConnectedSecurityPoliciesEntries()
-        this.$forceUpdate()
+      //  this.$forceUpdate()
       },
       immediate: true,
       deep: true,

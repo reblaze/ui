@@ -703,6 +703,8 @@ export default defineComponent({
     },
   },
 
+  emits: ['update:selectedDoc', 'form-invalid'],
+
   methods: {
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)

@@ -216,12 +216,11 @@ import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
 import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
-import {defineComponent} from 'vue'
+import {defineComponent, shallowRef} from 'vue'
 import {BasicDocument, Commit, Document, DocumentType, HttpRequestMethods, SecurityPolicy} from '@/types'
 import axios, {AxiosResponse} from 'axios'
 
 export default defineComponent({
-
   name: 'DocumentEditor',
   props: {},
   components: {
@@ -273,20 +272,18 @@ export default defineComponent({
 
       apiRoot: RequestsUtils.confAPIRoot,
       apiVersion: RequestsUtils.confAPIVersion,
+      componentsMap: {
+        'globalfilters': shallowRef({component: GlobalFilterListEditor}),
+        'flowcontrol': shallowRef({component: FlowControlPolicyEditor}),
+        'securitypolicies': shallowRef({component: SecurityPoliciesEditor}),
+        'ratelimits': shallowRef({component: RateLimitsEditor}),
+        'aclprofiles': shallowRef({component: ACLEditor}),
+        'contentfilterprofiles': shallowRef({component: ContentFilterEditor}),
+        'contentfilterrules': shallowRef({component: ContentFilterRulesEditor}),
+      },
     }
   },
   computed: {
-    componentsMap() {
-      return {
-        'globalfilters': {component: GlobalFilterListEditor},
-        'flowcontrol': {component: FlowControlPolicyEditor},
-        'securitypolicies': {component: SecurityPoliciesEditor},
-        'ratelimits': {component: RateLimitsEditor},
-        'aclprofiles': {component: ACLEditor},
-        'contentfilterprofiles': {component: ContentFilterEditor},
-        'contentfilterrules': {component: ContentFilterRulesEditor},
-      }
-    },
 
     documentAPIPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
@@ -306,7 +303,7 @@ export default defineComponent({
       get(): Document {
         return this.docs?.[this.selectedDocIndex]
       },
-      set(newDoc): void {
+      set(newDoc: any): void {
         this.docs[this.selectedDocIndex] = newDoc
       },
     },
@@ -671,6 +668,7 @@ export default defineComponent({
   },
 
   async created() {
+    console.log('created', this.$route.params)
     this.setLoadingDocStatus(true)
     await this.loadConfigs()
     this.setSelectedDataFromRouteParams()
