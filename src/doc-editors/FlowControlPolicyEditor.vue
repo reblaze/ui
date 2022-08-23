@@ -71,7 +71,7 @@
               </p>
             </div>
             <div class="field">
-              <response-action v-model="localDoc.action"
+              <response-action v-model:action="localDoc.action"
                                @update:action="emitDocUpdate"
                                label-separated-line/>
             </div>
@@ -119,7 +119,7 @@
                   </tr>
                   <tr>
                     <td>
-                      <tag-autocomplete-input v-if="addNewTagColName === filter"
+                    <tag-autocomplete-input v-if="addNewTagColName === filter"
                                               ref="tagAutocompleteInput"
                                               :clear-input-after-selection="true"
                                               :selection-type="'single'"
@@ -482,7 +482,6 @@ export default defineComponent({
     },
 
     sequenceItemEntries(sequenceIndex: number) {
-      // console.log('this.localDoc', this.localDoc)
       const sequenceItem = this.localDoc.sequence[sequenceIndex]
       const headersEntries = Object.entries(sequenceItem.headers)
       const cookiesEntries = Object.entries(sequenceItem.cookies)

@@ -17,7 +17,10 @@
                   class="option-type-selection"
                   title="Type">
             <option v-if="useDefaultSelf" value="self">HTTP request</option>
-            <option v-for="(value, id) in options" :selected="value === selectedType" :value="id" :key="id">
+            <option v-for="(value, id) in options"
+              :selected="value === selectedType"
+              :value="id"
+              :key="id">
               {{ value }}
             </option>
           </select>
@@ -159,6 +162,7 @@ export default defineComponent({
       options: limitOptionsTypes,
       attributes: attributes,
       type: this.option?.type || 'attrs',
+      prevSelectedOption: null as OptionObject,
     }
   },
   computed: {
@@ -192,14 +196,22 @@ export default defineComponent({
       return this.optionsData[this.type]
     },
   },
-  updated() {
-    this.$emit('change', {...this.selectedOption})
-  },
+
   emits: ['change', 'remove'],
+
   methods: {
     isCategoryArgsCookiesHeaders(limitRuleType: LimitRuleType) {
       return (new RegExp('(args|cookies|headers)')).test(limitRuleType)
     },
   },
+  created() {
+    this.prevSelectedOption = this.selectedOption
+  },
+  updated() {
+    if (this.prevSelectedOption != this.selectedOption) {
+      this.$emit('change', {...this.selectedOption})
+    }
+  },
+
 })
 </script>

@@ -668,7 +668,6 @@ export default defineComponent({
   },
 
   async created() {
-    console.log('created', this.$route.params)
     this.setLoadingDocStatus(true)
     await this.loadConfigs()
     this.setSelectedDataFromRouteParams()
