@@ -1,8 +1,8 @@
 import VersionControl from '@/views/VersionControl.vue'
-import GitHistory from '@/components/GitHistory.vue'
+import GitHistory from 'src/components/GitHistory.vue'
 import Utils from '@/assets/Utils'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
-import {mount} from '@vue/test-utils'
+import {mount, VueWrapper, DOMWrapper} from '@vue/test-utils'
 import Vue from 'vue'
 import axios from 'axios'
 import {Branch} from '@/types'
@@ -10,7 +10,7 @@ import {Branch} from '@/types'
 jest.mock('axios')
 
 describe('VersionControl.vue', () => {
-  let wrapper: any
+  let wrapper: VueWrapper
   let gitData: Branch[]
   beforeEach(() => {
     gitData = [
@@ -284,7 +284,7 @@ describe('VersionControl.vue', () => {
     const branchSelection = wrapper.find('.branch-selection')
     branchSelection.trigger('click')
     const options = branchSelection.findAll('option')
-    options.at(1).setSelected()
+    branchSelection.setValue(options.at(1).element.value)
     // allow all requests to finish
     setImmediate(() => {
       expect((wrapper.vm as any).selectedBranch).toEqual(gitData[1].id)
@@ -296,7 +296,7 @@ describe('VersionControl.vue', () => {
     const branchSelection = wrapper.find('.branch-selection')
     branchSelection.trigger('click')
     const options = branchSelection.findAll('option')
-    options.at(1).setSelected()
+    branchSelection.setValue(options.at(1).element.value)
     // allow all requests to finish
     setImmediate(() => {
       const gitHistory = wrapper.findComponent(GitHistory)

@@ -185,8 +185,10 @@ describe('LimitOption.vue', () => {
         const selection = wrapper.find('.option-type-selection')
         const options = selection.findAll('option')
         // set to not self so we would be able to change to default
-        options.at(1).setSelected()
-        options.at(0).setSelected()
+        selection.setValue(options.at(1).element.value)
+        // options.at(1).setSelected()
+        selection.setValue(options.at(0).element.value)
+        // options.at(0).setSelected()
         await Vue.nextTick()
         expect(wrapper.emitted('change')).toBeTruthy()
         expect(wrapper.emitted('change')[0]).toEqual([wantedEmit])
@@ -196,11 +198,12 @@ describe('LimitOption.vue', () => {
         const wantedEmit = {
           type: 'headers',
           key: '',
-          value: undefined as string,
+          value: undefined as unknown as string,
         }
         const selection = wrapper.find('.option-type-selection')
         const options = selection.findAll('option')
-        options.at(1).setSelected()
+        selection.setValue(options.at(1).element.value)
+        //options.at(1).setSelected()
         await Vue.nextTick()
         expect(wrapper.emitted('change')).toBeTruthy()
         expect(wrapper.emitted('change')[0]).toEqual([wantedEmit])
@@ -210,7 +213,7 @@ describe('LimitOption.vue', () => {
         const wantedEmit = {
           type: 'cookies',
           key: '',
-          value: undefined as string,
+          value: undefined as unknown as string,
         }
         const selection = wrapper.find('.option-type-selection')
         const options = selection.findAll('option')
@@ -224,7 +227,7 @@ describe('LimitOption.vue', () => {
         const wantedEmit = {
           type: 'args',
           key: '',
-          value: undefined as string,
+          value: undefined as unknown as string,
         }
         const selection = wrapper.find('.option-type-selection')
         const options = selection.findAll('option')
@@ -238,7 +241,7 @@ describe('LimitOption.vue', () => {
         const wantedEmit = {
           type: 'attrs',
           key: '',
-          value: undefined as string,
+          value: undefined as unknown as string,
         }
         const selection = wrapper.find('.option-type-selection')
         const options = selection.findAll('option')
@@ -256,7 +259,7 @@ describe('LimitOption.vue', () => {
           type: 'headers',
           key: wantedKeyValue,
           oldKey: '',
-          value: undefined as string,
+          value: undefined as unknown as string,
         }
         const selection = wrapper.find('.option-type-selection')
         const options = selection.findAll('option')
@@ -275,7 +278,7 @@ describe('LimitOption.vue', () => {
           type: 'cookies',
           key: wantedKeyValue,
           oldKey: '',
-          value: undefined as string,
+          value: undefined as unknown as string,
         }
         const selection = wrapper.find('.option-type-selection')
         const options = selection.findAll('option')
@@ -294,7 +297,7 @@ describe('LimitOption.vue', () => {
           type: 'args',
           key: wantedKeyValue,
           oldKey: '',
-          value: undefined as string,
+          value: undefined as unknown as string,
         }
         const selection = wrapper.find('.option-type-selection')
         const options = selection.findAll('option')
@@ -312,7 +315,7 @@ describe('LimitOption.vue', () => {
           type: 'attrs',
           key: 'path',
           oldKey: '',
-          value: undefined as string,
+          value: undefined as unknown as string,
         }
         const typeSelection = wrapper.find('.option-type-selection')
         const typeOptions = typeSelection.findAll('option')
@@ -423,7 +426,7 @@ describe('LimitOption.vue', () => {
           const wantedEmit = {
             type: 'args',
             key: '',
-            value: undefined as string,
+            value: undefined as unknown as string,
           }
           expect(wrapper.emitted('change')).toBeTruthy()
           expect(wrapper.emitted('change')[0]).toEqual([wantedEmit])
@@ -435,7 +438,7 @@ describe('LimitOption.vue', () => {
             type: 'args',
             key: wantedKeyValue,
             oldKey: '',
-            value: undefined as string,
+            value: undefined as unknown as string,
           }
           const input = wrapper.find('.option-name-input')
           input.setValue(wantedKeyValue)
@@ -478,7 +481,7 @@ describe('LimitOption.vue', () => {
           const wantedEmit = {
             type: 'args',
             key: '',
-            value: undefined as string,
+            value: undefined as unknown as string,
           }
           expect(wrapper.emitted('change')).toBeTruthy()
           expect(wrapper.emitted('change')[0]).toEqual([wantedEmit])
@@ -490,7 +493,7 @@ describe('LimitOption.vue', () => {
             type: 'args',
             key: wantedKeyValue,
             oldKey: '',
-            value: undefined as string,
+            value: undefined as unknown as string,
           }
           const input = wrapper.find('.option-name-input')
           input.setValue(wantedKeyValue)
