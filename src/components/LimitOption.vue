@@ -206,13 +206,10 @@ export default defineComponent({
   },
   mounted() {
     this.prevSelectedOption = {...this.selectedOption}
-    console.log('limitOption mounted', JSON.stringify(this.prevSelectedOption) === JSON.stringify(this.selectedOption))
   },
   updated() {
-    console.log('limitOption updated prevOption NOT Equal to selectedOption',
-    JSON.stringify(this.prevSelectedOption) != JSON.stringify(this.selectedOption))
     if (JSON.stringify(this.prevSelectedOption) != JSON.stringify(this.selectedOption)) {
-      console.log('limitOption changed')
+      // console.log('limitOption changed')
       this.$emit('change', {...this.selectedOption})
     }
   },
