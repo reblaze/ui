@@ -14,6 +14,7 @@
             {{ menuItemDetails.title }}
           </a>
           <router-link v-else
+                       :data-qa="menuItemDetails.title"
                        :data-curie="menuItemKey"
                        :to="{path: menuItemKey as string}"
                        :class="{ 'is-active': currentRoutePath.includes(menuItemKey as string) }">

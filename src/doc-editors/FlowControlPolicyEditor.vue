@@ -184,10 +184,10 @@
                       <td colspan="2">
                         <div class="control is-fullwidth">
                           <input class="input is-small host-entry-input"
-                                data-qa="host-input"
-                                title="Host"
-                                v-model="sequenceItem.headers.host"
-                                @input="emitDocUpdate"/>
+                                 data-qa="host-input"
+                                 title="Host"
+                                 v-model="sequenceItem.headers.host"
+                                 @input="emitDocUpdate"/>
                         </div>
                       </td>
                       <td class="width-80px"></td>
@@ -203,10 +203,10 @@
                       <td colspan="2">
                         <div class="control is-fullwidth">
                           <input class="input is-small uri-entry-input"
-                                data-qa="path-input"
-                                title="Path"
-                                v-model="sequenceItem.uri"
-                                @input="emitDocUpdate"/>
+                                 data-qa="path-input"
+                                 title="Path"
+                                 v-model="sequenceItem.uri"
+                                 @input="emitDocUpdate"/>
                         </div>
                       </td>
                       <td class="width-80px"></td>

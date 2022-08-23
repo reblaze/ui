@@ -18,6 +18,7 @@
                   title="Type">
             <option v-if="useDefaultSelf" value="self">HTTP request</option>
             <option v-for="(value, id) in options"
+              :data-qa="`${value}`"
               :selected="value === selectedType"
               :value="id"
               :key="id">
