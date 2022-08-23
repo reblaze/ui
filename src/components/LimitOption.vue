@@ -204,11 +204,15 @@ export default defineComponent({
       return (new RegExp('(args|cookies|headers)')).test(limitRuleType)
     },
   },
-  created() {
-    this.prevSelectedOption = this.selectedOption
+  mounted() {
+    this.prevSelectedOption = {...this.selectedOption}
+    console.log('limitOption mounted', JSON.stringify(this.prevSelectedOption) === JSON.stringify(this.selectedOption))
   },
   updated() {
-    if (this.prevSelectedOption != this.selectedOption) {
+    console.log('limitOption updated prevOption NOT Equal to selectedOption',
+    JSON.stringify(this.prevSelectedOption) != JSON.stringify(this.selectedOption))
+    if (JSON.stringify(this.prevSelectedOption) != JSON.stringify(this.selectedOption)) {
+      console.log('limitOption changed')
       this.$emit('change', {...this.selectedOption})
     }
   },
