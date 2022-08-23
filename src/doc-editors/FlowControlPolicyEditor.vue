@@ -229,9 +229,9 @@
                       </td>
                       <td class="width-80px">
                         <a class="is-small has-text-grey remove-entry-button"
-                            data-qa="remove-sequence-btn"
-                            title="Remove sequence entry"
-                            tabindex="0"
+                            data-qa='remove-sequence-btn'
+                            title='Remove sequence entry'
+                            tabindex='0'
                             @click="removeSequenceItemEntry(
                                 sequenceIndex, sequenceEntry[0] as ArgsCookiesHeadersType, sequenceEntry[1][0])"
                             @keypress.space.prevent

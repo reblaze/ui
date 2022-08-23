@@ -8,6 +8,7 @@
       <ul class="menu-list">
         <li v-for="(menuItemDetails, menuItemKey) in sectionItems" :key="menuItemKey" class="section-item">
           <a v-if="menuItemDetails.external"
+             :data-qa="menuItemDetails.title"
              :data-curie="menuItemKey"
              :href="menuItemDetails.url"
              target="_blank">

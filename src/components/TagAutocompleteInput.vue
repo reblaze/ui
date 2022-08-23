@@ -9,6 +9,7 @@
       :selection-type="selectionType"
       :minimum-value-length="minimumTagLength"
       :title="inputTitle"
+      :data-qa="inputTitle"
       @value-changed="tagChanged"
       @value-submitted="tagSubmitted"
       @keyup="bubbleEvent('keyup', $event)"

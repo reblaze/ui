@@ -15,6 +15,7 @@
                 </label>
                 <div class="control">
                   <input class="input is-small document-name"
+                         data-qa="ratelimit-name-input"
                          title="Document name"
                          placeholder="Document name"
                          @change="emitDocUpdate"
@@ -27,6 +28,7 @@
                 </label>
                 <div class="control">
                   <input class="input is-small document-description"
+                         data-qa="ratelimit-description-input"
                          type="text"
                          title="Rate limit rule description"
                          placeholder="Rate limit rule description"
@@ -40,6 +42,7 @@
                 </label>
                 <div class="control suffix seconds-suffix">
                   <input class="input is-small document-timeframe"
+                         data-qa="ratelimit-timeframe-input"
                          type="text"
                          title="Rate limit duration"
                          placeholder="Rate limit duration"
@@ -60,6 +63,7 @@
                               :key="getOptionTextKey(option, index)"/>
                 <a title="Add new option rule"
                    class="is-text is-small is-size-7 ml-3 add-key-button"
+                   data-qa="add-new-key-btn"
                    tabindex="0"
                    @click="addKey()"
                    @keypress.space.prevent
@@ -96,6 +100,7 @@
                       </label>
                       <input class="input is-small document-limit"
                             type="text"
+                            data-qa="ratelimit-limit-input"
                             title="Number of events"
                             placeholder="Number of events"
                             @change="emitDocUpdate"
@@ -121,6 +126,7 @@
                                   @update:action="emitDocUpdate"/>
                 </div>
                 <a title="Add new threshold"
+                   data-qa="add-another-threshold-btn"
                    class="is-text is-small is-size-7 ml-3 add-threshold-button"
                    tabindex="0"
                    @click="addThreshold()"
@@ -157,6 +163,7 @@
                       </td>
                       <td class="is-size-7 width-20px">
                         <a title="Remove entry"
+                           data-qa="remove-tag-btn"
                            class="is-small has-text-grey remove-filter-entry-button"
                            tabindex="0"
                            @click="removeTag(filter, tagIndex)"
@@ -208,6 +215,7 @@
                 <th class="is-size-7 width-80px has-text-centered">
                   <a v-if="!newSecurityPolicyConnectionOpened"
                      class="has-text-grey-dark is-small new-connection-button"
+                     data-qa="attach-to-site-btn"
                      title="Add new connection"
                      tabindex="0"
                      @click="openNewSecurityPolicyConnection"
@@ -218,6 +226,7 @@
                   </a>
                   <a v-else
                      class="has-text-grey-dark is-small new-connection-button"
+                     data-qa="cancel-attaching-to-site"
                      title="Cancel adding new connection"
                      tabindex="0"
                      @click="closeNewSecurityPolicyConnection"
@@ -238,6 +247,7 @@
                       <select v-model="newSecurityPolicyConnectionData.map"
                               @change="newSecurityPolicyConnectionData.entryIndex = 0"
                               class="new-connection-map"
+                              data-qa="site-name-dropdown"
                               title="Type">
                         <option v-for="map in newSecurityPolicyConnections" :key="map.id" :value="map">
                           {{ map.name }}
@@ -255,6 +265,7 @@
                     <div class="select is-small">
                       <select v-model="newSecurityPolicyConnectionData.entryIndex"
                               class="new-connection-entry-index"
+                              data-qa="site-path-dropdown"
                               title="Type">
                         <option v-for="(mapEntry, index) in newSecurityPolicyConnectionEntries"
                                 :key="mapEntry.match"
@@ -266,6 +277,7 @@
                   </td>
                   <td class="has-text-centered">
                     <button title="Add new connection"
+                            data-qa="add-new-connection-btn"
                             class="button is-light is-small add-new-connection"
                             @click="addNewSecurityPolicyConnection">
                       <span class="icon is-small"><i class="fas fa-plus fa-xs"></i></span>
@@ -303,6 +315,7 @@
                     <span v-show="currentEntryDeleteIndex !== index">
                     <a tabindex="0"
                        title="Remove connection to the Security Policy"
+                       data-qa="remove-attached-site-btn"
                        class="is-small has-text-grey remove-connection-button"
                        @click="setEntryDeleteIndex(index)"
                        @keypress.space.prevent
@@ -313,6 +326,7 @@
                     </span>
                   <span v-show="currentEntryDeleteIndex === index">
                       <a class="is-size-7 has-text-grey add-button confirm-remove-connection-button"
+                         data-qa="confirm-remove-btn"
                          title="Confirm"
                          tabindex="0"
                          @click="removeSecurityPolicyConnection(connection.id, connection.entryMatch)"
@@ -323,6 +337,7 @@
                     </a>
                     <br/>
                     <a class="is-size-7 has-text-grey cancel-remove-connection-button"
+                       data-qa="cancel-remove-btn"
                        title="Cancel"
                        tabindex="0"
                        @click="setEntryDeleteIndex(-1)"

@@ -9,6 +9,7 @@
                 <div class="control" v-if="databases.length">
                   <div class="select is-small">
                     <select class="namespace-selection"
+                            data-qa="switch-namespace-dropdown"
                             title="Switch namespace"
                             v-model="selectedNamespace"
                             @change="switchNamespace">
@@ -26,6 +27,7 @@
                           :class="{'is-loading': isForkNamespaceLoading}"
                           @click="forkNamespace"
                           :disabled="!selectedNamespace"
+                          data-qa="duplicate-namespace-btn"
                           title="Duplicate namespace">
                     <span class="icon is-small">
                       <i class="fas fa-clone"></i>
@@ -37,6 +39,7 @@
                   <button class="button is-small download-namespace-button"
                      @click="downloadNamespace"
                      :disabled="!selectedNamespace"
+                     data-qa="download-namespace-btn"
                      title="Download namespace">
                     <span class="icon is-small">
                       <i class="fas fa-download"></i>
@@ -48,6 +51,7 @@
                   <button class="button is-small new-namespace-button"
                           :class="{'is-loading': isNewNamespaceLoading}"
                           @click="addNewNamespace()"
+                          data-qa="add-namespace-btn"
                           title="Add new namespace">
                     <span class="icon is-small">
                       <i class="fas fa-plus"></i>
@@ -59,6 +63,7 @@
                   <button class="button is-small has-text-danger delete-namespace-button"
                           :class="{'is-loading': isDeleteNamespaceLoading}"
                           @click="deleteNamespace()"
+                          data-qa="delete-namespace-btn"
                           title="Delete namespace"
                           :disabled="selectedNamespace === defaultNamespaceName || databases.length <= 1">
                     <span class="icon is-small">
@@ -74,6 +79,7 @@
                   <div class="select is-small">
                     <select class="key-selection"
                             title="Switch key"
+                            data-qa="switch-key-dropdown"
                             v-model="selectedKey"
                             @change="switchKey">
                       <option v-for="key in namespaceKeys"
@@ -90,6 +96,7 @@
                           :class="{'is-loading': isForkKeyLoading}"
                           @click="forkKey"
                           :disabled="!selectedNamespace"
+                          data-qa="duplicate-key-btn"
                           title="Duplicate Key">
                     <span class="icon is-small">
                       <i class="fas fa-clone"></i>
@@ -102,6 +109,7 @@
                      @click="downloadKey"
                      :disabled="!selectedKeyValue"
                      title="Download Key">
+                     data-qa="download-key-btn"
                     <span class="icon is-small">
                       <i class="fas fa-download"></i>
                     </span>
@@ -113,6 +121,7 @@
                           :class="{'is-loading': isNewKeyLoading}"
                           @click="addNewKey()"
                           :disabled="!selectedNamespace"
+                          data-qa="add-new-key-btn"
                           title="Add New Key">
                     <span class="icon is-small">
                       <i class="fas fa-plus"></i>
@@ -125,6 +134,7 @@
                           :class="{'is-loading': isSaveDocLoading}"
                           @click="saveChanges"
                           title="Save changes"
+                          data-qa="save-changes-btn"
                           :disabled="!isFormValid">
                     <span class="icon is-small">
                       <i class="fas fa-save"></i>
@@ -137,6 +147,7 @@
                           :class="{'is-loading': isDeleteKeyLoading}"
                           @click="deleteKey()"
                           title="Delete Key"
+                          data-qa="delete-key-btn"
                           :disabled="(selectedNamespace === defaultNamespaceName && selectedKey === defaultKeyName)
                                      || namespaceKeys.length <= 1">
                     <span class="icon is-small">
@@ -163,6 +174,7 @@
                 <div class="control">
                   <input class="input is-small is-fullwidth namespace-name-input"
                          title="Namespace name"
+                         data-qa="namespace-name-input"
                          @input="validateInput($event, isSelectedNamespaceNewNameValid)"
                          type="text"
                          placeholder="Namespace name"
@@ -178,6 +190,7 @@
                 <div class="control">
                   <input class="input is-small is-fullwidth key-name-input"
                          title="Key name"
+                         data-qa="key-name-input"
                          @input="validateInput($event, isSelectedKeyNewNameValid)"
                          type="text"
                          placeholder="Key name"
@@ -199,6 +212,7 @@
                       v-else
                       @input="validateInput($event, isNewValueValid)"
                       title="Value"
+                      data-qa="value-input"
                       rows="20"
                       class="is-family-monospace textarea value-input"
                       v-model="selectedKeyValue">

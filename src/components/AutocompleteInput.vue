@@ -7,6 +7,7 @@
                 :value="autocompleteTextareaValue"
                 :title="title"
                 :placeholder="title"
+                :data-qa="title"
                 class="autocomplete-input textarea is-small"
                 @keyup.enter="selectTextareaValue"
                 @keyup.space.prevent
@@ -23,6 +24,7 @@
              v-model="autocompleteValue"
              :title="title"
              :placeholder="title"
+             :data-qa="title"
              type="text"
              class="autocomplete-input input is-small"
              aria-haspopup="true"

@@ -15,7 +15,8 @@
         <div class="control select is-small is-fullwidth">
           <select v-model="selectedType"
                   class="option-type-selection"
-                  title="Type">
+                  title="Type"
+                  data-qa="countby-dropdown">
             <option v-if="useDefaultSelf" value="self">HTTP request</option>
             <option v-for="(value, id) in options"
               :data-qa="`${value}`"
@@ -42,8 +43,9 @@
           <div class="select is-fullwidth">
             <select v-model="selectedName"
                     class="option-attribute-selection"
-                    title="Name">
-              <option v-for="(value, id) in attributes" :value="id" :key="id">{{ value }}</option>
+                    title="Name"
+                    data-qa="countby-key-dropdown">
+              <option v-for="(value, id) in attributes" :value="id" :key="id" :data-qa="value">{{ value }}</option>
             </select>
           </div>
         </div>

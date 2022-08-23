@@ -14,6 +14,7 @@
               </label>
               <div class="control">
                 <input class="input is-small document-name"
+                       data-qa="list-name-input"
                        title="List name"
                        placeholder="List name"
                        @change="emitDocUpdate"
@@ -27,6 +28,7 @@
             <div class="field">
               <label class="checkbox is-size-7">
                 <input type="checkbox"
+                       data-qa="active-checkbox"
                        class="document-active"
                        :readonly="readonly"
                        :disabled="readonly"
@@ -45,6 +47,7 @@
                      @keypress.space="toggleRuleRelation()"
                      @keypress.enter="toggleRuleRelation()">
                   <span class="tag pointer mb-0"
+                        data-qa="relation-toggle"
                         :class="localDoc.rule.relation === 'AND' ? 'is-info xis-light is-selected' : ''"
                         @click="setRuleRelation('AND')">
                     AND
@@ -59,7 +62,8 @@
             </div>
             <div class="field">
               <label class="label is-small">Tags</label>
-              <div class="control">
+              <div class="control"
+                      data-qa="tag-input">
                 <tag-autocomplete-input :initial-tag="selectedDocTags"
                                         :selection-type="'multiple'"
                                         @tag-changed="selectedDocTags = $event">
@@ -69,6 +73,7 @@
             <div class="field">
               <a v-if="externalSource"
                  class="is-small has-text-grey is-size-7 is-pulled-right update-now-button"
+                 data-qa="update-now-btn"
                  tabindex="0"
                  @click="fetchList"
                  @keypress.space.prevent
@@ -79,6 +84,7 @@
               <label class="label is-small">Source</label>
               <div class="control">
                 <input class="input is-small document-source"
+                       data-qa="source-input"
                        title="List source"
                        placeholder="List source"
                        @change="emitDocUpdate"
@@ -113,6 +119,7 @@
               <div class="field" v-if="editable">
                 <div class="control is-expanded">
                   <button class="button is-small has-text-danger-dark remove-all-sections-button"
+                          data-qa="remove-all-sections-btn"
                           title="Remove all sections"
                           @click="removeAllSections">
                     Clear all sections
