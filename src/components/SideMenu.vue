@@ -69,6 +69,13 @@ export default defineComponent({
           '/config': {
             title: 'Policies & Rules',
             items: {
+              '/globalfilters': {title: 'Global Filters'},
+              '/flowcontrol': {title: 'Flow Control Policies'},
+              '/securitypolicies': {title: 'Security Policies'},
+              '/ratelimits': {title: 'Rate Limits'},
+              '/aclprofiles': {title: 'ACL Profiles'},
+              '/contentfilterprofiles': {title: 'Content Filter Profiles'},
+              '/contentfilterrules': {title: 'Content Filter Rules'},
               '/search': {title: 'Search'},
             },
           },
