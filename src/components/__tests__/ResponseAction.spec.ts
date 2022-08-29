@@ -664,7 +664,7 @@ describe('ResponseAction.vue', () => {
           },
         })
         await wrapper.vm.$nextTick()
-        const responseActionComponent = wrapper.findAllComponents(ResponseAction).at(1)
+        const responseActionComponent = wrapper.findAllComponents(ResponseAction).at(0)
         responseActionComponent.vm.$emit('update:action', wantedEmit.params.action)
         await wrapper.vm.$nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()

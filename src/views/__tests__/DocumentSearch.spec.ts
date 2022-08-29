@@ -13,9 +13,7 @@ import {
   RateLimit,
   SecurityPolicy,
 } from '@/types'
-/**
- * @jest-environment jsdom
-*/
+import {setImmediate} from 'timers'
 
 jest.useFakeTimers()
 jest.mock('axios')
@@ -428,7 +426,7 @@ describe('DocumentSearch.vue', () => {
       },
     })
     // allow all requests to finish
-    Window.setImmediate(() => {
+    setImmediate(() => {
       done()
     })
   })
@@ -441,7 +439,7 @@ describe('DocumentSearch.vue', () => {
       return doc.id === item.id && doc.docType === doctype
     })
     const isInView = wrapper.findAll('.doc-id-cell').filter((w: any) => {
-      return w.text().includes(item.id)
+      return w.text()?.includes(item.id)
     }).length > 0
     return isInModel && isInView
   }
@@ -456,7 +454,7 @@ describe('DocumentSearch.vue', () => {
     const options = branchSelection.findAll('option')
     branchSelection.setValue(options.at(1).element.value)
     // allow all requests to finish
-    Window.setImmediate(() => {
+    setImmediate(() => {
       expect((branchSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
       done()
     })
@@ -488,7 +486,7 @@ describe('DocumentSearch.vue', () => {
     })
     wrapper = shallowMount(DocumentSearch)
     // allow all requests to finish
-    Window.setImmediate(() => {
+    setImmediate(() => {
       expect(consoleOutput).toContain(`Error while attempting to get configs`)
       console.log = originalLog
       done()

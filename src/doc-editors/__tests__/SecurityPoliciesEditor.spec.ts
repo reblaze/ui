@@ -6,9 +6,8 @@ import {shallowMount} from '@vue/test-utils'
 import {ACLProfile, ContentFilterProfile, RateLimit, SecurityPolicy} from '@/types'
 import axios from 'axios'
 import _ from 'lodash'
-/**
- * @jest-environment jsdom
- */
+import {setImmediate, setTimeout} from 'timers'
+
 jest.mock('axios')
 
 describe('SecurityPoliciesEditor.vue', () => {
@@ -344,7 +343,7 @@ describe('SecurityPoliciesEditor.vue', () => {
     await wrapper.vm.$nextTick()
     // allow all requests to finish
     jest.useFakeTimers()
-    Window.setImmediate(() => {
+    setImmediate(() => {
       console.log('beforeAll111')
       expect((wrapper.vm as any).initialDocDomainMatch).toBe(wantedMatch)
       jest.useRealTimers()
@@ -392,7 +391,7 @@ describe('SecurityPoliciesEditor.vue', () => {
     wrapper.setProps({selectedDoc: fullPolicy})
     await wrapper.vm.$nextTick()
     // allow all requests to finish
-    Window.setImmediate(() => {
+    setImmediate(() => {
       expect((wrapper.vm as any).initialDocDomainMatch).toBe(wantedMatch)
       done()
     })
@@ -405,7 +404,7 @@ describe('SecurityPoliciesEditor.vue', () => {
       selectedBranch: branch,
     })
     // allow all requests to finish
-    Window.setImmediate(() => {
+    setImmediate(() => {
       expect(axiosGetSpy).toHaveBeenCalledTimes(0)
       done()
     })
@@ -417,7 +416,7 @@ describe('SecurityPoliciesEditor.vue', () => {
       selectedBranch: '',
     })
     // allow all requests to finish
-    Window.setImmediate(() => {
+    setImmediate(() => {
       expect(axiosGetSpy).toHaveBeenCalledTimes(0)
       done()
     })
@@ -429,7 +428,7 @@ describe('SecurityPoliciesEditor.vue', () => {
       selectedBranch: null,
     })
     // allow all requests to finish
-    Window.setImmediate(() => {
+    setImmediate(() => {
       expect(axiosGetSpy).toHaveBeenCalledTimes(0)
       done()
     })
@@ -441,7 +440,7 @@ describe('SecurityPoliciesEditor.vue', () => {
       selectedBranch: undefined,
     })
     // allow all requests to finish
-    Window.setImmediate(() => {
+    setImmediate(() => {
       expect(axiosGetSpy).toHaveBeenCalledTimes(0)
       done()
     })
@@ -454,7 +453,7 @@ describe('SecurityPoliciesEditor.vue', () => {
       selectedBranch: branch,
     })
     // allow all requests to finish
-    Window.setImmediate(() => {
+    setImmediate(() => {
       expect(axiosGetSpy).toHaveBeenCalledTimes(1)
       done()
     })

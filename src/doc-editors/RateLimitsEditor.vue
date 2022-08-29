@@ -652,7 +652,7 @@ export default defineComponent({
     },
 
     referToSecurityPolicy(id: string) {
-      this.$router.push(`/config/${this.selectedBranch}/securitypolicies/${id}`)
+      this.$router?.push(`/config/${this.selectedBranch}/securitypolicies/${id}`)
     },
   },
   created() {

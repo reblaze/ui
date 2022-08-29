@@ -3,25 +3,7 @@
   <div class="dropdown"
        :class="{'is-active': suggestionsVisible}">
     <div class="dropdown-trigger">
-      <textarea v-if="inputType === 'textarea'"
-                :value="autocompleteTextareaValue"
-                :title="title"
-                :placeholder="title"
-                :data-qa="title"
-                class="autocomplete-input textarea is-small"
-                @keyup.enter="selectTextareaValue"
-                @keyup.space.prevent
-                @keyup.down="focusNextSuggestion"
-                @keyup.up="focusPreviousSuggestion"
-                @keyup.esc="closeDropdown"
-                @keyup.delete.prevent="onTextareaDelete"
-                @input="onInput"
-                @blur="inputBlurred"
-                @focus="onTextareaFocus"
-                @mousedown.prevent="moveCursorToEnd"
-                ref="autocompleteInput" />
-      <input v-else
-             v-model="autocompleteValue"
+      <input v-model="autocompleteValue"
              :title="title"
              :placeholder="title"
              :data-qa="title"
@@ -68,18 +50,11 @@ export type AutocompleteSuggestion = {
 
 export type AutocompleteInputEvents = 'keyup' | 'keydown' | 'keypress' | 'focus' | 'blur'
 
-export type InputTypes = 'input' | 'textarea'
-
 export default defineComponent({
   name: 'AutocompleteInput',
 
 
   props: {
-    inputType: {
-      type: String,
-      default: 'input',
-      validator: (val: InputTypes) => ['input', 'textarea'].includes(val),
-    },
     initialValue: {
       type: String,
       default: '',
@@ -135,7 +110,7 @@ export default defineComponent({
       open: false,
       focusedSuggestionIndex: -1,
       inputBlurredTimeout: null,
-      divider: this.inputType === 'textarea' ? '\n' : ' ',
+      divider: ' ',
       skipNextWatchUpdate: false,
     }
   },
@@ -174,15 +149,6 @@ export default defineComponent({
         }
       },
     },
-
-    autocompleteTextareaValue() {
-      return this.autocompleteValue.split(this.divider).map(
-        (val: string) => {
-          val = val.trim()
-          return val ? `• ${val.replace('• ', '')}` : val
-        },
-      ).join(this.divider)
-    },
   },
 
   emits: ['tag-changed', 'value-changed', 'value-submitted', 'keyup', 'keydown', 'keypress', 'focus', 'blur'],
@@ -218,46 +184,7 @@ export default defineComponent({
           this.$refs.autocompleteInput.focus()
         })
       }
-      if (this.inputType === 'textarea') {
-        this.autocompleteValue = `${this.autocompleteValue.trim()}${this.divider}`
-      }
       this.skipNextWatchUpdate = true
-    },
-
-    moveCursorToEnd(event: Event) {
-      const element = event.target as HTMLTextAreaElement
-      element.focus()
-      element.setSelectionRange(element.value.length, element.value.length)
-    },
-
-    selectTextareaValue(event: KeyboardEvent) {
-      if (event.key === 'Enter' && this.autocompleteValue.endsWith(this.divider)) {
-        event.preventDefault()
-      }
-      if (!(event.target as HTMLTextAreaElement).value) {
-        event.preventDefault()
-        return
-      }
-      this.selectValue()
-    },
-
-    onTextareaFocus() {
-      if (this.autocompleteValue.trim()) {
-        this.autocompleteValue = `${this.autocompleteValue.trim()}${this.divider}`
-      }
-    },
-
-    onTextareaDelete() {
-      const valueArray = this.autocompleteValue.trim().split(this.divider)
-      valueArray.splice(-1)
-      this.autocompleteValue = valueArray.join(this.divider)
-      this.valueSubmitted()
-    },
-
-    onInput(event: Event) {
-      this.autocompleteValue = (event.target as HTMLTextAreaElement).value
-      this.openDropdown()
-      this.valueSubmitted()
     },
 
     onEnter(event: Event) {

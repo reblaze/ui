@@ -5,6 +5,7 @@ import * as bulmaToast from 'bulma-toast'
 import {Options} from 'bulma-toast'
 import axios from 'axios'
 import {JSDOM} from 'jsdom'
+import {setImmediate} from 'timers'
 
 function currentEventLoopEnd() {
   return new Promise((resolve) => setImmediate(resolve))

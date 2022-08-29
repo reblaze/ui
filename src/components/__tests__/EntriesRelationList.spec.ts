@@ -71,10 +71,10 @@ describe('EntriesRelationList.vue', () => {
     const component = wrapper.findComponent(EntriesRelationList)
     const categories = component.findAll('.entry-category')
     const values = component.findAll('.entry-value')
-    expect(categories.at(0)?.text().toLowerCase()).toContain(wantedEntryData[0][0].toLowerCase())
-    expect(values.at(0)?.text().toLowerCase()).toContain((wantedEntryData[0][1] as string).toLowerCase())
-    expect(categories.at(1)?.text().toLowerCase()).toContain(wantedEntryData[1][0].toLowerCase())
-    expect(values.at(1)?.text().toLowerCase()).toContain((wantedEntryData[1][1] as string).toLowerCase())
+    expect(categories.at(0)?.text()?.toLowerCase()).toContain(wantedEntryData[0][0].toLowerCase())
+    expect(values.at(0)?.text()?.toLowerCase()).toContain((wantedEntryData[0][1] as string).toLowerCase())
+    expect(categories.at(1)?.text()?.toLowerCase()).toContain(wantedEntryData[1][0].toLowerCase())
+    expect(values.at(1)?.text()?.toLowerCase()).toContain((wantedEntryData[1][1] as string).toLowerCase())
     expect(ruleData.sections[0].entries).toEqual(wantedEntryData)
   })
 
@@ -87,8 +87,8 @@ describe('EntriesRelationList.vue', () => {
     const component = wrapper.findComponent(EntriesRelationList)
     const categories = component.findAll('.entry-category')
     const values = component.findAll('.entry-value')
-    expect(categories.at(0)?.text().toLowerCase()).toContain(wantedEntryData[0].toLowerCase())
-    expect(values.at(0)?.text().toLowerCase()).toContain(wantedEntryData[1].toLowerCase())
+    expect(categories.at(0)?.text()?.toLowerCase()).toContain(wantedEntryData[0].toLowerCase())
+    expect(values.at(0)?.text()?.toLowerCase()).toContain(wantedEntryData[1].toLowerCase())
   })
 
   test('should not break if not given a prop', () => {
