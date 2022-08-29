@@ -1,5 +1,5 @@
 // @ts-nocheck
-import ResponseAction from '@/components/ResponseAction.vue'
+import ResponseAction from '../ResponseAction.vue'
 import {beforeEach, describe, expect, test} from '@jest/globals'
 import {mount} from '@vue/test-utils'
 
@@ -115,9 +115,9 @@ describe('ResponseAction.vue', () => {
         const selection = wrapper.find('.action-type-selection')
         const options = selection.findAll('option')
         // set to not default so we would be able to change to default
-        selection.setValue(options.at(1)?.element.value)
+        selection.setValue(options.at(1).element.value)
         // options.at(1).setSelected()
-        selection.setValue(options.at(0)?.element.value)
+        selection.setValue(options.at(0).element.value)
         // options.at(0).setSelected()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
@@ -129,7 +129,7 @@ describe('ResponseAction.vue', () => {
         }
         const selection = wrapper.find('.action-type-selection')
         const options = selection.findAll('option')
-        selection.setValue(options.at(1)?.element.value)
+        selection.setValue(options.at(1).element.value)
         // options.at(1).setSelected()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
@@ -141,7 +141,7 @@ describe('ResponseAction.vue', () => {
         }
         const selection = wrapper.find('.action-type-selection')
         const options = selection.findAll('option')
-        selection.setValue(options.at(2)?.element.value)
+        selection.setValue(options.at(2).element.value)
         // options.at(2).setSelected()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
@@ -157,7 +157,7 @@ describe('ResponseAction.vue', () => {
         }
         const selection = wrapper.find('.action-type-selection')
         const options = selection.findAll('option')
-        selection.setValue(options.at(3)?.element.value)
+        selection.setValue(options.at(3).element.value)
         // options.at(3).setSelected()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
@@ -173,7 +173,7 @@ describe('ResponseAction.vue', () => {
         }
         const selection = wrapper.find('.action-type-selection')
         const options = selection.findAll('option')
-        selection.setValue(options.at(4)?.element.value)
+        selection.setValue(options.at(4).element.value)
         // options.at(4).setSelected()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
@@ -191,7 +191,7 @@ describe('ResponseAction.vue', () => {
         }
         const selection = wrapper.find('.action-type-selection')
         const options = selection.findAll('option')
-        selection.setValue(options.at(5)?.element.value)
+        selection.setValue(options.at(5).element.value)
         // options.at(5).setSelected()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
@@ -206,7 +206,7 @@ describe('ResponseAction.vue', () => {
         }
         const selection = wrapper.find('.action-type-selection')
         const options = selection.findAll('option')
-        selection.setValue(options.at(6)?.element.value)
+        selection.setValue(options.at(6).element.value)
         // options.at(6).setSelected()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
@@ -239,7 +239,7 @@ describe('ResponseAction.vue', () => {
         await wrapper.vm.$nextTick()
         const selection = wrapper.find('.action-type-selection')
         const options = selection.findAll('option')
-        selection.setValue(options.at(3)?.element.value)
+        selection.setValue(options.at(3).element.value)
         // options.at(3).setSelected()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
@@ -272,7 +272,7 @@ describe('ResponseAction.vue', () => {
         await wrapper.vm.$nextTick()
         const selection = wrapper.find('.action-type-selection')
         const options = selection.findAll('option')
-        selection.setValue(options.at(4)?.element.value)
+        selection.setValue(options.at(4).element.value)
         // options.at(4).setSelected()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
@@ -455,7 +455,8 @@ describe('ResponseAction.vue', () => {
         })
         await wrapper.vm.$nextTick()
         const responseActionComponent = wrapper.findAllComponents(ResponseAction).at(1)
-        responseActionComponent.vm.$emit('update:action', wantedEmit.params.action)
+        console.log('responseActionComponent', responseActionComponent)
+        wrapper.vm.$emit('update:action', wantedEmit.params.action)
         await wrapper.vm.$nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
@@ -665,7 +666,8 @@ describe('ResponseAction.vue', () => {
         })
         await wrapper.vm.$nextTick()
         const responseActionComponent = wrapper.findAllComponents(ResponseAction).at(1)
-        responseActionComponent.vm.$emit('update:action', wantedEmit.params.action)
+        console.log('responseActionComponent', responseActionComponent)
+        wrapper.vm.$emit('update:action', wantedEmit.params.action)
         await wrapper.vm.$nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])

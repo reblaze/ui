@@ -6,24 +6,23 @@
       </a>
     </div>
     <div class="version-box is-size-7 has-text-grey">
-      client version: {{ packageVersion || '0.0.0' }}
+      client version: {{ version || '0.0.0' }}
     </div>
   </div>
 </template>
 
 <script lang="ts">
 
-import {default as packageJson} from '@/../package.json'
+import {default as packageJson} from './../../package.json'
 import {defineComponent} from 'vue'
 
 export default defineComponent({
   name: 'HeaderMain',
   data() {
     return {
-      packageVersion: packageJson.version,
+      version: packageJson.version,
     }
   },
-
 })
 </script>
 

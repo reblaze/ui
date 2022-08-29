@@ -1,6 +1,6 @@
 // @ts-nocheck
 import HeaderMain from '@/components/HeaderMain.vue'
-import {version} from '../../../package.json'
+import {default as packageJson} from '@/package.json'
 import {describe, test, expect} from '@jest/globals'
 import {mount} from '@vue/test-utils'
 
@@ -13,7 +13,7 @@ describe('HeaderMain.vue', () => {
   })
 
   test('should render version from package.json', () => {
-    const appVersion = version
+    const appVersion = packageJson.version
     const wrapper = mount(HeaderMain)
     expect(wrapper.find('div.version-box').text()).toContain(appVersion)
   })

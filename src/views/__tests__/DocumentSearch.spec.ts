@@ -428,7 +428,7 @@ describe('DocumentSearch.vue', () => {
       },
     })
     // allow all requests to finish
-    Window.setImmediate(() => {
+    setImmediate(() => {
       done()
     })
   })
@@ -456,7 +456,7 @@ describe('DocumentSearch.vue', () => {
     const options = branchSelection.findAll('option')
     branchSelection.setValue(options.at(1).element.value)
     // allow all requests to finish
-    Window.setImmediate(() => {
+    setImmediate(() => {
       expect((branchSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
       done()
     })
@@ -488,7 +488,7 @@ describe('DocumentSearch.vue', () => {
     })
     wrapper = shallowMount(DocumentSearch)
     // allow all requests to finish
-    Window.setImmediate(() => {
+    setImmediate(() => {
       expect(consoleOutput).toContain(`Error while attempting to get configs`)
       console.log = originalLog
       done()

@@ -1,18 +1,19 @@
+// @ts-nocheck
 import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
 import LimitOption from '@/components/LimitOption.vue'
 import ResponseAction from '@/components/ResponseAction.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import {beforeEach, describe, expect, test, jest} from '@jest/globals'
 import {shallowMount} from '@vue/test-utils'
-// import Vue from 'vue'
 import axios from 'axios'
 import {FlowControlPolicy} from '@/types'
+import {VueWrapper} from '@vue/test-utils'
 
 jest.mock('axios')
 
 describe('FlowControlPolicyEditor.vue', () => {
   let docs: FlowControlPolicy[]
-  let wrapper: any
+  let wrapper: VueWrapper
   beforeEach(() => {
     docs = [
       {
@@ -274,6 +275,7 @@ describe('FlowControlPolicyEditor.vue', () => {
       await wrapper.vm.$nextTick()
       const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
       await wrapper.vm.$nextTick()
+      console.log('tagAutocompleteInput: ' + tagAutocompleteInput)
       expect(tagAutocompleteInput.element).toBeUndefined()
     })
   })
@@ -345,10 +347,10 @@ describe('FlowControlPolicyEditor.vue', () => {
           removeSectionButton.trigger('click')
           await wrapper.vm.$nextTick()
         }
-        await wrapper.vm.$forceUpdate()
+        wrapper.vm.$forceUpdate()
         // check
         const removeSectionButton = wrapper.find('.remove-section-button')
-        expect(removeSectionButton.element).toBeUndefined()
+        expect(removeSectionButton).toBeUndefined() // element
       })
     })
 

@@ -180,7 +180,7 @@ describe('Publish.vue', () => {
     const options = branchSelection.findAll('option')
     branchSelection.setValue(options.at(1).element.value)
     // allow all requests to finish
-    Window.setImmediate(() => {
+    setImmediate(() => {
       expect((branchSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
       done()
     })
@@ -220,7 +220,7 @@ describe('Publish.vue', () => {
     const options = branchSelection.findAll('option')
     branchSelection.setValue(options.at(1).element.value)
     // allow all requests to finish
-    Window.setImmediate(() => {
+    setImmediate(() => {
       const gitBranches = wrapper.find('.buckets-display')
       expect(gitBranches.text()).toEqual('Buckets: 1')
       done()
@@ -299,7 +299,7 @@ describe('Publish.vue', () => {
       const options = branchSelection.findAll('option')
       branchSelection.setValue(options.at(1).element.value)
       // allow all requests to finish
-      Window.setImmediate(() => {
+      setImmediate(() => {
         const commitRows = wrapper.findAll('.commit-row')
         expect(commitRows.length).toEqual(5)
         done()
@@ -312,7 +312,7 @@ describe('Publish.vue', () => {
       const options = branchSelection.findAll('option')
       branchSelection.setValue(options.at(1).element.value)
       // allow all requests to finish
-      Window.setImmediate(async () => {
+      setImmediate(async () => {
         const viewMoreButton = wrapper.find('.view-more-button')
         viewMoreButton.trigger('click')
         await wrapper.vm.$nextTick()
@@ -328,7 +328,7 @@ describe('Publish.vue', () => {
       const options = branchSelection.findAll('option')
       branchSelection.setValue(options.at(1).element.value)
       // allow all requests to finish
-      Window.setImmediate(async () => {
+      setImmediate(async () => {
         const viewMoreButton = wrapper.find('.view-more-button')
         viewMoreButton.trigger('click')
         await wrapper.vm.$nextTick()

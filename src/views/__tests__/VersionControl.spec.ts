@@ -169,7 +169,7 @@ describe('VersionControl.vue', () => {
     })
     wrapper = mount(VersionControl)
     // allow all requests to finish
-    Window.setImmediate(() => {
+    setImmediate(() => {
       const gitBranches = wrapper.find('.git-branches')
       expect(gitBranches.text()).toEqual('0 branches')
       done()
@@ -186,7 +186,7 @@ describe('VersionControl.vue', () => {
     })
     wrapper = mount(VersionControl)
     // allow all requests to finish
-    Window.setImmediate(() => {
+    setImmediate(() => {
       const gitCommits = wrapper.find('.git-commits')
       expect(gitCommits.text()).toEqual('0 commits')
       done()
@@ -226,7 +226,7 @@ describe('VersionControl.vue', () => {
     })
     wrapper = mount(VersionControl)
     // allow all requests to finish
-    Window.setImmediate(() => {
+    setImmediate(() => {
       const gitBranches = wrapper.find('.git-branches')
       expect(gitBranches.text()).toEqual('1 branch')
       done()
@@ -266,7 +266,7 @@ describe('VersionControl.vue', () => {
     })
     wrapper = mount(VersionControl)
     // allow all requests to finish
-    Window.setImmediate(() => {
+    setImmediate(() => {
       const gitCommits = wrapper.find('.git-commits')
       expect(gitCommits.text()).toEqual('1 commit')
       done()
@@ -289,7 +289,7 @@ describe('VersionControl.vue', () => {
     const options = branchSelection.findAll('option')
     branchSelection.setValue(options.at(1).element.value)
     // allow all requests to finish
-    Window.setImmediate(() => {
+    setImmediate(() => {
       expect((wrapper.vm as any).selectedBranch).toEqual(gitData[1].id)
       done()
     })
@@ -301,7 +301,7 @@ describe('VersionControl.vue', () => {
     const options = branchSelection.findAll('option')
     branchSelection.setValue(options.at(1).element.value)
     // allow all requests to finish
-    Window.setImmediate(() => {
+    setImmediate(() => {
       const gitHistory = wrapper.findComponent(GitHistory)
       expect(gitHistory.props('gitLog')).toEqual(gitData[1].logs)
       done()
