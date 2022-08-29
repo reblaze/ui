@@ -1644,8 +1644,8 @@ describe('DocumentEditor.vue', () => {
       })
       // allow all requests to finish
       setImmediate(() => {
-        const noDataMessage = wrapper.find('.no-data-message')
-        expect(noDataMessage?.element).toBeDefined()
+        const noDataMessage: DOMWrapper = wrapper.find('.no-data-message')
+        noDataMessage && expect(noDataMessage.element).toBeDefined()
         expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found!')
         expect(noDataMessage?.text()?.toLowerCase()).toContain('missing document.')
         done()
