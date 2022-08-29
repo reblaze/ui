@@ -314,7 +314,7 @@ describe('EntriesRelationList.vue', () => {
       })
       const component = wrapper.findComponent(EntriesRelationList)
       const addSectionButton = component.find('.add-section-button')
-      expect(addSectionButton.element).toBeUndefined()
+      expect(addSectionButton.exists()).toBeFalsy()
     })
   })
 
@@ -338,7 +338,7 @@ describe('EntriesRelationList.vue', () => {
       })
       const component = wrapper.findComponent(EntriesRelationList)
       const removeSectionButton = component.find('.remove-section-button')
-      expect(removeSectionButton.element).toBeUndefined()
+      expect(removeSectionButton.exists()).toBeFalsy()
     })
 
     test('should not have the option to remove component if not editable', () => {
@@ -350,7 +350,7 @@ describe('EntriesRelationList.vue', () => {
       })
       const component = wrapper.findComponent(EntriesRelationList)
       const removeSectionButton = component.find('.remove-section-button')
-      expect(removeSectionButton.element).toBeUndefined()
+      expect(removeSectionButton.exists()).toBeFalsy()
     })
   })
 
@@ -484,7 +484,7 @@ describe('EntriesRelationList.vue', () => {
       })
       const component = wrapper.findComponent(EntriesRelationList)
       const addEntryButton = component.find('.add-entry-button')
-      expect(addEntryButton.element).toBeUndefined()
+      expect(addEntryButton.exists()).toBeFalsy()
     })
 
     test('should set section relation to `OR` if two items of same category added', async () => {

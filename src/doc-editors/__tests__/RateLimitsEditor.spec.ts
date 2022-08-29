@@ -143,7 +143,7 @@ describe('RateLimitsEditor.vue', () => {
       addKeyButton.trigger('click')
       await wrapper.vm.$nextTick()
       await wrapper.vm.$forceUpdate()
-      expect(wrapper.find('.only-one-ban').element).toBeUndefined()
+      expect(wrapper.find('.only-one-ban').exists()).toBeFalsy()
       const responseActionComponents = wrapper.findAllComponents(ResponseAction)
       responseActionComponents
         .at(0).findAll('option')
@@ -487,7 +487,7 @@ describe('RateLimitsEditor.vue', () => {
       await wrapper.vm.$nextTick()
       const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
       await wrapper.vm.$nextTick()
-      expect(tagAutocompleteInput.element).toBeUndefined()
+      expect(tagAutocompleteInput.exists()).toBeFalsy()
     })
   })
 

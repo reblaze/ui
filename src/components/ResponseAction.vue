@@ -27,7 +27,7 @@
                     'is-6': !labelDisplayedInline && !isSingleInputColumn,
                     'is-10': labelDisplayedInline && isSingleInputColumn,
                     'is-12': !labelDisplayedInline && isSingleInputColumn}">
-        <div class="control select is-fullwidth is-small action-type-selection" v-if="localAction">
+        <div class="control select is-fullwidth is-small" v-if="localAction">
           <select v-model="localAction.type"
                   class='action-type-selection'
                   title="Action type"

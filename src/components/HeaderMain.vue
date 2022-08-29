@@ -13,7 +13,7 @@
 
 <script lang="ts">
 
-import {default as packageJson} from './../../package.json'
+import {default as packageJson} from '@/../package.json'
 import {defineComponent} from 'vue'
 
 export default defineComponent({

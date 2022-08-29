@@ -275,8 +275,7 @@ describe('FlowControlPolicyEditor.vue', () => {
       await wrapper.vm.$nextTick()
       const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
       await wrapper.vm.$nextTick()
-      console.log('tagAutocompleteInput: ' + tagAutocompleteInput)
-      expect(tagAutocompleteInput.element).toBeUndefined()
+      expect(tagAutocompleteInput.exists()).toBeFalsy()
     })
   })
 

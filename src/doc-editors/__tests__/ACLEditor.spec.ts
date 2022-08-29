@@ -132,6 +132,6 @@ describe('ACLEditor.vue', () => {
     await wrapper.vm.$nextTick()
     const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
     await wrapper.vm.$nextTick()
-    expect(tagAutocompleteInput.element).toBeUndefined()
+    expect(tagAutocompleteInput.exists()).toBeFalsy()
   })
 })
