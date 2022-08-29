@@ -6,9 +6,7 @@ import axios from 'axios'
 import {Branch} from '@/types'
 import * as bulmaToast from 'bulma-toast'
 import {Options} from 'bulma-toast'
-/**
- * @jest-environment jsdom
-*/
+import {setImmediate} from 'timers'
 
 jest.mock('axios')
 

@@ -212,7 +212,6 @@ export default defineComponent({
   },
   updated() {
     if (_.isEqual(this.prevSelectedOption, this.selectedOption)) {
-      console.log('limitOption emit changed')
       this.$emit('change', {...this.selectedOption})
     }
   },

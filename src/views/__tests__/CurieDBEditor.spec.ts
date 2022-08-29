@@ -7,9 +7,7 @@ import {mount, VueWrapper} from '@vue/test-utils'
 import axios from 'axios'
 import JSONEditor from 'jsoneditor'
 import {Commit} from '@/types'
-/**
- * @jest-environment jsdom
-*/
+import {setImmediate, setTimeout} from 'timers'
 
 
 jest.mock('axios')
@@ -544,9 +542,9 @@ describe('CurieDBEditor.vue', () => {
       // allow all requests to finish
       setImmediate(() => {
         const noDataMessage = wrapper.find('.no-data-message')
-        expect(noDataMessage.element).toBeDefined()
-        expect(noDataMessage.text().toLowerCase()).toContain('no data found!')
-        expect(noDataMessage.text().toLowerCase()).toContain('missing namespace.')
+        expect(noDataMessage?.element).toBeDefined()
+        expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found!')
+        expect(noDataMessage?.text()?.toLowerCase()).toContain('missing namespace.')
         done()
       })
     })
@@ -568,9 +566,9 @@ describe('CurieDBEditor.vue', () => {
       // allow all requests to finish
       setImmediate(() => {
         const noDataMessage = wrapper.find('.no-data-message')
-        expect(noDataMessage.element).toBeDefined()
-        expect(noDataMessage.text().toLowerCase()).toContain('no data found!')
-        expect(noDataMessage.text().toLowerCase()).toContain('missing key.')
+        expect(noDataMessage?.element).toBeDefined()
+        expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found!')
+        expect(noDataMessage?.text()?.toLowerCase()).toContain('missing key.')
         done()
       })
     })

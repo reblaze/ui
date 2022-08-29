@@ -6,9 +6,7 @@ import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals
 import {mount, VueWrapper} from '@vue/test-utils'
 import axios from 'axios'
 import {Branch} from '@/types'
-/**
- * @jest-environment jsdom
-*/
+import {setImmediate} from 'timers'
 
 jest.mock('axios')
 

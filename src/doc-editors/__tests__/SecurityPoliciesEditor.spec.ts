@@ -6,9 +6,8 @@ import {shallowMount} from '@vue/test-utils'
 import {ACLProfile, ContentFilterProfile, RateLimit, SecurityPolicy} from '@/types'
 import axios from 'axios'
 import _ from 'lodash'
-/**
- * @jest-environment jsdom
- */
+import {setImmediate, setTimeout} from 'timers'
+
 jest.mock('axios')
 
 describe('SecurityPoliciesEditor.vue', () => {

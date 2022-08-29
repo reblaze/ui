@@ -5,14 +5,11 @@ import DatasetsUtils from '@/assets/DatasetsUtils'
 import Utils from '@/assets/Utils'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {shallowMount} from '@vue/test-utils'
-// import Vue from 'vue'
 import axios from 'axios'
 import _ from 'lodash'
 import {ACLProfile, Branch, Commit, ContentFilterProfile, Document} from '@/types'
 import {FlowControlPolicy, GlobalFilter, RateLimit, SecurityPolicy} from '@/types'
-/**
- * @jest-environment jsdom
-*/
+import {setImmediate, setTimeout} from 'timers'
 
 jest.mock('axios')
 
@@ -1587,9 +1584,9 @@ describe('DocumentEditor.vue', () => {
       // allow all requests to finish
       setImmediate(() => {
         const noDataMessage = wrapper.find('.no-data-message')
-        expect(noDataMessage.element).toBeDefined()
-        expect(noDataMessage.text().toLowerCase()).toContain('no data found!')
-        expect(noDataMessage.text().toLowerCase()).toContain('missing branch.')
+        expect(noDataMessage?.element).toBeDefined()
+        expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found!')
+        expect(noDataMessage?.text()?.toLowerCase()).toContain('missing branch.')
         done()
       })
     })
@@ -1625,9 +1622,9 @@ describe('DocumentEditor.vue', () => {
       // allow all requests to finish
       setImmediate(() => {
         const noDataMessage = wrapper.find('.no-data-message')
-        expect(noDataMessage.element).toBeDefined()
-        expect(noDataMessage.text().toLowerCase()).toContain('no data found!')
-        expect(noDataMessage.text().toLowerCase()).toContain('missing document type.')
+        expect(noDataMessage?.element).toBeDefined()
+        expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found!')
+        expect(noDataMessage?.text()?.toLowerCase()).toContain('missing document type.')
         done()
       })
     })
@@ -1648,9 +1645,9 @@ describe('DocumentEditor.vue', () => {
       // allow all requests to finish
       setImmediate(() => {
         const noDataMessage = wrapper.find('.no-data-message')
-        expect(noDataMessage.element).toBeDefined()
-        expect(noDataMessage.text().toLowerCase()).toContain('no data found!')
-        expect(noDataMessage.text().toLowerCase()).toContain('missing document.')
+        expect(noDataMessage?.element).toBeDefined()
+        expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found!')
+        expect(noDataMessage?.text()?.toLowerCase()).toContain('missing document.')
         done()
       })
     })

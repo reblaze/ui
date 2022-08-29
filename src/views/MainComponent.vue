@@ -23,7 +23,7 @@ import SideMenu from '@/components/SideMenu.vue'
 import {defineComponent} from 'vue'
 
 export default defineComponent({
-  name: 'MasterComponent',
+  name: 'MainComponent',
   components: {HeaderMain, SideMenu},
   methods: {},
 })

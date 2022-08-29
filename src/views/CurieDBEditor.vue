@@ -108,8 +108,8 @@
                   <button class="button is-small download-key-button"
                      @click="downloadKey"
                      :disabled="!selectedKeyValue"
-                     title="Download Key">
-                     data-qa="download-key-btn"
+                     title="Download Key"
+                     data-qa="download-key-btn">
                     <span class="icon is-small">
                       <i class="fas fa-download"></i>
                     </span>
