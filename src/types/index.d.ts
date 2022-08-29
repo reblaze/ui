@@ -228,6 +228,23 @@ declare module CuriefenseClient {
     author: string
   }
 
+  type SearchDocument = Document & {
+    docType: DocumentType
+    description: string
+    tags: string
+    connections: string[]
+    connectedACL: string[]
+    connectedContentFilter: string[]
+    connectedRateLimits: string[]
+    connectedSecurityPolicies: string[]
+    map: SecurityPolicyEntryMatch[]
+  }
+
+  type Rule = {
+    relation: Relation,
+    sections: GlobalFilterSection[],
+  }
+
   // Git - END
 
 }

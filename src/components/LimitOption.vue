@@ -211,8 +211,8 @@ export default defineComponent({
     this.prevSelectedOption = {...this.selectedOption}
   },
   updated() {
-    if (JSON.stringify(this.prevSelectedOption) != JSON.stringify(this.selectedOption)) {
-      // console.log('limitOption changed')
+    if (_.isEqual(this.prevSelectedOption, this.selectedOption)) {
+      console.log('limitOption emit changed')
       this.$emit('change', {...this.selectedOption})
     }
   },

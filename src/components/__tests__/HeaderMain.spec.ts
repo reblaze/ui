@@ -1,3 +1,4 @@
+// @ts-nocheck
 import HeaderMain from '@/components/HeaderMain.vue'
 import {version} from '../../../package.json'
 import {describe, test, expect} from '@jest/globals'

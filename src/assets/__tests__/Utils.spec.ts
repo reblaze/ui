@@ -1,9 +1,14 @@
+// @ts-nocheck
 import Utils from '@/assets/Utils'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
 import * as bulmaToast from 'bulma-toast'
 import {Options} from 'bulma-toast'
 import axios from 'axios'
 import {JSDOM} from 'jsdom'
+
+function currentEventLoopEnd() {
+  return new Promise((resolve) => setImmediate(resolve))
+}
 
 describe('Utils.ts', () => {
   describe('generateUniqueEntityName function', () => {
@@ -214,17 +219,18 @@ describe('Utils.ts', () => {
       }
     })
 
-    test('should not log errors if given valid input', (done) => {
+    test('should not log errors if given valid input', async () => {
       const originalLog = console.log
       const consoleOutput: string[] = []
       console.log = (output: string) => consoleOutput.push(output)
       Utils.downloadFile(fileName, fileType, data)
       // allow all requests to finish
-      setImmediate(() => {
-        expect(consoleOutput).toEqual([])
-        console.log = originalLog
-        done()
-      })
+      await currentEventLoopEnd()
+      // setImmediate(() => {
+      expect(consoleOutput).toEqual([])
+      console.log = originalLog
+      // done()
+      // })
     })
 
     test('should log message when receiving unknown file type', (done) => {

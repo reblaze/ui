@@ -1,13 +1,22 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "module": "esnext",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
+    "useDefineForClassFields": true,
+    // "noImplicitThis": true,
     "strict": true,
     "jsx": "preserve",
+    // "isolatedModules": true,
     "importHelpers": true,
-    "moduleResolution": "node",
+    // "preserveValueImports": true,
+    // Enforce using `import type` instead of `import` for types
+    // "importsNotUsedAsValues": "error",
     "skipLibCheck": true,
     "strictNullChecks": false,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
     "sourceMap": true,
     "baseUrl": ".",
     "allowJs": true,
@@ -20,12 +29,12 @@
       "./node_modules/@types"
     ],
     "paths": {
-      "@/*": [
-        "src/*"
-      ],
-      "~/*": [
-        "src/*"
-      ]
+      "@/*": [ "./src/*"],
+      "@/views/*": [ "./src/views/*" ],
+      "@/doc-editors/*": [ "./src/doc-editors/*" ],
+      "~/*": [ "./src/*" ],
+      "/@/*": ["src/*"],
+      "*":["./src/*"]
     },
     "lib": [
       "esnext",
@@ -33,19 +42,19 @@
       "dom.iterable",
       "scripthost"
     ],
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true,
+    "allowSyntheticDefaultImports": true
   },
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
-    "src/**/*.vue"
+    "src/**/*.vue",
+    "**/*.d.ts"
   ],
   "exclude": [
     "src/**/__tests__/*.ts",
-    "src/**/*.js",
-    "src/types/**",
+   // "src/**/*.js",
+   // "src/types/**",
     "node_modules"
-  ]
+  ],
+  "files": ["src/ts-shim.d.ts"]
 }

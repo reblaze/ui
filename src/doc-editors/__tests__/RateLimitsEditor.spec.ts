@@ -1,9 +1,9 @@
+// @ts-nocheck
 import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
 import LimitOption from '@/components/LimitOption.vue'
 import ResponseAction from '@/components/ResponseAction.vue'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
-import {mount, shallowMount} from '@vue/test-utils'
-import Vue from 'vue'
+import {mount, shallowMount, VueWrapper} from '@vue/test-utils'
 import {RateLimit, SecurityPolicy} from '@/types'
 import axios from 'axios'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
@@ -90,7 +90,7 @@ describe('RateLimitsEditor.vue', () => {
       if (!wrapper) {
         return Promise.resolve({data: []})
       }
-      const branch = (wrapper.vm as any).selectedBranch
+      const branch = (wrapper.vm as VueWrapper).selectedBranch
       if (path === `/conf/api/v2/configs/${branch}/d/securitypolicies/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve({data: _.map(securityPoliciesDocs, (i) => _.pick(i, 'id', 'name'))})
@@ -141,18 +141,18 @@ describe('RateLimitsEditor.vue', () => {
       enableListener = true
       const addKeyButton = wrapper.find('.add-threshold-button')
       addKeyButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       await wrapper.vm.$forceUpdate()
       expect(wrapper.find('.only-one-ban').element).toBeUndefined()
       const responseActionComponents = wrapper.findAllComponents(ResponseAction)
       responseActionComponents
         .at(0).findAll('option')
         .at(5).setSelected()
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       responseActionComponents
         .at(1).findAll('option')
         .at(5).setSelected()
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       await wrapper.vm.$forceUpdate()
       expect(wrapper.find('.only-one-ban').element).toBeDefined()
     })
@@ -225,7 +225,7 @@ describe('RateLimitsEditor.vue', () => {
     test('should add key when button is clicked', async () => {
       const addKeyButton = wrapper.find('.add-key-button')
       addKeyButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       const wantedType = 'attrs'
       const wantedValue = 'ip'
       const actualType = Object.keys((wrapper.vm as any).localDoc.key[1])[0]
@@ -252,9 +252,9 @@ describe('RateLimitsEditor.vue', () => {
     test('should show error when two of the same key type exist', async () => {
       const addKeyButton = wrapper.find('.add-key-button')
       addKeyButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       addKeyButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       const keyInvalidLabel = wrapper.find('.key-invalid')
       expect(keyInvalidLabel.element).toBeDefined()
     })
@@ -262,17 +262,17 @@ describe('RateLimitsEditor.vue', () => {
     test('should remove key when remove event occurs', async () => {
       const addKeyButton = wrapper.find('.add-key-button')
       addKeyButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       const limitOptionsComponent = wrapper.findComponent(LimitOption)
       limitOptionsComponent.vm.$emit('remove', 1)
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect((wrapper.vm as any).localDoc.key.length).toEqual(1)
     })
 
     test('should not be able to remove key when only one key exists', async () => {
       const limitOptionsComponent = wrapper.findComponent(LimitOption)
       limitOptionsComponent.vm.$emit('remove', 1)
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect((wrapper.vm as any).localDoc.key.length).toEqual(1)
     })
 
@@ -286,7 +286,7 @@ describe('RateLimitsEditor.vue', () => {
       }
       const limitOptionsComponent = wrapper.findComponent(LimitOption)
       limitOptionsComponent.vm.$emit('change', newOption, 0)
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect((wrapper.vm as any).localDoc.key[0]).toEqual(wantedResult)
     })
 
@@ -298,7 +298,7 @@ describe('RateLimitsEditor.vue', () => {
             selectedDoc: rateLimitsDocs[0],
           },
         })
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         done()
       } catch (err) {
         expect(err).not.toBeDefined()
@@ -311,7 +311,7 @@ describe('RateLimitsEditor.vue', () => {
     test('should add threshold when button is clicked', async () => {
       const addThresholdButton = wrapper.find('.add-threshold-button')
       addThresholdButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       const wantedLimit = ''
       const wantedAction = {type: 'default'}
       const actualLimit = (wrapper.vm as any).localDoc.thresholds[1].limit
@@ -325,18 +325,18 @@ describe('RateLimitsEditor.vue', () => {
       expect((wrapper.vm as any).localDoc.thresholds.length).toEqual(1)
       const addThresholdButton = wrapper.find('.add-threshold-button')
       addThresholdButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect((wrapper.vm as any).localDoc.thresholds.length).toEqual(2)
       const removeThresholdButton = wrapper.find('.remove-threshold-option-button')
       removeThresholdButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect((wrapper.vm as any).localDoc.thresholds.length).toEqual(1)
     })
 
     test('should not be able to remove threshold when only one key exists', async () => {
       const removeThresholdButton = wrapper.find('.remove-threshold-option-button')
       removeThresholdButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect((wrapper.vm as any).localDoc.thresholds.length).toEqual(1)
     })
 
@@ -352,7 +352,7 @@ describe('RateLimitsEditor.vue', () => {
       console.log((wrapper.vm as any).localDoc.thresholds)
       const thresholdActionField = wrapper.findComponent(ResponseAction)
       thresholdActionField.vm.$emit('update:action', newActionOption, 0)
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect((wrapper.vm as any).localDoc.thresholds[0].limit).toEqual(newLimitOption)
       expect((wrapper.vm as any).localDoc.thresholds[0].action).toEqual(newActionOption)
     })
@@ -383,23 +383,23 @@ describe('RateLimitsEditor.vue', () => {
       }
       const limitOptionsComponent = wrapper.findAllComponents(LimitOption).at(1)
       limitOptionsComponent.vm.$emit('change', newOption, 0)
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect((wrapper.vm as any).localDoc.pairwith).toEqual(wantedResult)
     })
 
-    test('should handle selectedDoc without pairwith property', async (done) => {
+    test('should handle selectedDoc without pairwith property', async () => {
       try {
         delete rateLimitsDocs[0].pairwith
-        wrapper = mount(RateLimitsEditor, {
+        wrapper = shallowMount(RateLimitsEditor, {
           props: {
             selectedDoc: rateLimitsDocs[0],
           },
         })
-        await Vue.nextTick()
-        done()
+        await wrapper.vm.$nextTick()
+        // done()
       } catch (err) {
         expect(err).not.toBeDefined()
-        done()
+        // done()
       }
     })
   })
@@ -438,10 +438,10 @@ describe('RateLimitsEditor.vue', () => {
       const newIncludeEntryButton = wrapper.findAll('.add-new-filter-entry-button').at(0)
       // add first
       newIncludeEntryButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       const firstTagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
       firstTagAutocompleteInput.vm.$emit('tag-submitted', newTag)
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       // check
       expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
       expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
@@ -451,7 +451,7 @@ describe('RateLimitsEditor.vue', () => {
       const duplicatedTagsDoc = JSON.parse(JSON.stringify(rateLimitsDocs[0]))
       duplicatedTagsDoc.include = ['test-tag', 'test-tag']
       wrapper.setProps({selectedDoc: duplicatedTagsDoc})
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       // check
       const tagsWithWarning = wrapper.findAll('.has-text-danger')
       expect(tagsWithWarning.length).toEqual(2)
@@ -464,10 +464,10 @@ describe('RateLimitsEditor.vue', () => {
       const newIncludeEntryButton = wrapper.findAll('.add-new-filter-entry-button').at(0)
       // add first
       newIncludeEntryButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       const firstTagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
       firstTagAutocompleteInput.vm.$emit('tag-submitted', newTag)
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       // check
       expect(wrapper.emitted('update:selectedDoc')).toBeFalsy()
     })
@@ -475,18 +475,18 @@ describe('RateLimitsEditor.vue', () => {
     test('should remove tag from correct filter when tag removed', async () => {
       const removeIncludeEntryButton = wrapper.find('.remove-filter-entry-button')
       removeIncludeEntryButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect((wrapper.vm as any).localDoc.include.length).toEqual(0)
     })
 
     test('should hide tag input when tag selection cancelled', async () => {
       const newIncludeEntryButton = wrapper.find('.add-new-filter-entry-button')
       newIncludeEntryButton.trigger('click')
-      await Vue.nextTick();
+      await wrapper.vm.$nextTick();
       (wrapper.vm as any).cancelAddNewTag()
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect(tagAutocompleteInput.element).toBeUndefined()
     })
   })
@@ -502,11 +502,13 @@ describe('RateLimitsEditor.vue', () => {
     })
 
     test('should have a link to each connected Security Policy', async () => {
-      const wantedRoute = `/config/${(wrapper.vm as any).selectedBranch}/securitypolicies/${securityPoliciesDocs[0].id}`
+      const selectedBranchStr = (wrapper.vm as VueWrapper).selectedBranch
+      console.log('selectedBranchStr', selectedBranchStr)
+      const wantedRoute = `/config/${selectedBranchStr}/securitypolicies/${securityPoliciesDocs[0].id}`
       const connectedSecurityPoliciesEntryRow = wrapper.findAll('.connected-entry-row').at(0)
       const referralButton = connectedSecurityPoliciesEntryRow.find('.security-policy-referral-button')
       await referralButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect(mockRouter.push).toHaveBeenCalledTimes(1)
       expect(mockRouter.push).toHaveBeenCalledWith(wantedRoute)
     })
@@ -514,7 +516,7 @@ describe('RateLimitsEditor.vue', () => {
     test('should show the new connection row when `+` button is clicked', async () => {
       const newConnectionButton = wrapper.find('.new-connection-button')
       newConnectionButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       const newConnectionRow = wrapper.find('.new-connection-row')
       expect(newConnectionRow.exists()).toBeTruthy()
     })
@@ -529,10 +531,10 @@ describe('RateLimitsEditor.vue', () => {
           selectedBranch: 'master',
         },
       })
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       const newConnectionButton = wrapper.find('.new-connection-button')
       newConnectionButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       const newConnectionRow = wrapper.find('.new-connection-row')
       expect(newConnectionRow.text()).toEqual(wantedMessage)
     })
@@ -540,10 +542,10 @@ describe('RateLimitsEditor.vue', () => {
     test('should hide the new connection row when `-` button is clicked', async () => {
       let newConnectionButton = wrapper.find('.new-connection-button')
       newConnectionButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       newConnectionButton = wrapper.find('.new-connection-button')
       newConnectionButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       const newConnectionRow = wrapper.find('.new-connection-row')
       expect(newConnectionRow.exists()).toBeFalsy()
     })
@@ -556,15 +558,15 @@ describe('RateLimitsEditor.vue', () => {
       wantedDoc.map[1].limit_ids.push(rateLimitsDocs[0].id)
       const newConnectionButton = wrapper.find('.new-connection-button')
       newConnectionButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       const newConnectionRow = wrapper.find('.new-connection-row')
       const newConnectionMapSelection = newConnectionRow.find('.new-connection-map')
       const options = newConnectionMapSelection.findAll('option')
-      options.at(1).setSelected()
-      await Vue.nextTick()
+      newConnectionMapSelection.setValue(options.at(1).element.value)
+      await wrapper.vm.$nextTick()
       const addNewConnectionButton = wrapper.find('.add-new-connection')
       addNewConnectionButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect(putSpy).toHaveBeenCalledWith(wantedUrl, wantedDoc)
     })
 
@@ -576,10 +578,10 @@ describe('RateLimitsEditor.vue', () => {
       wantedDoc.map[0].limit_ids = []
       const removeConnectionButton = wrapper.findAll('.remove-connection-button').at(0)
       removeConnectionButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       const confirmRemoveConnectionButton = wrapper.find('.confirm-remove-connection-button')
       confirmRemoveConnectionButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect(putSpy).toHaveBeenCalledWith(wantedUrl, wantedDoc)
     })
 
@@ -587,10 +589,10 @@ describe('RateLimitsEditor.vue', () => {
       const putSpy = jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
       const removeConnectionButton = wrapper.findAll('.remove-connection-button').at(0)
       removeConnectionButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       const cancelRemoveConnectionButton = wrapper.find('.cancel-remove-connection-button')
       cancelRemoveConnectionButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect(putSpy).not.toHaveBeenCalled()
     })
   })

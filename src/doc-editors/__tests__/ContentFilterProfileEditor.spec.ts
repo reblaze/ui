@@ -1,7 +1,7 @@
 import ContentFilterEditor from '@/doc-editors/ContentFilterProfileEditor.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {shallowMount} from '@vue/test-utils'
-import Vue from 'vue'
+// import Vue from 'vue'
 import {
   ArgsCookiesHeadersType,
   ContentFilterEntryMatch,
@@ -143,7 +143,7 @@ describe('ContentFilterProfileEditor.vue', () => {
         'update:selectedDoc': onUpdate,
       },
     })
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
   })
 
   describe('form data', () => {
@@ -227,7 +227,7 @@ describe('ContentFilterProfileEditor.vue', () => {
             selectedBranch: 'master',
           },
         })
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
       })
 
       test('should emit default section for args when given profile with undefined args', () => {
@@ -299,7 +299,7 @@ describe('ContentFilterProfileEditor.vue', () => {
             selectedBranch: 'master',
           },
         })
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         expect(wrapper.emitted('update:selectedDoc')).toBeFalsy()
       })
     })
@@ -331,7 +331,7 @@ describe('ContentFilterProfileEditor.vue', () => {
         const anchorElement = tabElement.find('a')
         anchorElement.trigger('click')
         await wrapper.vm.$forceUpdate()
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
       })
 
       test('should have correct tab active', async () => {
@@ -342,7 +342,7 @@ describe('ContentFilterProfileEditor.vue', () => {
       test('should open new parameter row when button is clicked', async () => {
         const button = wrapper.find('.new-parameter-button')
         button.trigger('click')
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         const newRow = wrapper.find('.new-parameter-row')
         expect(newRow.element).toBeDefined()
       })
@@ -357,25 +357,25 @@ describe('ContentFilterProfileEditor.vue', () => {
           beforeEach(async () => {
             const button = wrapper.find('.new-parameter-button')
             button.trigger('click')
-            await Vue.nextTick()
+            await wrapper.vm.$nextTick()
             newRow = wrapper.find('.new-parameter-row')
             const typeSelection = newRow.find('.new-entry-type')
             const options = typeSelection.findAll('option')
-            options.at(typeIndex).setSelected()
-            await Vue.nextTick()
+            typeSelection.setValue(options.at(typeIndex).element.value)
+            await wrapper.vm.$nextTick()
           })
 
           test('should add name key when creating new parameter', async () => {
             const wantedValue = 'foo'
             const keyInput = newRow.find('.new-entry-key')
             keyInput.setValue(wantedValue)
-            await Vue.nextTick()
+            await wrapper.vm.$nextTick()
             const regInput = newRow.find('.new-entry-reg')
             regInput.setValue('bar')
-            await Vue.nextTick()
+            await wrapper.vm.$nextTick()
             const confirmButton = newRow.find('.confirm-add-new-parameter')
             confirmButton.trigger('click')
-            await Vue.nextTick()
+            await wrapper.vm.$nextTick()
             const actualValue = (wrapper.find('.entry-key').element as HTMLInputElement).value
             expect(actualValue).toEqual(wantedValue)
           })
@@ -384,13 +384,13 @@ describe('ContentFilterProfileEditor.vue', () => {
             const wantedValue = 'bar'
             const keyInput = newRow.find('.new-entry-key')
             keyInput.setValue('foo')
-            await Vue.nextTick()
+            await wrapper.vm.$nextTick()
             const regInput = newRow.find('.new-entry-reg')
             regInput.setValue(wantedValue)
-            await Vue.nextTick()
+            await wrapper.vm.$nextTick()
             const confirmButton = newRow.find('.confirm-add-new-parameter')
             confirmButton.trigger('click')
-            await Vue.nextTick()
+            await wrapper.vm.$nextTick()
             const actualValue = (wrapper.find('.entry-reg').element as HTMLInputElement).value
             expect(actualValue).toEqual(wantedValue)
           })
@@ -398,16 +398,16 @@ describe('ContentFilterProfileEditor.vue', () => {
           test('should add restrict when creating new parameter', async () => {
             const keyInput = newRow.find('.new-entry-key')
             keyInput.setValue('foo')
-            await Vue.nextTick()
+            await wrapper.vm.$nextTick()
             const regInput = newRow.find('.new-entry-reg')
             regInput.setValue('bar')
-            await Vue.nextTick()
+            await wrapper.vm.$nextTick()
             const input = newRow.find('.new-entry-restrict')
             input.setChecked(true)
-            await Vue.nextTick()
+            await wrapper.vm.$nextTick()
             const confirmButton = newRow.find('.confirm-add-new-parameter')
             confirmButton.trigger('click')
-            await Vue.nextTick()
+            await wrapper.vm.$nextTick()
             const actualValue = (wrapper.find('.entry-restrict').element as HTMLInputElement).checked
             expect(actualValue).toEqual(true)
           })
@@ -415,16 +415,16 @@ describe('ContentFilterProfileEditor.vue', () => {
           test('should add mask when creating new parameter', async () => {
             const keyInput = newRow.find('.new-entry-key')
             keyInput.setValue('foo')
-            await Vue.nextTick()
+            await wrapper.vm.$nextTick()
             const regInput = newRow.find('.new-entry-reg')
             regInput.setValue('bar')
-            await Vue.nextTick()
+            await wrapper.vm.$nextTick()
             const input = newRow.find('.new-entry-mask')
             input.setChecked(true)
-            await Vue.nextTick()
+            await wrapper.vm.$nextTick()
             const confirmButton = newRow.find('.confirm-add-new-parameter')
             confirmButton.trigger('click')
-            await Vue.nextTick()
+            await wrapper.vm.$nextTick()
             const actualValue = (wrapper.find('.entry-mask').element as HTMLInputElement).checked
             expect(actualValue).toEqual(true)
           })
@@ -432,17 +432,17 @@ describe('ContentFilterProfileEditor.vue', () => {
           test('should add exclusions when creating new parameter', async () => {
             const keyInput = newRow.find('.new-entry-key')
             keyInput.setValue('foo')
-            await Vue.nextTick()
+            await wrapper.vm.$nextTick()
             const regInput = newRow.find('.new-entry-reg')
             regInput.setValue('bar')
-            await Vue.nextTick()
+            await wrapper.vm.$nextTick()
             const wantedValue = ['cf-rule-id:100001', 'cf-risk:3']
             const autocompleteInput = wrapper.findComponent(AutocompleteInput)
             autocompleteInput.vm.$emit('value-submitted', 'cf-rule-id:100001 cf-risk:3')
-            await Vue.nextTick()
+            await wrapper.vm.$nextTick()
             const confirmButton = newRow.find('.confirm-add-new-parameter')
             confirmButton.trigger('click')
-            await Vue.nextTick()
+            await wrapper.vm.$nextTick()
             const actualValue = (wrapper.vm as any).localDoc[tab][type][0].exclusions
             expect(actualValue).toEqual(wantedValue)
           })
@@ -450,16 +450,16 @@ describe('ContentFilterProfileEditor.vue', () => {
           test('should remove parameter when remove button is clicked', async () => {
             const keyInput = newRow.find('.new-entry-key')
             keyInput.setValue('foo')
-            await Vue.nextTick()
+            await wrapper.vm.$nextTick()
             const regInput = newRow.find('.new-entry-reg')
             regInput.setValue('bar')
-            await Vue.nextTick()
+            await wrapper.vm.$nextTick()
             const confirmButton = newRow.find('.confirm-add-new-parameter')
             confirmButton.trigger('click')
-            await Vue.nextTick()
+            await wrapper.vm.$nextTick()
             const removeButton = wrapper.find('.remove-entry-button')
             removeButton.trigger('click')
-            await Vue.nextTick()
+            await wrapper.vm.$nextTick()
             await wrapper.vm.$forceUpdate()
             const rows = wrapper.findAll('.entry-row')
             expect(rows.length).toEqual(0)
@@ -468,7 +468,7 @@ describe('ContentFilterProfileEditor.vue', () => {
           test('should reset data when cancel button is clicked', async () => {
             const cancelButton = wrapper.find('.cancel-new-parameter')
             cancelButton.trigger('click')
-            await Vue.nextTick()
+            await wrapper.vm.$nextTick()
             const {defaultNewEntry, newContentFilterLine, newEntry} = wrapper.vm as any
             expect(newContentFilterLine).toBeFalsy()
             expect(newEntry).toEqual(defaultNewEntry)

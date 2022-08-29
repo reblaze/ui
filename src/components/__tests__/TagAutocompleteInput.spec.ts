@@ -1,8 +1,9 @@
+// @ts-nocheck
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import AutocompleteInput from '@/components/AutocompleteInput.vue'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {mount} from '@vue/test-utils'
-import Vue from 'vue'
+// import Vue from 'vue'
 import axios from 'axios'
 import {TagsNamespaceValue} from '@/types'
 
@@ -39,7 +40,7 @@ describe('TagAutocompleteInput.vue', () => {
         clearInputAfterSelection: false,
       },
     })
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
   })
   afterEach(() => {
     jest.clearAllMocks()
@@ -65,13 +66,13 @@ describe('TagAutocompleteInput.vue', () => {
       return Promise.resolve()
     })
     wrapper = mount(TagAutocompleteInput, {})
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
   })
 
   test('should not send request to create new DB if exists on component creation', async () => {
     const spy = jest.spyOn(axios, 'post')
     wrapper = mount(TagAutocompleteInput, {})
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
     expect(spy).not.toHaveBeenCalledWith('db/system/')
   })
 
@@ -88,13 +89,13 @@ describe('TagAutocompleteInput.vue', () => {
       return Promise.resolve()
     })
     wrapper = mount(TagAutocompleteInput, {})
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
   })
 
   test('should not send request to create new key in DB exists on component creation', async () => {
     const spy = jest.spyOn(axios, 'put')
     wrapper = mount(TagAutocompleteInput, {})
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
     expect(spy).not.toHaveBeenCalledWith('db/system/k/tags')
   })
 
@@ -106,8 +107,8 @@ describe('TagAutocompleteInput.vue', () => {
       },
     })
     // Twice so the DB data will be fully loaded
-    await Vue.nextTick()
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
+    await wrapper.vm.$nextTick()
     const autocompleteInput = wrapper.findComponent(AutocompleteInput)
     const newTagName = 'tag-of-doom'
     jest.spyOn(axios, 'put').mockImplementationOnce((path, data: TagsNamespaceValue) => {
@@ -116,7 +117,7 @@ describe('TagAutocompleteInput.vue', () => {
       return Promise.resolve()
     })
     autocompleteInput.vm.$emit('value-submitted', newTagName)
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
   })
 
   test('should send request to add tag neutral list in DB' +
@@ -127,8 +128,8 @@ describe('TagAutocompleteInput.vue', () => {
       },
     })
     // Twice so that the DB data will be fully loaded
-    await Vue.nextTick()
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
+    await wrapper.vm.$nextTick()
     const autocompleteInput = wrapper.findComponent(AutocompleteInput)
     const tag1 = 'tag-1'
     const tag2 = 'tag-2'
@@ -141,7 +142,7 @@ describe('TagAutocompleteInput.vue', () => {
       return Promise.resolve()
     })
     autocompleteInput.vm.$emit('value-submitted', `${tag1} ${tag2} ${tag3}`)
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
   })
 
   test('should send request to add tag neutral list in DB' +
@@ -160,8 +161,8 @@ describe('TagAutocompleteInput.vue', () => {
       return Promise.resolve()
     })
     autocompleteInput.vm.$emit('value-submitted', newTagName)
-    await Vue.nextTick()
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
+    await wrapper.vm.$nextTick()
   })
 
   test('should send request to add tag neutral list in DB' +
@@ -184,8 +185,8 @@ describe('TagAutocompleteInput.vue', () => {
       return Promise.resolve()
     })
     autocompleteInput.vm.$emit('value-submitted', `${tag1} ${tag2} ${tag3}`)
-    await Vue.nextTick()
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
+    await wrapper.vm.$nextTick()
   })
 
   test('should not send request to add tag list in DB' +
@@ -200,8 +201,8 @@ describe('TagAutocompleteInput.vue', () => {
     const autocompleteInput = wrapper.findComponent(AutocompleteInput)
     const spy = jest.spyOn(axios, 'put')
     autocompleteInput.vm.$emit('value-submitted', newTagName)
-    await Vue.nextTick()
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
+    await wrapper.vm.$nextTick()
     expect(spy).not.toHaveBeenCalled()
   })
 
@@ -217,8 +218,8 @@ describe('TagAutocompleteInput.vue', () => {
     const autocompleteInput = wrapper.findComponent(AutocompleteInput)
     const spy = jest.spyOn(axios, 'put')
     autocompleteInput.vm.$emit('value-submitted', newTagName)
-    await Vue.nextTick()
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
+    await wrapper.vm.$nextTick()
     expect(spy).not.toHaveBeenCalled()
   })
 
@@ -234,13 +235,13 @@ describe('TagAutocompleteInput.vue', () => {
     const autocompleteInput = wrapper.findComponent(AutocompleteInput)
     const spy = jest.spyOn(axios, 'put')
     autocompleteInput.vm.$emit('value-submitted', newTagName)
-    await Vue.nextTick()
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
+    await wrapper.vm.$nextTick()
     expect(spy).not.toHaveBeenCalled()
   })
 
   test('should send request to add tag list in DB' +
-    ' if unknown tag selected before db loaded and legitimate list does not exist', async (done) => {
+    ' if unknown tag selected before db loaded and legitimate list does not exist', async () => {
     tagsData = {
       data: {
         malicious: [
@@ -261,18 +262,18 @@ describe('TagAutocompleteInput.vue', () => {
     const newTagName = 'tag-2300'
     wrapper.setData({tagsAddedWhileSuggestionsLoading: [newTagName]})
     const autocompleteInput = wrapper.findComponent(AutocompleteInput)
-    jest.spyOn(axios, 'put').mockImplementationOnce((path, data: TagsNamespaceValue) => {
+    await jest.spyOn(axios, 'put').mockImplementationOnce((path, data: TagsNamespaceValue) => {
       expect(data.neutral).toContain(newTagName)
-      done()
+      // done()
       return Promise.resolve()
     })
     autocompleteInput.vm.$emit('value-submitted', newTagName)
-    await Vue.nextTick()
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
+    await wrapper.vm.$nextTick()
   })
 
   test('should send request to add tag list in DB' +
-    ' if unknown tag selected before db loaded and malicious list does not exist', async (done) => {
+    ' if unknown tag selected before db loaded and malicious list does not exist', async () => {
     tagsData = {
       data: {
         legitimate: [
@@ -293,18 +294,18 @@ describe('TagAutocompleteInput.vue', () => {
     const newTagName = 'tag-2300'
     wrapper.setData({tagsAddedWhileSuggestionsLoading: [newTagName]})
     const autocompleteInput = wrapper.findComponent(AutocompleteInput)
-    jest.spyOn(axios, 'put').mockImplementationOnce((path, data: TagsNamespaceValue) => {
+    await jest.spyOn(axios, 'put').mockImplementationOnce((path, data: TagsNamespaceValue) => {
       expect(data.neutral).toContain(newTagName)
-      done()
+      // done()
       return Promise.resolve()
     })
     autocompleteInput.vm.$emit('value-submitted', newTagName)
-    await Vue.nextTick()
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
+    await wrapper.vm.$nextTick()
   })
 
   test('should send request to add tag list in DB' +
-    ' if unknown tag selected before db loaded and neutral list does not exist', async (done) => {
+    ' if unknown tag selected before db loaded and neutral list does not exist', async () => {
     tagsData = {
       data: {
         legitimate: [
@@ -326,14 +327,14 @@ describe('TagAutocompleteInput.vue', () => {
     const newTagName = 'tag-2300'
     wrapper.setData({tagsAddedWhileSuggestionsLoading: [newTagName]})
     const autocompleteInput = wrapper.findComponent(AutocompleteInput)
-    jest.spyOn(axios, 'put').mockImplementationOnce((path, data: TagsNamespaceValue) => {
+    await jest.spyOn(axios, 'put').mockImplementationOnce((path, data: TagsNamespaceValue) => {
       expect(data.neutral).toContain(newTagName)
-      done()
+      // done()
       return Promise.resolve()
     })
     autocompleteInput.vm.$emit('value-submitted', newTagName)
-    await Vue.nextTick()
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
+    await wrapper.vm.$nextTick()
   })
 
   test('should not send request to add tag neutral list in DB if known tag selected', async () => {
@@ -341,7 +342,7 @@ describe('TagAutocompleteInput.vue', () => {
     const autocompleteInput = wrapper.findComponent(AutocompleteInput)
     const newTagName = 'internal'
     autocompleteInput.vm.$emit('value-submitted', newTagName)
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
     expect(spy).not.toHaveBeenCalledWith('db/system/k/tags/')
   })
 
@@ -350,7 +351,7 @@ describe('TagAutocompleteInput.vue', () => {
     expect((wrapper.vm as any).tag).toEqual((wrapper.vm as any).initialTag)
     const initialTagValue = 'test'
     wrapper.setProps({initialTag: initialTagValue})
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
     expect((wrapper.vm as any).tag).toEqual(initialTagValue)
   })
 
@@ -371,7 +372,7 @@ describe('TagAutocompleteInput.vue', () => {
       }
       jest.spyOn(axios, 'get').mockImplementation(() => Promise.resolve(tagsData))
       wrapper = mount(TagAutocompleteInput)
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
     })
 
     test('should add correct prefix to tags based on their group - legitimate', async () => {
@@ -413,7 +414,7 @@ describe('TagAutocompleteInput.vue', () => {
           selectionType: propSelectionType,
         },
       })
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
     })
 
     test('should propagate initialTag correctly to AutocompleteInput', async () => {
@@ -444,7 +445,7 @@ describe('TagAutocompleteInput.vue', () => {
       const emitValue = 'some-value'
       const autocompleteInput = wrapper.findComponent(AutocompleteInput)
       autocompleteInput.vm.$emit('value-changed', emitValue)
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect(wrapper.emitted('tag-changed')).toBeTruthy()
       expect(wrapper.emitted('tag-changed')[0]).toEqual([emitValue])
     })
@@ -453,7 +454,7 @@ describe('TagAutocompleteInput.vue', () => {
       const emitValue = 'some-value'
       const autocompleteInput = wrapper.findComponent(AutocompleteInput)
       autocompleteInput.vm.$emit('value-submitted', emitValue)
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect(wrapper.emitted('tag-submitted')).toBeTruthy()
       expect(wrapper.emitted('tag-submitted')[0]).toEqual([emitValue])
     })
@@ -463,7 +464,7 @@ describe('TagAutocompleteInput.vue', () => {
       const wantedValue = 'some-value some-other-value'
       const autocompleteInput = wrapper.findComponent(AutocompleteInput)
       autocompleteInput.vm.$emit('value-changed', emitValue)
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect(wrapper.emitted('tag-changed')).toBeTruthy()
       expect(wrapper.emitted('tag-changed')[0]).toEqual([wantedValue])
     })
@@ -473,7 +474,7 @@ describe('TagAutocompleteInput.vue', () => {
       const wantedValue = 'some-value some-other-value'
       const autocompleteInput = wrapper.findComponent(AutocompleteInput)
       autocompleteInput.vm.$emit('value-submitted', emitValue)
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect(wrapper.emitted('tag-submitted')).toBeTruthy()
       expect(wrapper.emitted('tag-submitted')[0]).toEqual([wantedValue])
     })
@@ -483,7 +484,7 @@ describe('TagAutocompleteInput.vue', () => {
       const wantedValue = 'some-value some-other-value'
       const autocompleteInput = wrapper.findComponent(AutocompleteInput)
       autocompleteInput.vm.$emit('value-changed', emitValue)
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect(wrapper.emitted('tag-changed')).toBeTruthy()
       expect(wrapper.emitted('tag-changed')[0]).toEqual([wantedValue])
     })
@@ -493,7 +494,7 @@ describe('TagAutocompleteInput.vue', () => {
       const wantedValue = 'some-value some-other-value'
       const autocompleteInput = wrapper.findComponent(AutocompleteInput)
       autocompleteInput.vm.$emit('value-submitted', emitValue)
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect(wrapper.emitted('tag-submitted')).toBeTruthy()
       expect(wrapper.emitted('tag-submitted')[0]).toEqual([wantedValue])
     })
@@ -503,7 +504,7 @@ describe('TagAutocompleteInput.vue', () => {
       const wantedValue = 'some-value some-other-value'
       const autocompleteInput = wrapper.findComponent(AutocompleteInput)
       autocompleteInput.vm.$emit('value-changed', emitValue)
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect(wrapper.emitted('tag-changed')).toBeTruthy()
       expect(wrapper.emitted('tag-changed')[0]).toEqual([wantedValue])
     })
@@ -513,7 +514,7 @@ describe('TagAutocompleteInput.vue', () => {
       const wantedValue = 'some-value some-other-value'
       const autocompleteInput = wrapper.findComponent(AutocompleteInput)
       autocompleteInput.vm.$emit('value-submitted', emitValue)
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect(wrapper.emitted('tag-submitted')).toBeTruthy()
       expect(wrapper.emitted('tag-submitted')[0]).toEqual([wantedValue])
     })
@@ -522,7 +523,7 @@ describe('TagAutocompleteInput.vue', () => {
       const emitValue = 'enter'
       const autocompleteInput = wrapper.findComponent(AutocompleteInput)
       autocompleteInput.vm.$emit('keyup', emitValue)
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect(wrapper.emitted('keyup')).toBeTruthy()
       expect(wrapper.emitted('keyup')[0]).toEqual([emitValue])
     })
@@ -531,7 +532,7 @@ describe('TagAutocompleteInput.vue', () => {
       const emitValue = 'enter'
       const autocompleteInput = wrapper.findComponent(AutocompleteInput)
       autocompleteInput.vm.$emit('keydown', emitValue)
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect(wrapper.emitted('keydown')).toBeTruthy()
       expect(wrapper.emitted('keydown')[0]).toEqual([emitValue])
     })
@@ -540,7 +541,7 @@ describe('TagAutocompleteInput.vue', () => {
       const emitValue = 'enter'
       const autocompleteInput = wrapper.findComponent(AutocompleteInput)
       autocompleteInput.vm.$emit('keypress', emitValue)
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect(wrapper.emitted('keypress')).toBeTruthy()
       expect(wrapper.emitted('keypress')[0]).toEqual([emitValue])
     })
@@ -549,7 +550,7 @@ describe('TagAutocompleteInput.vue', () => {
       const emitValue = new Event('focus')
       const autocompleteInput = wrapper.findComponent(AutocompleteInput)
       autocompleteInput.vm.$emit('focus', emitValue)
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect(wrapper.emitted('focus')).toBeTruthy()
       expect(wrapper.emitted('focus')[0]).toEqual([emitValue])
     })
@@ -558,7 +559,7 @@ describe('TagAutocompleteInput.vue', () => {
       const emitValue = new Event('blur')
       const autocompleteInput = wrapper.findComponent(AutocompleteInput)
       autocompleteInput.vm.$emit('blur', emitValue)
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect(wrapper.emitted('blur')).toBeTruthy()
       expect(wrapper.emitted('blur')[0]).toEqual([emitValue])
     })

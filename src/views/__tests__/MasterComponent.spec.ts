@@ -1,3 +1,4 @@
+// @ts-nocheck
 import MasterComponent from '@/views/MasterComponent.vue'
 import {describe, test, expect, beforeEach} from '@jest/globals'
 import {shallowMount} from '@vue/test-utils'

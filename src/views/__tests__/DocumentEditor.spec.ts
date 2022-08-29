@@ -1,23 +1,19 @@
+// @ts-nocheck
 import DocumentEditor from '@/views/DocumentEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import Utils from '@/assets/Utils'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {shallowMount} from '@vue/test-utils'
-import Vue from 'vue'
+// import Vue from 'vue'
 import axios from 'axios'
 import _ from 'lodash'
-import {
-  ACLProfile,
-  Branch,
-  Commit,
-  ContentFilterProfile,
-  Document,
-  FlowControlPolicy,
-  GlobalFilter,
-  RateLimit,
-  SecurityPolicy,
-} from '@/types'
+import {ACLProfile, Branch, Commit, ContentFilterProfile, Document} from '@/types'
+import {FlowControlPolicy, GlobalFilter, RateLimit, SecurityPolicy} from '@/types'
+/**
+ * @jest-environment jsdom
+*/
+global.setImmediate = jest.useFakeTimers().setImmediate
 
 jest.mock('axios')
 
@@ -834,7 +830,7 @@ describe('DocumentEditor.vue', () => {
       },
     })
     // allow all requests to finish
-    setImmediate(() => {
+    global.setImmediate(() => {
       done()
     })
   })
@@ -856,7 +852,7 @@ describe('DocumentEditor.vue', () => {
     putSpy.mockImplementation(() => Promise.resolve())
     const gitHistory = wrapper.findComponent(GitHistory)
     gitHistory.vm.$emit('restore-version', wantedVersion)
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
     expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclprofiles/v/${wantedVersion.version}/revert/`)
   })
 
@@ -879,7 +875,7 @@ describe('DocumentEditor.vue', () => {
       },
     })
     // allow all requests to finish
-    setImmediate(() => {
+    global.setImmediate(() => {
       expect(consoleOutput).toContain(`Error while attempting to get configs`)
       console.log = originalLog
       done()
@@ -910,7 +906,7 @@ describe('DocumentEditor.vue', () => {
       },
     })
     // allow all requests to finish
-    setImmediate(() => {
+    global.setImmediate(() => {
       expect(consoleOutput).toContain(`Error while attempting to load documents`)
       console.log = originalLog
       done()
@@ -926,7 +922,7 @@ describe('DocumentEditor.vue', () => {
         doc_id: '__default__',
       }
       // allow all requests to finish
-      setImmediate(() => {
+      global.setImmediate(() => {
         expect(routeChangeSpy).not.toHaveBeenCalled()
         done()
       })
@@ -939,7 +935,7 @@ describe('DocumentEditor.vue', () => {
         doc_id: '07656fbe',
       }
       // allow all requests to finish
-      setImmediate(() => {
+      global.setImmediate(() => {
         const branchSelection = wrapper.find('.branch-selection')
         expect((branchSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
         done()
@@ -953,7 +949,7 @@ describe('DocumentEditor.vue', () => {
         doc_id: '07656fbe',
       }
       // allow all requests to finish
-      setImmediate(() => {
+      global.setImmediate(() => {
         const docTypeSelection = wrapper.find('.doc-type-selection')
         expect((docTypeSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
         done()
@@ -967,7 +963,7 @@ describe('DocumentEditor.vue', () => {
         doc_id: '07656fbe',
       }
       // allow all requests to finish
-      setImmediate(() => {
+      global.setImmediate(() => {
         const docSelection = wrapper.find('.doc-selection')
         expect((docSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
         done()
@@ -981,7 +977,7 @@ describe('DocumentEditor.vue', () => {
         doc_id: '__default__',
       }
       // allow all requests to finish
-      setImmediate(() => {
+      global.setImmediate(() => {
         const branchSelection = wrapper.find('.branch-selection')
         expect((branchSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
         const docTypeSelection = wrapper.find('.doc-type-selection')
@@ -999,7 +995,7 @@ describe('DocumentEditor.vue', () => {
         doc_id: '__default__',
       }
       // allow all requests to finish
-      setImmediate(() => {
+      global.setImmediate(() => {
         const branchSelection = wrapper.find('.branch-selection')
         expect((branchSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
         const docTypeSelection = wrapper.find('.doc-type-selection')
@@ -1017,7 +1013,7 @@ describe('DocumentEditor.vue', () => {
         doc_id: '5828321c37e0',
       }
       // allow all requests to finish
-      setImmediate(() => {
+      global.setImmediate(() => {
         const branchSelection = wrapper.find('.branch-selection')
         expect((branchSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
         const docTypeSelection = wrapper.find('.doc-type-selection')
@@ -1031,7 +1027,7 @@ describe('DocumentEditor.vue', () => {
     test('should load correct default branch if non existent in route params', async (done) => {
       mockRoute.params = {}
       // allow all requests to finish
-      setImmediate(() => {
+      global.setImmediate(() => {
         const branchSelection = wrapper.find('.branch-selection')
         expect((branchSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
         done()
@@ -1041,7 +1037,7 @@ describe('DocumentEditor.vue', () => {
     test('should load correct default document type if non existent in route params', async (done) => {
       mockRoute.params = {}
       // allow all requests to finish
-      setImmediate(() => {
+      global.setImmediate(() => {
         const docTypeSelection = wrapper.find('.doc-type-selection')
         expect((docTypeSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
         done()
@@ -1051,7 +1047,7 @@ describe('DocumentEditor.vue', () => {
     test('should load correct default document id if non existent in route params', async (done) => {
       mockRoute.params = {}
       // allow all requests to finish
-      setImmediate(() => {
+      global.setImmediate(() => {
         const docSelection = wrapper.find('.doc-selection')
         expect((docSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
         done()
@@ -1066,7 +1062,7 @@ describe('DocumentEditor.vue', () => {
           doc_id: '__default__',
         }
         // allow all requests to finish
-        setImmediate(() => {
+        global.setImmediate(() => {
           const gitHistory = wrapper.findComponent(GitHistory)
           expect(gitHistory).toBeTruthy()
           expect((gitHistory.vm as any).gitLog).toEqual(aclDocsLogs[1])
@@ -1081,7 +1077,7 @@ describe('DocumentEditor.vue', () => {
           doc_id: '__default__',
         }
         // allow all requests to finish
-        setImmediate(() => {
+        global.setImmediate(() => {
           const gitHistory = wrapper.findComponent(GitHistory)
           expect(gitHistory).toBeTruthy()
           expect((gitHistory.vm as any).gitLog).toEqual(securityPoliciesDocsLogs[0])
@@ -1096,7 +1092,7 @@ describe('DocumentEditor.vue', () => {
           doc_id: '5828321c37e0',
         }
         // allow all requests to finish
-        setImmediate(() => {
+        global.setImmediate(() => {
           const gitHistory = wrapper.findComponent(GitHistory)
           expect(gitHistory).toBeTruthy()
           expect((gitHistory.vm as any).gitLog).toEqual(aclDocsLogs[1])
@@ -1122,7 +1118,7 @@ describe('DocumentEditor.vue', () => {
         },
       })
       // allow all requests to finish
-      setImmediate(() => {
+      global.setImmediate(() => {
         const gitBranches = wrapper.find('.git-branches')
         expect(gitBranches.text()).toEqual('0 branches')
         done()
@@ -1144,7 +1140,7 @@ describe('DocumentEditor.vue', () => {
         },
       })
       // allow all requests to finish
-      setImmediate(() => {
+      global.setImmediate(() => {
         const gitCommits = wrapper.find('.git-commits')
         expect(gitCommits.text()).toEqual('0 commits')
         done()
@@ -1189,7 +1185,7 @@ describe('DocumentEditor.vue', () => {
         },
       })
       // allow all requests to finish
-      setImmediate(() => {
+      global.setImmediate(() => {
         const gitBranches = wrapper.find('.git-branches')
         expect(gitBranches.text()).toEqual('1 branch')
         done()
@@ -1234,7 +1230,7 @@ describe('DocumentEditor.vue', () => {
         },
       })
       // allow all requests to finish
-      setImmediate(() => {
+      global.setImmediate(() => {
         const gitCommits = wrapper.find('.git-commits')
         expect(gitCommits.text()).toEqual('1 commit')
         done()
@@ -1257,9 +1253,9 @@ describe('DocumentEditor.vue', () => {
       const branchSelection = wrapper.find('.branch-selection')
       branchSelection.trigger('click')
       const options = branchSelection.findAll('option')
-      options.at(1).setSelected()
+      branchSelection.setValue(options.at(1).element.value)
       // allow all requests to finish
-      setImmediate(() => {
+      global.setImmediate(() => {
         expect((branchSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
         done()
       })
@@ -1269,14 +1265,16 @@ describe('DocumentEditor.vue', () => {
       const docTypeSelection = wrapper.find('.doc-type-selection')
       docTypeSelection.trigger('click')
       const docTypeOptions = docTypeSelection.findAll('option')
-      docTypeOptions.at(2).setSelected()
-      await Vue.nextTick()
+      docTypeSelection.setValue(docTypeOptions.at(2)?.element.value)
+      // docTypeOptions.at(2).setSelected()
+      await wrapper.vm.$nextTick()
       const branchSelection = wrapper.find('.branch-selection')
       branchSelection.trigger('click')
       const branchOptions = branchSelection.findAll('option')
-      branchOptions.at(1).setSelected()
+      branchSelection.setValue(branchOptions.at(1)?.element.value)
+      // branchOptions.at(1).setSelected()
       // allow all requests to finish
-      setImmediate(() => {
+      global.setImmediate(() => {
         expect((docTypeSelection.element as HTMLSelectElement).selectedIndex).toEqual(2)
         done()
       })
@@ -1286,14 +1284,16 @@ describe('DocumentEditor.vue', () => {
       const docSelection = wrapper.find('.doc-selection')
       docSelection.trigger('click')
       const docOptions = docSelection.findAll('option')
-      docOptions.at(1).setSelected()
-      await Vue.nextTick()
+      docSelection.setValue(docOptions.at(1)?.element.value)
+      // docOptions.at(1).setSelected()
+      await wrapper.vm.$nextTick()
       const branchSelection = wrapper.find('.branch-selection')
       branchSelection.trigger('click')
       const branchOptions = branchSelection.findAll('option')
-      branchOptions.at(1).setSelected()
+      branchSelection.setValue(branchOptions.at(1)?.element.value)
+      // branchOptions.at(1).setSelected()
       // allow all requests to finish
-      setImmediate(() => {
+      global.setImmediate(() => {
         expect((docSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
         done()
       })
@@ -1303,9 +1303,9 @@ describe('DocumentEditor.vue', () => {
       const docTypeSelection = wrapper.find('.doc-type-selection')
       docTypeSelection.trigger('click')
       const options = docTypeSelection.findAll('option')
-      options.at(2).setSelected()
+      docTypeSelection.setValue(options.at(2).element.value)
       // allow all requests to finish
-      setImmediate(() => {
+      global.setImmediate(() => {
         expect((docTypeSelection.element as HTMLSelectElement).selectedIndex).toEqual(2)
         done()
       })
@@ -1316,16 +1316,17 @@ describe('DocumentEditor.vue', () => {
       const docTypeSelection = wrapper.find('.doc-type-selection')
       docTypeSelection.trigger('click')
       const docTypeOptions = docTypeSelection.findAll('option')
-      docTypeOptions.at(0).setSelected()
+      docTypeSelection.setValue(docTypeOptions.at(0)?.element.value)
+      // docTypeOptions.at(0).setSelected()
       // allow all requests to finish
-      setImmediate(() => {
+      global.setImmediate(() => {
         // switch to a different document
         const docSelection = wrapper.find('.doc-selection')
         docSelection.trigger('click')
         const options = docSelection.findAll('option')
-        options.at(1).setSelected()
+        docSelection.setValue(options.at(1).element.value)
         // allow all requests to finish
-        setImmediate(() => {
+        global.setImmediate(() => {
           expect((docSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
           done()
         })
@@ -1339,16 +1340,16 @@ describe('DocumentEditor.vue', () => {
       const docTypeSelection = wrapper.find('.doc-type-selection')
       docTypeSelection.trigger('click')
       const options = docTypeSelection.findAll('option')
-      options.at(4).setSelected()
+      docTypeSelection.setValue(options.at(4).element.value)
       // allow all requests to finish
-      setImmediate(async () => {
+      global.setImmediate(async () => {
         const doc = (wrapper.vm as any).selectedDoc
         doc.name = `${doc.name} changed`
         jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
         const getSpy = jest.spyOn(axios, 'get')
         const saveDocumentButton = wrapper.find('.save-document-button')
         saveDocumentButton.trigger('click')
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         expect(getSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/securitypolicies/`)
         done()
       })
@@ -1361,7 +1362,7 @@ describe('DocumentEditor.vue', () => {
       putSpy.mockImplementation(() => Promise.resolve())
       const saveDocumentButton = wrapper.find('.save-document-button')
       saveDocumentButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclprofiles/e/${doc.id}/`, doc)
     })
 
@@ -1374,7 +1375,7 @@ describe('DocumentEditor.vue', () => {
       postSpy.mockImplementation(() => Promise.resolve())
       const forkDocumentButton = wrapper.find('.fork-document-button')
       forkDocumentButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclprofiles/e/`, forkedDoc)
     })
 
@@ -1383,9 +1384,9 @@ describe('DocumentEditor.vue', () => {
       const docTypeSelection = wrapper.find('.doc-type-selection')
       docTypeSelection.trigger('click')
       const options = docTypeSelection.findAll('option')
-      options.at(2).setSelected()
+      docTypeSelection.setValue(options.at(2).element.value)
       // allow all requests to finish
-      setImmediate(async () => {
+      global.setImmediate(async () => {
         const originalDoc = (wrapper.vm as any).selectedDoc
         const forkedDoc = {...originalDoc}
         forkedDoc.id = expect.any(String)
@@ -1395,7 +1396,7 @@ describe('DocumentEditor.vue', () => {
         postSpy.mockImplementation(() => Promise.resolve())
         const forkDocumentButton = wrapper.find('.fork-document-button')
         forkDocumentButton.trigger('click')
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/securitypolicies/e/`, forkedDoc)
         done()
       })
@@ -1408,7 +1409,7 @@ describe('DocumentEditor.vue', () => {
       postSpy.mockImplementation(() => Promise.resolve())
       const newDocumentButton = wrapper.find('.new-document-button')
       newDocumentButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclprofiles/e/`, newDoc)
     })
 
@@ -1421,9 +1422,9 @@ describe('DocumentEditor.vue', () => {
       })
       const newDocumentButton = wrapper.find('.new-document-button')
       newDocumentButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       newDocumentButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect(postSpy).toHaveBeenCalledTimes(2)
       expect(newDocIDs[0]).not.toEqual(newDocIDs[1])
     })
@@ -1434,11 +1435,11 @@ describe('DocumentEditor.vue', () => {
       // create new document so we can delete it
       const newDocumentButton = wrapper.find('.new-document-button')
       newDocumentButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       const docID = (wrapper.vm as any).selectedDocID
       const deleteDocumentButton = wrapper.find('.delete-document-button')
       deleteDocumentButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect(deleteSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclprofiles/e/${docID}/`)
     })
 
@@ -1446,10 +1447,10 @@ describe('DocumentEditor.vue', () => {
       const deleteSpy = jest.spyOn(axios, 'delete')
       deleteSpy.mockImplementation(() => Promise.resolve())
       wrapper.setData({selectedDocID: '__default__'})
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       const deleteDocumentButton = wrapper.find('.delete-document-button')
       deleteDocumentButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect(deleteSpy).not.toHaveBeenCalled()
     })
 
@@ -1458,14 +1459,14 @@ describe('DocumentEditor.vue', () => {
       const docSelection = wrapper.find('.doc-selection')
       docSelection.trigger('click')
       const options = docSelection.findAll('option')
-      options.at(1).setSelected()
-      await Vue.nextTick()
+      docSelection.setValue(options.at(1).element.value)
+      await wrapper.vm.$nextTick()
       const deleteSpy = jest.spyOn(axios, 'delete')
       deleteSpy.mockImplementation(() => Promise.resolve())
       wrapper.setData({selectedDoc: {id: '__default__'}})
       const deleteDocumentButton = wrapper.find('.delete-document-button')
       deleteDocumentButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect(deleteSpy).not.toHaveBeenCalled()
     })
 
@@ -1475,15 +1476,16 @@ describe('DocumentEditor.vue', () => {
       const docTypeSelection = wrapper.find('.doc-type-selection')
       docTypeSelection.trigger('click')
       const docTypeOptions = docTypeSelection.findAll('option')
-      docTypeOptions.at(5).setSelected()
-      await Vue.nextTick()
-      await Vue.nextTick()
+      docTypeSelection.setValue(docTypeOptions.at(5)?.element.value)
+      // docTypeOptions.at(5).setSelected()
+      await wrapper.vm.$nextTick()
+      await wrapper.vm.$nextTick()
       const deleteSpy = jest.spyOn(axios, 'delete')
       deleteSpy.mockImplementation(() => Promise.resolve())
       wrapper.setData({selectedDoc: {id: '009e846e819e'}})
       const deleteDocumentButton = wrapper.find('.delete-document-button')
       deleteDocumentButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect(deleteSpy).not.toHaveBeenCalled()
     })
 
@@ -1492,15 +1494,16 @@ describe('DocumentEditor.vue', () => {
       const docTypeSelection = wrapper.find('.doc-type-selection')
       docTypeSelection.trigger('click')
       const docTypeOptions = docTypeSelection.findAll('option')
-      docTypeOptions.at(3).setSelected()
-      await Vue.nextTick()
-      await Vue.nextTick()
+      docTypeSelection.setValue(docTypeOptions.at(3)?.element.value)
+      // docTypeOptions.at(3).setSelected()
+      await wrapper.vm.$nextTick()
+      await wrapper.vm.$nextTick()
       const deleteSpy = jest.spyOn(axios, 'delete')
       deleteSpy.mockImplementation(() => Promise.resolve())
       wrapper.setData({selectedDoc: {id: 'f971e92459e2'}})
       const deleteDocumentButton = wrapper.find('.delete-document-button')
       deleteDocumentButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect(deleteSpy).not.toHaveBeenCalled()
     })
 
@@ -1540,15 +1543,15 @@ describe('DocumentEditor.vue', () => {
           $router: mockRouter,
         },
       })
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {
       })
       // force update because downloadFile is mocked after it is read to to be used as event handler
       await (wrapper.vm as any).$forceUpdate()
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       const downloadDocButton = wrapper.find('.download-doc-button')
       downloadDocButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect(downloadFileSpy).not.toHaveBeenCalled()
     })
 
@@ -1560,10 +1563,10 @@ describe('DocumentEditor.vue', () => {
       })
       // force update because downloadFile is mocked after it is read to to be used as event handler
       await (wrapper.vm as any).$forceUpdate()
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       const downloadDocButton = wrapper.find('.download-doc-button')
       downloadDocButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect(downloadFileSpy).toHaveBeenCalledWith(wantedFileName, wantedFileType, wantedFileData)
     })
   })
@@ -1583,7 +1586,7 @@ describe('DocumentEditor.vue', () => {
         },
       })
       // allow all requests to finish
-      setImmediate(() => {
+      global.setImmediate(() => {
         const noDataMessage = wrapper.find('.no-data-message')
         expect(noDataMessage.element).toBeDefined()
         expect(noDataMessage.text().toLowerCase()).toContain('no data found!')
@@ -1606,14 +1609,14 @@ describe('DocumentEditor.vue', () => {
         },
       })
       // allow all requests to finish
-      setImmediate(async () => {
+      global.setImmediate(async () => {
         jest.spyOn(mockRouter, 'push').mockImplementation((path) => {
           expect(path).toEqual('/versioncontrol')
           done()
         })
         const button = wrapper.find('.version-control-referral-button')
         button.trigger('click')
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
       })
     })
 
@@ -1621,7 +1624,7 @@ describe('DocumentEditor.vue', () => {
       // it is not possible to get to this state from the UI, but we protect from it anyway
       (wrapper.vm as any).selectedDocType = null
       // allow all requests to finish
-      setImmediate(() => {
+      global.setImmediate(() => {
         const noDataMessage = wrapper.find('.no-data-message')
         expect(noDataMessage.element).toBeDefined()
         expect(noDataMessage.text().toLowerCase()).toContain('no data found!')
@@ -1644,7 +1647,7 @@ describe('DocumentEditor.vue', () => {
         },
       })
       // allow all requests to finish
-      setImmediate(() => {
+      global.setImmediate(() => {
         const noDataMessage = wrapper.find('.no-data-message')
         expect(noDataMessage.element).toBeDefined()
         expect(noDataMessage.text().toLowerCase()).toContain('no data found!')
@@ -1669,7 +1672,7 @@ describe('DocumentEditor.vue', () => {
           $router: mockRouter,
         },
       })
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       const docLoadingIndicator = wrapper.find('.document-loading')
       expect(docLoadingIndicator.element).toBeDefined()
     })
@@ -1692,7 +1695,7 @@ describe('DocumentEditor.vue', () => {
           $router: mockRouter,
         },
       })
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       const docLoadingIndicator = wrapper.find('.document-loading')
       expect(docLoadingIndicator.element).toBeDefined()
     })
@@ -1702,7 +1705,7 @@ describe('DocumentEditor.vue', () => {
       }))
       const saveDocumentButton = wrapper.find('.save-document-button')
       saveDocumentButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect(saveDocumentButton.element.classList).toContain('is-loading')
     })
 
@@ -1711,7 +1714,7 @@ describe('DocumentEditor.vue', () => {
       }))
       const forkDocumentButton = wrapper.find('.fork-document-button')
       forkDocumentButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect(forkDocumentButton.element.classList).toContain('is-loading')
     })
 
@@ -1720,7 +1723,7 @@ describe('DocumentEditor.vue', () => {
       }))
       const newDocumentButton = wrapper.find('.new-document-button')
       newDocumentButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect(newDocumentButton.element.classList).toContain('is-loading')
     })
 
@@ -1730,10 +1733,10 @@ describe('DocumentEditor.vue', () => {
       // create new document so we can delete it
       const newDocumentButton = wrapper.find('.new-document-button')
       newDocumentButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       const deleteDocumentButton = wrapper.find('.delete-document-button')
       deleteDocumentButton.trigger('click')
-      await Vue.nextTick()
+      await wrapper.vm.$nextTick()
       expect(deleteDocumentButton.element.classList).toContain('is-loading')
     })
   })

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import GitHistory from '@/components/GitHistory.vue'
 import {describe, test, expect, beforeEach} from '@jest/globals'
 import {mount} from '@vue/test-utils'

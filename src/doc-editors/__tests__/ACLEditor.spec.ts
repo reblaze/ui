@@ -2,7 +2,7 @@ import ACLEditor from '@/doc-editors/ACLEditor.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import {describe, test, expect, beforeEach} from '@jest/globals'
 import {shallowMount} from '@vue/test-utils'
-import Vue from 'vue'
+// import Vue from 'vue'
 import {ACLProfile} from '@/types'
 
 describe('ACLEditor.vue', () => {
@@ -62,7 +62,7 @@ describe('ACLEditor.vue', () => {
         selectedDoc: docs[0],
       },
     })
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
     const tagsWithWarning = wrapper.findAll('.has-text-danger')
     expect(tagsWithWarning.length).toEqual(2)
   })
@@ -74,7 +74,7 @@ describe('ACLEditor.vue', () => {
         selectedDoc: docs[0],
       },
     })
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
     const tagCells = wrapper.findAll('.tag-cell')
     const tagCellsCrossed = tagCells.filter((item: any) => item.element.classList.contains('tag-crossed'))
     expect(tagCellsCrossed.length).toEqual(3)
@@ -87,7 +87,7 @@ describe('ACLEditor.vue', () => {
         selectedDoc: docs[0],
       },
     })
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
     const tagCells = wrapper.findAll('.tag-cell')
     const tagCellsCrossed = tagCells.filter((item: any) => item.element.classList.contains('tag-crossed'))
     expect(tagCellsCrossed.length).toEqual(0)
@@ -100,7 +100,7 @@ describe('ACLEditor.vue', () => {
         selectedDoc: docs[0],
       },
     })
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
     const tagCells = wrapper.findAll('.tag-cell')
     const tagCellsCrossed = tagCells.filter((item: any) => item.element.classList.contains('tag-crossed'))
     expect(tagCellsCrossed.length).toEqual(1)
@@ -109,29 +109,29 @@ describe('ACLEditor.vue', () => {
   test('should add tag to correct section when tag selected', async () => {
     const newPassthroughEntryButton = wrapper.findAll('.add-new-entry-button').at(1)
     newPassthroughEntryButton.trigger('click')
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
     const newTag = 'test-tag'
     const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
     tagAutocompleteInput.vm.$emit('tag-submitted', newTag)
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
     expect((wrapper.vm as any).localDoc.passthrough.includes(newTag)).toBeTruthy()
   })
 
   test('should remove tag from correct section when tag removed', async () => {
     const removePassthroughEntryButton = wrapper.findAll('.remove-entry-button').at(3)
     removePassthroughEntryButton.trigger('click')
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
     expect((wrapper.vm as any).localDoc.passthrough).toEqual(['internal'])
   })
 
   test('should hide tag input when tag selection cancelled', async () => {
     const newPassthroughEntryButton = wrapper.findAll('.add-new-entry-button').at(1)
     newPassthroughEntryButton.trigger('click')
-    await Vue.nextTick();
+    await wrapper.vm.$nextTick();
     (wrapper.vm as any).cancelAddNewTag()
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
     const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
     expect(tagAutocompleteInput.element).toBeUndefined()
   })
 })
