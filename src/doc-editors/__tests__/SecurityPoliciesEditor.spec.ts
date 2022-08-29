@@ -1,7 +1,7 @@
 // @ts-nocheck
 import {VueWrapper} from '@vue/test-utils'
 import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
-import {afterEach, beforeEach, describe, expect, jest, test, useFakeTimers} from '@jest/globals'
+import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {shallowMount} from '@vue/test-utils'
 import {ACLProfile, ContentFilterProfile, RateLimit, SecurityPolicy} from '@/types'
 import axios from 'axios'
@@ -9,8 +9,6 @@ import _ from 'lodash'
 /**
  * @jest-environment jsdom
  */
-global.setImmediate = useFakeTimers().setImmediate
-
 jest.mock('axios')
 
 describe('SecurityPoliciesEditor.vue', () => {
@@ -346,7 +344,7 @@ describe('SecurityPoliciesEditor.vue', () => {
     await wrapper.vm.$nextTick()
     // allow all requests to finish
     jest.useFakeTimers()
-    global.setImmediate(() => {
+    Window.setImmediate(() => {
       console.log('beforeAll111')
       expect((wrapper.vm as any).initialDocDomainMatch).toBe(wantedMatch)
       jest.useRealTimers()
@@ -394,7 +392,7 @@ describe('SecurityPoliciesEditor.vue', () => {
     wrapper.setProps({selectedDoc: fullPolicy})
     await wrapper.vm.$nextTick()
     // allow all requests to finish
-    global.setImmediate(() => {
+    Window.setImmediate(() => {
       expect((wrapper.vm as any).initialDocDomainMatch).toBe(wantedMatch)
       done()
     })
@@ -407,7 +405,7 @@ describe('SecurityPoliciesEditor.vue', () => {
       selectedBranch: branch,
     })
     // allow all requests to finish
-    global.setImmediate(() => {
+    Window.setImmediate(() => {
       expect(axiosGetSpy).toHaveBeenCalledTimes(0)
       done()
     })
@@ -419,7 +417,7 @@ describe('SecurityPoliciesEditor.vue', () => {
       selectedBranch: '',
     })
     // allow all requests to finish
-    global.setImmediate(() => {
+    Window.setImmediate(() => {
       expect(axiosGetSpy).toHaveBeenCalledTimes(0)
       done()
     })
@@ -431,7 +429,7 @@ describe('SecurityPoliciesEditor.vue', () => {
       selectedBranch: null,
     })
     // allow all requests to finish
-    global.setImmediate(() => {
+    Window.setImmediate(() => {
       expect(axiosGetSpy).toHaveBeenCalledTimes(0)
       done()
     })
@@ -443,7 +441,7 @@ describe('SecurityPoliciesEditor.vue', () => {
       selectedBranch: undefined,
     })
     // allow all requests to finish
-    global.setImmediate(() => {
+    Window.setImmediate(() => {
       expect(axiosGetSpy).toHaveBeenCalledTimes(0)
       done()
     })
@@ -456,7 +454,7 @@ describe('SecurityPoliciesEditor.vue', () => {
       selectedBranch: branch,
     })
     // allow all requests to finish
-    global.setImmediate(() => {
+    Window.setImmediate(() => {
       expect(axiosGetSpy).toHaveBeenCalledTimes(1)
       done()
     })

@@ -11,7 +11,6 @@ import {Commit} from '@/types'
  * @jest-environment jsdom
 */
 
-global.setImmediate = jest.useFakeTimers().setImmediate
 
 jest.mock('axios')
 jest.mock('jsoneditor')
@@ -127,7 +126,7 @@ describe('CurieDBEditor.vue', () => {
     })
     wrapper = mount(CurieDBEditor)
     // allow all requests to finish
-    global.setImmediate(() => {
+    Window.setImmediate(() => {
       expect(consoleOutput).toContain(`failed loading namespace, none are present!`)
       console.log = originalLog
       done()
@@ -141,7 +140,7 @@ describe('CurieDBEditor.vue', () => {
     const options = namespaceSelection.findAll('option')
     namespaceSelection.setValue(options.at(1).element.value)
     // allow all requests to finish
-    global.setImmediate(() => {
+    Window.setImmediate(() => {
       expect((wrapper.vm as any).selectedNamespace).toEqual(wantedValue)
       done()
     })
@@ -154,7 +153,7 @@ describe('CurieDBEditor.vue', () => {
     const options = keySelection.findAll('option')
     keySelection.setValue(options.at(1).element.value)
     // allow all requests to finish
-    global.setImmediate(() => {
+    Window.setImmediate(() => {
       expect((wrapper.vm as any).selectedKey).toEqual(wantedValue)
       done()
     })
@@ -182,7 +181,7 @@ describe('CurieDBEditor.vue', () => {
     const gitHistory = wrapper.findComponent(GitHistory)
     gitHistory.vm.$emit('restore-version', restoredVersion)
     // allow all requests to finish
-    global.setImmediate(() => {
+    Window.setImmediate(() => {
       expect((wrapper.vm as any).selectedKey).toEqual(wantedKey)
       done()
     })
@@ -198,7 +197,7 @@ describe('CurieDBEditor.vue', () => {
     const gitHistory = wrapper.findComponent(GitHistory)
     gitHistory.vm.$emit('restore-version', restoredVersion)
     // allow all requests to finish
-    global.setImmediate(() => {
+    Window.setImmediate(() => {
       expect((wrapper.vm as any).selectedKey).toEqual(wantedKey)
       done()
     })
@@ -277,7 +276,7 @@ describe('CurieDBEditor.vue', () => {
       // create new namespace so we can delete it
       const newNamespaceButton = wrapper.find('.new-namespace-button')
       newNamespaceButton.trigger('click')
-      global.setImmediate(async () => {
+      Window.setImmediate(async () => {
         const namespaceName = (wrapper.vm as any).selectedNamespace
         const deleteNamespaceButton = wrapper.find('.delete-namespace-button')
         deleteNamespaceButton.trigger('click')
@@ -325,7 +324,7 @@ describe('CurieDBEditor.vue', () => {
       // create new key so we can delete it
       const newKeyButton = wrapper.find('.new-key-button')
       newKeyButton.trigger('click')
-      global.setImmediate(async () => {
+      Window.setImmediate(async () => {
         const keyName = (wrapper.vm as any).selectedKey
         const deleteKeyButton = wrapper.find('.delete-key-button')
         deleteKeyButton.trigger('click')
@@ -354,7 +353,7 @@ describe('CurieDBEditor.vue', () => {
       const newNamespaceButton = wrapper.find('.new-namespace-button')
       newNamespaceButton.trigger('click')
       // allow all requests to finish
-      global.setImmediate(() => {
+      Window.setImmediate(() => {
         jest.clearAllMocks()
         putSpy = jest.spyOn(axios, 'put')
         done()
@@ -384,7 +383,7 @@ describe('CurieDBEditor.vue', () => {
       saveKeyButton.trigger('click')
       await wrapper.vm.$nextTick()
       // allow all requests to finish
-      global.setImmediate(() => {
+      Window.setImmediate(() => {
         expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/newDB/`, wantedResult)
         done()
       })
@@ -543,7 +542,7 @@ describe('CurieDBEditor.vue', () => {
       })
       wrapper = mount(CurieDBEditor)
       // allow all requests to finish
-      global.setImmediate(() => {
+      Window.setImmediate(() => {
         const noDataMessage = wrapper.find('.no-data-message')
         expect(noDataMessage.element).toBeDefined()
         expect(noDataMessage.text().toLowerCase()).toContain('no data found!')
@@ -567,7 +566,7 @@ describe('CurieDBEditor.vue', () => {
       })
       wrapper = mount(CurieDBEditor)
       // allow all requests to finish
-      global.setImmediate(() => {
+      Window.setImmediate(() => {
         const noDataMessage = wrapper.find('.no-data-message')
         expect(noDataMessage.element).toBeDefined()
         expect(noDataMessage.text().toLowerCase()).toContain('no data found!')
@@ -644,7 +643,7 @@ describe('CurieDBEditor.vue', () => {
       // create new namespace so we can delete it
       const newNamespaceButton = wrapper.find('.new-namespace-button')
       newNamespaceButton.trigger('click')
-      global.setImmediate(async () => {
+      Window.setImmediate(async () => {
         const deleteNamespaceButton = wrapper.find('.delete-namespace-button')
         deleteNamespaceButton.trigger('click')
         await wrapper.vm.$nextTick()
@@ -678,7 +677,7 @@ describe('CurieDBEditor.vue', () => {
       // create new namespace so we can delete it
       const newNamespaceButton = wrapper.find('.new-key-button')
       newNamespaceButton.trigger('click')
-      global.setImmediate(async () => {
+      Window.setImmediate(async () => {
         const deleteNamespaceButton = wrapper.find('.delete-key-button')
         deleteNamespaceButton.trigger('click')
         await wrapper.vm.$nextTick()

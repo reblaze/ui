@@ -157,7 +157,7 @@ describe('AutocompleteInput', () => {
     input.trigger('input')
     wrapper.setData({focusedSuggestionIndex: 2})
     input.trigger('blur')
-    setTimeout(() => {
+    setImmediate(() => {
       expect(wrapper.emitted('value-submitted')).toBeTruthy()
       expect(wrapper.emitted('value-submitted')[0]).toEqual(['test-value-2'])
       done()
@@ -172,7 +172,7 @@ describe('AutocompleteInput', () => {
     const dropdownItems = wrapper.findAll('.dropdown-item')
     input.trigger('blur')
     dropdownItems.at(1).trigger('mousedown')
-    setTimeout(() => {
+    setImmediate(() => {
       expect(wrapper.emitted('value-submitted')).toBeTruthy()
       expect(wrapper.emitted('value-submitted')[0]).toEqual(['test-value-1'])
       done()
@@ -187,14 +187,14 @@ describe('AutocompleteInput', () => {
     input.trigger('blur')
     wrapper.unmount() // destroy()
     wrapper.vm.$nextTick()
-    setTimeout(() => {
+    setImmediate(() => {
       expect(wrapper.emitted('value-submitted')).toBeFalsy()
       done()
     })
   })
 
   test('should auto focus on the autocomplete input after suggestion clicked' +
-    ' if autoFocus prop is true', async (done) => {
+    ' if autoFocus prop is true', (done) => {
     const elem = document.createElement('div')
     if (document.body) {
       document.body.appendChild(elem)
@@ -207,22 +207,21 @@ describe('AutocompleteInput', () => {
       },
       attachTo: elem,
     })
-    await wrapper.vm.$nextTick()
+    wrapper.vm.$nextTick()
     const input = wrapper.find('.autocomplete-input')
     input.setValue('value')
     input.trigger('input')
     const dropdownItems = wrapper.findAll('.dropdown-item')
     dropdownItems[1].trigger('mousedown')
-    await wrapper.vm.$nextTick()
+    wrapper.vm.$nextTick()
     setImmediate(() => {
-    // setTimeout(() => {
       expect(input.element).toBe(document.activeElement)
       done()
     })
   })
 
   test('should not auto focus on the autocomplete input after suggestion clicked' +
-    ' if autoFocus prop is false', async (done) => {
+    ' if autoFocus prop is false', (done) => {
     const elem = document.createElement('div')
     if (document.body) {
       document.body.appendChild(elem)
@@ -235,13 +234,13 @@ describe('AutocompleteInput', () => {
       },
       attachTo: elem,
     }) as VueWrapper<any>
-    await wrapper.vm.$nextTick()
+    wrapper.vm.$nextTick()
     const input = wrapper.find('.autocomplete-input')
     input.setValue('value')
     input.trigger('input')
     const dropdownItems: undefined | DOMWrapper<Element> = wrapper.findAll('.dropdown-item').at(1)
     dropdownItems.trigger('mousedown')
-    await wrapper.vm.$nextTick()
+    wrapper.vm.$nextTick()
     setImmediate(() => {
       expect(input.element).not.toBe(document.activeElement)
       done()
@@ -566,17 +565,18 @@ describe('AutocompleteInput', () => {
 
     test('should not add more than 1 new line when enter pressed', async () => {
       const textarea = wrapper.find('.autocomplete-input')
-      textarea.trigger('keyup.enter')
+      await textarea.trigger('keyup.enter')
       await wrapper.vm.$nextTick()
       expect(wrapper.emitted('value-submitted')).toBeTruthy()
-      const event = {key: 'Enter', preventDefault: () => {}} // jest.fn()
+      const event = {key: 'Enter', preventDefault: jest.fn()}
+      // const event = new KeyboardEvent('keyup', {'key': 'enter'})
       const spy = jest.spyOn(event, 'preventDefault')
       textarea.setValue('1000\n')
       textarea.trigger('keyup.enter', event)
       await wrapper.vm.$nextTick()
       expect(spy).toHaveBeenCalled()
       textarea.setValue('')
-      textarea.trigger('keyup.enter', event)
+      await textarea.trigger('keyup.enter', event)
       await wrapper.vm.$nextTick()
       expect(spy).toHaveBeenCalled()
     })

@@ -19,8 +19,8 @@ export default defineComponent({})
 // import * as runtimeCore from '@vue/runtime-core'
 
 // global.setImmediate = jest.useRealTimers as unknown as typeof setImmediate
-global.setImmediate = process.nextTick as any
-global.setTimeout = process.nextTick as any
+// global.setImmediate = process.nextTick as any
+// global.setTimeout = process.nextTick as any
 
 declare module '@vue/runtime-core' {
     export interface ComponentCustomProperties {

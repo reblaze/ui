@@ -15,7 +15,7 @@ module.exports = {
         "\\.[jt]sx?$": "babel-jest",
       },
       testEnvironmentOptions: {
-        customExportConditions: ["node", "node-addons"],
+        customExportConditions: ['node', 'node-addons', 'core-js'],
      },
       moduleNameMapper: {
         '^@/(.*)$': '<rootDir>/src/$1',
