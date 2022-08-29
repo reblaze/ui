@@ -53,7 +53,7 @@ describe('SideMenu.vue', () => {
   })
 
   function menuItemShouldContainWantedSectionItems(menuItemName: string, wantedSectionItems: any[]) {
-    const menuItem = wrapper.findAll('.menu-item').filter((item : any) => item.text().includes(menuItemName))
+    const menuItem = wrapper.findAll('.menu-item').filter((item : any) => item.text()?.includes(menuItemName))
     const sectionItems = menuItem.at(0).findAll('.section-item')
     for (let i = 0; i < wantedSectionItems.length; i++) {
       expect(sectionItems.at(i).text()).toContain(wantedSectionItems[i].title)

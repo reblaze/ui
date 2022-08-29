@@ -5,14 +5,11 @@ import DatasetsUtils from '@/assets/DatasetsUtils'
 import Utils from '@/assets/Utils'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {shallowMount} from '@vue/test-utils'
-// import Vue from 'vue'
 import axios from 'axios'
 import _ from 'lodash'
 import {ACLProfile, Branch, Commit, ContentFilterProfile, Document} from '@/types'
 import {FlowControlPolicy, GlobalFilter, RateLimit, SecurityPolicy} from '@/types'
-/**
- * @jest-environment jsdom
-*/
+import {setImmediate, setTimeout} from 'timers'
 
 jest.mock('axios')
 
@@ -829,7 +826,7 @@ describe('DocumentEditor.vue', () => {
       },
     })
     // allow all requests to finish
-    Window.setImmediate(() => {
+    setImmediate(() => {
       done()
     })
   })
@@ -874,7 +871,7 @@ describe('DocumentEditor.vue', () => {
       },
     })
     // allow all requests to finish
-    Window.setImmediate(() => {
+    setImmediate(() => {
       expect(consoleOutput).toContain(`Error while attempting to get configs`)
       console.log = originalLog
       done()
@@ -905,7 +902,7 @@ describe('DocumentEditor.vue', () => {
       },
     })
     // allow all requests to finish
-    Window.setImmediate(() => {
+    setImmediate(() => {
       expect(consoleOutput).toContain(`Error while attempting to load documents`)
       console.log = originalLog
       done()
@@ -921,7 +918,7 @@ describe('DocumentEditor.vue', () => {
         doc_id: '__default__',
       }
       // allow all requests to finish
-      Window.setImmediate(() => {
+      setImmediate(() => {
         expect(routeChangeSpy).not.toHaveBeenCalled()
         done()
       })
@@ -934,7 +931,7 @@ describe('DocumentEditor.vue', () => {
         doc_id: '07656fbe',
       }
       // allow all requests to finish
-      Window.setImmediate(() => {
+      setImmediate(() => {
         const branchSelection = wrapper.find('.branch-selection')
         expect((branchSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
         done()
@@ -948,7 +945,7 @@ describe('DocumentEditor.vue', () => {
         doc_id: '07656fbe',
       }
       // allow all requests to finish
-      Window.setImmediate(() => {
+      setImmediate(() => {
         const docTypeSelection = wrapper.find('.doc-type-selection')
         expect((docTypeSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
         done()
@@ -962,7 +959,7 @@ describe('DocumentEditor.vue', () => {
         doc_id: '07656fbe',
       }
       // allow all requests to finish
-      Window.setImmediate(() => {
+      setImmediate(() => {
         const docSelection = wrapper.find('.doc-selection')
         expect((docSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
         done()
@@ -976,7 +973,7 @@ describe('DocumentEditor.vue', () => {
         doc_id: '__default__',
       }
       // allow all requests to finish
-      Window.setImmediate(() => {
+      setImmediate(() => {
         const branchSelection = wrapper.find('.branch-selection')
         expect((branchSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
         const docTypeSelection = wrapper.find('.doc-type-selection')
@@ -994,7 +991,7 @@ describe('DocumentEditor.vue', () => {
         doc_id: '__default__',
       }
       // allow all requests to finish
-      Window.setImmediate(() => {
+      setImmediate(() => {
         const branchSelection = wrapper.find('.branch-selection')
         expect((branchSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
         const docTypeSelection = wrapper.find('.doc-type-selection')
@@ -1012,7 +1009,7 @@ describe('DocumentEditor.vue', () => {
         doc_id: '5828321c37e0',
       }
       // allow all requests to finish
-      Window.setImmediate(() => {
+      setImmediate(() => {
         const branchSelection = wrapper.find('.branch-selection')
         expect((branchSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
         const docTypeSelection = wrapper.find('.doc-type-selection')
@@ -1026,7 +1023,7 @@ describe('DocumentEditor.vue', () => {
     test('should load correct default branch if non existent in route params', async (done) => {
       mockRoute.params = {}
       // allow all requests to finish
-      Window.setImmediate(() => {
+      setImmediate(() => {
         const branchSelection = wrapper.find('.branch-selection')
         expect((branchSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
         done()
@@ -1036,7 +1033,7 @@ describe('DocumentEditor.vue', () => {
     test('should load correct default document type if non existent in route params', async (done) => {
       mockRoute.params = {}
       // allow all requests to finish
-      Window.setImmediate(() => {
+      setImmediate(() => {
         const docTypeSelection = wrapper.find('.doc-type-selection')
         expect((docTypeSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
         done()
@@ -1046,7 +1043,7 @@ describe('DocumentEditor.vue', () => {
     test('should load correct default document id if non existent in route params', async (done) => {
       mockRoute.params = {}
       // allow all requests to finish
-      Window.setImmediate(() => {
+      setImmediate(() => {
         const docSelection = wrapper.find('.doc-selection')
         expect((docSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
         done()
@@ -1061,7 +1058,7 @@ describe('DocumentEditor.vue', () => {
           doc_id: '__default__',
         }
         // allow all requests to finish
-        Window.setImmediate(() => {
+        setImmediate(() => {
           const gitHistory = wrapper.findComponent(GitHistory)
           expect(gitHistory).toBeTruthy()
           expect((gitHistory.vm as any).gitLog).toEqual(aclDocsLogs[1])
@@ -1076,7 +1073,7 @@ describe('DocumentEditor.vue', () => {
           doc_id: '__default__',
         }
         // allow all requests to finish
-        Window.setImmediate(() => {
+        setImmediate(() => {
           const gitHistory = wrapper.findComponent(GitHistory)
           expect(gitHistory).toBeTruthy()
           expect((gitHistory.vm as any).gitLog).toEqual(securityPoliciesDocsLogs[0])
@@ -1091,7 +1088,7 @@ describe('DocumentEditor.vue', () => {
           doc_id: '5828321c37e0',
         }
         // allow all requests to finish
-        Window.setImmediate(() => {
+        setImmediate(() => {
           const gitHistory = wrapper.findComponent(GitHistory)
           expect(gitHistory).toBeTruthy()
           expect((gitHistory.vm as any).gitLog).toEqual(aclDocsLogs[1])
@@ -1117,7 +1114,7 @@ describe('DocumentEditor.vue', () => {
         },
       })
       // allow all requests to finish
-      Window.setImmediate(() => {
+      setImmediate(() => {
         const gitBranches = wrapper.find('.git-branches')
         expect(gitBranches.text()).toEqual('0 branches')
         done()
@@ -1139,7 +1136,7 @@ describe('DocumentEditor.vue', () => {
         },
       })
       // allow all requests to finish
-      Window.setImmediate(() => {
+      setImmediate(() => {
         const gitCommits = wrapper.find('.git-commits')
         expect(gitCommits.text()).toEqual('0 commits')
         done()
@@ -1184,7 +1181,7 @@ describe('DocumentEditor.vue', () => {
         },
       })
       // allow all requests to finish
-      Window.setImmediate(() => {
+      setImmediate(() => {
         const gitBranches = wrapper.find('.git-branches')
         expect(gitBranches.text()).toEqual('1 branch')
         done()
@@ -1229,7 +1226,7 @@ describe('DocumentEditor.vue', () => {
         },
       })
       // allow all requests to finish
-      Window.setImmediate(() => {
+      setImmediate(() => {
         const gitCommits = wrapper.find('.git-commits')
         expect(gitCommits.text()).toEqual('1 commit')
         done()
@@ -1254,7 +1251,7 @@ describe('DocumentEditor.vue', () => {
       const options = branchSelection.findAll('option')
       branchSelection.setValue(options.at(1).element.value)
       // allow all requests to finish
-      Window.setImmediate(() => {
+      setImmediate(() => {
         expect((branchSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
         done()
       })
@@ -1273,7 +1270,7 @@ describe('DocumentEditor.vue', () => {
       branchSelection.setValue(branchOptions.at(1)?.element.value)
       // branchOptions.at(1).setSelected()
       // allow all requests to finish
-      Window.setImmediate(() => {
+      setImmediate(() => {
         expect((docTypeSelection.element as HTMLSelectElement).selectedIndex).toEqual(2)
         done()
       })
@@ -1292,7 +1289,7 @@ describe('DocumentEditor.vue', () => {
       branchSelection.setValue(branchOptions.at(1)?.element.value)
       // branchOptions.at(1).setSelected()
       // allow all requests to finish
-      Window.setImmediate(() => {
+      setImmediate(() => {
         expect((docSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
         done()
       })
@@ -1304,7 +1301,7 @@ describe('DocumentEditor.vue', () => {
       const options = docTypeSelection.findAll('option')
       docTypeSelection.setValue(options.at(2).element.value)
       // allow all requests to finish
-      Window.setImmediate(() => {
+      setImmediate(() => {
         expect((docTypeSelection.element as HTMLSelectElement).selectedIndex).toEqual(2)
         done()
       })
@@ -1318,14 +1315,14 @@ describe('DocumentEditor.vue', () => {
       docTypeSelection.setValue(docTypeOptions.at(0)?.element.value)
       // docTypeOptions.at(0).setSelected()
       // allow all requests to finish
-      Window.setImmediate(() => {
+      setImmediate(() => {
         // switch to a different document
         const docSelection = wrapper.find('.doc-selection')
         docSelection.trigger('click')
         const options = docSelection.findAll('option')
         docSelection.setValue(options.at(1).element.value)
         // allow all requests to finish
-        Window.setImmediate(() => {
+        setImmediate(() => {
           expect((docSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
           done()
         })
@@ -1341,7 +1338,7 @@ describe('DocumentEditor.vue', () => {
       const options = docTypeSelection.findAll('option')
       docTypeSelection.setValue(options.at(4).element.value)
       // allow all requests to finish
-      Window.setImmediate(async () => {
+      setImmediate(async () => {
         const doc = (wrapper.vm as any).selectedDoc
         doc.name = `${doc.name} changed`
         jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
@@ -1385,7 +1382,7 @@ describe('DocumentEditor.vue', () => {
       const options = docTypeSelection.findAll('option')
       docTypeSelection.setValue(options.at(2).element.value)
       // allow all requests to finish
-      Window.setImmediate(async () => {
+      setImmediate(async () => {
         const originalDoc = (wrapper.vm as any).selectedDoc
         const forkedDoc = {...originalDoc}
         forkedDoc.id = expect.any(String)
@@ -1585,11 +1582,11 @@ describe('DocumentEditor.vue', () => {
         },
       })
       // allow all requests to finish
-      Window.setImmediate(() => {
+      setImmediate(() => {
         const noDataMessage = wrapper.find('.no-data-message')
-        expect(noDataMessage.element).toBeDefined()
-        expect(noDataMessage.text().toLowerCase()).toContain('no data found!')
-        expect(noDataMessage.text().toLowerCase()).toContain('missing branch.')
+        expect(noDataMessage?.element).toBeDefined()
+        expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found!')
+        expect(noDataMessage?.text()?.toLowerCase()).toContain('missing branch.')
         done()
       })
     })
@@ -1608,7 +1605,7 @@ describe('DocumentEditor.vue', () => {
         },
       })
       // allow all requests to finish
-      Window.setImmediate(async () => {
+      setImmediate(async () => {
         jest.spyOn(mockRouter, 'push').mockImplementation((path) => {
           expect(path).toEqual('/versioncontrol')
           done()
@@ -1623,11 +1620,11 @@ describe('DocumentEditor.vue', () => {
       // it is not possible to get to this state from the UI, but we protect from it anyway
       (wrapper.vm as any).selectedDocType = null
       // allow all requests to finish
-      Window.setImmediate(() => {
+      setImmediate(() => {
         const noDataMessage = wrapper.find('.no-data-message')
-        expect(noDataMessage.element).toBeDefined()
-        expect(noDataMessage.text().toLowerCase()).toContain('no data found!')
-        expect(noDataMessage.text().toLowerCase()).toContain('missing document type.')
+        expect(noDataMessage?.element).toBeDefined()
+        expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found!')
+        expect(noDataMessage?.text()?.toLowerCase()).toContain('missing document type.')
         done()
       })
     })
@@ -1646,11 +1643,11 @@ describe('DocumentEditor.vue', () => {
         },
       })
       // allow all requests to finish
-      Window.setImmediate(() => {
+      setImmediate(() => {
         const noDataMessage = wrapper.find('.no-data-message')
-        expect(noDataMessage.element).toBeDefined()
-        expect(noDataMessage.text().toLowerCase()).toContain('no data found!')
-        expect(noDataMessage.text().toLowerCase()).toContain('missing document.')
+        expect(noDataMessage?.element).toBeDefined()
+        expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found!')
+        expect(noDataMessage?.text()?.toLowerCase()).toContain('missing document.')
         done()
       })
     })

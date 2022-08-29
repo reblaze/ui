@@ -1,9 +1,9 @@
 // @ts-nocheck
-import MasterComponent from '@/views/MasterComponent.vue'
+import MasterComponent from '../MainComponent.vue'
 import {describe, test, expect, beforeEach} from '@jest/globals'
 import {shallowMount} from '@vue/test-utils'
 
-describe('MasterComponent.vue', () => {
+describe('MainComponent.vue', () => {
   let wrapper: any
   beforeEach(() => {
     const $route = {
