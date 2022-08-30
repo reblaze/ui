@@ -361,7 +361,7 @@ describe('EntriesRelationList.vue', () => {
       addEntryButton.trigger('click')
       await wrapper.vm.$nextTick()
       const newEntryRow = component.find('.new-entry-row')
-      expect(newEntryRow.element).toBeDefined()
+      expect(newEntryRow.exists()).toBeTruthy()
     })
 
     test('should add new entry from input when confirm button is clicked', async () => {

@@ -156,8 +156,10 @@ describe('AutocompleteInput', () => {
     const input = wrapper.find('.autocomplete-input')
     input.setValue('value')
     input.trigger('input')
+    wrapper.vm.$nextTick()
     wrapper.setData({focusedSuggestionIndex: 2})
     input.trigger('blur')
+    wrapper.vm.$nextTick()
     setImmediate(() => {
       expect(wrapper.emitted('value-submitted')).toBeTruthy()
       expect(wrapper.emitted('value-submitted')[0]).toEqual(['test-value-2'])
@@ -173,6 +175,7 @@ describe('AutocompleteInput', () => {
     const dropdownItems = wrapper.findAll('.dropdown-item')
     input.trigger('blur')
     dropdownItems.at(1).trigger('mousedown')
+    wrapper.vm.$nextTick()
     setImmediate(() => {
       expect(wrapper.emitted('value-submitted')).toBeTruthy()
       expect(wrapper.emitted('value-submitted')[0]).toEqual(['test-value-1'])

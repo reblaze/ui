@@ -417,9 +417,9 @@ describe('CurieDBEditor.vue', () => {
       expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/new namespace/k/key/`, value)
     })
 
-    test('should use correct values when saving key changes when using json editor', (done) => {
+    test('should use correct values when saving key changes when using json editor', async () => {
       // setTimeout to allow the editor to be fully loaded before we interact with it
-      setTimeout(async () => {
+      setTimeout(() => {
         const value = {
           buckets: {},
           foo: 'bar',
@@ -431,14 +431,13 @@ describe('CurieDBEditor.vue', () => {
         saveKeyButton.trigger('click')
         await wrapper.vm.$nextTick()
         expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/new namespace/k/key/`, value)
-        done()
+        // done()
       }, 300)
     })
 
     test('should not be able to save key changes' +
       'if value is an invalid json when not using json editor', async () => {
-      wrapper.setData({editor: null})
-      wrapper.setData({isJsonEditor: false})
+      wrapper.setData({isJsonEditor: false, editor: null})
       await wrapper.vm.$nextTick()
       const value = '{'
       const valueInput = wrapper.find('.value-input')
@@ -461,14 +460,15 @@ describe('CurieDBEditor.vue', () => {
     })
 
     test('should default to normal text area when json editor cannot be loaded after 2 seconds', (done) => {
+      wrapper = mount(CurieDBEditor)
       JSONEditor.mockImplementation(() => {
         throw new Error('ouchie')
       })
-      wrapper = mount(CurieDBEditor)
+      await wrapper.vm.$nextTick()
       // setTimeout to allow the editor to be fully loaded before we interact with it
-      setTimeout(async () => {
+      setTimeout(() => {
         const valueInput = wrapper.find('.value-input')
-        expect(valueInput.element).toBeDefined()
+        expect(valueInput.exists()).toBeTruthy()
         done()
       }, 2300)
     })
@@ -521,7 +521,9 @@ describe('CurieDBEditor.vue', () => {
       await wrapper.vm.$nextTick()
       // reset spy counter
       jest.clearAllMocks()
+      axios.put = jest.fn()
       putSpy = jest.spyOn(axios, 'put')
+      await wrapper.vm.$nextTick()
       // attempt saving duplicate named key
       const saveKeyButton = wrapper.find('.save-button')
       saveKeyButton.trigger('click')
@@ -542,7 +544,8 @@ describe('CurieDBEditor.vue', () => {
       // allow all requests to finish
       setImmediate(() => {
         const noDataMessage = wrapper.find('.no-data-message')
-        expect(noDataMessage?.element).toBeDefined()
+        expect(noDataMessage?.exists()).toBeTruthy()
+        expect(noDataMessage.exists()).toBeTruthy()
         expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found!')
         expect(noDataMessage?.text()?.toLowerCase()).toContain('missing namespace.')
         done()
@@ -566,7 +569,7 @@ describe('CurieDBEditor.vue', () => {
       // allow all requests to finish
       setImmediate(() => {
         const noDataMessage = wrapper.find('.no-data-message')
-        expect(noDataMessage?.element).toBeDefined()
+        expect(noDataMessage?.exists()).toBeTruthy()
         expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found!')
         expect(noDataMessage?.text()?.toLowerCase()).toContain('missing key.')
         done()
@@ -586,7 +589,7 @@ describe('CurieDBEditor.vue', () => {
       wrapper = mount(CurieDBEditor)
       await wrapper.vm.$nextTick()
       const valueLoadingIndicator = wrapper.find('.value-loading')
-      expect(valueLoadingIndicator.element).toBeDefined()
+      expect(valueLoadingIndicator.exists()).toBeTruthy()
     })
 
     test('should display loading indicator when namespace not loaded', async () => {
@@ -604,7 +607,7 @@ describe('CurieDBEditor.vue', () => {
       wrapper = mount(CurieDBEditor)
       await wrapper.vm.$nextTick()
       const valueLoadingIndicator = wrapper.find('.value-loading')
-      expect(valueLoadingIndicator.element).toBeDefined()
+      expect(valueLoadingIndicator.exists()).toBeTruthy()
     })
 
     test('should display loading indicator when saving value changes', async () => {

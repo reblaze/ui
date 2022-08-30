@@ -174,7 +174,7 @@
       </div>
 
       <div class="content no-data-wrapper"
-           v-if="loadingDocCounter || !selectedBranch || !selectedDocType || !selectedDoc">
+        v-if="loadingDocCounter || !selectedBranch || !selectedDocType || !selectedDoc">
         <div v-if="loadingDocCounter > 0">
           <button class="button is-outlined is-text is-small is-loading document-loading">
             Loading

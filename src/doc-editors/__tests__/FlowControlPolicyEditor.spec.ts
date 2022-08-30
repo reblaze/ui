@@ -157,7 +157,7 @@ describe('FlowControlPolicyEditor.vue', () => {
       addKeyButton.trigger('click')
       await wrapper.vm.$nextTick()
       const keyInvalidLabel = wrapper.find('.key-invalid')
-      expect(keyInvalidLabel.element).toBeDefined()
+      expect(keyInvalidLabel.exists()).toBeTruthy()
     })
 
     test('should remove key when remove event occurs', async () => {
@@ -361,7 +361,7 @@ describe('FlowControlPolicyEditor.vue', () => {
         await wrapper.vm.$nextTick()
         await wrapper.vm.$forceUpdate()
         const newEntryRow = table.find('.new-entry-row')
-        expect(newEntryRow.element).toBeDefined()
+        expect(newEntryRow.exists()).toBeTruthy()
       })
 
       test('should add new entries from input when confirm button is clicked', async () => {

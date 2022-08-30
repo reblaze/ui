@@ -10,11 +10,12 @@ import _ from 'lodash'
 import {ACLProfile, Branch, Commit, ContentFilterProfile, Document} from '@/types'
 import {FlowControlPolicy, GlobalFilter, RateLimit, SecurityPolicy} from '@/types'
 import {setImmediate, setTimeout} from 'timers'
+import {DOMWrapper} from '@vue/test-utils'
 
 jest.mock('axios')
 
 describe('DocumentEditor.vue', () => {
-  let wrapper: any
+  let wrapper: DOMWrapper
   let mockRoute: any
   let mockRouter: any
   let gitData: Branch[]
@@ -1248,7 +1249,7 @@ describe('DocumentEditor.vue', () => {
     test('should be able to switch branches through dropdown', (done) => {
       const branchSelection = wrapper.find('.branch-selection')
       branchSelection.trigger('click')
-      const options = branchSelection.findAll('option')
+      const options = branchSelection.findAllComponents('option')
       branchSelection.setValue(options.at(1).element.value)
       // allow all requests to finish
       setImmediate(() => {
@@ -1260,13 +1261,13 @@ describe('DocumentEditor.vue', () => {
     test('should not switch doc type when switching branches', async (done) => {
       const docTypeSelection = wrapper.find('.doc-type-selection')
       docTypeSelection.trigger('click')
-      const docTypeOptions = docTypeSelection.findAll('option')
+      const docTypeOptions = docTypeSelection.findAllComponents('option')
       docTypeSelection.setValue(docTypeOptions.at(2)?.element.value)
       // docTypeOptions.at(2).setSelected()
       await wrapper.vm.$nextTick()
       const branchSelection = wrapper.find('.branch-selection')
       branchSelection.trigger('click')
-      const branchOptions = branchSelection.findAll('option')
+      const branchOptions = branchSelection.findAllComponents('option')
       branchSelection.setValue(branchOptions.at(1)?.element.value)
       // branchOptions.at(1).setSelected()
       // allow all requests to finish
@@ -1279,13 +1280,13 @@ describe('DocumentEditor.vue', () => {
     test('should not switch selected doc when switching branches', async (done) => {
       const docSelection = wrapper.find('.doc-selection')
       docSelection.trigger('click')
-      const docOptions = docSelection.findAll('option')
+      const docOptions = docSelection.findAllComponents('option')
       docSelection.setValue(docOptions.at(1)?.element.value)
       // docOptions.at(1).setSelected()
       await wrapper.vm.$nextTick()
       const branchSelection = wrapper.find('.branch-selection')
       branchSelection.trigger('click')
-      const branchOptions = branchSelection.findAll('option')
+      const branchOptions = branchSelection.findAllComponents('option')
       branchSelection.setValue(branchOptions.at(1)?.element.value)
       // branchOptions.at(1).setSelected()
       // allow all requests to finish
@@ -1298,7 +1299,7 @@ describe('DocumentEditor.vue', () => {
     test('should be able to switch doc types through dropdown', (done) => {
       const docTypeSelection = wrapper.find('.doc-type-selection')
       docTypeSelection.trigger('click')
-      const options = docTypeSelection.findAll('option')
+      const options = docTypeSelection.findAllComponents('option')
       docTypeSelection.setValue(options.at(2).element.value)
       // allow all requests to finish
       setImmediate(() => {
@@ -1311,7 +1312,7 @@ describe('DocumentEditor.vue', () => {
       // switch to profiling lists
       const docTypeSelection = wrapper.find('.doc-type-selection')
       docTypeSelection.trigger('click')
-      const docTypeOptions = docTypeSelection.findAll('option')
+      const docTypeOptions = docTypeSelection.findAllComponents('option')
       docTypeSelection.setValue(docTypeOptions.at(0)?.element.value)
       // docTypeOptions.at(0).setSelected()
       // allow all requests to finish
@@ -1319,7 +1320,7 @@ describe('DocumentEditor.vue', () => {
         // switch to a different document
         const docSelection = wrapper.find('.doc-selection')
         docSelection.trigger('click')
-        const options = docSelection.findAll('option')
+        const options = docSelection.findAllComponents('option')
         docSelection.setValue(options.at(1).element.value)
         // allow all requests to finish
         setImmediate(() => {
@@ -1335,7 +1336,7 @@ describe('DocumentEditor.vue', () => {
       // switch to security policy entity type
       const docTypeSelection = wrapper.find('.doc-type-selection')
       docTypeSelection.trigger('click')
-      const options = docTypeSelection.findAll('option')
+      const options = docTypeSelection.findAllComponents('option')
       docTypeSelection.setValue(options.at(4).element.value)
       // allow all requests to finish
       setImmediate(async () => {
@@ -1379,7 +1380,7 @@ describe('DocumentEditor.vue', () => {
       // switching to security policies
       const docTypeSelection = wrapper.find('.doc-type-selection')
       docTypeSelection.trigger('click')
-      const options = docTypeSelection.findAll('option')
+      const options = docTypeSelection.findAllComponents('option')
       docTypeSelection.setValue(options.at(2).element.value)
       // allow all requests to finish
       setImmediate(async () => {
@@ -1454,7 +1455,7 @@ describe('DocumentEditor.vue', () => {
       // switch to a different document
       const docSelection = wrapper.find('.doc-selection')
       docSelection.trigger('click')
-      const options = docSelection.findAll('option')
+      const options = docSelection.findAllComponents('option')
       docSelection.setValue(options.at(1).element.value)
       await wrapper.vm.$nextTick()
       const deleteSpy = jest.spyOn(axios, 'delete')
@@ -1471,7 +1472,7 @@ describe('DocumentEditor.vue', () => {
       // switch to Content Filter Profiles
       const docTypeSelection = wrapper.find('.doc-type-selection')
       docTypeSelection.trigger('click')
-      const docTypeOptions = docTypeSelection.findAll('option')
+      const docTypeOptions = docTypeSelection.findAllComponents('option')
       docTypeSelection.setValue(docTypeOptions.at(5)?.element.value)
       // docTypeOptions.at(5).setSelected()
       await wrapper.vm.$nextTick()
@@ -1489,7 +1490,7 @@ describe('DocumentEditor.vue', () => {
       // switch to Rate Limits
       const docTypeSelection = wrapper.find('.doc-type-selection')
       docTypeSelection.trigger('click')
-      const docTypeOptions = docTypeSelection.findAll('option')
+      const docTypeOptions = docTypeSelection.findAllComponents('option')
       docTypeSelection.setValue(docTypeOptions.at(3)?.element.value)
       // docTypeOptions.at(3).setSelected()
       await wrapper.vm.$nextTick()
@@ -1543,7 +1544,7 @@ describe('DocumentEditor.vue', () => {
       const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {
       })
       // force update because downloadFile is mocked after it is read to to be used as event handler
-      await (wrapper.vm as any).$forceUpdate()
+      await (wrapper.vm as any).$forceUpdate() // forceptUpdate
       await wrapper.vm.$nextTick()
       const downloadDocButton = wrapper.find('.download-doc-button')
       downloadDocButton.trigger('click')
@@ -1583,8 +1584,8 @@ describe('DocumentEditor.vue', () => {
       })
       // allow all requests to finish
       setImmediate(() => {
-        const noDataMessage = wrapper.find('.no-data-message')
-        expect(noDataMessage?.element).toBeDefined()
+        const noDataMessage: DOMWrapper = wrapper.find('.no-data-message')
+        expect(noDataMessage.exists()).toBeTruthy()
         expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found!')
         expect(noDataMessage?.text()?.toLowerCase()).toContain('missing branch.')
         done()
@@ -1605,8 +1606,9 @@ describe('DocumentEditor.vue', () => {
         },
       })
       // allow all requests to finish
-      setImmediate(async () => {
+      setImmediate(() => {
         jest.spyOn(mockRouter, 'push').mockImplementation((path) => {
+          console.log('1611 path', path)
           expect(path).toEqual('/versioncontrol')
           done()
         })
@@ -1621,8 +1623,8 @@ describe('DocumentEditor.vue', () => {
       (wrapper.vm as any).selectedDocType = null
       // allow all requests to finish
       setImmediate(() => {
-        const noDataMessage = wrapper.find('.no-data-message')
-        expect(noDataMessage?.element).toBeDefined()
+        const noDataMessage: DOMWrapper = wrapper.find('.no-data-message')
+        expect(noDataMessage.exists()).toBeTruthy()
         expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found!')
         expect(noDataMessage?.text()?.toLowerCase()).toContain('missing document type.')
         done()
@@ -1632,8 +1634,10 @@ describe('DocumentEditor.vue', () => {
     test('should display correct message when there is no doc data', (done) => {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
         if (path === '/conf/api/v2/configs/') {
+          console.log('Aylon data: ', gitData)
           return Promise.resolve({data: gitData})
         }
+        console.log('Aylon no data')
         return Promise.resolve({data: []})
       })
       wrapper = shallowMount(DocumentEditor, {
@@ -1645,7 +1649,7 @@ describe('DocumentEditor.vue', () => {
       // allow all requests to finish
       setImmediate(() => {
         const noDataMessage: DOMWrapper = wrapper.find('.no-data-message')
-        noDataMessage && expect(noDataMessage.element).toBeDefined()
+        expect(noDataMessage.exists()).toBeTruthy()
         expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found!')
         expect(noDataMessage?.text()?.toLowerCase()).toContain('missing document.')
         done()
@@ -1670,7 +1674,7 @@ describe('DocumentEditor.vue', () => {
       })
       await wrapper.vm.$nextTick()
       const docLoadingIndicator = wrapper.find('.document-loading')
-      expect(docLoadingIndicator.element).toBeDefined()
+      expect(docLoadingIndicator.exists()).toBeTruthy()
     })
 
     test('should display loading indicator when doc not loaded', async () => {
@@ -1693,7 +1697,7 @@ describe('DocumentEditor.vue', () => {
       })
       await wrapper.vm.$nextTick()
       const docLoadingIndicator = wrapper.find('.document-loading')
-      expect(docLoadingIndicator.element).toBeDefined()
+      expect(docLoadingIndicator.exists()).toBeTruthy()
     })
 
     test('should display loading indicator when saving document changes', async () => {

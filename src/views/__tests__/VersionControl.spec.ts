@@ -375,7 +375,7 @@ describe('VersionControl.vue', () => {
 
     test('should be visible if toggled on', async () => {
       const forkBranchNameInput = wrapper.find('.fork-branch-input')
-      expect(forkBranchNameInput.element).toBeDefined()
+      expect(forkBranchNameInput.exists()).toBeTruthy()
     })
 
     test('should be hidden if toggled off', async () => {
@@ -455,7 +455,7 @@ describe('VersionControl.vue', () => {
       forkBranchSaveButton.trigger('click')
       await wrapper.vm.$nextTick()
       forkBranchNameInput = wrapper.find('.fork-branch-input')
-      expect(forkBranchNameInput.element).toBeDefined()
+      expect(forkBranchNameInput.exists()).toBeTruthy()
     })
   })
 
@@ -480,7 +480,7 @@ describe('VersionControl.vue', () => {
 
     test('should be visible if toggled on', async () => {
       const deleteBranchNameInput = wrapper.find('.delete-branch-input')
-      expect(deleteBranchNameInput.element).toBeDefined()
+      expect(deleteBranchNameInput.exists()).toBeTruthy()
     })
 
     test('should be hidden if toggled off', async () => {
@@ -547,7 +547,7 @@ describe('VersionControl.vue', () => {
       deleteBranchSaveButton.trigger('click')
       await wrapper.vm.$nextTick()
       deleteBranchNameInput = wrapper.find('.delete-branch-input')
-      expect(deleteBranchNameInput.element).toBeDefined()
+      expect(deleteBranchNameInput.exists()).toBeTruthy()
     })
   })
 })

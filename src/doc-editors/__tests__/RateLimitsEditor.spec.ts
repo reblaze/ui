@@ -154,7 +154,7 @@ describe('RateLimitsEditor.vue', () => {
         .at(5).setSelected()
       await wrapper.vm.$nextTick()
       await wrapper.vm.$forceUpdate()
-      expect(wrapper.find('.only-one-ban').element).toBeDefined()
+      expect(wrapper.find('.only-one-ban').exists()).toBeTruthy()
     })
 
     test('should have correct threshold in input', () => {
@@ -256,7 +256,7 @@ describe('RateLimitsEditor.vue', () => {
       addKeyButton.trigger('click')
       await wrapper.vm.$nextTick()
       const keyInvalidLabel = wrapper.find('.key-invalid')
-      expect(keyInvalidLabel.element).toBeDefined()
+      expect(keyInvalidLabel.exists()).toBeTruthy()
     })
 
     test('should remove key when remove event occurs', async () => {

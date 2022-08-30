@@ -344,7 +344,7 @@ describe('ContentFilterProfileEditor.vue', () => {
         button.trigger('click')
         await wrapper.vm.$nextTick()
         const newRow = wrapper.find('.new-parameter-row')
-        expect(newRow.element).toBeDefined()
+        expect(newRow.exists()).toBeTruthy()
       })
 
       buildNamesRegexDescribe('names', 0)

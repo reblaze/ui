@@ -58,7 +58,7 @@ describe('TagAutocompleteInput.vue', () => {
     expect(suggestionProp[5].value).toEqual('malware')
   })
 
-  test('should send request to create new DB if missing on component creation', async (done) => {
+  test('should send request to create new DB if missing on component creation', (done) => {
     jest.spyOn(axios, 'get').mockImplementation(() => Promise.reject(new Error()))
     jest.spyOn(axios, 'post').mockImplementation((path) => {
       expect(path).toEqual('/conf/api/v2/db/system/')
@@ -66,7 +66,7 @@ describe('TagAutocompleteInput.vue', () => {
       return Promise.resolve()
     })
     wrapper = mount(TagAutocompleteInput, {})
-    await wrapper.vm.$nextTick()
+    wrapper.vm.$nextTick()
   })
 
   test('should not send request to create new DB if exists on component creation', async () => {
@@ -76,7 +76,7 @@ describe('TagAutocompleteInput.vue', () => {
     expect(spy).not.toHaveBeenCalledWith('db/system/')
   })
 
-  test('should send request to create new key in DB if missing on component creation', async (done) => {
+  test('should send request to create new key in DB if missing on component creation', (done) => {
     jest.spyOn(axios, 'get').mockImplementation((path) => {
       if (path === '/conf/api/v2/db/system/') {
         return Promise.resolve({data: {}})
@@ -89,7 +89,7 @@ describe('TagAutocompleteInput.vue', () => {
       return Promise.resolve()
     })
     wrapper = mount(TagAutocompleteInput, {})
-    await wrapper.vm.$nextTick()
+    wrapper.vm.$nextTick()
   })
 
   test('should not send request to create new key in DB exists on component creation', async () => {
@@ -100,7 +100,7 @@ describe('TagAutocompleteInput.vue', () => {
   })
 
   test('should send request to add tag neutral list in DB' +
-    ' if unknown tag selected - selectionType single, tags added after db loaded', async (done) => {
+    ' if unknown tag selected - selectionType single, tags added after db loaded', async () => {
     wrapper = mount(TagAutocompleteInput, {
       props: {
         selectionType: 'single',
@@ -113,7 +113,7 @@ describe('TagAutocompleteInput.vue', () => {
     const newTagName = 'tag-of-doom'
     jest.spyOn(axios, 'put').mockImplementationOnce((path, data: TagsNamespaceValue) => {
       expect(data.neutral).toContain(newTagName)
-      done()
+      // done()
       return Promise.resolve()
     })
     autocompleteInput.vm.$emit('value-submitted', newTagName)
@@ -121,7 +121,7 @@ describe('TagAutocompleteInput.vue', () => {
   })
 
   test('should send request to add tag neutral list in DB' +
-    ' if unknown tag selected - selectionType multiple, tags added after db loaded', async (done) => {
+    ' if unknown tag selected - selectionType multiple, tags added after db loaded', async () => {
     wrapper = mount(TagAutocompleteInput, {
       props: {
         selectionType: 'multiple',
@@ -138,15 +138,16 @@ describe('TagAutocompleteInput.vue', () => {
       expect(data.neutral).not.toContain(tag1)
       expect(data.neutral).not.toContain(tag2)
       expect(data.neutral).toContain(tag3)
-      done()
+      // done()
       return Promise.resolve()
     })
+    await wrapper.vm.$nextTick()
     autocompleteInput.vm.$emit('value-submitted', `${tag1} ${tag2} ${tag3}`)
     await wrapper.vm.$nextTick()
   })
 
   test('should send request to add tag neutral list in DB' +
-    ' if unknown tag selected - selectionType single, tags added before db loaded', async (done) => {
+    ' if unknown tag selected - selectionType single, tags added before db loaded', async () => {
     wrapper = mount(TagAutocompleteInput, {
       props: {
         selectionType: 'single',
@@ -157,16 +158,17 @@ describe('TagAutocompleteInput.vue', () => {
     const autocompleteInput = wrapper.findComponent(AutocompleteInput)
     jest.spyOn(axios, 'put').mockImplementationOnce((path, data: TagsNamespaceValue) => {
       expect(data.neutral).toContain(newTagName)
-      done()
+      // done()
       return Promise.resolve()
     })
+    await wrapper.vm.$nextTick()
     autocompleteInput.vm.$emit('value-submitted', newTagName)
     await wrapper.vm.$nextTick()
     await wrapper.vm.$nextTick()
   })
 
   test('should send request to add tag neutral list in DB' +
-    ' if unknown tag selected - selectionType multiple, tags added before db loaded', async (done) => {
+    ' if unknown tag selected - selectionType multiple, tags added before db loaded', (done) => {
     wrapper = mount(TagAutocompleteInput, {
       props: {
         selectionType: 'multiple',
@@ -184,9 +186,10 @@ describe('TagAutocompleteInput.vue', () => {
       done()
       return Promise.resolve()
     })
+    wrapper.vm.$nextTick()
     autocompleteInput.vm.$emit('value-submitted', `${tag1} ${tag2} ${tag3}`)
-    await wrapper.vm.$nextTick()
-    await wrapper.vm.$nextTick()
+    wrapper.vm.$nextTick()
+    wrapper.vm.$nextTick()
   })
 
   test('should not send request to add tag list in DB' +
