@@ -223,7 +223,8 @@ declare module CuriefenseClient {
 
   type ColumnOptions = {
     columnTitle: string
-    fieldName?: string
+    fieldNames: string[]
+    displayFunction?: (item: any) => string
     isSortable: boolean
     isSearchable: boolean
     classes?: string
