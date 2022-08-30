@@ -209,6 +209,23 @@ declare module CuriefenseClient {
 
   // Document types - END
 
+  // Document other - START
+
+  type ColumnOptions = {
+    columnTitle: string
+    fieldName?: string
+    isSortable: boolean
+    isSearchable: boolean
+    classes?: string
+}
+
+  type ColumnOptionsMap = {
+      [key: string]: ColumnOptions[]
+  }
+
+  // Document other - END
+
+
   // Git - START
 
   type Branch = {
