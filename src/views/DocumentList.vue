@@ -6,8 +6,7 @@
                 <div class='field is-grouped'>
                     <div class='control' v-if='branchNames.length'>
                         <div class='select is-small'>
-                            <!--TODO: add to input below   @change='switchBranch()' -->
-                            <select v-model='selectedBranch' title='Switch branch' class='branch-selection'>
+                            <select v-model='selectedBranch' title='Switch branch' class='branch-selection' @change='switchBranch()'>
                                 <option v-for='name in branchNames' :key='name' :value='name'>
                                     {{ name }}
                                 </option>
@@ -30,9 +29,10 @@
                 <tr>
                     <th v-for='col in columns'
                       :key='col.fieldName'
-                      class='column-header is-size-7 is-8'
-                      :class='{"sort-column":col.isSortable}'
-                      @click='sortColumn(col.fieldName)'>
+                      class='column-header is-size-7'
+                      :class="`${col.classes}${col.isSortable ? ' sort-column' : null}`"
+                      @click='sortColumn(col)'>
+                      <!-- BUG: the @click should be on th tag but when col isnt Searchable it also gave the permmision to click-->
                         <div v-if='col.isSortable'>
                             <div class='arrow-wrapper'>
                                 <span class='arrow arrow-asc' :class='{ active: sortField === col.fieldName && sortDir === "asc", }' />
@@ -43,18 +43,18 @@
                         </div>
                         {{ col.columnTitle }}
                     </th>
-                    <th class='column-header is-2'>
+                    <th class='column-header width-80px'>
                         <div class='field is-grouped is-grouped-centered'>
                             <p class='control'>
-                                <button class='button is-size-7' title='Add new document'>
-                                    <!-- TODO:Should add to the button :disabled='!selectedBranch || !selectedDocType' :class='{'is-loading': isNewLoading}' @click='addNewDoc()'-->
+                                <button class='button is-size-7' title='Add new document' :disabled='!selectedBranch || !selectedDocType' :class='{"is-loading": isNewLoading}' @click='addNewDoc()'>
+                                    <!-- TODO: Check the button of new doc adding -->
                                     <span class='icon is-small'>
                                         <i class='fas fa-plus'></i>
                                     </span>
                                 </button>
                             </p>
                             <p class='control'>
-                                <button class='button is-size-7 filter-toggle' :class='{"is-active": filtervisible }' title='Filter columns and rows' @click='filtervisible = !filtervisible'>
+                                <button class='button is-size-7 filter-toggle' :class='{"is-active": filtervisible }' title='Filter table data' @click='filtervisible = !filtervisible'>
                                     <span class='icon is-small'>
                                         <i class='fas fa-filter'></i>
                                     </span>
@@ -73,11 +73,12 @@
                             </span>
                         </div>
                     </th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
-                <tr v-for='row in getSlicedDataArrayDisplay(rows, currentPage)' :key='row.id'>
-                    <td v-for='col in columns' :key='col.fieldName' class='is-size-7'>
+                <tr v-for='row in getSlicedDataArrayDisplay(docsDisplayData, currentPage)' :key='row.id'>
+                    <td v-for='col in columns' :key='col.fieldName' class='is-size-7' :class="col.classes" :title="row[col.fieldName]">
                         {{ row[col.fieldName] }}
                     </td>
                     <td class='is-size-7'>
@@ -91,7 +92,7 @@
                         </div>
                     </td>
                 </tr>
-                <tr v-if='totalPages > 1'>
+                <tr v-if='totalPages > 1'> <!-- BUG: this footer isnt shown with async call - only after rerender it's shown (like sorting)-->
                     <td :colspan='columns.length+1'>
                         <div class='pagination is-small'>
                             <button class='pagination-previous' @click='prevPage' :disabled='currentPage === 1'>
@@ -111,16 +112,22 @@
 
 <script lang="ts">
 import _ from 'lodash'
-import {
-  defineComponent,
-} from 'vue'
-
-interface HeaderColumns {
-    columnTitle: string
-    fieldName: string
-    isSortable: boolean
-    isSearchable: boolean
-}
+import DatasetsUtils from '@/assets/DatasetsUtils'
+import RequestsUtils from '@/assets/RequestsUtils'
+import Utils from '@/assets/Utils'
+import ACLEditor from '@/doc-editors/ACLEditor.vue'
+import ContentFilterEditor from '@/doc-editors/ContentFilterProfileEditor.vue'
+import ContentFilterRulesEditor from '@/doc-editors/ContentFilterRulesEditor.vue'
+import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
+import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
+import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
+import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
+// import GitHistory from '@/components/GitHistory.vue'
+import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
+import {defineComponent, shallowRef} from 'vue'
+import {BasicDocument, Commit, Document, DocumentType, ColumnOptions} from '@/types'
+import axios, {AxiosResponse} from 'axios'
+import {HEADER_COLUMNS_MAP} from './documentListConst'
 
 /*  interface DummyArray {
   id: number
@@ -133,119 +140,85 @@ type GenericObject = {
     [key: string]: any
 }
 
-const headerColumns: HeaderColumns[] = [{
-  columnTitle: 'ID',
-  fieldName: 'id',
-  isSortable: true,
-  isSearchable: true,
-},
-{
-  columnTitle: 'Name',
-  fieldName: 'name',
-  isSortable: true,
-  isSearchable: true,
-},
-{
-  columnTitle: 'URL',
-  fieldName: 'url',
-  isSortable: false,
-  isSearchable: true,
-},
-{
-  columnTitle: 'IP',
-  fieldName: 'ip',
-  isSortable: true,
-  isSearchable: false,
-},
-]
-const dummyArray: GenericObject[] = [{
-  id: 1,
-  name: 'Jonny1',
-  url: 'http://localhost/1',
-  ip: '127.0.0.1',
-},
-{
-  id: 7,
-  name: 'Jonny4',
-  url: 'http://localhost/4',
-  ip: '127.0.0.4',
-},
-{
-  id: 8,
-  name: 'Jonny4',
-  url: 'http://localhost/4',
-  ip: '127.0.0.4',
-},
-{
-  id: 9,
-  name: 'Jonny4',
-  url: 'http://localhost/4',
-  ip: '127.0.0.4',
-},
-{
-  id: 4,
-  name: 'Jonny4',
-  url: 'http://localhost/4',
-  ip: '127.0.0.4',
-},
-{
-  id: 6,
-  name: 'Jonny6',
-  url: 'http://localhost/6',
-  ip: '127.0.0.6',
-},
-{
-  id: 3,
-  name: 'Jonny3',
-  url: 'http://localhost/3',
-  ip: '127.0.0.3',
-},
-{
-  id: 2,
-  name: 'Jonny2',
-  url: 'http://localhost/2',
-  ip: '127.0.0.2',
-},
-{
-  id: 5,
-  name: 'Jonny5',
-  url: 'http://localhost/5',
-  ip: '127.0.0.5',
-},
-]
-
-const branchNames = ['main', 'avihay-branch']
 
 export default defineComponent({
+  watch: {
+    $route: {
+      handler: async function() {
+        this.setLoadingDocStatus(true)
+        await this.setSelectedDataFromRouteParams()
+        this.setLoadingDocStatus(false)
+      },
+      deep: true,
+    },
+  },
   data() {
     return {
-      columns: [...headerColumns],
-      rows: [...dummyArray],
-      branchNames: [...branchNames],
+      columns: [] as ColumnOptions[],
       // General
       rowsPerPage: 10, // TODO:Need to change this to be an generic number ?
       currentPage: 1,
       totalPages: 1,
-      selectedBranch: 'main',
-      loadingDocCounter: 0,
-      isDownloadLoading: false,
-      selectedDocID: null,
-      docs: [] as GenericObject[],
       data: {}, // TODO: We need it?
       filter: {} as GenericObject,
       dataDisplay: [] as GenericObject[],
       filtervisible: false,
       sortField: '',
       sortDir: 'asc',
+
+      configs: [],
+      mdiSourceBranchPath: mdiSourceBranch,
+      mdiSourceCommitPath: mdiSourceCommit,
+      titles: DatasetsUtils.titles,
+
+      // Loading indicators
+      loadingDocCounter: 0,
+      isForkLoading: false,
+      isNewLoading: false,
+      isSaveLoading: false,
+      isDeleteLoading: false,
+
+      // To prevent deletion of docs referenced by Security Policies
+      referencedIDsACL: [],
+      referencedIDsContentFilter: [],
+      referencedIDsLimits: [],
+
+      selectedBranch: null,
+      selectedDocType: null as DocumentType,
+
+      docs: [] as GenericObject[],
+      docsDisplayData: [] as GenericObject[],
+      docIdNames: [] as [Document['id'], Document['name']][],
+      selectedDocID: null,
+      cancelSource: axios.CancelToken.source(),
+      isDownloadLoading: false,
+      isDocumentInvalid: false,
+
+      gitLog: [],
+      loadingGitlog: false,
+      commits: 0,
+      branches: 0,
+
+      apiRoot: RequestsUtils.confAPIRoot,
+      apiVersion: RequestsUtils.confAPIVersion,
+      componentsMap: {
+        'globalfilters': shallowRef({component: GlobalFilterListEditor}),
+        'flowcontrol': shallowRef({component: FlowControlPolicyEditor}),
+        'securitypolicies': shallowRef({component: SecurityPoliciesEditor}),
+        'ratelimits': shallowRef({component: RateLimitsEditor}),
+        'aclprofiles': shallowRef({component: ACLEditor}),
+        'contentfilterprofiles': shallowRef({component: ContentFilterEditor}),
+        'contentfilterrules': shallowRef({component: ContentFilterRulesEditor}),
+      },
     }
   },
   methods: {
     getDataArrayDisplay() {
-      if (!dummyArray?.length) {
+      if (!this.docs?.length) {
         return []
       }
       const sortModifier = this.sortDir === 'asc' ? 1 : -1
-      return dummyArray
+      return this.docs
         .filter((item: any) => {
           const keys = Object.keys(this.filter)
           if (!keys) {
@@ -289,12 +262,15 @@ export default defineComponent({
     },*/
 
     sortColumn(filter: any) {
-      if (filter === this.sortField) {
+      if (!filter.isSortable) {
+        return
+      }
+      if (filter.fieldName === this.sortField) {
         this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc'
       } else {
         this.sortDir = 'asc'
       }
-      this.sortField = filter
+      this.sortField = filter.fieldName
       this.updateDataDisplay()
     },
 
@@ -313,23 +289,249 @@ export default defineComponent({
     },
 
     updateDataDisplay() {
-      this.rows = this.getDataArrayDisplay()
-      this.totalPages = Math.ceil(this.rows.length / this.rowsPerPage) || 1
+      this.docsDisplayData = this.getDataArrayDisplay()
+      this.totalPages = Math.ceil(this.docsDisplayData.length / this.rowsPerPage) || 1
       if (this.currentPage > this.totalPages) {
         this.currentPage = this.totalPages
       }
     },
 
-    /* TODO: need to check what to do there with Aviv*/
-    async switchBranch() {
+
+    /* TODO: why do i need to start the circle with counter and witout only boolean var? */
+    goToRoute() {
+      const currentRoute = `/config/${this.selectedBranch}/${this.selectedDocType}`
+      if (this.$route.path !== currentRoute) {
+        console.log('Switching document, new document path: ' + currentRoute)
+        this.$router.push(currentRoute)
+      }
+    },
+
+    async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
-      /* Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
-      await this.loadDocs(this.selectedDocType, true)
-      await this.loadReferencedDocsIDs()
-      this.goToRoute()*/
+      const branchNameFromRoute = this.$route.params.branch === 'undefined' ? null : this.$route.params.branch
+      this.selectedBranch = branchNameFromRoute || this.branchNames[0]
+      const prevDocType = this.selectedDocType
+      this.selectedDocType = (this.$route.params.doc_type || Object.keys(this.componentsMap)[0]) as DocumentType
+      this.columns = HEADER_COLUMNS_MAP[this.selectedDocType]
+      if (!prevDocType || prevDocType !== this.selectedDocType) {
+        await this.loadDocs(this.selectedDocType)
+      }
+      this.setLoadingDocStatus(false)
+      // this.loadGitLog()
+      this.goToRoute()
+    },
+
+    resetGitLog() {
+      this.gitLog = []
+    },
+
+    newDoc(): Document {
+      const factory = DatasetsUtils.newDocEntryFactory[this.selectedDocType]
+      return factory && factory()
+    },
+
+    async loadConfigs(counterOnly?: boolean) {
+      // store configs
+      let configs
+      try {
+        const response = await RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'})
+        configs = response.data
+      } catch (err) {
+        console.log('Error while attempting to get configs')
+        console.log(err)
+      }
+      if (!counterOnly) {
+        console.log('loaded configs: ', configs)
+        this.configs = configs
+      }
+      // counters
+      this.commits = _.sum(_.map(_.map(configs, 'logs'), (logs) => {
+        return _.size(logs)
+      }))
+      this.branches = _.size(configs)
+      console.log('config counters', this.branches, this.commits)
+    },
+
+    updateDocIdNames() {
+      this.docIdNames = _.sortBy(_.map(this.docs, (doc) => [doc.id, doc.name]), (entry) => entry[1])
+    },
+
+    async loadSelectedDocData() {
+      this.setLoadingDocStatus(true)
+      // check if the selected doc only has id and name, if it does, attempt to load the rest of the document data
+      if (this.selectedDoc && Object.keys(this.selectedDoc).length === 2) {
+        this.selectedDoc = (await RequestsUtils.sendRequest({
+          methodName: 'GET',
+          url: `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`,
+        })).data
+      }
       this.setLoadingDocStatus(false)
     },
 
+    async loadDocs(doctype: DocumentType) {
+      this.isDownloadLoading = true
+      const branch = this.selectedBranch
+      const fieldNames = _.map(this.columns, 'fieldName')
+      console.log(fieldNames)
+      const response = await RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: `configs/${branch}/d/${doctype}/`,
+        data: {headers: {'x-fields': fieldNames.join(', ')}},
+        onFail: () => {
+          console.log('Error while attempting to load documents')
+          this.docs = []
+          this.isDownloadLoading = false
+        },
+      })
+      this.docs = response?.data || []
+      this.docsDisplayData = this.docs
+      this.isDownloadLoading = false
+      this.updateDataDisplay()
+
+      // this.loadGitLog()
+    },
+
+    loadGitLog(interaction?: boolean) {
+      this.loadingGitlog = true
+      const config = this.selectedBranch
+      const document = this.selectedDocType
+      const entry = this.selectedDocID
+      const url = `configs/${config}/d/${document}/e/${entry}/v/`
+      if (config && document && entry) {
+        RequestsUtils.sendRequest({methodName: 'GET', url}).then((response: AxiosResponse<Commit[]>) => {
+          this.gitLog = response?.data
+          if (interaction) {
+            this.loadConfigs(true)
+          }
+          this.loadingGitlog = false
+        })
+      }
+    },
+
+    async switchBranch() {
+      this.setLoadingDocStatus(true)
+      Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
+      await this.loadDocs(this.selectedDocType)
+      await this.loadReferencedDocsIDs()
+      this.goToRoute()
+      this.setLoadingDocStatus(false)
+    },
+
+    downloadDoc() {
+      if (!this.isDownloadLoading) {
+        Utils.downloadFile(this.selectedDocType, 'json', this.docs)
+      }
+    },
+
+
+    async addNewDoc(docToAdd?: Document, successMessage?: string, failureMessage?: string) {
+      this.setLoadingDocStatus(true)
+      this.isNewLoading = true
+      if (!docToAdd) {
+        docToAdd = this.newDoc()
+      }
+      this.resetGitLog()
+      this.docs.unshift(docToAdd)
+      this.selectedDocID = docToAdd.id
+      const docTypeText = this.titles[this.selectedDocType + '-singular']
+      if (!successMessage) {
+        successMessage = `New ${docTypeText} was created.`
+      }
+      if (!failureMessage) {
+        failureMessage = `Failed while attempting to create the new ${docTypeText}.`
+      }
+      // await this.saveChanges('POST', successMessage, failureMessage)
+      this.goToRoute()
+      this.isNewLoading = false
+      this.setLoadingDocStatus(false)
+    },
+
+    // TODO: check with Aviv if we need saveChanges
+    /* async saveChanges(methodName?: HttpRequestMethods, successMessage?: string, failureMessage?: string) {
+      this.isSaveLoading = true
+      if (!methodName) {
+        methodName = 'PUT'
+      }
+      let url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/`
+      if (methodName !== 'POST') {
+        url += `${this.selectedDocID}/`
+      }
+      const data = this.selectedDoc
+
+      const docTypeText = this.titles[this.selectedDocType + '-singular']
+      if (!successMessage) {
+        successMessage = `Changes to the ${docTypeText} were saved.`
+      }
+      if (!failureMessage) {
+        failureMessage = `Failed while attempting to save the changes to the ${docTypeText}.`
+      }
+      await RequestsUtils.sendRequest({methodName, url, data, successMessage, failureMessage}).then(() => {
+        this.updateDocIdNames()
+        this.loadGitLog(true)
+        // If the saved doc was a security policy, refresh the referenced IDs lists
+        if (this.selectedDocType === 'securitypolicies') {
+          this.loadReferencedDocsIDs()
+        }
+      })
+      this.isSaveLoading = false
+    },*/
+
+    // TODO: check with Aviv if we need deleteDoc()
+    /* async deleteDoc() {
+      this.setLoadingDocStatus(true)
+      this.isDeleteLoading = true
+      this.docs.splice(this.selectedDocIndex, 1)
+      const docTypeText = this.titles[this.selectedDocType + '-singular']
+      const successMessage = `The ${docTypeText} was deleted.`
+      const failureMessage = `Failed while attempting to delete the ${docTypeText}.`
+      await RequestsUtils.sendRequest({
+        methodName: 'DELETE',
+        url: `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`,
+        successMessage,
+        failureMessage,
+      }).then(() => {
+        this.updateDocIdNames()
+        this.loadGitLog(true)
+      })
+      this.selectedDocID = this.docs[0].id
+      await this.loadSelectedDocData()
+      this.addMissingDefaultsToDoc()
+      this.resetGitLog()
+      this.goToRoute()
+      this.isDeleteLoading = false
+      this.setLoadingDocStatus(false)
+    },*/
+
+    async loadReferencedDocsIDs() {
+      const response = await RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/securitypolicies/`,
+      })
+      const docs = response?.data
+      const referencedACL: string[] = []
+      const referencedContentFilter: string[] = []
+      const referencedLimit: string[] = []
+      _.forEach(docs, (doc) => {
+        _.forEach(doc.map, (mapEntry) => {
+          referencedACL.push(mapEntry['acl_profile'])
+          referencedContentFilter.push(mapEntry['content_filter_profile'])
+          referencedLimit.push(mapEntry['limit_ids'])
+        })
+      })
+      this.referencedIDsACL = _.uniq(referencedACL)
+      this.referencedIDsContentFilter = _.uniq(referencedContentFilter)
+      this.referencedIDsLimits = _.uniq(_.flatten(referencedLimit))
+    },
+
+    addMissingDefaultsToDoc() {
+      if (!this.selectedDoc) {
+        return
+      }
+      this.selectedDoc = {...this.newDoc(), ...this.selectedDoc as {}}
+    },
+
+    // Collect every request to display a loading indicator
+    // The loading indicator will be displayed as long as at least one request is still active (counter > 0)
     /* TODO: why do i need to start the circle with counter and witout onli boolean var? */
     setLoadingDocStatus(isLoading: boolean) {
       if (isLoading) {
@@ -339,6 +541,52 @@ export default defineComponent({
       }
     },
   },
+  computed: {
+    branchNames(): string[] {
+      return this.configs?.length ? _.sortBy(_.map(this.configs, 'id')) : []
+    },
+
+    /* TODO: the get() method needs to be GenericObject? */
+    selectedDoc: {
+      get(): GenericObject {
+        return this.docs?.[this.selectedDocIndex]
+      },
+      set(newDoc: any): void {
+        this.docs[this.selectedDocIndex] = newDoc
+      },
+    },
+
+    selectedDocNotDeletable(): boolean {
+      return !this.selectedDoc ||
+          (this.selectedDoc as BasicDocument).id === '__default__' ||
+          this.isDocReferenced ||
+          this.docs.length <= 1
+    },
+
+    selectedDocIndex(): number {
+      if (this.selectedDocID) {
+        return _.findIndex(this.docs, (doc) => {
+          return doc.id === this.selectedDocID
+        })
+      }
+      return 0
+    },
+
+    isDocReferenced(): boolean {
+      if (this.selectedDocType === 'aclprofiles') {
+        return this.referencedIDsACL.includes(this.selectedDocID)
+      }
+      if (this.selectedDocType === 'contentfilterprofiles') {
+        return this.referencedIDsContentFilter.includes(this.selectedDocID)
+      }
+      if (this.selectedDocType === 'ratelimits') {
+        return this.referencedIDsLimits.includes(this.selectedDocID)
+      }
+      return false
+    },
+
+  },
+
   /* TODO: How the download file icon is uses this methods
     computed:{
       selectedDoc: {
@@ -361,6 +609,12 @@ export default defineComponent({
     */
   mounted() {
     this.updateDataDisplay()
+  },
+  async created() {
+    this.setLoadingDocStatus(true)
+    await this.loadConfigs()
+    this.setSelectedDataFromRouteParams()
+    this.setLoadingDocStatus(false)
   },
 })
 </script>

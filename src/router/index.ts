@@ -14,18 +14,18 @@ const routes: Array<RouteRecordRaw> = [
     children: [
       {
         path: 'config',
-        name: 'DocumentEditor',
-        component: () => import('@/views/DocumentList.vue'), // TODO: need to change to DocumentList.vue instead DocumentEditor.vue
+        name: 'DocumentList',
+        component: () => import('@/views/DocumentList.vue'),
         children: [
           {
             path: ':branch',
-            name: 'DocumentEditor/Branch',
-            component: () => import('@/views/DocumentList.vue'), // TODO: need to change to DocumentList.vue instead DocumentEditor.vue
+            name: 'DocumentList/Branch',
+            component: () => import('@/views/DocumentList.vue'),
             children: [
               {
                 path: ':doc_type',
-                name: 'DocumentEditor/Branch/DocType',
-                component: () => import('@/views/DocumentList.vue'), // TODO: need to change to DocumentList.vue instead DocumentEditor.vue
+                name: 'DocumentList/Branch/DocType',
+                component: () => import('@/views/DocumentList.vue'),
                 children: [
                   {
                     path: ':doc_id',

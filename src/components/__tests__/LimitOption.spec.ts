@@ -203,7 +203,7 @@ describe('LimitOption.vue', () => {
         const selection = wrapper.find('.option-type-selection')
         const options = selection.findAll('option')
         selection.setValue(options.at(1).element.value)
-        //options.at(1).setSelected()
+        // options.at(1).setSelected()
         await Vue.nextTick()
         expect(wrapper.emitted('change')).toBeTruthy()
         expect(wrapper.emitted('change')[0]).toEqual([wantedEmit])
