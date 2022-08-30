@@ -1,113 +1,123 @@
 <template>
-<div class='card'>
+  <div class='card'>
     <div class='card-content'>
-        <div class='media'>
-            <div class='media-content'>
-                <div class='field is-grouped'>
-                    <div class='control' v-if='branchNames.length'>
-                        <div class='select is-small'>
-                            <select v-model='selectedBranch' title='Switch branch' class='branch-selection' @change='switchBranch()'>
-                                <option v-for='name in branchNames' :key='name' :value='name'>
-                                    {{ name }}
-                                </option>
-                            </select>
-                        </div>
-                    </div>
-                    <p class='control'>
-                        <button class='button is-small download-doc-button' :class='{"is-loading":isDownloadLoading}' title='Download document' data-qa='download-document'>
+      <div class='media'>
+        <div class='media-content'>
+          <div class='field is-grouped'>
+            <div class='control' v-if='branchNames.length'>
+              <div class='select is-small'>
+                <select v-model='selectedBranch' title='Switch branch' class='branch-selection'
+                        @change='switchBranch()'>
+                  <option v-for='name in branchNames' :key='name' :value='name'>
+                    {{ name }}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <p class='control'>
+              <button class='button is-small download-doc-button' :class='{"is-loading":isDownloadLoading}'
+                      title='Download document' data-qa='download-document'>
                             <span class='icon is-small'>
                                 <i class='fas fa-download'></i>
                             </span>
-                        </button>
-                    </p>
-                </div>
-            </div>
+              </button>
+            </p>
+          </div>
         </div>
-        <hr />
-        <table class='table is-bordered is-fullwidth is-size-7 document-list-table is-hoverable vectors-table'>
-            <thead>
-                <tr>
-                    <th v-for='col in columns'
-                      :key='col.fieldName'
-                      class='column-header is-size-7'
-                      :class="`${col.classes}${col.isSortable ? ' sort-column' : null}`"
-                      @click='sortColumn(col)'>
-                      <!-- BUG: the @click should be on th tag but when col isnt Searchable it also gave the permmision to click-->
-                        <div v-if='col.isSortable'>
-                            <div class='arrow-wrapper'>
-                                <span class='arrow arrow-asc' :class='{ active: sortField === col.fieldName && sortDir === "asc", }' />
-                            </div>
-                            <div class='arrow-wrapper'>
-                                <span class='arrow arrow-desc' :class='{active: sortField === col.fieldName && sortDir === "desc", }' />
-                            </div>
-                        </div>
-                        {{ col.columnTitle }}
-                    </th>
-                    <th class='column-header width-80px'>
-                        <div class='field is-grouped is-grouped-centered'>
-                            <p class='control'>
-                                <button class='button is-size-7' title='Add new document' :disabled='!selectedBranch || !selectedDocType' :class='{"is-loading": isNewLoading}' @click='addNewDoc()'>
-                                    <!-- TODO: Check the button of new doc adding -->
-                                    <span class='icon is-small'>
+      </div>
+      <hr/>
+      <table class='table is-bordered is-fullwidth is-size-7 document-list-table is-hoverable vectors-table'>
+        <thead>
+        <tr>
+          <th v-for='col in columns'
+              :key='col.fieldName'
+              class='column-header is-size-7'
+              :class="`${col.classes}${col.isSortable ? ' sort-column' : null}`"
+              @click='sortColumn(col)'>
+            <!-- BUG: the @click should be on th tag but when col isnt Searchable it also gave the permmision to click-->
+            <div v-if='col.isSortable'>
+              <div class='arrow-wrapper'>
+                <span class='arrow arrow-asc' :class='{ active: sortField === col.fieldName && sortDir === "asc", }'/>
+              </div>
+              <div class='arrow-wrapper'>
+                <span class='arrow arrow-desc' :class='{active: sortField === col.fieldName && sortDir === "desc", }'/>
+              </div>
+            </div>
+            {{ col.columnTitle }}
+          </th>
+          <th class='column-header width-80px'>
+            <div class='field is-grouped is-grouped-centered'>
+              <p class='control'>
+                <button class='button is-size-7' title='Add new document'
+                        :disabled='!selectedBranch || !selectedDocType' :class='{"is-loading": isNewLoading}'
+                        @click='addNewDoc()'>
+                  <!-- TODO: Check the button of new doc adding -->
+                  <span class='icon is-small'>
                                         <i class='fas fa-plus'></i>
                                     </span>
-                                </button>
-                            </p>
-                            <p class='control'>
-                                <button class='button is-size-7 filter-toggle' :class='{"is-active": filtervisible }' title='Filter table data' @click='filtervisible = !filtervisible'>
+                </button>
+              </p>
+              <p class='control'>
+                <button class='button is-size-7 filter-toggle' :class='{"is-active": filtervisible }'
+                        title='Filter table data' @click='filtervisible = !filtervisible'>
                                     <span class='icon is-small'>
                                         <i class='fas fa-filter'></i>
                                     </span>
-                                </button>
-                            </p>
-                        </div>
-                    </th>
-                </tr>
+                </button>
+              </p>
+            </div>
+          </th>
+        </tr>
 
-                <tr class='search-row' v-if='filtervisible'>
-                    <th class='control has-icons-right' v-for='col in columns' :key='col.columnTitle'>
-                        <div v-if='col.isSearchable'>
-                            <input class='input is-small filter-input search-input-vectors-score' :title='col.columnTitle' :placeholder='col.columnTitle' v-model='filter[col.fieldName]' @change='updateDataDisplay()' />
-                            <span class='icon is-small is-right'>
+        <tr class='search-row' v-if='filtervisible'>
+          <th class='control has-icons-right' v-for='col in columns' :key='col.columnTitle'>
+            <div v-if='col.isSearchable'>
+              <input class='input is-small filter-input search-input-vectors-score' :title='col.columnTitle'
+                     :placeholder='col.columnTitle' v-model='filter[col.fieldName]' @change='updateDataDisplay()'/>
+              <span class='icon is-small is-right'>
                                 <i class='fa fa-filter' aria-hidden='true'></i>
                             </span>
-                        </div>
-                    </th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for='row in getSlicedDataArrayDisplay(docsDisplayData, currentPage)' :key='row.id'>
-                    <td v-for='col in columns' :key='col.fieldName' class='is-size-7' :class="col.classes" :title="row[col.fieldName]">
-                        {{ row[col.fieldName] }}
-                    </td>
-                    <td class='is-size-7'>
-                        <!-- TODO: Need to add the correct icon to linking there. -->
-                        <div class='field is-grouped is-grouped-centered'>
-                            <button title='Edit' class='button is-small'>
+            </div>
+          </th>
+          <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for='row in getSlicedDataArrayDisplay(docsDisplayData, currentPage)' :key='row.id'>
+          <td v-for='col in columns' :key='col.fieldName' class='is-size-7' :class="col.classes"
+              :title="row[col.fieldName]">
+            {{ row[col.fieldName] }}
+          </td>
+          <td class='is-size-7'>
+            <!-- TODO: Need to add the correct icon to linking there. -->
+            <div class='field is-grouped is-grouped-centered'>
+              <button title='Edit'
+                      class='button is-small'
+                      @click="editDoc(row.id)">
                                 <span class='icon is-small'>
                                     <i class='fas fa-edit'></i>
                                 </span>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-                <tr v-if='totalPages > 1'> <!-- BUG: this footer isnt shown with async call - only after rerender it's shown (like sorting)-->
-                    <td :colspan='columns.length+1'>
-                        <div class='pagination is-small'>
-                            <button class='pagination-previous' @click='prevPage' :disabled='currentPage === 1'>
-                                Previous Page
-                            </button>
-                            <button class='pagination-next' @click='nextPage' :disabled='currentPage === totalPages'>
-                                Next Page
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr v-if='totalPages > 1'>
+          <!-- BUG: this footer isnt shown with async call - only after rerender it's shown (like sorting)-->
+          <td :colspan='columns.length+1'>
+            <div class='pagination is-small'>
+              <button class='pagination-previous' @click='prevPage' :disabled='currentPage === 1'>
+                Previous Page
+              </button>
+              <button class='pagination-next' @click='nextPage' :disabled='currentPage === totalPages'>
+                Next Page
+              </button>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
     </div>
-</div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -125,7 +135,7 @@ import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
 // import GitHistory from '@/components/GitHistory.vue'
 import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
 import {defineComponent, shallowRef} from 'vue'
-import {BasicDocument, Commit, Document, DocumentType, ColumnOptions} from '@/types'
+import {BasicDocument, ColumnOptions, Commit, Document, DocumentType} from '@/types'
 import axios, {AxiosResponse} from 'axios'
 import {HEADER_COLUMNS_MAP} from './documentListConst'
 
@@ -137,17 +147,19 @@ import {HEADER_COLUMNS_MAP} from './documentListConst'
 } */
 
 type GenericObject = {
-    [key: string]: any
+  [key: string]: any
 }
 
 
 export default defineComponent({
   watch: {
     $route: {
-      handler: async function() {
-        this.setLoadingDocStatus(true)
-        await this.setSelectedDataFromRouteParams()
-        this.setLoadingDocStatus(false)
+      handler: async function(val) {
+        if (val?.name?.includes('DocumentList')) {
+          this.setLoadingDocStatus(true)
+          await this.setSelectedDataFromRouteParams()
+          this.setLoadingDocStatus(false)
+        }
       },
       deep: true,
     },
@@ -218,32 +230,25 @@ export default defineComponent({
         return []
       }
       const sortModifier = this.sortDir === 'asc' ? 1 : -1
-      return this.docs
-        .filter((item: any) => {
-          const keys = Object.keys(this.filter)
-          if (!keys) {
-            return item
-          }
-          return _.reduce(
+      return this.docs.filter((item: any) => {
+        const keys = Object.keys(this.filter)
+        if (!keys) {
+          return item
+        }
+        return _.reduce(
             keys,
             (match: any, key: any) => {
-              return (
-                match && item[key]
-                  .toString()
-                  .toLowerCase()
-                  .includes(this.filter[key].toLowerCase())
-              )
+              return (match && item[key].toString().toLowerCase().includes(this.filter[key].toLowerCase()))
             }, true)
-        })
-        .sort((a: any, b: any) => {
-          if (a[this.sortField] < b[this.sortField]) {
-            return -1 * sortModifier
-          }
-          if (a[this.sortField] > b[this.sortField]) {
-            return 1 * sortModifier
-          }
-          return 0
-        })
+      }).sort((a: any, b: any) => {
+        if (a[this.sortField] < b[this.sortField]) {
+          return -1 * sortModifier
+        }
+        if (a[this.sortField] > b[this.sortField]) {
+          return 1 * sortModifier
+        }
+        return 0
+      })
     },
 
     getSlicedDataArrayDisplay(dataArray: any, currentPage: any): any[] {
@@ -299,7 +304,7 @@ export default defineComponent({
 
     /* TODO: why do i need to start the circle with counter and witout only boolean var? */
     goToRoute() {
-      const currentRoute = `/config/${this.selectedBranch}/${this.selectedDocType}`
+      const currentRoute = `/list/${this.selectedBranch}/${this.selectedDocType}`
       if (this.$route.path !== currentRoute) {
         console.log('Switching document, new document path: ' + currentRoute)
         this.$router.push(currentRoute)
@@ -376,7 +381,7 @@ export default defineComponent({
       const response = await RequestsUtils.sendRequest({
         methodName: 'GET',
         url: `configs/${branch}/d/${doctype}/`,
-        data: {headers: {'x-fields': fieldNames.join(', ')}},
+        data: {headers: {'x-fields': `id, ${fieldNames.join(', ')}`}},
         onFail: () => {
           console.log('Error while attempting to load documents')
           this.docs = []
@@ -423,6 +428,10 @@ export default defineComponent({
       }
     },
 
+    editDoc(id: string) {
+      const routeToDoc = `/config/${this.selectedBranch}/${this.selectedDocType}/${id}`
+      this.$router.push(routeToDoc)
+    },
 
     async addNewDoc(docToAdd?: Document, successMessage?: string, failureMessage?: string) {
       this.setLoadingDocStatus(true)
