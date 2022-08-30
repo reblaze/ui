@@ -455,7 +455,7 @@ describe('CurieDBEditor.vue', () => {
       // setTimeout to allow the editor to be fully loaded before we interact with it
       setTimeout(async () => {
         const valueInput = wrapper.find('.value-input')
-        expect(valueInput.element).toBeUndefined()
+        expect(valueInput.exists()).toBeFalsy()
         done()
       }, 300)
     })

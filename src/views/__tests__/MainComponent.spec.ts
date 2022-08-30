@@ -1,15 +1,15 @@
 // @ts-nocheck
-import MasterComponent from '../MainComponent.vue'
+import MainComponent from '../MainComponent.vue'
 import {describe, test, expect, beforeEach} from '@jest/globals'
-import {shallowMount} from '@vue/test-utils'
+import {DOMWrapper, shallowMount, VueWrapper} from '@vue/test-utils'
 
-describe('MasterComponent.vue', () => {
+describe('MainComponent.vue', () => {
   let wrapper: VueWrapper
   beforeEach(() => {
     const $route = {
       path: '/config',
     }
-    wrapper = shallowMount(MasterComponent, {
+    wrapper = shallowMount(MainComponent, {
       mocks: {
         $route,
       },

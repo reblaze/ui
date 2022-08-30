@@ -308,12 +308,12 @@ describe('VersionControl.vue', () => {
 
   test('should have fork branch input be hidden on init', async () => {
     const forkBranchNameInput = wrapper.find('.fork-branch-input')
-    expect(forkBranchNameInput.element).toBeUndefined()
+    expect(forkBranchNameInput.exists()).toBeFalsy()
   })
 
   test('should have delete branch input be hidden on init', async () => {
     const deleteBranchNameInput = wrapper.find('.delete-branch-input')
-    expect(deleteBranchNameInput.element).toBeUndefined()
+    expect(deleteBranchNameInput.exists()).toBeFalsy()
   })
 
   test('should send API request to restore to the correct version', async () => {
@@ -383,7 +383,7 @@ describe('VersionControl.vue', () => {
       forkBranchIcon.trigger('click')
       await wrapper.vm.$nextTick()
       const forkBranchNameInput = wrapper.find('.fork-branch-input')
-      expect(forkBranchNameInput.element).toBeUndefined()
+      expect(forkBranchNameInput.exists()).toBeFalsy()
     })
 
     test('should be able to fork if name does not exist and does not have spaces', async () => {
@@ -442,7 +442,7 @@ describe('VersionControl.vue', () => {
       // process API (fake) return
       await wrapper.vm.$nextTick()
       forkBranchNameInput = wrapper.find('.fork-branch-input')
-      expect(forkBranchNameInput.element).toBeUndefined()
+      expect(forkBranchNameInput.exists()).toBeFalsy()
     })
 
     test('should be visible if fork failed', async () => {
@@ -488,7 +488,7 @@ describe('VersionControl.vue', () => {
       deleteBranchIcon.trigger('click')
       await wrapper.vm.$nextTick()
       const deleteBranchNameInput = wrapper.find('.delete-branch-input')
-      expect(deleteBranchNameInput.element).toBeUndefined()
+      expect(deleteBranchNameInput.exists()).toBeFalsy()
     })
 
     test('should be able to delete if name matches current branch name', async () => {
@@ -534,7 +534,7 @@ describe('VersionControl.vue', () => {
       // process API (fake) return
       await wrapper.vm.$nextTick()
       deleteBranchNameInput = wrapper.find('.delete-branch-input')
-      expect(deleteBranchNameInput.element).toBeUndefined()
+      expect(deleteBranchNameInput.exists()).toBeFalsy()
     })
 
     test('should be visible if delete failed', async () => {
