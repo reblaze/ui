@@ -171,12 +171,12 @@ export default defineComponent({
         const response = await RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'})
         branches = response.data
         this.menuItems.settings['/list'].items[`/${branches[0].id}/globalfilters`] = {title: 'Global Filters'} as menuItem
-        this.menuItems.settings['/list'].items[`/${branches[0].id}/aclprofiles`] = {title: 'ACL Profiles'} as menuItem
         this.menuItems.settings['/list'].items[`/${branches[0].id}/flowcontrol`] = {title: 'Flow Control Policies'} as menuItem
         this.menuItems.settings['/list'].items[`/${branches[0].id}/ratelimits`] = {title: 'Rate limits'} as menuItem
+        this.menuItems.settings['/list'].items[`/${branches[0].id}/aclprofiles`] = {title: 'ACL Profiles'} as menuItem
         this.menuItems.settings['/list'].items[`/${branches[0].id}/contentfilterprofiles`] = {title: 'Content Filter Profiles'} as menuItem
         this.menuItems.settings['/list'].items[`/${branches[0].id}/contentfilterrules`] = {title: 'Content Filter Rules'} as menuItem
-        this.menuItems.settings['/list'].items[`/${branches[0].id}/search`] = {title: 'Search'} as menuItem
+        // this.menuItems.settings['/list'].items[`/${branches[0].id}/search`] = {title: 'Search'} as menuItem
       } catch (err) {
         console.log('Error while attempting to get branches')
         console.log(err)
