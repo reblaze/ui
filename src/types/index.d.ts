@@ -1,11 +1,12 @@
 /* eslint-disable */
 import {httpRequestMethods} from './const'
+
 declare module CuriefenseClient {
 
   type GenericObject = { [key: string]: any }
 
   type Dictionary<T> = { [key: string]: T }
-  
+
   type TagsNamespaceValue = {
     neutral?: string[]
     malicious?: string[]
@@ -88,9 +89,18 @@ declare module CuriefenseClient {
 
   type NamesRegexType = 'names' | 'regex'
 
-  type Document = BasicDocument & (ACLProfile | FlowControlPolicy | GlobalFilter | RateLimit | SecurityPolicy | ContentFilterProfile | ContentFilterRule)
+  type Document =
+    BasicDocument
+    & (ACLProfile | FlowControlPolicy | GlobalFilter | RateLimit | SecurityPolicy | ContentFilterProfile | ContentFilterRule)
 
-  type DocumentType = 'aclprofiles' | 'flowcontrol' | 'globalfilters' | 'ratelimits' | 'securitypolicies' | 'contentfilterprofiles' | 'contentfilterrules'
+  type DocumentType =
+    'aclprofiles'
+    | 'flowcontrol'
+    | 'globalfilters'
+    | 'ratelimits'
+    | 'securitypolicies'
+    | 'contentfilterprofiles'
+    | 'contentfilterrules'
 
   // Document types helpers - END
 
@@ -217,10 +227,10 @@ declare module CuriefenseClient {
     isSortable: boolean
     isSearchable: boolean
     classes?: string
-}
+  }
 
   type ColumnOptionsMap = {
-      [key: string]: ColumnOptions[]
+    [key: string]: ColumnOptions[]
   }
 
   // Document other - END
