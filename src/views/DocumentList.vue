@@ -67,11 +67,13 @@
                 </button>
               </p>
               <p class='control'>
-                <button class='button is-size-7 filter-toggle' :class='{"is-active": filtervisible }'
-                        title='Filter table data' @click='filtervisible = !filtervisible'>
-                                    <span class='icon is-small'>
-                                        <i class='fas fa-filter'></i>
-                                    </span>
+                <button class='button is-size-7 filter-toggle'
+                        :class='{"is-active": filtersVisible }'
+                        title='Filter table data'
+                        @click='filtersVisible = !filtersVisible'>
+                  <span class='icon is-small'>
+                      <i class='fas fa-filter'></i>
+                  </span>
                 </button>
               </p>
             </div>
@@ -157,8 +159,7 @@ import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
 import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
 // import GitHistory from '@/components/GitHistory.vue'
 import {defineComponent, shallowRef} from 'vue'
-import {ColumnOptions, Commit, Document, DocumentType, GenericObject} from '@/types'
-import {AxiosResponse} from 'axios'
+import {ColumnOptions, Document, DocumentType, GenericObject} from '@/types'
 import {COLUMN_OPTIONS_MAP} from './documentListConst'
 
 export default defineComponent({
@@ -188,6 +189,11 @@ export default defineComponent({
       configs: [],
       titles: DatasetsUtils.titles,
 
+      // To prevent deletion of docs referenced by Security Policies
+      referencedIDsACL: [],
+      referencedIDsContentFilter: [],
+      referencedIDsLimits: [],
+
       // Loading indicators
       loadingDocCounter: 0,
       isNewLoading: false,
@@ -198,6 +204,8 @@ export default defineComponent({
       docs: [] as GenericObject[],
       docsDisplayData: [] as GenericObject[],
       isDownloadLoading: false,
+      docIdNames: [] as [Document['id'], Document['name']][],
+
 
       gitLog: [],
       isGitLogLoading: false,
@@ -223,6 +231,25 @@ export default defineComponent({
 
     branchNames(): string[] {
       return this.configs?.length ? _.sortBy(_.map(this.configs, 'id')) : []
+    },
+
+    selectedDoc: {
+      get(): Document | any {
+        // return this.docs?.[this.selectedDocIndex] || {}
+        return true
+      },
+      set(newDoc: any): void {
+        this.docs[this.selectedDocIndex] = newDoc
+      },
+    },
+
+    selectedDocIndex(): number {
+      if (this.selectedDocType) {
+        return _.findIndex(this.docs, (doc) => {
+          return doc.id === this.selectedDocType
+        })
+      }
+      return 0
     },
   },
   methods: {
@@ -375,31 +402,6 @@ export default defineComponent({
       this.$router.push(routeToDoc)
     },
 
-    async addNewDoc(docToAdd?: Document, successMessage?: string, failureMessage?: string) {
-      this.setLoadingDocStatus(true)
-      this.isNewLoading = true
-      if (!docToAdd) {
-        docToAdd = this.newDoc()
-      }
-      this.resetGitLog()
-      this.docs.unshift(docToAdd)
-      const selectedDocID = docToAdd.id
-      const docTypeText = this.titles[this.selectedDocType + '-singular']
-      if (!successMessage) {
-        successMessage = `New ${docTypeText} was created.`
-      }
-      if (!failureMessage) {
-        failureMessage = `Failed while attempting to create the new ${docTypeText}.`
-      }
-      // await this.saveChanges('POST', successMessage, failureMessage)
-      this.editDoc(selectedDocID)
-      this.isNewLoading = false
-      this.setLoadingDocStatus(false)
-    },
-
-    // Collect every request to display a loading indicator
-    // The loading indicator will be displayed as long as at least one request is still active (counter > 0)
-    /* TODO: why do i need to start the circle with counter and witout onli boolean var? */
     setLoadingDocStatus(isLoading: boolean) {
       if (isLoading) {
         this.loadingDocCounter++
@@ -407,6 +409,49 @@ export default defineComponent({
         this.loadingDocCounter--
       }
     },
+
+    async addNewDoc() {
+      this.setLoadingDocStatus(true)
+      this.isNewLoading = true
+      const docToAdd = this.newDoc()
+      // this.resetGitLog()
+      const docTypeText = this.titles[this.selectedDocType + '-singular']
+      const successMessage = `New ${docTypeText} was created.`
+      const failureMessage = `Failed while attempting to create the new ${docTypeText}.`
+      const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/`
+      const data = docToAdd
+      await RequestsUtils.sendRequest({methodName: 'POST', url, data, successMessage, failureMessage}).then(() => {
+        this.editDoc(docToAdd.id)
+      })
+      this.isNewLoading = false
+      this.setLoadingDocStatus(false)
+    },
+
+    updateDocIdNames() {
+      this.docIdNames = _.sortBy(_.map(this.docs, (doc) => [doc.id, doc.name]), (entry) => entry[1])
+    },
+
+    async loadReferencedDocsIDs() {
+      const response = await RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/securitypolicies/`,
+      })
+      const docs = response?.data
+      const referencedACL: string[] = []
+      const referencedContentFilter: string[] = []
+      const referencedLimit: string[] = []
+      _.forEach(docs, (doc) => {
+        _.forEach(doc.map, (mapEntry) => {
+          referencedACL.push(mapEntry['acl_profile'])
+          referencedContentFilter.push(mapEntry['content_filter_profile'])
+          referencedLimit.push(mapEntry['limit_ids'])
+        })
+      })
+      this.referencedIDsACL = _.uniq(referencedACL)
+      this.referencedIDsContentFilter = _.uniq(referencedContentFilter)
+      this.referencedIDsLimits = _.uniq(_.flatten(referencedLimit))
+    },
+
 
     // resetGitLog() {
     //   this.gitLog = []
