@@ -1,7 +1,6 @@
 import {ColumnOptionsMap} from '@/types'
 
-
-export const HEADER_COLUMNS_MAP: ColumnOptionsMap = {
+export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
   'globalfilters': [
     {
       columnTitle: 'Name',
@@ -116,7 +115,7 @@ export const HEADER_COLUMNS_MAP: ColumnOptionsMap = {
     },
   ],
   'aclprofiles': [
-  // TODO: add function that combine allow, allow_bot, deny, deny_bot, force_deny, passthrough.
+    // TODO: add function that combine allow, allow_bot, deny, deny_bot, force_deny, passthrough.
     {
       columnTitle: 'Name',
       fieldName: 'name',
