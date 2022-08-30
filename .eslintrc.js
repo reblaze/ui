@@ -44,9 +44,9 @@ module.exports = {
       'ignoreTrailingComments': true,
       'ignoreUrls': true,
     }],
-    'require-jsdoc': 'off',
-    'vue/no-v-model-argument': 'off',
-    'indent': ['error', 2, {
+  'require-jsdoc': 'off',
+  'vue/no-v-model-argument': 'off',
+  'indent': ['error', 2, {
       'FunctionDeclaration': {
         'parameters': 'first',
       },

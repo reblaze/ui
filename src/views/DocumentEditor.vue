@@ -174,7 +174,7 @@
       </div>
 
       <div class="content no-data-wrapper"
-           v-if="loadingDocCounter || !selectedBranch || !selectedDocType || !selectedDoc">
+        v-if="loadingDocCounter || !selectedBranch || !selectedDocType || !selectedDoc">
         <div v-if="loadingDocCounter > 0">
           <button class="button is-outlined is-text is-small is-loading document-loading">
             Loading
@@ -236,10 +236,12 @@ export default defineComponent({
   },
   watch: {
     $route: {
-      handler: async function() {
-        this.setLoadingDocStatus(true)
-        await this.setSelectedDataFromRouteParams()
-        this.setLoadingDocStatus(false)
+      handler: async function(val) {
+        if (val?.name?.includes('DocumentEditor')) {
+          this.setLoadingDocStatus(true)
+          await this.setSelectedDataFromRouteParams()
+          this.setLoadingDocStatus(false)
+        }
       },
       deep: true,
     },
@@ -309,7 +311,7 @@ export default defineComponent({
 
     selectedDoc: {
       get(): Document {
-        return this.docs?.[this.selectedDocIndex]
+        return this.docs?.[this.selectedDocIndex] || {}
       },
       set(newDoc: any): void {
         this.docs[this.selectedDocIndex] = newDoc
@@ -318,7 +320,7 @@ export default defineComponent({
 
     selectedDocNotDeletable(): boolean {
       return !this.selectedDoc ||
-          (this.selectedDoc as BasicDocument).id === '__default__' ||
+          this.selectedDoc.id === '__default__' ||
           this.isDocReferenced ||
           this.docs.length <= 1
     },
@@ -351,22 +353,22 @@ export default defineComponent({
 
     goToRoute() {
       const currentRoute = `/config/${this.selectedBranch}/${this.selectedDocType}/${this.selectedDocID}`
-      if (this.$route.path !== currentRoute) {
+      if (this.$route?.path !== currentRoute) {
         console.log('Switching document, new document path: ' + currentRoute)
-        this.$router.push(currentRoute)
+        this.$router?.push(currentRoute)
       }
     },
 
     async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
-      const branchNameFromRoute = this.$route.params.branch === 'undefined' ? null : this.$route.params.branch
+      const branchNameFromRoute = this.$route?.params?.branch === 'undefined' ? null : this.$route?.params?.branch
       this.selectedBranch = branchNameFromRoute || this.branchNames[0]
       const prevDocType = this.selectedDocType
-      this.selectedDocType = (this.$route.params.doc_type || Object.keys(this.componentsMap)[0]) as DocumentType
+      this.selectedDocType = (this.$route?.params?.doc_type || Object.keys(this.componentsMap)[0]) as DocumentType
       if (!prevDocType || prevDocType !== this.selectedDocType) {
         await this.loadDocs(this.selectedDocType)
       }
-      this.selectedDocID = this.$route.params.doc_id || this.docIdNames?.[0]?.[0]
+      this.selectedDocID = this.$route?.params?.doc_id || this.docIdNames?.[0]?.[0]
       this.isDocumentInvalid = false
       await this.loadSelectedDocData()
       this.addMissingDefaultsToDoc()
@@ -661,7 +663,7 @@ export default defineComponent({
     },
 
     referToVersionControl() {
-      this.$router.push('/versioncontrol')
+      this.$router?.push('/versioncontrol')
     },
 
     // Collect every request to display a loading indicator

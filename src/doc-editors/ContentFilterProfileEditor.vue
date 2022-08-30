@@ -135,7 +135,6 @@
                   <td>
                     <autocomplete-input
                         v-if="addNewColName === section"
-                        input-type="input"
                         selection-type="single"
                         title="Tag"
                         :minimum-value-length="2"
@@ -407,7 +406,6 @@
                         </td>
                         <td class="width-30pct">
                           <autocomplete-input
-                              input-type="input"
                               :clear-input-after-selection="false"
                               :auto-focus="false"
                               class="new-entry-exclusions"
@@ -479,7 +477,6 @@
                         </td>
                         <td class="width-30pct">
                           <autocomplete-input
-                              input-type="input"
                               :clear-input-after-selection="false"
                               :initial-value="exclusionsToString(entry.exclusions)"
                               :auto-focus="false"
@@ -552,7 +549,6 @@
                         </td>
                         <td class="width-30pct">
                           <autocomplete-input
-                              input-type="input"
                               :clear-input-after-selection="false"
                               :initial-value="exclusionsToString(entry.exclusions)"
                               :auto-focus="false"

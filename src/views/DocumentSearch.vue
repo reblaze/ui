@@ -146,13 +146,13 @@ import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
 import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
 import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
 import RequestsUtils from '@/assets/RequestsUtils'
-// import Vue, {VueConstructor} from 'vue'
+// import type {VueConstructor} from 'vue'
 import {defineComponent} from 'vue'
 import {Document, DocumentType, SecurityPolicyEntryMatch} from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import Utils from '@/assets/Utils'
 
-type SearchDocument = Document & {
+export type SearchDocument = Document & {
   docType: DocumentType
   description: string
   tags: string
@@ -180,7 +180,7 @@ export default defineComponent({
     // We load [securitypolicies] before [aclprofiles, contentfilterprofiles, ratelimits] so we can pull all references correctly
     const componentsMap: {
       [key in DocumentType]?: {
-        component: any, // VueConstructor
+        component: any,
         title: typeof titles[key],
         fields: string
       }
@@ -491,7 +491,7 @@ export default defineComponent({
 
     goToDocument(doc: SearchDocument) {
       const docRoute = `/config/${this.selectedBranch}/${doc.docType}/${doc.id}`
-      this.$router.push(docRoute)
+      this.$router?.push(docRoute)
     },
 
     // Collect every request to display a loading indicator

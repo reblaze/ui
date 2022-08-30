@@ -1,7 +1,8 @@
-import ResponseAction from '@/components/ResponseAction.vue'
+// @ts-nocheck
+import ResponseAction from '../ResponseAction.vue'
 import {beforeEach, describe, expect, test} from '@jest/globals'
 import {mount} from '@vue/test-utils'
-import Vue from 'vue'
+
 import {ResponseActionType} from '@/types'
 
 describe('ResponseAction.vue', () => {
@@ -114,8 +115,10 @@ describe('ResponseAction.vue', () => {
         const selection = wrapper.find('.action-type-selection')
         const options = selection.findAll('option')
         // set to not default so we would be able to change to default
-        options.at(1).setSelected()
-        options.at(0).setSelected()
+        selection.setValue(options.at(1).element.value)
+        // options.at(1).setSelected()
+        selection.setValue(options.at(0).element.value)
+        // options.at(0).setSelected()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
       })
@@ -126,7 +129,8 @@ describe('ResponseAction.vue', () => {
         }
         const selection = wrapper.find('.action-type-selection')
         const options = selection.findAll('option')
-        options.at(1).setSelected()
+        selection.setValue(options.at(1).element.value)
+        // options.at(1).setSelected()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
       })
@@ -137,7 +141,8 @@ describe('ResponseAction.vue', () => {
         }
         const selection = wrapper.find('.action-type-selection')
         const options = selection.findAll('option')
-        options.at(2).setSelected()
+        selection.setValue(options.at(2).element.value)
+        // options.at(2).setSelected()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
       })
@@ -152,7 +157,8 @@ describe('ResponseAction.vue', () => {
         }
         const selection = wrapper.find('.action-type-selection')
         const options = selection.findAll('option')
-        options.at(3).setSelected()
+        selection.setValue(options.at(3).element.value)
+        // options.at(3).setSelected()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
       })
@@ -167,7 +173,8 @@ describe('ResponseAction.vue', () => {
         }
         const selection = wrapper.find('.action-type-selection')
         const options = selection.findAll('option')
-        options.at(4).setSelected()
+        selection.setValue(options.at(4).element.value)
+        // options.at(4).setSelected()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
       })
@@ -184,7 +191,8 @@ describe('ResponseAction.vue', () => {
         }
         const selection = wrapper.find('.action-type-selection')
         const options = selection.findAll('option')
-        options.at(5).setSelected()
+        selection.setValue(options.at(5).element.value)
+        // options.at(5).setSelected()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
       })
@@ -198,7 +206,8 @@ describe('ResponseAction.vue', () => {
         }
         const selection = wrapper.find('.action-type-selection')
         const options = selection.findAll('option')
-        options.at(6).setSelected()
+        selection.setValue(options.at(6).element.value)
+        // options.at(6).setSelected()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
       })
@@ -223,14 +232,15 @@ describe('ResponseAction.vue', () => {
             action: action,
           },
         })
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         const statusInput = wrapper.find('.action-status')
         statusInput.setValue('301')
         statusInput.trigger('change')
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         const selection = wrapper.find('.action-type-selection')
         const options = selection.findAll('option')
-        options.at(3).setSelected()
+        selection.setValue(options.at(3).element.value)
+        // options.at(3).setSelected()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
       })
@@ -255,14 +265,15 @@ describe('ResponseAction.vue', () => {
             action: action,
           },
         })
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         const statusInput = wrapper.find('.action-status')
         statusInput.setValue('301')
         statusInput.trigger('change')
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         const selection = wrapper.find('.action-type-selection')
         const options = selection.findAll('option')
-        options.at(4).setSelected()
+        selection.setValue(options.at(4).element.value)
+        // options.at(4).setSelected()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
       })
@@ -289,11 +300,11 @@ describe('ResponseAction.vue', () => {
             action: action,
           },
         })
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         const statusInput = wrapper.find('.action-status')
         statusInput.setValue(wantedEmit.params.status)
         statusInput.trigger('change')
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
       })
@@ -318,11 +329,11 @@ describe('ResponseAction.vue', () => {
             action: action,
           },
         })
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         const contentInput = wrapper.find('.action-content')
         contentInput.setValue(wantedEmit.params.content)
         contentInput.trigger('change')
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
       })
@@ -347,11 +358,11 @@ describe('ResponseAction.vue', () => {
             action: action,
           },
         })
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         const statusInput = wrapper.find('.action-status')
         statusInput.setValue(wantedEmit.params.status)
         statusInput.trigger('change')
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
       })
@@ -376,11 +387,11 @@ describe('ResponseAction.vue', () => {
             action: action,
           },
         })
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         const locationInput = wrapper.find('.action-location')
         locationInput.setValue(wantedEmit.params.location)
         locationInput.trigger('change')
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
       })
@@ -409,11 +420,11 @@ describe('ResponseAction.vue', () => {
             action: action,
           },
         })
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         const durationInput = wrapper.find('.action-duration')
         durationInput.setValue(wantedEmit.params.duration)
         durationInput.trigger('change')
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
       })
@@ -442,10 +453,11 @@ describe('ResponseAction.vue', () => {
             action: action,
           },
         })
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         const responseActionComponent = wrapper.findAllComponents(ResponseAction).at(1)
-        responseActionComponent.vm.$emit('update:action', wantedEmit.params.action)
-        await Vue.nextTick()
+        console.log('responseActionComponent', responseActionComponent)
+        wrapper.vm.$emit('update:action', wantedEmit.params.action)
+        await wrapper.vm.$nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
       })
@@ -468,11 +480,11 @@ describe('ResponseAction.vue', () => {
             action: action,
           },
         })
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         const headersInput = wrapper.find('.action-headers')
         headersInput.setValue(wantedEmit.params.headers)
         headersInput.trigger('change')
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
       })
@@ -499,11 +511,11 @@ describe('ResponseAction.vue', () => {
             action: action,
           },
         })
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         const statusInput = wrapper.find('.action-status')
         statusInput.setValue(wantedEmit.params.status)
         statusInput.trigger('change')
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
       })
@@ -528,11 +540,11 @@ describe('ResponseAction.vue', () => {
             action: action,
           },
         })
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         const contentInput = wrapper.find('.action-content')
         contentInput.setValue(wantedEmit.params.content)
         contentInput.trigger('change')
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
       })
@@ -557,11 +569,11 @@ describe('ResponseAction.vue', () => {
             action: action,
           },
         })
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         const statusInput = wrapper.find('.action-status')
         statusInput.setValue(wantedEmit.params.status)
         statusInput.trigger('change')
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
       })
@@ -586,11 +598,11 @@ describe('ResponseAction.vue', () => {
             action: action,
           },
         })
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         const locationInput = wrapper.find('.action-location')
         locationInput.setValue(wantedEmit.params.location)
         locationInput.trigger('change')
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
       })
@@ -619,11 +631,11 @@ describe('ResponseAction.vue', () => {
             action: action,
           },
         })
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         const durationInput = wrapper.find('.action-duration')
         durationInput.setValue(wantedEmit.params.duration)
         durationInput.trigger('change')
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
       })
@@ -652,10 +664,11 @@ describe('ResponseAction.vue', () => {
             action: action,
           },
         })
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         const responseActionComponent = wrapper.findAllComponents(ResponseAction).at(1)
-        responseActionComponent.vm.$emit('update:action', wantedEmit.params.action)
-        await Vue.nextTick()
+        console.log('responseActionComponent', responseActionComponent)
+        wrapper.vm.$emit('update:action', wantedEmit.params.action)
+        await wrapper.vm.$nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
       })
@@ -678,11 +691,11 @@ describe('ResponseAction.vue', () => {
             action: action,
           },
         })
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         const headersInput = wrapper.find('.action-headers')
         headersInput.setValue(wantedEmit.params.headers)
         headersInput.trigger('change')
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
       })
@@ -698,7 +711,7 @@ describe('ResponseAction.vue', () => {
             action: undefined,
           },
         })
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
       })
@@ -719,7 +732,7 @@ describe('ResponseAction.vue', () => {
             action: action,
           },
         })
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
       })
@@ -740,7 +753,7 @@ describe('ResponseAction.vue', () => {
             action: action,
           },
         })
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
       })
@@ -763,7 +776,7 @@ describe('ResponseAction.vue', () => {
             action: action,
           },
         })
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
       })
@@ -783,7 +796,7 @@ describe('ResponseAction.vue', () => {
             action: action,
           },
         })
-        await Vue.nextTick()
+        await wrapper.vm.$nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
       })

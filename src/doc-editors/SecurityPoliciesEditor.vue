@@ -357,6 +357,7 @@ import {ACLProfile, ContentFilterProfile, RateLimit, SecurityPolicy, SecurityPol
 import {AxiosResponse} from 'axios'
 import Utils from '@/assets/Utils'
 
+
 export default defineComponent({
   name: 'SecurityPoliciesEditor',
 
@@ -553,7 +554,7 @@ export default defineComponent({
 
     referToRateLimit() {
       this.$emit('form-invalid', false)
-      this.$router.push(`/config/${this.selectedBranch}/ratelimits`)
+      this.$router?.push(`/config/${this.selectedBranch}/ratelimits`)
     },
 
     contentfilteracllimitProfileNames() {

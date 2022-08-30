@@ -17,8 +17,8 @@
           <router-link v-else
                        :data-qa="menuItemDetails.title"
                        :data-curie="menuItemKey"
-                       :to="{path: menuItemKey as string}"
-                       :class="{ 'is-active': currentRoutePath.includes(menuItemKey as string) }">
+                       :to="{path: menuItemKey}"
+                       :class="{ 'is-active': currentRoutePath.includes(menuItemKey) }">
             {{ menuItemDetails.title }}
           </router-link>
           <ul v-if="menuItemDetails.items"
@@ -129,7 +129,7 @@ export default defineComponent({
   },
   computed: {
     currentRoutePath() {
-      return this.$route.path
+      return this.$route?.path || ''
     },
   },
   methods: {

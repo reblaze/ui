@@ -1,14 +1,15 @@
-import MasterComponent from '@/views/MasterComponent.vue'
+// @ts-nocheck
+import MainComponent from '../MainComponent.vue'
 import {describe, test, expect, beforeEach} from '@jest/globals'
-import {shallowMount} from '@vue/test-utils'
+import {DOMWrapper, shallowMount, VueWrapper} from '@vue/test-utils'
 
-describe('MasterComponent.vue', () => {
-  let wrapper: any
+describe('MainComponent.vue', () => {
+  let wrapper: VueWrapper
   beforeEach(() => {
     const $route = {
       path: '/config',
     }
-    wrapper = shallowMount(MasterComponent, {
+    wrapper = shallowMount(MainComponent, {
       mocks: {
         $route,
       },
@@ -17,12 +18,12 @@ describe('MasterComponent.vue', () => {
   })
 
   test('should render side menu component', () => {
-    const component = wrapper.find('side-menu')
+    const component: DOMWrapper = wrapper.find('side-menu')
     expect(component).toBeTruthy()
   })
 
   test('should render header component', () => {
-    const component = wrapper.find('header-main')
+    const component: DOMWrapper = wrapper.find('header-main')
     expect(component).toBeTruthy()
   })
 })

@@ -1,15 +1,17 @@
 import {createRouter, createWebHistory} from 'vue-router'
 import {RouteRecordRaw} from 'vue-router'
+import MainComponent from '@/views/MainComponent.vue'
+// import DocumentEditor from '@/views/DocumentEditor.vue'
+// import CurieDBEditor from '@/views/CurieDBEditor.vue'
+// import PublishChanges from '@/views/Publish.vue'
+// import VersionControl from '@/views/VersionControl.vue'
+import DocumentSearch from '@/views/DocumentSearch.vue'
 
-// Vue.use(VueRouter)
-// Vue.use(VueAxios, axios)
-
-// #DEPRECATED: remove /db redirect on version 1.6.0, because this just a legacy for API v1 in 1.5.0.
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    name: 'MasterComponent',
-    component: () => import('@/views/MasterComponent.vue'),
+    name: 'MainComponent',
+    component: MainComponent,
     redirect: '/config',
     children: [
       {
@@ -34,26 +36,44 @@ const routes: Array<RouteRecordRaw> = [
                   },
                 ],
               },
+              {
+                path: 'list',
+                name: 'DocumentList',
+                component: DocumentSearch,
+                children: [
+                  {
+                    path: ':branch',
+                    name: 'DocumentList/Branch',
+                    component: DocumentSearch,
+                    children: [
+                      {
+                        path: ':doc_type',
+                        name: 'DocumentList/Branch/DocType',
+                        component: DocumentSearch,
+                      },
+                    ],
+                  },
+                ],
+              },
+              {path: 'db', name: 'MasterComponent', redirect: '/CurieDB'},
+              {path: 'CurieDB', name: 'CurieDBEditor', component: () => import('../views/CurieDBEditor.vue')},
+              {path: 'publish', name: 'PublishChanges', component: () => import('../views/Publish.vue')},
+              {path: 'versioncontrol', name: 'VersionControl', component: () => import('../views/VersionControl.vue')},
+              {path: 'search', name: 'DocumentSearch', component: () => import('@/views/DocumentSearch.vue')},
             ],
+          },
+          {
+            path: '/:pathMatch(.*)*',
+            redirect: '/config',
           },
         ],
       },
-      {path: 'db', name: 'MasterComponent', redirect: '/CurieDB'},
-      {path: 'CurieDB', name: 'CurieDBEditor', component: () => import('../views/CurieDBEditor.vue')},
-      {path: 'publish', name: 'PublishChanges', component: () => import('../views/Publish.vue')},
-      {path: 'versioncontrol', name: 'VersionControl', component: () => import('../views/VersionControl.vue')},
-      {path: 'search', name: 'DocumentSearch', component: () => import('@/views/DocumentSearch.vue')},
     ],
-  },
-  {
-    path: '/:pathMatch(.*)*',
-    redirect: '/config',
   },
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
-  // base: process.env.BASE_URL,
+  history: createWebHistory(process.env.BASE_URL),
   routes,
 })
 

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import RequestsUtils, {IRequestParams} from '@/assets/RequestsUtils'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
 import * as bulmaToast from 'bulma-toast'

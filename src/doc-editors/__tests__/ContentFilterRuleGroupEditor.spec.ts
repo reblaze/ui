@@ -1,7 +1,9 @@
+// @ts-ignore
 import ContentFilterRuleGroupEditor from '@/doc-editors/ContentFilterRuleGroupEditor.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {shallowMount} from '@vue/test-utils'
-import Vue from 'vue'
+// import Vue from 'vue'
+// @ts-ignore
 import {ContentFilterRuleGroup, ContentFilterRule} from '@/types'
 import axios from 'axios'
 
@@ -69,7 +71,7 @@ describe('ContentFilterRuleGroupEditor.vue', () => {
     const table = wrapper.find('.entries-table')
     const addBtn = table.find('.add-rule-button')
     addBtn.trigger('click')
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
     const rulesSelect = table.find('.new-rule-selection')
     expect(rulesSelect.findAll('option').length).toEqual(ALL_RULES_NUMBER - DOC_RULES_NUMBER)
   })
@@ -78,12 +80,14 @@ describe('ContentFilterRuleGroupEditor.vue', () => {
     const table = wrapper.find('.entries-table')
     const addBtn = table.find('.add-rule-button')
     addBtn.trigger('click')
-    await Vue.nextTick()
-    const rulesSelectOptions = table.find('.new-rule-selection').findAll('option')
-    rulesSelectOptions.at(0).setSelected()
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
+    const selection = table.find('.new-rule-selection')
+    const rulesSelectOptions = selection.findAll('option')
+    selection.setValue(rulesSelectOptions.at(0).element.value)
+    // rulesSelectOptions.at(0).setSelected()
+    await wrapper.vm.$nextTick()
     table.find('.confirm-add-rule-button').trigger('click')
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
     expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
     expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([{
       ...selectedDoc,
@@ -98,9 +102,9 @@ describe('ContentFilterRuleGroupEditor.vue', () => {
     const table = wrapper.find('.entries-table')
     const addBtn = table.find('.add-rule-button')
     addBtn.trigger('click')
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
     table.find('.confirm-add-rule-button').trigger('click')
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
     expect(wrapper.emitted('update:selectedDoc')).toBeFalsy()
   })
 
@@ -109,7 +113,7 @@ describe('ContentFilterRuleGroupEditor.vue', () => {
     const removeBtns = table.findAll('.remove-rule-button')
     const indexToDelete = 10
     removeBtns.at(indexToDelete).trigger('click')
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
     expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
     expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([{
       ...selectedDoc,
@@ -121,13 +125,13 @@ describe('ContentFilterRuleGroupEditor.vue', () => {
     const vm = wrapper.vm as any
     const {currentPage} = vm
     vm.navigate(0)
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
     expect(vm.currentPage).toEqual(currentPage)
     vm.navigate(1000)
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
     expect(vm.currentPage).toEqual(currentPage)
     vm.navigate(2)
-    await Vue.nextTick()
+    await wrapper.vm.$nextTick()
     expect(vm.currentPage).toEqual(2)
   })
 })
