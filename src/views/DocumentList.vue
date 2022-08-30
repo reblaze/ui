@@ -6,17 +6,23 @@
           <div class='field is-grouped'>
             <div class='control' v-if='branchNames.length'>
               <div class='select is-small'>
-                <select v-model='selectedBranch' title='Switch branch' class='branch-selection'
+                <select v-model='selectedBranch'
+                        title='Switch branch'
+                        class='branch-selection'
                         @change='switchBranch()'>
-                  <option v-for='name in branchNames' :key='name' :value='name'>
+                  <option v-for='name in branchNames'
+                          :key='name'
+                          :value='name'>
                     {{ name }}
                   </option>
                 </select>
               </div>
             </div>
             <p class='control'>
-              <button class='button is-small download-doc-button' :class='{"is-loading":isDownloadLoading}'
-                      title='Download document' data-qa='download-document'>
+              <button class='button is-small download-doc-button'
+                      :class='{"is-loading":isDownloadLoading}'
+                      title='Download document'
+                      data-qa='download-document'>
                             <span class='icon is-small'>
                                 <i class='fas fa-download'></i>
                             </span>
@@ -48,21 +54,23 @@
           <th class='column-header width-80px'>
             <div class='field is-grouped is-grouped-centered'>
               <p class='control'>
-                <button class='button is-size-7' title='Add new document'
-                        :disabled='!selectedBranch || !selectedDocType' :class='{"is-loading": isNewLoading}'
+                <button class='button is-size-7'
+                        title='Add new document'
+                        :disabled='!selectedBranch || !selectedDocType'
+                        :class='{"is-loading": isNewLoading}'
                         @click='addNewDoc()'>
                   <!-- TODO: Check the button of new doc adding -->
                   <span class='icon is-small'>
-                                        <i class='fas fa-plus'></i>
-                                    </span>
+                    <i class='fas fa-plus'></i>
+                  </span>
                 </button>
               </p>
               <p class='control'>
                 <button class='button is-size-7 filter-toggle' :class='{"is-active": filtervisible }'
                         title='Filter table data' @click='filtervisible = !filtervisible'>
-                                    <span class='icon is-small'>
-                                        <i class='fas fa-filter'></i>
-                                    </span>
+                  <span class='icon is-small'>
+                      <i class='fas fa-filter'></i>
+                  </span>
                 </button>
               </p>
             </div>
@@ -72,19 +80,26 @@
         <tr class='search-row' v-if='filtervisible'>
           <th class='control has-icons-right' v-for='col in columns' :key='col.columnTitle'>
             <div v-if='col.isSearchable'>
-              <input class='input is-small filter-input search-input-vectors-score' :title='col.columnTitle'
-                     :placeholder='col.columnTitle' v-model='filter[col.fieldName]' @change='updateDataDisplay()'/>
+              <input class='input is-small filter-input search-input-vectors-score'
+                     :title='col.columnTitle'
+                     :placeholder='col.columnTitle'
+                     v-model='filter[col.fieldName]'
+                     @change='updateDataDisplay()'/>
               <span class='icon is-small is-right'>
-                                <i class='fa fa-filter' aria-hidden='true'></i>
-                            </span>
+                  <i class='fa fa-filter' aria-hidden='true'></i>
+              </span>
             </div>
           </th>
           <th></th>
         </tr>
         </thead>
         <tbody>
-        <tr v-for='row in getSlicedDataArrayDisplay(docsDisplayData, currentPage)' :key='row.id'>
-          <td v-for='col in columns' :key='col.fieldName' class='is-size-7' :class="col.classes"
+        <tr v-for='row in getSlicedDataArrayDisplay(docsDisplayData, currentPage)'
+            :key='row.id'>
+          <td v-for='col in columns'
+              :key='col.fieldName'
+              class='is-size-7'
+              :class="col.classes"
               :title="row[col.fieldName]">
             {{ row[col.fieldName] }}
           </td>
@@ -94,9 +109,9 @@
               <button title='Edit'
                       class='button is-small'
                       @click="editDoc(row.id)">
-                                <span class='icon is-small'>
-                                    <i class='fas fa-edit'></i>
-                                </span>
+                <span class='icon is-small'>
+                    <i class='fas fa-edit'></i>
+                </span>
               </button>
             </div>
           </td>
@@ -105,10 +120,14 @@
           <!-- BUG: this footer isnt shown with async call - only after rerender it's shown (like sorting)-->
           <td :colspan='columns.length+1'>
             <div class='pagination is-small'>
-              <button class='pagination-previous' @click='prevPage' :disabled='currentPage === 1'>
+              <button class='pagination-previous'
+                      @click='prevPage'
+                      :disabled='currentPage === 1'>
                 Previous Page
               </button>
-              <button class='pagination-next' @click='nextPage' :disabled='currentPage === totalPages'>
+              <button class='pagination-next'
+                      @click='nextPage'
+                      :disabled='currentPage === totalPages'>
                 Next Page
               </button>
             </div>

@@ -17,8 +17,8 @@
           <router-link v-else
                        :data-qa="menuItemDetails.title"
                        :data-curie="menuItemKey"
-                       :to="{path: menuItemKey}"
-                       :class="{ 'is-active': currentRoutePath.includes(menuItemKey) }">
+                       :to="{path: menuItemKey.toString()}"
+                       :class="{ 'is-active': currentRoutePath.includes(menuItemKey as string) }">
             {{ menuItemDetails.title }}
           </router-link>
           <ul v-if="menuItemDetails.items"
