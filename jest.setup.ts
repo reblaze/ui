@@ -6,10 +6,12 @@ import {jest} from '@jest/globals'
 
 global.URL.createObjectURL = <any>jest.fn()
 
-import {TextEncoder} from 'util'
+import {TextEncoder, TextDecoder} from 'util'
 
 global.TextEncoder = TextEncoder
-// global.textDecoder = TextDecoder
+// @ts-ignore
+global.TextDecoder = TextDecoder
+// global.TextDecoder = globalThis.TextDecoder
 // global.ArrayBuffer = ArrayBuffer
 // global.Uint8Array = Uint8Array
 

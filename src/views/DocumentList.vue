@@ -6,7 +6,8 @@
                 <div class='field is-grouped'>
                     <div class='control' v-if='branchNames.length'>
                         <div class='select is-small'>
-                            <select v-model='selectedBranch' title='Switch branch' class='branch-selection' @change='switchBranch()'>
+                            <select v-model='selectedBranch' title='Switch branch'
+                            class='branch-selection' @change='switchBranch()'>
                                 <option v-for='name in branchNames' :key='name' :value='name'>
                                     {{ name }}
                                 </option>
@@ -14,7 +15,8 @@
                         </div>
                     </div>
                     <p class='control'>
-                        <button class='button is-small download-doc-button' :class='{"is-loading":isDownloadLoading}' title='Download document' data-qa='download-document'>
+                        <button class='button is-small download-doc-button' :class='{"is-loading":isDownloadLoading}'
+                        title='Download document' data-qa='download-document'>
                             <span class='icon is-small'>
                                 <i class='fas fa-download'></i>
                             </span>
@@ -32,13 +34,16 @@
                       class='column-header is-size-7'
                       :class="`${col.classes}${col.isSortable ? ' sort-column' : null}`"
                       @click='sortColumn(col)'>
-                      <!-- BUG: the @click should be on th tag but when col isnt Searchable it also gave the permmision to click-->
+                      <!-- BUG: the @click should be on the tag but
+                      when col isnt Searchable it also gave the permmision to click-->
                         <div v-if='col.isSortable'>
                             <div class='arrow-wrapper'>
-                                <span class='arrow arrow-asc' :class='{ active: sortField === col.fieldName && sortDir === "asc", }' />
+                                <span class='arrow arrow-asc'
+                                :class='{ active: sortField === col.fieldName && sortDir === "asc", }' />
                             </div>
                             <div class='arrow-wrapper'>
-                                <span class='arrow arrow-desc' :class='{active: sortField === col.fieldName && sortDir === "desc", }' />
+                                <span class='arrow arrow-desc'
+                                :class='{active: sortField === col.fieldName && sortDir === "desc", }' />
                             </div>
                         </div>
                         {{ col.columnTitle }}
@@ -46,7 +51,8 @@
                     <th class='column-header width-80px'>
                         <div class='field is-grouped is-grouped-centered'>
                             <p class='control'>
-                                <button class='button is-size-7' title='Add new document' :disabled='!selectedBranch || !selectedDocType' :class='{"is-loading": isNewLoading}' @click='addNewDoc()'>
+                                <button class='button is-size-7' title='Add new document' @click='addNewDoc()'
+                                :disabled='!selectedBranch || !selectedDocType' :class='{"is-loading": isNewLoading}' >
                                     <!-- TODO: Check the button of new doc adding -->
                                     <span class='icon is-small'>
                                         <i class='fas fa-plus'></i>
@@ -54,7 +60,8 @@
                                 </button>
                             </p>
                             <p class='control'>
-                                <button class='button is-size-7 filter-toggle' :class='{"is-active": filtervisible }' title='Filter table data' @click='filtervisible = !filtervisible'>
+                                <button class='button is-size-7 filter-toggle' @click='filtervisible = !filtervisible'
+                                :class='{"is-active": filtervisible }' title='Filter table data' >
                                     <span class='icon is-small'>
                                         <i class='fas fa-filter'></i>
                                     </span>
@@ -67,7 +74,9 @@
                 <tr class='search-row' v-if='filtervisible'>
                     <th class='control has-icons-right' v-for='col in columns' :key='col.columnTitle'>
                         <div v-if='col.isSearchable'>
-                            <input class='input is-small filter-input search-input-vectors-score' :title='col.columnTitle' :placeholder='col.columnTitle' v-model='filter[col.fieldName]' @change='updateDataDisplay()' />
+                            <input class='input is-small filter-input search-input-vectors-score'
+                            :title='col.columnTitle' :placeholder='col.columnTitle'
+                            v-model='filter[col.fieldName]' @change='updateDataDisplay()' />
                             <span class='icon is-small is-right'>
                                 <i class='fa fa-filter' aria-hidden='true'></i>
                             </span>
@@ -78,7 +87,8 @@
             </thead>
             <tbody>
                 <tr v-for='row in getSlicedDataArrayDisplay(docsDisplayData, currentPage)' :key='row.id'>
-                    <td v-for='col in columns' :key='col.fieldName' class='is-size-7' :class="col.classes" :title="row[col.fieldName]">
+                    <td v-for='col in columns' :key='col.fieldName' class='is-size-7'
+                    :class="col.classes" :title="row[col.fieldName]">
                         {{ row[col.fieldName] }}
                     </td>
                     <td class='is-size-7'>
@@ -92,7 +102,8 @@
                         </div>
                     </td>
                 </tr>
-                <tr v-if='totalPages > 1'> <!-- BUG: this footer isnt shown with async call - only after rerender it's shown (like sorting)-->
+                <tr v-if='totalPages > 1'> <!-- BUG: this footer isnt shown with async call -
+                only after rerender it's shown (like sorting)-->
                     <td :colspan='columns.length+1'>
                         <div class='pagination is-small'>
                             <button class='pagination-previous' @click='prevPage' :disabled='currentPage === 1'>

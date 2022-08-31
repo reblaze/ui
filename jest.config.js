@@ -9,7 +9,7 @@ module.exports = {
         doNotFake: ['nextTick'],
         timerLimit: 5000,
       },
-      transform: {
+      transform: { 
         '^.+\\.tsx?$': 'ts-jest',
         '^.+\\.vue$': '@vue/vue3-jest',
         "\\.[jt]sx?$": "babel-jest",
