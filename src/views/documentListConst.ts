@@ -24,7 +24,7 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       fieldNames: ['description'],
       isSortable: true,
       isSearchable: true,
-      classes: 'width-500px ellipsis',
+      classes: 'ellipsis',
     },
     {
       columnTitle: 'Tags',
@@ -70,7 +70,7 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       fieldNames: ['description'],
       isSortable: true,
       isSearchable: true,
-      classes: 'width-500px ellipsis',
+      classes: 'ellipsis',
     },
     {
       columnTitle: 'Sequences',
@@ -113,7 +113,7 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       fieldNames: ['description'],
       isSortable: true,
       isSearchable: true,
-      classes: 'width-500px ellipsis',
+      classes: 'ellipsis',
     },
     {
       columnTitle: 'Timeframe',
@@ -160,7 +160,7 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       fieldNames: ['description'],
       isSortable: true,
       isSearchable: true,
-      classes: 'width-500px ellipsis',
+      classes: 'ellipsis',
     },
     {
       columnTitle: 'Tags',
@@ -193,7 +193,7 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       fieldNames: ['description'],
       isSortable: true,
       isSearchable: true,
-      classes: 'width-500px ellipsis',
+      classes: 'ellipsis',
     },
     {
       columnTitle: 'Restrict Content Type',
@@ -239,7 +239,7 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       fieldNames: ['description'],
       isSortable: true,
       isSearchable: true,
-      classes: 'width-500px ellipsis',
+      classes: 'ellipsis',
     },
     {
       columnTitle: 'Category',

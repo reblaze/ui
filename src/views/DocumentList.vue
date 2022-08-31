@@ -38,114 +38,125 @@
 
       <div class="content document-list-wrapper"
            v-show="!loadingDocCounter">
-        <table class='table is-bordered is-fullwidth is-size-7 document-list-table is-hoverable vectors-table'>
-          <thead>
-          <tr>
-            <th v-for='col in columns'
-                :key='col.fieldNames.join(", ")'
-                class='column-header is-size-7'
-                :class="`${col.classes}${col.isSortable ? ' is-clickable' : null}`"
-                @click='sortColumn(col)'>
-              <div v-if='col.isSortable'>
-                <div class='arrow-wrapper'>
+        <div class="card">
+          <div class="card-content">
+            <div class="content">
+              <table class='table is-bordered is-fullwidth is-size-7 document-list-table is-hoverable vectors-table'>
+                <thead>
+                <tr>
+                  <th v-for='col in columns'
+                      :key='col.fieldNames.join(", ")'
+                      class='column-header is-size-7'
+                      :class="`${col.classes}${col.isSortable ? ' is-clickable' : null}`"
+                      @click='sortColumn(col)'>
+                    <div v-if='col.isSortable'>
+                      <div class='arrow-wrapper'>
                 <span class='arrow arrow-asc'
                       :class='{ active: sortField === col.fieldNames && sortDir === "asc", }'/>
-                </div>
-                <div class='arrow-wrapper'>
+                      </div>
+                      <div class='arrow-wrapper'>
                 <span class='arrow arrow-desc'
                       :class='{active: sortField === col.fieldNames && sortDir === "desc", }'/>
-                </div>
-              </div>
-              {{ col.columnTitle }}
-            </th>
-            <th class='column-header width-80px'>
-              <div class='field is-grouped is-grouped-centered'>
-                <p class='control'>
-                  <button class='button is-size-7'
-                          title='Add new document'
-                          :disabled='!selectedBranch || !selectedDocType'
-                          :class='{"is-loading": isNewLoading}'
-                          @click='addNewDoc()'>
-                    <!-- TODO: Check the button of new doc adding -->
-                    <span class='icon is-small'>
+                      </div>
+                    </div>
+                    {{ col.columnTitle }}
+                  </th>
+                  <th class='column-header width-80px'>
+                    <div class='field is-grouped is-grouped-centered'>
+                      <p class='control'>
+                        <button class='button is-size-7'
+                                title='Add new document'
+                                :disabled='!selectedBranch || !selectedDocType'
+                                :class='{"is-loading": isNewLoading}'
+                                @click='addNewDoc()'>
+                          <!-- TODO: Check the button of new doc adding -->
+                          <span class='icon is-small'>
                     <i class='fas fa-plus'></i>
                   </span>
-                  </button>
-                </p>
-                <p class='control'>
-                  <button class='button is-size-7 filter-toggle'
-                          :class='{"is-active": filtersVisible }'
-                          title='Filter table data'
-                          @click='filtersVisible = !filtersVisible'>
+                        </button>
+                      </p>
+                      <p class='control'>
+                        <button class='button is-size-7 filter-toggle'
+                                :class='{"is-active": filtersVisible }'
+                                title='Filter table data'
+                                @click='filtersVisible = !filtersVisible'>
                   <span class='icon is-small'>
                       <i class='fas fa-filter'></i>
                   </span>
-                  </button>
-                </p>
-              </div>
-            </th>
-          </tr>
-          <tr class='search-row' v-if='filtersVisible'>
-            <th class='control has-icons-right'
-                v-for='col in columns'
-                :key='col.columnTitle'>
-              <div v-if='col.isSearchable'>
-                <input class='input is-small filter-input search-input-vectors-score'
-                       :title='col.columnTitle'
-                       :placeholder='col.columnTitle'
-                       v-model='filter[col.fieldNames.join(", ")]'
-                       @change='updateDataDisplay()'/>
-                <span class='icon is-small is-right'>
+                        </button>
+                      </p>
+                    </div>
+                  </th>
+                </tr>
+                <tr class='search-row' v-if='filtersVisible'>
+                  <th class='control has-icons-right'
+                      v-for='col in columns'
+                      :key='col.columnTitle'>
+                    <div v-if='col.isSearchable'>
+                      <input class='input is-small filter-input search-input-vectors-score'
+                             :title='col.columnTitle'
+                             :placeholder='col.columnTitle'
+                             v-model='filter[col.fieldNames.join(", ")]'
+                             @change='updateDataDisplay()'/>
+                      <span class='icon is-small is-right'>
                 <i class='fa fa-filter' aria-hidden='true'></i>
               </span>
-              </div>
-            </th>
-            <th></th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr v-for='row in getSlicedDataArrayDisplay(docsDisplayData, currentPage)'
-              :key='row.id'>
-            <td v-for='col in columns'
-                :key='col.fieldNames.join(", ")'
-                :title="row[col.columnTitle]">
-              <div class='is-size-7 vertical-scroll data-cell'
-                   :class="col.classes">
-                {{ col.displayFunction ? col.displayFunction(row) : row[col.fieldNames[0]] }}
-              </div>
-            </td>
-            <td class='is-size-7'>
-              <div class='field is-grouped is-grouped-centered'>
-                <button title='Edit'
-                        class='button is-small'
-                        @click="editDoc(row.id)">
+                    </div>
+                  </th>
+                  <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for='row in getSlicedDataArrayDisplay(docsDisplayData, currentPage)'
+                    :key='row.id'>
+                  <td v-for='col in columns'
+                      :key='col.fieldNames.join(", ")'
+                      :title="row[col.columnTitle]">
+                    <div class='is-size-7 vertical-scroll data-cell'
+                         :class="col.classes">
+                      {{ col.displayFunction ? col.displayFunction(row) : row[col.fieldNames[0]] }}
+                    </div>
+                  </td>
+                  <td class='is-size-7'>
+                    <div class='field is-grouped is-grouped-centered'>
+                      <button title='Edit'
+                              class='button is-small'
+                              @click="editDoc(row.id)">
                 <span class='icon is-small'>
                   <i class='fas fa-edit'></i>
                 </span>
-                </button>
-              </div>
-            </td>
-          </tr>
-          <tr v-if='totalPages > 1'>
-            <!-- BUG: this footer isnt shown with async call - only after rerender it's shown (like sorting)-->
-            <td :colspan='columns.length+1'>
-              <div class='pagination is-small'>
-                <button class='pagination-previous'
-                        @click='prevPage'
-                        :disabled='currentPage === 1'>
-                  Previous Page
-                </button>
-                <button class='pagination-next'
-                        @click='nextPage'
-                        :disabled='currentPage === totalPages'>
-                  Next Page
-                </button>
-              </div>
-            </td>
-          </tr>
-          </tbody>
-        </table>
-        <span class="is-family-monospace has-text-grey-lighter">{{ documentListAPIPath }}</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr v-if='totalPages > 1'>
+                  <!-- BUG: this footer isnt shown with async call - only after rerender it's shown (like sorting)-->
+                  <td :colspan='columns.length+1'>
+                    <div class='pagination is-small'>
+                      <button class='pagination-previous'
+                              @click='prevPage'
+                              :disabled='currentPage === 1'>
+                        Previous Page
+                      </button>
+                      <button class='pagination-next'
+                              @click='nextPage'
+                              :disabled='currentPage === totalPages'>
+                        Next Page
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+              <span class="is-family-monospace has-text-grey-lighter">{{ documentListAPIPath }}</span>
+            </div>
+          </div>
+        </div>
+        <hr/>
+        <git-history :gitLog="gitLog"
+                     :apiPath="gitAPIPath"
+                     :loading="isGitLogLoading"
+                     @restore-version="restoreGitVersion"></git-history>
       </div>
 
       <div class="content no-data-wrapper"
@@ -190,10 +201,11 @@ import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
 import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
 import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
 import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
-// import GitHistory from '@/components/GitHistory.vue'
+import GitHistory from '@/components/GitHistory.vue'
 import {defineComponent, shallowRef} from 'vue'
-import {ColumnOptions, Document, DocumentType, GenericObject} from '@/types'
+import {ColumnOptions, Commit, Document, DocumentType, GenericObject} from '@/types'
 import {COLUMN_OPTIONS_MAP} from './documentListConst'
+import {AxiosResponse} from 'axios'
 
 export default defineComponent({
   watch: {
@@ -207,6 +219,9 @@ export default defineComponent({
       },
       deep: true,
     },
+  },
+  components: {
+    GitHistory,
   },
   data() {
     return {
@@ -261,6 +276,11 @@ export default defineComponent({
     documentListAPIPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
       return `${apiPrefix}/configs/${this.selectedBranch}/d/${this.selectedDocType}/`
+    },
+
+    gitAPIPath(): string {
+      const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
+      return `${apiPrefix}/configs/${this.selectedBranch}/d/${this.selectedDocType}/v/`
     },
 
     branchNames(): string[] {
@@ -370,9 +390,6 @@ export default defineComponent({
     },
 
     updateDataDisplay() {
-      if (!this.sortField?.length) {
-        this.sortField = this.columns[0]?.fieldNames
-      }
       this.docsDisplayData = this.getDataArrayDisplay()
       this.totalPages = Math.ceil(this.docsDisplayData.length / this.rowsPerPage) || 1
       if (this.currentPage > this.totalPages) {
@@ -395,11 +412,12 @@ export default defineComponent({
       const prevDocType = this.selectedDocType
       this.selectedDocType = (this.$route.params.doc_type || Object.keys(this.componentsMap)[0]) as DocumentType
       this.columns = COLUMN_OPTIONS_MAP[this.selectedDocType]
+      this.sortField = this.columns[0]?.fieldNames || []
       if (!prevDocType || prevDocType !== this.selectedDocType) {
         await this.loadDocs(this.selectedDocType)
       }
       this.setLoadingDocStatus(false)
-      // this.loadGitLog()
+      this.loadGitLog()
       this.goToRoute()
     },
 
@@ -440,8 +458,7 @@ export default defineComponent({
       this.docsDisplayData = this.docs
       this.isDownloadLoading = false
       this.updateDataDisplay()
-
-      // this.loadGitLog()
+      this.loadGitLog()
     },
 
     async switchBranch() {
@@ -521,22 +538,41 @@ export default defineComponent({
       this.$router?.push('/versioncontrol')
     },
 
-    // resetGitLog() {
-    //   this.gitLog = []
-    // },
+    resetGitLog() {
+      this.gitLog = []
+    },
 
-    // loadGitLog(interaction?: boolean) {
-    //   this.isGitLogLoading = true
-    //   const config = this.selectedBranch
-    //   const document = this.selectedDocType
-    //   const url = `configs/${config}/d/${document}/v/`
-    //   if (config && document) {
-    //     RequestsUtils.sendRequest({methodName: 'GET', url}).then((response: AxiosResponse<Commit[]>) => {
-    //       this.gitLog = response?.data
-    //       this.isGitLogLoading = false
-    //     })
-    //   }
-    // },
+    loadGitLog(interaction?: boolean) {
+      this.isGitLogLoading = true
+      const config = this.selectedBranch
+      const document = this.selectedDocType
+      const url = `configs/${config}/d/${document}/v/`
+      if (config && document) {
+        RequestsUtils.sendRequest({methodName: 'GET', url}).then((response: AxiosResponse<Commit[]>) => {
+          this.gitLog = response?.data
+          if (interaction) {
+            this.loadConfigs(true)
+          }
+          this.isGitLogLoading = false
+        })
+      }
+    },
+
+    async restoreGitVersion(gitVersion: Commit) {
+      const branch = this.selectedBranch
+      const doctype: DocumentType = this.selectedDocType
+      const docTitle = this.titles[doctype]
+      const versionId = gitVersion.version
+      const urlTrail = `configs/${branch}/d/${doctype}/v/${versionId}/`
+
+      await RequestsUtils.sendRequest({
+        methodName: 'PUT',
+        url: `${urlTrail}revert/`,
+        successMessage: `Document [${docTitle}] restored to version [${versionId}]!`,
+        failureMessage: `Failed restoring document [${docTitle}] to version [${versionId}]!`,
+      })
+      await this.loadDocs(this.selectedDocType, true)
+    },
   },
   mounted() {
     this.setLoadingDocStatus(true)
