@@ -11,6 +11,7 @@ import {ACLProfile, Branch, Commit, ContentFilterProfile, Document} from '@/type
 import {FlowControlPolicy, GlobalFilter, RateLimit, SecurityPolicy} from '@/types'
 import {setImmediate, setTimeout} from 'timers'
 import {DOMWrapper} from '@vue/test-utils'
+import {nextTick} from 'vue'
 
 jest.mock('axios')
 
@@ -33,7 +34,7 @@ describe('DocumentEditor.vue', () => {
     gitData = [
       {
         'id': 'master',
-        'description': 'Update entry [__default__] of document [aclprofiles]',
+        'description': 'Update before entry [__default__] of document [aclprofiles]',
         'date': '2020-11-10T15:49:17+02:00',
         'logs': [
           {
@@ -710,6 +711,7 @@ describe('DocumentEditor.vue', () => {
       'key': [{'attrs': 'ip'}],
       'pairwith': {'self': 'self'},
     }]
+
     jest.spyOn(axios.CancelToken, 'source').mockImplementation(() => {
       return {
         token: null,
@@ -1148,7 +1150,7 @@ describe('DocumentEditor.vue', () => {
       gitData = [
         {
           'id': 'master',
-          'description': 'Update entry [__default__] of document [aclprofiles]',
+          'description': 'Update 1152 entry [__default__] of document [aclprofiles]',
           'date': '2020-11-10T15:49:17+02:00',
           'logs': [{
             'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
@@ -1193,7 +1195,7 @@ describe('DocumentEditor.vue', () => {
       gitData = [
         {
           'id': 'master',
-          'description': 'Update entry [__default__] of document [aclprofiles]',
+          'description': 'Update 1197 entry [__default__] of document [aclprofiles]',
           'date': '2020-11-10T15:49:17+02:00',
           'logs': [{
             'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
@@ -1540,7 +1542,7 @@ describe('DocumentEditor.vue', () => {
           $router: mockRouter,
         },
       })
-      await wrapper.vm.$nextTick()
+      await nextTick()
       const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {
       })
       // force update because downloadFile is mocked after it is read to to be used as event handler
@@ -1560,10 +1562,10 @@ describe('DocumentEditor.vue', () => {
       })
       // force update because downloadFile is mocked after it is read to to be used as event handler
       await (wrapper.vm as any).$forceUpdate()
-      await wrapper.vm.$nextTick()
+      await nextTick()
       const downloadDocButton = wrapper.find('.download-doc-button')
       downloadDocButton.trigger('click')
-      await wrapper.vm.$nextTick()
+      await nextTick()
       expect(downloadFileSpy).toHaveBeenCalledWith(wantedFileName, wantedFileType, wantedFileData)
     })
   })
@@ -1583,6 +1585,7 @@ describe('DocumentEditor.vue', () => {
         },
       })
       // allow all requests to finish
+
       setImmediate(() => {
         const noDataMessage: DOMWrapper = wrapper.find('.no-data-message')
         expect(noDataMessage.exists()).toBeTruthy()
@@ -1590,6 +1593,7 @@ describe('DocumentEditor.vue', () => {
         expect(noDataMessage?.text()?.toLowerCase()).toContain('missing branch.')
         done()
       })
+      jest.runAllImmediates()
     })
 
     test('should display link to version control when there is no branch data', (done) => {
@@ -1612,10 +1616,10 @@ describe('DocumentEditor.vue', () => {
           expect(path).toEqual('/versioncontrol')
           done()
         })
-        const button = wrapper.find('.version-control-referral-button')
-        button.trigger('click')
-        await wrapper.vm.$nextTick()
       })
+      const button = wrapper.find('.version-control-referral-button')
+      button.trigger('click')
+      nextTick()
     })
 
     test('should display correct message when there is no doc type data', (done) => {
@@ -1640,12 +1644,14 @@ describe('DocumentEditor.vue', () => {
         console.log('Aylon no data')
         return Promise.resolve({data: []})
       })
+      nextTick()
       wrapper = shallowMount(DocumentEditor, {
         mocks: {
           $route: mockRoute,
           $router: mockRouter,
         },
       })
+      wrapper.vm.$forceUpdate()
       // allow all requests to finish
       setImmediate(() => {
         const noDataMessage: DOMWrapper = wrapper.find('.no-data-message')

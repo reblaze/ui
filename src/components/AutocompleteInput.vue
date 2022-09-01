@@ -11,8 +11,8 @@
              class="autocomplete-input input is-small"
              aria-haspopup="true"
              aria-controls="dropdown-menu"
-             @keyup.enter="onEnter"
-             @keyup.space="onEnter"
+             @keyup.enter="selectValue()"
+             @keyup.space="selectValue()"
              @keyup.down="focusNextSuggestion"
              @keyup.up="focusPreviousSuggestion"
              @keyup.esc="closeDropdown"
@@ -48,11 +48,12 @@ export type AutocompleteSuggestion = {
   value: string
 }
 
+export type SelectionType = 'single' | 'multiple'
+
 export type AutocompleteInputEvents = 'keyup' | 'keydown' | 'keypress' | 'focus' | 'blur'
 
 export default defineComponent({
   name: 'AutocompleteInput',
-
 
   props: {
     initialValue: {
@@ -67,7 +68,7 @@ export default defineComponent({
     autoFocus: Boolean,
     selectionType: {
       type: String,
-      validator: (val: string) => {
+      validator: (val: SelectionType) => {
         if (!val) {
           return false
         }

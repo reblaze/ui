@@ -14,6 +14,5 @@ import * as runtimeCore from '@vue/runtime-core'
       $refs: {
         [key: string]: HTMLElement|any,
       },
-      // ... more stuff
     }
   }

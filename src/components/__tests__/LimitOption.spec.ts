@@ -185,9 +185,7 @@ describe('LimitOption.vue', () => {
         const options = selection.findAll('option')
         // set to not self so we would be able to change to default
         selection.setValue(options.at(1).element.value)
-        // options.at(1).setSelected()
         selection.setValue(options.at(0).element.value)
-        // options.at(0).setSelected()
         await wrapper.vm.$nextTick()
         expect(wrapper.emitted('change')).toBeTruthy()
         expect(wrapper.emitted('change')[0]).toEqual([wantedEmit])

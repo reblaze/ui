@@ -268,7 +268,7 @@ export default defineComponent({
       selectedBranch: null,
       selectedDocType: null as DocumentType,
 
-      docs: [],
+      docs: [] as Document[],
       docIdNames: [] as [Document['id'], Document['name']][],
       selectedDocID: null,
       cancelSource: axios.CancelToken.source(),
@@ -311,9 +311,9 @@ export default defineComponent({
 
     selectedDoc: {
       get(): Document {
-        return this.docs?.[this.selectedDocIndex] || {}
+        return this.docs?.[this.selectedDocIndex] || {} as Document
       },
-      set(newDoc: any): void {
+      set(newDoc: Document): void {
         this.docs[this.selectedDocIndex] = newDoc
       },
     },
