@@ -551,7 +551,7 @@ export default defineComponent({
         RequestsUtils.sendRequest({methodName: 'GET', url}).then((response: AxiosResponse<Commit[]>) => {
           this.gitLog = response?.data
           if (interaction) {
-            this.loadConfigs(true)
+            this.loadConfigs()
           }
           this.isGitLogLoading = false
         })
@@ -571,7 +571,7 @@ export default defineComponent({
         successMessage: `Document [${docTitle}] restored to version [${versionId}]!`,
         failureMessage: `Failed restoring document [${docTitle}] to version [${versionId}]!`,
       })
-      await this.loadDocs(this.selectedDocType, true)
+      await this.loadDocs(this.selectedDocType)
     },
   },
   mounted() {
