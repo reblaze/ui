@@ -2,7 +2,6 @@ module.exports = {
       moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json', 'vue'],
       verbose: true,
       moduleDirectories: ['node_modules', 'src'],
-      // testEnvironment: 'jest-environment-node',
       testEnvironment: 'jsdom',
       fakeTimers: {
         enableGlobally: true,
@@ -13,12 +12,7 @@ module.exports = {
         '^.+\\.tsx?$': 'ts-jest',
         '^.+\\.vue$': '@vue/vue3-jest',
         '\\.js?$': 'babel-jest',
-        // '\\.[jt]sx?$': 'babel-jest',
         '.+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2)$': '<rootDir>/fileTransformer.js'
-        // '\\.(jpg|jpeg|png|gif|webp|svg)$': '<rootDir>/mocks/fileMock.js',
-        //'\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$': '<rootDir>/mocks/filemock.js',
-        // ".+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2)$": "identity-obj-proxy"
-        // ".+\\.(css|styl|less|sass|scss|svg|png|jpg|jpeg|ttf|woff|woff2)$": "<rootDir>/fileTransformer.js",
       },
       testEnvironmentOptions: {
         customExportConditions: ['node', 'node-addons', 'core-js'],
@@ -26,11 +20,7 @@ module.exports = {
       moduleNameMapper: {
         '^@/(.*)$': '<rootDir>/src/$1',
         '^~/(.*)$': '<rootDir>/$1',
-        'ace-builds': '<rootDir>/node_modules/ace-builds',
-      // "\\.(png|gif|ttf|eot|svg)$": "<rootDir>/mocks/fileMock.js"
-      //  "\\.(jpg|jpeg|png)$": "identity-obj-proxy",
-      //  "^image![a-zA-Z0-9$_-]+$": "GlobalImageStub",
-      //   "^[@./a-zA-Z0-9$_-]+\\.(png|gif)$": "RelativeImageStub"
+        'ace-builds': '<rootDir>/node_modules/ace-builds'
       },
       testMatch: [
         '<rootDir>/**/*.spec.(js|jsx|ts|tsx)',

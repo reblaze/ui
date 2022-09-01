@@ -15,7 +15,6 @@ describe('HeaderMain.vue', () => {
     const wrapper = mount(HeaderMain)
     const element = wrapper.find('img.logo').element as HTMLImageElement
     setImmediate(() => {
-      // expect(element.attributes['src']).toEqual('/img/logo.png')
       expect(element['src']).toEqual('http://localhost/logo.png')
       done()
     })
