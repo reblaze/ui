@@ -1,32 +1,32 @@
 <template>
-  <div class='card'>
-    <div class='card-content'>
-      <div class='media'>
-        <div class='media-content'>
-          <div class='field is-grouped'>
-            <div class='control'
-                 v-if='branchNames.length'>
-              <div class='select is-small'>
-                <select v-model='selectedBranch'
-                        title='Switch branch'
-                        class='branch-selection'
-                        @change='switchBranch()'>
-                  <option v-for='name in branchNames'
-                          :key='name'
-                          :value='name'>
+  <div class="card">
+    <div class="card-content">
+      <div class="media">
+        <div class="media-content">
+          <div class="field is-grouped">
+            <div class="control"
+                 v-if="branchNames.length">
+              <div class="select is-small">
+                <select v-model="selectedBranch"
+                        title="Switch branch"
+                        class="branch-selection"
+                        @change="switchBranch()">
+                  <option v-for="name in branchNames"
+                          :key="name"
+                          :value="name">
                     {{ name }}
                   </option>
                 </select>
               </div>
             </div>
-            <p class='control'>
-              <button class='button is-small download-doc-button'
-                      :class='{"is-loading":isDownloadLoading}'
+            <p class="control">
+              <button class="button is-small download-doc-button"
+                      :class="{'is-loading':isDownloadLoading}"
                       @click="downloadDoc()"
-                      title='Download document'
-                      data-qa='download-document'>
-                <span class='icon is-small'>
-                    <i class='fas fa-download'></i>
+                      title="Download document"
+                      data-qa="download-document">
+                <span class="icon is-small">
+                    <i class="fas fa-download"></i>
                 </span>
               </button>
             </p>
@@ -41,65 +41,64 @@
         <div class="card">
           <div class="card-content">
             <div class="content">
-              <table class='table is-bordered is-fullwidth is-size-7 document-list-table is-hoverable vectors-table'>
+              <table class="table is-bordered is-fullwidth is-size-7 document-list-table is-hoverable vectors-table">
                 <thead>
                 <tr>
-                  <th v-for='col in columns'
-                      :key='col.fieldNames.join(", ")'
-                      class='column-header is-size-7'
+                  <th v-for="col in columns"
+                      :key="col.fieldNames.join(', ')"
+                      class="column-header is-size-7"
                       :class="`${col.classes}${col.isSortable ? ' is-clickable' : null}`"
-                      @click='sortColumn(col)'>
-                    <div v-if='col.isSortable'>
-                      <div class='arrow-wrapper'>
-                <span class='arrow arrow-asc'
-                      :class='{ active: sortField === col.fieldNames && sortDir === "asc", }'/>
+                      @click="sortColumn(col)">
+                    <div v-if="col.isSortable">
+                      <div class="arrow-wrapper">
+                <span class="arrow arrow-asc"
+                      :class="{ active: sortField === col.fieldNames && sortDir === 'asc', }"/>
                       </div>
-                      <div class='arrow-wrapper'>
-                <span class='arrow arrow-desc'
-                      :class='{active: sortField === col.fieldNames && sortDir === "desc", }'/>
+                      <div class="arrow-wrapper">
+                <span class="arrow arrow-desc"
+                      :class="{active: sortField === col.fieldNames && sortDir === 'desc', }"/>
                       </div>
                     </div>
                     {{ col.columnTitle }}
                   </th>
-                  <th class='column-header width-80px'>
-                    <div class='field is-grouped is-grouped-centered'>
-                      <p class='control'>
-                        <button class='button is-size-7'
-                                title='Add new document'
-                                :disabled='!selectedBranch || !selectedDocType'
-                                :class='{"is-loading": isNewLoading}'
-                                @click='addNewDoc()'>
-                          <!-- TODO: Check the button of new doc adding -->
-                          <span class='icon is-small'>
-                    <i class='fas fa-plus'></i>
+                  <th class="column-header width-80px">
+                    <div class="field is-grouped is-grouped-centered">
+                      <p class="control">
+                        <button class="button is-size-7"
+                                title="Add new document"
+                                :disabled="!selectedBranch || !selectedDocType"
+                                :class="{'is-loading': isNewLoading}"
+                                @click="addNewDoc()">
+                          <span class="icon is-small">
+                    <i class="fas fa-plus"></i>
                   </span>
                         </button>
                       </p>
-                      <p class='control'>
-                        <button class='button is-size-7 filter-toggle'
-                                :class='{"is-active": filtersVisible }'
-                                title='Filter table data'
-                                @click='filtersVisible = !filtersVisible'>
-                  <span class='icon is-small'>
-                      <i class='fas fa-filter'></i>
+                      <p class="control">
+                        <button class="button is-size-7 filter-toggle"
+                                :class="{'is-active': filtersVisible }"
+                                title="Filter table data"
+                                @click="filtersVisible = !filtersVisible">
+                  <span class="icon is-small">
+                      <i class="fas fa-filter"></i>
                   </span>
                         </button>
                       </p>
                     </div>
                   </th>
                 </tr>
-                <tr class='search-row' v-if='filtersVisible'>
-                  <th class='control has-icons-right'
-                      v-for='col in columns'
-                      :key='col.columnTitle'>
-                    <div v-if='col.isSearchable'>
-                      <input class='input is-small filter-input search-input-vectors-score'
-                             :title='col.columnTitle'
-                             :placeholder='col.columnTitle'
-                             v-model='filter[col.fieldNames.join(", ")]'
-                             @change='updateDataDisplay()'/>
-                      <span class='icon is-small is-right'>
-                <i class='fa fa-filter' aria-hidden='true'></i>
+                <tr class="search-row" v-if="filtersVisible">
+                  <th class="control has-icons-right"
+                      v-for="col in columns"
+                      :key="col.columnTitle">
+                    <div v-if="col.isSearchable">
+                      <input class="input is-small filter-input search-input-vectors-score"
+                             :title="col.columnTitle"
+                             :placeholder="col.columnTitle"
+                             v-model="filter[col.fieldNames.join(', ')]"
+                             @change="updateDataDisplay()"/>
+                      <span class="icon is-small is-right">
+                <i class="fa fa-filter" aria-hidden="true"></i>
               </span>
                     </div>
                   </th>
@@ -107,40 +106,39 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for='row in getSlicedDataArrayDisplay(docsDisplayData, currentPage)'
-                    :key='row.id'>
-                  <td v-for='col in columns'
-                      :key='col.fieldNames.join(", ")'
+                <tr v-for="row in getSlicedDataArrayDisplay(docsDisplayData, currentPage)"
+                    :key="row.id">
+                  <td v-for="col in columns"
+                      :key="col.fieldNames.join(', ')"
                       :title="row[col.columnTitle]">
-                    <div class='is-size-7 vertical-scroll data-cell'
+                    <div class="is-size-7 vertical-scroll data-cell"
                          :class="col.classes">
                       {{ col.displayFunction ? col.displayFunction(row) : row[col.fieldNames[0]] }}
                     </div>
                   </td>
-                  <td class='is-size-7'>
-                    <div class='field is-grouped is-grouped-centered'>
-                      <button title='Edit'
-                              class='button is-small'
+                  <td class="is-size-7">
+                    <div class="field is-grouped is-grouped-centered">
+                      <button title="Edit"
+                              class="button is-small"
                               @click="editDoc(row.id)">
-                <span class='icon is-small'>
-                  <i class='fas fa-edit'></i>
+                <span class="icon is-small">
+                  <i class="fas fa-edit"></i>
                 </span>
                       </button>
                     </div>
                   </td>
                 </tr>
-                <tr v-if='totalPages > 1'>
-                  <!-- BUG: this footer isnt shown with async call - only after rerender it's shown (like sorting)-->
-                  <td :colspan='columns.length+1'>
-                    <div class='pagination is-small'>
-                      <button class='pagination-previous'
-                              @click='prevPage'
-                              :disabled='currentPage === 1'>
+                <tr v-if="totalPages > 1">
+                  <td :colspan="columns.length+1">
+                    <div class="pagination is-small">
+                      <button class="pagination-previous"
+                              @click="prevPage"
+                              :disabled="currentPage === 1">
                         Previous Page
                       </button>
-                      <button class='pagination-next'
-                              @click='nextPage'
-                              :disabled='currentPage === totalPages'>
+                      <button class="pagination-next"
+                              @click="nextPage"
+                              :disabled="currentPage === totalPages">
                         Next Page
                       </button>
                     </div>
@@ -148,7 +146,9 @@
                 </tr>
                 </tbody>
               </table>
-              <span class="is-family-monospace has-text-grey-lighter">{{ documentListAPIPath }}</span>
+              <span class="is-family-monospace has-text-grey-lighter">
+                {{ documentListAPIPath }}
+              </span>
             </div>
           </div>
         </div>
@@ -226,17 +226,25 @@ export default defineComponent({
   data() {
     return {
       columns: [] as ColumnOptions[],
-      rowsPerPage: 10,
       currentPage: 1,
-      totalPages: 1,
+      configs: [],
       filter: {} as GenericObject,
       filtersVisible: false,
+      gitLog: [],
+      rowsPerPage: 10,
       sortField: [] as ColumnOptions['fieldNames'],
       sortFieldDisplayFunction: null as ColumnOptions['displayFunction'],
       sortDir: 'asc',
-
-      configs: [],
       titles: DatasetsUtils.titles,
+      totalPages: 1,
+
+      selectedBranch: null,
+      selectedDocType: null as DocumentType,
+
+      // Documents 
+      docs: [] as GenericObject[],
+      docsDisplayData: [] as GenericObject[],
+      docIdNames: [] as [Document['id'], Document['name']][],
 
       // To prevent deletion of docs referenced by Security Policies
       referencedIDsACL: [],
@@ -244,20 +252,10 @@ export default defineComponent({
       referencedIDsLimits: [],
 
       // Loading indicators
-      loadingDocCounter: 0,
       isNewLoading: false,
-
-      selectedBranch: null,
-      selectedDocType: null as DocumentType,
-
-      docs: [] as GenericObject[],
-      docsDisplayData: [] as GenericObject[],
       isDownloadLoading: false,
-      docIdNames: [] as [Document['id'], Document['name']][],
-
-
-      gitLog: [],
       isGitLogLoading: false,
+      loadingDocCounter: 0,
 
       apiRoot: RequestsUtils.confAPIRoot,
       apiVersion: RequestsUtils.confAPIVersion,
@@ -287,24 +285,6 @@ export default defineComponent({
       return this.configs?.length ? _.sortBy(_.map(this.configs, 'id')) : []
     },
 
-    selectedDoc: {
-      get(): Document | any {
-        // return this.docs?.[this.selectedDocIndex] || {}
-        return true
-      },
-      set(newDoc: any): void {
-        this.docs[this.selectedDocIndex] = newDoc
-      },
-    },
-
-    selectedDocIndex(): number {
-      if (this.selectedDocType) {
-        return _.findIndex(this.docs, (doc) => {
-          return doc.id === this.selectedDocType
-        })
-      }
-      return 0
-    },
   },
   methods: {
     getDataArrayDisplay() {
@@ -495,7 +475,6 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       this.isNewLoading = true
       const docToAdd = this.newDoc()
-      // this.resetGitLog()
       const docTypeText = this.titles[this.selectedDocType + '-singular']
       const successMessage = `New ${docTypeText} was created.`
       const failureMessage = `Failed while attempting to create the new ${docTypeText}.`
@@ -506,10 +485,6 @@ export default defineComponent({
       })
       this.isNewLoading = false
       this.setLoadingDocStatus(false)
-    },
-
-    updateDocIdNames() {
-      this.docIdNames = _.sortBy(_.map(this.docs, (doc) => [doc.id, doc.name]), (entry) => entry[1])
     },
 
     async loadReferencedDocsIDs() {
@@ -536,10 +511,6 @@ export default defineComponent({
 
     referToVersionControl() {
       this.$router?.push('/versioncontrol')
-    },
-
-    resetGitLog() {
-      this.gitLog = []
     },
 
     loadGitLog(interaction?: boolean) {
