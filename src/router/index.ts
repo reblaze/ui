@@ -1,11 +1,12 @@
 import {createRouter, createWebHistory} from 'vue-router'
 import {RouteRecordRaw} from 'vue-router'
 import MainComponent from '@/views/MainComponent.vue'
-// import DocumentEditor from '@/views/DocumentEditor.vue'
-// import CurieDBEditor from '@/views/CurieDBEditor.vue'
-// import PublishChanges from '@/views/Publish.vue'
-// import VersionControl from '@/views/VersionControl.vue'
+import DocumentEditor from '@/views/DocumentEditor.vue'
+import CurieDBEditor from '@/views/CurieDBEditor.vue'
+import PublishChanges from '@/views/Publish.vue'
+import VersionControl from '@/views/VersionControl.vue'
 import DocumentSearch from '@/views/DocumentSearch.vue'
+import DocumentList from '@/views/DocumentList.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -17,58 +18,57 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: 'config',
         name: 'DocumentEditor',
-        component: () => import('@/views/DocumentEditor.vue'),
+        component: DocumentEditor,
         children: [
           {
             path: ':branch',
             name: 'DocumentEditor/Branch',
-            component: () => import('@/views/DocumentEditor.vue'),
+            component: DocumentEditor,
             children: [
               {
                 path: ':doc_type',
                 name: 'DocumentEditor/Branch/DocType',
-                component: () => import('@/views/DocumentEditor.vue'),
+                component: DocumentEditor,
                 children: [
                   {
                     path: ':doc_id',
                     name: 'DocumentEditor/Branch/DocType/DocID',
-                    component: () => import('@/views/DocumentEditor.vue'),
+                    component: DocumentEditor,
                   },
                 ],
               },
-              {
-                path: 'list',
-                name: 'DocumentList',
-                component: DocumentSearch,
-                children: [
-                  {
-                    path: ':branch',
-                    name: 'DocumentList/Branch',
-                    component: DocumentSearch,
-                    children: [
-                      {
-                        path: ':doc_type',
-                        name: 'DocumentList/Branch/DocType',
-                        component: DocumentSearch,
-                      },
-                    ],
-                  },
-                ],
-              },
-              {path: 'db', name: 'MasterComponent', redirect: '/CurieDB'},
-              {path: 'CurieDB', name: 'CurieDBEditor', component: () => import('../views/CurieDBEditor.vue')},
-              {path: 'publish', name: 'PublishChanges', component: () => import('../views/Publish.vue')},
-              {path: 'versioncontrol', name: 'VersionControl', component: () => import('../views/VersionControl.vue')},
-              {path: 'search', name: 'DocumentSearch', component: () => import('@/views/DocumentSearch.vue')},
             ],
-          },
-          {
-            path: '/:pathMatch(.*)*',
-            redirect: '/config',
           },
         ],
       },
+      {
+        path: 'list',
+        name: 'DocumentList',
+        component: DocumentList,
+        children: [
+          {
+            path: ':branch',
+            name: 'DocumentList/Branch',
+            component: DocumentList,
+            children: [
+              {
+                path: ':doc_type',
+                name: 'DocumentList/Branch/DocType',
+                component: DocumentList,
+              },
+            ],
+          },
+        ],
+      },
+      {path: 'CurieDB', name: 'CurieDBEditor', component: CurieDBEditor},
+      {path: 'publish', name: 'PublishChanges', component: PublishChanges},
+      {path: 'versioncontrol', name: 'VersionControl', component: VersionControl},
+      {path: 'search', name: 'DocumentSearch', component: DocumentSearch},
     ],
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/config',
   },
 ]
 

@@ -1,124 +1,192 @@
 <template>
-<div class='card'>
-    <div class='card-content'>
-        <div class='media'>
-            <div class='media-content'>
-                <div class='field is-grouped'>
-                    <div class='control' v-if='branchNames.length'>
-                        <div class='select is-small'>
-                            <select v-model='selectedBranch' title='Switch branch'
-                            class='branch-selection' @change='switchBranch()'>
-                                <option v-for='name in branchNames' :key='name' :value='name'>
-                                    {{ name }}
-                                </option>
-                            </select>
-                        </div>
-                    </div>
-                    <p class='control'>
-                        <button class='button is-small download-doc-button' :class='{"is-loading":isDownloadLoading}'
-                        title='Download document' data-qa='download-document'>
-                            <span class='icon is-small'>
-                                <i class='fas fa-download'></i>
-                            </span>
-                        </button>
-                    </p>
-                </div>
+  <div class="card">
+    <div class="card-content">
+      <div class="media">
+        <div class="media-content">
+          <div class="field is-grouped">
+            <div class="control"
+                 v-if="branchNames.length">
+              <div class="select is-small">
+                <select v-model="selectedBranch"
+                        title="Switch branch"
+                        class="branch-selection"
+                        @change="switchBranch()">
+                  <option v-for="name in branchNames"
+                          :key="name"
+                          :value="name">
+                    {{ name }}
+                  </option>
+                </select>
+              </div>
             </div>
+            <p class="control">
+              <button class="button is-small download-doc-button"
+                      :class="{'is-loading':isDownloadLoading}"
+                      @click="downloadDoc()"
+                      title="Download document"
+                      data-qa="download-document">
+                <span class="icon is-small">
+                    <i class="fas fa-download"></i>
+                </span>
+              </button>
+            </p>
+          </div>
         </div>
-        <hr />
-        <table class='table is-bordered is-fullwidth is-size-7 document-list-table is-hoverable vectors-table'>
-            <thead>
-                <tr>
-                    <th v-for='col in columns'
-                      :key='col.fieldName'
-                      class='column-header is-size-7'
-                      :class="`${col.classes}${col.isSortable ? ' sort-column' : null}`"
-                      @click='sortColumn(col)'>
-                      <!-- BUG: the @click should be on the tag but
-                      when col isnt Searchable it also gave the permmision to click-->
-                        <div v-if='col.isSortable'>
-                            <div class='arrow-wrapper'>
-                                <span class='arrow arrow-asc'
-                                :class='{ active: sortField === col.fieldName && sortDir === "asc", }' />
-                            </div>
-                            <div class='arrow-wrapper'>
-                                <span class='arrow arrow-desc'
-                                :class='{active: sortField === col.fieldName && sortDir === "desc", }' />
-                            </div>
-                        </div>
-                        {{ col.columnTitle }}
-                    </th>
-                    <th class='column-header width-80px'>
-                        <div class='field is-grouped is-grouped-centered'>
-                            <p class='control'>
-                                <button class='button is-size-7' title='Add new document' @click='addNewDoc()'
-                                :disabled='!selectedBranch || !selectedDocType' :class='{"is-loading": isNewLoading}' >
-                                    <!-- TODO: Check the button of new doc adding -->
-                                    <span class='icon is-small'>
-                                        <i class='fas fa-plus'></i>
-                                    </span>
-                                </button>
-                            </p>
-                            <p class='control'>
-                                <button class='button is-size-7 filter-toggle' @click='filtervisible = !filtervisible'
-                                :class='{"is-active": filtervisible }' title='Filter table data' >
-                                    <span class='icon is-small'>
-                                        <i class='fas fa-filter'></i>
-                                    </span>
-                                </button>
-                            </p>
-                        </div>
-                    </th>
-                </tr>
+      </div>
 
-                <tr class='search-row' v-if='filtervisible'>
-                    <th class='control has-icons-right' v-for='col in columns' :key='col.columnTitle'>
-                        <div v-if='col.isSearchable'>
-                            <input class='input is-small filter-input search-input-vectors-score'
-                            :title='col.columnTitle' :placeholder='col.columnTitle'
-                            v-model='filter[col.fieldName]' @change='updateDataDisplay()' />
-                            <span class='icon is-small is-right'>
-                                <i class='fa fa-filter' aria-hidden='true'></i>
-                            </span>
-                        </div>
-                    </th>
-                    <th></th>
+      <hr/>
+
+      <div class="content document-list-wrapper"
+           v-show="!loadingDocCounter">
+        <div class="card">
+          <div class="card-content">
+            <div class="content">
+              <table class="table is-bordered is-fullwidth is-size-7 document-list-table is-hoverable vectors-table">
+                <thead>
+                <tr>
+                  <th v-for="col in columns"
+                      :key="col.fieldNames.join(', ')"
+                      class="column-header is-size-7"
+                      :class="`${col.classes}${col.isSortable ? ' is-clickable' : null}`"
+                      @click="sortColumn(col)">
+                    <div v-if="col.isSortable">
+                      <div class="arrow-wrapper">
+                <span class="arrow arrow-asc"
+                      :class="{ active: sortField === col.fieldNames && sortDir === 'asc', }"/>
+                      </div>
+                      <div class="arrow-wrapper">
+                <span class="arrow arrow-desc"
+                      :class="{active: sortField === col.fieldNames && sortDir === 'desc', }"/>
+                      </div>
+                    </div>
+                    {{ col.columnTitle }}
+                  </th>
+                  <th class="column-header width-80px">
+                    <div class="field is-grouped is-grouped-centered">
+                      <p class="control">
+                        <button class="button is-size-7"
+                                title="Add new document"
+                                :disabled="!selectedBranch || !selectedDocType"
+                                :class="{'is-loading': isNewLoading}"
+                                @click="addNewDoc()">
+                          <span class="icon is-small">
+                    <i class="fas fa-plus"></i>
+                  </span>
+                        </button>
+                      </p>
+                      <p class="control">
+                        <button class="button is-size-7 filter-toggle"
+                                :class="{'is-active': filtersVisible }"
+                                title="Filter table data"
+                                @click="filtersVisible = !filtersVisible">
+                  <span class="icon is-small">
+                      <i class="fas fa-filter"></i>
+                  </span>
+                        </button>
+                      </p>
+                    </div>
+                  </th>
                 </tr>
-            </thead>
-            <tbody>
-                <tr v-for='row in getSlicedDataArrayDisplay(docsDisplayData, currentPage)' :key='row.id'>
-                    <td v-for='col in columns' :key='col.fieldName' class='is-size-7'
-                    :class="col.classes" :title="row[col.fieldName]">
-                        {{ row[col.fieldName] }}
-                    </td>
-                    <td class='is-size-7'>
-                        <!-- TODO: Need to add the correct icon to linking there. -->
-                        <div class='field is-grouped is-grouped-centered'>
-                            <button title='Edit' class='button is-small'>
-                                <span class='icon is-small'>
-                                    <i class='fas fa-edit'></i>
-                                </span>
-                            </button>
-                        </div>
-                    </td>
+                <tr class="search-row" v-if="filtersVisible">
+                  <th class="control has-icons-right"
+                      v-for="col in columns"
+                      :key="col.columnTitle">
+                    <div v-if="col.isSearchable">
+                      <input class="input is-small filter-input search-input-vectors-score"
+                             :title="col.columnTitle"
+                             :placeholder="col.columnTitle"
+                             v-model="filter[col.fieldNames.join(', ')]"
+                             @change="updateDataDisplay()"/>
+                      <span class="icon is-small is-right">
+                <i class="fa fa-filter" aria-hidden="true"></i>
+              </span>
+                    </div>
+                  </th>
+                  <th></th>
                 </tr>
-                <tr v-if='totalPages > 1'> <!-- BUG: this footer isnt shown with async call -
-                only after rerender it's shown (like sorting)-->
-                    <td :colspan='columns.length+1'>
-                        <div class='pagination is-small'>
-                            <button class='pagination-previous' @click='prevPage' :disabled='currentPage === 1'>
-                                Previous Page
-                            </button>
-                            <button class='pagination-next' @click='nextPage' :disabled='currentPage === totalPages'>
-                                Next Page
-                            </button>
-                        </div>
-                    </td>
+                </thead>
+                <tbody>
+                <tr v-for="row in getSlicedDataArrayDisplay(docsDisplayData, currentPage)"
+                    :key="row.id">
+                  <td v-for="col in columns"
+                      :key="col.fieldNames.join(', ')"
+                      :title="row[col.columnTitle]">
+                    <div class="is-size-7 vertical-scroll data-cell"
+                         :class="col.classes">
+                      {{ col.displayFunction ? col.displayFunction(row) : row[col.fieldNames[0]] }}
+                    </div>
+                  </td>
+                  <td class="is-size-7">
+                    <div class="field is-grouped is-grouped-centered">
+                      <button title="Edit"
+                              class="button is-small"
+                              @click="editDoc(row.id)">
+                <span class="icon is-small">
+                  <i class="fas fa-edit"></i>
+                </span>
+                      </button>
+                    </div>
+                  </td>
                 </tr>
-            </tbody>
-        </table>
+                <tr v-if="totalPages > 1">
+                  <td :colspan="columns.length+1">
+                    <div class="pagination is-small">
+                      <button class="pagination-previous"
+                              @click="prevPage"
+                              :disabled="currentPage === 1">
+                        Previous Page
+                      </button>
+                      <button class="pagination-next"
+                              @click="nextPage"
+                              :disabled="currentPage === totalPages">
+                        Next Page
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+              <span class="is-family-monospace has-text-grey-lighter">
+                {{ documentListAPIPath }}
+              </span>
+            </div>
+          </div>
+        </div>
+        <hr/>
+        <git-history :gitLog="gitLog"
+                     :apiPath="gitAPIPath"
+                     :loading="isGitLogLoading"
+                     @restore-version="restoreGitVersion"></git-history>
+      </div>
+
+      <div class="content no-data-wrapper"
+           v-if="loadingDocCounter || !selectedBranch || !selectedDocType">
+        <div v-if="loadingDocCounter > 0">
+          <button class="button is-outlined is-text is-small is-loading document-loading">
+            Loading
+          </button>
+        </div>
+        <div v-else
+             class="no-data-message">
+          No data found!
+          <div>
+            <!--display correct message by priority (Branch -> Document type)-->
+            <span v-if="!branchNames.includes(selectedBranch)">
+              Missing branch. To be redirected to Version Control page where you will be able to create a new one, click
+              <a title="Add new"
+                 class="version-control-referral-button"
+                 @click="referToVersionControl()">
+                here
+              </a>
+            </span>
+            <span v-else-if="!Object.keys(componentsMap).includes(selectedDocType)">
+              Missing document type. Please select one from the menu to the left
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -133,82 +201,61 @@ import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
 import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
 import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
 import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
-// import GitHistory from '@/components/GitHistory.vue'
-import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
+import GitHistory from '@/components/GitHistory.vue'
 import {defineComponent, shallowRef} from 'vue'
-import {BasicDocument, Commit, Document, DocumentType, ColumnOptions} from '@/types'
-import axios, {AxiosResponse} from 'axios'
-import {HEADER_COLUMNS_MAP} from './documentListConst'
-
-/*  interface DummyArray {
-  id: number
-  name: string
-  url: string
-  ip: string
-} */
-
-type GenericObject = {
-    [key: string]: any
-}
-
+import {ColumnOptions, Commit, Document, DocumentType, GenericObject} from '@/types'
+import {COLUMN_OPTIONS_MAP} from './documentListConst'
+import {AxiosResponse} from 'axios'
 
 export default defineComponent({
   watch: {
     $route: {
-      handler: async function() {
-        this.setLoadingDocStatus(true)
-        await this.setSelectedDataFromRouteParams()
-        this.setLoadingDocStatus(false)
+      handler: async function(val) {
+        if (val?.name?.includes('DocumentList')) {
+          this.setLoadingDocStatus(true)
+          await this.setSelectedDataFromRouteParams()
+          this.setLoadingDocStatus(false)
+        }
       },
       deep: true,
     },
   },
+  components: {
+    GitHistory,
+  },
   data() {
     return {
       columns: [] as ColumnOptions[],
-      // General
-      rowsPerPage: 10, // TODO:Need to change this to be an generic number ?
       currentPage: 1,
-      totalPages: 1,
-      data: {}, // TODO: We need it?
-      filter: {} as GenericObject,
-      dataDisplay: [] as GenericObject[],
-      filtervisible: false,
-      sortField: '',
-      sortDir: 'asc',
-
       configs: [],
-      mdiSourceBranchPath: mdiSourceBranch,
-      mdiSourceCommitPath: mdiSourceCommit,
+      filter: {} as GenericObject,
+      filtersVisible: false,
+      gitLog: [],
+      rowsPerPage: 10,
+      sortField: [] as ColumnOptions['fieldNames'],
+      sortFieldDisplayFunction: null as ColumnOptions['displayFunction'],
+      sortDir: 'asc',
       titles: DatasetsUtils.titles,
+      totalPages: 1,
 
-      // Loading indicators
-      loadingDocCounter: 0,
-      isForkLoading: false,
-      isNewLoading: false,
-      isSaveLoading: false,
-      isDeleteLoading: false,
+      selectedBranch: null,
+      selectedDocType: null as DocumentType,
+
+      // Documents 
+      docs: [] as GenericObject[],
+      docsDisplayData: [] as GenericObject[],
+      docIdNames: [] as [Document['id'], Document['name']][],
 
       // To prevent deletion of docs referenced by Security Policies
       referencedIDsACL: [],
       referencedIDsContentFilter: [],
       referencedIDsLimits: [],
 
-      selectedBranch: null,
-      selectedDocType: null as DocumentType,
-
-      docs: [] as GenericObject[],
-      docsDisplayData: [] as GenericObject[],
-      docIdNames: [] as [Document['id'], Document['name']][],
-      selectedDocID: null,
-      cancelSource: axios.CancelToken.source(),
+      // Loading indicators
+      isNewLoading: false,
       isDownloadLoading: false,
-      isDocumentInvalid: false,
-
-      gitLog: [],
-      loadingGitlog: false,
-      commits: 0,
-      branches: 0,
+      isGitLogLoading: false,
+      loadingDocCounter: 0,
 
       apiRoot: RequestsUtils.confAPIRoot,
       apiVersion: RequestsUtils.confAPIVersion,
@@ -223,38 +270,66 @@ export default defineComponent({
       },
     }
   },
+  computed: {
+    documentListAPIPath(): string {
+      const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
+      return `${apiPrefix}/configs/${this.selectedBranch}/d/${this.selectedDocType}/`
+    },
+
+    gitAPIPath(): string {
+      const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
+      return `${apiPrefix}/configs/${this.selectedBranch}/d/${this.selectedDocType}/v/`
+    },
+
+    branchNames(): string[] {
+      return this.configs?.length ? _.sortBy(_.map(this.configs, 'id')) : []
+    },
+
+  },
   methods: {
     getDataArrayDisplay() {
       if (!this.docs?.length) {
         return []
       }
       const sortModifier = this.sortDir === 'asc' ? 1 : -1
-      return this.docs
-        .filter((item: any) => {
-          const keys = Object.keys(this.filter)
-          if (!keys) {
-            return item
-          }
-          return _.reduce(
+      return this.docs.filter((item: any) => {
+        const keys = Object.keys(this.filter)
+        if (!keys) {
+          return item
+        }
+        return _.reduce(
             keys,
             (match: any, key: any) => {
-              return (
-                match && item[key]
-                  .toString()
-                  .toLowerCase()
-                  .includes(this.filter[key].toLowerCase())
-              )
+              let getFilterValue: (item: any) => string
+              const columnOption = this.columns.find((column) => {
+                return column.fieldNames.join(', ') === key
+              })
+              if (columnOption?.displayFunction) {
+                getFilterValue = columnOption?.displayFunction
+              } else {
+                getFilterValue = (item: any) => {
+                  return item[key]?.toString() || ''
+                }
+              }
+              return (match && getFilterValue(item).toLowerCase().includes(this.filter[key].toLowerCase()))
             }, true)
-        })
-        .sort((a: any, b: any) => {
-          if (a[this.sortField] < b[this.sortField]) {
-            return -1 * sortModifier
+      }).sort((a: any, b: any) => {
+        let getSortValue: (item: any) => string
+        if (this.sortFieldDisplayFunction) {
+          getSortValue = this.sortFieldDisplayFunction
+        } else {
+          getSortValue = (item: any) => {
+            return item[this.sortField[0]]?.toString() || ''
           }
-          if (a[this.sortField] > b[this.sortField]) {
-            return 1 * sortModifier
-          }
-          return 0
-        })
+        }
+        if (getSortValue(a)?.toLowerCase() < getSortValue(b)?.toLowerCase()) {
+          return -1 * sortModifier
+        }
+        if (getSortValue(a)?.toLowerCase() > getSortValue(b)?.toLowerCase()) {
+          return 1 * sortModifier
+        }
+        return 0
+      })
     },
 
     getSlicedDataArrayDisplay(dataArray: any, currentPage: any): any[] {
@@ -266,22 +341,17 @@ export default defineComponent({
       return dataArray.slice(sliceStart, sliceEnd)
     },
 
-    /* TODO: We need onLongCellClick function below?*/
-
-    /* onLongCellClick(event: any) {
-      event.currentTarget.classList.toggle('long-cell-expanded')
-    },*/
-
-    sortColumn(filter: any) {
-      if (!filter.isSortable) {
+    sortColumn(column: ColumnOptions) {
+      if (!column.isSortable) {
         return
       }
-      if (filter.fieldName === this.sortField) {
+      if (column.fieldNames === this.sortField) {
         this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc'
       } else {
         this.sortDir = 'asc'
       }
-      this.sortField = filter.fieldName
+      this.sortField = column.fieldNames
+      this.sortFieldDisplayFunction = column.displayFunction
       this.updateDataDisplay()
     },
 
@@ -307,10 +377,8 @@ export default defineComponent({
       }
     },
 
-
-    /* TODO: why do i need to start the circle with counter and witout only boolean var? */
     goToRoute() {
-      const currentRoute = `/config/${this.selectedBranch}/${this.selectedDocType}`
+      const currentRoute = `/list/${this.selectedBranch}/${this.selectedDocType}`
       if (this.$route.path !== currentRoute) {
         console.log('Switching document, new document path: ' + currentRoute)
         this.$router.push(currentRoute)
@@ -323,17 +391,14 @@ export default defineComponent({
       this.selectedBranch = branchNameFromRoute || this.branchNames[0]
       const prevDocType = this.selectedDocType
       this.selectedDocType = (this.$route.params.doc_type || Object.keys(this.componentsMap)[0]) as DocumentType
-      this.columns = HEADER_COLUMNS_MAP[this.selectedDocType]
+      this.columns = COLUMN_OPTIONS_MAP[this.selectedDocType]
+      this.sortField = this.columns[0]?.fieldNames || []
       if (!prevDocType || prevDocType !== this.selectedDocType) {
         await this.loadDocs(this.selectedDocType)
       }
       this.setLoadingDocStatus(false)
-      // this.loadGitLog()
+      this.loadGitLog()
       this.goToRoute()
-    },
-
-    resetGitLog() {
-      this.gitLog = []
     },
 
     newDoc(): Document {
@@ -341,7 +406,7 @@ export default defineComponent({
       return factory && factory()
     },
 
-    async loadConfigs(counterOnly?: boolean) {
+    async loadConfigs() {
       // store configs
       let configs
       try {
@@ -351,43 +416,18 @@ export default defineComponent({
         console.log('Error while attempting to get configs')
         console.log(err)
       }
-      if (!counterOnly) {
-        console.log('loaded configs: ', configs)
-        this.configs = configs
-      }
-      // counters
-      this.commits = _.sum(_.map(_.map(configs, 'logs'), (logs) => {
-        return _.size(logs)
-      }))
-      this.branches = _.size(configs)
-      console.log('config counters', this.branches, this.commits)
-    },
-
-    updateDocIdNames() {
-      this.docIdNames = _.sortBy(_.map(this.docs, (doc) => [doc.id, doc.name]), (entry) => entry[1])
-    },
-
-    async loadSelectedDocData() {
-      this.setLoadingDocStatus(true)
-      // check if the selected doc only has id and name, if it does, attempt to load the rest of the document data
-      if (this.selectedDoc && Object.keys(this.selectedDoc).length === 2) {
-        this.selectedDoc = (await RequestsUtils.sendRequest({
-          methodName: 'GET',
-          url: `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`,
-        })).data
-      }
-      this.setLoadingDocStatus(false)
+      console.log('loaded configs: ', configs)
+      this.configs = configs
     },
 
     async loadDocs(doctype: DocumentType) {
       this.isDownloadLoading = true
       const branch = this.selectedBranch
-      const fieldNames = _.map(this.columns, 'fieldName')
-      console.log(fieldNames)
+      const fieldNames = _.flatMap(this.columns, 'fieldNames')
       const response = await RequestsUtils.sendRequest({
         methodName: 'GET',
         url: `configs/${branch}/d/${doctype}/`,
-        data: {headers: {'x-fields': fieldNames.join(', ')}},
+        data: {headers: {'x-fields': `id, ${fieldNames.join(', ')}`}},
         onFail: () => {
           console.log('Error while attempting to load documents')
           this.docs = []
@@ -398,32 +438,13 @@ export default defineComponent({
       this.docsDisplayData = this.docs
       this.isDownloadLoading = false
       this.updateDataDisplay()
-
-      // this.loadGitLog()
-    },
-
-    loadGitLog(interaction?: boolean) {
-      this.loadingGitlog = true
-      const config = this.selectedBranch
-      const document = this.selectedDocType
-      const entry = this.selectedDocID
-      const url = `configs/${config}/d/${document}/e/${entry}/v/`
-      if (config && document && entry) {
-        RequestsUtils.sendRequest({methodName: 'GET', url}).then((response: AxiosResponse<Commit[]>) => {
-          this.gitLog = response?.data
-          if (interaction) {
-            this.loadConfigs(true)
-          }
-          this.loadingGitlog = false
-        })
-      }
+      this.loadGitLog()
     },
 
     async switchBranch() {
       this.setLoadingDocStatus(true)
       Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
       await this.loadDocs(this.selectedDocType)
-      await this.loadReferencedDocsIDs()
       this.goToRoute()
       this.setLoadingDocStatus(false)
     },
@@ -434,84 +455,37 @@ export default defineComponent({
       }
     },
 
+    editDoc(id: string) {
+      const routeToDoc = `/config/${this.selectedBranch}/${this.selectedDocType}/${id}`
+      this.$router.push(routeToDoc)
+    },
 
-    async addNewDoc(docToAdd?: Document, successMessage?: string, failureMessage?: string) {
+
+    // Collect every request to display a loading indicator
+    // The loading indicator will be displayed as long as at least one request is still active (counter > 0)
+    setLoadingDocStatus(isLoading: boolean) {
+      if (isLoading) {
+        this.loadingDocCounter++
+      } else {
+        this.loadingDocCounter--
+      }
+    },
+
+    async addNewDoc() {
       this.setLoadingDocStatus(true)
       this.isNewLoading = true
-      if (!docToAdd) {
-        docToAdd = this.newDoc()
-      }
-      this.resetGitLog()
-      this.docs.unshift(docToAdd)
-      this.selectedDocID = docToAdd.id
+      const docToAdd = this.newDoc()
       const docTypeText = this.titles[this.selectedDocType + '-singular']
-      if (!successMessage) {
-        successMessage = `New ${docTypeText} was created.`
-      }
-      if (!failureMessage) {
-        failureMessage = `Failed while attempting to create the new ${docTypeText}.`
-      }
-      // await this.saveChanges('POST', successMessage, failureMessage)
-      this.goToRoute()
+      const successMessage = `New ${docTypeText} was created.`
+      const failureMessage = `Failed while attempting to create the new ${docTypeText}.`
+      const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/`
+      const data = docToAdd
+      await RequestsUtils.sendRequest({methodName: 'POST', url, data, successMessage, failureMessage}).then(() => {
+        this.editDoc(docToAdd.id)
+      })
       this.isNewLoading = false
       this.setLoadingDocStatus(false)
     },
-
-    // TODO: check with Aviv if we need saveChanges
-    /* async saveChanges(methodName?: HttpRequestMethods, successMessage?: string, failureMessage?: string) {
-      this.isSaveLoading = true
-      if (!methodName) {
-        methodName = 'PUT'
-      }
-      let url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/`
-      if (methodName !== 'POST') {
-        url += `${this.selectedDocID}/`
-      }
-      const data = this.selectedDoc
-
-      const docTypeText = this.titles[this.selectedDocType + '-singular']
-      if (!successMessage) {
-        successMessage = `Changes to the ${docTypeText} were saved.`
-      }
-      if (!failureMessage) {
-        failureMessage = `Failed while attempting to save the changes to the ${docTypeText}.`
-      }
-      await RequestsUtils.sendRequest({methodName, url, data, successMessage, failureMessage}).then(() => {
-        this.updateDocIdNames()
-        this.loadGitLog(true)
-        // If the saved doc was a security policy, refresh the referenced IDs lists
-        if (this.selectedDocType === 'securitypolicies') {
-          this.loadReferencedDocsIDs()
-        }
-      })
-      this.isSaveLoading = false
-    },*/
-
-    // TODO: check with Aviv if we need deleteDoc()
-    /* async deleteDoc() {
-      this.setLoadingDocStatus(true)
-      this.isDeleteLoading = true
-      this.docs.splice(this.selectedDocIndex, 1)
-      const docTypeText = this.titles[this.selectedDocType + '-singular']
-      const successMessage = `The ${docTypeText} was deleted.`
-      const failureMessage = `Failed while attempting to delete the ${docTypeText}.`
-      await RequestsUtils.sendRequest({
-        methodName: 'DELETE',
-        url: `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`,
-        successMessage,
-        failureMessage,
-      }).then(() => {
-        this.updateDocIdNames()
-        this.loadGitLog(true)
-      })
-      this.selectedDocID = this.docs[0].id
-      await this.loadSelectedDocData()
-      this.addMissingDefaultsToDoc()
-      this.resetGitLog()
-      this.goToRoute()
-      this.isDeleteLoading = false
-      this.setLoadingDocStatus(false)
-    },*/
 
     async loadReferencedDocsIDs() {
       const response = await RequestsUtils.sendRequest({
@@ -534,92 +508,47 @@ export default defineComponent({
       this.referencedIDsLimits = _.uniq(_.flatten(referencedLimit))
     },
 
-    addMissingDefaultsToDoc() {
-      if (!this.selectedDoc) {
-        return
-      }
-      this.selectedDoc = {...this.newDoc(), ...this.selectedDoc as {}}
+
+    referToVersionControl() {
+      this.$router?.push('/versioncontrol')
     },
 
-    // Collect every request to display a loading indicator
-    // The loading indicator will be displayed as long as at least one request is still active (counter > 0)
-    /* TODO: why do i need to start the circle with counter and witout onli boolean var? */
-    setLoadingDocStatus(isLoading: boolean) {
-      if (isLoading) {
-        this.loadingDocCounter++
-      } else {
-        this.loadingDocCounter--
-      }
-    },
-  },
-  computed: {
-    branchNames(): string[] {
-      return this.configs?.length ? _.sortBy(_.map(this.configs, 'id')) : []
-    },
-
-    /* TODO: the get() method needs to be GenericObject? */
-    selectedDoc: {
-      get(): GenericObject {
-        return this.docs?.[this.selectedDocIndex]
-      },
-      set(newDoc: any): void {
-        this.docs[this.selectedDocIndex] = newDoc
-      },
-    },
-
-    selectedDocNotDeletable(): boolean {
-      return !this.selectedDoc ||
-          (this.selectedDoc as BasicDocument).id === '__default__' ||
-          this.isDocReferenced ||
-          this.docs.length <= 1
-    },
-
-    selectedDocIndex(): number {
-      if (this.selectedDocID) {
-        return _.findIndex(this.docs, (doc) => {
-          return doc.id === this.selectedDocID
+    loadGitLog(interaction?: boolean) {
+      this.isGitLogLoading = true
+      const config = this.selectedBranch
+      const document = this.selectedDocType
+      const url = `configs/${config}/d/${document}/v/`
+      if (config && document) {
+        RequestsUtils.sendRequest({methodName: 'GET', url}).then((response: AxiosResponse<Commit[]>) => {
+          this.gitLog = response?.data
+          if (interaction) {
+            this.loadConfigs()
+          }
+          this.isGitLogLoading = false
         })
       }
-      return 0
     },
 
-    isDocReferenced(): boolean {
-      if (this.selectedDocType === 'aclprofiles') {
-        return this.referencedIDsACL.includes(this.selectedDocID)
-      }
-      if (this.selectedDocType === 'contentfilterprofiles') {
-        return this.referencedIDsContentFilter.includes(this.selectedDocID)
-      }
-      if (this.selectedDocType === 'ratelimits') {
-        return this.referencedIDsLimits.includes(this.selectedDocID)
-      }
-      return false
-    },
+    async restoreGitVersion(gitVersion: Commit) {
+      const branch = this.selectedBranch
+      const doctype: DocumentType = this.selectedDocType
+      const docTitle = this.titles[doctype]
+      const versionId = gitVersion.version
+      const urlTrail = `configs/${branch}/d/${doctype}/v/${versionId}/`
 
+      await RequestsUtils.sendRequest({
+        methodName: 'PUT',
+        url: `${urlTrail}revert/`,
+        successMessage: `Document [${docTitle}] restored to version [${versionId}]!`,
+        failureMessage: `Failed restoring document [${docTitle}] to version [${versionId}]!`,
+      })
+      await this.loadDocs(this.selectedDocType)
+    },
   },
-
-  /* TODO: How the download file icon is uses this methods
-    computed:{
-      selectedDoc: {
-        get(): Document {
-          return this.docs?.[this.selectedDocIndex]
-        },
-        set(newDoc: any): void {
-          this.docs[this.selectedDocIndex] = newDoc
-        },
-      },
-      selectedDocIndex(): number {
-        if (this.selectedDocID) {
-          return _.findIndex(this.docs, (doc:GenericObject) => {
-            return doc.id === this.selectedDocID
-          })
-        }
-        return 0
-      },
-    },
-    */
   mounted() {
+    this.setLoadingDocStatus(true)
     this.updateDataDisplay()
+    this.setLoadingDocStatus(false)
   },
   async created() {
     this.setLoadingDocStatus(true)
@@ -630,7 +559,31 @@ export default defineComponent({
 })
 </script>
 
-<style>
+<style scoped lang="scss">
+.no-data-wrapper {
+  /* Magic number! Delayed the display of loading indicator as to not display it in short loads */
+  animation: delayedDisplay 300ms;
+  /* Magic number! The page looks empty without content */
+  min-height: 50vh;
+}
+
+@keyframes delayedDisplay {
+  0% {
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 0;
+  }
+
+  51% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
 
 .arrow-wrapper {
   float: right;
@@ -685,26 +638,6 @@ export default defineComponent({
   padding: 0.5em;
 }
 
-.document-list-table .row-selected {
-  background-color: #f5f5f5;
-}
-
-/*td.table-wrapper {
-  padding: 1rem 1rem 2rem;
-}*/
-
-.long-cell div {
-  /*box-orient: vertical;*/
-  display: flexbox;
-  -webkit-line-clamp: 3;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.long-cell-expanded div {
-  display: block;
-}
-
 .filter-toggle {
   cursor: pointer;
   opacity: 0.3;
@@ -714,12 +647,7 @@ export default defineComponent({
   opacity: 1;
 }
 
-.sort-column {
-  cursor: pointer;
-}
-
-
-.vector-class {
-  cursor: help;
+.data-cell {
+  max-height: 4.5rem;
 }
 </style>

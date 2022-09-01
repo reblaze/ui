@@ -17,15 +17,15 @@
           <router-link v-else
                        :data-qa="menuItemDetails.title"
                        :data-curie="menuItemKey"
-                       :to="{path: menuItemKey as string}"
-                       :class="{ 'is-active': currentRoutePath.includes(menuItemKey as string) }">
+                       :to="{path: menuItemKey.toString()}"
+                       :class="{ 'is-active': currentRoutePath.includes(menuItemKey.toString()) }">
             {{ menuItemDetails.title }}
           </router-link>
           <ul v-if="menuItemDetails.items"
               class="my-0">
             <li v-for="(menuSubItemDetails, menuSubItemKey) in menuItemDetails.items" :key="menuSubItemKey">
               <router-link :data-curie="menuSubItemKey"
-                           :to="{path: menuSubItemKey.toString()}"
+                           :to="{path: menuItemKey + menuSubItemKey.toString()}"
                            :class="{ 'is-active': currentRoutePath.includes(menuSubItemKey.toString()) }">
                 {{ menuSubItemDetails.title }}
               </router-link>
@@ -66,11 +66,9 @@ export default defineComponent({
       defaultPrometheusURL: prometheusURL,
       menuItems: {
         settings: {
-          '/config': {
+          '/list': {
             title: 'Policies & Rules',
-            items: {
-              '/search': {title: 'Search'},
-            },
+            items: {},
           },
           '/CurieDB': {
             title: 'CurieDB',
@@ -157,9 +155,28 @@ export default defineComponent({
         external: true,
       }
     },
+
+    async loadBranches() {
+      let branches
+      try {
+        const response = await RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'})
+        branches = response.data
+        this.menuItems.settings['/list'].items[`/${branches[0].id}/globalfilters`] = {title: 'Global Filters'} as menuItem
+        this.menuItems.settings['/list'].items[`/${branches[0].id}/flowcontrol`] = {title: 'Flow Control Policies'} as menuItem
+        this.menuItems.settings['/list'].items[`/${branches[0].id}/ratelimits`] = {title: 'Rate limits'} as menuItem
+        this.menuItems.settings['/list'].items[`/${branches[0].id}/aclprofiles`] = {title: 'ACL Profiles'} as menuItem
+        this.menuItems.settings['/list'].items[`/${branches[0].id}/contentfilterprofiles`] = {title: 'Content Filter Profiles'} as menuItem
+        this.menuItems.settings['/list'].items[`/${branches[0].id}/contentfilterrules`] = {title: 'Content Filter Rules'} as menuItem
+        // this.menuItems.settings['/list'].items[`/${branches[0].id}/search`] = {title: 'Search'} as menuItem
+      } catch (err) {
+        console.log('Error while attempting to get branches')
+        console.log(err)
+      }
+    },
   },
   async mounted() {
     await this.loadLinksFromDB()
+    await this.loadBranches()
   },
 })
 </script>
