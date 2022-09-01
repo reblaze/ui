@@ -313,7 +313,7 @@ export default defineComponent({
       get(): Document {
         return this.docs?.[this.selectedDocIndex] || {} as Document
       },
-      set(newDoc: any): void {
+      set(newDoc: Document): void {
         this.docs[this.selectedDocIndex] = newDoc
       },
     },
