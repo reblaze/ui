@@ -262,12 +262,6 @@ export default defineComponent({
       newEntrySectionIndex: -1,
       // newEntryCategory - start with most common category - IP
       newEntryCategory: 'ip' as Category,
-      // For headers, args, cookies:
-      //   firstAttr = name
-      //   secondAttr = value
-      // For every other entry type:
-      //   firstAttr = list of values (with possible annotation)
-      //   secondAttr = single annotation
       newEntryItem: {
         firstAttr: '',
         secondAttr: '',
@@ -554,7 +548,8 @@ export default defineComponent({
 
     validateRegex(id: string, value: string) {
       // TODO: Fix regex test for rust standards and re-apply this
-      const val = value.trim().replaceAll(/\(\?[a-z]{1,3}\)/g, '') // remove unsupported in js mode modifiers
+      // remove unsupported in js mode modifiers
+      const val = value.trim().replaceAll(/\(\?[a-z]{1,3}\)/g, '')
       try {
         this.clearError(id)
         new RegExp(val)
