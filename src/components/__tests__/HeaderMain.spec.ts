@@ -1,16 +1,23 @@
 // @ts-nocheck
 import HeaderMain from '@/components/HeaderMain.vue'
-import {default as packageJson} from '@/../package.json'
+import packageJson from '@/../package.json'
 import {describe, test, expect} from '@jest/globals'
 import {mount} from '@vue/test-utils'
 
 describe('HeaderMain.vue', () => {
-  test('should render the logo', () => {
-    // const logoPath = 'http://localhost/assets/logo.png' // webRoot
+  test('should render the logo with alt=logo', () => {
     const wrapper = mount(HeaderMain)
-    const element = wrapper.find('.logo').element as HTMLImageElement
-    console.log('logo src', element['src'] as string)
-    expect(element['src'].length > 0).toBeTruthy()
+    const element = wrapper.find('img.logo').element as HTMLImageElement
+    expect(element['alt']).toEqual('logo')
+  })
+
+  test('should render the logo', (done) => {
+    const wrapper = mount(HeaderMain)
+    const element = wrapper.find('img.logo').element as HTMLImageElement
+    setImmediate(() => {
+      expect(element['src']).toEqual('http://localhost/logo.png')
+      done()
+    })
   })
 
   test('should render version from package.json', () => {

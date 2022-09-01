@@ -121,7 +121,7 @@
                       </a>
                     </div>
                   </div>
-                  <response-action v-model="threshold.action"
+                  <response-action v-model:action="threshold.action"
                                   label-separated-line
                                   @update:action="emitDocUpdate"/>
                 </div>
