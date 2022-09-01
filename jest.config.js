@@ -32,6 +32,7 @@ module.exports = {
       setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
       transformIgnorePatterns: ['<rootDir>/node_modules/'],
       collectCoverage: true,
+      coverageReporters: true,
       collectCoverageFrom: [
         'src/**/*.{ts,vue}',
         '!src/router/index.ts',
