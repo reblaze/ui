@@ -241,7 +241,7 @@ export default defineComponent({
       selectedBranch: null,
       selectedDocType: null as DocumentType,
 
-      // Documents 
+      // Documents
       docs: [] as GenericObject[],
       docsDisplayData: [] as GenericObject[],
       docIdNames: [] as [Document['id'], Document['name']][],
@@ -510,7 +510,7 @@ export default defineComponent({
 
 
     referToVersionControl() {
-      this.$router?.push('/versioncontrol')
+      this.$router.push('/versioncontrol')
     },
 
     loadGitLog(interaction?: boolean) {
