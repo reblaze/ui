@@ -2,7 +2,7 @@
   <div class="container">
     <div class="navbar-brand">
       <a class="navbar-item">
-        <img src="@/assets/logo.png" class="logo" alt="logo">
+        <img :src="require('@/assets/logo.png')" class="logo" alt="logo">
       </a>
     </div>
     <div class="version-box is-size-7 has-text-grey">
@@ -13,8 +13,10 @@
 
 <script lang="ts">
 
-import {default as packageJson} from '@/../package.json'
+// import {default as packageJson} from '@/../package.json'
+import packageJson from '@/../package.json'
 import {defineComponent} from 'vue'
+
 
 export default defineComponent({
   name: 'HeaderMain',
@@ -23,6 +25,7 @@ export default defineComponent({
       version: packageJson.version,
     }
   },
+
 })
 </script>
 

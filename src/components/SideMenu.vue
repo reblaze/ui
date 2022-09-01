@@ -69,15 +69,6 @@ export default defineComponent({
           '/list': {
             title: 'Policies & Rules',
             items: {},
-            /* items: {
-               '/globalfilters': {title: 'Global Filters'},
-               '//flowcontrol': {title: 'Flow Control Policies'},
-               '//ratelimits': {title: 'Rate Limits'},
-               [`/${branches[0]}/aclprofiles`]: {title: 'ACL Profiles'},
-               '//contentfilterprofiles': {title: 'Content Filter Profiles'},
-               '//contentfilterrules': {title: 'Content Filter Rules'},
-               // '/search': {title: 'Search'},
-             },*/
           },
           '/CurieDB': {
             title: 'CurieDB',

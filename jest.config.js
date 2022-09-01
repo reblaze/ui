@@ -2,17 +2,17 @@ module.exports = {
       moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json', 'vue'],
       verbose: true,
       moduleDirectories: ['node_modules', 'src'],
-      // testEnvironment: 'jest-environment-node',
       testEnvironment: 'jsdom',
       fakeTimers: {
         enableGlobally: true,
         doNotFake: ['nextTick'],
         timerLimit: 5000,
       },
-      transform: {
+      transform: { 
         '^.+\\.tsx?$': 'ts-jest',
         '^.+\\.vue$': '@vue/vue3-jest',
-        "\\.[jt]sx?$": "babel-jest",
+        '\\.js?$': 'babel-jest',
+        '.+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2)$': '<rootDir>/fileTransformer.js'
       },
       testEnvironmentOptions: {
         customExportConditions: ['node', 'node-addons', 'core-js'],
@@ -20,7 +20,7 @@ module.exports = {
       moduleNameMapper: {
         '^@/(.*)$': '<rootDir>/src/$1',
         '^~/(.*)$': '<rootDir>/$1',
-        'ace-builds': '<rootDir>/node_modules/ace-builds',
+        'ace-builds': '<rootDir>/node_modules/ace-builds'
       },
       testMatch: [
         '<rootDir>/**/*.spec.(js|jsx|ts|tsx)',
@@ -28,7 +28,7 @@ module.exports = {
         "**/__tests__/**/*.tsx", 
         "**/?(*.)+(spec|test).[jt]s?(x)"
       ],
-      setupFiles: [`<rootDir>/jest-shim.ts`,`core-js`],
+      setupFiles: [`core-js`],
       setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
       transformIgnorePatterns: ['<rootDir>/node_modules/'],
       collectCoverage: true,
