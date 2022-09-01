@@ -8,10 +8,10 @@ global.URL.createObjectURL = <any>jest.fn()
 
 import {TextEncoder, TextDecoder} from 'util'
 
-global.TextEncoder = TextEncoder
+globalThis.TextEncoder = TextEncoder
 // @ts-ignore
-global.TextDecoder = TextDecoder
-// global.TextDecoder = globalThis.TextDecoder
+// global.TextDecoder = TextDecoder
+globalThis.TextDecoder = TextDecoder
 // global.ArrayBuffer = ArrayBuffer
 // global.Uint8Array = Uint8Array
 

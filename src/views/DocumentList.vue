@@ -695,7 +695,7 @@ export default defineComponent({
 
 .long-cell div {
   /*box-orient: vertical;*/
-  display: box;
+  display: flexbox;
   -webkit-line-clamp: 3;
   overflow: hidden;
   text-overflow: ellipsis;

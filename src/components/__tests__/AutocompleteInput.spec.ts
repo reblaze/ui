@@ -146,8 +146,9 @@ describe('AutocompleteInput', () => {
     input.setValue('value')
     input.trigger('input')
     wrapper.setData({focusedSuggestionIndex: 2})
-    input.trigger('keyup.enter')
-    await wrapper.vm.$nextTick()
+    wrapper.vm.$forceUpdate()
+    await input.trigger('keyup.enter')
+    // await wrapper.vm.$nextTick()
     expect((input.element as HTMLInputElement).value).toEqual('')
   })
 
@@ -158,6 +159,7 @@ describe('AutocompleteInput', () => {
     input.trigger('input')
     wrapper.vm.$nextTick()
     wrapper.setData({focusedSuggestionIndex: 2})
+    wrapper.vm.$forceUpdate()
     input.trigger('blur')
     wrapper.vm.$nextTick()
     setImmediate(() => {
@@ -269,22 +271,25 @@ describe('AutocompleteInput', () => {
 
     test('should focus on previous item when up arrow is pressed', async () => {
       wrapper.setData({focusedSuggestionIndex: 2})
-      input.trigger('keyup.up')
-      await wrapper.vm.$nextTick()
+      wrapper.vm.$forceUpdate()
+      await input.trigger('keyup.up')
+      // await wrapper.vm.$nextTick()
       expect(dropdownItems.at(1).element.classList.contains('is-active')).toBeTruthy()
     })
 
     test('should not focus on next item when down arrow is pressed if focused on last element', async () => {
       wrapper.setData({focusedSuggestionIndex: 2})
-      input.trigger('keyup.down')
-      await wrapper.vm.$nextTick()
+      wrapper.vm.$forceUpdate()
+      await input.trigger('keyup.down')
+      // wrapper.vm.$nextTick()
       expect(dropdownItems.at(2).element.classList.contains('is-active')).toBeTruthy()
     })
 
     test('should not focus on any item when up arrow is pressed if focused on input', async () => {
       wrapper.setData({focusedSuggestionIndex: -1})
-      input.trigger('keyup.up')
-      await wrapper.vm.$nextTick()
+      wrapper.vm.$forceUpdate()
+      await input.trigger('keyup.up')
+      // await wrapper.vm.$nextTick()
       expect(dropdownItems.at(0).element.classList.contains('is-active')).toBeFalsy()
       expect(dropdownItems.at(1).element.classList.contains('is-active')).toBeFalsy()
       expect(dropdownItems.at(2).element.classList.contains('is-active')).toBeFalsy()
@@ -292,40 +297,45 @@ describe('AutocompleteInput', () => {
 
     test('should select focused suggestion when enter is pressed', async () => {
       wrapper.setData({focusedSuggestionIndex: 2})
-      input.trigger('keyup.enter')
-      await wrapper.vm.$nextTick()
+      wrapper.vm.$forceUpdate()
+      await input.trigger('keyup.enter')
+      // await wrapper.vm.$nextTick()
       expect((input.element as HTMLInputElement).value).toEqual('test-value-2')
     })
 
     test('should select input value when enter is pressed and there is no focused suggestion', async () => {
       wrapper.setData({focusedSuggestionIndex: -1})
+      wrapper.vm.$forceUpdate()
       input.setValue('test-value-1')
-      input.trigger('input')
-      input.trigger('keyup.enter')
-      await wrapper.vm.$nextTick()
+      await input.trigger('input')
+      await input.trigger('keyup.enter')
+      // await wrapper.vm.$nextTick()
       expect((input.element as HTMLInputElement).value).toEqual('test-value-1')
     })
 
     test('should emit selected value when enter is pressed', async () => {
       wrapper.setData({focusedSuggestionIndex: 2})
-      input.trigger('keyup.enter')
+      wrapper.vm.$forceUpdate()
+      await input.trigger('keyup.enter')
       expect(wrapper.emitted('value-submitted')).toBeTruthy()
       expect(wrapper.emitted('value-submitted')[0]).toEqual(['test-value-2'])
     })
 
     test('should select focused suggestion when space is pressed', async () => {
       wrapper.setData({focusedSuggestionIndex: 2})
-      input.trigger('keyup.space')
-      await wrapper.vm.$nextTick()
+      wrapper.vm.$forceUpdate()
+      await input.trigger('keyup.space')
+      // await wrapper.vm.$nextTick()
       expect((input.element as HTMLInputElement).value).toEqual('test-value-2')
     })
 
     test('should select input value when space is pressed and there is no focused suggestion', async () => {
-      wrapper.setData({focusedSuggestionIndex: -1})
-      input.setValue('test-value-1')
-      input.trigger('input')
-      input.trigger('keyup.space')
-      await wrapper.vm.$nextTick()
+      await wrapper.setData({focusedSuggestionIndex: -1})
+      wrapper.vm.$forceUpdate()
+      await input.setValue('test-value-1')
+      await input.trigger('input')
+      await input.trigger('keyup.space')
+      // await wrapper.vm.$nextTick()
       expect((input.element as HTMLInputElement).value).toEqual('test-value-1')
     })
 
@@ -333,9 +343,9 @@ describe('AutocompleteInput', () => {
       wrapper.setProps({minimumValueLength: 3})
       await wrapper.vm.$nextTick()
       input.setValue('test-value-1')
-      input.trigger('input')
-      input.trigger('keyup.enter')
-      await wrapper.vm.$nextTick()
+      await input.trigger('input')
+      await input.trigger('keyup.enter')
+      // await wrapper.vm.$nextTick()
       expect(wrapper.emitted('value-submitted')).toBeTruthy()
     })
 
@@ -398,7 +408,8 @@ describe('AutocompleteInput', () => {
 
     test('should emit selected value when space is pressed', async () => {
       wrapper.setData({focusedSuggestionIndex: 2})
-      input.trigger('keyup.space')
+      wrapper.vm.$forceUpdate()
+      await input.trigger('keyup.space')
       expect(wrapper.emitted('value-submitted')).toBeTruthy()
       expect(wrapper.emitted('value-submitted')[0]).toEqual(['test-value-2'])
     })
@@ -417,20 +428,21 @@ describe('AutocompleteInput', () => {
     })
 
     test('should select suggestion when clicked', async () => {
-      dropdownItems.at(1).trigger('mousedown')
-      await wrapper.vm.$nextTick()
+      await dropdownItems.at(1).trigger('mousedown')
+      await nextTick()
+      // await wrapper.vm.$nextTick()
       expect((input.element as HTMLInputElement).value).toEqual('test-value-1')
     })
 
     test('should emit selected value when clicked', async () => {
-      dropdownItems.at(1).trigger('mousedown')
+      await dropdownItems.at(1).trigger('mousedown')
       expect(wrapper.emitted('value-submitted')).toBeTruthy()
       expect(wrapper.emitted('value-submitted')[0]).toEqual(['test-value-1'])
     })
 
     test('should have dropdown hidden when esc is pressed', async () => {
-      input.trigger('keyup.esc')
-      await wrapper.vm.$nextTick()
+      await input.trigger('keyup.esc')
+      await nextTick()
       expect(wrapper.find('.dropdown').element.classList.contains('is-active')).toBeFalsy()
     })
   })
@@ -460,6 +472,7 @@ describe('AutocompleteInput', () => {
 
     test('should only change last word in input when selecting value with enter', async () => {
       wrapper.setData({focusedSuggestionIndex: 2})
+      wrapper.vm.$forceUpdate()
       input.trigger('keyup.enter')
       await wrapper.vm.$nextTick()
       expect((input.element as HTMLInputElement).value).toEqual('devops test-value-2')
@@ -467,8 +480,9 @@ describe('AutocompleteInput', () => {
 
     test('should only change last word in input when selecting value with space', async () => {
       wrapper.setData({focusedSuggestionIndex: 2})
-      input.trigger('keyup.space')
-      await wrapper.vm.$nextTick()
+      wrapper.vm.$forceUpdate()
+      await input.trigger('keyup.space')
+      await nextTick() // wrapper.vm.$nextTick()
       expect((input.element as HTMLInputElement).value).toEqual('devops test-value-2')
     })
   })
