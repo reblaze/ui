@@ -244,22 +244,22 @@
                 <template v-if="newSecurityPolicyConnections.length > 0">
                   <td>
                     <div class="select is-small">
-                      <select v-model="newSecurityPolicyConnectionData.map"
-                              @change="newSecurityPolicyConnectionData.entryIndex = 0"
+                      <select v-model="newSecurityPolicyConnectionDataMapId"
+                              @change="newSecurityPolicyConnectionDataChanged()"
                               class="new-connection-map"
                               data-qa="site-name-dropdown"
                               title="Type">
-                        <option v-for="map in newSecurityPolicyConnections" :key="map.id" :value="map">
+                        <option v-for="map in newSecurityPolicyConnections" :key="map.id" :value="map.id">
                           {{ map.name }}
                         </option>
                       </select>
                     </div>
                   </td>
                   <td>
-                    {{ newSecurityPolicyConnectionData.map.id }}
+                    {{ newSecurityPolicyConnectionData.map?.id }}
                   </td>
                   <td>
-                    {{ newSecurityPolicyConnectionData.map.match }}
+                    {{ newSecurityPolicyConnectionData.map?.match }}
                   </td>
                   <td>
                     <div class="select is-small">
@@ -404,6 +404,7 @@ export default defineComponent({
         map: SecurityPolicy,
         entryIndex: number,
       },
+      newSecurityPolicyConnectionDataMapId: null,
       newSecurityPolicyConnectionOpened: false,
       connectedSecurityPoliciesEntries: [],
       keysAreValid: true,
@@ -561,11 +562,19 @@ export default defineComponent({
       this.newSecurityPolicyConnectionOpened = true
       this.newSecurityPolicyConnectionData.map =
           this.newSecurityPolicyConnections.length > 0 ? this.newSecurityPolicyConnections[0] : null
+      this.newSecurityPolicyConnectionDataMapId = this.newSecurityPolicyConnectionData.map?.id
       this.newSecurityPolicyConnectionData.entryIndex = 0
     },
 
     closeNewSecurityPolicyConnection() {
       this.newSecurityPolicyConnectionOpened = false
+    },
+
+    newSecurityPolicyConnectionDataChanged() {
+      this.newSecurityPolicyConnectionData.entryIndex = 0
+      this.newSecurityPolicyConnectionData.map = this.newSecurityPolicyConnections.find((connection) => {
+        return connection.id === this.newSecurityPolicyConnectionDataMapId
+      })
     },
 
     addNewSecurityPolicyConnection() {
@@ -627,6 +636,7 @@ export default defineComponent({
         this.getConnectedSecurityPoliciesEntries()
         this.newSecurityPolicyConnectionData.map =
             this.newSecurityPolicyConnections.length > 0 ? this.newSecurityPolicyConnections[0] : null
+        this.newSecurityPolicyConnectionDataMapId = this.newSecurityPolicyConnectionData.map?.id
       })
     },
 

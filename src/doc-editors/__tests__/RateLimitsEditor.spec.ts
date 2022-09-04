@@ -95,10 +95,14 @@ describe('RateLimitsEditor.vue', () => {
     mockRouter = {
       push: jest.fn(),
     }
+    const onUpdate = async (selectedDoc: RateLimit) => {
+      await wrapper.setProps({selectedDoc})
+    }
     wrapper = mount(RateLimitsEditor, {
       props: {
-        selectedDoc: rateLimitsDocs[0],
-        selectedBranch: selectedBranch,
+        'selectedDoc': rateLimitsDocs[0],
+        'selectedBranch': selectedBranch,
+        'onUpdate:selectedDoc': onUpdate,
       },
       global: {
         mocks: {
@@ -137,8 +141,6 @@ describe('RateLimitsEditor.vue', () => {
       selection = responseActionComponents.at(1).find('.action-type-selection')
       options = selection.findAll('option')
       await selection.setValue(options.at(5).element.value)
-      // Simulate selectedDoc emit and update
-      await wrapper.setProps({selectedDoc: wrapper.vm.localDoc})
       expect(wrapper.find('.up-to-one-ban').exists()).toBeTruthy()
     })
 
