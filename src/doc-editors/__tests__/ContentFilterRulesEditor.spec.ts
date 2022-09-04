@@ -1,12 +1,13 @@
+// @ts-nocheck
 import ContentFilterRulesEditor from '@/doc-editors/ContentFilterRulesEditor.vue'
 import {beforeEach, describe, expect, test} from '@jest/globals'
 import {shallowMount} from '@vue/test-utils'
-// import Vue from 'vue'
 import {ContentFilterRule} from '@/types'
+import {VueWrapper} from '@vue/test-utils'
 
 describe('ContentFilterRulesEditor.vue', () => {
   let docs: ContentFilterRule[]
-  let wrapper: any
+  let wrapper: VueWrapper
   beforeEach(async () => {
     docs = [{
       'id': '100000',
@@ -24,7 +25,7 @@ describe('ContentFilterRulesEditor.vue', () => {
         selectedDoc: docs[0],
       },
     })
-    await wrapper.vm.$nextTick()
+    await nextTick()
   })
 
   describe('form data', () => {
@@ -69,8 +70,8 @@ describe('ContentFilterRulesEditor.vue', () => {
     wantedEmit.name = wantedName
     const element = wrapper.find('.document-name')
     element.setValue(wantedName)
-    element.trigger('change')
-    await wrapper.vm.$nextTick()
+    await element.trigger('change')
+    // await wrapper.vm.$nextTick()
     expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
     expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
   })
@@ -81,8 +82,8 @@ describe('ContentFilterRulesEditor.vue', () => {
     wantedEmit.description = wanteddescription
     const element = wrapper.find('.document-description')
     element.setValue(wanteddescription)
-    element.trigger('change')
-    await wrapper.vm.$nextTick()
+    await element.trigger('change')
+    // await wrapper.vm.$nextTick()
     expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
     expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
   })

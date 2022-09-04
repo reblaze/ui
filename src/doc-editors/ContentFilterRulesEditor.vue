@@ -61,7 +61,7 @@
                   <label class="label is-small">Risk Level</label>
                   <div class="control select is-small">
                     <select v-model="localDoc.risk"
-                            @change="emitDocUpdate"
+                            @change="emitDocUpdate()"
                             data-qa="risk-level-dropdown"
                             class="risk-level-selection"
                             title="Risk level">

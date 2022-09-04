@@ -6,6 +6,7 @@ import axios from 'axios'
 import * as bulmaToast from 'bulma-toast'
 import {Options} from 'bulma-toast'
 import {setImmediate} from 'timers'
+import {nextTick} from 'vue'
 
 jest.mock('axios')
 
@@ -133,10 +134,12 @@ describe('AutocompleteInput', () => {
     const value = 'value'
     const input = wrapper.find('.autocomplete-input')
     input.setValue(value)
-    input.trigger('input')
+    await input.trigger('input')
     wrapper.setProps({initialValue: value})
-    await wrapper.vm.$nextTick()
-    expect(wrapper.find('.dropdown').element.classList.contains('is-active')).toBeTruthy()
+    await nextTick()
+    const element = wrapper.find('.dropdown').element
+    await nextTick()
+    expect(element.classList.contains('is-active')).toBeTruthy()
   })
 
   test('should clear autocomplete input when selected', async () => {
@@ -152,21 +155,23 @@ describe('AutocompleteInput', () => {
     expect((input.element as HTMLInputElement).value).toEqual('')
   })
 
-  test('should emit selected value on input blur event', (done) => {
+  test('should emit selected value on input blur event', async () => {
     wrapper.setProps({clearInputAfterSelection: true})
     const input = wrapper.find('.autocomplete-input')
     input.setValue('value')
-    input.trigger('input')
-    wrapper.vm.$nextTick()
+    await input.trigger('input')
     wrapper.setData({focusedSuggestionIndex: 2})
-    wrapper.vm.$forceUpdate()
-    input.trigger('blur')
-    wrapper.vm.$nextTick()
-    setImmediate(() => {
-      expect(wrapper.emitted('value-submitted')).toBeTruthy()
-      expect(wrapper.emitted('value-submitted')[0]).toEqual(['test-value-2'])
-      done()
-    })
+    await nextTick()
+    await input.trigger('blur')
+    await nextTick()
+    // await wrapper.vm.$forceUpdate()
+    // setImmediate(() => {
+    console.log('aylon 1', wrapper.emitted('value-submitted'))
+    expect(wrapper.emitted('value-changed')).toBeTruthy()
+    expect(wrapper.emitted('value-submitted')).toBeTruthy()
+    expect(wrapper.emitted('value-submitted')[2]).toEqual(['test-value-2'])
+    // done()
+    // })
   })
 
   test('should emit selected value on input blur event with the correct clicked suggestion', (done) => {
@@ -180,7 +185,7 @@ describe('AutocompleteInput', () => {
     wrapper.vm.$nextTick()
     setImmediate(() => {
       expect(wrapper.emitted('value-submitted')).toBeTruthy()
-      expect(wrapper.emitted('value-submitted')[0]).toEqual(['test-value-1'])
+      expect(wrapper.emitted('value-submitted')[1]).toEqual(['test-value-1'])
       done()
     })
   })
@@ -318,14 +323,13 @@ describe('AutocompleteInput', () => {
       wrapper.vm.$forceUpdate()
       await input.trigger('keyup.enter')
       expect(wrapper.emitted('value-submitted')).toBeTruthy()
-      expect(wrapper.emitted('value-submitted')[0]).toEqual(['test-value-2'])
+      expect(wrapper.emitted('value-submitted')[2]).toEqual(['test-value-2'])
     })
 
     test('should select focused suggestion when space is pressed', async () => {
       wrapper.setData({focusedSuggestionIndex: 2})
       wrapper.vm.$forceUpdate()
       await input.trigger('keyup.space')
-      // await wrapper.vm.$nextTick()
       expect((input.element as HTMLInputElement).value).toEqual('test-value-2')
     })
 
@@ -351,20 +355,21 @@ describe('AutocompleteInput', () => {
 
     test('should not select input value when input is empty', async () => {
       wrapper.setProps({minimumValueLength: 3})
-      await wrapper.vm.$nextTick()
-      input.setValue('')
-      input.trigger('input')
-      input.trigger('keyup.enter')
-      await wrapper.vm.$nextTick()
+      await nextTick()
+      await input.setValue('')
+      await input.trigger('input')
+      await input.trigger('keyup.enter')
+      await nextTick()
       expect(wrapper.emitted('value-submitted')).toBeFalsy()
     })
 
     test('should not select input value when input is shorter than the minimumValueLength prop', async () => {
       wrapper.setProps({minimumValueLength: 3})
       await wrapper.vm.$nextTick()
+      console.log('aylon 2: ', wrapper.$props.minimumValueLength)
       input.setValue('t')
       input.trigger('input')
-      input.trigger('keyup.enter')
+      await input.trigger('keyup.enter')
       await wrapper.vm.$nextTick()
       expect(wrapper.emitted('value-submitted')).toBeFalsy()
     })
@@ -411,33 +416,38 @@ describe('AutocompleteInput', () => {
       wrapper.vm.$forceUpdate()
       await input.trigger('keyup.space')
       expect(wrapper.emitted('value-submitted')).toBeTruthy()
-      expect(wrapper.emitted('value-submitted')[0]).toEqual(['test-value-2'])
+      expect(wrapper.emitted('value-submitted')[2]).toEqual(['test-value-2'])
     })
 
     test('should emit filtered value on space pressed', async () => {
       wrapper.setProps({
         filterFunction: (tag: string) => tag.replace(/[^\w: ]|_/g, '-').toLowerCase(),
       })
-      await wrapper.vm.$nextTick();
+      await wrapper.vm.$nextTick()
+      console.log('aylon: 3', wrapper.emitted('value-submitted'))
+      wrapper.emitted('value-submitted') = []
+      console.log('aylon: 3', wrapper.emitted('value-submitted'))
+      await wrapper.vm.forceUpdate();
       (input.element as HTMLInputElement).value = 'test:CHECK-CASE_01'
       input.trigger('input')
       await wrapper.vm.$nextTick()
-      input.trigger('keyup.space')
+      await input.trigger('keyup.space')
       expect(wrapper.emitted('value-submitted')).toBeTruthy()
+      console.log('aylon: 3', wrapper.emitted('value-submitted'))
       expect(wrapper.emitted('value-submitted')[0]).toEqual(['test:check-case-01'])
     })
 
     test('should select suggestion when clicked', async () => {
       await dropdownItems.at(1).trigger('mousedown')
       await nextTick()
-      // await wrapper.vm.$nextTick()
       expect((input.element as HTMLInputElement).value).toEqual('test-value-1')
     })
 
     test('should emit selected value when clicked', async () => {
       await dropdownItems.at(1).trigger('mousedown')
       expect(wrapper.emitted('value-submitted')).toBeTruthy()
-      expect(wrapper.emitted('value-submitted')[0]).toEqual(['test-value-1'])
+      console.log('aylon: 4', wrapper.emitted('value-submitted'))
+      expect(wrapper.emitted('value-submitted')[1]).toEqual(['test-value-1'])
     })
 
     test('should have dropdown hidden when esc is pressed', async () => {

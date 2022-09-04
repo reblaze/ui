@@ -1635,31 +1635,34 @@ describe('DocumentEditor.vue', () => {
       })
     })
 
-    test('should display correct message when there is no doc data', (done) => {
+    test('should display correct message when there is no doc data', async () => {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
         if (path === '/conf/api/v2/configs/') {
-          console.log('Aylon data: ', gitData)
           return Promise.resolve({data: gitData})
         }
         console.log('Aylon no data')
         return Promise.resolve({data: []})
       })
-      nextTick()
+
       wrapper = shallowMount(DocumentEditor, {
         mocks: {
           $route: mockRoute,
           $router: mockRouter,
+          loadingDocCounter: 0,
         },
       })
-      wrapper.vm.$forceUpdate()
+
+      const noDataMessage: DOMWrapper = wrapper.find('.no-data-message')
+      console.log('noDataMessage', noDataMessage)
+      await nextTick()
+      expect(noDataMessage.exists()).toBeTruthy()
+      expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found!')
+      expect(noDataMessage?.text()?.toLowerCase()).toContain('missing document.')
+      // done()
+      // wrapper.vm.$forceUpdate()
       // allow all requests to finish
-      setImmediate(() => {
-        const noDataMessage: DOMWrapper = wrapper.find('.no-data-message')
-        expect(noDataMessage.exists()).toBeTruthy()
-        expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found!')
-        expect(noDataMessage?.text()?.toLowerCase()).toContain('missing document.')
-        done()
-      })
+      // jest.runAllImmediates()
+      // jest.clearAllTimers()
     })
   })
 

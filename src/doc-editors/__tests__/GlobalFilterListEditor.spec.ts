@@ -1,13 +1,14 @@
+// @ts-nocheck
 import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {shallowMount} from '@vue/test-utils'
 import {GlobalFilter, GlobalFilterSectionEntry} from '@/types'
-// import Vue from 'vue'
 import ResponseAction from '@/components/ResponseAction.vue'
 import TagsAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import EntriesRelationList from '@/components/EntriesRelationList.vue'
 import axios from 'axios'
+import {nextTick} from 'vue'
 
 jest.mock('axios')
 
@@ -432,6 +433,7 @@ describe('GlobalFilterListEditor.vue', () => {
       await wrapper.vm.$forceUpdate()
       await wrapper.vm.$nextTick()
       const entriesRelationListComponent = wrapper.findComponent(EntriesRelationList)
+      expect(entriesRelationListComponent).exists
       expect(entriesRelationListComponent.props('rule')).toEqual(wantedData)
     })
 
@@ -846,9 +848,9 @@ describe('GlobalFilterListEditor.vue', () => {
       resolveData = {data: globalFilter}
       const button = wrapper.find('.update-now-button')
       button.trigger('click')
-      await wrapper.vm.$nextTick()
+      await nextTick()
       await wrapper.vm.$forceUpdate()
-      await wrapper.vm.$nextTick()
+      await nextTick()
       const entriesRelationListComponent = wrapper.findComponent(EntriesRelationList)
       expect(entriesRelationListComponent.props('rule')).toEqual(wantedData)
     })
