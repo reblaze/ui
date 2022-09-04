@@ -7,6 +7,7 @@ import {mount, VueWrapper} from '@vue/test-utils'
 import axios from 'axios'
 import {Branch} from '@/types'
 import {setImmediate} from 'timers'
+import {nextTick} from 'vue'
 
 jest.mock('axios')
 
@@ -325,7 +326,7 @@ describe('VersionControl.vue', () => {
     putSpy.mockImplementation(() => Promise.resolve())
     const gitHistory = wrapper.findComponent(GitHistory)
     gitHistory.vm.$emit('restore-version', wantedVersion)
-    await wrapper.vm.$nextTick()
+    await nextTick()
     expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/v/${wantedVersion.version}/revert/`)
   })
 
@@ -336,10 +337,10 @@ describe('VersionControl.vue', () => {
     const downloadFileSpy = jest.spyOn(Utils, 'downloadFile')
     // force update because downloadFile is mocked after it is read to to be used as event handler
     await wrapper.vm.$forceUpdate()
-    await wrapper.vm.$nextTick()
+    await nextTick()
     const downloadBranchButton = wrapper.find('.download-branch-button')
     downloadBranchButton.trigger('click')
-    await wrapper.vm.$nextTick()
+    await nextTick()
     expect(downloadFileSpy).toHaveBeenCalledWith(wantedFileName, wantedFileType, wantedFileData)
   })
 
@@ -347,11 +348,11 @@ describe('VersionControl.vue', () => {
     const downloadFileSpy = jest.spyOn(Utils, 'downloadFile')
     // force update because downloadFile is mocked after it is read to to be used as event handler
     await wrapper.vm.$forceUpdate()
-    await wrapper.vm.$nextTick()
+    await nextTick()
     wrapper.setData({isDownloadLoading: true})
     const downloadBranchButton = wrapper.find('.download-branch-button')
     downloadBranchButton.trigger('click')
-    await wrapper.vm.$nextTick()
+    await nextTick()
     expect(downloadFileSpy).not.toHaveBeenCalled()
   })
 
@@ -367,7 +368,7 @@ describe('VersionControl.vue', () => {
       postSpy = jest.spyOn(axios, 'post').mockImplementation(() => Promise.resolve({data: {}}))
       const forkBranchIcon = wrapper.find('.fork-branch-toggle')
       forkBranchIcon.trigger('click')
-      await wrapper.vm.$nextTick()
+      await nextTick()
     })
     afterEach(() => {
       console.error = originalError
@@ -382,7 +383,7 @@ describe('VersionControl.vue', () => {
     test('should be hidden if toggled off', async () => {
       const forkBranchIcon = wrapper.find('.fork-branch-toggle')
       forkBranchIcon.trigger('click')
-      await wrapper.vm.$nextTick()
+      await nextTick()
       const forkBranchNameInput = wrapper.find('.fork-branch-input')
       expect(forkBranchNameInput.exists()).toBeFalsy()
     })
@@ -392,9 +393,9 @@ describe('VersionControl.vue', () => {
       const forkBranchNameInput = wrapper.find('.fork-branch-input')
       const forkBranchSaveButton = wrapper.find('.fork-branch-confirm')
       forkBranchNameInput.setValue(newBranchName)
-      await wrapper.vm.$nextTick()
+      await nextTick()
       forkBranchSaveButton.trigger('click')
-      await wrapper.vm.$nextTick()
+      await nextTick()
       expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/clone/${newBranchName}/`, {
         'description': 'string',
         'id': 'string',
@@ -405,9 +406,9 @@ describe('VersionControl.vue', () => {
       const forkBranchNameInput = wrapper.find('.fork-branch-input')
       const forkBranchSaveButton = wrapper.find('.fork-branch-confirm')
       forkBranchNameInput.setValue('')
-      await wrapper.vm.$nextTick()
+      await nextTick()
       forkBranchSaveButton.trigger('click')
-      await wrapper.vm.$nextTick()
+      await nextTick()
       expect(postSpy).not.toHaveBeenCalled()
     })
 
@@ -415,9 +416,9 @@ describe('VersionControl.vue', () => {
       const forkBranchNameInput = wrapper.find('.fork-branch-input')
       const forkBranchSaveButton = wrapper.find('.fork-branch-confirm')
       forkBranchNameInput.setValue('zzz_branch')
-      await wrapper.vm.$nextTick()
+      await nextTick()
       forkBranchSaveButton.trigger('click')
-      await wrapper.vm.$nextTick()
+      await nextTick()
       expect(postSpy).not.toHaveBeenCalled()
     })
 
@@ -425,28 +426,24 @@ describe('VersionControl.vue', () => {
       const forkBranchNameInput = wrapper.find('.fork-branch-input')
       const forkBranchSaveButton = wrapper.find('.fork-branch-confirm')
       forkBranchNameInput.setValue('a new branch name')
-      await wrapper.vm.$nextTick()
+      await nextTick()
       forkBranchSaveButton.trigger('click')
-      await wrapper.vm.$nextTick()
+      await nextTick()
       expect(postSpy).not.toHaveBeenCalled()
     })
 
     test('should be hidden if forked successfully', async () => {
       const newBranchName = 'new_branch'
-      const forkBranchNameInput = wrapper.find('.fork-branch-input')
+      let forkBranchNameInput = wrapper.find('.fork-branch-input')
       const forkBranchSaveButton = wrapper.find('.fork-branch-confirm')
       forkBranchNameInput.setValue(newBranchName)
       await nextTick()
       await forkBranchSaveButton.trigger('click')
       // process click
-      // await nextTick()
-      // process API (fake) return
+      // force rerender
       await nextTick()
-      await nextTick()
-      await nextTick()
-      await nextTick()
-      await nextTick()
-      // forkBranchNameInput = wrapper.find('.fork-branch-input')
+      wrapper.vm.$forceUpdate()
+      forkBranchNameInput = wrapper.find('.fork-branch-input')
       expect(forkBranchNameInput.exists()).toBeFalsy()
     })
 
@@ -456,9 +453,9 @@ describe('VersionControl.vue', () => {
       let forkBranchNameInput = wrapper.find('.fork-branch-input')
       const forkBranchSaveButton = wrapper.find('.fork-branch-confirm')
       forkBranchNameInput.setValue(newBranchName)
-      await wrapper.vm.$nextTick()
+      await nextTick()
       forkBranchSaveButton.trigger('click')
-      await wrapper.vm.$nextTick()
+      await nextTick()
       forkBranchNameInput = wrapper.find('.fork-branch-input')
       expect(forkBranchNameInput.exists()).toBeTruthy()
     })
@@ -476,7 +473,7 @@ describe('VersionControl.vue', () => {
       deleteSpy = jest.spyOn(axios, 'delete').mockImplementation(() => Promise.resolve())
       const deleteBranchIcon = wrapper.find('.delete-branch-toggle')
       deleteBranchIcon.trigger('click')
-      await wrapper.vm.$nextTick()
+      await nextTick()
     })
     afterEach(() => {
       console.error = originalError
@@ -491,7 +488,7 @@ describe('VersionControl.vue', () => {
     test('should be hidden if toggled off', async () => {
       const deleteBranchIcon = wrapper.find('.delete-branch-toggle')
       deleteBranchIcon.trigger('click')
-      await wrapper.vm.$nextTick()
+      await nextTick()
       const deleteBranchNameInput = wrapper.find('.delete-branch-input')
       expect(deleteBranchNameInput.exists()).toBeFalsy()
     })
@@ -501,9 +498,9 @@ describe('VersionControl.vue', () => {
       const deleteBranchNameInput = wrapper.find('.delete-branch-input')
       const deleteBranchSaveButton = wrapper.find('.delete-branch-confirm')
       deleteBranchNameInput.setValue(currentBranchName)
-      await wrapper.vm.$nextTick()
+      await nextTick()
       deleteBranchSaveButton.trigger('click')
-      await wrapper.vm.$nextTick()
+      await nextTick()
       expect(deleteSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/${currentBranchName}/`)
     })
 
@@ -511,9 +508,9 @@ describe('VersionControl.vue', () => {
       const deleteBranchNameInput = wrapper.find('.delete-branch-input')
       const deleteBranchSaveButton = wrapper.find('.delete-branch-confirm')
       deleteBranchNameInput.setValue('')
-      await wrapper.vm.$nextTick()
+      await nextTick()
       deleteBranchSaveButton.trigger('click')
-      await wrapper.vm.$nextTick()
+      await nextTick()
       expect(deleteSpy).not.toHaveBeenCalled()
     })
 
@@ -521,9 +518,9 @@ describe('VersionControl.vue', () => {
       const deleteBranchNameInput = wrapper.find('.delete-branch-input')
       const deleteBranchSaveButton = wrapper.find('.delete-branch-confirm')
       deleteBranchNameInput.setValue('new_branch')
-      await wrapper.vm.$nextTick()
+      await nextTick()
       deleteBranchSaveButton.trigger('click')
-      await wrapper.vm.$nextTick()
+      await nextTick()
       expect(deleteSpy).not.toHaveBeenCalled()
     })
 
@@ -532,12 +529,12 @@ describe('VersionControl.vue', () => {
       let deleteBranchNameInput = wrapper.find('.delete-branch-input')
       const deleteBranchSaveButton = wrapper.find('.delete-branch-confirm')
       deleteBranchNameInput.setValue(currentBranchName)
-      await wrapper.vm.$nextTick()
-      deleteBranchSaveButton.trigger('click')
+      await nextTick()
+      await deleteBranchSaveButton.trigger('click')
       // process click
-      await wrapper.vm.$nextTick()
+      await nextTick()
       // process API (fake) return
-      await wrapper.vm.$nextTick()
+      wrapper.vm.$forceUpdate()
       deleteBranchNameInput = wrapper.find('.delete-branch-input')
       expect(deleteBranchNameInput.exists()).toBeFalsy()
     })
@@ -548,9 +545,9 @@ describe('VersionControl.vue', () => {
       let deleteBranchNameInput = wrapper.find('.delete-branch-input')
       const deleteBranchSaveButton = wrapper.find('.delete-branch-confirm')
       deleteBranchNameInput.setValue(currentBranchName)
-      await wrapper.vm.$nextTick()
+      await nextTick()
       deleteBranchSaveButton.trigger('click')
-      await wrapper.vm.$nextTick()
+      await nextTick()
       deleteBranchNameInput = wrapper.find('.delete-branch-input')
       expect(deleteBranchNameInput.exists()).toBeTruthy()
     })

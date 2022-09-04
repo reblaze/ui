@@ -515,7 +515,7 @@ describe('RateLimitsEditor.vue', () => {
       const newConnectionRow = wrapper.find('.new-connection-row')
       const newConnectionMapSelection = newConnectionRow.find('.new-connection-map')
       const options = newConnectionMapSelection.findAll('option')
-      await newConnectionMapSelection.setValue(options.at(1).element.value)
+      await newConnectionMapSelection.setValue(options.at(0).element.value)
       const addNewConnectionButton = wrapper.find('.add-new-connection')
       await addNewConnectionButton.trigger('click')
       expect(putSpy).toHaveBeenCalledWith(wantedUrl, wantedDoc)
