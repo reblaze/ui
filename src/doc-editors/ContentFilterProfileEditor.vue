@@ -17,7 +17,7 @@
                        title="Document name"
                        data-qa="waf-document-name"
                        placeholder="Document name"
-                       @change="emitDocUpdate"
+                       @change="emitDocUpdate()"
                        v-model="localDoc.name"/>
               </div>
             </div>

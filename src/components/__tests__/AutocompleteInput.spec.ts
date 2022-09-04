@@ -220,12 +220,12 @@ describe('AutocompleteInput', () => {
   })
 
   describe('keyboard control', () => {
-    let input: typeof wrapper | any
-    let dropdownItems: typeof wrapper | any
+    let input: DOMWrapper
+    let dropdownItems: DOMWrapper[]
     beforeEach(async () => {
       input = wrapper.find('.autocomplete-input')
-      input.setValue('value')
-      input.trigger('input')
+      await input.setValue('value')
+      await input.trigger('input')
       dropdownItems = wrapper.findAll('.dropdown-item')
     })
 
@@ -272,7 +272,7 @@ describe('AutocompleteInput', () => {
       await wrapper.setData({focusedSuggestionIndex: 2})
       await input.trigger('keyup.enter')
       expect(wrapper.emitted('value-submitted')).toBeTruthy()
-      expect(wrapper.emitted('value-submitted')[2]).toEqual(['test-value-2'])
+      expect(wrapper.emitted('value-submitted')[0]).toEqual(['test-value-2'])
     })
 
     test('should select focused suggestion when space is pressed', async () => {
@@ -350,7 +350,7 @@ describe('AutocompleteInput', () => {
       await wrapper.setData({focusedSuggestionIndex: 2})
       await input.trigger('keyup.space')
       expect(wrapper.emitted('value-submitted')).toBeTruthy()
-      expect(wrapper.emitted('value-submitted')[2]).toEqual(['test-value-2'])
+      expect(wrapper.emitted('value-submitted')[0]).toEqual(['test-value-2'])
     })
 
     test('should emit filtered value on space pressed', async () => {
@@ -361,7 +361,6 @@ describe('AutocompleteInput', () => {
       await input.trigger('input')
       await input.trigger('keyup.space')
       expect(wrapper.emitted('value-submitted')).toBeTruthy()
-      console.log('aylon: 3', wrapper.emitted('value-submitted'))
       expect(wrapper.emitted('value-submitted')[0]).toEqual(['test:check-case-01'])
     })
 
@@ -373,8 +372,7 @@ describe('AutocompleteInput', () => {
     test('should emit selected value when clicked', async () => {
       await dropdownItems.at(1).trigger('mousedown')
       expect(wrapper.emitted('value-submitted')).toBeTruthy()
-      console.log('aylon: 4', wrapper.emitted('value-submitted'))
-      expect(wrapper.emitted('value-submitted')[1]).toEqual(['test-value-1'])
+      expect(wrapper.emitted('value-submitted')[0]).toEqual(['test-value-1'])
     })
 
     test('should have dropdown hidden when esc is pressed', async () => {

@@ -293,12 +293,13 @@ describe('VersionControl.vue', () => {
     })
   })
 
-  test('should have correct git log displayed after switching branches', async (done) => {
+  test('should have correct git log displayed after switching branches', (done) => {
     const branchSelection = wrapper.find('.branch-selection')
     branchSelection.trigger('click')
     const options = branchSelection.findAll('option')
     branchSelection.setValue(options.at(1).element.value)
     // allow all requests to finish
+
     setImmediate(() => {
       const gitHistory = wrapper.findComponent(GitHistory)
       expect(gitHistory.props('gitLog')).toEqual(gitData[1].logs)
@@ -432,16 +433,20 @@ describe('VersionControl.vue', () => {
 
     test('should be hidden if forked successfully', async () => {
       const newBranchName = 'new_branch'
-      let forkBranchNameInput = wrapper.find('.fork-branch-input')
+      const forkBranchNameInput = wrapper.find('.fork-branch-input')
       const forkBranchSaveButton = wrapper.find('.fork-branch-confirm')
       forkBranchNameInput.setValue(newBranchName)
-      await wrapper.vm.$nextTick()
-      forkBranchSaveButton.trigger('click')
+      await nextTick()
+      await forkBranchSaveButton.trigger('click')
       // process click
-      await wrapper.vm.$nextTick()
+      // await nextTick()
       // process API (fake) return
-      await wrapper.vm.$nextTick()
-      forkBranchNameInput = wrapper.find('.fork-branch-input')
+      await nextTick()
+      await nextTick()
+      await nextTick()
+      await nextTick()
+      await nextTick()
+      // forkBranchNameInput = wrapper.find('.fork-branch-input')
       expect(forkBranchNameInput.exists()).toBeFalsy()
     })
 

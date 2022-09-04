@@ -2,6 +2,7 @@
 import LimitOption, {OptionObject} from '@/components/LimitOption.vue'
 import {beforeEach, describe, expect, test} from '@jest/globals'
 import {mount} from '@vue/test-utils'
+import {nextTick} from 'vue'
 
 describe('LimitOption.vue', () => {
   let option: OptionObject
@@ -183,10 +184,13 @@ describe('LimitOption.vue', () => {
         }
         const selection = wrapper.find('.option-type-selection')
         const options = selection.findAll('option')
+        await nextTick()
         // set to not self so we would be able to change to default
+        console.log('1', options.at(1).element.value, '0', options.at(0).element.value)
         selection.setValue(options.at(1).element.value)
+        await nextTick()
         selection.setValue(options.at(0).element.value)
-        await wrapper.vm.$nextTick()
+        await nextTick()
         expect(wrapper.emitted('change')).toBeTruthy()
         expect(wrapper.emitted('change')[0]).toEqual([wantedEmit])
       })

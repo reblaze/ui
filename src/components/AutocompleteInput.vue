@@ -16,7 +16,7 @@
              @keyup.down="focusNextSuggestion"
              @keyup.up="focusPreviousSuggestion"
              @keyup.esc="closeDropdown"
-             @input="openDropdown(); valueChanged(); selectValue();"
+             @input="openDropdown(); valueChanged()"
              @blur="inputBlurred"
              ref="autocompleteInput" />
     </div>

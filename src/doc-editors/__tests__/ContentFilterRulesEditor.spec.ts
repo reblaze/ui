@@ -4,6 +4,7 @@ import {beforeEach, describe, expect, test} from '@jest/globals'
 import {shallowMount} from '@vue/test-utils'
 import {ContentFilterRule} from '@/types'
 import {VueWrapper} from '@vue/test-utils'
+import {nextTick} from 'vue'
 
 describe('ContentFilterRulesEditor.vue', () => {
   let docs: ContentFilterRule[]
@@ -107,7 +108,7 @@ describe('ContentFilterRulesEditor.vue', () => {
     const element = wrapper.find('.document-subcategory')
     element.setValue(wantedSubcategory)
     element.trigger('change')
-    await wrapper.vm.$nextTick()
+    await nextTick()
     expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
     expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
   })
@@ -121,7 +122,7 @@ describe('ContentFilterRulesEditor.vue', () => {
     selection.setValue(options.at(2).element.value)
     // options.at(2).setSelected() // index => value: 0 => 1, 1 => 2, 2 => 3
     selection.trigger('change')
-    await wrapper.vm.$nextTick()
+    await nextTick()
     expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
     expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
   })
@@ -133,7 +134,7 @@ describe('ContentFilterRulesEditor.vue', () => {
     const element = wrapper.find('.document-msg')
     element.setValue(wantedMessage)
     element.trigger('change')
-    await wrapper.vm.$nextTick()
+    await nextTick()
     expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
     expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
   })
@@ -145,7 +146,7 @@ describe('ContentFilterRulesEditor.vue', () => {
     const element = wrapper.find('.document-operand')
     element.setValue(wantedOperand)
     element.trigger('change')
-    await wrapper.vm.$nextTick()
+    await nextTick()
     expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
     expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
   })

@@ -1703,7 +1703,7 @@ describe('DocumentEditor.vue', () => {
       })
     })
 
-    test('should display correct message when there is no doc data', async () => {
+    test('should display correct message when there is no doc data', (done) => {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
         if (path === '/conf/api/v2/configs/') {
           return Promise.resolve({data: gitData})
@@ -1715,7 +1715,6 @@ describe('DocumentEditor.vue', () => {
           mocks: {
             $route: mockRoute,
             $router: mockRouter,
-            loadingDocCounter: 0,
           },
         },
       })
