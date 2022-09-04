@@ -252,11 +252,6 @@ export default defineComponent({
       this.$emit('form-invalid', isFormInvalid)
     },
 
-    // updateRule(newRule: GlobalFilter['rule']) {
-    //   this.localDoc.rule = newRule
-    //   this.emitDocUpdate()
-    // },
-
     setRuleRelation(relation: Relation) {
       this.localDoc.rule.relation = relation
       this.emitDocUpdate()
@@ -316,7 +311,6 @@ export default defineComponent({
         })
       }
       const url = this.localDoc.source
-      console.log('GlobalFilterListEditor url: ', url)
       RequestsUtils.sendRequest({methodName: 'GET', url: `tools/fetch?url=${url}`}).then((response: AxiosResponse) => {
         const data = response.data
         let entries: GlobalFilterSectionEntry[]

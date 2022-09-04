@@ -1,7 +1,6 @@
 import ContentFilterEditor from '@/doc-editors/ContentFilterProfileEditor.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {shallowMount} from '@vue/test-utils'
-// import Vue from 'vue'
 import {
   ArgsCookiesHeadersType,
   ContentFilterEntryMatch,
@@ -12,7 +11,6 @@ import {
   NamesRegexType,
 } from '@/types'
 import AutocompleteInput from '@/components/AutocompleteInput.vue'
-// @ts-ignore
 import _ from 'lodash'
 import axios from 'axios'
 
@@ -136,11 +134,9 @@ describe('ContentFilterProfileEditor.vue', () => {
     }
     wrapper = shallowMount(ContentFilterEditor, {
       props: {
-        selectedDoc: docs[0],
-        selectedBranch: 'master',
-      },
-      listeners: {
-        'update:selectedDoc': onUpdate,
+        'selectedDoc': docs[0],
+        'selectedBranch': 'master',
+        'onUpdate:selectedDoc': onUpdate,
       },
     })
     await wrapper.vm.$nextTick()
