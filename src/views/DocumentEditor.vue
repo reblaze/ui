@@ -196,7 +196,7 @@
             <span v-else-if="!Object.keys(componentsMap).includes(selectedDocType)">
               Missing document type. Please select one from the dropdown above
             </span>
-            <span v-else-if="!docIdNames.find((docIdName) => docIdName[0].includes(selectedDoc.id))">
+            <span v-else-if="!docIdNames.find((docIdName) => docIdName[0].includes(selectedDoc?.id))">
               Missing document. To create a new one, click
               <a title="Add new"
                  @click="addNewDoc()">
@@ -225,7 +225,7 @@ import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
 import {defineComponent, shallowRef} from 'vue'
-import {BasicDocument, Commit, Document, DocumentType, HttpRequestMethods, SecurityPolicy} from '@/types'
+import {Commit, Document, DocumentType, HttpRequestMethods, SecurityPolicy} from '@/types'
 import axios, {AxiosResponse} from 'axios'
 
 export default defineComponent({
@@ -233,18 +233,6 @@ export default defineComponent({
   props: {},
   components: {
     GitHistory,
-  },
-  watch: {
-    $route: {
-      handler: async function(val) {
-        if (val?.name?.includes('DocumentEditor')) {
-          this.setLoadingDocStatus(true)
-          await this.setSelectedDataFromRouteParams()
-          this.setLoadingDocStatus(false)
-        }
-      },
-      deep: true,
-    },
   },
   data() {
     return {
@@ -311,7 +299,7 @@ export default defineComponent({
 
     selectedDoc: {
       get(): Document {
-        return this.docs?.[this.selectedDocIndex] || {} as Document
+        return this.docs?.[this.selectedDocIndex]
       },
       set(newDoc: Document): void {
         this.docs[this.selectedDocIndex] = newDoc
@@ -353,22 +341,36 @@ export default defineComponent({
 
     goToRoute() {
       const currentRoute = `/config/${this.selectedBranch}/${this.selectedDocType}/${this.selectedDocID}`
-      if (this.$route?.path !== currentRoute) {
+      if (this.$route.path !== currentRoute) {
         console.log('Switching document, new document path: ' + currentRoute)
-        this.$router?.push(currentRoute)
+        this.$router.push(currentRoute)
       }
     },
 
     async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
-      const branchNameFromRoute = this.$route?.params?.branch === 'undefined' ? null : this.$route?.params?.branch
-      this.selectedBranch = branchNameFromRoute || this.branchNames[0]
+      const branchNameFromRoute = this.$route.params?.branch?.toString()
+      if (branchNameFromRoute && this.branchNames.includes(branchNameFromRoute)) {
+        this.selectedBranch = branchNameFromRoute
+      } else {
+        this.selectedBranch = this.branchNames[0]
+      }
       const prevDocType = this.selectedDocType
-      this.selectedDocType = (this.$route?.params?.doc_type || Object.keys(this.componentsMap)[0]) as DocumentType
+      const docTypeFromRoute = this.$route.params?.doc_type?.toString()
+      if (docTypeFromRoute && Object.keys(this.componentsMap).includes(docTypeFromRoute)) {
+        this.selectedDocType = docTypeFromRoute as DocumentType
+      } else {
+        this.selectedDocType = Object.keys(this.componentsMap)[0] as DocumentType
+      }
       if (!prevDocType || prevDocType !== this.selectedDocType) {
         await this.loadDocs(this.selectedDocType)
       }
-      this.selectedDocID = this.$route?.params?.doc_id || this.docIdNames?.[0]?.[0]
+      const docIdFromRoute = this.$route.params?.doc_id?.toString()
+      if (docIdFromRoute && this.docIdNames.findIndex((idName) => idName[0] === docIdFromRoute)) {
+        this.selectedDocID = docIdFromRoute
+      } else {
+        this.selectedDocID = this.docIdNames?.[0]?.[0]
+      }
       this.isDocumentInvalid = false
       await this.loadSelectedDocData()
       this.addMissingDefaultsToDoc()
@@ -416,10 +418,11 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       // check if the selected doc only has id and name, if it does, attempt to load the rest of the document data
       if (this.selectedDoc && Object.keys(this.selectedDoc).length === 2) {
-        this.selectedDoc = (await RequestsUtils.sendRequest({
+        const response = await RequestsUtils.sendRequest({
           methodName: 'GET',
           url: `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`,
-        })).data
+        })
+        this.selectedDoc = response?.data
       }
       this.setLoadingDocStatus(false)
     },
@@ -470,7 +473,7 @@ export default defineComponent({
       const url = `configs/${config}/d/${document}/e/${entry}/v/`
       if (config && document && entry) {
         RequestsUtils.sendRequest({methodName: 'GET', url}).then((response: AxiosResponse<Commit[]>) => {
-          this.gitLog = response?.data
+          this.gitLog = response?.data || []
           if (interaction) {
             this.loadConfigs(true)
           }
@@ -503,7 +506,7 @@ export default defineComponent({
     async switchDocID() {
       this.setLoadingDocStatus(true)
       this.loadGitLog()
-      const docName = (this.selectedDoc as BasicDocument)?.name
+      const docName = this.selectedDoc.name
       if (docName) {
         Utils.toast(
             `Switched to document ${docName} with ID "${this.selectedDocID}".`,
@@ -521,9 +524,6 @@ export default defineComponent({
     },
 
     async forkDoc() {
-      if (!this.selectedDoc) {
-        return
-      }
       this.setLoadingDocStatus(true)
       this.isForkLoading = true
       let docToAdd = _.cloneDeep(this.selectedDoc) as Document
@@ -623,7 +623,7 @@ export default defineComponent({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/securitypolicies/`,
       })
-      const docs = response?.data
+      const docs = response?.data || []
       const referencedACL: string[] = []
       const referencedContentFilter: string[] = []
       const referencedLimit: string[] = []
@@ -663,7 +663,7 @@ export default defineComponent({
     },
 
     referToVersionControl() {
-      this.$router?.push('/versioncontrol')
+      this.$router.push('/versioncontrol')
     },
 
     // Collect every request to display a loading indicator

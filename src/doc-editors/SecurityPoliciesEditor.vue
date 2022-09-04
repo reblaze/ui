@@ -427,10 +427,10 @@ export default defineComponent({
       }
     },
 
-    isURLValid(url: string) {
-      const URL_REGEX = /^[A-Za-z0-9%-._~:/?#[\]@!$&'()*+,;=|]*$/g
-      return URL_REGEX.test(url)
-    },
+    // isURLValid(url: string) {
+    //   const URL_REGEX = /^[A-Za-z0-9%-._~:/?#[\]@!$&'()*+,;=|]*$/g
+    //   return URL_REGEX.test(url)
+    // },
 
     isSelectedDomainMatchValid(): boolean {
       const newDomainMatch = this.localDoc.match?.trim()
@@ -445,7 +445,7 @@ export default defineComponent({
     },
 
     isSelectedMapEntryMatchValid(index: number): boolean {
-      const newMapEntryMatch = this.localDoc.map[index] ? this.localDoc.map[index].match.trim() : ''
+      const newMapEntryMatch = this.localDoc.map[index]?.match.trim() || ''
       let isValid = newMapEntryMatch.startsWith('/')
       if (isValid) {
         const isMapEntryMatchEmpty = newMapEntryMatch === ''
@@ -554,7 +554,7 @@ export default defineComponent({
 
     referToRateLimit() {
       this.$emit('form-invalid', false)
-      this.$router?.push(`/config/${this.selectedBranch}/ratelimits`)
+      this.$router.push(`/config/${this.selectedBranch}/ratelimits`)
     },
 
     contentfilteracllimitProfileNames() {

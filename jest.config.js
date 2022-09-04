@@ -8,7 +8,7 @@ module.exports = {
         doNotFake: ['nextTick'],
         timerLimit: 5000,
       },
-      transform: { 
+      transform: {
         '^.+\\.tsx?$': 'ts-jest',
         '^.+\\.vue$': '@vue/vue3-jest',
         '\\.js?$': 'babel-jest',
@@ -25,14 +25,13 @@ module.exports = {
       testMatch: [
         '<rootDir>/**/*.spec.(js|jsx|ts|tsx)',
         '<rootDir>/**/__tests__/*.spec.ts',
-        "**/__tests__/**/*.tsx", 
+        "**/__tests__/**/*.tsx",
         "**/?(*.)+(spec|test).[jt]s?(x)"
       ],
       setupFiles: [`core-js`],
       setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
       transformIgnorePatterns: ['<rootDir>/node_modules/'],
       collectCoverage: true,
-      coverageReporters: true,
       collectCoverageFrom: [
         'src/**/*.{ts,vue}',
         '!src/router/index.ts',

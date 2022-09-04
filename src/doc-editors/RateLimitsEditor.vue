@@ -90,21 +90,21 @@
                   Thresholds
                 </label>
                 <div v-for="(threshold, index) in localDoc.thresholds"
-                    :key="index"
-                    :set="removable = localDoc.thresholds.length > 1"
-                    class="card threshold-card">
+                     :key="index"
+                     :set="removable = localDoc.thresholds.length > 1"
+                     class="card threshold-card">
                   <div class="columns">
                     <div class="column is-6">
                       <label class="label is-small">
                         Limit
                       </label>
                       <input class="input is-small document-limit"
-                            type="text"
-                            data-qa="ratelimit-limit-input"
-                            title="Number of events"
-                            placeholder="Number of events"
-                            @change="emitDocUpdate"
-                            v-model="threshold.limit">
+                             type="text"
+                             data-qa="ratelimit-limit-input"
+                             title="Number of events"
+                             placeholder="Number of events"
+                             @change="emitDocUpdate"
+                             v-model="threshold.limit">
                     </div>
                     <div class="button-wrapper-column column">
                       <a
@@ -122,8 +122,8 @@
                     </div>
                   </div>
                   <response-action v-model:action="threshold.action"
-                                  label-separated-line
-                                  @update:action="emitDocUpdate"/>
+                                   label-separated-line
+                                   @update:action="emitDocUpdate"/>
                 </div>
                 <a title="Add new threshold"
                    data-qa="add-another-threshold-btn"
@@ -135,9 +135,9 @@
                    @keypress.enter="addThreshold()">
                   New threshold
                 </a>
-                <p class="has-text-danger is-size-7 ml-3 mt-3 only-one-ban"
-                   v-if="!onlyOneBanAction">
-                  Can't be more than one Ban action.
+                <p class="has-text-danger is-size-7 ml-3 mt-3 up-to-one-ban"
+                   v-if="!upToOneBanAction">
+                  There can't be more than one Ban action.
                 </p>
               </div>
             </div>
@@ -365,6 +365,7 @@ import LimitOption, {OptionObject} from '@/components/LimitOption.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import {defineComponent} from 'vue'
 import {
+  Dictionary,
   IncludeExcludeType,
   LimitOptionType,
   LimitRuleType,
@@ -372,7 +373,6 @@ import {
   SecurityPolicy,
   SecurityPolicyEntryMatch,
   ThresholdActionPair,
-  Dictionary,
 } from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
@@ -432,7 +432,7 @@ export default defineComponent({
       },
     },
 
-    onlyOneBanAction(): Boolean {
+    upToOneBanAction(): Boolean {
       const counts = _.countBy(this.localDoc.thresholds, (threshold) => {
         return threshold.action.type
       })
@@ -652,7 +652,7 @@ export default defineComponent({
     },
 
     referToSecurityPolicy(id: string) {
-      this.$router?.push(`/config/${this.selectedBranch}/securitypolicies/${id}`)
+      this.$router.push(`/config/${this.selectedBranch}/securitypolicies/${id}`)
     },
   },
   created() {
@@ -665,7 +665,6 @@ export default defineComponent({
     selectedDoc: {
       handler: function() {
         this.getConnectedSecurityPoliciesEntries()
-      //  this.$forceUpdate()
       },
       immediate: true,
       deep: true,

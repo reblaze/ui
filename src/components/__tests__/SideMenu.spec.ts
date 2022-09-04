@@ -1,27 +1,64 @@
 import SideMenu from '@/components/SideMenu.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
-import {mount} from '@vue/test-utils'
+import {DOMWrapper, mount} from '@vue/test-utils'
 import axios from 'axios'
-// import Vue from 'vue'
+import {Branch} from '../../types'
+import {setImmediate} from 'timers'
 
 jest.mock('axios')
 
 describe('SideMenu.vue', () => {
   let wrapper: any
   let $route: any
+  let gitData: Branch[]
   let swaggerURL: string
   let kibanaURL: string
   let grafanaURL: string
   let prometheusURL: string
+  let dbData: any
   beforeEach(() => {
+    gitData = [
+      {
+        'id': 'master',
+        'description': 'Update entry [__default__] of document [aclprofiles]',
+        'date': '2020-11-10T15:49:17+02:00',
+        'logs': [
+          {
+            'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
+            'date': '2020-11-10T15:49:17+02:00',
+            'parents': [],
+            'message': 'Initial empty content',
+            'email': 'curiefense@reblaze.com',
+            'author': 'Curiefense API',
+          },
+        ],
+        'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
+      },
+      {
+        'id': 'zzz_branch',
+        'description': 'Initial empty content',
+        'date': '2020-08-27T16:19:06+00:00',
+        'logs': [
+          {
+            'version': 'a34f979217215060861b58b3f270e82580c20efb',
+            'date': '2020-08-27T16:19:06+00:00',
+            'parents': [],
+            'message': 'Initial empty content',
+            'email': 'curiefense@reblaze.com',
+            'author': 'Curiefense API',
+          },
+        ],
+        'version': 'a34f979217215060861b58b3f270e82580c20efb',
+      },
+    ]
     $route = {
-      path: '/config',
+      path: '/list',
     }
     swaggerURL = 'https://10.0.0.1:30000/api/v2/'
     kibanaURL = 'https://10.0.0.1:5601/app/discover/'
     grafanaURL = 'https://10.0.0.1:30300/'
     prometheusURL = 'https://10.0.0.1:9090/'
-    const dbData = {
+    dbData = {
       links: {
         kibana_url: kibanaURL,
         grafana_url: grafanaURL,
@@ -33,11 +70,16 @@ describe('SideMenu.vue', () => {
       if (path === `/conf/api/v2/db/system/`) {
         return Promise.resolve({data: dbData})
       }
+      if (path === '/conf/api/v2/configs/') {
+        return Promise.resolve({data: gitData})
+      }
       return Promise.resolve({data: {}})
     })
     wrapper = mount(SideMenu, {
-      mocks: {
-        $route,
+      global: {
+        mocks: {
+          $route,
+        },
       },
       stubs: ['router-link', 'router-view'],
     })
@@ -53,97 +95,71 @@ describe('SideMenu.vue', () => {
   })
 
   function menuItemShouldContainWantedSectionItems(menuItemName: string, wantedSectionItems: any[]) {
-    const menuItem = wrapper.findAll('.menu-item').filter((item : any) => item.text()?.includes(menuItemName))
+    const menuItem = wrapper.findAll('.menu-item').filter((item: any) => item.text()?.includes(menuItemName))
     const sectionItems = menuItem.at(0).findAll('.section-item')
-    for (let i = 0; i < wantedSectionItems.length; i++) {
-      expect(sectionItems.at(i).text()).toContain(wantedSectionItems[i].title)
-      if (wantedSectionItems[i].external) {
-        expect(sectionItems.at(i).html()).toContain(`href="${wantedSectionItems[i].path}"`)
+    wantedSectionItems.forEach((wantedSectionItem) => {
+      const match: DOMWrapper<any> = sectionItems.find((sectionItem: DOMWrapper<any>) => {
+        return sectionItem.text().includes(wantedSectionItem.title)
+      })
+      expect(match).toBeDefined()
+      expect(match.text()).toContain(wantedSectionItem.title)
+      if (wantedSectionItem.external) {
+        expect(match.html()).toContain(`href="${wantedSectionItem.path}"`)
       } else {
-        expect(sectionItems.at(i).html()).toContain(`to="${wantedSectionItems[i].path}"`)
+        expect(match.html()).toContain(`to="${wantedSectionItem.path}"`)
       }
-    }
+    })
   }
 
-  test('should render all Configuration menu items when db key does not exist', () => {
-    jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === `/conf/api/v2/db/system/`) {
-        return Promise.resolve({data: {}})
-      }
-      return Promise.resolve({data: {}})
-    })
-    wrapper = mount(SideMenu, {
-      mocks: {
-        $route,
-      },
-      stubs: ['router-link', 'router-view'],
-    })
+  test('should render all static Settings menu items when system db does not exist', () => {
     const wantedInternalMenuItems = [
-      {path: '/config', title: 'Policies & Rules'},
+      {path: '/list', title: 'Policies & Rules'},
       {path: '/CurieDB', title: 'CurieDB'},
       {path: '/publish', title: 'Publish Changes'},
-      {path: `${location.protocol}//${location.hostname}:30000/api/v2/`, title: 'API', external: true},
     ]
 
     menuItemShouldContainWantedSectionItems('settings', wantedInternalMenuItems)
   })
 
-  test('should render all Configuration menu items when db key exists', () => {
-    const wantedInternalMenuItems = [
-      {path: '/config', title: 'Policies & Rules'},
-      {path: '/CurieDB', title: 'CurieDB'},
-      {path: '/publish', title: 'Publish Changes'},
-      {path: swaggerURL, title: 'API', external: true},
+  test('should render all static Git menu items', () => {
+    const wantedMenuItems = [
+      {path: '/versioncontrol', title: 'Version Control'},
     ]
 
-    menuItemShouldContainWantedSectionItems('settings', wantedInternalMenuItems)
+    menuItemShouldContainWantedSectionItems('git', wantedMenuItems)
   })
 
-  test('should render all Analytics menu items when db key does not exist', async () => {
+  test('should render all static Docs menu items', () => {
+    const wantedMenuItems = [
+      {path: 'https://docs.curiefense.io/', title: 'Curiebook', external: true},
+    ]
+
+    menuItemShouldContainWantedSectionItems('docs', wantedMenuItems)
+  })
+
+  test('should render all dynamic menu items when system db exists with links and URLs data', (done) => {
     jest.spyOn(axios, 'get').mockImplementation((path) => {
       if (path === `/conf/api/v2/db/system/`) {
-        return Promise.resolve({data: {}})
+        return Promise.resolve({data: dbData})
       }
       return Promise.resolve({data: {}})
     })
     wrapper = mount(SideMenu, {
-      mocks: {
-        $route,
+      global: {
+        mocks: {
+          $route,
+        },
       },
       stubs: ['router-link', 'router-view'],
     })
-    const wantedMenuItems = [
+    const wantedSettingsMenuItems = [
       {
-        path: `${location.protocol}//${location.hostname}:5601/app/discover`,
-        title: 'Kibana',
-        external: true,
-      },
-      {
-        path: `${location.protocol}//${location.hostname}:30300/`,
-        title: 'Grafana',
-        external: true,
-      },
-      {
-        path: `${location.protocol}//${location.hostname}:9090/`,
-        title: 'Prometheus',
+        path: swaggerURL,
+        title: 'API',
         external: true,
       },
     ]
-    await wrapper.vm.$nextTick()
-    await wrapper.vm.$nextTick()
-    menuItemShouldContainWantedSectionItems('analytics', wantedMenuItems)
-  })
-
-  test('should render all Analytics menu items when db key exists', async () => {
-    wrapper = mount(SideMenu, {
-      mocks: {
-        $route,
-      },
-      stubs: ['router-link', 'router-view'],
-    })
-    await wrapper.vm.$nextTick()
-    await wrapper.vm.$nextTick()
-    const wantedMenuItems = [
+    const wantedAnalyticsMenuItems = [
       {
         path: kibanaURL,
         title: 'Kibana',
@@ -160,23 +176,157 @@ describe('SideMenu.vue', () => {
         external: true,
       },
     ]
-
-    menuItemShouldContainWantedSectionItems('analytics', wantedMenuItems)
+    // allow all requests to finish
+    setImmediate(() => {
+      menuItemShouldContainWantedSectionItems('settings', wantedSettingsMenuItems)
+      menuItemShouldContainWantedSectionItems('analytics', wantedAnalyticsMenuItems)
+      done()
+    })
   })
 
-  test('should render all Git menu items', () => {
-    const wantedMenuItems = [
-      {path: '/versioncontrol', title: 'Version Control'},
+  test('should render all dynamic menu items when system db exists without URLs in links data', (done) => {
+    delete dbData.links.grafana_url
+    delete dbData.links.kibana_url
+    delete dbData.links.prometheus_url
+    delete dbData.links.swagger_url
+    jest.spyOn(axios, 'get').mockImplementation((path) => {
+      if (path === `/conf/api/v2/db/system/`) {
+        return Promise.resolve({data: dbData})
+      }
+      return Promise.resolve({data: {}})
+    })
+    wrapper = mount(SideMenu, {
+      global: {
+        mocks: {
+          $route,
+        },
+      },
+      stubs: ['router-link', 'router-view'],
+    })
+    const wantedSettingsMenuItems = [
+      {
+        path: `${location.protocol}//${location.hostname}:30000/api/v2/`,
+        title: 'API',
+        external: true,
+      },
     ]
-
-    menuItemShouldContainWantedSectionItems('git', wantedMenuItems)
+    const wantedAnalyticsMenuItems = [
+      {
+        path: `${location.protocol}//${location.hostname}:5601/app/discover`,
+        title: 'Kibana',
+        external: true,
+      },
+      {
+        path: `${location.protocol}//${location.hostname}:30300/`,
+        title: 'Grafana',
+        external: true,
+      },
+      {
+        path: `${location.protocol}//${location.hostname}:9090/`,
+        title: 'Prometheus',
+        external: true,
+      },
+    ]
+    // allow all requests to finish
+    setImmediate(() => {
+      menuItemShouldContainWantedSectionItems('settings', wantedSettingsMenuItems)
+      menuItemShouldContainWantedSectionItems('analytics', wantedAnalyticsMenuItems)
+      done()
+    })
   })
 
-  test('should render all Docs menu items', () => {
-    const wantedMenuItems = [
-      {path: 'https://docs.curiefense.io/', title: 'Curiebook', external: true},
+  test('should render all dynamic menu items when system db exists without links data', (done) => {
+    delete dbData.links
+    jest.spyOn(axios, 'get').mockImplementation((path) => {
+      if (path === `/conf/api/v2/db/system/`) {
+        return Promise.resolve({data: dbData})
+      }
+      return Promise.resolve({data: {}})
+    })
+    wrapper = mount(SideMenu, {
+      global: {
+        mocks: {
+          $route,
+        },
+      },
+      stubs: ['router-link', 'router-view'],
+    })
+    const wantedSettingsMenuItems = [
+      {
+        path: `${location.protocol}//${location.hostname}:30000/api/v2/`,
+        title: 'API',
+        external: true,
+      },
     ]
+    const wantedAnalyticsMenuItems = [
+      {
+        path: `${location.protocol}//${location.hostname}:5601/app/discover`,
+        title: 'Kibana',
+        external: true,
+      },
+      {
+        path: `${location.protocol}//${location.hostname}:30300/`,
+        title: 'Grafana',
+        external: true,
+      },
+      {
+        path: `${location.protocol}//${location.hostname}:9090/`,
+        title: 'Prometheus',
+        external: true,
+      },
+    ]
+    // allow all requests to finish
+    setImmediate(() => {
+      menuItemShouldContainWantedSectionItems('settings', wantedSettingsMenuItems)
+      menuItemShouldContainWantedSectionItems('analytics', wantedAnalyticsMenuItems)
+      done()
+    })
+  })
 
-    menuItemShouldContainWantedSectionItems('docs', wantedMenuItems)
+  test('should render all dynamic menu items when system db does not exist', (done) => {
+    jest.spyOn(axios, 'get').mockImplementation((path) => {
+      if (path === `/conf/api/v2/db/system/`) {
+        return Promise.resolve({data: {}})
+      }
+      return Promise.resolve({data: {}})
+    })
+    wrapper = mount(SideMenu, {
+      global: {
+        mocks: {
+          $route,
+        },
+      },
+      stubs: ['router-link', 'router-view'],
+    })
+    const wantedSettingsMenuItems = [
+      {
+        path: `${location.protocol}//${location.hostname}:30000/api/v2/`,
+        title: 'API',
+        external: true,
+      },
+    ]
+    const wantedAnalyticsMenuItems = [
+      {
+        path: `${location.protocol}//${location.hostname}:5601/app/discover`,
+        title: 'Kibana',
+        external: true,
+      },
+      {
+        path: `${location.protocol}//${location.hostname}:30300/`,
+        title: 'Grafana',
+        external: true,
+      },
+      {
+        path: `${location.protocol}//${location.hostname}:9090/`,
+        title: 'Prometheus',
+        external: true,
+      },
+    ]
+    // allow all requests to finish
+    setImmediate(() => {
+      menuItemShouldContainWantedSectionItems('settings', wantedSettingsMenuItems)
+      menuItemShouldContainWantedSectionItems('analytics', wantedAnalyticsMenuItems)
+      done()
+    })
   })
 })

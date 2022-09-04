@@ -6,7 +6,7 @@ import {shallowMount} from '@vue/test-utils'
 import {ACLProfile, ContentFilterProfile, RateLimit, SecurityPolicy} from '@/types'
 import axios from 'axios'
 import _ from 'lodash'
-import {setImmediate, setTimeout} from 'timers'
+import {setImmediate} from 'timers'
 
 jest.mock('axios')
 
@@ -232,8 +232,7 @@ describe('SecurityPoliciesEditor.vue', () => {
       if (!wrapper) {
         return Promise.resolve({data: []})
       }
-      const branch = (wrapper.vm as any).selectedBranch
-      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
+      if (path === `/conf/api/v2/configs/${selectedBranch}/d/aclprofiles/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve(
             {
@@ -245,7 +244,7 @@ describe('SecurityPoliciesEditor.vue', () => {
         }
         return Promise.resolve({data: aclDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/securitypolicies/`) {
+      if (path === `/conf/api/v2/configs/${selectedBranch}/d/securitypolicies/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve(
             {
@@ -257,7 +256,7 @@ describe('SecurityPoliciesEditor.vue', () => {
         }
         return Promise.resolve({data: securityPoliciesDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/contentfilterprofiles/`) {
+      if (path === `/conf/api/v2/configs/${selectedBranch}/d/contentfilterprofiles/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve(
             {
@@ -269,7 +268,7 @@ describe('SecurityPoliciesEditor.vue', () => {
         }
         return Promise.resolve({data: contentFilterDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/ratelimits/`) {
+      if (path === `/conf/api/v2/configs/${selectedBranch}/d/ratelimits/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve(
             {
@@ -281,7 +280,7 @@ describe('SecurityPoliciesEditor.vue', () => {
         }
         return Promise.resolve({data: rateLimitsDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/ratelimits/e/f971e92459e2/`) {
+      if (path === `/conf/api/v2/configs/${selectedBranch}/d/ratelimits/e/f971e92459e2/`) {
         return Promise.resolve({data: rateLimitsDocs[0]})
       }
       return Promise.resolve({data: []})
@@ -294,8 +293,10 @@ describe('SecurityPoliciesEditor.vue', () => {
         selectedDoc: securityPoliciesDocs[0],
         selectedBranch,
       },
-      mocks: {
-        $router: mockRouter,
+      global: {
+        mocks: {
+          $router: mockRouter,
+        },
       },
     })
   })
@@ -303,7 +304,7 @@ describe('SecurityPoliciesEditor.vue', () => {
     jest.clearAllMocks()
   })
 
-  test('should update initial domain match if selectedDoc updates from a state without match', async (done) => {
+  test('should update initial domain match if selectedDoc updates from a state without match', (done) => {
     const wantedMatch = 'www.example.com'
     const basicDataPolicy = {
       'id': '__default__',
@@ -340,18 +341,16 @@ describe('SecurityPoliciesEditor.vue', () => {
       },
     })
     wrapper.setProps({selectedDoc: fullPolicy})
-    await wrapper.vm.$nextTick()
     // allow all requests to finish
     jest.useFakeTimers()
     setImmediate(() => {
-      console.log('beforeAll111')
       expect((wrapper.vm as any).initialDocDomainMatch).toBe(wantedMatch)
       jest.useRealTimers()
       done()
     })
   })
 
-  test('should not update initial domain match if selectedDoc updates from a state with empty match', async (done) => {
+  test('should not update initial domain match if selectedDoc updates from a state with empty match', (done) => {
     const wantedMatch = ''
     const basicDataPolicy = {
       'id': '__default__',
@@ -389,7 +388,6 @@ describe('SecurityPoliciesEditor.vue', () => {
       },
     })
     wrapper.setProps({selectedDoc: fullPolicy})
-    await wrapper.vm.$nextTick()
     // allow all requests to finish
     setImmediate(() => {
       expect((wrapper.vm as any).initialDocDomainMatch).toBe(wantedMatch)
@@ -397,7 +395,7 @@ describe('SecurityPoliciesEditor.vue', () => {
     })
   })
 
-  test('should not send new requests to API if selected branch does not update', async (done) => {
+  test('should not send new requests to API if selected branch does not update', (done) => {
     jest.resetAllMocks()
     const branch = _.cloneDeep(selectedBranch)
     wrapper.setProps({
@@ -410,7 +408,7 @@ describe('SecurityPoliciesEditor.vue', () => {
     })
   })
 
-  test('should not send new requests to API if selected branch updates to empty string', async (done) => {
+  test('should not send new requests to API if selected branch updates to empty string', (done) => {
     jest.resetAllMocks()
     wrapper.setProps({
       selectedBranch: '',
@@ -422,7 +420,7 @@ describe('SecurityPoliciesEditor.vue', () => {
     })
   })
 
-  test('should not send new requests to API if selected branch updates to null', async (done) => {
+  test('should not send new requests to API if selected branch updates to null', (done) => {
     jest.resetAllMocks()
     wrapper.setProps({
       selectedBranch: null,
@@ -434,7 +432,7 @@ describe('SecurityPoliciesEditor.vue', () => {
     })
   })
 
-  test('should not send new requests to API if selected branch updates to undefined', async (done) => {
+  test('should not send new requests to API if selected branch updates to undefined', (done) => {
     jest.resetAllMocks()
     wrapper.setProps({
       selectedBranch: undefined,
@@ -446,17 +444,13 @@ describe('SecurityPoliciesEditor.vue', () => {
     })
   })
 
-  test('should send a single new request to API if selected branch updates', async (done) => {
+  test('should send a single new request to API if selected branch updates', async () => {
     jest.resetAllMocks()
     const branch = 'devops'
-    wrapper.setProps({
+    await wrapper.setProps({
       selectedBranch: branch,
     })
-    // allow all requests to finish
-    setImmediate(() => {
-      expect(axiosGetSpy).toHaveBeenCalledTimes(1)
-      done()
-    })
+    expect(axiosGetSpy).toHaveBeenCalledTimes(1)
   })
 
   test('should not change the initial domain match if document data updates with new data and same ID', async () => {
@@ -488,20 +482,18 @@ describe('SecurityPoliciesEditor.vue', () => {
         },
       ],
     }
-    wrapper.setProps({
+    await wrapper.setProps({
       selectedDoc: securityPoliciesDocs[0],
     })
-    await wrapper.vm.$nextTick()
     expect((wrapper.vm as any).initialDocDomainMatch).toEqual(wantedDomainMatch)
   })
 
   test('should change the initial domain match if document data updates with new ID', async () => {
     jest.resetAllMocks()
     const wantedDomainMatch = securityPoliciesDocs[1].match
-    wrapper.setProps({
+    await wrapper.setProps({
       selectedDoc: securityPoliciesDocs[1],
     })
-    await wrapper.vm.$nextTick()
     expect((wrapper.vm as any).initialDocDomainMatch).toEqual(wantedDomainMatch)
   })
 
@@ -559,9 +551,8 @@ describe('SecurityPoliciesEditor.vue', () => {
     test('should have correct entry data displayed in expanded row', async () => {
       const table = wrapper.find('.entries-table')
       const entryRow = table.findAll('.entry-row').at(0)
-      entryRow.trigger('click')
-      await wrapper.vm.$nextTick()
-      const currentEntryRow = table.findAll('.current-entry-row').at(0)
+      await entryRow.trigger('click')
+      const currentEntryRow = table.find('.current-entry-row')
       const entryName = currentEntryRow.find('.current-entry-name')
       expect((entryName.element as HTMLInputElement).value).toEqual(securityPoliciesDocs[0].map[0].name)
       const entryMatch = currentEntryRow.find('.current-entry-match')
@@ -580,9 +571,8 @@ describe('SecurityPoliciesEditor.vue', () => {
     test('should have correct entry rate limit data displayed in expanded row', async () => {
       const table = wrapper.find('.entries-table')
       const entryRow = table.findAll('.entry-row').at(0)
-      entryRow.trigger('click')
-      await wrapper.vm.$nextTick()
-      const currentEntryRow = table.findAll('.current-entry-row').at(0)
+      await entryRow.trigger('click')
+      const currentEntryRow = table.find('.current-entry-row')
       const entryRateLimitsTable = currentEntryRow.find('.current-entry-rate-limits-table')
       const entryRateLimitsRows = entryRateLimitsTable.findAll('.rate-limit-row')
       expect(entryRateLimitsRows.length).toEqual(securityPoliciesDocs[0].map[0].limit_ids.length)
@@ -596,15 +586,13 @@ describe('SecurityPoliciesEditor.vue', () => {
 
     test('should not have rate limit data displayed if no corresponding rate limit exists', async () => {
       securityPoliciesDocs[1].map[0].limit_ids.push('invalid')
-      wrapper.setProps({
+      await wrapper.setProps({
         selectedDoc: securityPoliciesDocs[1],
       })
-      await wrapper.vm.$nextTick()
       const table = wrapper.find('.entries-table')
       const entryRow = table.findAll('.entry-row').at(0)
-      entryRow.trigger('click')
-      await wrapper.vm.$nextTick()
-      const currentEntryRow = table.findAll('.current-entry-row').at(0)
+      await entryRow.trigger('click')
+      const currentEntryRow = table.find('.current-entry-row')
       const entryRateLimitsTable = currentEntryRow.find('.current-entry-rate-limits-table')
       const entryRateLimitsRows = entryRateLimitsTable.findAll('.rate-limit-row')
       expect(entryRateLimitsRows.length).toEqual(securityPoliciesDocs[1].map[0].limit_ids.length - 1)
@@ -617,30 +605,27 @@ describe('SecurityPoliciesEditor.vue', () => {
     test('should open new rate limit row from add button', async () => {
       const table = wrapper.find('.entries-table')
       const entryRow = table.findAll('.entry-row').at(0)
-      entryRow.trigger('click')
-      await wrapper.vm.$nextTick()
-      const currentEntryRow = table.findAll('.current-entry-row').at(0)
+      await entryRow.trigger('click')
+      const currentEntryRow = table.find('.current-entry-row')
       const entryRateLimitsTable = currentEntryRow.find('.current-entry-rate-limits-table')
       const addButton = entryRateLimitsTable.find('.rate-limit-add-button')
-      addButton.trigger('click')
-      await wrapper.vm.$nextTick()
-      const enwRateLimitRow = entryRateLimitsTable.find('.new-rate-limit-row')
-      expect(enwRateLimitRow.exists()).toBeTruthy()
+      await addButton.trigger('click')
+      const newRateLimitRow = entryRateLimitsTable.find('.new-rate-limit-row')
+      expect(newRateLimitRow.exists()).toBeTruthy()
     })
 
     test('should open new rate limit row from text `here` button if list is empty', async () => {
       const table = wrapper.find('.entries-table')
       const entryRow = table.findAll('.entry-row').at(0)
-      entryRow.trigger('click')
-      await wrapper.vm.$nextTick()
-      const currentEntryRow = table.findAll('.current-entry-row').at(0)
+      await entryRow.trigger('click')
+      const currentEntryRow = table.find('.current-entry-row')
       const entryRateLimitsTable = currentEntryRow.find('.current-entry-rate-limits-table')
       const removeButton = entryRateLimitsTable.find('.rate-limit-remove-button')
-      removeButton.trigger('click')
+      await removeButton.trigger('click')
       await wrapper.vm.$forceUpdate()
       const addButton = entryRateLimitsTable.find('.rate-limit-text-add-button')
-      addButton.trigger('click')
-      await wrapper.vm.$nextTick()
+      await addButton.trigger('click')
+      await wrapper.vm.$forceUpdate()
       const enwRateLimitRow = entryRateLimitsTable.find('.new-rate-limit-row')
       expect(enwRateLimitRow.exists()).toBeTruthy()
     })
@@ -648,13 +633,11 @@ describe('SecurityPoliciesEditor.vue', () => {
     test('should have all unselected rate limits in dropdown', async () => {
       const table = wrapper.find('.entries-table')
       const entryRow = table.findAll('.entry-row').at(0)
-      entryRow.trigger('click')
-      await wrapper.vm.$nextTick()
-      const currentEntryRow = table.findAll('.current-entry-row').at(0)
+      await entryRow.trigger('click')
+      const currentEntryRow = table.find('.current-entry-row')
       const entryRateLimitsTable = currentEntryRow.find('.current-entry-rate-limits-table')
       const addButton = entryRateLimitsTable.find('.rate-limit-add-button')
-      addButton.trigger('click')
-      await wrapper.vm.$nextTick()
+      await addButton.trigger('click')
       const newRateLimitSelection = entryRateLimitsTable.find('.new-rate-limit-selection')
       const options = newRateLimitSelection.findAll('option')
       expect(options.length).toEqual(rateLimitsDocs.length - securityPoliciesDocs[0].map[0].limit_ids.length)
@@ -664,20 +647,16 @@ describe('SecurityPoliciesEditor.vue', () => {
     test('should add selected rate limit from dropdown to table', async () => {
       const table = wrapper.find('.entries-table')
       const entryRow = table.findAll('.entry-row').at(0)
-      entryRow.trigger('click')
-      await wrapper.vm.$nextTick()
-      const currentEntryRow = table.findAll('.current-entry-row').at(0)
+      await entryRow.trigger('click')
+      const currentEntryRow = table.find('.current-entry-row')
       const entryRateLimitsTable = currentEntryRow.find('.current-entry-rate-limits-table')
       const addButton = entryRateLimitsTable.find('.rate-limit-add-button')
-      addButton.trigger('click')
-      await wrapper.vm.$nextTick()
+      await addButton.trigger('click')
       const newRateLimitSelection = entryRateLimitsTable.find('.new-rate-limit-selection')
       const options = newRateLimitSelection.findAll('option')
-      newRateLimitSelection.setValue(options.at(0).element.value)
-      await wrapper.vm.$nextTick()
+      await newRateLimitSelection.setValue(options.at(0).element.value)
       const confirmAddButton = entryRateLimitsTable.find('.rate-limit-confirm-add-button')
-      confirmAddButton.trigger('click')
-      await wrapper.vm.$nextTick()
+      await confirmAddButton.trigger('click')
       const entryRateLimitsRows = entryRateLimitsTable.findAll('.rate-limit-row')
       expect(entryRateLimitsRows.length).toEqual(securityPoliciesDocs[0].map[0].limit_ids.length + 1)
     })
@@ -685,16 +664,13 @@ describe('SecurityPoliciesEditor.vue', () => {
     test('should not add a rate limit if nothing is selected in dropdown', async () => {
       const table = wrapper.find('.entries-table')
       const entryRow = table.findAll('.entry-row').at(0)
-      entryRow.trigger('click')
-      await wrapper.vm.$nextTick()
-      const currentEntryRow = table.findAll('.current-entry-row').at(0)
+      await entryRow.trigger('click')
+      const currentEntryRow = table.find('.current-entry-row')
       const entryRateLimitsTable = currentEntryRow.find('.current-entry-rate-limits-table')
       const addButton = entryRateLimitsTable.find('.rate-limit-add-button')
-      addButton.trigger('click')
-      await wrapper.vm.$nextTick()
+      await addButton.trigger('click')
       const confirmAddButton = entryRateLimitsTable.find('.rate-limit-confirm-add-button')
-      confirmAddButton.trigger('click')
-      await wrapper.vm.$nextTick()
+      await confirmAddButton.trigger('click')
       const entryRateLimitsRows = entryRateLimitsTable.findAll('.rate-limit-row')
       expect(entryRateLimitsRows.length).toEqual(securityPoliciesDocs[0].map[0].limit_ids.length)
     })
@@ -702,12 +678,11 @@ describe('SecurityPoliciesEditor.vue', () => {
     test('should remove selected rate limit from table', async () => {
       const table = wrapper.find('.entries-table')
       const entryRow = table.findAll('.entry-row').at(0)
-      entryRow.trigger('click')
-      await wrapper.vm.$nextTick()
-      const currentEntryRow = table.findAll('.current-entry-row').at(0)
+      await entryRow.trigger('click')
+      const currentEntryRow = table.find('.current-entry-row')
       const entryRateLimitsTable = currentEntryRow.find('.current-entry-rate-limits-table')
       const removeButton = entryRateLimitsTable.find('.rate-limit-remove-button')
-      removeButton.trigger('click')
+      await removeButton.trigger('click')
       await wrapper.vm.$forceUpdate()
       const entryRateLimitsRows = entryRateLimitsTable.findAll('.rate-limit-row')
       expect(entryRateLimitsRows.length).toEqual(securityPoliciesDocs[0].map[0].limit_ids.length - 1)
@@ -716,16 +691,14 @@ describe('SecurityPoliciesEditor.vue', () => {
     test('should change route when create new rate limit is clicked', async () => {
       const table = wrapper.find('.entries-table')
       const entryRow = table.findAll('.entry-row').at(0)
-      entryRow.trigger('click')
-      await wrapper.vm.$nextTick()
-      const currentEntryRow = table.findAll('.current-entry-row').at(0)
+      await entryRow.trigger('click')
+      const currentEntryRow = table.find('.current-entry-row')
       const entryRateLimitsTable = currentEntryRow.find('.current-entry-rate-limits-table')
       const removeButton = entryRateLimitsTable.find('.rate-limit-remove-button')
-      removeButton.trigger('click')
+      await removeButton.trigger('click')
       await wrapper.vm.$forceUpdate()
       const referralButton = entryRateLimitsTable.find('.rate-limit-referral-button')
       await referralButton.trigger('click')
-      await wrapper.vm.$nextTick()
       expect(mockRouter.push).toHaveBeenCalledTimes(1)
       expect(mockRouter.push).toHaveBeenCalledWith(`/config/${selectedBranch}/ratelimits`)
     })
@@ -733,17 +706,15 @@ describe('SecurityPoliciesEditor.vue', () => {
 
   describe('form validation', () => {
     beforeEach(async () => {
-      wrapper.setProps({
+      await wrapper.setProps({
         selectedDoc: securityPoliciesDocs[1],
       })
-      await wrapper.vm.$nextTick()
     })
 
     test('should emit form is invalid when changing match to already existing one', async () => {
       const input = wrapper.find('.document-domain-name')
-      input.setValue(securityPoliciesDocs[0].match)
-      input.trigger('input')
-      await wrapper.vm.$nextTick()
+      await input.setValue(securityPoliciesDocs[0].match)
+      await input.trigger('input')
       expect(wrapper.emitted('form-invalid')).toBeTruthy()
       expect(wrapper.emitted('form-invalid')[0]).toEqual([true])
     })
@@ -753,30 +724,27 @@ describe('SecurityPoliciesEditor.vue', () => {
     //   const input = wrapper.find('.document-domain-name');
     //   (input.element as HTMLInputElement).value = 'БЮ'
     //   input.trigger('input')
-    //   await wrapper.vm.$nextTick()
+    //   await nextTick()
     //   expect(wrapper.emitted('form-invalid')).toBeTruthy()
     //   expect(wrapper.emitted('form-invalid')[0]).toEqual([true])
     // })
 
     test('should emit form is valid when changing match to valid one', async () => {
       const input = wrapper.find('.document-domain-name')
-      input.setValue(securityPoliciesDocs[0].match)
-      input.trigger('input')
-      await wrapper.vm.$nextTick()
+      await input.setValue(securityPoliciesDocs[0].match)
+      await input.trigger('input')
       // reset all events for clearer event emitting
       wrapper.emitted('form-invalid').length = 0
-      input.setValue('example.com')
-      input.trigger('input')
-      await wrapper.vm.$nextTick()
+      await input.setValue('example.com')
+      await input.trigger('input')
       expect(wrapper.emitted('form-invalid')).toBeTruthy()
       expect(wrapper.emitted('form-invalid')[0]).toEqual([false])
     })
 
     test('should emit form is valid when changing match to valid one starting with special character', async () => {
       const input = wrapper.find('.document-domain-name')
-      input.setValue('(api|service).company.(io|com)')
-      input.trigger('input')
-      await wrapper.vm.$nextTick()
+      await input.setValue('(api|service).company.(io|com)')
+      await input.trigger('input')
       expect(wrapper.emitted('form-invalid')).toBeTruthy()
       expect(wrapper.emitted('form-invalid')[0]).toEqual([false])
     })
@@ -784,13 +752,11 @@ describe('SecurityPoliciesEditor.vue', () => {
     test('should emit form is invalid when changing map entry match to already existing one', async () => {
       const table = wrapper.find('.entries-table')
       const entryRow = table.findAll('.entry-row').at(0)
-      entryRow.trigger('click')
-      await wrapper.vm.$nextTick()
-      const currentEntryRow = table.findAll('.current-entry-row').at(0)
+      await entryRow.trigger('click')
+      const currentEntryRow = table.find('.current-entry-row')
       const entryMatch = currentEntryRow.find('.current-entry-match')
-      entryMatch.setValue(securityPoliciesDocs[1].map[1].match)
-      entryMatch.trigger('input')
-      await wrapper.vm.$nextTick()
+      await entryMatch.setValue(securityPoliciesDocs[1].map[1].match)
+      await entryMatch.trigger('input')
       expect(wrapper.emitted('form-invalid')).toBeTruthy()
       expect(wrapper.emitted('form-invalid')[0]).toEqual([true])
     })
@@ -800,12 +766,12 @@ describe('SecurityPoliciesEditor.vue', () => {
     //   const table = wrapper.find('.entries-table')
     //   const entryRow = table.findAll('.entry-row').at(0)
     //   entryRow.trigger('click')
-    //   await wrapper.vm.$nextTick()
-    //   const currentEntryRow = table.findAll('.current-entry-row').at(0)
+    //   await nextTick()
+    //   const currentEntryRow = table.find('.current-entry-row')
     //   const entryMatch = currentEntryRow.find('.current-entry-match');
     //   (entryMatch.element as HTMLInputElement).value = '/א'
     //   entryMatch.trigger('input')
-    //   await wrapper.vm.$nextTick()
+    //   await nextTick()
     //   expect(wrapper.emitted('form-invalid')).toBeTruthy()
     //   expect(wrapper.emitted('form-invalid')[0]).toEqual([true])
     // })
@@ -813,13 +779,11 @@ describe('SecurityPoliciesEditor.vue', () => {
     test('should emit form is valid when changing map entry match to valid one', async () => {
       const table = wrapper.find('.entries-table')
       const entryRow = table.findAll('.entry-row').at(0)
-      entryRow.trigger('click')
-      await wrapper.vm.$nextTick()
-      const currentEntryRow = table.findAll('.current-entry-row').at(0)
+      await entryRow.trigger('click')
+      const currentEntryRow = table.find('.current-entry-row')
       const entryMatch = currentEntryRow.find('.current-entry-match')
-      entryMatch.setValue('/logout')
-      entryMatch.trigger('input')
-      await wrapper.vm.$nextTick()
+      await entryMatch.setValue('/logout')
+      await entryMatch.trigger('input')
       expect(wrapper.emitted('form-invalid')).toBeTruthy()
       expect(wrapper.emitted('form-invalid')[0]).toEqual([false])
     })
@@ -827,25 +791,21 @@ describe('SecurityPoliciesEditor.vue', () => {
     test('should revert old entry match data to be valid before switching selected entry', async () => {
       let table = wrapper.find('.entries-table')
       let entryRow = table.findAll('.entry-row').at(1)
-      entryRow.trigger('click')
-      await wrapper.vm.$nextTick()
+      await entryRow.trigger('click')
       table = wrapper.find('.entries-table')
-      let currentEntryRow = table.findAll('.current-entry-row').at(0)
+      let currentEntryRow = table.find('.current-entry-row')
       let entryMatch = currentEntryRow.find('.current-entry-match')
-      entryMatch.setValue('')
-      entryMatch.trigger('change')
-      entryMatch.trigger('input')
-      await wrapper.vm.$nextTick()
+      await entryMatch.setValue('')
+      await entryMatch.trigger('change')
+      await entryMatch.trigger('input')
       table = wrapper.find('.entries-table')
       entryRow = table.findAll('.entry-row').at(0)
-      entryRow.trigger('click')
-      await wrapper.vm.$nextTick()
+      await entryRow.trigger('click')
       table = wrapper.find('.entries-table')
       entryRow = table.findAll('.entry-row').at(1)
-      entryRow.trigger('click')
-      await wrapper.vm.$nextTick()
+      await entryRow.trigger('click')
       table = wrapper.find('.entries-table')
-      currentEntryRow = table.findAll('.current-entry-row').at(0)
+      currentEntryRow = table.find('.current-entry-row')
       entryMatch = currentEntryRow.find('.current-entry-match')
       expect((entryMatch.element as HTMLInputElement).value).toEqual('/login')
     })
@@ -853,25 +813,21 @@ describe('SecurityPoliciesEditor.vue', () => {
     test('should revert old entry match data to be valid before closing selected entry', async () => {
       let table = wrapper.find('.entries-table')
       let entryRow = table.findAll('.entry-row').at(1)
-      entryRow.trigger('click')
-      await wrapper.vm.$nextTick()
+      await entryRow.trigger('click')
       table = wrapper.find('.entries-table')
-      let currentEntryRow = table.findAll('.current-entry-row').at(0)
+      let currentEntryRow = table.find('.current-entry-row')
       let entryMatch = currentEntryRow.find('.current-entry-match')
-      entryMatch.setValue('')
-      entryMatch.trigger('change')
-      entryMatch.trigger('input')
-      await wrapper.vm.$nextTick()
+      await entryMatch.setValue('')
+      await entryMatch.trigger('change')
+      await entryMatch.trigger('input')
       table = wrapper.find('.entries-table')
       entryRow = table.findAll('.entry-row').at(1)
-      entryRow.trigger('click')
-      await wrapper.vm.$nextTick()
+      await entryRow.trigger('click')
       table = wrapper.find('.entries-table')
       entryRow = table.findAll('.entry-row').at(1)
-      entryRow.trigger('click')
-      await wrapper.vm.$nextTick()
+      await entryRow.trigger('click')
       table = wrapper.find('.entries-table')
-      currentEntryRow = table.findAll('.current-entry-row').at(0)
+      currentEntryRow = table.find('.current-entry-row')
       entryMatch = currentEntryRow.find('.current-entry-match')
       expect((entryMatch.element as HTMLInputElement).value).toEqual('/login')
     })
@@ -880,25 +836,21 @@ describe('SecurityPoliciesEditor.vue', () => {
       const wantedMatch = '/test'
       let table = wrapper.find('.entries-table')
       let entryRow = table.findAll('.entry-row').at(1)
-      entryRow.trigger('click')
-      await wrapper.vm.$nextTick()
+      await entryRow.trigger('click')
       table = wrapper.find('.entries-table')
-      let currentEntryRow = table.findAll('.current-entry-row').at(0)
+      let currentEntryRow = table.find('.current-entry-row')
       let entryMatch = currentEntryRow.find('.current-entry-match')
-      entryMatch.setValue(wantedMatch)
-      entryMatch.trigger('change')
-      entryMatch.trigger('input')
-      await wrapper.vm.$nextTick()
+      await entryMatch.setValue(wantedMatch)
+      await entryMatch.trigger('change')
+      await entryMatch.trigger('input')
       table = wrapper.find('.entries-table')
       entryRow = table.findAll('.entry-row').at(0)
-      entryRow.trigger('click')
-      await wrapper.vm.$nextTick()
+      await entryRow.trigger('click')
       table = wrapper.find('.entries-table')
       entryRow = table.findAll('.entry-row').at(1)
-      entryRow.trigger('click')
-      await wrapper.vm.$nextTick()
+      await entryRow.trigger('click')
       table = wrapper.find('.entries-table')
-      currentEntryRow = table.findAll('.current-entry-row').at(0)
+      currentEntryRow = table.find('.current-entry-row')
       entryMatch = currentEntryRow.find('.current-entry-match')
       expect((entryMatch.element as HTMLInputElement).value).toEqual(wantedMatch)
     })
@@ -907,25 +859,21 @@ describe('SecurityPoliciesEditor.vue', () => {
       const wantedMatch = '/test'
       let table = wrapper.find('.entries-table')
       let entryRow = table.findAll('.entry-row').at(1)
-      entryRow.trigger('click')
-      await wrapper.vm.$nextTick()
+      await entryRow.trigger('click')
       table = wrapper.find('.entries-table')
-      let currentEntryRow = table.findAll('.current-entry-row').at(0)
+      let currentEntryRow = table.find('.current-entry-row')
       let entryMatch = currentEntryRow.find('.current-entry-match')
-      entryMatch.setValue(wantedMatch)
-      entryMatch.trigger('change')
-      entryMatch.trigger('input')
-      await wrapper.vm.$nextTick()
+      await entryMatch.setValue(wantedMatch)
+      await entryMatch.trigger('change')
+      await entryMatch.trigger('input')
       table = wrapper.find('.entries-table')
       entryRow = table.findAll('.entry-row').at(1)
-      entryRow.trigger('click')
-      await wrapper.vm.$nextTick()
+      await entryRow.trigger('click')
       table = wrapper.find('.entries-table')
       entryRow = table.findAll('.entry-row').at(1)
-      entryRow.trigger('click')
-      await wrapper.vm.$nextTick()
+      await entryRow.trigger('click')
       table = wrapper.find('.entries-table')
-      currentEntryRow = table.findAll('.current-entry-row').at(0)
+      currentEntryRow = table.find('.current-entry-row')
       entryMatch = currentEntryRow.find('.current-entry-match')
       expect((entryMatch.element as HTMLInputElement).value).toEqual(wantedMatch)
     })
@@ -937,9 +885,8 @@ describe('SecurityPoliciesEditor.vue', () => {
       beforeEach(async () => {
         const table = wrapper.find('.entries-table')
         const entryRow = table.findAll('.entry-row').at(1)
-        entryRow.trigger('click')
-        await wrapper.vm.$nextTick()
-        currentEntryRow = table.findAll('.current-entry-row').at(0)
+        await entryRow.trigger('click')
+        currentEntryRow = table.find('.current-entry-row')
         forkButton = currentEntryRow.find('.fork-entry-button')
         removeButton = currentEntryRow.find('.remove-entry-button')
       })
@@ -947,32 +894,27 @@ describe('SecurityPoliciesEditor.vue', () => {
       describe('fork', () => {
         test('should emit form is valid when forking an invalid entry', async () => {
           const entryMatch = currentEntryRow.find('.current-entry-match')
-          entryMatch.setValue('')
-          entryMatch.trigger('input')
-          await wrapper.vm.$nextTick()
+          await entryMatch.setValue('')
+          await entryMatch.trigger('input')
           // reset all events for clearer event emitting
           wrapper.emitted('form-invalid').length = 0
-          forkButton.trigger('click')
-          await wrapper.vm.$nextTick()
+          await forkButton.trigger('click')
           expect(wrapper.emitted('form-invalid')).toBeTruthy()
           expect(wrapper.emitted('form-invalid')[0]).toEqual([false])
         })
 
         test('should revert when forking an invalid entry', async () => {
           let entryMatch = currentEntryRow.find('.current-entry-match')
-          entryMatch.setValue('')
-          entryMatch.trigger('change')
-          entryMatch.trigger('input')
-          await wrapper.vm.$nextTick()
-          forkButton.trigger('click')
+          await entryMatch.setValue('')
+          await entryMatch.trigger('change')
+          await entryMatch.trigger('input')
+          await forkButton.trigger('click')
           await wrapper.vm.$forceUpdate()
           let table = wrapper.find('.entries-table')
           const entryRow = table.findAll('.entry-row').at(2)
-          entryRow.trigger('click')
-          await wrapper.vm.$nextTick()
-          await wrapper.vm.$forceUpdate()
+          await entryRow.trigger('click')
           table = wrapper.find('.entries-table')
-          currentEntryRow = table.findAll('.current-entry-row').at(0)
+          currentEntryRow = table.find('.current-entry-row')
           entryMatch = currentEntryRow.find('.current-entry-match')
           expect((entryMatch.element as HTMLInputElement).value).toEqual('/login')
         })
@@ -980,18 +922,16 @@ describe('SecurityPoliciesEditor.vue', () => {
         test('should not revert entry match data if valid when forking selected entry', async () => {
           const wantedMatch = '/test'
           let entryMatch = currentEntryRow.find('.current-entry-match')
-          entryMatch.setValue(wantedMatch)
-          entryMatch.trigger('change')
-          entryMatch.trigger('input')
-          await wrapper.vm.$nextTick()
-          forkButton.trigger('click')
+          await entryMatch.setValue(wantedMatch)
+          await entryMatch.trigger('change')
+          await entryMatch.trigger('input')
+          await forkButton.trigger('click')
           await wrapper.vm.$forceUpdate()
           let table = wrapper.find('.entries-table')
           const entryRow = table.findAll('.entry-row').at(2)
-          entryRow.trigger('click')
-          await wrapper.vm.$nextTick()
+          await entryRow.trigger('click')
           table = wrapper.find('.entries-table')
-          currentEntryRow = table.findAll('.current-entry-row').at(0)
+          currentEntryRow = table.find('.current-entry-row')
           entryMatch = currentEntryRow.find('.current-entry-match')
           expect((entryMatch.element as HTMLInputElement).value).toEqual(wantedMatch)
         })
@@ -1002,14 +942,12 @@ describe('SecurityPoliciesEditor.vue', () => {
           await wrapper.vm.$forceUpdate()
           let table = wrapper.find('.entries-table')
           let entryRow = table.findAll('.entry-row').at(1)
-          entryRow.trigger('click')
-          await wrapper.vm.$nextTick()
+          await entryRow.trigger('click')
           table = wrapper.find('.entries-table')
           entryRow = table.findAll('.entry-row').at(1)
-          entryRow.trigger('click')
-          await wrapper.vm.$nextTick()
+          await entryRow.trigger('click')
           table = wrapper.find('.entries-table')
-          currentEntryRow = table.findAll('.current-entry-row').at(0)
+          currentEntryRow = table.find('.current-entry-row')
           const entryMatch = currentEntryRow.find('.current-entry-match')
           expect((entryMatch.element as HTMLInputElement).value).toEqual(validMatch)
         })
@@ -1020,14 +958,12 @@ describe('SecurityPoliciesEditor.vue', () => {
           await wrapper.vm.$forceUpdate()
           let table = wrapper.find('.entries-table')
           let entryRow = table.findAll('.entry-row').at(2)
-          entryRow.trigger('click')
-          await wrapper.vm.$nextTick()
+          await entryRow.trigger('click')
           table = wrapper.find('.entries-table')
           entryRow = table.findAll('.entry-row').at(1)
-          entryRow.trigger('click')
-          await wrapper.vm.$nextTick()
+          await entryRow.trigger('click')
           table = wrapper.find('.entries-table')
-          currentEntryRow = table.findAll('.current-entry-row').at(0)
+          currentEntryRow = table.find('.current-entry-row')
           const entryMatch = currentEntryRow.find('.current-entry-match')
           expect((entryMatch.element as HTMLInputElement).value).toEqual(validMatch)
         })
@@ -1036,12 +972,11 @@ describe('SecurityPoliciesEditor.vue', () => {
       describe('remove', () => {
         test('should emit form is valid when deleting an invalid entry', async () => {
           const entryMatch = currentEntryRow.find('.current-entry-match')
-          entryMatch.setValue('')
-          entryMatch.trigger('input')
-          await wrapper.vm.$nextTick()
+          await entryMatch.setValue('')
+          await entryMatch.trigger('input')
           // reset all events for clearer event emitting
           wrapper.emitted('form-invalid').length = 0
-          removeButton.trigger('click')
+          await removeButton.trigger('click')
           await wrapper.vm.$forceUpdate()
           expect(wrapper.emitted('form-invalid')).toBeTruthy()
           expect(wrapper.emitted('form-invalid')[0]).toEqual([false])
@@ -1050,16 +985,14 @@ describe('SecurityPoliciesEditor.vue', () => {
         test('should not revert entry match data of new selected entry when deleting selected entry', async () => {
           let table = wrapper.find('.entries-table')
           let entryRow = table.findAll('.entry-row').at(1)
-          entryRow.trigger('click')
-          await wrapper.vm.$nextTick()
+          await entryRow.trigger('click')
           removeButton.trigger('click')
           await wrapper.vm.$forceUpdate()
           table = wrapper.find('.entries-table')
           entryRow = table.findAll('.entry-row').at(0)
-          entryRow.trigger('click')
-          await wrapper.vm.$nextTick()
+          await entryRow.trigger('click')
           table = wrapper.find('.entries-table')
-          currentEntryRow = table.findAll('.current-entry-row').at(0)
+          currentEntryRow = table.find('.current-entry-row')
           const entryMatch = currentEntryRow.find('.current-entry-match')
           expect((entryMatch.element as HTMLInputElement).value).toEqual(securityPoliciesDocs[0].map[0].match)
         })
@@ -1073,27 +1006,24 @@ describe('SecurityPoliciesEditor.vue', () => {
     beforeEach(async () => {
       const table = wrapper.find('.entries-table')
       const entryRow = table.findAll('.entry-row').at(1)
-      entryRow.trigger('click')
-      await wrapper.vm.$nextTick()
-      const currentEntryRow = table.findAll('.current-entry-row').at(0)
+      await entryRow.trigger('click')
+      const currentEntryRow = table.find('.current-entry-row')
       forkButton = currentEntryRow.find('.fork-entry-button')
       removeButton = currentEntryRow.find('.remove-entry-button')
     })
 
     describe('fork', () => {
       test('should add another map entry after forking an entry', async () => {
-        forkButton.trigger('click')
-        await wrapper.vm.$nextTick()
+        await forkButton.trigger('click')
         const table = wrapper.find('.entries-table')
         const entryRows = table.findAll('.entry-row')
         expect(entryRows.length).toEqual(securityPoliciesDocs[0].map.length + 1)
       })
 
       test('should have correct copied data after forking an entry', async () => {
-        forkButton.trigger('click')
-        await wrapper.vm.$nextTick()
+        await forkButton.trigger('click')
         const table = wrapper.find('.entries-table')
-        const currentEntryRow = table.findAll('.current-entry-row').at(0)
+        const currentEntryRow = table.find('.current-entry-row')
         const entryName = currentEntryRow.find('.current-entry-name')
         expect((entryName.element as HTMLInputElement).value).toEqual('New Security Profile')
         const entryMatch = currentEntryRow.find('.current-entry-match')
@@ -1111,10 +1041,9 @@ describe('SecurityPoliciesEditor.vue', () => {
       })
 
       test('should have correct copied rate limit data after forking an entry', async () => {
-        forkButton.trigger('click')
-        await wrapper.vm.$nextTick()
+        await forkButton.trigger('click')
         const table = wrapper.find('.entries-table')
-        const currentEntryRow = table.findAll('.current-entry-row').at(0)
+        const currentEntryRow = table.find('.current-entry-row')
         const entryRateLimitsTable = currentEntryRow.find('.current-entry-rate-limits-table')
         const entryRateLimitsRows = entryRateLimitsTable.findAll('.rate-limit-row')
         expect(entryRateLimitsRows.length).toEqual(securityPoliciesDocs[0].map[1].limit_ids.length)
@@ -1128,36 +1057,31 @@ describe('SecurityPoliciesEditor.vue', () => {
 
       test('should revert old match data to be valid before forking if invalid', async () => {
         let table = wrapper.find('.entries-table')
-        let currentEntryRow = table.findAll('.current-entry-row').at(0)
+        let currentEntryRow = table.find('.current-entry-row')
         let entryMatch = currentEntryRow.find('.current-entry-match')
-        entryMatch.setValue('')
-        entryMatch.trigger('change')
-        entryMatch.trigger('input')
-        await wrapper.vm.$nextTick()
-        forkButton.trigger('click')
-        await wrapper.vm.$nextTick()
+        await entryMatch.setValue('')
+        await entryMatch.trigger('change')
+        await entryMatch.trigger('input')
+        await forkButton.trigger('click')
         table = wrapper.find('.entries-table')
         const entryRow = table.findAll('.entry-row').at(2)
-        entryRow.trigger('click')
-        await wrapper.vm.$nextTick()
+        await entryRow.trigger('click')
         table = wrapper.find('.entries-table')
-        currentEntryRow = table.findAll('.current-entry-row').at(0)
+        currentEntryRow = table.find('.current-entry-row')
         entryMatch = currentEntryRow.find('.current-entry-match')
         expect((entryMatch.element as HTMLInputElement).value).toEqual('/login')
       })
 
       test('should have correct valid reverted match in forked entry', async () => {
         let table = wrapper.find('.entries-table')
-        let currentEntryRow = table.findAll('.current-entry-row').at(0)
+        let currentEntryRow = table.find('.current-entry-row')
         let entryMatch = currentEntryRow.find('.current-entry-match')
-        entryMatch.setValue('')
-        entryMatch.trigger('change')
-        entryMatch.trigger('input')
-        await wrapper.vm.$nextTick()
-        forkButton.trigger('click')
-        await wrapper.vm.$nextTick()
+        await entryMatch.setValue('')
+        await entryMatch.trigger('change')
+        await entryMatch.trigger('input')
+        await forkButton.trigger('click')
         table = wrapper.find('.entries-table')
-        currentEntryRow = table.findAll('.current-entry-row').at(0)
+        currentEntryRow = table.find('.current-entry-row')
         const entryName = currentEntryRow.find('.current-entry-name')
         expect((entryName.element as HTMLInputElement).value).toEqual('New Security Profile')
         entryMatch = currentEntryRow.find('.current-entry-match')
@@ -1223,10 +1147,9 @@ describe('SecurityPoliciesEditor.vue', () => {
             },
           ],
         }
-        wrapper.setProps({
+        await wrapper.setProps({
           selectedDoc: securityPoliciesDocs[0],
         })
-        await wrapper.vm.$nextTick()
       })
 
       test('should remove map entry after clicking remove button', async () => {
@@ -1273,7 +1196,7 @@ describe('SecurityPoliciesEditor.vue', () => {
     })
   })
 
-  test('should have forked entry name input focused', async (done) => {
+  test('should have forked entry name input focused', (done) => {
     const elem = document.createElement('div')
     if (document.body) {
       document.body.appendChild(elem)
@@ -1288,18 +1211,17 @@ describe('SecurityPoliciesEditor.vue', () => {
     let table = wrapper.find('.entries-table')
     const entryRow = table.findAll('.entry-row').at(1)
     entryRow.trigger('click')
-    await wrapper.vm.$nextTick()
-    let currentEntryRow = table.findAll('.current-entry-row').at(0)
-    const forkButton = currentEntryRow.find('.fork-entry-button')
-    forkButton.trigger('click')
-    await wrapper.vm.$nextTick()
-    table = wrapper.find('.entries-table')
-    currentEntryRow = table.findAll('.current-entry-row').at(0)
-    const entryName = currentEntryRow.find('.current-entry-name')
-    // allow all requests to finish
-    setTimeout(() => {
-      expect(entryName.element).toBe(document.activeElement)
-      done()
-    }, 0)
+    setImmediate(() => {
+      let currentEntryRow = table.find('.current-entry-row')
+      const forkButton = currentEntryRow.find('.fork-entry-button')
+      forkButton.trigger('click')
+      table = wrapper.find('.entries-table')
+      currentEntryRow = table.find('.current-entry-row')
+      const entryName = currentEntryRow.find('.current-entry-name')
+      setImmediate(() => {
+        expect(entryName.element).toBe(document.activeElement)
+        done()
+      })
+    })
   })
 })
