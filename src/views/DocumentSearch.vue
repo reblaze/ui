@@ -491,7 +491,7 @@ export default defineComponent({
 
     goToDocument(doc: SearchDocument) {
       const docRoute = `/config/${this.selectedBranch}/${doc.docType}/${doc.id}`
-      this.$router?.push(docRoute)
+      this.$router.push(docRoute)
     },
 
     // Collect every request to display a loading indicator

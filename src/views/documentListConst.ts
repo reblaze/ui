@@ -1,214 +1,273 @@
-import {ColumnOptionsMap} from '@/types'
+import {
+  ACLProfile,
+  ColumnOptionsMap,
+  ContentFilterProfile,
+  ContentFilterRule,
+  FlowControlPolicy,
+  GlobalFilter,
+  RateLimit,
+} from '@/types'
+import {RESPONSE_ACTIONS} from '@/components/responseActionConst'
+import _ from 'lodash'
 
-
-export const HEADER_COLUMNS_MAP: ColumnOptionsMap = {
+export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
   'globalfilters': [
     {
       columnTitle: 'Name',
-      fieldName: 'name',
+      fieldNames: ['name'],
       isSortable: true,
       isSearchable: true,
       classes: 'width-120px',
     },
     {
       columnTitle: 'Description',
-      fieldName: 'description',
+      fieldNames: ['description'],
       isSortable: true,
       isSearchable: true,
-      classes: 'width-500px ellipsis',
+      classes: 'ellipsis',
     },
     {
       columnTitle: 'Tags',
-      fieldName: 'tags', // TODO: returned array from DB, need to .join(\n)
+      fieldNames: ['tags'],
+      displayFunction: (item: GlobalFilter) => {
+        return item?.tags?.join('\n')
+      },
       isSortable: false,
       isSearchable: true,
-      classes: 'width-100px',
-    },
-    {
-      columnTitle: 'Type',
-      fieldName: 'source', // TODO: what should to returned there?
-      isSortable: true,
-      isSearchable: true,
-      classes: 'width-80px',
+      classes: 'width-100px white-space-pre ellipsis',
     },
     {
       columnTitle: 'Active',
-      fieldName: 'active', // TODO: needs to write a function that returns Yes if active, otherwise returns No(?) if not active
+      fieldNames: ['active'],
+      displayFunction: (item: GlobalFilter) => {
+        return item?.active ? 'yes' : 'no'
+      },
       isSortable: true,
       isSearchable: true,
       classes: 'width-80px',
     },
     {
       columnTitle: 'Action',
-      fieldName: 'action',
-      isSortable: true,
-      isSearchable: true,
-      classes: 'width-80px',
-    },
-    // TODO: should ask Aviv what to get from DB to #ofsections & #ofentries
-  ],
-  'ratelimits': [
-    {
-      columnTitle: 'Name',
-      fieldName: 'name',
-      isSortable: true,
-      isSearchable: true,
-      classes: 'width-120px',
-    },
-    {
-      columnTitle: 'Description',
-      fieldName: 'description',
-      isSortable: true,
-      isSearchable: true,
-      classes: 'width-500px ellipsis',
-    },
-    {
-      columnTitle: 'Limit',
-      fieldName: 'limit',
-      isSortable: true,
-      isSearchable: true,
-      classes: 'width-80px',
-    },
-    {
-      columnTitle: 'Pair with',
-      fieldName: 'pairwith',
+      fieldNames: ['action'],
+      displayFunction: (item: GlobalFilter) => {
+        return RESPONSE_ACTIONS[item?.action?.type]?.title
+      },
       isSortable: true,
       isSearchable: true,
       classes: 'width-80px',
     },
   ],
   'flowcontrol': [
-    // TODO: what should be on there columns header? it isnt in reblaze
     {
       columnTitle: 'Name',
-      fieldName: 'name',
+      fieldNames: ['name'],
       isSortable: true,
       isSearchable: true,
       classes: 'width-120px',
     },
     {
       columnTitle: 'Description',
-      fieldName: 'description',
+      fieldNames: ['description'],
       isSortable: true,
       isSearchable: true,
-      classes: 'width-500px ellipsis',
+      classes: 'ellipsis',
     },
     {
       columnTitle: 'Sequences',
-      fieldName: 'sequence', // TODO: needs to returned length of this array
+      fieldNames: ['sequence'],
+      displayFunction: (item: FlowControlPolicy) => {
+        return item?.sequence?.length?.toString()
+      },
       isSortable: true,
       isSearchable: true,
       classes: 'width-100px',
     },
     {
       columnTitle: 'Timeframe',
-      fieldName: 'timeframe',
+      fieldNames: ['timeframe'],
       isSortable: true,
       isSearchable: true,
       classes: 'width-100px',
     },
     {
-      columnTitle: 'Action', // TODO: this parameter is part of object called action: {type: "challenge", params: {}}
-      fieldName: 'action',
+      columnTitle: 'Action',
+      fieldNames: ['action'],
+      displayFunction: (item: FlowControlPolicy) => {
+        return RESPONSE_ACTIONS[item?.action?.type]?.title
+      },
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-80px',
+    },
+  ],
+  'ratelimits': [
+    {
+      columnTitle: 'Name',
+      fieldNames: ['name'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-120px',
+    },
+    {
+      columnTitle: 'Description',
+      fieldNames: ['description'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'ellipsis',
+    },
+    {
+      columnTitle: 'Timeframe',
+      fieldNames: ['timeframe'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-100px',
+    },
+    {
+      columnTitle: 'Limits',
+      fieldNames: ['thresholds'],
+      displayFunction: (item: RateLimit) => {
+        return _.map(item.thresholds, 'limit').join('\n')
+      },
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-100px white-space-pre ellipsis',
+    },
+    {
+      columnTitle: 'Event',
+      fieldNames: ['pairwith'],
+      displayFunction: (item: RateLimit) => {
+        if (!item.pairwith) {
+          return ''
+        }
+        return _.isEqual(item.pairwith, {'self': 'self'}) ? 'HTTP request' :
+          `${Object.keys(item.pairwith)[0]}: ${Object.values(item.pairwith)[0]}`
+      },
       isSortable: true,
       isSearchable: true,
       classes: 'width-80px',
     },
   ],
   'aclprofiles': [
-  // TODO: add function that combine allow, allow_bot, deny, deny_bot, force_deny, passthrough.
     {
       columnTitle: 'Name',
-      fieldName: 'name',
+      fieldNames: ['name'],
       isSortable: true,
       isSearchable: true,
       classes: 'width-120px',
     },
     {
       columnTitle: 'Description',
-      fieldName: 'description',
+      fieldNames: ['description'],
       isSortable: true,
       isSearchable: true,
-      classes: 'width-500px ellipsis',
+      classes: 'ellipsis',
     },
     {
       columnTitle: 'Tags',
-      fieldName: 'tags',
+      fieldNames: ['force_deny', 'passthrough', 'allow_bot', 'deny_bot', 'allow', 'deny'],
+      displayFunction: (item: ACLProfile) => {
+        return _.concat(
+          item['force_deny'],
+          item['passthrough'],
+          item['allow_bot'],
+          item['deny_bot'],
+          item['allow'],
+          item['deny'],
+        )?.join('\n')
+      },
       isSortable: true,
       isSearchable: true,
-      classes: 'width-100px',
+      classes: 'width-100px white-space-pre ellipsis',
     },
   ],
   'contentfilterprofiles': [
     {
       columnTitle: 'Name',
-      fieldName: 'name',
+      fieldNames: ['name'],
       isSortable: true,
       isSearchable: true,
       classes: 'width-120px',
     },
     {
       columnTitle: 'Description',
-      fieldName: 'description',
+      fieldNames: ['description'],
       isSortable: true,
       isSearchable: true,
-      classes: 'width-500px ellipsis',
+      classes: 'ellipsis',
     },
     {
       columnTitle: 'Restrict Content Type',
-      fieldName: 'content_type', // TODO:should to .join()
+      fieldNames: ['content_type'],
+      displayFunction: (item: ContentFilterProfile) => {
+        return item['content_type']?.join(', ')
+      },
       isSortable: true,
       isSearchable: true,
       classes: 'width-150px',
     },
     {
       columnTitle: 'Decoding',
-      fieldName: 'decoding', // TODO:should to .join()
+      fieldNames: ['decoding'],
+      displayFunction: (item: ContentFilterProfile) => {
+        if (!item.decoding) {
+          return ''
+        }
+        const displayValues: string[] = []
+        Object.keys(item.decoding).forEach((decodingKey: string) => {
+          if (item.decoding[decodingKey as keyof ContentFilterProfile['decoding']]) {
+            displayValues.push(decodingKey)
+          }
+        })
+        return displayValues.join('\n')
+      },
       isSortable: true,
       isSearchable: true,
-      classes: 'width-80px',
+      classes: 'width-100px white-space-pre ellipsis',
     },
 
   ],
   'contentfilterrules': [
     {
       columnTitle: 'Name',
-      fieldName: 'name',
+      fieldNames: ['name'],
       isSortable: true,
       isSearchable: true,
       classes: 'width-120px',
     },
     {
       columnTitle: 'Description',
-      fieldName: 'description',
+      fieldNames: ['description'],
       isSortable: true,
       isSearchable: true,
-      classes: 'width-500px ellipsis',
+      classes: 'ellipsis',
     },
     {
       columnTitle: 'Category',
-      fieldName: 'category',
-      isSortable: true,
-      isSearchable: true,
-      classes: 'width-80px',
-    },
-    {
-      columnTitle: 'Subcategory',
-      fieldName: 'subcategory',
+      fieldNames: ['category'],
       isSortable: true,
       isSearchable: true,
       classes: 'width-100px',
     },
     {
-      columnTitle: 'Risk Level',
-      fieldName: 'risk',
+      columnTitle: 'Subcategory',
+      fieldNames: ['subcategory'],
       isSortable: true,
       isSearchable: true,
-      classes: 'width-90px',
+      classes: 'width-120px',
     },
     {
-      columnTitle: 'Tags', // TODO: needs to join("/n")
-      fieldName: 'tags',
+      columnTitle: 'Risk Level',
+      fieldNames: ['risk'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-100px',
+    },
+    {
+      columnTitle: 'Tags',
+      fieldNames: ['tags'],
+      displayFunction: (item: ContentFilterRule) => {
+        return item?.tags?.join(', ')
+      },
       isSortable: true,
       isSearchable: true,
       classes: 'width-80px',

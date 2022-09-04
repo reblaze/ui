@@ -17,15 +17,15 @@
           <router-link v-else
                        :data-qa="menuItemDetails.title"
                        :data-curie="menuItemKey"
-                       :to="{path: menuItemKey as string}"
-                       :class="{ 'is-active': currentRoutePath.includes(menuItemKey as string) }">
+                       :to="menuItemKey.toString()"
+                       :class="{ 'is-active': currentRoutePath.includes(menuItemKey.toString()) }">
             {{ menuItemDetails.title }}
           </router-link>
           <ul v-if="menuItemDetails.items"
               class="my-0">
             <li v-for="(menuSubItemDetails, menuSubItemKey) in menuItemDetails.items" :key="menuSubItemKey">
               <router-link :data-curie="menuSubItemKey"
-                           :to="{path: menuSubItemKey.toString()}"
+                           :to="menuItemKey + menuSubItemKey.toString()"
                            :class="{ 'is-active': currentRoutePath.includes(menuSubItemKey.toString()) }">
                 {{ menuSubItemDetails.title }}
               </router-link>
@@ -66,11 +66,9 @@ export default defineComponent({
       defaultPrometheusURL: prometheusURL,
       menuItems: {
         settings: {
-          '/config': {
+          '/list': {
             title: 'Policies & Rules',
-            items: {
-              '/search': {title: 'Search'},
-            },
+            items: {},
           },
           '/CurieDB': {
             title: 'CurieDB',
@@ -122,20 +120,20 @@ export default defineComponent({
   },
   computed: {
     currentRoutePath() {
-      return this.$route?.path || ''
+      return this.$route.path || ''
     },
   },
   methods: {
     async loadLinksFromDB() {
-      const systemDBData = (await RequestsUtils.sendRequest({
+      const response = await RequestsUtils.sendRequest({
         methodName: 'GET',
         url: `db/system/`,
-      }))?.data
-      const swaggerURL = systemDBData?.links?.swagger_url ? systemDBData.links.swagger_url : this.defaultSwaggerURL
-      const kibanaURL = systemDBData?.links?.kibana_url ? systemDBData.links.kibana_url : this.defaultKibanaURL
-      const grafanaURL = systemDBData?.links?.grafana_url ? systemDBData.links.grafana_url : this.defaultGrafanaURL
-      const prometheusURL =
-          systemDBData?.links?.prometheus_url ? systemDBData.links.prometheus_url : this.defaultPrometheusURL
+      })
+      const systemDBData = response?.data
+      const swaggerURL = systemDBData?.links?.swagger_url || this.defaultSwaggerURL
+      const kibanaURL = systemDBData?.links?.kibana_url || this.defaultKibanaURL
+      const grafanaURL = systemDBData?.links?.grafana_url || this.defaultGrafanaURL
+      const prometheusURL = systemDBData?.links?.prometheus_url || this.defaultPrometheusURL
       this.menuItems.settings.swagger = {
         title: 'API',
         url: swaggerURL,
@@ -157,9 +155,23 @@ export default defineComponent({
         external: true,
       }
     },
+
+    async loadBranches() {
+      const response = await RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'})
+      const branchId = response?.data?.[0]?.id || 'undefined'
+      const items = this.menuItems.settings['/list'].items // reference
+      items[`/${branchId}/globalfilters`] = {title: 'Global Filters'} as menuItem
+      items[`/${branchId}/flowcontrol`] = {title: 'Flow Control Policies'} as menuItem
+      items[`/${branchId}/ratelimits`] = {title: 'Rate limits'} as menuItem
+      items[`/${branchId}/aclprofiles`] = {title: 'ACL Profiles'} as menuItem
+      items[`/${branchId}/contentfilterprofiles`] = {title: 'Content Filter Profiles'} as menuItem
+      items[`/${branchId}/contentfilterrules`] = {title: 'Content Filter Rules'} as menuItem
+      // items[`/${branchId}/search`] = {title: 'Search'} as menuItem
+    },
   },
   async mounted() {
     await this.loadLinksFromDB()
+    await this.loadBranches()
   },
 })
 </script>
