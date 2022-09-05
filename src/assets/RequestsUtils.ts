@@ -31,7 +31,6 @@ const processRequest = (methodName: HttpRequestMethods, apiUrl: string, data: an
 
   // Request
   console.log(`Sending ${methodName} request to url ${apiUrl}`)
-  console.log('apiUrl', apiUrl, 'config', config)
   let request
   if (data) {
     if (config) {

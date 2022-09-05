@@ -297,7 +297,7 @@ export default defineComponent({
       isSaveDocLoading: false,
 
       // json editor
-      editor: null,
+      editor: null as JSONEditor,
       isJsonEditor: true,
 
       namespaceKeys: [] as string[],
