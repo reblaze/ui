@@ -7,7 +7,7 @@ import {ACLProfile, ContentFilterProfile, RateLimit, SecurityPolicy} from '@/typ
 import axios from 'axios'
 import _ from 'lodash'
 import {setImmediate} from 'timers'
-import {nextTick} from 'vue'
+// import {nextTick} from 'vue'
 
 jest.mock('axios')
 
@@ -230,6 +230,7 @@ describe('SecurityPoliciesEditor.vue', () => {
     ]
     selectedBranch = 'master'
     axiosGetSpy = jest.spyOn(axios, 'get').mockImplementation((path, config) => {
+      console.log('path', path, 'config', config)
       if (!wrapper) {
         return Promise.resolve({data: []})
       }
@@ -446,13 +447,14 @@ describe('SecurityPoliciesEditor.vue', () => {
   })
 
   test('should send a single new request to API if selected branch updates', async () => {
+    console.log('aylonow')
     jest.resetAllMocks()
     const branch = 'devops'
     wrapper.setProps({
       selectedBranch: branch,
     })
-    await nextTick()
-    await nextTick()
+    // await nextTick()
+    // await nextTick()
     expect(axiosGetSpy).toHaveBeenCalledTimes(1)
   })
 
