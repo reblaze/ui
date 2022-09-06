@@ -350,7 +350,7 @@ describe('SecurityPoliciesEditor.vue', () => {
     // allow all requests to finish
     jest.useFakeTimers()
     setImmediate(() => {
-      expect((wrapper.vm as any).initialDocDomainMatch).toBe(wantedMatch)
+      expect((wrapper.vm as DOMWrapper).initialDocDomainMatch).toBe(wantedMatch)
       jest.useRealTimers()
       done()
     })
@@ -396,7 +396,7 @@ describe('SecurityPoliciesEditor.vue', () => {
     wrapper.setProps({selectedDoc: fullPolicy})
     // allow all requests to finish
     setImmediate(() => {
-      expect((wrapper.vm as any).initialDocDomainMatch).toBe(wantedMatch)
+      expect((wrapper.vm as DOMWrapper).initialDocDomainMatch).toBe(wantedMatch)
       done()
     })
   })
@@ -552,7 +552,7 @@ describe('SecurityPoliciesEditor.vue', () => {
         },
       ],
     }
-    expect((wrapper.vm as any).initialDocDomainMatch).toEqual(wantedDomainMatch)
+    expect((wrapper.vm as DOMWrapper).initialDocDomainMatch).toEqual(wantedDomainMatch)
   })
 
   test('should change the initial domain match if document data updates with new ID', async () => {
@@ -561,7 +561,7 @@ describe('SecurityPoliciesEditor.vue', () => {
     await wrapper.setProps({
       selectedDoc: securityPoliciesDocs[1],
     })
-    expect((wrapper.vm as any).initialDocDomainMatch).toEqual(wantedDomainMatch)
+    expect((wrapper.vm as DOMWrapper).initialDocDomainMatch).toEqual(wantedDomainMatch)
   })
 
   describe('form data', () => {
@@ -1029,7 +1029,8 @@ describe('SecurityPoliciesEditor.vue', () => {
         test('should not revert entry match data of new entry when forking selected entry', async () => {
           const validMatch = expect.stringContaining('/new/path/to/match/profile/')
           forkButton.trigger('click')
-          await wrapper.vm.$forceUpdate()
+          wrapper.vm.$forceUpdate()
+          await nextTick()
           let table = wrapper.find('.entries-table')
           let entryRow = table.findAll('.entry-row').at(2)
           await entryRow.trigger('click')

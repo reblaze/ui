@@ -397,7 +397,7 @@ describe('DocumentSearch.vue', () => {
       if (path === '/conf/api/v2/configs/') {
         return Promise.resolve({data: gitData})
       }
-      const branch = (wrapper.vm as any).selectedBranch
+      const branch = (wrapper.vm as DOMWrapper).selectedBranch
       if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
         return Promise.resolve({data: aclDocs})
       }
@@ -436,7 +436,7 @@ describe('DocumentSearch.vue', () => {
   })
 
   function isItemInFilteredDocs(item: BasicDocument, doctype: string) {
-    const isInModel = (wrapper.vm as any).filteredDocs.some((doc: any) => {
+    const isInModel = (wrapper.vm as DOMWrapper).filteredDocs.some((doc: any) => {
       return doc.id === item.id && doc.docType === doctype
     })
     const isInView = wrapper.findAll('.doc-id-cell').filter((w: any) => {
@@ -513,7 +513,7 @@ describe('DocumentSearch.vue', () => {
 
     // Get connections cell
     const connectionsCell = wrapper.find('.doc-connections-cell')
-    const doc = (wrapper.vm as any).filteredDocs[0]
+    const doc = (wrapper.vm as DOMWrapper).filteredDocs[0]
 
     // check that security policy exists without duplicated connections
     expect(isItemInFilteredDocs(securityPoliciesDocs[0], 'securitypolicies')).toBeTruthy()
