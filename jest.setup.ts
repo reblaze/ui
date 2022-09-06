@@ -15,6 +15,5 @@ declare module '@vue/runtime-core' {
         [key: string]: HTMLElement | any,
       },
       $goto: any,
-      // ... more stuff
     }
   }

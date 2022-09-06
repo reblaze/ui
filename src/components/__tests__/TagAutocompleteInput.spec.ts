@@ -350,12 +350,12 @@ describe('TagAutocompleteInput.vue', () => {
   })
 
   test('watcher should follow initialTag value', async () => {
-    expect((wrapper.vm as DOMWrapper).initialTag).toBeFalsy()
-    expect((wrapper.vm as DOMWrapper).tag).toEqual((wrapper.vm as DOMWrapper).initialTag)
+    expect((wrapper.vm).initialTag).toBeFalsy()
+    expect((wrapper.vm).tag).toEqual((wrapper.vm).initialTag)
     const initialTagValue = 'test'
     wrapper.setProps({initialTag: initialTagValue})
     await nextTick()
-    expect((wrapper.vm as DOMWrapper).tag).toEqual(initialTagValue)
+    expect((wrapper.vm).tag).toEqual(initialTagValue)
   })
 
   describe('tags group prefix', () => {
@@ -379,7 +379,7 @@ describe('TagAutocompleteInput.vue', () => {
     })
 
     test('should add correct prefix to tags based on their group - legitimate', async () => {
-      const tagsSuggestions = (wrapper.vm as DOMWrapper).tagsSuggestions
+      const tagsSuggestions = (wrapper.vm).tagsSuggestions
       const titleString = 'title="legitimate"'
       const classesString = 'class="dot legitimate"'
       expect(tagsSuggestions[0].prefix).toContain(titleString)
@@ -387,7 +387,7 @@ describe('TagAutocompleteInput.vue', () => {
     })
 
     test('should add correct prefix to tags based on their group - malicious', async () => {
-      const tagsSuggestions = (wrapper.vm as DOMWrapper).tagsSuggestions
+      const tagsSuggestions = (wrapper.vm).tagsSuggestions
       const titleString = 'title="malicious"'
       const classesString = 'class="dot malicious"'
       expect(tagsSuggestions[1].prefix).toContain(titleString)
@@ -395,7 +395,7 @@ describe('TagAutocompleteInput.vue', () => {
     })
 
     test('should add correct prefix to tags based on their group - neutral', async () => {
-      const tagsSuggestions = (wrapper.vm as DOMWrapper).tagsSuggestions
+      const tagsSuggestions = (wrapper.vm).tagsSuggestions
       const titleString = 'title="neutral"'
       const classesString = 'class="dot neutral"'
       expect(tagsSuggestions[2].prefix).toContain(titleString)
@@ -571,7 +571,7 @@ describe('TagAutocompleteInput.vue', () => {
   describe('selection type prop validator', () => {
     let validator: Function
     beforeEach(() => {
-      validator = (wrapper.vm as DOMWrapper).$options.props.selectionType.validator
+      validator = (wrapper.vm).$options.props.selectionType.validator
     })
 
     test('should return true for `single` type`', () => {

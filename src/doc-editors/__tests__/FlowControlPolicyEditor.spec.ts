@@ -129,9 +129,9 @@ describe('FlowControlPolicyEditor.vue', () => {
       addKeyButton.trigger('click')
       const wantedType = 'attrs'
       const wantedValue = 'ip'
-      const actualType = Object.keys((wrapper.vm as DOMWrapper).localDoc.key[1])[0]
-      const actualValue = Object.values((wrapper.vm as DOMWrapper).localDoc.key[1])[0]
-      expect((wrapper.vm as DOMWrapper).localDoc.key.length).toEqual(2)
+      const actualType = Object.keys((wrapper.vm).localDoc.key[1])[0]
+      const actualValue = Object.values((wrapper.vm).localDoc.key[1])[0]
+      expect((wrapper.vm).localDoc.key.length).toEqual(2)
       expect(actualType).toEqual(wantedType)
       expect(actualValue).toEqual(wantedValue)
     })
@@ -144,8 +144,8 @@ describe('FlowControlPolicyEditor.vue', () => {
         },
       })
       const wantedType = 'headers'
-      const actualType = Object.keys((wrapper.vm as DOMWrapper).localDoc.key[0])[0]
-      const actualValue = Object.values((wrapper.vm as DOMWrapper).localDoc.key[0])[0]
+      const actualType = Object.keys((wrapper.vm).localDoc.key[0])[0]
+      const actualValue = Object.values((wrapper.vm).localDoc.key[0])[0]
       expect(actualType).toEqual(wantedType)
       expect(actualValue).toEqual(null)
     })
@@ -163,13 +163,13 @@ describe('FlowControlPolicyEditor.vue', () => {
       addKeyButton.trigger('click')
       const limitOptionsComponent = wrapper.findComponent(LimitOption)
       limitOptionsComponent.vm.$emit('remove', 1)
-      expect((wrapper.vm as DOMWrapper).localDoc.key.length).toEqual(1)
+      expect((wrapper.vm).localDoc.key.length).toEqual(1)
     })
 
     test('should not be able to remove key when only one key exists', () => {
       const limitOptionsComponent = wrapper.findComponent(LimitOption)
       limitOptionsComponent.vm.$emit('remove', 1)
-      expect((wrapper.vm as DOMWrapper).localDoc.key.length).toEqual(1)
+      expect((wrapper.vm).localDoc.key.length).toEqual(1)
     })
 
     test('should update key when change event occurs', async () => {
@@ -182,7 +182,7 @@ describe('FlowControlPolicyEditor.vue', () => {
       }
       const limitOptionsComponent = wrapper.findComponent(LimitOption)
       await limitOptionsComponent.vm.$emit('change', newOption, 0)
-      expect((wrapper.vm as DOMWrapper).localDoc.key[0]).toEqual(wantedResult)
+      expect((wrapper.vm).localDoc.key[0]).toEqual(wantedResult)
     })
   })
 
@@ -253,13 +253,13 @@ describe('FlowControlPolicyEditor.vue', () => {
       const removeIncludeEntryButton = wrapper.find('.remove-filter-entry-button')
       removeIncludeEntryButton.trigger('click')
       await nextTick()
-      expect((wrapper.vm as DOMWrapper).localDoc.include.length).toEqual(0)
+      expect((wrapper.vm).localDoc.include.length).toEqual(0)
     })
 
     test('should hide tag input when tag selection cancelled', async () => {
       const newIncludeEntryButton = wrapper.find('.add-new-filter-entry-button')
       await newIncludeEntryButton.trigger('click');
-      (wrapper.vm as DOMWrapper).cancelAddNewTag()
+      (wrapper.vm).cancelAddNewTag()
       await nextTick()
       const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
       await nextTick()
@@ -326,7 +326,7 @@ describe('FlowControlPolicyEditor.vue', () => {
 
       test('should not have the option to remove section if no sections exist', async () => {
         // remove all sections
-        while ((wrapper.vm as DOMWrapper).localDoc.sequence.length > 0) {
+        while ((wrapper.vm).localDoc.sequence.length > 0) {
           const removeSectionButton = wrapper.find('.remove-section-button')
           await removeSectionButton.trigger('click')
         }

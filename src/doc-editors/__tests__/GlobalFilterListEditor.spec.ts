@@ -802,7 +802,8 @@ describe('GlobalFilterListEditor.vue', () => {
       }
       const button = wrapper.find('.update-now-button')
       await button.trigger('click')
-      await wrapper.vm.$forceUpdate()
+      wrapper.vm.$forceUpdate()
+      await nextTick()
       const entriesRelationListComponent = wrapper.findComponent(EntriesRelationList)
       expect(entriesRelationListComponent.props('rule')).toEqual(wantedData)
     })
