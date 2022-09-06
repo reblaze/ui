@@ -109,19 +109,19 @@ describe('ACLEditor.vue', () => {
     const newTag = 'test-tag'
     const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
     tagAutocompleteInput.vm.$emit('tag-submitted', newTag)
-    expect((wrapper.vm).localDoc.passthrough.includes(newTag)).toBeTruthy()
+    expect(wrapper.vm.localDoc.passthrough.includes(newTag)).toBeTruthy()
   })
 
   test('should remove tag from correct section when tag removed', () => {
     const removePassthroughEntryButton = wrapper.findAll('.remove-entry-button').at(3)
     removePassthroughEntryButton.trigger('click')
-    expect((wrapper.vm).localDoc.passthrough).toEqual(['internal'])
+    expect(wrapper.vm.localDoc.passthrough).toEqual(['internal'])
   })
 
   test('should hide tag input when tag selection cancelled', async () => {
     const newPassthroughEntryButton = wrapper.findAll('.add-new-entry-button').at(1)
     await newPassthroughEntryButton.trigger('click');
-    (wrapper.vm).cancelAddNewTag()
+    wrapper.vm.cancelAddNewTag()
     const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
     await nextTick()
     expect(tagAutocompleteInput.exists()).toBeFalsy()

@@ -116,7 +116,7 @@ describe('ContentFilterProfileEditor.vue', () => {
       if (!wrapper) {
         return Promise.resolve({data: []})
       }
-      const branch = (wrapper.vm).selectedBranch
+      const branch = wrapper.vm.selectedBranch
       if (path === `/conf/api/v2/configs/${branch}/d/contentfilterrules/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve({data: _.map(contentFilterRulesDocs, (i: any) => _.pick(i, 'id', 'name'))})
@@ -302,14 +302,14 @@ describe('ContentFilterProfileEditor.vue', () => {
   test('should unpack exclusions correctly from model for view', async () => {
     const unpackedExclusions = 'cf-rule-id:100000 cf-risk:5'
     const packedExclusions = ['cf-rule-id:100000', 'cf-risk:5']
-    const actualUnpackedExclusions = (wrapper.vm).exclusionsToString(packedExclusions)
+    const actualUnpackedExclusions = wrapper.vm.exclusionsToString(packedExclusions)
     expect(actualUnpackedExclusions).toEqual(unpackedExclusions)
   })
 
   test('should unpack empty exclusions correctly from model for view', async () => {
     const unpackedExclusions = ''
     const packedExclusions: ContentFilterEntryMatch['exclusions'] = []
-    const actualUnpackedExclusions = (wrapper.vm).exclusionsToString(packedExclusions)
+    const actualUnpackedExclusions = wrapper.vm.exclusionsToString(packedExclusions)
     expect(actualUnpackedExclusions).toEqual(unpackedExclusions)
   })
 
@@ -415,7 +415,7 @@ describe('ContentFilterProfileEditor.vue', () => {
             await autocompleteInput.vm.$emit('value-submitted', 'cf-rule-id:100001 cf-risk:3')
             const confirmButton = newRow.find('.confirm-add-new-parameter')
             await confirmButton.trigger('click')
-            const actualValue = (wrapper.vm).localDoc[tab][type][0].exclusions
+            const actualValue = wrapper.vm.localDoc[tab][type][0].exclusions
             expect(actualValue).toEqual(wantedValue)
           })
 

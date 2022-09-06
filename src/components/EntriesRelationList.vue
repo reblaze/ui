@@ -102,7 +102,7 @@
                     <textarea v-else
                               title="Entries"
                               v-model="newEntryItem.firstAttr"
-                              @change="validateValue( sectionIndex, newEntryItem.firstAttr)"
+                              @input="validateValue( sectionIndex, newEntryItem.firstAttr)"
                               placeholder="One entry per line, use '#' for annotation"
                               class="textarea is-small is-fullwidth new-entry-textarea"
                               :class="{ 'is-danger': isErrorField( `${newEntryCategory}${sectionIndex}` )}"
@@ -292,10 +292,7 @@ export default defineComponent({
     },
   },
 
-
-  // watch(rule, this.modifyRule),
   watch: {
-    // rule: 'modifyRule',
     rule: {
       handler: function() {
         this.sectionsCurrentPageIndex = []
@@ -318,16 +315,6 @@ export default defineComponent({
   },
 
   methods: {
-    modifyRule() {
-      this.sectionsCurrentPageIndex = []
-      for (let i = 0; i < this.localRule.sections.length; i++) {
-        const section = this.localRule.sections[i]
-        this.sectionsCurrentPageIndex[i] = 1
-        if (this.sectionContainsSameCategoryItems(section)) {
-          section.relation = 'OR'
-        }
-      }
-    },
 
     isCategoryArgsCookiesHeaders(category: Category) {
       return (new RegExp('(args|cookies|headers)')).test(category)

@@ -6,10 +6,7 @@ import {Options} from 'bulma-toast'
 import axios from 'axios'
 import {JSDOM} from 'jsdom'
 import {setImmediate} from 'timers'
-
-function currentEventLoopEnd() {
-  return new Promise((resolve) => setImmediate(resolve))
-}
+import {nextTick} from 'vue'
 
 describe('Utils.ts', () => {
   describe('generateUniqueEntityName function', () => {
@@ -226,12 +223,11 @@ describe('Utils.ts', () => {
       console.log = (output: string) => consoleOutput.push(output)
       Utils.downloadFile(fileName, fileType, data)
       // allow all requests to finish
-      await currentEventLoopEnd()
+      // await currentEventLoopEnd()
       // setImmediate(() => {
+      await nextTick()
       expect(consoleOutput).toEqual([])
       console.log = originalLog
-      // done()
-      // })
     })
 
     test('should log message when receiving unknown file type', (done) => {

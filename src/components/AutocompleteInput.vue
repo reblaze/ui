@@ -104,6 +104,19 @@ export default defineComponent({
     },
   },
 
+  mounted() {
+    const events: AutocompleteInputEvents[] = ['keyup', 'keydown', 'keypress', 'focus', 'blur']
+    events.map((event: AutocompleteInputEvents) => {
+      this.$refs.autocompleteInput.addEventListener(event,
+          ($event: Event): void => {
+            this.$emit(event, $event)
+          })
+    })
+    if (this.autoFocus) {
+      this.$refs.autocompleteInput.focus()
+    }
+  },
+
   data() {
     const {filterFunction, initialValue} = this
     return {
@@ -249,19 +262,6 @@ export default defineComponent({
     clearInputBlurredTimeout() {
       clearTimeout(this.inputBlurredTimeout)
     },
-  },
-
-  mounted() {
-    const events: AutocompleteInputEvents[] = ['keyup', 'keydown', 'keypress', 'focus', 'blur']
-    events.map((event: AutocompleteInputEvents) => {
-      this.$refs.autocompleteInput.addEventListener(event,
-          ($event: Event): void => {
-            this.$emit(event, $event)
-          })
-    })
-    if (this.autoFocus) {
-      this.$refs.autocompleteInput.focus()
-    }
   },
 
   destroyed() {

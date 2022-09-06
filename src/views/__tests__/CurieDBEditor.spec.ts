@@ -182,7 +182,7 @@ describe('CurieDBEditor.vue', () => {
     gitHistory.vm.$emit('restore-version', restoredVersion)
     // allow all requests to finish
     setImmediate(() => {
-      expect((wrapper.vm).selectedKey).toEqual(wantedKey)
+      expect(wrapper.vm.selectedKey).toEqual(wantedKey)
       done()
     })
   })
