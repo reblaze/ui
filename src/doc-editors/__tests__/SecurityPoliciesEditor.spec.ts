@@ -345,7 +345,7 @@ describe('SecurityPoliciesEditor.vue', () => {
     wrapper.setProps({selectedDoc: fullPolicy})
     // allow all requests to finish
     setImmediate(() => {
-      expect((wrapper.vm as DOMWrapper).initialDocDomainMatch).toBe(wantedMatch)
+      expect((wrapper.vm).initialDocDomainMatch).toBe(wantedMatch)
       jest.useRealTimers()
       done()
     })
@@ -391,7 +391,7 @@ describe('SecurityPoliciesEditor.vue', () => {
     wrapper.setProps({selectedDoc: fullPolicy})
     // allow all requests to finish
     setImmediate(() => {
-      expect((wrapper.vm as DOMWrapper).initialDocDomainMatch).toBe(wantedMatch)
+      expect((wrapper.vm).initialDocDomainMatch).toBe(wantedMatch)
       done()
     })
   })
@@ -499,7 +499,7 @@ describe('SecurityPoliciesEditor.vue', () => {
     await wrapper.setProps({
       selectedDoc: securityPoliciesDocs[1],
     })
-    expect((wrapper.vm as DOMWrapper).initialDocDomainMatch).toEqual(wantedDomainMatch)
+    expect((wrapper.vm).initialDocDomainMatch).toEqual(wantedDomainMatch)
   })
 
   describe('form data', () => {

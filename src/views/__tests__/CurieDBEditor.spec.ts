@@ -182,7 +182,7 @@ describe('CurieDBEditor.vue', () => {
     gitHistory.vm.$emit('restore-version', restoredVersion)
     // allow all requests to finish
     setImmediate(() => {
-      expect((wrapper.vm as DOMWrapper).selectedKey).toEqual(wantedKey)
+      expect((wrapper.vm).selectedKey).toEqual(wantedKey)
       done()
     })
   })
@@ -193,7 +193,8 @@ describe('CurieDBEditor.vue', () => {
     const wantedFileData = dbData
     const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {})
     // force update because downloadFile is mocked after it is read to to be used as event handler
-    await wrapper.vm.$forceUpdate()
+    wrapper.vm.$forceUpdate()
+    await nextTick()
     const downloadNamespaceButton = wrapper.find('.download-namespace-button')
     await downloadNamespaceButton.trigger('click')
     expect(downloadFileSpy).toHaveBeenCalledWith(wantedFileName, wantedFileType, wantedFileData)
@@ -205,7 +206,8 @@ describe('CurieDBEditor.vue', () => {
     const wantedFileData = publishInfoData
     const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {})
     // force update because downloadFile is mocked after it is read to be used as event handler
-    await wrapper.vm.$forceUpdate()
+    wrapper.vm.$forceUpdate()
+    await nextTick()
     const downloadKeyButton = wrapper.find('.download-key-button')
     await downloadKeyButton.trigger('click')
     expect(downloadFileSpy).toHaveBeenCalledWith(wantedFileName, wantedFileType, wantedFileData)
@@ -218,7 +220,8 @@ describe('CurieDBEditor.vue', () => {
     const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {})
     await wrapper.setData({selectedKeyValue: null})
     // force update because downloadFile is mocked after it is read to be used as event handler
-    await wrapper.vm.$forceUpdate()
+    wrapper.vm.$forceUpdate()
+    await nextTick()
     const downloadKeyButton = wrapper.find('.download-key-button')
     await downloadKeyButton.trigger('click')
     expect(downloadFileSpy).not.toHaveBeenCalledWith(wantedFileName, wantedFileType, wantedFileData)

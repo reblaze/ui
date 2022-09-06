@@ -9,9 +9,10 @@ module.exports = {
         timerLimit: 5000,
       },
       transform: {
-        '^.+\\.tsx?$': 'ts-jest',
         '^.+\\.vue$': '@vue/vue3-jest',
-        '\\.js?$': 'babel-jest',
+        '^.+\\.jsx?$': 'babel-jest',
+        '^.+\\.tsx?$': 'ts-jest',
+  
         '.+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2)$': '<rootDir>/fileTransformer.js'
       },
       testEnvironmentOptions: {
@@ -19,9 +20,9 @@ module.exports = {
      },
       moduleNameMapper: {
         '^@/(.*)$': '<rootDir>/src/$1',
-        '^~/(.*)$': '<rootDir>/$1',
-        'ace-builds': '<rootDir>/node_modules/ace-builds'
-      },
+        'ace-builds': '<rootDir>/node_modules/ace-builds',
+        '^~/(.*)$': '<rootDir>/$1'
+          },
       testMatch: [
         '<rootDir>/**/*.spec.(js|jsx|ts|tsx)',
         '<rootDir>/**/__tests__/*.spec.ts',
@@ -39,10 +40,6 @@ module.exports = {
         '!src/main.ts',
         '!**/*.d.ts',
       ],
-      // rootDir: path.resolve(process.cwd(),"."),
-      // modulePathIgnorePatterns: [
-      //   "<rootDir>/\.yalc/@tgcs/.*/\.yalc"
-      // ],
       // Accept global coverage of 90% or higher, and 80% for each individual file
       // This should ensure most of the code is covered and leaves us room to skip hard-to-test areas
       // Please only write meaningful and comprehensive tests

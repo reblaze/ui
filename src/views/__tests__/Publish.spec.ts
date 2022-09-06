@@ -204,7 +204,7 @@ describe('Publish.vue', () => {
   })
 
   test('should display correct amount of buckets without counting unavailable buckets', async () => {
-    (wrapper.vm as DOMWrapper).publishInfo = {
+    (wrapper.vm).publishInfo = {
       'buckets': [
         {'name': 'prod', 'url': 's3://curiefense-test01/prod'},
         {'name': 'devops', 'url': 's3://curiefense-test01/devops'},

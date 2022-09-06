@@ -397,7 +397,7 @@ describe('DocumentSearch.vue', () => {
       if (path === '/conf/api/v2/configs/') {
         return Promise.resolve({data: gitData})
       }
-      const branch = (wrapper.vm as DOMWrapper).selectedBranch
+      const branch = (wrapper.vm).selectedBranch
       if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
         return Promise.resolve({data: aclDocs})
       }
@@ -438,7 +438,7 @@ describe('DocumentSearch.vue', () => {
   })
 
   function isItemInFilteredDocs(item: BasicDocument, doctype: string) {
-    const isInModel = (wrapper.vm as DOMWrapper).filteredDocs.some((doc: any) => {
+    const isInModel = (wrapper.vm).filteredDocs.some((doc: any) => {
       return doc.id === item.id && doc.docType === doctype
     })
     const isInView = wrapper.findAll('.doc-id-cell').filter((w: any) => {
@@ -515,7 +515,7 @@ describe('DocumentSearch.vue', () => {
 
     // Get connections cell
     const connectionsCell = wrapper.find('.doc-connections-cell')
-    const doc = (wrapper.vm as DOMWrapper).filteredDocs[0]
+    const doc = (wrapper.vm).filteredDocs[0]
 
     // check that security policy exists without duplicated connections
     expect(isItemInFilteredDocs(securityPoliciesDocs[0], 'securitypolicies')).toBeTruthy()
@@ -665,6 +665,408 @@ describe('DocumentSearch.vue', () => {
   })
 
   describe('go to link', () => {
+    beforeEach((done) => {
+      gitData = [
+        {
+          'id': 'master',
+          'description': 'Update entry [__default__] of document [aclprofiles]',
+          'date': '2020-11-10T15:49:17+02:00',
+          'logs': [
+            {
+              'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
+              'date': '2020-11-10T15:49:17+02:00',
+              'parents': [
+                'fc47a6cd9d7f254dd97875a04b87165cc484e075',
+              ],
+              'message': 'Update entry [__default__] of document [aclprofiles]',
+              'email': 'curiefense@reblaze.com',
+              'author': 'Curiefense API',
+            },
+            {
+              'version': 'fc47a6cd9d7f254dd97875a04b87165cc484e075',
+              'date': '2020-11-10T15:48:35+02:00',
+              'parents': [
+                '5aba4a5b9d6faea1896ee8965c7aa651f76af63c',
+              ],
+              'message': 'Update entry [__default__] of document [aclprofiles]',
+              'email': 'curiefense@reblaze.com',
+              'author': 'Curiefense API',
+            },
+            {
+              'version': '5aba4a5b9d6faea1896ee8965c7aa651f76af63c',
+              'date': '2020-11-10T15:48:31+02:00',
+              'parents': [
+                '277c5d7bd0e2eb4b9d2944f7eefdfadf37ba8581',
+              ],
+              'message': 'Update entry [__default__] of document [aclprofiles]',
+              'email': 'curiefense@reblaze.com',
+              'author': 'Curiefense API',
+            },
+            {
+              'version': '277c5d7bd0e2eb4b9d2944f7eefdfadf37ba8581',
+              'date': '2020-11-10T15:48:22+02:00',
+              'parents': [
+                '878b47deeddac94625fe7c759786f2df885ec541',
+              ],
+              'message': 'Update entry [__default__] of document [aclprofiles]',
+              'email': 'curiefense@reblaze.com',
+              'author': 'Curiefense API',
+            },
+            {
+              'version': '878b47deeddac94625fe7c759786f2df885ec541',
+              'date': '2020-11-10T15:48:05+02:00',
+              'parents': [
+                '93c180513fe7edeaf1c0ca69a67aa2a11374da4f',
+              ],
+              'message': 'Update entry [__default__] of document [aclprofiles]',
+              'email': 'curiefense@reblaze.com',
+              'author': 'Curiefense API',
+            },
+            {
+              'version': '93c180513fe7edeaf1c0ca69a67aa2a11374da4f',
+              'date': '2020-11-10T15:47:59+02:00',
+              'parents': [
+                '1662043d2a18d6ad2c9c94d6f826593ff5506354',
+              ],
+              'message': 'Update entry [__default__] of document [aclprofiles]',
+              'email': 'curiefense@reblaze.com',
+              'author': 'Curiefense API',
+            },
+            {
+              'version': '1662043d2a18d6ad2c9c94d6f826593ff5506354',
+              'date': '2020-11-08T21:31:41+01:00',
+              'parents': [
+                '16379cdf39501574b4a2f5a227b82a4454884b84',
+              ],
+              'message': 'Create config [master]\n',
+              'email': 'curiefense@reblaze.com',
+              'author': 'Curiefense API',
+            },
+            {
+              'version': '16379cdf39501574b4a2f5a227b82a4454884b84',
+              'date': '2020-08-27T16:19:06+00:00',
+              'parents': [
+                'a34f979217215060861b58b3f270e82580c20efb',
+              ],
+              'message': 'Initial empty config',
+              'email': 'curiefense@reblaze.com',
+              'author': 'Curiefense API',
+            },
+            {
+              'version': 'a34f979217215060861b58b3f270e82580c20efb',
+              'date': '2020-08-27T16:19:06+00:00',
+              'parents': [],
+              'message': 'Initial empty content',
+              'email': 'curiefense@reblaze.com',
+              'author': 'Curiefense API',
+            },
+          ],
+          'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
+        },
+        {
+          'id': 'zzz_branch',
+          'description': 'Initial empty content',
+          'date': '2020-08-27T16:19:06+00:00',
+          'logs': [
+            {
+              'version': 'a34f979217215060861b58b3f270e82580c20efb',
+              'date': '2020-08-27T16:19:06+00:00',
+              'parents': [],
+              'message': 'Initial empty content',
+              'email': 'curiefense@reblaze.com',
+              'author': 'Curiefense API',
+            },
+          ],
+          'version': 'a34f979217215060861b58b3f270e82580c20efb',
+        },
+      ]
+      aclDocs = [
+        {
+          'id': '__default__',
+          'name': 'default-acl',
+          'allow': [],
+          'allow_bot': [
+            'google',
+          ],
+          'deny_bot': [],
+          'passthrough': [
+            'internal',
+          ],
+          'deny': [
+            'tor',
+          ],
+          'force_deny': [
+            'china',
+          ],
+        },
+        {
+          'id': '5828321c37e0',
+          'name': 'an ACL',
+          'allow': [],
+          'allow_bot': [
+            'google',
+            'yahoo',
+          ],
+          'deny_bot': [],
+          'passthrough': [
+            'devops',
+          ],
+          'deny': [
+            'tor',
+          ],
+          'force_deny': [
+            'iran',
+          ],
+        },
+      ]
+      profilingListDocs = [
+        {
+          'id': 'xlbp148c',
+          'name': 'API Discovery',
+          'source': 'self-managed',
+          'mdate': '2020-05-23T00:04:41',
+          'description': 'Default Tag API Requests',
+          'active': true,
+          'tags': ['api'],
+          'action': {
+            'type': 'monitor',
+            'params': {},
+          },
+          'rule': {
+            'relation': 'OR',
+            'sections': [
+              {
+                'relation': 'OR', 'entries': [
+                  [
+                    'headers',
+                    [
+                      'content-type',
+                      '.*/(json|xml)',
+                    ],
+                    'content type',
+                  ],
+                  [
+                    'headers',
+                    [
+                      'host',
+                      '.?ap[ip]\\.',
+                    ],
+                    'app or api in domain name',
+                  ],
+                  [
+                    'method',
+                    '(POST|PUT|DELETE|PATCH)',
+                    'Methods',
+                  ],
+                  [
+                    'path',
+                    '/api/',
+                    'api path',
+                  ],
+                  [
+                    'uri',
+                    '/.+\\.json',
+                    'URI JSON extention',
+                  ],
+                ],
+              },
+            ],
+          },
+        }, {
+          'id': '07656fbe',
+          'name': 'devop internal demo',
+          'source': 'self-managed',
+          'mdate': '2020-05-23T00:04:41',
+          'description': 'this is my own list',
+          'active': false,
+          'tags': ['internal', 'devops'],
+          'action': {
+            'type': 'monitor',
+            'params': {},
+          },
+          'rule': {
+            'relation': 'OR',
+            'sections': [
+              {'relation': 'OR', 'entries': [['ip', '1.1.1.1', null]]},
+              {'relation': 'OR', 'entries': [['ip', '2.2.2.2', null]]},
+              {'relation': 'OR', 'entries': [['headers', ['headerrr', 'valueeee'], 'anooo']]}],
+          },
+        },
+      ]
+      securityPoliciesDocs = [
+        {
+          'id': '__default__',
+          'name': 'default entry',
+          'match': '__default__',
+          'map': [
+            {
+              'name': 'default',
+              'match': '/',
+              'acl_profile': '5828321c37e0',
+              'acl_active': false,
+              'content_filter_profile': '__default__',
+              'content_filter_active': false,
+              'limit_ids': ['f971e92459e2'],
+            },
+            {
+              'name': 'name',
+              'match': '/foo',
+              'acl_profile': '__default__',
+              'acl_active': false,
+              'content_filter_profile': '__default__',
+              'content_filter_active': false,
+              'limit_ids': ['f971e92459e2'],
+            },
+            {
+              'name': 'name',
+              'match': '/foo',
+              'acl_profile': '__default__',
+              'acl_active': false,
+              'content_filter_profile': '__default__',
+              'content_filter_active': false,
+              'limit_ids': ['f971e92459e2'],
+            },
+          ],
+        },
+      ]
+      flowControlPolicyDocs = [
+        {
+          'active': true,
+          'description': '',
+          'exclude': [],
+          'include': ['all'],
+          'name': 'flow control policy',
+          'key': [
+            {'headers': 'something'},
+          ],
+          'sequence': [
+            {
+              'method': 'GET',
+              'uri': '/login',
+              'cookies': {
+                'foo': 'bar',
+              },
+              'headers': {},
+              'args': {},
+            },
+            {
+              'method': 'POST',
+              'uri': '/login',
+              'cookies': {
+                'foo': 'bar',
+              },
+              'headers': {
+                'test': 'one',
+              },
+              'args': {},
+            },
+          ],
+          'action': {
+            'type': 'default',
+            'params': {},
+          },
+          'timeframe': 60,
+          'id': 'c03dabe4b9ca',
+        },
+      ]
+      rateLimitDocs = [
+        {
+          'id': 'f971e92459e2',
+          'name': 'Rate Limit Example Rule 5/60',
+          'description': '5 requests per minute',
+          'timeframe': '60',
+          'thresholds': [
+            {
+              'limit': '5',
+              'action': {'type': 'default'},
+            },
+          ],
+          'include': ['badpeople'],
+          'exclude': ['goodpeople'],
+          'key': [{'attrs': 'ip'}],
+          'pairwith': {'self': 'self'},
+        },
+      ]
+      contentFilterDocs = [
+        {
+          'id': '01b2abccc275',
+          'name': 'default contentfilter',
+          'ignore_alphanum': true,
+          'headers': {
+            'names': [],
+            'regex': [],
+            'max_count': 42,
+            'max_length': 1024,
+          },
+          'cookies': {
+            'names': [],
+            'regex': [],
+            'max_count': 42,
+            'max_length': 1024,
+          },
+          'args': {
+            'names': [],
+            'regex': [],
+            'max_count': 512,
+            'max_length': 1024,
+          },
+          'path': {
+            'names': [],
+            'regex': [],
+            'max_count': 42,
+            'max_length': 1024,
+          },
+          'decoding': {
+            base64: true,
+            dual: false,
+            html: false,
+            unicode: false,
+          },
+          'masking_seed': '',
+          'content_type': [],
+          'active': [],
+          'report': [],
+          'ignore': [],
+        },
+      ]
+      jest.spyOn(axios, 'get').mockImplementation((path) => {
+        if (path === '/conf/api/v2/configs/') {
+          return Promise.resolve({data: gitData})
+        }
+        const branch = (wrapper.vm).selectedBranch
+        if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
+          return Promise.resolve({data: aclDocs})
+        }
+        if (path === `/conf/api/v2/configs/${branch}/d/globalfilters/`) {
+          return Promise.resolve({data: profilingListDocs})
+        }
+        if (path === `/conf/api/v2/configs/${branch}/d/securitypolicies/`) {
+          return Promise.resolve({data: securityPoliciesDocs})
+        }
+        if (path === `/conf/api/v2/configs/${branch}/d/flowcontrol/`) {
+          return Promise.resolve({data: flowControlPolicyDocs})
+        }
+        if (path === `/conf/api/v2/configs/${branch}/d/ratelimits/`) {
+          return Promise.resolve({data: rateLimitDocs})
+        }
+        if (path === `/conf/api/v2/configs/${branch}/d/contentfilterprofiles/`) {
+          return Promise.resolve({data: contentFilterDocs})
+        }
+        return Promise.resolve({data: []})
+      })
+      mockRouter = {
+        push: jest.fn(),
+      }
+      wrapper = shallowMount(DocumentSearch, {
+        mocks: {
+          $router: mockRouter,
+        },
+      })
+      // allow all requests to finish
+      setImmediate(() => {
+        done()
+      })
+    })
     test('should not render go to link button when not hovering over a row', () => {
       expect(wrapper.findAll('.go-to-link-button').length).toEqual(0)
     })

@@ -289,7 +289,7 @@ describe('VersionControl.vue', () => {
     branchSelection.setValue(options.at(1).element.value)
     // allow all requests to finish
     setImmediate(() => {
-      expect((wrapper.vm as DOMWrapper).selectedBranch).toEqual(gitData[1].id)
+      expect((wrapper.vm).selectedBranch).toEqual(gitData[1].id)
       done()
     })
   })
@@ -478,7 +478,7 @@ describe('VersionControl.vue', () => {
     })
 
     test('should be able to delete if name matches current branch name', async () => {
-      const currentBranchName = (wrapper.vm as DOMWrapper).selectedBranch
+      const currentBranchName = (wrapper.vm).selectedBranch
       const deleteBranchNameInput = wrapper.find('.delete-branch-input')
       const deleteBranchSaveButton = wrapper.find('.delete-branch-confirm')
       await deleteBranchNameInput.setValue(currentBranchName)
@@ -503,7 +503,7 @@ describe('VersionControl.vue', () => {
     })
 
     test('should be hidden if deleted successfully', async () => {
-      const currentBranchName = (wrapper.vm as DOMWrapper).selectedBranch
+      const currentBranchName = (wrapper.vm).selectedBranch
       let deleteBranchNameInput = wrapper.find('.delete-branch-input')
       const deleteBranchSaveButton = wrapper.find('.delete-branch-confirm')
       await deleteBranchNameInput.setValue(currentBranchName)
@@ -518,7 +518,7 @@ describe('VersionControl.vue', () => {
 
     test('should be visible if delete failed', async () => {
       deleteSpy.mockImplementation(() => Promise.reject(new Error()))
-      const currentBranchName = (wrapper.vm as DOMWrapper).selectedBranch
+      const currentBranchName = (wrapper.vm).selectedBranch
       let deleteBranchNameInput = wrapper.find('.delete-branch-input')
       const deleteBranchSaveButton = wrapper.find('.delete-branch-confirm')
       await deleteBranchNameInput.setValue(currentBranchName)
