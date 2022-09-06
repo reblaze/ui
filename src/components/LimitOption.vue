@@ -212,6 +212,7 @@ export default defineComponent({
   },
   updated() {
     if (!_.isEqual(this.prevSelectedOption, this.selectedOption)) {
+      this.prevSelectedOption = {...this.selectedOption}
       this.$emit('change', {...this.selectedOption})
     }
   },

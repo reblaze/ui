@@ -422,8 +422,10 @@ describe('DocumentSearch.vue', () => {
       push: jest.fn(),
     }
     wrapper = shallowMount(DocumentSearch, {
-      mocks: {
-        $router: mockRouter,
+      global: {
+        mocks: {
+          $router: mockRouter,
+        },
       },
     })
     // allow all requests to finish
@@ -684,19 +686,10 @@ describe('DocumentSearch.vue', () => {
 
     test('should change route when go to link button is clicked', async () => {
       // 0 is the table header, 1 is our first data
-      mockRouter = {
-        push: jest.fn(),
-      }
       const firstDataRow = wrapper.findAll('tr').at(1)
-      await nextTick()
       await firstDataRow.trigger('mouseover')
       const goToLinkButton = firstDataRow.find('.go-to-link-button')
-      await nextTick()
       await goToLinkButton.trigger('click')
-      wrapper.vm.$forceUpdate()
-      await nextTick()
-      console.log('mockRouter.push', mockRouter.push.mockName)
-      expect(mockRouter.push.exists()).toBeTruthy()
       expect(mockRouter.push).toHaveBeenCalledTimes(1)
       expect(mockRouter.push).toHaveBeenCalledWith('/config/master/securitypolicies/__default__')
     })

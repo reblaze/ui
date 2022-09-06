@@ -10,8 +10,10 @@ describe('MainComponent.vue', () => {
       path: '/config',
     }
     wrapper = shallowMount(MainComponent, {
-      mocks: {
-        $route,
+      global: {
+        mocks: {
+          $route,
+        },
       },
       stubs: ['router-link', 'router-view'],
     })
