@@ -604,17 +604,13 @@ export default defineComponent({
   },
 
   watch: {
-    selectedDoc: {
-      handler: function(val, oldVal) {
-        if (!val || !oldVal || _.isUndefined(oldVal.match) || val.id !== oldVal.id) {
-          this.initialDocDomainMatch = val.match
-          if (!this.domainNames.includes(val.match)) {
-            this.domainNames.push(val.match)
-          }
+    selectedDoc: function(val, oldVal) {
+      if (!val || !oldVal || _.isUndefined(oldVal.match) || val.id !== oldVal.id) {
+        this.initialDocDomainMatch = val.match
+        if (!this.domainNames.includes(val.match)) {
+          this.domainNames.push(val.match)
         }
-      },
-      immediate: true,
-      deep: true,
+      }
     },
     selectedBranch: {
       handler: function(val, oldVal) {

@@ -182,12 +182,14 @@ describe('EntriesRelationList.vue', () => {
       }
       wrapper = mount(EntriesRelationList, {
         props: {
-          rule: ruleData,
-          editable: true,
+          'rule': ruleData,
+          'editable': true,
+          'onUpdate:rule': onUpdate,
+          // 'onUpdate:update': onUpdate,
         },
-        listeners: {
-          update: onUpdate,
-        },
+        // listeners: {
+        //   update:
+        // },
       })
       checkedComponent = wrapper.findComponent(EntriesRelationList)
       checkedTable = checkedComponent.findAll('.entries-table').at(0)

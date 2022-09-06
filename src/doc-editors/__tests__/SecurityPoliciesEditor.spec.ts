@@ -7,7 +7,6 @@ import {ACLProfile, ContentFilterProfile, RateLimit, SecurityPolicy} from '@/typ
 import axios from 'axios'
 import _ from 'lodash'
 import {setImmediate} from 'timers'
-// import {nextTick} from 'vue'
 
 jest.mock('axios')
 
@@ -290,10 +289,14 @@ describe('SecurityPoliciesEditor.vue', () => {
     mockRouter = {
       push: jest.fn(),
     }
+    const onUpdate = (some1: ComponentNameType) => {
+      wrapper.setProps({selectedDoc: some1})
+    }
     wrapper = shallowMount(SecurityPoliciesEditor, {
       props: {
-        selectedDoc: securityPoliciesDocs[0],
+        'selectedDoc': securityPoliciesDocs[0],
         selectedBranch,
+        'onUpdate:selectedDoc': onUpdate,
       },
       global: {
         mocks: {
@@ -446,24 +449,55 @@ describe('SecurityPoliciesEditor.vue', () => {
     })
   })
 
-  test('should send a single new request to API if selected branch updates', async () => {
-    console.log('aylonow')
+  test('should send a single new request to API if selected branch updates', (done) => {
     jest.resetAllMocks()
     const branch = 'devops'
     wrapper.setProps({
       selectedBranch: branch,
     })
-    // await nextTick()
-    // await nextTick()
-    expect(axiosGetSpy).toHaveBeenCalledTimes(1)
+    wrapper.vm.$forceUpdate()
+    setImmediate(() => {
+      expect(axiosGetSpy).toHaveBeenCalledTimes(1)
+      done()
+    })
   })
 
   test('should not change the initial domain match if document data updates with new data and same ID', async () => {
     jest.resetAllMocks()
-    const wantedDomainMatch = securityPoliciesDocs[0].match
-    const newDomainMatch = 'example.com'
+    let newDomainMatch = 'example.com'
+    let newId = '__default__'
+    // we need to change ID to set the initialDocDomainMatch so when we try to change it again
+    // but with the same ID it does not change.
     securityPoliciesDocs[0] = {
-      'id': '__default__',
+      'id': newId,
+      'name': 'new name',
+      'match': newDomainMatch,
+      'map': [
+        {
+          'name': 'one',
+          'match': '/one',
+          'acl_profile': '5828321c37e0',
+          'acl_active': false,
+          'content_filter_profile': '009e846e819e',
+          'content_filter_active': true,
+          'limit_ids': ['365757ec0689'],
+        },
+        {
+          'name': 'two',
+          'match': '/two',
+          'acl_profile': '__default__',
+          'acl_active': true,
+          'content_filter_profile': '__default__',
+          'content_filter_active': false,
+          'limit_ids': ['f971e92459e2'],
+        },
+      ],
+    }
+    const wantedDomainMatch = securityPoliciesDocs[0].match
+    newDomainMatch = 'example.com'
+    newId = '__newid__'
+    securityPoliciesDocs[0] = {
+      'id': newId,
       'name': 'new name',
       'match': newDomainMatch,
       'map': [
@@ -490,6 +524,33 @@ describe('SecurityPoliciesEditor.vue', () => {
     await wrapper.setProps({
       selectedDoc: securityPoliciesDocs[0],
     })
+    newDomainMatch = 'myexample.com'
+    newId = '__newid__'
+    securityPoliciesDocs[0] = {
+      'id': newId,
+      'name': 'new name',
+      'match': newDomainMatch,
+      'map': [
+        {
+          'name': 'one',
+          'match': '/one',
+          'acl_profile': '5828321c37e0',
+          'acl_active': false,
+          'content_filter_profile': '009e846e819e',
+          'content_filter_active': true,
+          'limit_ids': ['365757ec0689'],
+        },
+        {
+          'name': 'two',
+          'match': '/two',
+          'acl_profile': '__default__',
+          'acl_active': true,
+          'content_filter_profile': '__default__',
+          'content_filter_active': false,
+          'limit_ids': ['f971e92459e2'],
+        },
+      ],
+    }
     expect((wrapper.vm as any).initialDocDomainMatch).toEqual(wantedDomainMatch)
   })
 
