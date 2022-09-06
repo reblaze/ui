@@ -130,13 +130,12 @@ describe('RateLimitsEditor.vue', () => {
     test('should show error when more than one ban actions exist', async () => {
       const addKeyButton = wrapper.find('.add-threshold-button')
       await addKeyButton.trigger('click')
-      await wrapper.vm.$forceUpdate()
+      wrapper.vm.$forceUpdate()
+      await nextTick()
       expect(wrapper.find('.up-to-one-ban').exists()).toBeFalsy()
       const responseActionComponents = wrapper.findAllComponents(ResponseAction)
-      let selection
-      let options
-      selection = responseActionComponents.at(0).find('.action-type-selection')
-      options = selection.findAll('option')
+      let selection = responseActionComponents.at(0).find('.action-type-selection')
+      let options = selection.findAll('option')
       await selection.setValue(options.at(5).element.value)
       selection = responseActionComponents.at(1).find('.action-type-selection')
       options = selection.findAll('option')
@@ -278,7 +277,7 @@ describe('RateLimitsEditor.vue', () => {
             selectedDoc: rateLimitsDocs[0],
           },
         })
-        await nextTick()
+        // zawait nextTick()
       } catch (err) {
         // should not get here
         expect(err).not.toBeDefined()
@@ -367,7 +366,7 @@ describe('RateLimitsEditor.vue', () => {
             selectedDoc: rateLimitsDocs[0],
           },
         })
-        await nextTick()
+        // await nextTick()
       } catch (err) {
         // Should not get here
         expect(err).not.toBeDefined()
@@ -517,7 +516,7 @@ describe('RateLimitsEditor.vue', () => {
       const newConnectionRow = wrapper.find('.new-connection-row')
       const newConnectionMapSelection = newConnectionRow.find('.new-connection-map')
       const options = newConnectionMapSelection.findAll('option')
-      await newConnectionMapSelection.setValue(options.at(1).element.value)
+      newConnectionMapSelection.setValue(options.at(1).element.value)
       const addNewConnectionButton = wrapper.find('.add-new-connection')
       await addNewConnectionButton.trigger('click')
       wrapper.vm.$forceUpdate()

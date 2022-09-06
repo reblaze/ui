@@ -1,3 +1,4 @@
+// @ts-nocheck
 import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {shallowMount, VueWrapper} from '@vue/test-utils'
@@ -7,6 +8,7 @@ import TagsAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import EntriesRelationList from '@/components/EntriesRelationList.vue'
 import axios from 'axios'
+import {nextTick} from 'vue'
 
 jest.mock('axios')
 
@@ -290,12 +292,14 @@ describe('GlobalFilterListEditor.vue', () => {
     test('should correctly switch between rule relations status using space bar keypress', async () => {
       expect(andElement.element.classList).not.toContain('is-selected')
       expect(orElement.element.classList).toContain('is-selected')
-      container.trigger('keypress.space')
-      await wrapper.vm.$forceUpdate()
+      await container.trigger('keypress.space')
+      wrapper.vm.$forceUpdate()
+      await nextTick()
       expect(andElement.element.classList).toContain('is-selected')
       expect(orElement.element.classList).not.toContain('is-selected')
-      container.trigger('keypress.space')
-      await wrapper.vm.$forceUpdate()
+      await container.trigger('keypress.space')
+      wrapper.vm.$forceUpdate()
+      await nextTick()
       expect(andElement.element.classList).not.toContain('is-selected')
       expect(orElement.element.classList).toContain('is-selected')
     })
@@ -303,12 +307,14 @@ describe('GlobalFilterListEditor.vue', () => {
     test('should correctly switch between rule relations status using enter keypress', async () => {
       expect(andElement.element.classList).not.toContain('is-selected')
       expect(orElement.element.classList).toContain('is-selected')
-      container.trigger('keypress.enter')
-      await wrapper.vm.$forceUpdate()
+      await container.trigger('keypress.enter')
+      wrapper.vm.$forceUpdate()
+      await nextTick()
       expect(andElement.element.classList).toContain('is-selected')
       expect(orElement.element.classList).not.toContain('is-selected')
-      container.trigger('keypress.enter')
-      await wrapper.vm.$forceUpdate()
+      await container.trigger('keypress.enter')
+      wrapper.vm.$forceUpdate()
+      await nextTick()
       expect(andElement.element.classList).not.toContain('is-selected')
       expect(orElement.element.classList).toContain('is-selected')
     })
@@ -316,27 +322,32 @@ describe('GlobalFilterListEditor.vue', () => {
     test('should correctly switch to AND state when span is clicked', async () => {
       expect(andElement.element.classList).not.toContain('is-selected')
       expect(orElement.element.classList).toContain('is-selected')
-      andElement.trigger('click')
-      await wrapper.vm.$forceUpdate()
+      await andElement.trigger('click')
+      wrapper.vm.$forceUpdate()
+      await nextTick()
       expect(andElement.element.classList).toContain('is-selected')
       expect(orElement.element.classList).not.toContain('is-selected')
-      andElement.trigger('click')
-      await wrapper.vm.$forceUpdate()
+      await andElement.trigger('click')
+      wrapper.vm.$forceUpdate()
+      await nextTick()
       expect(andElement.element.classList).toContain('is-selected')
       expect(orElement.element.classList).not.toContain('is-selected')
     })
 
     test('should correctly switch to OR state when span is clicked', async () => {
-      andElement.trigger('click')
-      await wrapper.vm.$forceUpdate()
+      await andElement.trigger('click')
+      wrapper.vm.$forceUpdate()
+      await nextTick()
       expect(andElement.element.classList).toContain('is-selected')
       expect(orElement.element.classList).not.toContain('is-selected')
-      orElement.trigger('click')
-      await wrapper.vm.$forceUpdate()
+      await orElement.trigger('click')
+      wrapper.vm.$forceUpdate()
+      await nextTick()
       expect(andElement.element.classList).not.toContain('is-selected')
       expect(orElement.element.classList).toContain('is-selected')
-      orElement.trigger('click')
-      await wrapper.vm.$forceUpdate()
+      await orElement.trigger('click')
+      wrapper.vm.$forceUpdate()
+      await nextTick()
       expect(andElement.element.classList).not.toContain('is-selected')
       expect(orElement.element.classList).toContain('is-selected')
     })
@@ -415,7 +426,8 @@ describe('GlobalFilterListEditor.vue', () => {
       }
       const button = wrapper.find('.update-now-button')
       await button.trigger('click')
-      await wrapper.vm.$forceUpdate()
+      wrapper.vm.$forceUpdate()
+      await nextTick()
       const entriesRelationListComponent = wrapper.findComponent(EntriesRelationList)
       expect(entriesRelationListComponent.props('rule')).toEqual(wantedData)
     })
@@ -464,7 +476,8 @@ describe('GlobalFilterListEditor.vue', () => {
       }
       const button = wrapper.find('.update-now-button')
       await button.trigger('click')
-      await wrapper.vm.$forceUpdate()
+      wrapper.vm.$forceUpdate()
+      await nextTick()
       const entriesRelationListComponent = wrapper.findComponent(EntriesRelationList)
       expect(entriesRelationListComponent.props('rule')).toEqual(wantedData)
     })
@@ -513,7 +526,8 @@ describe('GlobalFilterListEditor.vue', () => {
       }
       const button = wrapper.find('.update-now-button')
       await button.trigger('click')
-      await wrapper.vm.$forceUpdate()
+      wrapper.vm.$forceUpdate()
+      await nextTick()
       const entriesRelationListComponent = wrapper.findComponent(EntriesRelationList)
       expect(entriesRelationListComponent.props('rule')).toEqual(wantedData)
     })
@@ -553,7 +567,8 @@ describe('GlobalFilterListEditor.vue', () => {
       }
       const button = wrapper.find('.update-now-button')
       await button.trigger('click')
-      await wrapper.vm.$forceUpdate()
+      wrapper.vm.$forceUpdate()
+      await nextTick()
       const entriesRelationListComponent = wrapper.findComponent(EntriesRelationList)
       expect(entriesRelationListComponent.props('rule')).toEqual(wantedData)
     })
@@ -593,7 +608,8 @@ describe('GlobalFilterListEditor.vue', () => {
       }
       const button = wrapper.find('.update-now-button')
       await button.trigger('click')
-      await wrapper.vm.$forceUpdate()
+      wrapper.vm.$forceUpdate()
+      await nextTick()
       const entriesRelationListComponent = wrapper.findComponent(EntriesRelationList)
       expect(entriesRelationListComponent.props('rule')).toEqual(wantedData)
     })
@@ -645,7 +661,8 @@ describe('GlobalFilterListEditor.vue', () => {
       }
       const button = wrapper.find('.update-now-button')
       await button.trigger('click')
-      await wrapper.vm.$forceUpdate()
+      wrapper.vm.$forceUpdate()
+      await nextTick()
       const entriesRelationListComponent = wrapper.findComponent(EntriesRelationList)
       expect(entriesRelationListComponent.props('rule')).toEqual(wantedData)
     })
@@ -697,7 +714,8 @@ describe('GlobalFilterListEditor.vue', () => {
       }
       const button = wrapper.find('.update-now-button')
       await button.trigger('click')
-      await wrapper.vm.$forceUpdate()
+      wrapper.vm.$forceUpdate()
+      await nextTick()
       const entriesRelationListComponent = wrapper.findComponent(EntriesRelationList)
       expect(entriesRelationListComponent.props('rule')).toEqual(wantedData)
     })
@@ -740,7 +758,8 @@ describe('GlobalFilterListEditor.vue', () => {
       }
       const button = wrapper.find('.update-now-button')
       await button.trigger('click')
-      await wrapper.vm.$forceUpdate()
+      wrapper.vm.$forceUpdate()
+      await nextTick()
       const entriesRelationListComponent = wrapper.findComponent(EntriesRelationList)
       expect(entriesRelationListComponent.props('rule')).toEqual(wantedData)
     })
@@ -815,7 +834,8 @@ describe('GlobalFilterListEditor.vue', () => {
       resolveData = {data: globalFilter}
       const button = wrapper.find('.update-now-button')
       await button.trigger('click')
-      await wrapper.vm.$forceUpdate()
+      wrapper.vm.$forceUpdate()
+      await nextTick()
       const entriesRelationListComponent = wrapper.findComponent(EntriesRelationList)
       expect(entriesRelationListComponent.props('rule')).toEqual(wantedData)
     })
@@ -841,7 +861,8 @@ describe('GlobalFilterListEditor.vue', () => {
       }
       const button = wrapper.find('.update-now-button')
       await button.trigger('click')
-      await wrapper.vm.$forceUpdate()
+      wrapper.vm.$forceUpdate()
+      await nextTick()
       const entriesRelationListComponent = wrapper.findComponent(EntriesRelationList)
       expect(entriesRelationListComponent.props('rule')).toEqual(wantedData)
     })

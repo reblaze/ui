@@ -7,6 +7,7 @@ import {ACLProfile, ContentFilterProfile, RateLimit, SecurityPolicy} from '@/typ
 import axios from 'axios'
 import _ from 'lodash'
 import {setImmediate} from 'timers'
+import {nextTick} from 'vue'
 
 jest.mock('axios')
 
@@ -688,10 +689,12 @@ describe('SecurityPoliciesEditor.vue', () => {
       const entryRateLimitsTable = currentEntryRow.find('.current-entry-rate-limits-table')
       const removeButton = entryRateLimitsTable.find('.rate-limit-remove-button')
       await removeButton.trigger('click')
-      await wrapper.vm.$forceUpdate()
+      wrapper.vm.$forceUpdate()
+      await nextTick()
       const addButton = entryRateLimitsTable.find('.rate-limit-text-add-button')
       await addButton.trigger('click')
-      await wrapper.vm.$forceUpdate()
+      wrapper.vm.$forceUpdate()
+      await nextTick()
       const enwRateLimitRow = entryRateLimitsTable.find('.new-rate-limit-row')
       expect(enwRateLimitRow.exists()).toBeTruthy()
     })
@@ -749,7 +752,8 @@ describe('SecurityPoliciesEditor.vue', () => {
       const entryRateLimitsTable = currentEntryRow.find('.current-entry-rate-limits-table')
       const removeButton = entryRateLimitsTable.find('.rate-limit-remove-button')
       await removeButton.trigger('click')
-      await wrapper.vm.$forceUpdate()
+      wrapper.vm.$forceUpdate()
+      await nextTick()
       const entryRateLimitsRows = entryRateLimitsTable.findAll('.rate-limit-row')
       expect(entryRateLimitsRows.length).toEqual(securityPoliciesDocs[0].map[0].limit_ids.length - 1)
     })
@@ -762,7 +766,8 @@ describe('SecurityPoliciesEditor.vue', () => {
       const entryRateLimitsTable = currentEntryRow.find('.current-entry-rate-limits-table')
       const removeButton = entryRateLimitsTable.find('.rate-limit-remove-button')
       await removeButton.trigger('click')
-      await wrapper.vm.$forceUpdate()
+      wrapper.vm.$forceUpdate()
+      await nextTick()
       const referralButton = entryRateLimitsTable.find('.rate-limit-referral-button')
       await referralButton.trigger('click')
       expect(mockRouter.push).toHaveBeenCalledTimes(1)
@@ -975,7 +980,8 @@ describe('SecurityPoliciesEditor.vue', () => {
           await entryMatch.trigger('change')
           await entryMatch.trigger('input')
           await forkButton.trigger('click')
-          await wrapper.vm.$forceUpdate()
+          wrapper.vm.$forceUpdate()
+          await nextTick()
           let table = wrapper.find('.entries-table')
           const entryRow = table.findAll('.entry-row').at(2)
           await entryRow.trigger('click')
@@ -992,7 +998,8 @@ describe('SecurityPoliciesEditor.vue', () => {
           await entryMatch.trigger('change')
           await entryMatch.trigger('input')
           await forkButton.trigger('click')
-          await wrapper.vm.$forceUpdate()
+          wrapper.vm.$forceUpdate()
+          await nextTick()
           let table = wrapper.find('.entries-table')
           const entryRow = table.findAll('.entry-row').at(2)
           await entryRow.trigger('click')
@@ -1005,7 +1012,8 @@ describe('SecurityPoliciesEditor.vue', () => {
         test('should not revert entry match data of new entry when forking selected entry', async () => {
           const validMatch = expect.stringContaining('/new/path/to/match/profile/')
           forkButton.trigger('click')
-          await wrapper.vm.$forceUpdate()
+          wrapper.vm.$forceUpdate()
+          await nextTick()
           let table = wrapper.find('.entries-table')
           let entryRow = table.findAll('.entry-row').at(1)
           await entryRow.trigger('click')
@@ -1043,7 +1051,8 @@ describe('SecurityPoliciesEditor.vue', () => {
           // reset all events for clearer event emitting
           wrapper.emitted('form-invalid').length = 0
           await removeButton.trigger('click')
-          await wrapper.vm.$forceUpdate()
+          wrapper.vm.$forceUpdate()
+          await nextTick()
           expect(wrapper.emitted('form-invalid')).toBeTruthy()
           expect(wrapper.emitted('form-invalid')[0]).toEqual([false])
         })
@@ -1053,7 +1062,8 @@ describe('SecurityPoliciesEditor.vue', () => {
           let entryRow = table.findAll('.entry-row').at(1)
           await entryRow.trigger('click')
           removeButton.trigger('click')
-          await wrapper.vm.$forceUpdate()
+          wrapper.vm.$forceUpdate()
+          await nextTick()
           table = wrapper.find('.entries-table')
           entryRow = table.findAll('.entry-row').at(0)
           await entryRow.trigger('click')
@@ -1220,7 +1230,8 @@ describe('SecurityPoliciesEditor.vue', () => {
 
       test('should remove map entry after clicking remove button', async () => {
         removeButton.trigger('click')
-        await wrapper.vm.$forceUpdate()
+        wrapper.vm.$forceUpdate()
+        await nextTick()
         const table = wrapper.find('.entries-table')
         const entryRows = table.findAll('.entry-row')
         expect(entryRows.length).toEqual(securityPoliciesDocs[0].map.length - 1)
@@ -1228,9 +1239,11 @@ describe('SecurityPoliciesEditor.vue', () => {
 
       test('should close map entry after clicking remove button', async () => {
         forkButton.trigger('click')
-        await wrapper.vm.$forceUpdate()
+        wrapper.vm.$forceUpdate()
+        await nextTick()
         removeButton.trigger('click')
-        await wrapper.vm.$forceUpdate()
+        wrapper.vm.$forceUpdate()
+        await nextTick()
         const table = wrapper.find('.entries-table')
         const currentEntryRows = table.findAll('.current-entry-row')
         expect(currentEntryRows.length).toEqual(0)
@@ -1238,7 +1251,8 @@ describe('SecurityPoliciesEditor.vue', () => {
 
       test('should not change any other entry after clicking remove button', async () => {
         removeButton.trigger('click')
-        await wrapper.vm.$forceUpdate()
+        wrapper.vm.$forceUpdate()
+        await nextTick()
         const table = wrapper.find('.entries-table')
         const entryRows = table.findAll('.entry-row')
         let entryName

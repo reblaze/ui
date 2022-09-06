@@ -1615,9 +1615,6 @@ describe('DocumentEditor.vue', () => {
       })
       const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {
       })
-      await nextTick()
-      await nextTick()
-      await nextTick()
       const downloadDocButton = wrapper.find('.download-doc-button')
       await downloadDocButton.trigger('click')
       expect(downloadFileSpy).not.toHaveBeenCalled()
@@ -1629,9 +1626,6 @@ describe('DocumentEditor.vue', () => {
       const wantedFileData = aclDocs
       const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {
       })
-      await nextTick()
-      await nextTick()
-      await nextTick()
       const downloadDocButton = wrapper.find('.download-doc-button')
       await downloadDocButton.trigger('click')
       expect(downloadFileSpy).toHaveBeenCalledWith(wantedFileName, wantedFileType, wantedFileData)
