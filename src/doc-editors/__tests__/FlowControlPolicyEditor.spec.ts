@@ -258,7 +258,7 @@ describe('FlowControlPolicyEditor.vue', () => {
 
     test('should hide tag input when tag selection cancelled', async () => {
       const newIncludeEntryButton = wrapper.find('.add-new-filter-entry-button')
-      await newIncludeEntryButton.trigger('click');
+      await newIncludeEntryButton.trigger('click')
       wrapper.vm.cancelAddNewTag()
       await nextTick()
       const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)

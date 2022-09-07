@@ -120,7 +120,7 @@ describe('ACLEditor.vue', () => {
 
   test('should hide tag input when tag selection cancelled', async () => {
     const newPassthroughEntryButton = wrapper.findAll('.add-new-entry-button').at(1)
-    await newPassthroughEntryButton.trigger('click');
+    await newPassthroughEntryButton.trigger('click')
     wrapper.vm.cancelAddNewTag()
     const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
     await nextTick()

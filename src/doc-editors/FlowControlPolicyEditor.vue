@@ -411,8 +411,8 @@ export default defineComponent({
   emits: ['update:selectedDoc'],
 
   methods: {
-    getListEntryTitle(seqEntry: ArgsCookiesHeadersType): string {
-      return this.listEntryTypes[seqEntry].title
+    getListEntryTitle(seqEntry: ArgsCookiesHeadersType): ArgsCookiesHeadersType {
+      return this.listEntryTypes[seqEntry].title as ArgsCookiesHeadersType
     },
 
     emitDocUpdate() {

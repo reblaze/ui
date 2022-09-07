@@ -268,8 +268,6 @@ export default defineComponent({
       commits: 0,
       branches: 0,
 
-      apiRoot: RequestsUtils.confAPIRoot,
-      apiVersion: RequestsUtils.confAPIVersion,
       componentsMap: {
         'globalfilters': shallowRef({component: GlobalFilterListEditor}),
         'flowcontrol': shallowRef({component: FlowControlPolicyEditor}),
@@ -279,6 +277,8 @@ export default defineComponent({
         'contentfilterprofiles': shallowRef({component: ContentFilterEditor}),
         'contentfilterrules': shallowRef({component: ContentFilterRulesEditor}),
       },
+      apiRoot: RequestsUtils.confAPIRoot,
+      apiVersion: RequestsUtils.confAPIVersion,
     }
   },
   computed: {
