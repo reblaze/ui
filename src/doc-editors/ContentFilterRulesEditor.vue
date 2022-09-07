@@ -19,7 +19,7 @@
                            title="Document name"
                            placeholder="Document name"
                            v-model="localDoc.name"
-                           @change="emitDocUpdate()"/>                  </div>
+                           @change="emitDocUpdate"/>                  </div>
                 </div>
                 <div class="field textarea-field">
                   <label class="label is-small">Description</label>
@@ -28,7 +28,7 @@
                               data-qa="description-input"
                               title="description"
                               v-model="localDoc.description"
-                              @change="emitDocUpdate()"
+                              @change="emitDocUpdate"
                               rows="5">
                     </textarea>
                   </div>
@@ -43,7 +43,7 @@
                            title="Category"
                            placeholder="Category"
                            v-model="localDoc.category"
-                           @change="emitDocUpdate()"/>
+                           @change="emitDocUpdate"/>
                   </div>
                 </div>
                 <div class="field">
@@ -54,14 +54,14 @@
                            title="Subcategory"
                            placeholder="Subcategory"
                            v-model="localDoc.subcategory"
-                           @change="emitDocUpdate()"/>
+                           @change="emitDocUpdate"/>
                   </div>
                 </div>
                 <div class="field">
                   <label class="label is-small">Risk Level</label>
                   <div class="control select is-small">
                     <select v-model="localDoc.risk"
-                            @change="emitDocUpdate()"
+                            @change="emitDocUpdate"
                             data-qa="risk-level-dropdown"
                             class="risk-level-selection"
                             title="Risk level">
@@ -83,7 +83,7 @@
                            title="Tags"
                            placeholder="Space separated tags"
                            v-model="selectedDocTags"
-                           @change="emitDocUpdate()"/>
+                           @change="emitDocUpdate"/>
                   </div>
                   <div class="is-size-7">
                     Automatic Tags:
@@ -101,7 +101,7 @@
                        title="Message to appear in the logs"
                        placeholder="Log message"
                        v-model="localDoc.msg"
-                       @change="emitDocUpdate()"
+                       @change="emitDocUpdate"
                        required>
               </div>
             </div>
@@ -114,7 +114,7 @@
                        title="Match"
                        placeholder="matching regex"
                        v-model="localDoc.operand"
-                       @change="emitDocUpdate()"
+                       @change="emitDocUpdate"
                        required>
                 <span class="icon is-small is-left has-text-grey">
                       <i class="fas fa-code"></i>
