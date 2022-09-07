@@ -430,7 +430,7 @@ export default defineComponent({
         if (!this.referencedACL[map.acl_profile] || this.referencedACL[map.acl_profile].length === 0) {
           this.referencedACL[map.acl_profile] = []
         }
-        // cannot read property 'push' of undefined, during test line 1096
+        // add map id to referenced acl
         this.referencedACL[map.acl_profile].push(doc.id)
         // initialize array if needed
         if (!this.referencedContentFilter[map.content_filter_profile] ||

@@ -230,11 +230,11 @@ describe('SecurityPoliciesEditor.vue', () => {
     ]
     selectedBranch = 'master'
     axiosGetSpy = jest.spyOn(axios, 'get').mockImplementation((path, config) => {
-      console.log('path', path, 'config', config)
       if (!wrapper) {
         return Promise.resolve({data: []})
       }
-      if (path === `/conf/api/v2/configs/${selectedBranch}/d/aclprofiles/`) {
+      const branch = wrapper.vm.selectedBranch
+      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve(
             {
@@ -246,19 +246,19 @@ describe('SecurityPoliciesEditor.vue', () => {
         }
         return Promise.resolve({data: aclDocs})
       }
-      if (path === `/conf/api/v2/configs/${selectedBranch}/d/securitypolicies/`) {
-        if (config && config.headers && config.headers['x-fields'] === 'id, name') {
+      if (path === `/conf/api/v2/configs/${branch}/d/securitypolicies/`) {
+        if (config && config.headers && config.headers['x-fields'] === 'match') {
           return Promise.resolve(
             {
               data: _.map(securityPoliciesDocs, (doc: SecurityPolicy) => {
-                return _.pick(doc, 'id', 'name')
+                return _.pick(doc, 'match')
               }),
             },
           )
         }
         return Promise.resolve({data: securityPoliciesDocs})
       }
-      if (path === `/conf/api/v2/configs/${selectedBranch}/d/contentfilterprofiles/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/contentfilterprofiles/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve(
             {
@@ -270,7 +270,7 @@ describe('SecurityPoliciesEditor.vue', () => {
         }
         return Promise.resolve({data: contentFilterDocs})
       }
-      if (path === `/conf/api/v2/configs/${selectedBranch}/d/ratelimits/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/ratelimits/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve(
             {
@@ -282,7 +282,7 @@ describe('SecurityPoliciesEditor.vue', () => {
         }
         return Promise.resolve({data: rateLimitsDocs})
       }
-      if (path === `/conf/api/v2/configs/${selectedBranch}/d/ratelimits/e/f971e92459e2/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/ratelimits/e/f971e92459e2/`) {
         return Promise.resolve({data: rateLimitsDocs[0]})
       }
       return Promise.resolve({data: []})
@@ -290,14 +290,10 @@ describe('SecurityPoliciesEditor.vue', () => {
     mockRouter = {
       push: jest.fn(),
     }
-    const onUpdate = (some1: ComponentNameType) => {
-      wrapper.setProps({selectedDoc: some1})
-    }
     wrapper = shallowMount(SecurityPoliciesEditor, {
       props: {
-        'selectedDoc': securityPoliciesDocs[0],
-        selectedBranch,
-        'onUpdate:selectedDoc': onUpdate,
+        selectedDoc: securityPoliciesDocs[0],
+        selectedBranch: selectedBranch,
       },
       global: {
         mocks: {
@@ -348,7 +344,6 @@ describe('SecurityPoliciesEditor.vue', () => {
     })
     wrapper.setProps({selectedDoc: fullPolicy})
     // allow all requests to finish
-    jest.useFakeTimers()
     setImmediate(() => {
       expect(wrapper.vm.initialDocDomainMatch).toBe(wantedMatch)
       jest.useRealTimers()
@@ -402,7 +397,7 @@ describe('SecurityPoliciesEditor.vue', () => {
   })
 
   test('should not send new requests to API if selected branch does not update', (done) => {
-    jest.resetAllMocks()
+    jest.clearAllMocks()
     const branch = _.cloneDeep(selectedBranch)
     wrapper.setProps({
       selectedBranch: branch,
@@ -415,7 +410,7 @@ describe('SecurityPoliciesEditor.vue', () => {
   })
 
   test('should not send new requests to API if selected branch updates to empty string', (done) => {
-    jest.resetAllMocks()
+    jest.clearAllMocks()
     wrapper.setProps({
       selectedBranch: '',
     })
@@ -427,7 +422,7 @@ describe('SecurityPoliciesEditor.vue', () => {
   })
 
   test('should not send new requests to API if selected branch updates to null', (done) => {
-    jest.resetAllMocks()
+    jest.clearAllMocks()
     wrapper.setProps({
       selectedBranch: null,
     })
@@ -439,7 +434,7 @@ describe('SecurityPoliciesEditor.vue', () => {
   })
 
   test('should not send new requests to API if selected branch updates to undefined', (done) => {
-    jest.resetAllMocks()
+    jest.clearAllMocks()
     wrapper.setProps({
       selectedBranch: undefined,
     })
@@ -451,12 +446,12 @@ describe('SecurityPoliciesEditor.vue', () => {
   })
 
   test('should send a single new request to API if selected branch updates', (done) => {
-    jest.resetAllMocks()
+    jest.clearAllMocks()
     const branch = 'devops'
     wrapper.setProps({
       selectedBranch: branch,
     })
-    wrapper.vm.$forceUpdate()
+    // allow all requests to finish
     setImmediate(() => {
       expect(axiosGetSpy).toHaveBeenCalledTimes(1)
       done()
@@ -464,41 +459,11 @@ describe('SecurityPoliciesEditor.vue', () => {
   })
 
   test('should not change the initial domain match if document data updates with new data and same ID', async () => {
-    jest.resetAllMocks()
-    let newDomainMatch = 'example.com'
-    let newId = '__default__'
-    // we need to change ID to set the initialDocDomainMatch so when we try to change it again
-    // but with the same ID it does not change.
-    securityPoliciesDocs[0] = {
-      'id': newId,
-      'name': 'new name',
-      'match': newDomainMatch,
-      'map': [
-        {
-          'name': 'one',
-          'match': '/one',
-          'acl_profile': '5828321c37e0',
-          'acl_active': false,
-          'content_filter_profile': '009e846e819e',
-          'content_filter_active': true,
-          'limit_ids': ['365757ec0689'],
-        },
-        {
-          'name': 'two',
-          'match': '/two',
-          'acl_profile': '__default__',
-          'acl_active': true,
-          'content_filter_profile': '__default__',
-          'content_filter_active': false,
-          'limit_ids': ['f971e92459e2'],
-        },
-      ],
-    }
+    jest.clearAllMocks()
     const wantedDomainMatch = securityPoliciesDocs[0].match
-    newDomainMatch = 'example.com'
-    newId = '__newid__'
+    const newDomainMatch = 'example.com'
     securityPoliciesDocs[0] = {
-      'id': newId,
+      'id': '__default__',
       'name': 'new name',
       'match': newDomainMatch,
       'map': [
@@ -525,38 +490,11 @@ describe('SecurityPoliciesEditor.vue', () => {
     await wrapper.setProps({
       selectedDoc: securityPoliciesDocs[0],
     })
-    newDomainMatch = 'myexample.com'
-    newId = '__newid__'
-    securityPoliciesDocs[0] = {
-      'id': newId,
-      'name': 'new name',
-      'match': newDomainMatch,
-      'map': [
-        {
-          'name': 'one',
-          'match': '/one',
-          'acl_profile': '5828321c37e0',
-          'acl_active': false,
-          'content_filter_profile': '009e846e819e',
-          'content_filter_active': true,
-          'limit_ids': ['365757ec0689'],
-        },
-        {
-          'name': 'two',
-          'match': '/two',
-          'acl_profile': '__default__',
-          'acl_active': true,
-          'content_filter_profile': '__default__',
-          'content_filter_active': false,
-          'limit_ids': ['f971e92459e2'],
-        },
-      ],
-    }
     expect(wrapper.vm.initialDocDomainMatch).toEqual(wantedDomainMatch)
   })
 
   test('should change the initial domain match if document data updates with new ID', async () => {
-    jest.resetAllMocks()
+    jest.clearAllMocks()
     const wantedDomainMatch = securityPoliciesDocs[1].match
     await wrapper.setProps({
       selectedDoc: securityPoliciesDocs[1],

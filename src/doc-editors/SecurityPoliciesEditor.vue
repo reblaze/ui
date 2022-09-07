@@ -537,7 +537,7 @@ export default defineComponent({
           this.localDoc.map[this.mapEntryIndex].match = this.initialMapEntryMatch
         }
         this.mapEntryIndex = (this.mapEntryIndex === index ? -1 : index)
-        Utils.clearInputValidationClasses(this.$refs. mapEntryMatch[0])
+        Utils.clearInputValidationClasses(this.$refs.mapEntryMatch[0])
         this.emitDocUpdate()
         this.emitCurrentDocInvalidity()
       } else {
@@ -604,13 +604,17 @@ export default defineComponent({
   },
 
   watch: {
-    selectedDoc: function(val, oldVal) {
-      if (!val || !oldVal || _.isUndefined(oldVal.match) || val.id !== oldVal.id) {
-        this.initialDocDomainMatch = val.match
-        if (!this.domainNames.includes(val.match)) {
-          this.domainNames.push(val.match)
+    selectedDoc: {
+      handler: function(val, oldVal) {
+        if (!val || !oldVal || _.isUndefined(oldVal.match) || val.id !== oldVal.id) {
+          this.initialDocDomainMatch = val.match
+          if (!this.domainNames.includes(val.match)) {
+            this.domainNames.push(val.match)
+          }
         }
-      }
+      },
+      immediate: true,
+      deep: true,
     },
     selectedBranch: {
       handler: function(val, oldVal) {
