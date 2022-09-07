@@ -1,7 +1,6 @@
 module.exports = {
   moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json', 'vue'],
   verbose: true,
-  moduleDirectories: ['node_modules', 'src'],
   testEnvironment: 'jsdom',
   fakeTimers: {
     enableGlobally: true,
@@ -12,7 +11,6 @@ module.exports = {
     '^.+\\.vue$': '@vue/vue3-jest',
     '^.+\\.jsx?$': 'babel-jest',
     '^.+\\.tsx?$': 'ts-jest',
-
     '.+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2)$': '<rootDir>/fileTransformer.js'
   },
   testEnvironmentOptions: {
@@ -20,23 +18,16 @@ module.exports = {
   },
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
-    'ace-builds': '<rootDir>/node_modules/ace-builds',
-    '^~/(.*)$': '<rootDir>/$1'
       },
   testMatch: [
-    '<rootDir>/**/*.spec.(js|jsx|ts|tsx)',
     '<rootDir>/**/__tests__/*.spec.ts',
-    "**/__tests__/**/*.tsx",
-    "**/?(*.)+(spec|test).[jt]s?(x)"
   ],
   setupFiles: [`core-js`],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   transformIgnorePatterns: ['<rootDir>/node_modules/'],
-  collectCoverage: true,
   collectCoverageFrom: [
     'src/**/*.{ts,vue}',
     '!src/router/index.ts',
-    '!coverage/*',
     '!src/main.ts',
     '!**/*.d.ts',
   ],

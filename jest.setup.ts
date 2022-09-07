@@ -1,10 +1,10 @@
 import {jest} from '@jest/globals'
 import {TextEncoder, TextDecoder} from 'util'
 
-globalThis.URL.createObjectURL = <any>jest.fn()
-globalThis.TextEncoder = TextEncoder
-// @ts-ignore
-globalThis.TextDecoder = TextDecoder
+global.URL.createObjectURL = <any>jest.fn()
+global.TextEncoder = TextEncoder
+
+global.TextDecoder = TextDecoder
 
 import {defineComponent} from 'vue'
 export default defineComponent({})

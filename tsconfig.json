@@ -24,17 +24,13 @@
     ],
     "paths": {
       "@/*": [ "./src/*"],
-      "@/views/*": [ "./src/views/*" ],
-      "@/doc-editors/*": [ "./src/doc-editors/*" ]
     },
-    "forceConsistentCasingInFileNames": true,
     "lib": [
       "esnext",
       "dom",
       "dom.iterable",
       "scripthost"
     ],
-    "allowSyntheticDefaultImports": true
   },
   "include": [
     "src/**/*.ts",

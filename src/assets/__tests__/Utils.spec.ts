@@ -222,9 +222,6 @@ describe('Utils.ts', () => {
       const consoleOutput: string[] = []
       console.log = (output: string) => consoleOutput.push(output)
       Utils.downloadFile(fileName, fileType, data)
-      // allow all requests to finish
-      // await currentEventLoopEnd()
-      // setImmediate(() => {
       await nextTick()
       expect(consoleOutput).toEqual([])
       console.log = originalLog

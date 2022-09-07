@@ -10,7 +10,7 @@ jest.mock('axios')
 
 describe('AutocompleteInput', () => {
   let wrapper: VueWrapper
-  let suggestions: any[]
+  let suggestions: AutocompleteSuggestion[]
   beforeEach(() => {
     suggestions = [
       {
@@ -210,7 +210,7 @@ describe('AutocompleteInput', () => {
         clearInputAfterSelection: false,
       },
       attachTo: elem,
-    }) as VueWrapper<any>
+    }) as VueWrapper
     const input = wrapper.find('.autocomplete-input')
     await input.setValue('value')
     await input.trigger('input')
@@ -382,7 +382,7 @@ describe('AutocompleteInput', () => {
   })
 
   describe('multiple values selection', () => {
-    let input: any
+    let input: DOMWrapper
     beforeEach(async () => {
       wrapper = mount(AutocompleteInput, {
         props: {

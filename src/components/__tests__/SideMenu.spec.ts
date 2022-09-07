@@ -1,3 +1,4 @@
+// @ts-nocheck
 import SideMenu from '@/components/SideMenu.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {DOMWrapper, mount} from '@vue/test-utils'
@@ -94,11 +95,12 @@ describe('SideMenu.vue', () => {
     }
   })
 
-  function menuItemShouldContainWantedSectionItems(menuItemName: string, wantedSectionItems: any[]) {
-    const menuItem = wrapper.findAll('.menu-item').filter((item: any) => item.text()?.includes(menuItemName))
+  function menuItemShouldContainWantedSectionItems(menuItemName: string, wantedSectionItems: DOMWrapper[]) {
+    const menuItem = wrapper.findAll('.menu-item')
+      .filter((item: DOMWrapper<Element>) => item.text()?.includes(menuItemName))
     const sectionItems = menuItem.at(0).findAll('.section-item')
     wantedSectionItems.forEach((wantedSectionItem) => {
-      const match: DOMWrapper<any> = sectionItems.find((sectionItem: DOMWrapper<any>) => {
+      const match: DOMWrapper<Element> = sectionItems.find((sectionItem: DOMWrapper<Element>) => {
         return sectionItem.text().includes(wantedSectionItem.title)
       })
       expect(match).toBeDefined()

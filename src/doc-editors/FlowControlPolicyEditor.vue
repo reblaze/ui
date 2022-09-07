@@ -222,23 +222,23 @@
                         {{ getListEntryTitle(sequenceEntry[0] as ArgsCookiesHeadersType) }}
                       </td>
                       <td class="width-100px">
-                        {{ sequenceEntry[1][0] }}
+                        {{ (sequenceEntry[1][0])}}
                       </td>
                       <td>
-                        {{ sequenceEntry[1][1] }}
+                        {{ (sequenceEntry[1][1])}}
                       </td>
                       <td class="width-80px">
                         <a class="is-small has-text-grey remove-entry-button"
-                            data-qa='remove-sequence-btn'
-                            title='Remove sequence entry'
-                            tabindex='0'
+                            data-qa="remove-sequence-btn"
+                            title="Remove sequence entry"
+                            tabindex="0"
                             @click="removeSequenceItemEntry(
-                                sequenceIndex, sequenceEntry[0] as ArgsCookiesHeadersType, sequenceEntry[1][0])"
+                                sequenceIndex, sequenceEntry[0], sequenceEntry[1][0])"
                             @keypress.space.prevent
                             @keypress.space="removeSequenceItemEntry(
-                                sequenceIndex, sequenceEntry[0] as ArgsCookiesHeadersType, sequenceEntry[1][0])"
+                                sequenceIndex, sequenceEntry[0], sequenceEntry[1][0])"
                             @keypress.enter="removeSequenceItemEntry(
-                                sequenceIndex, sequenceEntry[0] as ArgsCookiesHeadersType, sequenceEntry[1][0])">
+                                sequenceIndex, sequenceEntry[0], sequenceEntry[1][0])">
                           remove
                         </a>
                       </td>
@@ -421,7 +421,7 @@ export default defineComponent({
 
     // Key
 
-    getOptionTextKey(option: LimitOptionType, index: number) {
+    getOptionTextKey(option: LimitOptionType, index: number): string {
       const [type] = Object.keys(option)
       return `${this.localDoc.id}_${type}_${index}`
     },
@@ -455,7 +455,7 @@ export default defineComponent({
       this.checkKeysValidity()
     },
 
-    checkKeysValidity() {
+    checkKeysValidity(): boolean {
       const keysToCheck = _.countBy(this.localDoc.key, (item) => {
         const key = Object.keys(item)[0]
         return `${key}_${item[key]}`
@@ -481,22 +481,22 @@ export default defineComponent({
       this.newEntrySectionIndex = index
     },
 
-    sequenceItemEntries(sequenceIndex: number) {
+    sequenceItemEntries(sequenceIndex: number): (string | any[])[] {
       const sequenceItem = this.localDoc.sequence[sequenceIndex]
-      const headersEntries = Object.entries(sequenceItem.headers)
-      const cookiesEntries = Object.entries(sequenceItem.cookies)
-      const argsEntries = Object.entries(sequenceItem.args)
+      const headersEntries = Object.entries(sequenceItem.headers) as string | any[]
+      const cookiesEntries = Object.entries(sequenceItem.cookies) as string | any[]
+      const argsEntries = Object.entries(sequenceItem.args) as (string | any[])
       const mergedEntries = []
       for (let i = 0; i < headersEntries.length; i++) {
         if (headersEntries[i][0] !== 'host') {
-          mergedEntries.push(['headers', headersEntries[i]])
+          mergedEntries.push(['headers', headersEntries[i]] as ArgsCookiesHeadersType | any[])
         }
       }
       for (let i = 0; i < argsEntries.length; i++) {
-        mergedEntries.push(['args', argsEntries[i]])
+        mergedEntries.push(['args', argsEntries[i]] as ArgsCookiesHeadersType | any[])
       }
       for (let i = 0; i < cookiesEntries.length; i++) {
-        mergedEntries.push(['cookies', cookiesEntries[i]])
+        mergedEntries.push(['cookies', cookiesEntries[i]] as ArgsCookiesHeadersType | any[])
       }
       return mergedEntries
     },
