@@ -177,22 +177,25 @@ describe('LimitOption.vue', () => {
 
   describe('emit changes', () => {
     describe('type dropdown', () => {
-      test('should emit new option when type selected from dropdown - self', async () => {
+      test('should not emit new option when selected type selected from dropdown again', async () => {
+        const selection = wrapper.find('.option-type-selection')
+        const options = selection.findAll('option')
+        await selection.setValue(options.at(0).element.value)
+        expect(wrapper.emitted('change')).toBeFalsy()
+      })
+
+      test('should emit new option when type selected from dropdown - self - headers - self', async () => {
         const wantedEmit = {
           type: 'self',
           key: 'self',
         }
         const selection = wrapper.find('.option-type-selection')
         const options = selection.findAll('option')
-        await nextTick()
         // set to not self so we would be able to change to default
-        console.log('1', options.at(1).element.value, '0', options.at(0).element.value)
-        selection.setValue(options.at(1).element.value)
-        await nextTick()
-        selection.setValue(options.at(0).element.value)
-        await nextTick()
+        await selection.setValue(options.at(1).element.value)
+        await selection.setValue(options.at(0).element.value)
         expect(wrapper.emitted('change')).toBeTruthy()
-        expect(wrapper.emitted('change')[0]).toEqual([wantedEmit])
+        expect(wrapper.emitted('change')[1]).toEqual([wantedEmit])
       })
 
       test('should emit new option when type selected from dropdown - headers', async () => {

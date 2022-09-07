@@ -19,7 +19,8 @@
                            title="Document name"
                            placeholder="Document name"
                            v-model="localDoc.name"
-                           @change="emitDocUpdate()"/>                  </div>
+                           @change="emitDocUpdate()"/>
+                  </div>
                 </div>
                 <div class="field textarea-field">
                   <label class="label is-small">Description</label>
