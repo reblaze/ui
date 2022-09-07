@@ -420,7 +420,7 @@ describe('AutocompleteInput', () => {
   describe('selection type prop validator', () => {
     let validator: Function
     beforeEach(() => {
-      validator = (wrapper.vm).$options.props.selectionType.validator
+      validator = wrapper.vm.$options.props.selectionType.validator
     })
 
     test('should return true for `single` type`', () => {

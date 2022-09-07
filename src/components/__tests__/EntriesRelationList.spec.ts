@@ -233,7 +233,7 @@ describe('EntriesRelationList.vue', () => {
   describe('rule prop validator', () => {
     let validator: Function
     beforeEach(() => {
-      validator = (wrapper.vm).$options.props.rule.validator
+      validator = wrapper.vm.$options.props.rule.validator
     })
 
     test('should return true for data in the correct schema', () => {
@@ -361,8 +361,8 @@ describe('EntriesRelationList.vue', () => {
       await newEntryTextarea.setValue('1.2.3.4#annotation')
       const confirmAddEntryButton = component.find('.confirm-add-entry-button')
       await confirmAddEntryButton.trigger('click')
-      expect((wrapper.vm).rule.sections[0].entries.length).toEqual(3)
-      expect((wrapper.vm).rule.sections[0].entries[2]).toEqual(['ip', '1.2.3.4', 'annotation'])
+      expect(wrapper.vm.rule.sections[0].entries.length).toEqual(3)
+      expect(wrapper.vm.rule.sections[0].entries[2]).toEqual(['ip', '1.2.3.4', 'annotation'])
     })
 
     test('should add new entry from input with general annotation when confirm button is clicked', async () => {
@@ -376,8 +376,8 @@ describe('EntriesRelationList.vue', () => {
       await newEntryAnnotation.setValue('annot')
       const confirmAddEntryButton = component.find('.confirm-add-entry-button')
       await confirmAddEntryButton.trigger('click')
-      expect((wrapper.vm).rule.sections[0].entries.length).toEqual(3)
-      expect((wrapper.vm).rule.sections[0].entries[2]).toEqual(['ip', '1.2.3.4', 'annot'])
+      expect(wrapper.vm.rule.sections[0].entries.length).toEqual(3)
+      expect(wrapper.vm.rule.sections[0].entries[2]).toEqual(['ip', '1.2.3.4', 'annot'])
     })
 
     test('should add multiple new entries from input when confirm button is clicked', async () => {
@@ -389,9 +389,9 @@ describe('EntriesRelationList.vue', () => {
       await newEntryTextarea.setValue('1.2.3.4#annotation\n127.0.0.1#localhost')
       const confirmAddEntryButton = component.find('.confirm-add-entry-button')
       await confirmAddEntryButton.trigger('click')
-      expect((wrapper.vm).rule.sections[0].entries.length).toEqual(4)
-      expect((wrapper.vm).rule.sections[0].entries[2]).toEqual(['ip', '1.2.3.4', 'annotation'])
-      expect((wrapper.vm).rule.sections[0].entries[3]).toEqual(['ip', '127.0.0.1', 'localhost'])
+      expect(wrapper.vm.rule.sections[0].entries.length).toEqual(4)
+      expect(wrapper.vm.rule.sections[0].entries[2]).toEqual(['ip', '1.2.3.4', 'annotation'])
+      expect(wrapper.vm.rule.sections[0].entries[3]).toEqual(['ip', '127.0.0.1', 'localhost'])
     })
 
     test('should add multiple new entries with general' +
@@ -406,9 +406,9 @@ describe('EntriesRelationList.vue', () => {
       await newEntryAnnotation.setValue('annot')
       const confirmAddEntryButton = component.find('.confirm-add-entry-button')
       await confirmAddEntryButton.trigger('click')
-      expect((wrapper.vm).rule.sections[0].entries.length).toEqual(4)
-      expect((wrapper.vm).rule.sections[0].entries[2]).toEqual(['ip', '1.2.3.4', 'annot'])
-      expect((wrapper.vm).rule.sections[0].entries[3]).toEqual(['ip', '127.0.0.1', 'localhost'])
+      expect(wrapper.vm.rule.sections[0].entries.length).toEqual(4)
+      expect(wrapper.vm.rule.sections[0].entries[2]).toEqual(['ip', '1.2.3.4', 'annot'])
+      expect(wrapper.vm.rule.sections[0].entries[3]).toEqual(['ip', '127.0.0.1', 'localhost'])
     })
 
     test('should add new entries from name-value input when confirm button is clicked', async () => {
@@ -426,8 +426,8 @@ describe('EntriesRelationList.vue', () => {
       await newEntryInputValue.setValue('right')
       const confirmAddEntryButton = component.find('.confirm-add-entry-button')
       await confirmAddEntryButton.trigger('click')
-      expect((wrapper.vm).rule.sections[0].entries.length).toEqual(3)
-      expect((wrapper.vm).rule.sections[0].entries[2]).toEqual(['headers', ['something', 'right']])
+      expect(wrapper.vm.rule.sections[0].entries.length).toEqual(3)
+      expect(wrapper.vm.rule.sections[0].entries[2]).toEqual(['headers', ['something', 'right']])
     })
 
     test('should not add new entries from multi-line' +
@@ -446,7 +446,7 @@ describe('EntriesRelationList.vue', () => {
       await newEntryInputValue.setValue('')
       const confirmAddEntryButton = component.find('.confirm-add-entry-button')
       await confirmAddEntryButton.trigger('click')
-      expect((wrapper.vm).rule.sections[0].entries.length).toEqual(2)
+      expect(wrapper.vm.rule.sections[0].entries.length).toEqual(2)
     })
 
     test('should not show new entry button if not editable', () => {
@@ -562,7 +562,7 @@ describe('EntriesRelationList.vue', () => {
       await addEntryButton.trigger('click')
       const cancelEntryButton = component.find('.cancel-entry-button')
       await cancelEntryButton.trigger('click')
-      expect((wrapper.vm).newEntrySectionIndex).toEqual(-1)
+      expect(wrapper.vm.newEntrySectionIndex).toEqual(-1)
     })
     test('should remove empty section', async () => {
       wrapper = mount(EntriesRelationList, {
@@ -588,7 +588,7 @@ describe('EntriesRelationList.vue', () => {
       const component = wrapper.findComponent(EntriesRelationList)
       const removeEntryButton = component.find('.remove-entry-button')
       await removeEntryButton.trigger('click')
-      expect((wrapper.vm).rule.sections[0].entries.length).toEqual(1)
+      expect(wrapper.vm.rule.sections[0].entries.length).toEqual(1)
     })
     test('should remove section if no entries left', async () => {
       const entryData3: GlobalFilterSection = {
@@ -658,7 +658,7 @@ describe('EntriesRelationList.vue', () => {
       // confirm add new entry
       await confirmAddEntryButton.trigger('click')
       // check
-      expect((wrapper.vm).duplicatedEntries.length).toEqual(1)
+      expect(wrapper.vm.duplicatedEntries.length).toEqual(1)
     })
     test('should validate duplicated entries if category is args, cookies, headers', async () => {
       // open new entry row
@@ -680,7 +680,7 @@ describe('EntriesRelationList.vue', () => {
       confirmAddEntryButton = newEntryRow.find('.confirm-add-entry-button')
       await confirmAddEntryButton.trigger('click')
       // check
-      expect((wrapper.vm).duplicatedEntries.length).toEqual(1)
+      expect(wrapper.vm.duplicatedEntries.length).toEqual(1)
     })
     // TODO: Fix regex test for rust standards and re-apply this
     // test('should validate value as regex if category is path, query, or uri', async () => {
@@ -688,7 +688,7 @@ describe('EntriesRelationList.vue', () => {
     //   await nextTick()
     //   newEntryTextarea.setValue('\\')
     //   // check
-    //   expect((wrapper.vm).entriesErrors.length).toEqual(1)
+    //   expect(wrapper.vm.entriesErrors.length).toEqual(1)
     // })
     test('should validate value as ip if category is ip', async () => {
       // change entry type to ip
@@ -698,7 +698,7 @@ describe('EntriesRelationList.vue', () => {
       await typeSelection.setValue(options.at(4).element.value)
       await newEntryTextarea.setValue('1.1.1.1.')
       // check
-      expect((wrapper.vm).entriesErrors.length).toEqual(1)
+      expect(wrapper.vm.entriesErrors.length).toEqual(1)
     })
     test('should validate value as non-empty if category is not ip, path, query, uri', async () => {
       // change entry type to method
@@ -708,7 +708,7 @@ describe('EntriesRelationList.vue', () => {
       await typeSelection.setValue(options.at(3).element.value)
       await newEntryTextarea.setValue(' ')
       // check
-      expect((wrapper.vm).entriesErrors.length).toEqual(1)
+      expect(wrapper.vm.entriesErrors.length).toEqual(1)
     })
     // TODO: Fix regex test for rust standards and re-apply this
     // test('should validate second attribute if category is args, cookies, headers', async () => {
@@ -716,7 +716,7 @@ describe('EntriesRelationList.vue', () => {
     //   await nextTick()
     //   newEntrySecondAttr.setValue('\\')
     //   // check
-    //   expect((wrapper.vm).entriesErrors.length).toEqual(1)
+    //   expect(wrapper.vm.entriesErrors.length).toEqual(1)
     // })
     test('should clear errors', async () => {
       // change entry type to headers
@@ -727,7 +727,7 @@ describe('EntriesRelationList.vue', () => {
       await newEntrySecondAttr.setValue('\\')
       await newEntrySecondAttr.setValue('something')
       // check
-      expect((wrapper.vm).entriesErrors.length).toEqual(0)
+      expect(wrapper.vm.entriesErrors.length).toEqual(0)
     })
   })
 })

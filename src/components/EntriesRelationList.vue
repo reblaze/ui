@@ -91,19 +91,18 @@
                   <td class="is-size-7 width-250px">
                     <div v-if="isCategoryArgsCookiesHeaders(newEntryCategory)"
                          class="control has-icons-left is-fullwidth new-entry-name">
-                         <!-- //" $event.target.value )"  -->
                       <input class="input is-small new-entry-name-input"
                              :class="{ 'is-danger': isErrorField( `${newEntryCategory}${sectionIndex}` )}"
                              title="Name"
                              placeholder="Name"
-                             @change="validateRegex( `${newEntryCategory}${sectionIndex}`, newEntryItem.firstAttr)"
+                             @input="validateRegex( `${newEntryCategory}${sectionIndex}`, newEntryItem.firstAttr)"
                              v-model="newEntryItem.firstAttr"/>
                       <span class="icon is-small is-left has-text-grey-light"><i class="fa fa-font"></i></span>
                     </div>
                     <textarea v-else
                               title="Entries"
                               v-model="newEntryItem.firstAttr"
-                              @change="validateValue( sectionIndex, newEntryItem.firstAttr)"
+                              @input="validateValue( sectionIndex, newEntryItem.firstAttr)"
                               placeholder="One entry per line, use '#' for annotation"
                               class="textarea is-small is-fullwidth new-entry-textarea"
                               :class="{ 'is-danger': isErrorField( `${newEntryCategory}${sectionIndex}` )}"
@@ -122,7 +121,7 @@
                              :class="{'is-danger': errorSecondAttr( sectionIndex )}"
                              :placeholder="isCategoryArgsCookiesHeaders( newEntryCategory ) ? 'Value' : 'Annotation'"
                              v-model="newEntryItem.secondAttr"
-                             @chnage="onChangeSecondAttr( sectionIndex, newEntryItem.secondAttr )"/>
+                             @input="onChangeSecondAttr( sectionIndex, newEntryItem.secondAttr )"/>
                       <span v-show="isCategoryArgsCookiesHeaders( newEntryCategory )"
                             class="icon is-small is-left has-text-grey-light">
                         <i class="fa fa-code"></i>
@@ -207,10 +206,6 @@ import {defineComponent, PropType} from 'vue'
 import Utils from '@/assets/Utils'
 import {Category, GlobalFilter, GlobalFilterSection, GlobalFilterSectionEntry, Relation} from '@/types'
 
-export type Rule = {
-          relation: Relation,
-          sections: GlobalFilterSection[],
-        }
 
 export default defineComponent({
   name: 'EntriesRelationList',
@@ -224,7 +219,7 @@ export default defineComponent({
           sections: [] as GlobalFilterSection[],
         }
       },
-      validator: (value: Rule) => {
+      validator: (value: GlobalFilter['rule']) => {
         if (!value || !value.relation || !value.sections) {
           return false
         }
@@ -297,10 +292,7 @@ export default defineComponent({
     },
   },
 
-
-  // watch(rule, this.modifyRule),
   watch: {
-    // rule: 'modifyRule',
     rule: {
       handler: function() {
         this.sectionsCurrentPageIndex = []
@@ -323,16 +315,6 @@ export default defineComponent({
   },
 
   methods: {
-    modifyRule() {
-      this.sectionsCurrentPageIndex = []
-      for (let i = 0; i < this.localRule.sections.length; i++) {
-        const section = this.localRule.sections[i]
-        this.sectionsCurrentPageIndex[i] = 1
-        if (this.sectionContainsSameCategoryItems(section)) {
-          section.relation = 'OR'
-        }
-      }
-    },
 
     isCategoryArgsCookiesHeaders(category: Category) {
       return (new RegExp('(args|cookies|headers)')).test(category)
@@ -562,13 +544,13 @@ export default defineComponent({
     validateRegex(id: string, value: string) {
       // TODO: Fix regex test for rust standards and re-apply this
       // remove unsupported in js mode modifiers
-      const val = value.trim().replaceAll(/\(\?[a-z]{1,3}\)/g, '')
-      try {
-        this.clearError(id)
-        new RegExp(val)
-      } catch {
-        this.validate(val, /^[\w-]+$/, id)
-      }
+      // const val = value.trim().replaceAll(/\(\?[a-z]{1,3}\)/g, '')
+      // try {
+      //   this.clearError(id)
+      //   new RegExp(val)
+      // } catch {
+      //   this.validate(val, /^[\w-]+$/, id)
+      // }
     },
 
     validateNotEmpty(id: string, value: string) {

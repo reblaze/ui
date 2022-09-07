@@ -28,6 +28,7 @@ import {defineComponent} from 'vue'
 import {AxiosResponse} from 'axios'
 import {TagsNamespaceValue} from '@/types'
 import Utils from '@/assets/Utils'
+import {SelectionType} from '@/components/AutocompleteInput.vue'
 
 export default defineComponent({
   name: 'TagAutocompleteInput',
@@ -51,7 +52,7 @@ export default defineComponent({
     },
     selectionType: {
       type: String,
-      validator: (val: String) => {
+      validator: (val: SelectionType) => {
         if (!val) {
           return false
         }
@@ -182,7 +183,6 @@ export default defineComponent({
     },
 
     bubbleEvent(eventName: AutocompleteInputEvents, event: Event) {
-      // this.currentEventName = eventName
       this.$emit(eventName, event)
     },
 

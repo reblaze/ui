@@ -3,6 +3,7 @@ const StyleLintPlugin = require('stylelint-webpack-plugin')
 
 module.exports = {
   devServer: {
+    // proxy: 'http://localhost:5000'
     proxy: {
       '^/conf/api': {
         pathRewrite: {'^/conf/api': '/api'},

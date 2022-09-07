@@ -12,8 +12,7 @@ export default defineComponent({})
 declare module '@vue/runtime-core' {
     export interface ComponentCustomProperties {
       $refs: {
-        [key: string]: HTMLElement | any,
-      },
-      $goto: any,
+        [key: string]: any
+      }
     }
   }

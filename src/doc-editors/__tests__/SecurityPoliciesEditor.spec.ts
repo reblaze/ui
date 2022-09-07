@@ -345,7 +345,7 @@ describe('SecurityPoliciesEditor.vue', () => {
     wrapper.setProps({selectedDoc: fullPolicy})
     // allow all requests to finish
     setImmediate(() => {
-      expect((wrapper.vm).initialDocDomainMatch).toBe(wantedMatch)
+      expect(wrapper.vm.initialDocDomainMatch).toBe(wantedMatch)
       jest.useRealTimers()
       done()
     })
@@ -391,7 +391,7 @@ describe('SecurityPoliciesEditor.vue', () => {
     wrapper.setProps({selectedDoc: fullPolicy})
     // allow all requests to finish
     setImmediate(() => {
-      expect((wrapper.vm).initialDocDomainMatch).toBe(wantedMatch)
+      expect(wrapper.vm.initialDocDomainMatch).toBe(wantedMatch)
       done()
     })
   })
@@ -490,7 +490,7 @@ describe('SecurityPoliciesEditor.vue', () => {
     await wrapper.setProps({
       selectedDoc: securityPoliciesDocs[0],
     })
-    expect((wrapper.vm as DOMWrapper).initialDocDomainMatch).toEqual(wantedDomainMatch)
+    expect(wrapper.vm.initialDocDomainMatch).toEqual(wantedDomainMatch)
   })
 
   test('should change the initial domain match if document data updates with new ID', async () => {
@@ -499,7 +499,7 @@ describe('SecurityPoliciesEditor.vue', () => {
     await wrapper.setProps({
       selectedDoc: securityPoliciesDocs[1],
     })
-    expect((wrapper.vm).initialDocDomainMatch).toEqual(wantedDomainMatch)
+    expect(wrapper.vm.initialDocDomainMatch).toEqual(wantedDomainMatch)
   })
 
   describe('form data', () => {
