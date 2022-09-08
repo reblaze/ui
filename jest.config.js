@@ -7,12 +7,12 @@ module.exports = {
     doNotFake: ['nextTick'],
     timerLimit: 5000,
   },
-  rootDir: '../',
+  rootDir: '.',
   transform: {
     '^.+\\.vue$': '@vue/vue3-jest',
     '^.+\\.jsx?$': 'babel-jest',
     '^.+\\.tsx?$': 'ts-jest',
-    '.+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2)$': '<rootDir>/ui/fileTransformer.js'
+    '.+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2)$': '<rootDir>/fileTransformer.js'
   },
   testEnvironmentOptions: {
     customExportConditions: ['node', 'node-addons', 'core-js'],
