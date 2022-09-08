@@ -7,6 +7,7 @@ module.exports = {
     doNotFake: ['nextTick'],
     timerLimit: 5000,
   },
+  rootDir: '../',
   transform: {
     '^.+\\.vue$': '@vue/vue3-jest',
     '^.+\\.jsx?$': 'babel-jest',
