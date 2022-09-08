@@ -13,6 +13,9 @@ module.exports = {
     '^.+\\.tsx?$': 'ts-jest',
     '.+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2)$': '<rootDir>/fileTransformer.js'
   },
+  globals: {
+    rootDir: './'
+  },
   testEnvironmentOptions: {
     customExportConditions: ['node', 'node-addons', 'core-js'],
   },
