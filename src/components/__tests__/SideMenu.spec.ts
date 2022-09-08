@@ -115,7 +115,7 @@ describe('SideMenu.vue', () => {
 
   test('should render all static Settings menu items when system db does not exist', () => {
     const wantedInternalMenuItems = [
-      {path: '/list', title: 'Policies & Rules'},
+      {path: '/config', title: 'Policies & Rules'},
       {path: '/CurieDB', title: 'CurieDB'},
       {path: '/publish', title: 'Publish Changes'},
     ]

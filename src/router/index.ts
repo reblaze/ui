@@ -6,7 +6,6 @@ import CurieDBEditor from '@/views/CurieDBEditor.vue'
 import PublishChanges from '@/views/Publish.vue'
 import VersionControl from '@/views/VersionControl.vue'
 import DocumentSearch from '@/views/DocumentSearch.vue'
-import DocumentList from '@/views/DocumentList.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -36,25 +35,6 @@ const routes: Array<RouteRecordRaw> = [
                     component: DocumentEditor,
                   },
                 ],
-              },
-            ],
-          },
-        ],
-      },
-      {
-        path: 'list',
-        name: 'DocumentList',
-        component: DocumentList,
-        children: [
-          {
-            path: ':branch',
-            name: 'DocumentList/Branch',
-            component: DocumentList,
-            children: [
-              {
-                path: ':doc_type',
-                name: 'DocumentList/Branch/DocType',
-                component: DocumentList,
               },
             ],
           },

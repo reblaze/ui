@@ -66,9 +66,11 @@ export default defineComponent({
       defaultPrometheusURL: prometheusURL,
       menuItems: {
         settings: {
-          '/list': {
+          '/config': {
             title: 'Policies & Rules',
-            items: {},
+            items: {
+              '/search': {title: 'Search'},
+            },
           },
           '/CurieDB': {
             title: 'CurieDB',
@@ -155,23 +157,9 @@ export default defineComponent({
         external: true,
       }
     },
-
-    async loadBranches() {
-      const response = await RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'})
-      const branchId = response?.data?.[0]?.id || 'undefined'
-      const items = this.menuItems.settings['/list'].items // reference
-      items[`/${branchId}/globalfilters`] = {title: 'Global Filters'} as menuItem
-      items[`/${branchId}/flowcontrol`] = {title: 'Flow Control Policies'} as menuItem
-      items[`/${branchId}/ratelimits`] = {title: 'Rate limits'} as menuItem
-      items[`/${branchId}/aclprofiles`] = {title: 'ACL Profiles'} as menuItem
-      items[`/${branchId}/contentfilterprofiles`] = {title: 'Content Filter Profiles'} as menuItem
-      items[`/${branchId}/contentfilterrules`] = {title: 'Content Filter Rules'} as menuItem
-      // items[`/${branchId}/search`] = {title: 'Search'} as menuItem
-    },
   },
   async mounted() {
     await this.loadLinksFromDB()
-    await this.loadBranches()
   },
 })
 </script>
