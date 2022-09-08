@@ -8,10 +8,10 @@ module.exports = {
     timerLimit: 5000,
   },
   transform: {
+    '.+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2)$': './fileTransformer.js',
     '^.+\\.vue$': '@vue/vue3-jest',
     '^.+\\.jsx?$': 'babel-jest',
-    '^.+\\.tsx?$': 'ts-jest',
-    '.+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2)$': '<rootDir>/fileTransformer.js'
+    '^.+\\.tsx?$': 'ts-jest'
   },
   testEnvironmentOptions: {
     customExportConditions: ['node', 'node-addons', 'core-js'],
@@ -22,6 +22,7 @@ module.exports = {
   testMatch: [
     '<rootDir>/**/__tests__/*.spec.ts',
   ],
+  // rootDir: {process.},
   setupFiles: [`core-js`],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   transformIgnorePatterns: ['<rootDir>/node_modules/'],
