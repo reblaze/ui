@@ -10,8 +10,7 @@ module.exports = {
   transform: {
     '^.+\\.vue$': '@vue/vue3-jest',
     '^.+\\.jsx?$': 'babel-jest',
-    '^.+\\.tsx?$': 'ts-jest',
-    '.+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2)$': '<rootDir>/fileTransformer.js'
+    '^.+\\.tsx?$': 'ts-jest'
   },
   globals: {
     rootDir: './'
@@ -19,7 +18,6 @@ module.exports = {
   testEnvironmentOptions: {
     customExportConditions: ['node', 'node-addons', 'core-js'],
   },
-  moduleDirectories: ['node_modules', 'core-js','.'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
       },
