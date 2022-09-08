@@ -22,7 +22,7 @@ module.exports = {
   testMatch: [
     '<rootDir>/**/__tests__/*.spec.ts',
   ],
-  setupFiles: [`core-js`],
+  setupFiles: [`core-js`,'./fileTransformer.js'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   transformIgnorePatterns: ['<rootDir>/node_modules/'],
   collectCoverageFrom: [
@@ -54,5 +54,5 @@ module.exports = {
       lines: 100,
       statements: 100,
     },
-  },
+  }
 }
