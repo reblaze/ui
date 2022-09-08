@@ -219,7 +219,7 @@
                         AND
                       </td>
                       <td class="width-80px is-vcentered">
-                        {{ getListEntryTitle(sequenceEntry[0] as ArgsCookiesHeadersType) }}
+                        {{ getListEntryTitle(sequenceEntry[0]) }}
                       </td>
                       <td class="width-100px">
                         {{ (sequenceEntry[1][0])}}

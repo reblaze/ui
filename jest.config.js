@@ -55,4 +55,4 @@ module.exports = {
       statements: 100,
     },
   },
-};
+}
