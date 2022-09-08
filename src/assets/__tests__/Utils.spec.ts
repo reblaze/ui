@@ -260,6 +260,7 @@ describe('Utils.ts', () => {
     })
     afterEach(() => {
       jest.clearAllMocks()
+      jest.clearAllTimers()
     })
 
     test('should display success toast', () => {

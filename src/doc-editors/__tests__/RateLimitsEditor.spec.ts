@@ -456,6 +456,7 @@ describe('RateLimitsEditor.vue', () => {
   describe('connected Security Policies', () => {
     afterEach(() => {
       jest.clearAllMocks()
+      jest.clearAllTimers()
     })
 
     test('should display all connected Security Policies', () => {

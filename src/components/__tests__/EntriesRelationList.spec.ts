@@ -57,6 +57,7 @@ describe('EntriesRelationList.vue', () => {
   })
   afterEach(() => {
     jest.clearAllMocks()
+    jest.clearAllTimers()
   })
 
   test('should have a single table rendered for each entries list', () => {

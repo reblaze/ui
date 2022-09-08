@@ -170,6 +170,7 @@ describe('Publish.vue', () => {
   })
   afterEach(() => {
     jest.clearAllMocks()
+    jest.clearAllTimers()
   })
 
   test('should be able to switch branches through dropdown', (done) => {

@@ -304,6 +304,7 @@ describe('SecurityPoliciesEditor.vue', () => {
   })
   afterEach(() => {
     jest.clearAllMocks()
+    jest.clearAllTimers()
   })
 
   test('should update initial domain match if selectedDoc updates from a state without match', (done) => {

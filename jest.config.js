@@ -7,7 +7,6 @@ module.exports = {
     doNotFake: ['nextTick'],
     timerLimit: 5000,
   },
-  rootDir: process.cwd(),
   transform: {
     '^.+\\.vue$': '@vue/vue3-jest',
     '^.+\\.jsx?$': 'babel-jest',
@@ -30,7 +29,7 @@ module.exports = {
     'src/**/*.{ts,vue}',
     '!src/router/index.ts',
     '!src/main.ts',
-    '!**/*.d.ts',
+    '!**/*.d.ts'
   ],
   // Accept global coverage of 90% or higher, and 80% for each individual file
   // This should ensure most of the code is covered and leaves us room to skip hard-to-test areas

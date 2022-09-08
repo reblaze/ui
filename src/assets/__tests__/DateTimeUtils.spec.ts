@@ -220,7 +220,8 @@ describe('DateTimeUtils.ts', () => {
             spy = DateTimeUtils.isoToNowFullCuriefenseFormat = jest.fn()
           })
           afterEach(() => {
-            DateTimeUtils.isoToNowFullCuriefenseFormat = original
+            DateTimeUtils.isoToNowFullCuriefenseFormat = original,
+            jest.clearAllTimers()
           })
 
           test('should call isoToNowFullCuriefenseFormat function', async () => {

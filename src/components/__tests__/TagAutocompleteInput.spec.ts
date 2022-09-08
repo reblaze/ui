@@ -44,6 +44,7 @@ describe('TagAutocompleteInput.vue', () => {
   })
   afterEach(() => {
     jest.clearAllMocks()
+    jest.clearAllTimers()
   })
 
   test('should send correct tags to AutocompleteInput ordered alphabetically regardless of group', async () => {

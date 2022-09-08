@@ -435,6 +435,7 @@ describe('DocumentSearch.vue', () => {
   })
   afterEach(() => {
     jest.clearAllMocks()
+    jest.clearAllTimers()
   })
 
   function isItemInFilteredDocs(item: BasicDocument, doctype: string) {

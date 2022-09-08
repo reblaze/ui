@@ -102,6 +102,7 @@ describe('CurieDBEditor.vue', () => {
   })
   afterEach(() => {
     jest.clearAllMocks()
+    jest.clearAllTimers()
   })
 
   test('should have a git history component', () => {
