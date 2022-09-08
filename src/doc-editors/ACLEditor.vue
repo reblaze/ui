@@ -89,13 +89,12 @@
 
 <script lang="ts">
 import _ from 'lodash'
-import DatasetsUtils from '@/assets/DatasetsUtils.ts'
+import DatasetsUtils from '@/assets/DatasetsUtils'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
-import Vue from 'vue'
-import {Dictionary} from 'vue-router/types/router'
-import {ACLProfile, ACLProfileFilter} from '@/types'
+import {defineComponent} from 'vue'
+import {ACLProfile, ACLProfileFilter, Dictionary} from '@/types'
 
-export default Vue.extend({
+export default defineComponent({
   name: 'ACLEditor',
 
   components: {
@@ -106,7 +105,7 @@ export default Vue.extend({
     selectedDoc: Object,
     apiPath: String,
   },
-
+  emits: ['update:selectedDoc', 'form-invalid'],
   data() {
     return {
       operations: ['force_deny', 'passthrough', 'allow_bot', 'deny_bot', 'allow', 'deny'] as ACLProfileFilter[],
@@ -116,7 +115,7 @@ export default Vue.extend({
   },
   computed: {
     localDoc(): ACLProfile {
-      return _.cloneDeep(this.selectedDoc)
+      return _.cloneDeep(this.selectedDoc as ACLProfile)
     },
 
     duplicateTags(): Dictionary<string> {
@@ -237,7 +236,7 @@ export default Vue.extend({
   text-decoration: line-through;
 }
 
-::v-deep .tag-input {
+:deep(.tag-input) {
   font-size: 0.58rem;
 }
 </style>

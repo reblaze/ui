@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
 import DateTimeUtils from '@/assets/DateTimeUtils'
 
@@ -219,7 +220,8 @@ describe('DateTimeUtils.ts', () => {
             spy = DateTimeUtils.isoToNowFullCuriefenseFormat = jest.fn()
           })
           afterEach(() => {
-            DateTimeUtils.isoToNowFullCuriefenseFormat = original
+            DateTimeUtils.isoToNowFullCuriefenseFormat = original,
+            jest.clearAllTimers()
           })
 
           test('should call isoToNowFullCuriefenseFormat function', async () => {

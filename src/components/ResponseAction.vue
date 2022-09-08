@@ -27,8 +27,9 @@
                     'is-6': !labelDisplayedInline && !isSingleInputColumn,
                     'is-10': labelDisplayedInline && isSingleInputColumn,
                     'is-12': !labelDisplayedInline && isSingleInputColumn}">
-        <div class="control select is-fullwidth is-small action-type-selection" v-if="localAction">
+        <div class="control select is-fullwidth is-small" v-if="localAction">
           <select v-model="localAction.type"
+                  class='action-type-selection'
                   title="Action type"
                   data-qa="action-dropdown"
                   @change="changeActionType()">
@@ -119,7 +120,7 @@
       </template>
     </div>
     <div class="content" v-if="localAction && localAction.type === 'ban' && localAction.params.action">
-      <response-action :action.sync="localAction.params.action"
+      <response-action v-model:action="localAction.params.action"
                        :label-separated-line="labelSeparatedLine"
                        :is-single-input-column="isSingleInputColumn"
                        :ignore="['ban']"
@@ -131,20 +132,11 @@
 
 <script lang="ts">
 import _ from 'lodash'
-import Vue, {PropType} from 'vue'
+import {defineComponent, PropType} from 'vue'
 import {ResponseActionType} from '@/types'
+import {RESPONSE_ACTIONS} from '@/components/responseActionConst'
 
-export const responseActions = {
-  'default': {'title': '503 Service Unavailable'},
-  'challenge': {'title': 'Challenge'},
-  'monitor': {'title': 'Tag Only'},
-  'response': {'title': 'Response', 'params': {'status': '', 'content': ''}},
-  'redirect': {'title': 'Redirect', 'params': {'status': '30[12378]', 'location': 'https?://.+'}},
-  'ban': {'title': 'Ban', 'params': {'duration': '[0-9]+', 'action': {'type': 'default', 'params': {}}}},
-  'request_header': {'title': 'Header', 'params': {'headers': ''}},
-}
-
-export default Vue.extend({
+export default defineComponent({
   name: 'ResponseAction',
   props: {
     action: Object as PropType<ResponseActionType>,
@@ -170,7 +162,7 @@ export default Vue.extend({
 
   data() {
     return {
-      options: _.pickBy({...responseActions}, (value, key) => {
+      options: _.pickBy({...RESPONSE_ACTIONS}, (value, key) => {
         return !this.ignore || !this.ignore.includes(key as ResponseActionType['type'])
       }),
     }
@@ -184,6 +176,7 @@ export default Vue.extend({
       return !this.labelSeparatedLine && !!this.label
     },
   },
+  emits: ['update:action'],
   methods: {
     emitActionUpdate() {
       this.$emit('update:action', this.localAction)

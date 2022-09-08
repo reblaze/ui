@@ -12,12 +12,12 @@
           <table class="table" v-if="gitLog && gitLog.length">
             <thead>
             <tr>
-              <th class="is-size-7">Date</th>
-              <th class="is-size-7">Version</th>
-              <th class="is-size-7">Parents</th>
+              <th class="is-size-7 width-120px">Date</th>
+              <th class="is-size-7 width-70px">Version</th>
+              <th class="is-size-7 width-70px">Parents</th>
               <th class="is-size-7">Message</th>
-              <th class="is-size-7">Author</th>
-              <th class="is-size-7">Email</th>
+              <th class="is-size-7 width-150px">Author</th>
+              <th class="is-size-7 width-200px">Email</th>
               <th class="is-size-7"></th>
             </tr>
             </thead>
@@ -73,11 +73,11 @@
 </template>
 
 <script lang="ts">
-import Vue, {PropType} from 'vue'
+import {defineComponent, PropType} from 'vue'
 import {Commit} from '@/types'
 import DateTimeUtils from '@/assets/DateTimeUtils'
 
-export default Vue.extend({
+export default defineComponent({
   name: 'GitHistory',
 
   props: {
@@ -105,7 +105,7 @@ export default Vue.extend({
       return this.gitLog.slice(0, this.init_max_rows)
     },
   },
-
+  emits: ['restore-version'],
   methods: {
     restoreVersion(commit: Commit) {
       this.$emit('restore-version', commit)

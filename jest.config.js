@@ -1,25 +1,37 @@
 module.exports = {
   moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json', 'vue'],
+  verbose: true,
+  testEnvironment: 'jsdom',
+  fakeTimers: {
+    enableGlobally: true,
+    doNotFake: ['nextTick'],
+    timerLimit: 5000,
+  },
   transform: {
-    '^.+\\.vue$': 'vue-jest',
+    '^.+\\.vue$': '@vue/vue3-jest',
     '^.+\\.jsx?$': 'babel-jest',
-    '^.+\\.tsx?$': 'ts-jest',
+    '^.+\\.tsx?$': 'ts-jest'
+  },
+  globals: {
+    rootDir: './'
+  },
+  testEnvironmentOptions: {
+    customExportConditions: ['node', 'node-addons', 'core-js'],
   },
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
-    'ace-builds': '<rootDir>/node_modules/ace-builds',
-  },
+      },
   testMatch: [
-    '<rootDir>/**/*.spec.(js|jsx|ts|tsx)',
+    '<rootDir>/**/__tests__/*.spec.ts',
   ],
+  setupFiles: [`core-js`],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   transformIgnorePatterns: ['<rootDir>/node_modules/'],
   collectCoverageFrom: [
     'src/**/*.{ts,vue}',
     '!src/router/index.ts',
-    '!coverage/*',
     '!src/main.ts',
-    '!**/*.d.ts',
+    '!**/*.d.ts'
   ],
   // Accept global coverage of 90% or higher, and 80% for each individual file
   // This should ensure most of the code is covered and leaves us room to skip hard-to-test areas
@@ -44,5 +56,5 @@ module.exports = {
       lines: 100,
       statements: 100,
     },
-  },
+  }
 }

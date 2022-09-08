@@ -66,11 +66,13 @@
                      class="content-type-option-wrapper mb-3">
                   <label class="checkbox is-size-7">
                     <input type="checkbox"
-                           @change="updateContentType(contentTypeOption.value, $event.target.checked)"
+                           @change="updateContentType(contentTypeOption.value,
+                           getContentTypeStatus(contentTypeOption.value))"
                            class="checkbox-input"
                            :data-qa="`content-type-${contentTypeOption.value}-checkbox`"
                            :class="`content-type-${contentTypeOption.value}-input`"
-                           :checked="getContentTypeStatus(contentTypeOption.value)">
+                           :checked="getContentTypeStatus(contentTypeOption.value)"
+                           >
                     {{ contentTypeOption.displayName }}
                   </label>
                 </div>
@@ -134,7 +136,6 @@
                   <td>
                     <autocomplete-input
                         v-if="addNewColName === section"
-                        input-type="input"
                         selection-type="single"
                         title="Tag"
                         :minimum-value-length="2"
@@ -406,7 +407,6 @@
                         </td>
                         <td class="width-30pct">
                           <autocomplete-input
-                              input-type="input"
                               :clear-input-after-selection="false"
                               :auto-focus="false"
                               class="new-entry-exclusions"
@@ -478,7 +478,6 @@
                         </td>
                         <td class="width-30pct">
                           <autocomplete-input
-                              input-type="input"
                               :clear-input-after-selection="false"
                               :initial-value="exclusionsToString(entry.exclusions)"
                               :auto-focus="false"
@@ -551,7 +550,6 @@
                         </td>
                         <td class="width-30pct">
                           <autocomplete-input
-                              input-type="input"
                               :clear-input-after-selection="false"
                               :initial-value="exclusionsToString(entry.exclusions)"
                               :auto-focus="false"
@@ -587,8 +585,8 @@
 
 <script lang="ts">
 import _ from 'lodash'
-import DatasetsUtils from '@/assets/DatasetsUtils.ts'
-import Vue from 'vue'
+import DatasetsUtils from '@/assets/DatasetsUtils'
+import {defineComponent} from 'vue'
 import {
   ArgsCookiesHeadersType,
   ContentFilterEntryMatch,
@@ -597,12 +595,17 @@ import {
   ContentFilterProfileSectionType,
   ContentFilterProfileTagLists,
   NamesRegexType,
+  Dictionary,
 } from '@/types'
 import AutocompleteInput, {AutocompleteSuggestion} from '@/components/AutocompleteInput.vue'
-import {Dictionary} from 'vue-router/types/router'
 import Utils from '@/assets/Utils'
 
-export default Vue.extend({
+type ContentFilterProfileType = {
+  value: keyof ContentFilterProfile['decoding'],
+  displayName: 'base64' | 'URL' | 'HTML' |'Unicode'
+}
+
+export default defineComponent({
   name: 'ContentFilterEditor',
   components: {AutocompleteInput},
   props: {
@@ -667,7 +670,7 @@ export default Vue.extend({
           value: 'unicode',
           displayName: 'Unicode',
         },
-      ],
+      ] as ContentFilterProfileType[],
       contentTypeOptions: [
         {
           value: 'json',
@@ -691,7 +694,7 @@ export default Vue.extend({
 
   computed: {
     localDoc(): ContentFilterProfile {
-      return _.cloneDeep(this.selectedDoc)
+      return _.cloneDeep(this.selectedDoc) as ContentFilterProfile
     },
 
     duplicateTags(): Dictionary<string> {
@@ -724,6 +727,8 @@ export default Vue.extend({
       return 'Add new parameter'
     },
   },
+
+  emits: ['update:selectedDoc', 'form-invalid'],
 
   methods: {
     emitDocUpdate() {
@@ -889,7 +894,7 @@ export default Vue.extend({
   @extend .has-background-grey-light;
 }
 
-::v-deep .tag-input {
+:deep(.tag-input) {
   font-size: 0.58rem;
 }
 

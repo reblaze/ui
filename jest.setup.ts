@@ -1,7 +1,18 @@
-import '@testing-library/jest-dom'
-import Vue from 'vue'
-import VueAxios from 'vue-axios'
-import axios from 'axios'
 import {jest} from '@jest/globals'
-Vue.use(VueAxios, axios)
-global.URL.createObjectURL = jest.fn()
+import {TextEncoder, TextDecoder} from 'util'
+
+global.URL.createObjectURL = <any>jest.fn()
+global.TextEncoder = TextEncoder
+
+global.TextDecoder = TextDecoder
+
+import {defineComponent} from 'vue'
+export default defineComponent({})
+
+declare module '@vue/runtime-core' {
+    export interface ComponentCustomProperties {
+      $refs: {
+        [key: string]: any
+      }
+    }
+  }

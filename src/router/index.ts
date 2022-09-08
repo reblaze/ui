@@ -1,21 +1,18 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-import axios from 'axios'
-import VueAxios from 'vue-axios'
-import MasterComponent from '@/views/MasterComponent.vue'
+import {createRouter, createWebHistory} from 'vue-router'
+import {RouteRecordRaw} from 'vue-router'
+import MainComponent from '@/views/MainComponent.vue'
 import DocumentEditor from '@/views/DocumentEditor.vue'
 import CurieDBEditor from '@/views/CurieDBEditor.vue'
 import PublishChanges from '@/views/Publish.vue'
 import VersionControl from '@/views/VersionControl.vue'
 import DocumentSearch from '@/views/DocumentSearch.vue'
 
-Vue.use(VueRouter)
-Vue.use(VueAxios, axios)
-
-// #DEPRECATED: remove /db redirect on version 1.6.0, because this just a legacy for API v1 in 1.5.0.
-const routes = [
+const routes: Array<RouteRecordRaw> = [
   {
-    path: '/', name: 'MasterComponent', component: MasterComponent, redirect: '/config',
+    path: '/',
+    name: 'MainComponent',
+    component: MainComponent,
+    redirect: '/config',
     children: [
       {
         path: 'config',
@@ -43,7 +40,6 @@ const routes = [
           },
         ],
       },
-      {path: 'db', name: 'MasterComponent', component: MasterComponent, redirect: '/CurieDB'},
       {path: 'CurieDB', name: 'CurieDBEditor', component: CurieDBEditor},
       {path: 'publish', name: 'PublishChanges', component: PublishChanges},
       {path: 'versioncontrol', name: 'VersionControl', component: VersionControl},
@@ -51,14 +47,13 @@ const routes = [
     ],
   },
   {
-    path: '*',
+    path: '/:pathMatch(.*)*',
     redirect: '/config',
   },
 ]
 
-const router = new VueRouter({
-  mode: 'history',
-  base: process.env.BASE_URL,
+const router = createRouter({
+  history: createWebHistory(process.env.BASE_URL),
   routes,
 })
 

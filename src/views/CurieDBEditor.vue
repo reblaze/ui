@@ -22,7 +22,7 @@
                   </div>
                 </div>
 
-                <p class="control">
+                <p class="control" >
                   <button class="button is-small fork-namespace-button"
                           :class="{'is-loading': isForkNamespaceLoading}"
                           @click="forkNamespace"
@@ -75,14 +75,14 @@
             </div>
             <div class="column">
               <div class="field is-grouped is-pulled-right">
-                <div class="control" v-if="keys.length">
+                <div class="control" v-if="namespaceKeys.length">
                   <div class="select is-small">
                     <select class="key-selection"
                             title="Switch key"
                             data-qa="switch-key-dropdown"
                             v-model="selectedKey"
                             @change="switchKey">
-                      <option v-for="key in keys"
+                      <option v-for="key in namespaceKeys"
                               :key="key"
                               :value="key">
                         {{ key }}
@@ -108,8 +108,8 @@
                   <button class="button is-small download-key-button"
                      @click="downloadKey"
                      :disabled="!selectedKeyValue"
-                     title="Download Key">
-                     data-qa="download-key-btn"
+                     title="Download Key"
+                     data-qa="download-key-btn">
                     <span class="icon is-small">
                       <i class="fas fa-download"></i>
                     </span>
@@ -149,7 +149,7 @@
                           title="Delete Key"
                           data-qa="delete-key-btn"
                           :disabled="(selectedNamespace === defaultNamespaceName && selectedKey === defaultKeyName)
-                                     || keys.length <= 1">
+                                     || namespaceKeys.length <= 1">
                     <span class="icon is-small">
                       <i class="fas fa-trash"></i>
                     </span>
@@ -264,15 +264,15 @@
 
 <script lang="ts">
 import _ from 'lodash'
-import RequestsUtils from '@/assets/RequestsUtils.ts'
-import Utils from '@/assets/Utils.ts'
+import RequestsUtils from '@/assets/RequestsUtils'
+import Utils from '@/assets/Utils'
 import GitHistory from '@/components/GitHistory.vue'
 import JSONEditor from 'jsoneditor'
-import Vue from 'vue'
+import {defineComponent} from 'vue'
 import {Commit, GenericObject} from '@/types'
 import {AxiosResponse} from 'axios'
 
-export default Vue.extend({
+export default defineComponent({
 
   name: 'CurieDBEditor',
   props: {},
@@ -297,10 +297,11 @@ export default Vue.extend({
       isSaveDocLoading: false,
 
       // json editor
-      editor: null,
+      editor: null as JSONEditor,
       isJsonEditor: true,
 
-      keys: [],
+      namespaceKeys: [] as string[],
+
       selectedKey: null,
       keyNameInput: '',
       defaultKeyName: 'publishinfo',
@@ -335,7 +336,7 @@ export default Vue.extend({
     isSelectedKeyNewNameValid(): boolean {
       const newName = this.keyNameInput?.trim()
       const isKeyNameEmpty = newName === ''
-      const isKeyNameDuplicate = this.keys.includes(newName) ? this.selectedKey !== newName : false
+      const isKeyNameDuplicate = this.namespaceKeys.includes(newName) ? this.selectedKey !== newName : false
       return !isKeyNameEmpty && !isKeyNameDuplicate
     },
 
@@ -444,8 +445,8 @@ export default Vue.extend({
     },
 
     initNamespaceKeys() {
-      this.keys = Object.keys(this.selectedNamespaceData)
-      this.loadKey(this.keys[0])
+      this.namespaceKeys = Object.keys(this.selectedNamespaceData)
+      this.loadKey(this.namespaceKeys[0])
     },
 
     loadKey(key: string) {
@@ -478,10 +479,10 @@ export default Vue.extend({
       if (!key) {
         key = this.selectedKey
       }
-      const keyIndex = _.findIndex(this.keys, (k) => {
+      const keyIndex = _.findIndex(this.namespaceKeys, (k) => {
         return k === key
       })
-      this.keys.splice(keyIndex, 1)
+      this.namespaceKeys.splice(keyIndex, 1)
       let successMessage
       let failureMessage
       if (!disableAnnouncementMessages) {
@@ -494,8 +495,8 @@ export default Vue.extend({
         successMessage,
         failureMessage,
       })
-      if (!this.keys.includes(this.selectedKey)) {
-        this.loadKey(this.keys[0])
+      if (!this.namespaceKeys.includes(this.selectedKey)) {
+        this.loadKey(this.namespaceKeys[0])
       }
       this.isDeleteKeyLoading = false
     },
@@ -506,7 +507,7 @@ export default Vue.extend({
       }
       this.isNewKeyLoading = true
       if (!newKey) {
-        newKey = Utils.generateUniqueEntityName('new key', this.keys)
+        newKey = Utils.generateUniqueEntityName('new key', this.namespaceKeys)
       }
       if (!newValue) {
         newValue = '{}'
@@ -514,14 +515,14 @@ export default Vue.extend({
       await this.saveKey(this.selectedNamespace, newKey, newValue).then(() => {
         this.selectedNamespaceData[newKey] = JSON.parse(newValue)
         this.loadKey(newKey)
-        this.keys.unshift(newKey)
+        this.namespaceKeys.unshift(newKey)
       })
       this.isNewKeyLoading = false
     },
 
     async forkKey() {
       this.isForkKeyLoading = true
-      const newKey = Utils.generateUniqueEntityName(this.selectedKey, this.keys, true)
+      const newKey = Utils.generateUniqueEntityName(this.selectedKey, this.namespaceKeys, true)
       const newValue = _.cloneDeep(this.selectedKeyValue)
       await this.addNewKey(newKey, newValue)
       this.isForkKeyLoading = false
@@ -581,7 +582,7 @@ export default Vue.extend({
       })
       await this.loadNamespace(namespace)
       // load last loaded key if still exists
-      const oldSelectedKey = this.keys.find((key) => {
+      const oldSelectedKey = this.namespaceKeys.find((key: string) => {
         return key === selectedKey
       })
       if (oldSelectedKey) {
@@ -655,7 +656,7 @@ export default Vue.extend({
 }
 
 //Design for the json editor
-::v-deep .jsoneditor-menu {
+:deep(.jsoneditor-menu) {
   @extend .has-background-grey-light;
 
   button {
@@ -671,7 +672,7 @@ export default Vue.extend({
   }
 }
 
-::v-deep .jsoneditor-contextmenu {
+:deep(.jsoneditor-contextmenu ) {
   z-index: 5;
 }
 

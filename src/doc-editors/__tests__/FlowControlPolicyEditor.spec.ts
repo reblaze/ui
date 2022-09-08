@@ -1,18 +1,20 @@
+// @ts-nocheck
 import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
 import LimitOption from '@/components/LimitOption.vue'
 import ResponseAction from '@/components/ResponseAction.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import {beforeEach, describe, expect, test, jest} from '@jest/globals'
-import {shallowMount, Wrapper} from '@vue/test-utils'
-import Vue from 'vue'
+import {shallowMount} from '@vue/test-utils'
 import axios from 'axios'
 import {FlowControlPolicy} from '@/types'
+import {VueWrapper} from '@vue/test-utils'
+import {nextTick} from 'vue'
 
 jest.mock('axios')
 
 describe('FlowControlPolicyEditor.vue', () => {
   let docs: FlowControlPolicy[]
-  let wrapper: Wrapper<Vue>
+  let wrapper: VueWrapper
   beforeEach(() => {
     docs = [
       {
@@ -59,7 +61,7 @@ describe('FlowControlPolicyEditor.vue', () => {
       },
     ]
     wrapper = shallowMount(FlowControlPolicyEditor, {
-      propsData: {
+      props: {
         selectedDoc: docs[0],
       },
     })
@@ -122,58 +124,52 @@ describe('FlowControlPolicyEditor.vue', () => {
   })
 
   describe('count by key', () => {
-    test('should add key when button is clicked', async () => {
+    test('should add key when button is clicked', () => {
       const addKeyButton = wrapper.find('.add-key-button')
       addKeyButton.trigger('click')
-      await Vue.nextTick()
       const wantedType = 'attrs'
       const wantedValue = 'ip'
-      const actualType = Object.keys((wrapper.vm as any).localDoc.key[1])[0]
-      const actualValue = Object.values((wrapper.vm as any).localDoc.key[1])[0]
-      expect((wrapper.vm as any).localDoc.key.length).toEqual(2)
+      const actualType = Object.keys(wrapper.vm.localDoc.key[1])[0]
+      const actualValue = Object.values(wrapper.vm.localDoc.key[1])[0]
+      expect(wrapper.vm.localDoc.key.length).toEqual(2)
       expect(actualType).toEqual(wantedType)
       expect(actualValue).toEqual(wantedValue)
     })
 
-    test('should handle key with no value', async () => {
+    test('should handle key with no value', () => {
       docs[0].key = [{'headers': null}]
       wrapper = shallowMount(FlowControlPolicyEditor, {
-        propsData: {
+        props: {
           selectedDoc: docs[0],
         },
       })
       const wantedType = 'headers'
-      const actualType = Object.keys((wrapper.vm as any).localDoc.key[0])[0]
-      const actualValue = Object.values((wrapper.vm as any).localDoc.key[0])[0]
+      const actualType = Object.keys(wrapper.vm.localDoc.key[0])[0]
+      const actualValue = Object.values(wrapper.vm.localDoc.key[0])[0]
       expect(actualType).toEqual(wantedType)
       expect(actualValue).toEqual(null)
     })
 
     test('should show error when two of the same key type exist', async () => {
       const addKeyButton = wrapper.find('.add-key-button')
-      addKeyButton.trigger('click')
-      await Vue.nextTick()
-      addKeyButton.trigger('click')
-      await Vue.nextTick()
+      await addKeyButton.trigger('click')
+      await addKeyButton.trigger('click')
       const keyInvalidLabel = wrapper.find('.key-invalid')
-      expect(keyInvalidLabel.element).toBeDefined()
+      expect(keyInvalidLabel.exists()).toBeTruthy()
     })
 
-    test('should remove key when remove event occurs', async () => {
+    test('should remove key when remove event occurs', () => {
       const addKeyButton = wrapper.find('.add-key-button')
       addKeyButton.trigger('click')
-      await Vue.nextTick()
       const limitOptionsComponent = wrapper.findComponent(LimitOption)
       limitOptionsComponent.vm.$emit('remove', 1)
-      await Vue.nextTick()
-      expect((wrapper.vm as any).localDoc.key.length).toEqual(1)
+      expect(wrapper.vm.localDoc.key.length).toEqual(1)
     })
 
-    test('should not be able to remove key when only one key exists', async () => {
+    test('should not be able to remove key when only one key exists', () => {
       const limitOptionsComponent = wrapper.findComponent(LimitOption)
       limitOptionsComponent.vm.$emit('remove', 1)
-      await Vue.nextTick()
-      expect((wrapper.vm as any).localDoc.key.length).toEqual(1)
+      expect(wrapper.vm.localDoc.key.length).toEqual(1)
     })
 
     test('should update key when change event occurs', async () => {
@@ -185,9 +181,8 @@ describe('FlowControlPolicyEditor.vue', () => {
         self: 'self',
       }
       const limitOptionsComponent = wrapper.findComponent(LimitOption)
-      limitOptionsComponent.vm.$emit('change', newOption, 0)
-      await Vue.nextTick()
-      expect((wrapper.vm as any).localDoc.key[0]).toEqual(wantedResult)
+      await limitOptionsComponent.vm.$emit('change', newOption, 0)
+      expect(wrapper.vm.localDoc.key[0]).toEqual(wantedResult)
     })
   })
 
@@ -224,11 +219,9 @@ describe('FlowControlPolicyEditor.vue', () => {
       wantedEmit.include.push(newTag)
       const newIncludeEntryButton = wrapper.findAll('.add-new-filter-entry-button').at(0)
       // add first
-      newIncludeEntryButton.trigger('click')
-      await Vue.nextTick()
+      await newIncludeEntryButton.trigger('click')
       const firstTagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
       firstTagAutocompleteInput.vm.$emit('tag-submitted', newTag)
-      await Vue.nextTick()
       // check
       expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
       expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
@@ -237,8 +230,7 @@ describe('FlowControlPolicyEditor.vue', () => {
     test('should show a warning when there are duplicate tags', async () => {
       const duplicatedTagsDoc = JSON.parse(JSON.stringify(docs[0]))
       duplicatedTagsDoc.include = ['test-tag', 'test-tag']
-      wrapper.setProps({selectedDoc: duplicatedTagsDoc})
-      await Vue.nextTick()
+      await wrapper.setProps({selectedDoc: duplicatedTagsDoc})
       // check
       const tagsWithWarning = wrapper.findAll('.has-text-danger')
       expect(tagsWithWarning.length).toEqual(2)
@@ -250,11 +242,9 @@ describe('FlowControlPolicyEditor.vue', () => {
       wantedEmit.include.push(newTag)
       const newIncludeEntryButton = wrapper.findAll('.add-new-filter-entry-button').at(0)
       // add first
-      newIncludeEntryButton.trigger('click')
-      await Vue.nextTick()
+      await newIncludeEntryButton.trigger('click')
       const firstTagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
       firstTagAutocompleteInput.vm.$emit('tag-submitted', newTag)
-      await Vue.nextTick()
       // check
       expect(wrapper.emitted('update:selectedDoc')).toBeFalsy()
     })
@@ -262,19 +252,18 @@ describe('FlowControlPolicyEditor.vue', () => {
     test('should remove tag from correct filter when tag removed', async () => {
       const removeIncludeEntryButton = wrapper.find('.remove-filter-entry-button')
       removeIncludeEntryButton.trigger('click')
-      await Vue.nextTick()
-      expect((wrapper.vm as any).localDoc.include.length).toEqual(0)
+      await nextTick()
+      expect(wrapper.vm.localDoc.include.length).toEqual(0)
     })
 
     test('should hide tag input when tag selection cancelled', async () => {
       const newIncludeEntryButton = wrapper.find('.add-new-filter-entry-button')
-      newIncludeEntryButton.trigger('click')
-      await Vue.nextTick();
-      (wrapper.vm as any).cancelAddNewTag()
-      await Vue.nextTick()
+      await newIncludeEntryButton.trigger('click')
+      wrapper.vm.cancelAddNewTag()
+      await nextTick()
       const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
-      await Vue.nextTick()
-      expect(tagAutocompleteInput.element).toBeUndefined()
+      await nextTick()
+      expect(tagAutocompleteInput.exists()).toBeFalsy()
     })
   })
 
@@ -282,9 +271,9 @@ describe('FlowControlPolicyEditor.vue', () => {
     describe('add section button', () => {
       test('should add section', async () => {
         const addSectionButton = wrapper.find('.new-sequence-button')
-        addSectionButton.trigger('click')
-        await Vue.nextTick()
-        await wrapper.vm.$forceUpdate()
+        await addSectionButton.trigger('click')
+        wrapper.vm.$forceUpdate()
+        await nextTick()
         const sections = wrapper.findAll('.sequence-entries')
         expect(sections.length).toEqual(3)
       })
@@ -292,16 +281,14 @@ describe('FlowControlPolicyEditor.vue', () => {
       test('should add section with default data', async () => {
         // empty sections list
         let removeSectionButton = wrapper.find('.remove-section-button')
-        removeSectionButton.trigger('click')
-        await Vue.nextTick()
+        await removeSectionButton.trigger('click')
         removeSectionButton = wrapper.find('.remove-section-button')
-        removeSectionButton.trigger('click')
-        await Vue.nextTick()
+        await removeSectionButton.trigger('click')
         // create new section
         const addSectionButton = wrapper.find('.new-sequence-button')
-        addSectionButton.trigger('click')
-        await Vue.nextTick()
-        await wrapper.vm.$forceUpdate()
+        await addSectionButton.trigger('click')
+        wrapper.vm.$forceUpdate()
+        await nextTick()
         // check data
         const tables = wrapper.findAll('.sequence-entries-table')
         const methodEntryInput = wrapper.find('.method-entry-input')
@@ -317,12 +304,11 @@ describe('FlowControlPolicyEditor.vue', () => {
         const wantedHostValue = 'api.example.com'
         const hostEntryInput = wrapper.findAll('.host-entry-input').at(0)
         hostEntryInput.setValue(wantedHostValue)
-        hostEntryInput.trigger('input')
-        await Vue.nextTick()
+        await hostEntryInput.trigger('input')
         const addSectionButton = wrapper.find('.new-sequence-button')
-        addSectionButton.trigger('click')
-        await Vue.nextTick()
-        await wrapper.vm.$forceUpdate()
+        await addSectionButton.trigger('click')
+        wrapper.vm.$forceUpdate()
+        await nextTick()
         const newHostEntryInput = wrapper.findAll('.host-entry-input').at(2)
         expect((newHostEntryInput.element as HTMLInputElement).value).toContain(wantedHostValue)
       })
@@ -331,24 +317,24 @@ describe('FlowControlPolicyEditor.vue', () => {
     describe('remove section button', () => {
       test('should remove section', async () => {
         const removeSectionButton = wrapper.find('.remove-section-button')
-        removeSectionButton.trigger('click')
-        await Vue.nextTick()
-        await wrapper.vm.$forceUpdate()
+        await removeSectionButton.trigger('click')
+        wrapper.vm.$forceUpdate()
+        await nextTick()
         const tables = wrapper.findAll('.sequence-entries-table')
         expect(tables.length).toEqual(1)
       })
 
       test('should not have the option to remove section if no sections exist', async () => {
         // remove all sections
-        while ((wrapper.vm as any).localDoc.sequence.length > 0) {
+        while (wrapper.vm.localDoc.sequence.length > 0) {
           const removeSectionButton = wrapper.find('.remove-section-button')
-          removeSectionButton.trigger('click')
-          await Vue.nextTick()
+          await removeSectionButton.trigger('click')
         }
-        await wrapper.vm.$forceUpdate()
+        wrapper.vm.$forceUpdate()
+        await nextTick()
         // check
         const removeSectionButton = wrapper.find('.remove-section-button')
-        expect(removeSectionButton.element).toBeUndefined()
+        expect(removeSectionButton.exists()).toBeFalsy() // element
       })
     })
 
@@ -356,32 +342,30 @@ describe('FlowControlPolicyEditor.vue', () => {
       test('should open new entry row', async () => {
         const table = wrapper.findAll('.sequence-entries-table').at(0)
         const addEntryButton = table.find('.add-entry-button')
-        addEntryButton.trigger('click')
-        await Vue.nextTick()
-        await wrapper.vm.$forceUpdate()
+        await addEntryButton.trigger('click')
+        wrapper.vm.$forceUpdate()
+        await nextTick()
         const newEntryRow = table.find('.new-entry-row')
-        expect(newEntryRow.element).toBeDefined()
+        expect(newEntryRow.exists()).toBeTruthy()
       })
 
       test('should add new entries from input when confirm button is clicked', async () => {
         const table = wrapper.findAll('.sequence-entries-table').at(0)
         const addEntryButton = table.find('.add-entry-button')
-        addEntryButton.trigger('click')
-        await Vue.nextTick()
+        await addEntryButton.trigger('click')
         const newEntryRow = table.find('.new-entry-row')
         const typeSelection = newEntryRow.find('.new-entry-type-selection')
         typeSelection.trigger('click')
         const options = typeSelection.findAll('option')
-        options.at(0).setSelected()
-        await Vue.nextTick()
+        await typeSelection.setValue(options.at(0).element.value)
         const newEntryName = newEntryRow.find('.new-entry-name-input')
         newEntryName.setValue('something')
         const newEntryValue = newEntryRow.find('.new-entry-value-input')
         newEntryValue.setValue('right')
         const confirmAddEntryButton = table.find('.confirm-add-entry-button')
-        confirmAddEntryButton.trigger('click')
-        await Vue.nextTick()
-        await wrapper.vm.$forceUpdate()
+        await confirmAddEntryButton.trigger('click')
+        wrapper.vm.$forceUpdate()
+        await nextTick()
         const entriesRows = wrapper.findAll('.sequence-entries-table').at(0).findAll('.sequence-entry-row')
         expect(entriesRows.length).toEqual(5)
         expect(entriesRows.at(3).text()).toContain('Header')
@@ -392,22 +376,20 @@ describe('FlowControlPolicyEditor.vue', () => {
       test('should be able to add header as a new entry', async () => {
         const table = wrapper.findAll('.sequence-entries-table').at(0)
         const addEntryButton = table.find('.add-entry-button')
-        addEntryButton.trigger('click')
-        await Vue.nextTick()
+        await addEntryButton.trigger('click')
         const newEntryRow = table.find('.new-entry-row')
         const typeSelection = newEntryRow.find('.new-entry-type-selection')
         typeSelection.trigger('click')
         const options = typeSelection.findAll('option')
-        options.at(0).setSelected()
-        await Vue.nextTick()
+        typeSelection.setValue(options.at(0).element.value)
         const newEntryName = newEntryRow.find('.new-entry-name-input')
         newEntryName.setValue('something')
         const newEntryValue = newEntryRow.find('.new-entry-value-input')
         newEntryValue.setValue('right')
         const confirmAddEntryButton = table.find('.confirm-add-entry-button')
-        confirmAddEntryButton.trigger('click')
-        await Vue.nextTick()
-        await wrapper.vm.$forceUpdate()
+        await confirmAddEntryButton.trigger('click')
+        wrapper.vm.$forceUpdate()
+        await nextTick()
         const entriesRows = wrapper.findAll('.sequence-entries-table').at(0).findAll('.sequence-entry-row')
         expect(entriesRows.length).toEqual(5)
         expect(entriesRows.at(3).text()).toContain('Header')
@@ -418,22 +400,20 @@ describe('FlowControlPolicyEditor.vue', () => {
       test('should be able to add argument as a new entry', async () => {
         const table = wrapper.findAll('.sequence-entries-table').at(0)
         const addEntryButton = table.find('.add-entry-button')
-        addEntryButton.trigger('click')
-        await Vue.nextTick()
+        await addEntryButton.trigger('click')
         const newEntryRow = table.find('.new-entry-row')
         const typeSelection = newEntryRow.find('.new-entry-type-selection')
         typeSelection.trigger('click')
         const options = typeSelection.findAll('option')
-        options.at(1).setSelected()
-        await Vue.nextTick()
+        typeSelection.setValue(options.at(1).element.value)
         const newEntryName = newEntryRow.find('.new-entry-name-input')
         newEntryName.setValue('something')
         const newEntryValue = newEntryRow.find('.new-entry-value-input')
         newEntryValue.setValue('right')
         const confirmAddEntryButton = table.find('.confirm-add-entry-button')
-        confirmAddEntryButton.trigger('click')
-        await Vue.nextTick()
-        await wrapper.vm.$forceUpdate()
+        await confirmAddEntryButton.trigger('click')
+        wrapper.vm.$forceUpdate()
+        await nextTick()
         const entriesRows = wrapper.findAll('.sequence-entries-table').at(0).findAll('.sequence-entry-row')
         expect(entriesRows.length).toEqual(5)
         expect(entriesRows.at(3).text()).toContain('Argument')
@@ -444,22 +424,20 @@ describe('FlowControlPolicyEditor.vue', () => {
       test('should be able to add cookie as a new entry', async () => {
         const table = wrapper.findAll('.sequence-entries-table').at(0)
         const addEntryButton = table.find('.add-entry-button')
-        addEntryButton.trigger('click')
-        await Vue.nextTick()
+        await addEntryButton.trigger('click')
         const newEntryRow = table.find('.new-entry-row')
         const typeSelection = newEntryRow.find('.new-entry-type-selection')
         typeSelection.trigger('click')
         const options = typeSelection.findAll('option')
-        options.at(2).setSelected()
-        await Vue.nextTick()
+        typeSelection.setValue(options.at(2).element.value)
         const newEntryName = newEntryRow.find('.new-entry-name-input')
         newEntryName.setValue('something')
         const newEntryValue = newEntryRow.find('.new-entry-value-input')
         newEntryValue.setValue('right')
         const confirmAddEntryButton = table.find('.confirm-add-entry-button')
-        confirmAddEntryButton.trigger('click')
-        await Vue.nextTick()
-        await wrapper.vm.$forceUpdate()
+        await confirmAddEntryButton.trigger('click')
+        wrapper.vm.$forceUpdate()
+        await nextTick()
         const entriesRows = wrapper.findAll('.sequence-entries-table').at(0).findAll('.sequence-entry-row')
         expect(entriesRows.length).toEqual(5)
         expect(entriesRows.at(4).text()).toContain('Cookie')
@@ -470,22 +448,20 @@ describe('FlowControlPolicyEditor.vue', () => {
       test('should not add new header if name is host', async () => {
         const table = wrapper.findAll('.sequence-entries-table').at(0)
         const addEntryButton = table.find('.add-entry-button')
-        addEntryButton.trigger('click')
-        await Vue.nextTick()
+        await addEntryButton.trigger('click')
         const newEntryRow = table.find('.new-entry-row')
         const typeSelection = newEntryRow.find('.new-entry-type-selection')
         typeSelection.trigger('click')
         const options = typeSelection.findAll('option')
-        options.at(0).setSelected()
-        await Vue.nextTick()
+        typeSelection.setValue(options.at(0).element.value)
         const newEntryName = newEntryRow.find('.new-entry-name-input')
         newEntryName.setValue('host')
         const newEntryValue = newEntryRow.find('.new-entry-value-input')
         newEntryValue.setValue('some value')
         const confirmAddEntryButton = table.find('.confirm-add-entry-button')
-        confirmAddEntryButton.trigger('click')
-        await Vue.nextTick()
-        await wrapper.vm.$forceUpdate()
+        await confirmAddEntryButton.trigger('click')
+        wrapper.vm.$forceUpdate()
+        await nextTick()
         const entriesRows = wrapper.findAll('.sequence-entries-table').at(0).findAll('.sequence-entry-row')
         expect(entriesRows.length).toEqual(4)
       })
@@ -494,19 +470,19 @@ describe('FlowControlPolicyEditor.vue', () => {
         const table = wrapper.findAll('.sequence-entries-table').at(0)
         const addEntryButton = table.find('.add-entry-button')
         addEntryButton.trigger('click')
-        await Vue.nextTick()
+        await nextTick()
         const newEntryRow = table.find('.new-entry-row')
         const typeSelection = newEntryRow.find('.new-entry-type-selection')
         typeSelection.trigger('click')
         const options = typeSelection.findAll('option')
-        options.at(0).setSelected()
-        await Vue.nextTick()
+        typeSelection.setValue(options.at(0).element.value)
+        await nextTick()
         const newEntryValue = newEntryRow.find('.new-entry-value-input')
         newEntryValue.setValue('right')
         const confirmAddEntryButton = table.find('.confirm-add-entry-button')
         confirmAddEntryButton.trigger('click')
-        await Vue.nextTick()
-        await wrapper.vm.$forceUpdate()
+        wrapper.vm.$forceUpdate()
+        await nextTick()
         const entriesRows = wrapper.findAll('.sequence-entries-table').at(0).findAll('.sequence-entry-row')
         expect(entriesRows.length).toEqual(4)
       })
@@ -514,20 +490,18 @@ describe('FlowControlPolicyEditor.vue', () => {
       test('should not add new entries from input when confirm button is clicked if does not have value', async () => {
         const table = wrapper.findAll('.sequence-entries-table').at(0)
         const addEntryButton = table.find('.add-entry-button')
-        addEntryButton.trigger('click')
-        await Vue.nextTick()
+        await addEntryButton.trigger('click')
         const newEntryRow = table.find('.new-entry-row')
         const typeSelection = newEntryRow.find('.new-entry-type-selection')
         typeSelection.trigger('click')
         const options = typeSelection.findAll('option')
-        options.at(0).setSelected()
-        await Vue.nextTick()
+        typeSelection.setValue(options.at(0).element.value)
         const newEntryName = newEntryRow.find('.new-entry-name-input')
         newEntryName.setValue('something')
         const confirmAddEntryButton = table.find('.confirm-add-entry-button')
-        confirmAddEntryButton.trigger('click')
-        await Vue.nextTick()
-        await wrapper.vm.$forceUpdate()
+        await confirmAddEntryButton.trigger('click')
+        wrapper.vm.$forceUpdate()
+        await nextTick()
         const entriesRows = wrapper.findAll('.sequence-entries-table').at(0).findAll('.sequence-entry-row')
         expect(entriesRows.length).toEqual(4)
       })
@@ -537,9 +511,9 @@ describe('FlowControlPolicyEditor.vue', () => {
       test('should remove entry', async () => {
         const table = wrapper.findAll('.sequence-entries-table').at(0)
         const removeEntryButton = table.find('.remove-entry-button')
-        removeEntryButton.trigger('click')
-        await Vue.nextTick()
-        await wrapper.vm.$forceUpdate()
+        await removeEntryButton.trigger('click')
+        wrapper.vm.$forceUpdate()
+        await nextTick()
         const entriesRows = wrapper.findAll('.sequence-entries-table').at(0).findAll('.sequence-entry-row')
         expect(entriesRows.length).toEqual(3)
       })

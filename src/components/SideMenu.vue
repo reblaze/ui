@@ -15,18 +15,18 @@
             {{ menuItemDetails.title }}
           </a>
           <router-link v-else
-                       :data-curie="menuItemKey"
                        :data-qa="menuItemDetails.title"
-                       :to="menuItemKey"
-                       :class="{ 'is-active': currentRoutePath.includes(menuItemKey) }">
+                       :data-curie="menuItemKey"
+                       :to="menuItemKey.toString()"
+                       :class="{ 'is-active': currentRoutePath.includes(menuItemKey.toString()) }">
             {{ menuItemDetails.title }}
           </router-link>
           <ul v-if="menuItemDetails.items"
               class="my-0">
             <li v-for="(menuSubItemDetails, menuSubItemKey) in menuItemDetails.items" :key="menuSubItemKey">
               <router-link :data-curie="menuSubItemKey"
-                           :to="menuSubItemKey"
-                           :class="{ 'is-active': currentRoutePath.includes(menuSubItemKey) }">
+                           :to="menuItemKey + menuSubItemKey.toString()"
+                           :class="{ 'is-active': currentRoutePath.includes(menuSubItemKey.toString()) }">
                 {{ menuSubItemDetails.title }}
               </router-link>
             </li>
@@ -39,8 +39,8 @@
 </template>
 
 <script lang="ts">
-import RequestsUtils from '@/assets/RequestsUtils.ts'
-import Vue from 'vue'
+import RequestsUtils from '@/assets/RequestsUtils'
+import {defineComponent} from 'vue'
 
 type menuItem = {
   title: string
@@ -51,7 +51,7 @@ type menuItem = {
   }
 }
 
-export default Vue.extend({
+export default defineComponent({
   name: 'SideMenu',
   data() {
     const swaggerURL = `${location.protocol}//${location.hostname}:30000/api/v2/`
@@ -122,20 +122,20 @@ export default Vue.extend({
   },
   computed: {
     currentRoutePath() {
-      return this.$route.path
+      return this.$route.path || ''
     },
   },
   methods: {
     async loadLinksFromDB() {
-      const systemDBData = (await RequestsUtils.sendRequest({
+      const response = await RequestsUtils.sendRequest({
         methodName: 'GET',
         url: `db/system/`,
-      }))?.data
-      const swaggerURL = systemDBData?.links?.swagger_url ? systemDBData.links.swagger_url : this.defaultSwaggerURL
-      const kibanaURL = systemDBData?.links?.kibana_url ? systemDBData.links.kibana_url : this.defaultKibanaURL
-      const grafanaURL = systemDBData?.links?.grafana_url ? systemDBData.links.grafana_url : this.defaultGrafanaURL
-      const prometheusURL =
-          systemDBData?.links?.prometheus_url ? systemDBData.links.prometheus_url : this.defaultPrometheusURL
+      })
+      const systemDBData = response?.data
+      const swaggerURL = systemDBData?.links?.swagger_url || this.defaultSwaggerURL
+      const kibanaURL = systemDBData?.links?.kibana_url || this.defaultKibanaURL
+      const grafanaURL = systemDBData?.links?.grafana_url || this.defaultGrafanaURL
+      const prometheusURL = systemDBData?.links?.prometheus_url || this.defaultPrometheusURL
       this.menuItems.settings.swagger = {
         title: 'API',
         url: swaggerURL,

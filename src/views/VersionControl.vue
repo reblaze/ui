@@ -166,15 +166,15 @@
 
 <script lang="ts">
 import _ from 'lodash'
-import RequestsUtils from '@/assets/RequestsUtils.ts'
-import Utils from '@/assets/Utils.ts'
+import RequestsUtils from '@/assets/RequestsUtils'
+import Utils from '@/assets/Utils'
 import GitHistory from '@/components/GitHistory.vue'
 import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
-import Vue from 'vue'
+import {defineComponent} from 'vue'
 import {AxiosResponse} from 'axios'
 import {Commit} from '@/types'
 
-export default Vue.extend({
+export default defineComponent({
 
   name: 'VersionControl',
   props: {},

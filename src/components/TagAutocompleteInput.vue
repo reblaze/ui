@@ -22,14 +22,15 @@
 
 <script lang="ts">
 import _ from 'lodash'
-import RequestsUtils from '@/assets/RequestsUtils.ts'
+import RequestsUtils from '@/assets/RequestsUtils'
 import AutocompleteInput, {AutocompleteInputEvents, AutocompleteSuggestion} from '@/components/AutocompleteInput.vue'
-import Vue from 'vue'
+import {defineComponent} from 'vue'
 import {AxiosResponse} from 'axios'
 import {TagsNamespaceValue} from '@/types'
 import Utils from '@/assets/Utils'
+import {SelectionType} from '@/components/AutocompleteInput.vue'
 
-export default Vue.extend({
+export default defineComponent({
   name: 'TagAutocompleteInput',
 
   components: {
@@ -38,8 +39,8 @@ export default Vue.extend({
 
   props: {
     initialTag: {
-      type: String,
       default: '',
+      type: String,
     },
     clearInputAfterSelection: {
       type: Boolean,
@@ -51,7 +52,7 @@ export default Vue.extend({
     },
     selectionType: {
       type: String,
-      validator(val) {
+      validator: (val: SelectionType) => {
         if (!val) {
           return false
         }
@@ -91,7 +92,7 @@ export default Vue.extend({
 
   watch: {
     initialTag: {
-      handler(newVal) {
+      handler: function(newVal) {
         if (newVal !== this.tag) {
           this.tag = newVal
         }
@@ -103,21 +104,21 @@ export default Vue.extend({
   computed: {
 
     currentTag(): string {
-      let currentTag
-      if (this?.selectionType.toLowerCase() === 'multiple') {
-        const tags = this.tag.split(' ')
-        currentTag = tags[tags.length - 1].trim()
+      let currentTag: string
+      if (this?.selectionType === 'multiple') {
+        const tags = this.tag.toString().split(' ')
+        currentTag = tags[tags.length - 1].trim() as string
       } else {
-        currentTag = this.tag.trim()
+        currentTag = this.tag.toString().trim() as string
       }
       return currentTag
     },
 
     inputTitle(): string {
-      return this.selectionType.toLowerCase() === 'multiple' ? 'Space separated tags' : 'Tag'
+      return this.selectionType === 'multiple' ? 'Space separated tags' : 'Tag'
     },
   },
-
+  emits: ['tag-changed', 'tag-submitted', 'keyup', 'keydown', 'keypress', 'focus', 'blur'],
   methods: {
 
     async loadAutocompleteSuggestions() {
@@ -246,7 +247,7 @@ export default Vue.extend({
 @import 'node_modules/bulma/sass/utilities/derived-variables.sass';
 @import 'node_modules/bulma/sass/helpers/color.sass';
 
-::v-deep .dot {
+:deep(.dot) {
   @extend .has-background-info;
   border-radius: 50%;
   display: inline-block;
@@ -256,15 +257,15 @@ export default Vue.extend({
   width: 0.5rem;
 }
 
-::v-deep .dot.legitimate {
+:deep(.dot.legitimate) {
   @extend .has-background-success;
 }
 
-::v-deep .dot.malicious {
+:deep(.dot.malicious) {
   @extend .has-background-danger;
 }
 
-::v-deep .dot.neutral {
+:deep(.dot.neutral) {
   @extend .has-background-grey-light ;
 }
 </style>

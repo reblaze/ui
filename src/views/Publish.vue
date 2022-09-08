@@ -135,15 +135,16 @@
 
 <script lang="ts">
 import _ from 'lodash'
-import RequestsUtils from '@/assets/RequestsUtils.ts'
+import RequestsUtils from '@/assets/RequestsUtils'
 import {mdiBucket} from '@mdi/js'
-import Vue from 'vue'
+import {defineComponent} from 'vue'
 import {Branch, Commit} from '@/types'
 import {AxiosResponse} from 'axios'
 import Utils from '@/assets/Utils'
 import DateTimeUtils from '@/assets/DateTimeUtils'
 
-export default Vue.extend({
+
+export default defineComponent({
   name: 'PublishChanges',
   props: {},
   components: {},

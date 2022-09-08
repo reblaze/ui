@@ -1,10 +1,10 @@
+// @ts-nocheck
 import DocumentEditor from '@/views/DocumentEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import Utils from '@/assets/Utils'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
-import {shallowMount, Wrapper} from '@vue/test-utils'
-import Vue from 'vue'
+import {DOMWrapper, shallowMount} from '@vue/test-utils'
 import axios from 'axios'
 import _ from 'lodash'
 import {
@@ -18,11 +18,13 @@ import {
   RateLimit,
   SecurityPolicy,
 } from '@/types'
+import {setImmediate, setTimeout} from 'timers'
+import {nextTick} from 'vue'
 
 jest.mock('axios')
 
 describe('DocumentEditor.vue', () => {
-  let wrapper: Wrapper<Vue>
+  let wrapper: DOMWrapper
   let mockRoute: any
   let mockRouter: any
   let gitData: Branch[]
@@ -660,6 +662,44 @@ describe('DocumentEditor.vue', () => {
         'timeframe': 60,
         'id': 'c03dabe4b9ca',
       },
+      {
+        'active': true,
+        'description': '',
+        'exclude': [],
+        'include': ['all'],
+        'name': 'flow control policy 2',
+        'key': [
+          {'headers': 'something'},
+        ],
+        'sequence': [
+          {
+            'method': 'GET',
+            'uri': '/login',
+            'cookies': {
+              'foo': 'bar',
+            },
+            'headers': {},
+            'args': {},
+          },
+          {
+            'method': 'POST',
+            'uri': '/login',
+            'cookies': {
+              'foo': 'bar',
+            },
+            'headers': {
+              'test': 'one',
+            },
+            'args': {},
+          },
+        ],
+        'action': {
+          'type': 'default',
+          'params': {},
+        },
+        'timeframe': 60,
+        'id': '4435d797ab0c',
+      },
     ]
     contentFilterDocs = [{
       'id': '009e846e819e',
@@ -728,8 +768,8 @@ describe('DocumentEditor.vue', () => {
       if (path === '/conf/api/v2/configs/') {
         return Promise.resolve({data: gitData})
       }
-      const branch = (wrapper.vm as any).selectedBranch
-      const docID = (wrapper.vm as any).selectedDocID
+      const branch = wrapper.vm.selectedBranch
+      const docID = wrapper.vm.selectedDocID
       if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve({data: _.map(aclDocs, (i) => _.pick(i, 'id', 'name'))})
@@ -823,14 +863,17 @@ describe('DocumentEditor.vue', () => {
         doc_id: '__default__',
       },
       path: `/config/master/aclprofiles/__default__`,
+      name: `DocumentEditor`,
     }
     mockRouter = {
       push: jest.fn(),
     }
     wrapper = shallowMount(DocumentEditor, {
-      mocks: {
-        $route: mockRoute,
-        $router: mockRouter,
+      global: {
+        mocks: {
+          $route: mockRoute,
+          $router: mockRouter,
+        },
       },
     })
     // allow all requests to finish
@@ -840,6 +883,7 @@ describe('DocumentEditor.vue', () => {
   })
   afterEach(() => {
     jest.clearAllMocks()
+    jest.clearAllTimers()
   })
 
   test('should have a git history component with correct data', () => {
@@ -856,7 +900,7 @@ describe('DocumentEditor.vue', () => {
     putSpy.mockImplementation(() => Promise.resolve())
     const gitHistory = wrapper.findComponent(GitHistory)
     gitHistory.vm.$emit('restore-version', wantedVersion)
-    await Vue.nextTick()
+    await nextTick()
     expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclprofiles/v/${wantedVersion.version}/revert/`)
   })
 
@@ -873,9 +917,11 @@ describe('DocumentEditor.vue', () => {
       return Promise.resolve({data: {}})
     })
     wrapper = shallowMount(DocumentEditor, {
-      mocks: {
-        $route: mockRoute,
-        $router: mockRouter,
+      global: {
+        mocks: {
+          $route: mockRoute,
+          $router: mockRouter,
+        },
       },
     })
     // allow all requests to finish
@@ -896,17 +942,19 @@ describe('DocumentEditor.vue', () => {
       if (path === '/conf/api/v2/configs/') {
         return Promise.resolve({data: gitData})
       }
-      const branch = (wrapper.vm as any).selectedBranch
-      const doctype = (wrapper.vm as any).selectedDocType
+      const branch = wrapper.vm.selectedBranch
+      const doctype = wrapper.vm.selectedDocType
       if (path === `/conf/api/v2/configs/${branch}/d/${doctype}/`) {
         return Promise.reject(new Error())
       }
       return Promise.resolve({data: {}})
     })
     wrapper = shallowMount(DocumentEditor, {
-      mocks: {
-        $route: mockRoute,
-        $router: mockRouter,
+      global: {
+        mocks: {
+          $route: mockRoute,
+          $router: mockRouter,
+        },
       },
     })
     // allow all requests to finish
@@ -917,27 +965,21 @@ describe('DocumentEditor.vue', () => {
     })
   })
 
-  describe('route change', () => {
-    test('should not load a different path from route when it does not change', async (done) => {
-      const routeChangeSpy = jest.spyOn(mockRouter, 'push')
-      mockRoute.params = {
-        branch: 'master',
-        doc_type: 'aclprofiles',
-        doc_id: '__default__',
-      }
-      // allow all requests to finish
-      setImmediate(() => {
-        expect(routeChangeSpy).not.toHaveBeenCalled()
-        done()
-      })
-    })
-
-    test('should load correct branch from route when changes', async (done) => {
+  describe('route params', () => {
+    test('should load correct branch from route when valid', (done) => {
       mockRoute.params = {
         branch: 'zzz_branch',
-        doc_type: 'globalfilters',
-        doc_id: '07656fbe',
+        doc_type: 'flowcontrol',
+        doc_id: '4435d797ab0c',
       }
+      wrapper = shallowMount(DocumentEditor, {
+        global: {
+          mocks: {
+            $route: mockRoute,
+            $router: mockRouter,
+          },
+        },
+      })
       // allow all requests to finish
       setImmediate(() => {
         const branchSelection = wrapper.find('.branch-selection')
@@ -946,26 +988,42 @@ describe('DocumentEditor.vue', () => {
       })
     })
 
-    test('should load correct document type from route when changes', async (done) => {
+    test('should load correct doc type from route when valid', (done) => {
       mockRoute.params = {
         branch: 'zzz_branch',
-        doc_type: 'globalfilters',
-        doc_id: '07656fbe',
+        doc_type: 'flowcontrol',
+        doc_id: '4435d797ab0c',
       }
+      wrapper = shallowMount(DocumentEditor, {
+        global: {
+          mocks: {
+            $route: mockRoute,
+            $router: mockRouter,
+          },
+        },
+      })
       // allow all requests to finish
       setImmediate(() => {
         const docTypeSelection = wrapper.find('.doc-type-selection')
-        expect((docTypeSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
+        expect((docTypeSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
         done()
       })
     })
 
-    test('should load correct document id from route when changes', async (done) => {
+    test('should load correct doc from route when valid', (done) => {
       mockRoute.params = {
         branch: 'zzz_branch',
-        doc_type: 'globalfilters',
-        doc_id: '07656fbe',
+        doc_type: 'flowcontrol',
+        doc_id: '4435d797ab0c',
       }
+      wrapper = shallowMount(DocumentEditor, {
+        global: {
+          mocks: {
+            $route: mockRoute,
+            $router: mockRouter,
+          },
+        },
+      })
       // allow all requests to finish
       setImmediate(() => {
         const docSelection = wrapper.find('.doc-selection')
@@ -974,12 +1032,20 @@ describe('DocumentEditor.vue', () => {
       })
     })
 
-    test('should load correct branch from route without changing document type or id', async (done) => {
+    test('should load correct branch from route without changing document type or id', (done) => {
       mockRoute.params = {
         branch: 'zzz_branch',
         doc_type: 'aclprofiles',
         doc_id: '__default__',
       }
+      wrapper = shallowMount(DocumentEditor, {
+        global: {
+          mocks: {
+            $route: mockRoute,
+            $router: mockRouter,
+          },
+        },
+      })
       // allow all requests to finish
       setImmediate(() => {
         const branchSelection = wrapper.find('.branch-selection')
@@ -992,12 +1058,20 @@ describe('DocumentEditor.vue', () => {
       })
     })
 
-    test('should load correct document type from route without changing branch or document id', async (done) => {
+    test('should load correct document type from route without changing branch or document id', (done) => {
       mockRoute.params = {
         branch: 'master',
         doc_type: 'securitypolicies',
         doc_id: '__default__',
       }
+      wrapper = shallowMount(DocumentEditor, {
+        global: {
+          mocks: {
+            $route: mockRoute,
+            $router: mockRouter,
+          },
+        },
+      })
       // allow all requests to finish
       setImmediate(() => {
         const branchSelection = wrapper.find('.branch-selection')
@@ -1010,12 +1084,20 @@ describe('DocumentEditor.vue', () => {
       })
     })
 
-    test('should load correct document id from route without changing branch or document type', async (done) => {
+    test('should load correct document id from route without changing branch or document type', (done) => {
       mockRoute.params = {
         branch: 'master',
         doc_type: 'aclprofiles',
         doc_id: '5828321c37e0',
       }
+      wrapper = shallowMount(DocumentEditor, {
+        global: {
+          mocks: {
+            $route: mockRoute,
+            $router: mockRouter,
+          },
+        },
+      })
       // allow all requests to finish
       setImmediate(() => {
         const branchSelection = wrapper.find('.branch-selection')
@@ -1028,8 +1110,16 @@ describe('DocumentEditor.vue', () => {
       })
     })
 
-    test('should load correct default branch if non existent in route params', async (done) => {
+    test('should load correct default branch if non existent in route params', (done) => {
       mockRoute.params = {}
+      wrapper = shallowMount(DocumentEditor, {
+        global: {
+          mocks: {
+            $route: mockRoute,
+            $router: mockRouter,
+          },
+        },
+      })
       // allow all requests to finish
       setImmediate(() => {
         const branchSelection = wrapper.find('.branch-selection')
@@ -1038,8 +1128,16 @@ describe('DocumentEditor.vue', () => {
       })
     })
 
-    test('should load correct default document type if non existent in route params', async (done) => {
+    test('should load correct default document type if non existent in route params', (done) => {
       mockRoute.params = {}
+      wrapper = shallowMount(DocumentEditor, {
+        global: {
+          mocks: {
+            $route: mockRoute,
+            $router: mockRouter,
+          },
+        },
+      })
       // allow all requests to finish
       setImmediate(() => {
         const docTypeSelection = wrapper.find('.doc-type-selection')
@@ -1048,60 +1146,21 @@ describe('DocumentEditor.vue', () => {
       })
     })
 
-    test('should load correct default document id if non existent in route params', async (done) => {
+    test('should load correct default document id if non existent in route params', (done) => {
       mockRoute.params = {}
+      wrapper = shallowMount(DocumentEditor, {
+        global: {
+          mocks: {
+            $route: mockRoute,
+            $router: mockRouter,
+          },
+        },
+      })
       // allow all requests to finish
       setImmediate(() => {
         const docSelection = wrapper.find('.doc-selection')
         expect((docSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
         done()
-      })
-    })
-
-    describe('git history when route changes', () => {
-      test('should load correct git history when branch changes', (done) => {
-        mockRoute.params = {
-          branch: 'zzz_branch',
-          doc_type: 'aclprofiles',
-          doc_id: '__default__',
-        }
-        // allow all requests to finish
-        setImmediate(() => {
-          const gitHistory = wrapper.findComponent(GitHistory)
-          expect(gitHistory).toBeTruthy()
-          expect((gitHistory.vm as any).gitLog).toEqual(aclDocsLogs[1])
-          done()
-        })
-      })
-
-      test('should load correct git history when document type changes', (done) => {
-        mockRoute.params = {
-          branch: 'master',
-          doc_type: 'securitypolicies',
-          doc_id: '__default__',
-        }
-        // allow all requests to finish
-        setImmediate(() => {
-          const gitHistory = wrapper.findComponent(GitHistory)
-          expect(gitHistory).toBeTruthy()
-          expect((gitHistory.vm as any).gitLog).toEqual(securityPoliciesDocsLogs[0])
-          done()
-        })
-      })
-
-      test('should load correct git history when document id changes', (done) => {
-        mockRoute.params = {
-          branch: 'master',
-          doc_type: 'aclprofiles',
-          doc_id: '5828321c37e0',
-        }
-        // allow all requests to finish
-        setImmediate(() => {
-          const gitHistory = wrapper.findComponent(GitHistory)
-          expect(gitHistory).toBeTruthy()
-          expect((gitHistory.vm as any).gitLog).toEqual(aclDocsLogs[1])
-          done()
-        })
       })
     })
   })
@@ -1116,9 +1175,11 @@ describe('DocumentEditor.vue', () => {
         return Promise.resolve({data: []})
       })
       wrapper = shallowMount(DocumentEditor, {
-        mocks: {
-          $route: mockRoute,
-          $router: mockRouter,
+        global: {
+          mocks: {
+            $route: mockRoute,
+            $router: mockRouter,
+          },
         },
       })
       // allow all requests to finish
@@ -1138,9 +1199,11 @@ describe('DocumentEditor.vue', () => {
         return Promise.resolve({data: []})
       })
       wrapper = shallowMount(DocumentEditor, {
-        mocks: {
-          $route: mockRoute,
-          $router: mockRouter,
+        global: {
+          mocks: {
+            $route: mockRoute,
+            $router: mockRouter,
+          },
         },
       })
       // allow all requests to finish
@@ -1183,9 +1246,11 @@ describe('DocumentEditor.vue', () => {
         return Promise.resolve({data: []})
       })
       wrapper = shallowMount(DocumentEditor, {
-        mocks: {
-          $route: mockRoute,
-          $router: mockRouter,
+        global: {
+          mocks: {
+            $route: mockRoute,
+            $router: mockRouter,
+          },
         },
       })
       // allow all requests to finish
@@ -1228,9 +1293,11 @@ describe('DocumentEditor.vue', () => {
         return Promise.resolve({data: []})
       })
       wrapper = shallowMount(DocumentEditor, {
-        mocks: {
-          $route: mockRoute,
-          $router: mockRouter,
+        global: {
+          mocks: {
+            $route: mockRoute,
+            $router: mockRouter,
+          },
         },
       })
       // allow all requests to finish
@@ -1257,7 +1324,7 @@ describe('DocumentEditor.vue', () => {
       const branchSelection = wrapper.find('.branch-selection')
       branchSelection.trigger('click')
       const options = branchSelection.findAll('option')
-      options.at(1).setSelected()
+      branchSelection.setValue(options.at(1).element.value)
       // allow all requests to finish
       setImmediate(() => {
         expect((branchSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
@@ -1265,16 +1332,15 @@ describe('DocumentEditor.vue', () => {
       })
     })
 
-    test('should not switch doc type when switching branches', async (done) => {
+    test('should not switch doc type when switching branches', (done) => {
       const docTypeSelection = wrapper.find('.doc-type-selection')
       docTypeSelection.trigger('click')
       const docTypeOptions = docTypeSelection.findAll('option')
-      docTypeOptions.at(2).setSelected()
-      await Vue.nextTick()
+      docTypeSelection.setValue(docTypeOptions.at(2).element.value)
       const branchSelection = wrapper.find('.branch-selection')
       branchSelection.trigger('click')
       const branchOptions = branchSelection.findAll('option')
-      branchOptions.at(1).setSelected()
+      branchSelection.setValue(branchOptions.at(1).element.value)
       // allow all requests to finish
       setImmediate(() => {
         expect((docTypeSelection.element as HTMLSelectElement).selectedIndex).toEqual(2)
@@ -1282,16 +1348,15 @@ describe('DocumentEditor.vue', () => {
       })
     })
 
-    test('should not switch selected doc when switching branches', async (done) => {
+    test('should not switch selected doc when switching branches', (done) => {
       const docSelection = wrapper.find('.doc-selection')
       docSelection.trigger('click')
       const docOptions = docSelection.findAll('option')
-      docOptions.at(1).setSelected()
-      await Vue.nextTick()
+      docSelection.setValue(docOptions.at(1).element.value)
       const branchSelection = wrapper.find('.branch-selection')
       branchSelection.trigger('click')
       const branchOptions = branchSelection.findAll('option')
-      branchOptions.at(1).setSelected()
+      branchSelection.setValue(branchOptions.at(1).element.value)
       // allow all requests to finish
       setImmediate(() => {
         expect((docSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
@@ -1303,7 +1368,7 @@ describe('DocumentEditor.vue', () => {
       const docTypeSelection = wrapper.find('.doc-type-selection')
       docTypeSelection.trigger('click')
       const options = docTypeSelection.findAll('option')
-      options.at(2).setSelected()
+      docTypeSelection.setValue(options.at(2).element.value)
       // allow all requests to finish
       setImmediate(() => {
         expect((docTypeSelection.element as HTMLSelectElement).selectedIndex).toEqual(2)
@@ -1316,14 +1381,14 @@ describe('DocumentEditor.vue', () => {
       const docTypeSelection = wrapper.find('.doc-type-selection')
       docTypeSelection.trigger('click')
       const docTypeOptions = docTypeSelection.findAll('option')
-      docTypeOptions.at(0).setSelected()
+      docTypeSelection.setValue(docTypeOptions.at(0).element.value)
       // allow all requests to finish
       setImmediate(() => {
         // switch to a different document
         const docSelection = wrapper.find('.doc-selection')
         docSelection.trigger('click')
         const options = docSelection.findAll('option')
-        options.at(1).setSelected()
+        docSelection.setValue(options.at(1).element.value)
         // allow all requests to finish
         setImmediate(() => {
           expect((docSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
@@ -1339,34 +1404,32 @@ describe('DocumentEditor.vue', () => {
       const docTypeSelection = wrapper.find('.doc-type-selection')
       docTypeSelection.trigger('click')
       const options = docTypeSelection.findAll('option')
-      options.at(4).setSelected()
+      docTypeSelection.setValue(options.at(4).element.value)
       // allow all requests to finish
       setImmediate(async () => {
-        const doc = (wrapper.vm as any).selectedDoc
+        const doc = wrapper.vm.selectedDoc
         doc.name = `${doc.name} changed`
         jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
         const getSpy = jest.spyOn(axios, 'get')
         const saveDocumentButton = wrapper.find('.save-document-button')
         saveDocumentButton.trigger('click')
-        await Vue.nextTick()
         expect(getSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/securitypolicies/`)
         done()
       })
     })
 
-    test('should be able to save document changes', async () => {
-      const doc = (wrapper.vm as any).selectedDoc
+    test('should be able to save document changes', () => {
+      const doc = wrapper.vm.selectedDoc
       doc.name = `${doc.name} changed`
       const putSpy = jest.spyOn(axios, 'put')
       putSpy.mockImplementation(() => Promise.resolve())
       const saveDocumentButton = wrapper.find('.save-document-button')
       saveDocumentButton.trigger('click')
-      await Vue.nextTick()
       expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclprofiles/e/${doc.id}/`, doc)
     })
 
-    test('should be able to fork document', async () => {
-      const originalDoc = (wrapper.vm as any).selectedDoc
+    test('should be able to fork document', () => {
+      const originalDoc = wrapper.vm.selectedDoc
       const forkedDoc = {...originalDoc}
       forkedDoc.id = expect.any(String)
       forkedDoc.name = `copy of ${forkedDoc.name}`
@@ -1374,8 +1437,33 @@ describe('DocumentEditor.vue', () => {
       postSpy.mockImplementation(() => Promise.resolve())
       const forkDocumentButton = wrapper.find('.fork-document-button')
       forkDocumentButton.trigger('click')
-      await Vue.nextTick()
       expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclprofiles/e/`, forkedDoc)
+    })
+
+    test('should not be able to fork document if there is no selected doc', () => {
+      jest.spyOn(axios, 'get').mockImplementation((path) => {
+        if (path === '/conf/api/v2/configs/') {
+          return Promise.resolve({data: gitData})
+        }
+        return Promise.resolve({data: []})
+      })
+      wrapper = shallowMount(DocumentEditor, {
+        global: {
+          mocks: {
+            $route: mockRoute,
+            $router: mockRouter,
+          },
+        },
+      })
+      const originalDoc = wrapper.vm.selectedDoc
+      const forkedDoc = {...originalDoc}
+      forkedDoc.id = expect.any(String)
+      forkedDoc.name = `copy of ${forkedDoc.name}`
+      const postSpy = jest.spyOn(axios, 'post')
+      postSpy.mockImplementation(() => Promise.resolve())
+      const forkDocumentButton = wrapper.find('.fork-document-button')
+      forkDocumentButton.trigger('click')
+      expect(postSpy).not.toHaveBeenCalled()
     })
 
     test('should change security policy match when forking security policy document', (done) => {
@@ -1383,10 +1471,10 @@ describe('DocumentEditor.vue', () => {
       const docTypeSelection = wrapper.find('.doc-type-selection')
       docTypeSelection.trigger('click')
       const options = docTypeSelection.findAll('option')
-      options.at(2).setSelected()
+      docTypeSelection.setValue(options.at(2).element.value)
       // allow all requests to finish
-      setImmediate(async () => {
-        const originalDoc = (wrapper.vm as any).selectedDoc
+      setImmediate(() => {
+        const originalDoc = wrapper.vm.selectedDoc
         const forkedDoc = {...originalDoc}
         forkedDoc.id = expect.any(String)
         forkedDoc.name = `copy of ${forkedDoc.name}`
@@ -1395,24 +1483,22 @@ describe('DocumentEditor.vue', () => {
         postSpy.mockImplementation(() => Promise.resolve())
         const forkDocumentButton = wrapper.find('.fork-document-button')
         forkDocumentButton.trigger('click')
-        await Vue.nextTick()
         expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/securitypolicies/e/`, forkedDoc)
         done()
       })
     })
 
-    test('should be able to add a new document', async () => {
+    test('should be able to add a new document', () => {
       const newDoc = DatasetsUtils.newDocEntryFactory.aclprofiles()
       newDoc.id = expect.any(String)
       const postSpy = jest.spyOn(axios, 'post')
       postSpy.mockImplementation(() => Promise.resolve())
       const newDocumentButton = wrapper.find('.new-document-button')
       newDocumentButton.trigger('click')
-      await Vue.nextTick()
       expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclprofiles/e/`, newDoc)
     })
 
-    test('should be able to add multiple new documents in a row with different IDs', async () => {
+    test('should be able to add multiple new documents in a row with different IDs', () => {
       const newDocIDs: string[] = []
       const postSpy = jest.spyOn(axios, 'post')
       postSpy.mockImplementation((url, data: Partial<Document>) => {
@@ -1421,9 +1507,7 @@ describe('DocumentEditor.vue', () => {
       })
       const newDocumentButton = wrapper.find('.new-document-button')
       newDocumentButton.trigger('click')
-      await Vue.nextTick()
       newDocumentButton.trigger('click')
-      await Vue.nextTick()
       expect(postSpy).toHaveBeenCalledTimes(2)
       expect(newDocIDs[0]).not.toEqual(newDocIDs[1])
     })
@@ -1433,74 +1517,62 @@ describe('DocumentEditor.vue', () => {
       deleteSpy.mockImplementation(() => Promise.resolve())
       // create new document so we can delete it
       const newDocumentButton = wrapper.find('.new-document-button')
-      newDocumentButton.trigger('click')
-      await Vue.nextTick()
-      const docID = (wrapper.vm as any).selectedDocID
+      await newDocumentButton.trigger('click')
+      const docID = wrapper.vm.selectedDocID
       const deleteDocumentButton = wrapper.find('.delete-document-button')
-      deleteDocumentButton.trigger('click')
-      await Vue.nextTick()
+      await deleteDocumentButton.trigger('click')
       expect(deleteSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclprofiles/e/${docID}/`)
     })
 
-    test('should not be able to delete a document if its id is __default__', async () => {
+    test('should not be able to delete a document if its id is __default__', () => {
       const deleteSpy = jest.spyOn(axios, 'delete')
       deleteSpy.mockImplementation(() => Promise.resolve())
       wrapper.setData({selectedDocID: '__default__'})
-      await Vue.nextTick()
       const deleteDocumentButton = wrapper.find('.delete-document-button')
       deleteDocumentButton.trigger('click')
-      await Vue.nextTick()
       expect(deleteSpy).not.toHaveBeenCalled()
     })
 
-    test('should not be able to delete an ACL Profile document if it is referenced by a security policy', async () => {
+    test('should not be able to delete an ACL Profile document if it is referenced by a security policy', () => {
       // switch to a different document
       const docSelection = wrapper.find('.doc-selection')
       docSelection.trigger('click')
       const options = docSelection.findAll('option')
-      options.at(1).setSelected()
-      await Vue.nextTick()
+      docSelection.setValue(options.at(1).element.value)
       const deleteSpy = jest.spyOn(axios, 'delete')
       deleteSpy.mockImplementation(() => Promise.resolve())
       wrapper.setData({selectedDoc: {id: '__default__'}})
       const deleteDocumentButton = wrapper.find('.delete-document-button')
       deleteDocumentButton.trigger('click')
-      await Vue.nextTick()
       expect(deleteSpy).not.toHaveBeenCalled()
     })
 
-    // eslint-disable-next-line max-len
-    test('should not be able to delete an Content Filter Profile document if it is referenced by a security policy', async () => {
+    test('should not be able to delete an Content Filter Profile document' +
+      ' if it is referenced by a security policy', () => {
       // switch to Content Filter Profiles
       const docTypeSelection = wrapper.find('.doc-type-selection')
       docTypeSelection.trigger('click')
       const docTypeOptions = docTypeSelection.findAll('option')
-      docTypeOptions.at(5).setSelected()
-      await Vue.nextTick()
-      await Vue.nextTick()
+      docTypeSelection.setValue(docTypeOptions.at(5).element.value)
       const deleteSpy = jest.spyOn(axios, 'delete')
       deleteSpy.mockImplementation(() => Promise.resolve())
       wrapper.setData({selectedDoc: {id: '009e846e819e'}})
       const deleteDocumentButton = wrapper.find('.delete-document-button')
       deleteDocumentButton.trigger('click')
-      await Vue.nextTick()
       expect(deleteSpy).not.toHaveBeenCalled()
     })
 
-    test('should not be able to delete a Rate Limit document if it is referenced by a security policy', async () => {
+    test('should not be able to delete a Rate Limit document if it is referenced by a security policy', () => {
       // switch to Rate Limits
       const docTypeSelection = wrapper.find('.doc-type-selection')
       docTypeSelection.trigger('click')
       const docTypeOptions = docTypeSelection.findAll('option')
-      docTypeOptions.at(3).setSelected()
-      await Vue.nextTick()
-      await Vue.nextTick()
+      docTypeSelection.setValue(docTypeOptions.at(3).element.value)
       const deleteSpy = jest.spyOn(axios, 'delete')
       deleteSpy.mockImplementation(() => Promise.resolve())
       wrapper.setData({selectedDoc: {id: 'f971e92459e2'}})
       const deleteDocumentButton = wrapper.find('.delete-document-button')
       deleteDocumentButton.trigger('click')
-      await Vue.nextTick()
       expect(deleteSpy).not.toHaveBeenCalled()
     })
 
@@ -1510,8 +1582,8 @@ describe('DocumentEditor.vue', () => {
         if (path === '/conf/api/v2/configs/') {
           return Promise.resolve({data: gitData})
         }
-        const branch = (wrapper.vm as any).selectedBranch
-        const docID = (wrapper.vm as any).selectedDocID
+        const branch = wrapper.vm.selectedBranch
+        const docID = wrapper.vm.selectedDocID
         if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
           if (config && config.headers && config.headers['x-fields'] === 'id, name') {
             return Promise.resolve({data: _.map(aclDocs, (i) => _.pick(i, 'id', 'name'))})
@@ -1535,20 +1607,17 @@ describe('DocumentEditor.vue', () => {
         return Promise.resolve({data: []})
       })
       wrapper = shallowMount(DocumentEditor, {
-        mocks: {
-          $route: mockRoute,
-          $router: mockRouter,
+        global: {
+          mocks: {
+            $route: mockRoute,
+            $router: mockRouter,
+          },
         },
       })
-      await Vue.nextTick()
       const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {
       })
-      // force update because downloadFile is mocked after it is read to to be used as event handler
-      await (wrapper.vm as any).$forceUpdate()
-      await Vue.nextTick()
       const downloadDocButton = wrapper.find('.download-doc-button')
-      downloadDocButton.trigger('click')
-      await Vue.nextTick()
+      await downloadDocButton.trigger('click')
       expect(downloadFileSpy).not.toHaveBeenCalled()
     })
 
@@ -1558,12 +1627,8 @@ describe('DocumentEditor.vue', () => {
       const wantedFileData = aclDocs
       const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {
       })
-      // force update because downloadFile is mocked after it is read to to be used as event handler
-      await (wrapper.vm as any).$forceUpdate()
-      await Vue.nextTick()
       const downloadDocButton = wrapper.find('.download-doc-button')
-      downloadDocButton.trigger('click')
-      await Vue.nextTick()
+      await downloadDocButton.trigger('click')
       expect(downloadFileSpy).toHaveBeenCalledWith(wantedFileName, wantedFileType, wantedFileData)
     })
   })
@@ -1577,15 +1642,17 @@ describe('DocumentEditor.vue', () => {
         return Promise.resolve({data: []})
       })
       wrapper = shallowMount(DocumentEditor, {
-        mocks: {
-          $route: mockRoute,
-          $router: mockRouter,
+        global: {
+          mocks: {
+            $route: mockRoute,
+            $router: mockRouter,
+          },
         },
       })
       // allow all requests to finish
       setImmediate(() => {
-        const noDataMessage = wrapper.find('.no-data-message')
-        expect(noDataMessage.element).toBeDefined()
+        const noDataMessage: DOMWrapper = wrapper.find('.no-data-message')
+        expect(noDataMessage.exists()).toBeTruthy()
         expect(noDataMessage.text().toLowerCase()).toContain('no data found!')
         expect(noDataMessage.text().toLowerCase()).toContain('missing branch.')
         done()
@@ -1600,9 +1667,11 @@ describe('DocumentEditor.vue', () => {
         return Promise.resolve({data: []})
       })
       wrapper = shallowMount(DocumentEditor, {
-        mocks: {
-          $route: mockRoute,
-          $router: mockRouter,
+        global: {
+          mocks: {
+            $route: mockRoute,
+            $router: mockRouter,
+          },
         },
       })
       // allow all requests to finish
@@ -1612,20 +1681,19 @@ describe('DocumentEditor.vue', () => {
           done()
         })
         const button = wrapper.find('.version-control-referral-button')
-        button.trigger('click')
-        await Vue.nextTick()
+        await button.trigger('click')
       })
     })
 
     test('should display correct message when there is no doc type data', (done) => {
       // it is not possible to get to this state from the UI, but we protect from it anyway
-      (wrapper.vm as any).selectedDocType = null
+      wrapper.vm.selectedDocType = null
       // allow all requests to finish
       setImmediate(() => {
-        const noDataMessage = wrapper.find('.no-data-message')
-        expect(noDataMessage.element).toBeDefined()
-        expect(noDataMessage.text().toLowerCase()).toContain('no data found!')
-        expect(noDataMessage.text().toLowerCase()).toContain('missing document type.')
+        const noDataMessage: DOMWrapper = wrapper.find('.no-data-message')
+        expect(noDataMessage.exists()).toBeTruthy()
+        expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found!')
+        expect(noDataMessage?.text()?.toLowerCase()).toContain('missing document type.')
         done()
       })
     })
@@ -1638,17 +1706,19 @@ describe('DocumentEditor.vue', () => {
         return Promise.resolve({data: []})
       })
       wrapper = shallowMount(DocumentEditor, {
-        mocks: {
-          $route: mockRoute,
-          $router: mockRouter,
+        global: {
+          mocks: {
+            $route: mockRoute,
+            $router: mockRouter,
+          },
         },
       })
       // allow all requests to finish
       setImmediate(() => {
-        const noDataMessage = wrapper.find('.no-data-message')
-        expect(noDataMessage.element).toBeDefined()
-        expect(noDataMessage.text().toLowerCase()).toContain('no data found!')
-        expect(noDataMessage.text().toLowerCase()).toContain('missing document.')
+        const noDataMessage: DOMWrapper = wrapper.find('.no-data-message')
+        expect(noDataMessage.exists()).toBeTruthy()
+        expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found!')
+        expect(noDataMessage?.text()?.toLowerCase()).toContain('missing document.')
         done()
       })
     })
@@ -1664,14 +1734,16 @@ describe('DocumentEditor.vue', () => {
         return Promise.resolve({data: []})
       })
       wrapper = shallowMount(DocumentEditor, {
-        mocks: {
-          $route: mockRoute,
-          $router: mockRouter,
+        global: {
+          mocks: {
+            $route: mockRoute,
+            $router: mockRouter,
+          },
         },
       })
-      await Vue.nextTick()
+      await nextTick()
       const docLoadingIndicator = wrapper.find('.document-loading')
-      expect(docLoadingIndicator.element).toBeDefined()
+      expect(docLoadingIndicator.exists()).toBeTruthy()
     })
 
     test('should display loading indicator when doc not loaded', async () => {
@@ -1679,7 +1751,7 @@ describe('DocumentEditor.vue', () => {
         if (path === '/conf/api/v2/configs/') {
           return Promise.resolve({data: gitData})
         }
-        const branch = (wrapper.vm as any).selectedBranch
+        const branch = wrapper.vm.selectedBranch
         if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
           return new Promise(() => {
           })
@@ -1687,22 +1759,23 @@ describe('DocumentEditor.vue', () => {
         return Promise.resolve({data: []})
       })
       wrapper = shallowMount(DocumentEditor, {
-        mocks: {
-          $route: mockRoute,
-          $router: mockRouter,
+        global: {
+          mocks: {
+            $route: mockRoute,
+            $router: mockRouter,
+          },
         },
       })
-      await Vue.nextTick()
+      await nextTick()
       const docLoadingIndicator = wrapper.find('.document-loading')
-      expect(docLoadingIndicator.element).toBeDefined()
+      expect(docLoadingIndicator.exists()).toBeTruthy()
     })
 
     test('should display loading indicator when saving document changes', async () => {
       jest.spyOn(axios, 'put').mockImplementation(() => new Promise(() => {
       }))
       const saveDocumentButton = wrapper.find('.save-document-button')
-      saveDocumentButton.trigger('click')
-      await Vue.nextTick()
+      await saveDocumentButton.trigger('click')
       expect(saveDocumentButton.element.classList).toContain('is-loading')
     })
 
@@ -1710,8 +1783,7 @@ describe('DocumentEditor.vue', () => {
       jest.spyOn(axios, 'post').mockImplementation(() => new Promise(() => {
       }))
       const forkDocumentButton = wrapper.find('.fork-document-button')
-      forkDocumentButton.trigger('click')
-      await Vue.nextTick()
+      await forkDocumentButton.trigger('click')
       expect(forkDocumentButton.element.classList).toContain('is-loading')
     })
 
@@ -1719,8 +1791,7 @@ describe('DocumentEditor.vue', () => {
       jest.spyOn(axios, 'post').mockImplementation(() => new Promise(() => {
       }))
       const newDocumentButton = wrapper.find('.new-document-button')
-      newDocumentButton.trigger('click')
-      await Vue.nextTick()
+      await newDocumentButton.trigger('click')
       expect(newDocumentButton.element.classList).toContain('is-loading')
     })
 
@@ -1729,11 +1800,9 @@ describe('DocumentEditor.vue', () => {
       }))
       // create new document so we can delete it
       const newDocumentButton = wrapper.find('.new-document-button')
-      newDocumentButton.trigger('click')
-      await Vue.nextTick()
+      await newDocumentButton.trigger('click')
       const deleteDocumentButton = wrapper.find('.delete-document-button')
-      deleteDocumentButton.trigger('click')
-      await Vue.nextTick()
+      await deleteDocumentButton.trigger('click')
       expect(deleteDocumentButton.element.classList).toContain('is-loading')
     })
   })

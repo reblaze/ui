@@ -95,14 +95,14 @@
                              :class="{ 'is-danger': isErrorField( `${newEntryCategory}${sectionIndex}` )}"
                              title="Name"
                              placeholder="Name"
-                             @input="validateRegex( `${newEntryCategory}${sectionIndex}`, $event.target.value )"
+                             @input="validateRegex( `${newEntryCategory}${sectionIndex}`, newEntryItem.firstAttr)"
                              v-model="newEntryItem.firstAttr"/>
                       <span class="icon is-small is-left has-text-grey-light"><i class="fa fa-font"></i></span>
                     </div>
                     <textarea v-else
                               title="Entries"
                               v-model="newEntryItem.firstAttr"
-                              @input="validateValue( sectionIndex, $event.target.value )"
+                              @input="validateValue( sectionIndex, newEntryItem.firstAttr)"
                               placeholder="One entry per line, use '#' for annotation"
                               class="textarea is-small is-fullwidth new-entry-textarea"
                               :class="{ 'is-danger': isErrorField( `${newEntryCategory}${sectionIndex}` )}"
@@ -121,7 +121,7 @@
                              :class="{'is-danger': errorSecondAttr( sectionIndex )}"
                              :placeholder="isCategoryArgsCookiesHeaders( newEntryCategory ) ? 'Value' : 'Annotation'"
                              v-model="newEntryItem.secondAttr"
-                             @input="onChangeSecondAttr( sectionIndex, $event.target.value )"/>
+                             @input="onChangeSecondAttr( sectionIndex, newEntryItem.secondAttr )"/>
                       <span v-show="isCategoryArgsCookiesHeaders( newEntryCategory )"
                             class="icon is-small is-left has-text-grey-light">
                         <i class="fa fa-code"></i>
@@ -202,11 +202,12 @@
 
 <script lang="ts">
 import _ from 'lodash'
-import Vue, {PropType} from 'vue'
-import Utils from '@/assets/Utils.ts'
+import {defineComponent, PropType} from 'vue'
+import Utils from '@/assets/Utils'
 import {Category, GlobalFilter, GlobalFilterSection, GlobalFilterSectionEntry, Relation} from '@/types'
 
-export default Vue.extend({
+
+export default defineComponent({
   name: 'EntriesRelationList',
 
   props: {
@@ -218,7 +219,7 @@ export default Vue.extend({
           sections: [] as GlobalFilterSection[],
         }
       },
-      validator(value) {
+      validator: (value: GlobalFilter['rule']) => {
         if (!value || !value.relation || !value.sections) {
           return false
         }
@@ -256,12 +257,6 @@ export default Vue.extend({
       newEntrySectionIndex: -1,
       // newEntryCategory - start with most common category - IP
       newEntryCategory: 'ip' as Category,
-      // For headers, args, cookies:
-      //   firstAttr = name
-      //   secondAttr = value
-      // For every other entry type:
-      //   firstAttr = list of values (with possible annotation)
-      //   secondAttr = single annotation
       newEntryItem: {
         firstAttr: '',
         secondAttr: '',
@@ -303,7 +298,7 @@ export default Vue.extend({
         this.sectionsCurrentPageIndex = []
         for (let i = 0; i < this.localRule.sections.length; i++) {
           const section = this.localRule.sections[i]
-          Vue.set(this.sectionsCurrentPageIndex, i, 1)
+          this.sectionsCurrentPageIndex[i] = 1
           if (this.sectionContainsSameCategoryItems(section)) {
             section.relation = 'OR'
           }
@@ -382,7 +377,7 @@ export default Vue.extend({
 
     navigate(section: GlobalFilterSection, sectionIndex: number, pageNum: number) {
       if (pageNum >= 1 && pageNum <= this.totalPages(section)) {
-        Vue.set(this.sectionsCurrentPageIndex, sectionIndex, pageNum)
+        this.sectionsCurrentPageIndex[sectionIndex]= pageNum
       }
     },
 
@@ -392,7 +387,7 @@ export default Vue.extend({
         entries: [] as GlobalFilterSectionEntry[],
       }
       this.localRule.sections.push(newSection)
-      // Vue.set(this.sectionsCurrentPageIndex, this.localRule.sections.length - 1, 1)
+      this.sectionsCurrentPageIndex[this.localRule.sections.length - 1] = 1
       this.setNewEntryIndex(this.localRule.sections.length - 1)
       this.emitRuleUpdate()
     },
@@ -548,12 +543,13 @@ export default Vue.extend({
 
     validateRegex(id: string, value: string) {
       // TODO: Fix regex test for rust standards and re-apply this
-      // const val = value.trim().replaceAll(/\(\?[a-z]{1,3}\)/g, '') // remove unsupported in js mode modifiers
+      // remove unsupported in js mode modifiers
+      // const val = value.trim().replaceAll(/\(\?[a-z]{1,3}\)/g, '')
       // try {
       //   this.clearError(id)
       //   new RegExp(val)
       // } catch {
-      //   this.validate( val, /^[\w-]+$/, id )
+      //   this.validate(val, /^[\w-]+$/, id)
       // }
     },
 

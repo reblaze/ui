@@ -350,19 +350,15 @@
 </template>
 <script lang="ts">
 import _ from 'lodash'
-import DatasetsUtils from '@/assets/DatasetsUtils.ts'
-import RequestsUtils from '@/assets/RequestsUtils.ts'
-import Vue, {VueConstructor} from 'vue'
+import DatasetsUtils from '@/assets/DatasetsUtils'
+import RequestsUtils from '@/assets/RequestsUtils'
+import {defineComponent} from 'vue'
 import {ACLProfile, ContentFilterProfile, RateLimit, SecurityPolicy, SecurityPolicyEntryMatch} from '@/types'
 import {AxiosResponse} from 'axios'
 import Utils from '@/assets/Utils'
 
-export default (Vue as VueConstructor<Vue & {
-  $refs: {
-    profileName: HTMLInputElement[]
-    mapEntryMatch: HTMLInputElement[]
-  }
-}>).extend({
+
+export default defineComponent({
   name: 'SecurityPoliciesEditor',
 
   props: {
@@ -396,7 +392,7 @@ export default (Vue as VueConstructor<Vue & {
 
   computed: {
     localDoc(): SecurityPolicy {
-      return _.cloneDeep(this.selectedDoc)
+      return _.cloneDeep(this.selectedDoc as SecurityPolicy)
     },
 
     isFormInvalid(): boolean {
@@ -431,10 +427,10 @@ export default (Vue as VueConstructor<Vue & {
       }
     },
 
-    isURLValid(url: string) {
-      const URL_REGEX = /^[A-Za-z0-9%-._~:/?#[\]@!$&'()*+,;=|]*$/g
-      return URL_REGEX.test(url)
-    },
+    // isURLValid(url: string) {
+    //   const URL_REGEX = /^[A-Za-z0-9%-._~:/?#[\]@!$&'()*+,;=|]*$/g
+    //   return URL_REGEX.test(url)
+    // },
 
     isSelectedDomainMatchValid(): boolean {
       const newDomainMatch = this.localDoc.match?.trim()
@@ -449,7 +445,7 @@ export default (Vue as VueConstructor<Vue & {
     },
 
     isSelectedMapEntryMatchValid(index: number): boolean {
-      const newMapEntryMatch = this.localDoc.map[index] ? this.localDoc.map[index].match.trim() : ''
+      const newMapEntryMatch = this.localDoc.map[index]?.match.trim() || ''
       let isValid = newMapEntryMatch.startsWith('/')
       if (isValid) {
         const isMapEntryMatchEmpty = newMapEntryMatch === ''

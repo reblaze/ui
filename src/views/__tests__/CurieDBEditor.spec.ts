@@ -1,22 +1,24 @@
+// @ts-nocheck
 import CurieDBEditor from '@/views/CurieDBEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import Utils from '@/assets/Utils'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
-import {mount, Wrapper} from '@vue/test-utils'
-import Vue from 'vue'
+import {mount, VueWrapper} from '@vue/test-utils'
 import axios from 'axios'
 import JSONEditor from 'jsoneditor'
 import {Commit} from '@/types'
+import {setImmediate} from 'timers'
+import {nextTick} from 'vue'
 
 jest.mock('axios')
 jest.mock('jsoneditor')
 
 describe('CurieDBEditor.vue', () => {
-  let wrapper: Wrapper<Vue>
+  let wrapper: VueWrapper
   let dbData: any
   let publishInfoData: any
   let dbKeyLogs: Commit[]
-  beforeEach(async () => {
+  beforeEach(() => {
     publishInfoData = {
       'buckets': [{'name': 'prod', 'url': 's3://curiefense-test01/prod'}, {
         'name': 'devops',
@@ -60,7 +62,7 @@ describe('CurieDBEditor.vue', () => {
       'version': 'ff59eb0e6d230c077dfa503c9f2d4aacec1b72ab',
       'parents': ['a34f979217215060861b58b3f270e82580c20efb'],
     }]
-    // @ts-ignore
+
     JSONEditor.mockImplementation((container, options) => {
       let value = {}
       let onChangeFunc: Function
@@ -83,8 +85,8 @@ describe('CurieDBEditor.vue', () => {
       if (path === '/conf/api/v2/db/') {
         return Promise.resolve({data: ['system', 'namespaceCopy', 'anotherDB']})
       }
-      const db = (wrapper.vm as any).selectedNamespace
-      const key = (wrapper.vm as any).selectedKey
+      const db = wrapper.vm.selectedNamespace
+      const key = wrapper.vm.selectedKey
       if (path === `/conf/api/v2/db/new namespace/`) {
         return Promise.resolve({data: {key: {}}})
       }
@@ -97,10 +99,10 @@ describe('CurieDBEditor.vue', () => {
       return Promise.resolve({data: {}})
     })
     wrapper = mount(CurieDBEditor)
-    await Vue.nextTick()
   })
   afterEach(() => {
     jest.clearAllMocks()
+    jest.clearAllTimers()
   })
 
   test('should have a git history component', () => {
@@ -129,33 +131,25 @@ describe('CurieDBEditor.vue', () => {
     })
   })
 
-  test('should be able to switch namespaces through dropdown', (done) => {
+  test('should be able to switch namespaces through dropdown', () => {
     const wantedValue = 'namespaceCopy'
     const namespaceSelection = wrapper.find('.namespace-selection')
     namespaceSelection.trigger('click')
     const options = namespaceSelection.findAll('option')
-    options.at(1).setSelected()
-    // allow all requests to finish
-    setImmediate(() => {
-      expect((wrapper.vm as any).selectedNamespace).toEqual(wantedValue)
-      done()
-    })
+    namespaceSelection.setValue(options.at(1).element.value)
+    expect(wrapper.vm.selectedNamespace).toEqual(wantedValue)
   })
 
-  test('should be able to switch key through dropdown', (done) => {
+  test('should be able to switch key through dropdown', () => {
     const wantedValue = Object.keys(dbData)[1]
     const keySelection = wrapper.find('.key-selection')
     keySelection.trigger('click')
     const options = keySelection.findAll('option')
-    options.at(1).setSelected()
-    // allow all requests to finish
-    setImmediate(() => {
-      expect((wrapper.vm as any).selectedKey).toEqual(wantedValue)
-      done()
-    })
+    keySelection.setValue(options.at(1).element.value)
+    expect(wrapper.vm.selectedKey).toEqual(wantedValue)
   })
 
-  test('should send API request to restore to the correct version', async () => {
+  test('should send API request to restore to the correct version', () => {
     const wantedVersion = {
       version: 'b104d3dd17f790b75c4e067c44bb06b914902d78',
     }
@@ -163,11 +157,10 @@ describe('CurieDBEditor.vue', () => {
     putSpy.mockImplementation(() => Promise.resolve())
     const gitHistory = wrapper.findComponent(GitHistory)
     gitHistory.vm.$emit('restore-version', wantedVersion)
-    await Vue.nextTick()
     expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/system/v/${wantedVersion.version}/revert/`)
   })
 
-  test('should load last loaded key if still exists after restoring version', (done) => {
+  test('should load last loaded key if still exists after restoring version', () => {
     const restoredVersion = {
       version: 'b104d3dd17f790b75c4e067c44bb06b914902d78',
     }
@@ -176,11 +169,7 @@ describe('CurieDBEditor.vue', () => {
     jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
     const gitHistory = wrapper.findComponent(GitHistory)
     gitHistory.vm.$emit('restore-version', restoredVersion)
-    // allow all requests to finish
-    setImmediate(() => {
-      expect((wrapper.vm as any).selectedKey).toEqual(wantedKey)
-      done()
-    })
+    expect(wrapper.vm.selectedKey).toEqual(wantedKey)
   })
 
   test('should load first key if key no longer exists after restoring version', (done) => {
@@ -194,7 +183,7 @@ describe('CurieDBEditor.vue', () => {
     gitHistory.vm.$emit('restore-version', restoredVersion)
     // allow all requests to finish
     setImmediate(() => {
-      expect((wrapper.vm as any).selectedKey).toEqual(wantedKey)
+      expect(wrapper.vm.selectedKey).toEqual(wantedKey)
       done()
     })
   })
@@ -205,11 +194,10 @@ describe('CurieDBEditor.vue', () => {
     const wantedFileData = dbData
     const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {})
     // force update because downloadFile is mocked after it is read to to be used as event handler
-    await (wrapper.vm as any).$forceUpdate()
-    await Vue.nextTick()
+    wrapper.vm.$forceUpdate()
+    await nextTick()
     const downloadNamespaceButton = wrapper.find('.download-namespace-button')
-    downloadNamespaceButton.trigger('click')
-    await Vue.nextTick()
+    await downloadNamespaceButton.trigger('click')
     expect(downloadFileSpy).toHaveBeenCalledWith(wantedFileName, wantedFileType, wantedFileData)
   })
 
@@ -219,11 +207,10 @@ describe('CurieDBEditor.vue', () => {
     const wantedFileData = publishInfoData
     const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {})
     // force update because downloadFile is mocked after it is read to be used as event handler
-    await (wrapper.vm as any).$forceUpdate()
-    await Vue.nextTick()
+    wrapper.vm.$forceUpdate()
+    await nextTick()
     const downloadKeyButton = wrapper.find('.download-key-button')
-    downloadKeyButton.trigger('click')
-    await Vue.nextTick()
+    await downloadKeyButton.trigger('click')
     expect(downloadFileSpy).toHaveBeenCalledWith(wantedFileName, wantedFileType, wantedFileData)
   })
 
@@ -232,24 +219,22 @@ describe('CurieDBEditor.vue', () => {
     const wantedFileType = 'json'
     const wantedFileData = publishInfoData
     const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {})
-    wrapper.setData({selectedKeyValue: null})
+    await wrapper.setData({selectedKeyValue: null})
     // force update because downloadFile is mocked after it is read to be used as event handler
-    await (wrapper.vm as any).$forceUpdate()
-    await Vue.nextTick()
+    wrapper.vm.$forceUpdate()
+    await nextTick()
     const downloadKeyButton = wrapper.find('.download-key-button')
-    downloadKeyButton.trigger('click')
-    await Vue.nextTick()
+    await downloadKeyButton.trigger('click')
     expect(downloadFileSpy).not.toHaveBeenCalledWith(wantedFileName, wantedFileType, wantedFileData)
   })
 
   describe('namespace action buttons', () => {
     test('should be able to fork namespace', async () => {
-      const dbData = (wrapper.vm as any).selectedNamespaceData
+      const dbData = wrapper.vm.selectedNamespaceData
       const putSpy = jest.spyOn(axios, 'put')
       putSpy.mockImplementation(() => Promise.resolve())
       const forkNamespaceButton = wrapper.find('.fork-namespace-button')
-      forkNamespaceButton.trigger('click')
-      await Vue.nextTick()
+      await forkNamespaceButton.trigger('click')
       expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/copy of system/`, dbData)
     })
 
@@ -260,8 +245,7 @@ describe('CurieDBEditor.vue', () => {
       const putSpy = jest.spyOn(axios, 'put')
       putSpy.mockImplementation(() => Promise.resolve())
       const newNamespaceButton = wrapper.find('.new-namespace-button')
-      newNamespaceButton.trigger('click')
-      await Vue.nextTick()
+      await newNamespaceButton.trigger('click')
       expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/new namespace/`, newNamespace)
     })
 
@@ -273,10 +257,9 @@ describe('CurieDBEditor.vue', () => {
       const newNamespaceButton = wrapper.find('.new-namespace-button')
       newNamespaceButton.trigger('click')
       setImmediate(async () => {
-        const namespaceName = (wrapper.vm as any).selectedNamespace
+        const namespaceName = wrapper.vm.selectedNamespace
         const deleteNamespaceButton = wrapper.find('.delete-namespace-button')
-        deleteNamespaceButton.trigger('click')
-        await Vue.nextTick()
+        await deleteNamespaceButton.trigger('click')
         expect(deleteSpy).toHaveBeenCalledWith(`/conf/api/v2/db/${namespaceName}/`)
         done()
       })
@@ -286,20 +269,18 @@ describe('CurieDBEditor.vue', () => {
       const deleteSpy = jest.spyOn(axios, 'delete')
       deleteSpy.mockImplementation(() => Promise.resolve())
       const deleteNamespaceButton = wrapper.find('.delete-namespace-button')
-      deleteNamespaceButton.trigger('click')
-      await Vue.nextTick()
+      await deleteNamespaceButton.trigger('click')
       expect(deleteSpy).not.toHaveBeenCalled()
     })
   })
 
   describe('key action buttons', () => {
     test('should be able to fork key', async () => {
-      const doc = JSON.parse((wrapper.vm as any).selectedKeyValue || '{}')
+      const doc = JSON.parse(wrapper.vm.selectedKeyValue || '{}')
       const putSpy = jest.spyOn(axios, 'put')
       putSpy.mockImplementation(() => Promise.resolve())
       const forkKeyButton = wrapper.find('.fork-key-button')
-      forkKeyButton.trigger('click')
-      await Vue.nextTick()
+      await forkKeyButton.trigger('click')
       expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/system/k/copy of publishinfo/`, doc)
     })
 
@@ -308,8 +289,7 @@ describe('CurieDBEditor.vue', () => {
       const putSpy = jest.spyOn(axios, 'put')
       putSpy.mockImplementation(() => Promise.resolve())
       const newKeyButton = wrapper.find('.new-key-button')
-      newKeyButton.trigger('click')
-      await Vue.nextTick()
+      await newKeyButton.trigger('click')
       expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/system/k/new key/`, newKey)
     })
 
@@ -321,10 +301,9 @@ describe('CurieDBEditor.vue', () => {
       const newKeyButton = wrapper.find('.new-key-button')
       newKeyButton.trigger('click')
       setImmediate(async () => {
-        const keyName = (wrapper.vm as any).selectedKey
+        const keyName = wrapper.vm.selectedKey
         const deleteKeyButton = wrapper.find('.delete-key-button')
-        deleteKeyButton.trigger('click')
-        await Vue.nextTick()
+        await deleteKeyButton.trigger('click')
         expect(deleteSpy).toHaveBeenCalledWith(`/conf/api/v2/db/system/k/${keyName}/`)
         done()
       })
@@ -334,8 +313,7 @@ describe('CurieDBEditor.vue', () => {
       const deleteSpy = jest.spyOn(axios, 'delete')
       deleteSpy.mockImplementation(() => Promise.resolve())
       const deleteKeyButton = wrapper.find('.delete-key-button')
-      deleteKeyButton.trigger('click')
-      await Vue.nextTick()
+      await deleteKeyButton.trigger('click')
       expect(deleteSpy).not.toHaveBeenCalled()
     })
   })
@@ -356,7 +334,7 @@ describe('CurieDBEditor.vue', () => {
       })
     })
 
-    test('should be able to save namespace changes even if namespace name changes', async (done) => {
+    test('should be able to save namespace changes even if namespace name changes', async () => {
       const namespaceNameInput = wrapper.find('.namespace-name-input')
       const key = 'key_name'
       const value = {
@@ -366,40 +344,28 @@ describe('CurieDBEditor.vue', () => {
       const wantedResult = {
         [key]: value,
       }
-      namespaceNameInput.setValue('newDB')
-      namespaceNameInput.trigger('input')
-      await Vue.nextTick()
+      await namespaceNameInput.setValue('newDB')
+      await namespaceNameInput.trigger('input')
       const keyNameInput = wrapper.find('.key-name-input')
-      keyNameInput.setValue(key)
-      keyNameInput.trigger('input')
-      await Vue.nextTick()
-      // @ts-ignore
+      await keyNameInput.setValue(key)
+      await keyNameInput.trigger('input')
       wrapper.vm.selectedKeyValue = JSON.stringify(value)
-      await Vue.nextTick()
       const saveKeyButton = wrapper.find('.save-button')
-      saveKeyButton.trigger('click')
-      await Vue.nextTick()
-      // allow all requests to finish
-      setImmediate(() => {
-        expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/newDB/`, wantedResult)
-        done()
-      })
+      await saveKeyButton.trigger('click')
+      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/newDB/`, wantedResult)
     })
 
     test('should be able to save key changes even if key name changes', async () => {
       const keyNameInput = wrapper.find('.key-name-input')
-      keyNameInput.setValue('key_name')
-      keyNameInput.trigger('input')
-      await Vue.nextTick()
+      await keyNameInput.setValue('key_name')
+      await keyNameInput.trigger('input')
       const value = {
         buckets: {},
         foo: 'bar',
       }
-      wrapper.setData({selectedKeyValue: JSON.stringify(value)})
-      await Vue.nextTick()
+      await wrapper.setData({selectedKeyValue: JSON.stringify(value)})
       const saveKeyButton = wrapper.find('.save-button')
-      saveKeyButton.trigger('click')
-      await Vue.nextTick()
+      await saveKeyButton.trigger('click')
       expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/new namespace/k/key_name/`, value)
     })
 
@@ -408,123 +374,103 @@ describe('CurieDBEditor.vue', () => {
         buckets: {},
         foo: 'bar',
       }
-      wrapper.setData({selectedKeyValue: JSON.stringify(value)})
-      await Vue.nextTick()
+      await wrapper.setData({selectedKeyValue: JSON.stringify(value)})
       const saveKeyButton = wrapper.find('.save-button')
-      saveKeyButton.trigger('click')
-      await Vue.nextTick()
+      await saveKeyButton.trigger('click')
       expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/new namespace/k/key/`, value)
     })
 
-    test('should use correct values when saving key changes when using json editor', (done) => {
-      // setTimeout to allow the editor to be fully loaded before we interact with it
-      setTimeout(async () => {
-        const value = {
-          buckets: {},
-          foo: 'bar',
-        }
-        wrapper.vm.$data.editor.set(value)
-        await Vue.nextTick()
-        const saveKeyButton = wrapper.find('.save-button')
-        saveKeyButton.trigger('click')
-        await Vue.nextTick()
-        expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/new namespace/k/key/`, value)
-        done()
-      }, 300)
+    test('should use correct values when saving key changes when using json editor', async () => {
+      for (let i = 0; i < 3; i++) {
+        jest.advanceTimersByTime(100)
+        await nextTick()
+      }
+      const value = {
+        buckets: {},
+        foo: 'bar',
+      }
+      wrapper.vm.$data.editor.set(value)
+      const saveKeyButton = wrapper.find('.save-button')
+      await saveKeyButton.trigger('click')
+      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/new namespace/k/key/`, value)
     })
 
     test('should not be able to save key changes' +
       'if value is an invalid json when not using json editor', async () => {
-      wrapper.setData({editor: null})
-      wrapper.setData({isJsonEditor: false})
-      await Vue.nextTick()
+      await wrapper.setData({isJsonEditor: false, editor: null})
       const value = '{'
       const valueInput = wrapper.find('.value-input')
-      valueInput.setValue(value)
-      valueInput.trigger('input')
-      await Vue.nextTick()
+      await valueInput.setValue(value)
+      await valueInput.trigger('input')
       const saveKeyButton = wrapper.find('.save-button')
-      saveKeyButton.trigger('click')
-      await Vue.nextTick()
+      await saveKeyButton.trigger('click')
       expect(putSpy).not.toHaveBeenCalled()
     })
 
-    test('should not render normal text area if json editor has been loaded', (done) => {
-      // setTimeout to allow the editor to be fully loaded before we interact with it
-      setTimeout(async () => {
-        const valueInput = wrapper.find('.value-input')
-        expect(valueInput.element).toBeUndefined()
-        done()
-      }, 300)
+    test('should not render normal text area if json editor has been loaded', async () => {
+      for (let i = 0; i < 3; i++) {
+        jest.advanceTimersByTime(100)
+        await nextTick()
+      }
+      const valueInput = wrapper.find('.value-input')
+      expect(valueInput.exists()).toBeFalsy()
     })
 
-    test('should default to normal text area when json editor cannot be loaded after 2 seconds', (done) => {
-      // @ts-ignore
+    test('should default to normal text area when json editor cannot be loaded after 2 seconds', async () => {
+      wrapper = mount(CurieDBEditor)
       JSONEditor.mockImplementation(() => {
         throw new Error('ouchie')
       })
-      wrapper = mount(CurieDBEditor)
-      // setTimeout to allow the editor to be fully loaded before we interact with it
-      setTimeout(async () => {
-        const valueInput = wrapper.find('.value-input')
-        expect(valueInput.element).toBeDefined()
-        done()
-      }, 2300)
+      for (let i = 0; i < 21; i++) {
+        jest.advanceTimersByTime(100)
+        await nextTick()
+      }
+      const valueInput = wrapper.find('.value-input')
+      expect(valueInput.exists()).toBeTruthy()
     })
 
     test('should not be able to save key changes if namespace name is empty', async () => {
       const namespaceNameInput = wrapper.find('.namespace-name-input')
-      namespaceNameInput.setValue('')
-      namespaceNameInput.trigger('input')
-      await Vue.nextTick()
+      await namespaceNameInput.setValue('')
+      await namespaceNameInput.trigger('input')
       const saveKeyButton = wrapper.find('.save-button')
-      saveKeyButton.trigger('click')
-      await Vue.nextTick()
+      await saveKeyButton.trigger('click')
       expect(putSpy).not.toHaveBeenCalled()
     })
 
     test('should not be able to save key changes if namespace name is duplicate of another namespace', async () => {
       const namespaceNameInput = wrapper.find('.namespace-name-input')
-      namespaceNameInput.setValue('namespaceCopy')
-      namespaceNameInput.trigger('input')
-      await Vue.nextTick()
+      await namespaceNameInput.setValue('namespaceCopy')
+      await namespaceNameInput.trigger('input')
       const saveKeyButton = wrapper.find('.save-button')
-      saveKeyButton.trigger('click')
-      await Vue.nextTick()
+      await saveKeyButton.trigger('click')
       expect(putSpy).not.toHaveBeenCalled()
     })
 
     test('should not be able to save key changes if key name is empty', async () => {
       const keyNameInput = wrapper.find('.key-name-input')
-      keyNameInput.setValue('')
-      keyNameInput.trigger('input')
-      await Vue.nextTick()
+      await keyNameInput.setValue('')
+      await keyNameInput.trigger('input')
       const saveKeyButton = wrapper.find('.save-button')
-      saveKeyButton.trigger('click')
-      await Vue.nextTick()
+      await saveKeyButton.trigger('click')
       expect(putSpy).not.toHaveBeenCalled()
     })
 
     test('should not be able to save key changes if key name is duplicate of another key', async () => {
       // add a new key so we would have multiple keys
       const newKeyButton = wrapper.find('.new-key-button')
-      newKeyButton.trigger('click')
-      // click event
-      await Vue.nextTick()
-      // key switch
-      await Vue.nextTick()
+      await newKeyButton.trigger('click')
       // change key name
       const keyNameInput = wrapper.find('.key-name-input')
-      keyNameInput.setValue('key')
-      keyNameInput.trigger('input')
-      await Vue.nextTick()
+      await keyNameInput.setValue('key')
+      await keyNameInput.trigger('input')
       // reset spy counter
       jest.clearAllMocks()
+      axios.put = jest.fn()
       putSpy = jest.spyOn(axios, 'put')
       // attempt saving duplicate named key
       const saveKeyButton = wrapper.find('.save-button')
-      saveKeyButton.trigger('click')
-      await Vue.nextTick()
+      await saveKeyButton.trigger('click')
       expect(putSpy).not.toHaveBeenCalled()
     })
   })
@@ -541,9 +487,9 @@ describe('CurieDBEditor.vue', () => {
       // allow all requests to finish
       setImmediate(() => {
         const noDataMessage = wrapper.find('.no-data-message')
-        expect(noDataMessage.element).toBeDefined()
-        expect(noDataMessage.text().toLowerCase()).toContain('no data found!')
-        expect(noDataMessage.text().toLowerCase()).toContain('missing namespace.')
+        expect(noDataMessage?.exists()).toBeTruthy()
+        expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found!')
+        expect(noDataMessage?.text()?.toLowerCase()).toContain('missing namespace.')
         done()
       })
     })
@@ -553,7 +499,7 @@ describe('CurieDBEditor.vue', () => {
         if (path === '/conf/api/v2/db/') {
           return Promise.resolve({data: ['system', 'namespaceCopy', 'anotherDB']})
         }
-        const db = (wrapper.vm as any).selectedNamespace
+        const db = wrapper.vm.selectedNamespace
         if (path === `/conf/api/v2/db/${db}/`) {
           return Promise.resolve({data: {}})
         }
@@ -565,16 +511,16 @@ describe('CurieDBEditor.vue', () => {
       // allow all requests to finish
       setImmediate(() => {
         const noDataMessage = wrapper.find('.no-data-message')
-        expect(noDataMessage.element).toBeDefined()
-        expect(noDataMessage.text().toLowerCase()).toContain('no data found!')
-        expect(noDataMessage.text().toLowerCase()).toContain('missing key.')
+        expect(noDataMessage?.exists()).toBeTruthy()
+        expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found!')
+        expect(noDataMessage?.text()?.toLowerCase()).toContain('missing key.')
         done()
       })
     })
   })
 
   describe('loading indicator', () => {
-    test('should display loading indicator when namespaces list not loaded', async () => {
+    test('should display loading indicator when namespaces list not loaded', () => {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
         if (path === '/conf/api/v2/db/') {
           return new Promise(() => {
@@ -583,17 +529,16 @@ describe('CurieDBEditor.vue', () => {
         return Promise.resolve({data: []})
       })
       wrapper = mount(CurieDBEditor)
-      await Vue.nextTick()
       const valueLoadingIndicator = wrapper.find('.value-loading')
-      expect(valueLoadingIndicator.element).toBeDefined()
+      expect(valueLoadingIndicator.exists()).toBeTruthy()
     })
 
-    test('should display loading indicator when namespace not loaded', async () => {
+    test('should display loading indicator when namespace not loaded', () => {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
         if (path === '/conf/api/v2/db/') {
           return Promise.resolve({data: ['system', 'namespaceCopy', 'anotherDB']})
         }
-        const db = (wrapper.vm as any).selectedNamespace
+        const db = wrapper.vm.selectedNamespace
         if (path === `/conf/api/v2/db/${db}/`) {
           return new Promise(() => {
           })
@@ -601,17 +546,15 @@ describe('CurieDBEditor.vue', () => {
         return Promise.resolve({data: {}})
       })
       wrapper = mount(CurieDBEditor)
-      await Vue.nextTick()
       const valueLoadingIndicator = wrapper.find('.value-loading')
-      expect(valueLoadingIndicator.element).toBeDefined()
+      expect(valueLoadingIndicator.exists()).toBeTruthy()
     })
 
     test('should display loading indicator when saving value changes', async () => {
       jest.spyOn(axios, 'put').mockImplementation(() => new Promise(() => {
       }))
       const saveDocumentButton = wrapper.find('.save-button')
-      saveDocumentButton.trigger('click')
-      await Vue.nextTick()
+      await saveDocumentButton.trigger('click')
       expect(saveDocumentButton.element.classList).toContain('is-loading')
     })
 
@@ -619,8 +562,7 @@ describe('CurieDBEditor.vue', () => {
       jest.spyOn(axios, 'post').mockImplementation(() => new Promise(() => {
       }))
       const forkNamespaceButton = wrapper.find('.fork-namespace-button')
-      forkNamespaceButton.trigger('click')
-      await Vue.nextTick()
+      await forkNamespaceButton.trigger('click')
       expect(forkNamespaceButton.element.classList).toContain('is-loading')
     })
 
@@ -628,8 +570,7 @@ describe('CurieDBEditor.vue', () => {
       jest.spyOn(axios, 'post').mockImplementation(() => new Promise(() => {
       }))
       const newNamespaceButton = wrapper.find('.new-namespace-button')
-      newNamespaceButton.trigger('click')
-      await Vue.nextTick()
+      await newNamespaceButton.trigger('click')
       expect(newNamespaceButton.element.classList).toContain('is-loading')
     })
 
@@ -642,8 +583,7 @@ describe('CurieDBEditor.vue', () => {
       newNamespaceButton.trigger('click')
       setImmediate(async () => {
         const deleteNamespaceButton = wrapper.find('.delete-namespace-button')
-        deleteNamespaceButton.trigger('click')
-        await Vue.nextTick()
+        await deleteNamespaceButton.trigger('click')
         expect(deleteNamespaceButton.element.classList).toContain('is-loading')
         done()
       })
@@ -653,8 +593,7 @@ describe('CurieDBEditor.vue', () => {
       jest.spyOn(axios, 'post').mockImplementation(() => new Promise(() => {
       }))
       const forkKeyButton = wrapper.find('.fork-key-button')
-      forkKeyButton.trigger('click')
-      await Vue.nextTick()
+      await forkKeyButton.trigger('click')
       expect(forkKeyButton.element.classList).toContain('is-loading')
     })
 
@@ -662,8 +601,7 @@ describe('CurieDBEditor.vue', () => {
       jest.spyOn(axios, 'post').mockImplementation(() => new Promise(() => {
       }))
       const newKeyButton = wrapper.find('.new-key-button')
-      newKeyButton.trigger('click')
-      await Vue.nextTick()
+      await newKeyButton.trigger('click')
       expect(newKeyButton.element.classList).toContain('is-loading')
     })
 
@@ -676,8 +614,7 @@ describe('CurieDBEditor.vue', () => {
       newNamespaceButton.trigger('click')
       setImmediate(async () => {
         const deleteNamespaceButton = wrapper.find('.delete-key-button')
-        deleteNamespaceButton.trigger('click')
-        await Vue.nextTick()
+        await deleteNamespaceButton.trigger('click')
         expect(deleteNamespaceButton.element.classList).toContain('is-loading')
         done()
       })

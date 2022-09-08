@@ -80,7 +80,7 @@
                 <limit-option use-default-self
                               label-separated-line
                               label="Event"
-                              :option.sync="eventOption"
+                              v-model:option="eventOption"
                               :key="eventOption.type + localDoc.id"
                               :ignore-attributes="['tags']"
                               @change="updateEvent"/>
@@ -90,21 +90,21 @@
                   Thresholds
                 </label>
                 <div v-for="(threshold, index) in localDoc.thresholds"
-                    :key="index"
-                    :set="removable = localDoc.thresholds.length > 1"
-                    class="card threshold-card">
+                     :key="index"
+                     :set="removable = localDoc.thresholds.length > 1"
+                     class="card threshold-card">
                   <div class="columns">
                     <div class="column is-6">
                       <label class="label is-small">
                         Limit
                       </label>
                       <input class="input is-small document-limit"
-                            type="text"
-                            data-qa="ratelimit-limit-input"
-                            title="Number of events"
-                            placeholder="Number of events"
-                            @change="emitDocUpdate"
-                            v-model="threshold.limit">
+                             type="text"
+                             data-qa="ratelimit-limit-input"
+                             title="Number of events"
+                             placeholder="Number of events"
+                             @change="emitDocUpdate"
+                             v-model="threshold.limit">
                     </div>
                     <div class="button-wrapper-column column">
                       <a
@@ -121,9 +121,9 @@
                       </a>
                     </div>
                   </div>
-                  <response-action :action.sync="threshold.action"
-                                  label-separated-line
-                                  @update:action="emitDocUpdate"/>
+                  <response-action v-model:action="threshold.action"
+                                   label-separated-line
+                                   @update:action="emitDocUpdate"/>
                 </div>
                 <a title="Add new threshold"
                    data-qa="add-another-threshold-btn"
@@ -135,9 +135,9 @@
                    @keypress.enter="addThreshold()">
                   New threshold
                 </a>
-                <p class="has-text-danger is-size-7 ml-3 mt-3 only-one-ban"
-                   v-if="!onlyOneBanAction">
-                  Can't be more than one Ban action.
+                <p class="has-text-danger is-size-7 ml-3 mt-3 up-to-one-ban"
+                   v-if="!upToOneBanAction">
+                  There can't be more than one Ban action.
                 </p>
               </div>
             </div>
@@ -244,22 +244,22 @@
                 <template v-if="newSecurityPolicyConnections.length > 0">
                   <td>
                     <div class="select is-small">
-                      <select v-model="newSecurityPolicyConnectionData.map"
-                              @change="newSecurityPolicyConnectionData.entryIndex = 0"
+                      <select v-model="newSecurityPolicyConnectionDataMapId"
+                              @change="newSecurityPolicyConnectionDataChanged()"
                               class="new-connection-map"
                               data-qa="site-name-dropdown"
                               title="Type">
-                        <option v-for="map in newSecurityPolicyConnections" :key="map.id" :value="map">
+                        <option v-for="map in newSecurityPolicyConnections" :key="map.id" :value="map.id">
                           {{ map.name }}
                         </option>
                       </select>
                     </div>
                   </td>
                   <td>
-                    {{ newSecurityPolicyConnectionData.map.id }}
+                    {{ newSecurityPolicyConnectionData.map?.id }}
                   </td>
                   <td>
-                    {{ newSecurityPolicyConnectionData.map.match }}
+                    {{ newSecurityPolicyConnectionData.map?.match }}
                   </td>
                   <td>
                     <div class="select is-small">
@@ -363,8 +363,9 @@ import _ from 'lodash'
 import ResponseAction from '@/components/ResponseAction.vue'
 import LimitOption, {OptionObject} from '@/components/LimitOption.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
-import Vue from 'vue'
+import {defineComponent} from 'vue'
 import {
+  Dictionary,
   IncludeExcludeType,
   LimitOptionType,
   LimitRuleType,
@@ -373,12 +374,11 @@ import {
   SecurityPolicyEntryMatch,
   ThresholdActionPair,
 } from '@/types'
-import {Dictionary} from 'vue-router/types/router'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import {AxiosResponse} from 'axios'
 
-export default Vue.extend({
+export default defineComponent({
   name: 'RateLimits',
   props: {
     selectedDoc: Object,
@@ -404,14 +404,16 @@ export default Vue.extend({
         map: SecurityPolicy,
         entryIndex: number,
       },
+      newSecurityPolicyConnectionDataMapId: null,
       newSecurityPolicyConnectionOpened: false,
       connectedSecurityPoliciesEntries: [],
       keysAreValid: true,
+      removable: false,
     }
   },
   computed: {
     localDoc(): RateLimit {
-      return _.cloneDeep(this.selectedDoc)
+      return _.cloneDeep(this.selectedDoc as RateLimit)
     },
 
     duplicateTags(): Dictionary<string> {
@@ -431,7 +433,7 @@ export default Vue.extend({
       },
     },
 
-    onlyOneBanAction(): Boolean {
+    upToOneBanAction(): Boolean {
       const counts = _.countBy(this.localDoc.thresholds, (threshold) => {
         return threshold.action.type
       })
@@ -455,6 +457,7 @@ export default Vue.extend({
       })
     },
   },
+  emits: ['update:selectedDoc'],
   methods: {
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
@@ -559,11 +562,19 @@ export default Vue.extend({
       this.newSecurityPolicyConnectionOpened = true
       this.newSecurityPolicyConnectionData.map =
           this.newSecurityPolicyConnections.length > 0 ? this.newSecurityPolicyConnections[0] : null
+      this.newSecurityPolicyConnectionDataMapId = this.newSecurityPolicyConnectionData.map?.id
       this.newSecurityPolicyConnectionData.entryIndex = 0
     },
 
     closeNewSecurityPolicyConnection() {
       this.newSecurityPolicyConnectionOpened = false
+    },
+
+    newSecurityPolicyConnectionDataChanged() {
+      this.newSecurityPolicyConnectionData.entryIndex = 0
+      this.newSecurityPolicyConnectionData.map = this.newSecurityPolicyConnections.find((connection) => {
+        return connection.id === this.newSecurityPolicyConnectionDataMapId
+      })
     },
 
     addNewSecurityPolicyConnection() {
@@ -625,6 +636,7 @@ export default Vue.extend({
         this.getConnectedSecurityPoliciesEntries()
         this.newSecurityPolicyConnectionData.map =
             this.newSecurityPolicyConnections.length > 0 ? this.newSecurityPolicyConnections[0] : null
+        this.newSecurityPolicyConnectionDataMapId = this.newSecurityPolicyConnectionData.map?.id
       })
     },
 
@@ -663,7 +675,6 @@ export default Vue.extend({
     selectedDoc: {
       handler: function() {
         this.getConnectedSecurityPoliciesEntries()
-        this.$forceUpdate()
       },
       immediate: true,
       deep: true,

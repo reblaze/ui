@@ -1,3 +1,4 @@
+// @ts-nocheck
 import RequestsUtils, {IRequestParams} from '@/assets/RequestsUtils'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
 import * as bulmaToast from 'bulma-toast'
@@ -19,6 +20,7 @@ describe('RequestsUtils.ts', () => {
   })
   afterEach(() => {
     jest.clearAllMocks()
+    jest.clearAllTimers()
   })
 
   function buildFuncDescribe(func: Function, baseUrl: string, urlTrail: string) {

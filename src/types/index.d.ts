@@ -1,8 +1,11 @@
 /* eslint-disable */
 import {httpRequestMethods} from './const'
+
 declare module CuriefenseClient {
 
   type GenericObject = { [key: string]: any }
+
+  type Dictionary<T> = { [key: string]: T }
 
   type TagsNamespaceValue = {
     neutral?: string[]
@@ -86,9 +89,18 @@ declare module CuriefenseClient {
 
   type NamesRegexType = 'names' | 'regex'
 
-  type Document = BasicDocument & (ACLProfile | FlowControlPolicy | GlobalFilter | RateLimit | SecurityPolicy | ContentFilterProfile | ContentFilterRule)
+  type Document =
+    BasicDocument
+    & (ACLProfile | FlowControlPolicy | GlobalFilter | RateLimit | SecurityPolicy | ContentFilterProfile | ContentFilterRule)
 
-  type DocumentType = 'aclprofiles' | 'flowcontrol' | 'globalfilters' | 'ratelimits' | 'securitypolicies' | 'contentfilterprofiles' | 'contentfilterrules' | 'contentfiltergroups'
+  type DocumentType =
+    'aclprofiles'
+    | 'flowcontrol'
+    | 'globalfilters'
+    | 'ratelimits'
+    | 'securitypolicies'
+    | 'contentfilterprofiles'
+    | 'contentfilterrules'
 
   // Document types helpers - END
 
@@ -207,6 +219,24 @@ declare module CuriefenseClient {
 
   // Document types - END
 
+  // Document other - START
+
+  type ColumnOptions = {
+    columnTitle: string
+    fieldNames: string[]
+    displayFunction?: (item: any) => string
+    isSortable: boolean
+    isSearchable: boolean
+    classes?: string
+  }
+
+  type ColumnOptionsMap = {
+    [key: string]: ColumnOptions[]
+  }
+
+  // Document other - END
+
+
   // Git - START
 
   type Branch = {
@@ -224,6 +254,23 @@ declare module CuriefenseClient {
     message: string
     email: string
     author: string
+  }
+
+  type SearchDocument = Document & {
+    docType: DocumentType
+    description: string
+    tags: string
+    connections: string[]
+    connectedACL: string[]
+    connectedContentFilter: string[]
+    connectedRateLimits: string[]
+    connectedSecurityPolicies: string[]
+    map: SecurityPolicyEntryMatch[]
+  }
+
+  type Rule = {
+    relation: Relation,
+    sections: GlobalFilterSection[],
   }
 
   // Git - END

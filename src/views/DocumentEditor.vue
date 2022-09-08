@@ -158,9 +158,9 @@
         <component
             v-if="selectedBranch && selectedDocType && selectedDoc"
             :is="componentsMap[selectedDocType].component"
-            :selectedBranch.sync="selectedBranch"
-            :selectedDoc.sync="selectedDoc"
-            :docs.sync="docs"
+            v-model:selectedBranch="selectedBranch"
+            v-model:selectedDoc="selectedDoc"
+            v-model:docs="docs"
             :apiPath="documentAPIPath"
             @form-invalid="isDocumentInvalid = $event"
             ref="currentComponent">
@@ -174,7 +174,7 @@
       </div>
 
       <div class="content no-data-wrapper"
-           v-if="loadingDocCounter || !selectedBranch || !selectedDocType || !selectedDoc">
+        v-if="loadingDocCounter || !selectedBranch || !selectedDocType || !selectedDoc">
         <div v-if="loadingDocCounter > 0">
           <button class="button is-outlined is-text is-small is-loading document-loading">
             Loading
@@ -196,7 +196,7 @@
             <span v-else-if="!Object.keys(componentsMap).includes(selectedDocType)">
               Missing document type. Please select one from the dropdown above
             </span>
-            <span v-else-if="!docIdNames.find((docIdName) => docIdName.includes(selectedDoc))">
+            <span v-else-if="!docIdNames.find((docIdName) => docIdName[0].includes(selectedDoc?.id))">
               Missing document. To create a new one, click
               <a title="Add new"
                  @click="addNewDoc()">
@@ -212,9 +212,9 @@
 
 <script lang="ts">
 import _ from 'lodash'
-import DatasetsUtils from '@/assets/DatasetsUtils.ts'
-import RequestsUtils from '@/assets/RequestsUtils.ts'
-import Utils from '@/assets/Utils.ts'
+import DatasetsUtils from '@/assets/DatasetsUtils'
+import RequestsUtils from '@/assets/RequestsUtils'
+import Utils from '@/assets/Utils'
 import ACLEditor from '@/doc-editors/ACLEditor.vue'
 import ContentFilterEditor from '@/doc-editors/ContentFilterProfileEditor.vue'
 import ContentFilterRulesEditor from '@/doc-editors/ContentFilterRulesEditor.vue'
@@ -224,26 +224,15 @@ import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
 import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
-import Vue from 'vue'
-import {BasicDocument, Commit, Document, DocumentType, HttpRequestMethods, SecurityPolicy} from '@/types'
+import {defineComponent, shallowRef} from 'vue'
+import {Commit, Document, DocumentType, HttpRequestMethods, SecurityPolicy} from '@/types'
 import axios, {AxiosResponse} from 'axios'
 
-export default Vue.extend({
-
+export default defineComponent({
   name: 'DocumentEditor',
   props: {},
   components: {
     GitHistory,
-  },
-  watch: {
-    $route: {
-      handler: async function() {
-        this.setLoadingDocStatus(true)
-        await this.setSelectedDataFromRouteParams()
-        this.setLoadingDocStatus(false)
-      },
-      deep: true,
-    },
   },
   data() {
     return {
@@ -267,7 +256,7 @@ export default Vue.extend({
       selectedBranch: null,
       selectedDocType: null as DocumentType,
 
-      docs: [],
+      docs: [] as Document[],
       docIdNames: [] as [Document['id'], Document['name']][],
       selectedDocID: null,
       cancelSource: axios.CancelToken.source(),
@@ -280,15 +269,14 @@ export default Vue.extend({
       branches: 0,
 
       componentsMap: {
-        'globalfilters': {component: GlobalFilterListEditor},
-        'flowcontrol': {component: FlowControlPolicyEditor},
-        'securitypolicies': {component: SecurityPoliciesEditor},
-        'ratelimits': {component: RateLimitsEditor},
-        'aclprofiles': {component: ACLEditor},
-        'contentfilterprofiles': {component: ContentFilterEditor},
-        'contentfilterrules': {component: ContentFilterRulesEditor},
+        'globalfilters': shallowRef({component: GlobalFilterListEditor}),
+        'flowcontrol': shallowRef({component: FlowControlPolicyEditor}),
+        'securitypolicies': shallowRef({component: SecurityPoliciesEditor}),
+        'ratelimits': shallowRef({component: RateLimitsEditor}),
+        'aclprofiles': shallowRef({component: ACLEditor}),
+        'contentfilterprofiles': shallowRef({component: ContentFilterEditor}),
+        'contentfilterrules': shallowRef({component: ContentFilterRulesEditor}),
       },
-
       apiRoot: RequestsUtils.confAPIRoot,
       apiVersion: RequestsUtils.confAPIVersion,
     }
@@ -313,14 +301,14 @@ export default Vue.extend({
       get(): Document {
         return this.docs?.[this.selectedDocIndex]
       },
-      set(newDoc): void {
-        this.$set(this.docs, this.selectedDocIndex, newDoc)
+      set(newDoc: Document): void {
+        this.docs[this.selectedDocIndex] = newDoc
       },
     },
 
     selectedDocNotDeletable(): boolean {
       return !this.selectedDoc ||
-          (this.selectedDoc as BasicDocument).id === '__default__' ||
+          this.selectedDoc.id === '__default__' ||
           this.isDocReferenced ||
           this.docs.length <= 1
     },
@@ -361,14 +349,28 @@ export default Vue.extend({
 
     async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
-      const branchNameFromRoute = this.$route.params.branch === 'undefined' ? null : this.$route.params.branch
-      this.selectedBranch = branchNameFromRoute || this.branchNames[0]
+      const branchNameFromRoute = this.$route.params?.branch?.toString()
+      if (branchNameFromRoute && this.branchNames.includes(branchNameFromRoute)) {
+        this.selectedBranch = branchNameFromRoute
+      } else {
+        this.selectedBranch = this.branchNames[0]
+      }
       const prevDocType = this.selectedDocType
-      this.selectedDocType = (this.$route.params.doc_type || Object.keys(this.componentsMap)[0]) as DocumentType
+      const docTypeFromRoute = this.$route.params?.doc_type?.toString()
+      if (docTypeFromRoute && Object.keys(this.componentsMap).includes(docTypeFromRoute)) {
+        this.selectedDocType = docTypeFromRoute as DocumentType
+      } else {
+        this.selectedDocType = Object.keys(this.componentsMap)[0] as DocumentType
+      }
       if (!prevDocType || prevDocType !== this.selectedDocType) {
         await this.loadDocs(this.selectedDocType)
       }
-      this.selectedDocID = this.$route.params.doc_id || this.docIdNames?.[0]?.[0]
+      const docIdFromRoute = this.$route.params?.doc_id?.toString()
+      if (docIdFromRoute && this.docIdNames.findIndex((idName) => idName[0] === docIdFromRoute)) {
+        this.selectedDocID = docIdFromRoute
+      } else {
+        this.selectedDocID = this.docIdNames?.[0]?.[0]
+      }
       this.isDocumentInvalid = false
       await this.loadSelectedDocData()
       this.addMissingDefaultsToDoc()
@@ -416,10 +418,11 @@ export default Vue.extend({
       this.setLoadingDocStatus(true)
       // check if the selected doc only has id and name, if it does, attempt to load the rest of the document data
       if (this.selectedDoc && Object.keys(this.selectedDoc).length === 2) {
-        this.selectedDoc = (await RequestsUtils.sendRequest({
+        const response = await RequestsUtils.sendRequest({
           methodName: 'GET',
           url: `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`,
-        })).data
+        })
+        this.selectedDoc = response?.data
       }
       this.setLoadingDocStatus(false)
     },
@@ -470,7 +473,7 @@ export default Vue.extend({
       const url = `configs/${config}/d/${document}/e/${entry}/v/`
       if (config && document && entry) {
         RequestsUtils.sendRequest({methodName: 'GET', url}).then((response: AxiosResponse<Commit[]>) => {
-          this.gitLog = response?.data
+          this.gitLog = response?.data || []
           if (interaction) {
             this.loadConfigs(true)
           }
@@ -503,7 +506,7 @@ export default Vue.extend({
     async switchDocID() {
       this.setLoadingDocStatus(true)
       this.loadGitLog()
-      const docName = (this.selectedDoc as BasicDocument)?.name
+      const docName = this.selectedDoc.name
       if (docName) {
         Utils.toast(
             `Switched to document ${docName} with ID "${this.selectedDocID}".`,
@@ -521,9 +524,6 @@ export default Vue.extend({
     },
 
     async forkDoc() {
-      if (!this.selectedDoc) {
-        return
-      }
       this.setLoadingDocStatus(true)
       this.isForkLoading = true
       let docToAdd = _.cloneDeep(this.selectedDoc) as Document
@@ -623,7 +623,7 @@ export default Vue.extend({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/securitypolicies/`,
       })
-      const docs = response?.data
+      const docs = response?.data || []
       const referencedACL: string[] = []
       const referencedContentFilter: string[] = []
       const referencedLimit: string[] = []

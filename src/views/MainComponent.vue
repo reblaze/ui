@@ -20,10 +20,10 @@
 <script lang="ts">
 import HeaderMain from '@/components/HeaderMain.vue'
 import SideMenu from '@/components/SideMenu.vue'
-import Vue from 'vue'
+import {defineComponent} from 'vue'
 
-export default Vue.extend({
-  name: 'MasterComponent',
+export default defineComponent({
+  name: 'MainComponent',
   components: {HeaderMain, SideMenu},
   methods: {},
 })

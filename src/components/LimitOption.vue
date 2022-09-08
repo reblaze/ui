@@ -18,8 +18,11 @@
                   title="Type"
                   data-qa="countby-dropdown">
             <option v-if="useDefaultSelf" value="self">HTTP request</option>
-            <option v-for="(value, id) in options" :selected="value === selectedType" :value="id" :key="id"
-                :data-qa="`${value}`">
+            <option v-for="(value, id) in options"
+              :data-qa="`${value}`"
+              :selected="value === selectedType"
+              :value="id"
+              :key="id">
               {{ value }}
             </option>
           </select>
@@ -75,8 +78,8 @@
 
 <script lang="ts">
 import _ from 'lodash'
-import DatasetsUtils from '@/assets/DatasetsUtils.ts'
-import Vue, {PropType} from 'vue'
+import DatasetsUtils from '@/assets/DatasetsUtils'
+import {defineComponent, PropType} from 'vue'
 import {LimitRuleType} from '@/types'
 
 export type OptionObject = {
@@ -99,7 +102,7 @@ export const limitAttributes = {
   'authority': 'Authority',
 }
 
-export default Vue.extend({
+export default defineComponent({
   name: 'LimitOption',
   props: {
     label: {
@@ -162,6 +165,7 @@ export default Vue.extend({
       options: limitOptionsTypes,
       attributes: attributes,
       type: this.option?.type || 'attrs',
+      prevSelectedOption: null as OptionObject,
     }
   },
   computed: {
@@ -196,12 +200,19 @@ export default Vue.extend({
     },
   },
   updated() {
-    this.$emit('change', {...this.selectedOption})
+    if (!_.isEqual(this.prevSelectedOption, this.selectedOption)) {
+      this.prevSelectedOption = {...this.selectedOption}
+      this.$emit('change', {...this.selectedOption})
+    }
   },
+  emits: ['change', 'remove'],
   methods: {
     isCategoryArgsCookiesHeaders(limitRuleType: LimitRuleType) {
       return (new RegExp('(args|cookies|headers)')).test(limitRuleType)
     },
+  },
+  mounted() {
+    this.prevSelectedOption = {...this.selectedOption}
   },
 })
 </script>

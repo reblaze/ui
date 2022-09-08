@@ -1,13 +1,14 @@
+// @ts-nocheck
 import ACLEditor from '@/doc-editors/ACLEditor.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import {describe, test, expect, beforeEach} from '@jest/globals'
-import {shallowMount, Wrapper} from '@vue/test-utils'
-import Vue from 'vue'
+import {shallowMount} from '@vue/test-utils'
 import {ACLProfile} from '@/types'
+import {nextTick} from 'vue'
 
 describe('ACLEditor.vue', () => {
   let docs: ACLProfile[]
-  let wrapper: Wrapper<Vue>
+  let wrapper: any
   beforeEach(() => {
     docs = [
       {
@@ -34,7 +35,7 @@ describe('ACLEditor.vue', () => {
       },
     ]
     wrapper = shallowMount(ACLEditor, {
-      propsData: {
+      props: {
         selectedDoc: docs[0],
       },
     })
@@ -54,84 +55,75 @@ describe('ACLEditor.vue', () => {
     expect(tagsWithWarning.length).toEqual(0)
   })
 
-  test('should show a warning when there are duplicate tags', async () => {
+  test('should show a warning when there are duplicate tags', () => {
     docs[0]['deny'].push('test-tag')
     docs[0]['allow'].push('test-tag')
     wrapper = shallowMount(ACLEditor, {
-      propsData: {
+      props: {
         selectedDoc: docs[0],
       },
     })
-    await Vue.nextTick()
     const tagsWithWarning = wrapper.findAll('.has-text-danger')
     expect(tagsWithWarning.length).toEqual(2)
   })
 
-  test('should show tags as crossed when there are is `all` tag in higher priority', async () => {
+  test('should show tags as crossed when there are is `all` tag in higher priority', () => {
     docs[0]['passthrough'].push('all')
     wrapper = shallowMount(ACLEditor, {
-      propsData: {
+      props: {
         selectedDoc: docs[0],
       },
     })
-    await Vue.nextTick()
     const tagCells = wrapper.findAll('.tag-cell')
-    const tagCellsCrossed = tagCells.filter((item) => item.element.classList.contains('tag-crossed'))
+    const tagCellsCrossed = tagCells.filter((item: any) => item.element.classList.contains('tag-crossed'))
     expect(tagCellsCrossed.length).toEqual(3)
   })
 
-  test('should not show non bot tags as crossed when there are is `all` tag in higher bot priority', async () => {
+  test('should not show non bot tags as crossed when there are is `all` tag in higher bot priority', () => {
     docs[0]['deny_bot'].push('all')
     wrapper = shallowMount(ACLEditor, {
-      propsData: {
+      props: {
         selectedDoc: docs[0],
       },
     })
-    await Vue.nextTick()
     const tagCells = wrapper.findAll('.tag-cell')
-    const tagCellsCrossed = tagCells.filter((item) => item.element.classList.contains('tag-crossed'))
+    const tagCellsCrossed = tagCells.filter((item: any) => item.element.classList.contains('tag-crossed'))
     expect(tagCellsCrossed.length).toEqual(0)
   })
 
-  test('should show bot tags as crossed when there are is `all` tag in higher bot priority', async () => {
+  test('should show bot tags as crossed when there are is `all` tag in higher bot priority', () => {
     docs[0]['allow_bot'].push('all')
     wrapper = shallowMount(ACLEditor, {
-      propsData: {
+      props: {
         selectedDoc: docs[0],
       },
     })
-    await Vue.nextTick()
     const tagCells = wrapper.findAll('.tag-cell')
-    const tagCellsCrossed = tagCells.filter((item) => item.element.classList.contains('tag-crossed'))
+    const tagCellsCrossed = tagCells.filter((item: any) => item.element.classList.contains('tag-crossed'))
     expect(tagCellsCrossed.length).toEqual(1)
   })
 
   test('should add tag to correct section when tag selected', async () => {
     const newPassthroughEntryButton = wrapper.findAll('.add-new-entry-button').at(1)
-    newPassthroughEntryButton.trigger('click')
-    await Vue.nextTick()
+    await newPassthroughEntryButton.trigger('click')
     const newTag = 'test-tag'
     const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
     tagAutocompleteInput.vm.$emit('tag-submitted', newTag)
-    await Vue.nextTick()
-    expect((wrapper.vm as any).localDoc.passthrough.includes(newTag)).toBeTruthy()
+    expect(wrapper.vm.localDoc.passthrough.includes(newTag)).toBeTruthy()
   })
 
-  test('should remove tag from correct section when tag removed', async () => {
+  test('should remove tag from correct section when tag removed', () => {
     const removePassthroughEntryButton = wrapper.findAll('.remove-entry-button').at(3)
     removePassthroughEntryButton.trigger('click')
-    await Vue.nextTick()
-    expect((wrapper.vm as any).localDoc.passthrough).toEqual(['internal'])
+    expect(wrapper.vm.localDoc.passthrough).toEqual(['internal'])
   })
 
   test('should hide tag input when tag selection cancelled', async () => {
     const newPassthroughEntryButton = wrapper.findAll('.add-new-entry-button').at(1)
-    newPassthroughEntryButton.trigger('click')
-    await Vue.nextTick();
-    (wrapper.vm as any).cancelAddNewTag()
-    await Vue.nextTick()
+    await newPassthroughEntryButton.trigger('click')
+    wrapper.vm.cancelAddNewTag()
     const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
-    await Vue.nextTick()
-    expect(tagAutocompleteInput.element).toBeUndefined()
+    await nextTick()
+    expect(tagAutocompleteInput.exists()).toBeFalsy()
   })
 })

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import {describe, expect, test} from '@jest/globals'
 

@@ -71,7 +71,7 @@
               </p>
             </div>
             <div class="field">
-              <response-action :action.sync="localDoc.action"
+              <response-action v-model:action="localDoc.action"
                                @update:action="emitDocUpdate"
                                label-separated-line/>
             </div>
@@ -119,7 +119,7 @@
                   </tr>
                   <tr>
                     <td>
-                      <tag-autocomplete-input v-if="addNewTagColName === filter"
+                    <tag-autocomplete-input v-if="addNewTagColName === filter"
                                               ref="tagAutocompleteInput"
                                               :clear-input-after-selection="true"
                                               :selection-type="'single'"
@@ -219,26 +219,26 @@
                         AND
                       </td>
                       <td class="width-80px is-vcentered">
-                        {{ listEntryTypes[sequenceEntry[0]].title }}
+                        {{ getListEntryTitle(sequenceEntry[0]) }}
                       </td>
                       <td class="width-100px">
-                        {{ sequenceEntry[1][0] }}
+                        {{ (sequenceEntry[1][0])}}
                       </td>
                       <td>
-                        {{ sequenceEntry[1][1] }}
+                        {{ (sequenceEntry[1][1])}}
                       </td>
                       <td class="width-80px">
                         <a class="is-small has-text-grey remove-entry-button"
-                           data-qa="remove-sequence-btn"
-                           title="Remove sequence entry"
-                           tabindex="0"
-                           @click="removeSequenceItemEntry(
-                               sequenceIndex, sequenceEntry[0], sequenceEntry[1][0])"
-                           @keypress.space.prevent
-                           @keypress.space="removeSequenceItemEntry(
-                               sequenceIndex, sequenceEntry[0], sequenceEntry[1][0])"
-                           @keypress.enter="removeSequenceItemEntry(
-                               sequenceIndex, sequenceEntry[0], sequenceEntry[1][0])">
+                            data-qa="remove-sequence-btn"
+                            title="Remove sequence entry"
+                            tabindex="0"
+                            @click="removeSequenceItemEntry(
+                                sequenceIndex, sequenceEntry[0], sequenceEntry[1][0])"
+                            @keypress.space.prevent
+                            @keypress.space="removeSequenceItemEntry(
+                                sequenceIndex, sequenceEntry[0], sequenceEntry[1][0])"
+                            @keypress.enter="removeSequenceItemEntry(
+                                sequenceIndex, sequenceEntry[0], sequenceEntry[1][0])">
                           remove
                         </a>
                       </td>
@@ -330,7 +330,7 @@
                 </div>
               </div>
               <button class="button is-small new-sequence-button"
-                             data-qa="new-sequence-btn"
+                      data-qa="new-sequence-btn"
                       @click="addSequenceItem()">
                 Create new sequence section
               </button>
@@ -348,13 +348,14 @@ import _ from 'lodash'
 import ResponseAction from '@/components/ResponseAction.vue'
 import LimitOption, {OptionObject} from '@/components/LimitOption.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
-import DatasetsUtils from '@/assets/DatasetsUtils.ts'
-import Vue from 'vue'
-import {ArgsCookiesHeadersType, FlowControlPolicy, IncludeExcludeType, LimitOptionType, LimitRuleType} from '@/types'
+import DatasetsUtils from '@/assets/DatasetsUtils'
+import {defineComponent} from 'vue'
+import {ArgsCookiesHeadersType, FlowControlPolicy, IncludeExcludeType} from '@/types'
+import {LimitOptionType, LimitRuleType, Dictionary} from '@/types'
 import {httpRequestMethods} from '@/types/const'
-import {Dictionary} from 'vue-router/types/router'
 
-export default Vue.extend({
+
+export default defineComponent({
   name: 'FlowControlPolicy',
 
   props: {
@@ -392,7 +393,11 @@ export default Vue.extend({
 
   computed: {
     localDoc(): FlowControlPolicy {
-      return _.cloneDeep(this.selectedDoc)
+      return _.cloneDeep(this.selectedDoc as FlowControlPolicy)
+    },
+
+    pickType(val: IncludeExcludeType[]): IncludeExcludeType[] {
+      return val
     },
 
     duplicateTags(): Dictionary<string> {
@@ -403,14 +408,20 @@ export default Vue.extend({
     },
   },
 
+  emits: ['update:selectedDoc'],
+
   methods: {
+    getListEntryTitle(seqEntry: ArgsCookiesHeadersType): ArgsCookiesHeadersType {
+      return this.listEntryTypes[seqEntry].title as ArgsCookiesHeadersType
+    },
+
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
     },
 
     // Key
 
-    getOptionTextKey(option: LimitOptionType, index: number) {
+    getOptionTextKey(option: LimitOptionType, index: number): string {
       const [type] = Object.keys(option)
       return `${this.localDoc.id}_${type}_${index}`
     },
@@ -444,7 +455,7 @@ export default Vue.extend({
       this.checkKeysValidity()
     },
 
-    checkKeysValidity() {
+    checkKeysValidity(): boolean {
       const keysToCheck = _.countBy(this.localDoc.key, (item) => {
         const key = Object.keys(item)[0]
         return `${key}_${item[key]}`
@@ -470,22 +481,22 @@ export default Vue.extend({
       this.newEntrySectionIndex = index
     },
 
-    sequenceItemEntries(sequenceIndex: number) {
+    sequenceItemEntries(sequenceIndex: number): (string | any[])[] {
       const sequenceItem = this.localDoc.sequence[sequenceIndex]
-      const headersEntries = Object.entries(sequenceItem.headers)
-      const cookiesEntries = Object.entries(sequenceItem.cookies)
-      const argsEntries = Object.entries(sequenceItem.args)
+      const headersEntries = Object.entries(sequenceItem.headers) as string | any[]
+      const cookiesEntries = Object.entries(sequenceItem.cookies) as string | any[]
+      const argsEntries = Object.entries(sequenceItem.args) as (string | any[])
       const mergedEntries = []
       for (let i = 0; i < headersEntries.length; i++) {
         if (headersEntries[i][0] !== 'host') {
-          mergedEntries.push(['headers', headersEntries[i]])
+          mergedEntries.push(['headers', headersEntries[i]] as ArgsCookiesHeadersType | any[])
         }
       }
       for (let i = 0; i < argsEntries.length; i++) {
-        mergedEntries.push(['args', argsEntries[i]])
+        mergedEntries.push(['args', argsEntries[i]] as ArgsCookiesHeadersType | any[])
       }
       for (let i = 0; i < cookiesEntries.length; i++) {
-        mergedEntries.push(['cookies', cookiesEntries[i]])
+        mergedEntries.push(['cookies', cookiesEntries[i]] as ArgsCookiesHeadersType | any[])
       }
       return mergedEntries
     },
@@ -593,7 +604,7 @@ export default Vue.extend({
   }
 }
 
-::v-deep .tag-input {
+:deep(.tag-input) {
   font-size: 0.58rem;
 }
 

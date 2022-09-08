@@ -1,12 +1,12 @@
+// @ts-nocheck
 import EntriesRelationList from '@/components/EntriesRelationList.vue'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
-import {mount, Wrapper, WrapperArray} from '@vue/test-utils'
+import {DOMWrapper, mount, VueWrapper} from '@vue/test-utils'
 import _ from 'lodash'
-import Vue from 'vue'
-import {GlobalFilter, GlobalFilterSection} from '@/types'
+import {GlobalFilter, GlobalFilterSection, Rule} from '@/types'
 
 describe('EntriesRelationList.vue', () => {
-  let wrapper: Wrapper<Vue>
+  let wrapper: VueWrapper
   let ruleData: GlobalFilter['rule']
   let entryData1: GlobalFilterSection
   let entryData2: GlobalFilterSection
@@ -44,21 +44,20 @@ describe('EntriesRelationList.vue', () => {
         entryData2,
       ],
     }
-    const onUpdate = (rule: GlobalFilter['rule']) => {
-      wrapper.setProps({rule})
+    const onUpdate = async (rule: GlobalFilter['rule']) => {
+      await wrapper.setProps({rule})
     }
     wrapper = mount(EntriesRelationList, {
-      propsData: {
-        rule: ruleData,
-        editable: true,
-      },
-      listeners: {
-        'update:rule': onUpdate,
+      props: {
+        'rule': ruleData,
+        'editable': true,
+        'onUpdate:rule': onUpdate,
       },
     })
   })
   afterEach(() => {
     jest.clearAllMocks()
+    jest.clearAllTimers()
   })
 
   test('should have a single table rendered for each entries list', () => {
@@ -82,8 +81,7 @@ describe('EntriesRelationList.vue', () => {
     const wantedEntryData = ['ip', '1.2.3.4']
     const newRuleData = JSON.parse(JSON.stringify(ruleData))
     newRuleData.sections[0].entries = [wantedEntryData]
-    wrapper.setProps({rule: newRuleData})
-    await Vue.nextTick()
+    await wrapper.setProps({rule: newRuleData})
     const component = wrapper.findComponent(EntriesRelationList)
     const categories = component.findAll('.entry-category')
     const values = component.findAll('.entry-value')
@@ -98,8 +96,7 @@ describe('EntriesRelationList.vue', () => {
   })
 
   test('should not break if data changes to invalid data', async () => {
-    (entryData1 as any) = {}
-    await Vue.nextTick()
+    entryData1 = {}
     const component = wrapper.findComponent(EntriesRelationList)
     expect(component).toBeTruthy()
   })
@@ -109,11 +106,9 @@ describe('EntriesRelationList.vue', () => {
       const component = wrapper.findComponent(EntriesRelationList)
       const section = component.findAll('.section').at(1)
       const sectionRelationToggle = section.find('.section-relation-toggle')
-      sectionRelationToggle.trigger('click')
-      await Vue.nextTick()
+      await sectionRelationToggle.trigger('click')
       expect(sectionRelationToggle.text()).toEqual('OR')
-      sectionRelationToggle.trigger('click')
-      await Vue.nextTick()
+      await sectionRelationToggle.trigger('click')
       expect(sectionRelationToggle.text()).toEqual('AND')
     })
 
@@ -129,20 +124,18 @@ describe('EntriesRelationList.vue', () => {
           '/account',
         ],
       ]
-      wrapper.setProps({rule: newRuleData})
-      await Vue.nextTick()
+      await wrapper.setProps({rule: newRuleData})
       const component = wrapper.findComponent(EntriesRelationList)
       const section = component.findAll('.section').at(0)
       const sectionRelationToggle = section.find('.section-relation-toggle')
-      sectionRelationToggle.trigger('click')
-      await Vue.nextTick()
+      await sectionRelationToggle.trigger('click')
       expect(sectionRelationToggle.text()).toEqual('OR')
     })
   })
 
   describe('large data pagination', () => {
-    let checkedComponent: Wrapper<Vue>
-    let checkedTable: Wrapper<Vue>
+    let checkedComponent: VueWrapper
+    let checkedTable: DOMWrapper
     beforeEach(() => {
       entryData1 = {
         relation: 'AND',
@@ -189,13 +182,15 @@ describe('EntriesRelationList.vue', () => {
         wrapper.setProps({rule})
       }
       wrapper = mount(EntriesRelationList, {
-        propsData: {
-          rule: ruleData,
-          editable: true,
+        props: {
+          'rule': ruleData,
+          'editable': true,
+          'onUpdate:rule': onUpdate,
+          // 'onUpdate:update': onUpdate,
         },
-        listeners: {
-          update: onUpdate,
-        },
+        // listeners: {
+        //   update:
+        // },
       })
       checkedComponent = wrapper.findComponent(EntriesRelationList)
       checkedTable = checkedComponent.findAll('.entries-table').at(0)
@@ -208,8 +203,7 @@ describe('EntriesRelationList.vue', () => {
 
     test('should correctly render next page when next page button is clicked', async () => {
       const nextPageButton = checkedTable.find('.pagination-next')
-      nextPageButton.trigger('click')
-      await Vue.nextTick()
+      await nextPageButton.trigger('click')
       checkedTable = checkedComponent.findAll('.entries-table').at(0)
       const entryRows = checkedTable.findAll('.entry-row')
       expect(entryRows.length).toEqual(10)
@@ -217,18 +211,15 @@ describe('EntriesRelationList.vue', () => {
 
     test('should have next page button disabled if currently in last page', async () => {
       const nextPageButton = checkedTable.find('.pagination-next')
-      nextPageButton.trigger('click')
-      await Vue.nextTick()
+      await nextPageButton.trigger('click')
       expect(nextPageButton.attributes('disabled')).toBeTruthy()
     })
 
     test('should correctly render prev page when next prev button is clicked', async () => {
       const nextPageButton = checkedTable.find('.pagination-next')
-      nextPageButton.trigger('click')
-      await Vue.nextTick()
+      await nextPageButton.trigger('click')
       const prevPageButton = checkedTable.find('.pagination-previous')
-      prevPageButton.trigger('click')
-      await Vue.nextTick()
+      await prevPageButton.trigger('click')
       checkedTable = checkedComponent.findAll('.entries-table').at(0)
       const entryRows = checkedTable.findAll('.entry-row')
       expect(entryRows.length).toEqual(20)
@@ -243,7 +234,7 @@ describe('EntriesRelationList.vue', () => {
   describe('rule prop validator', () => {
     let validator: Function
     beforeEach(() => {
-      validator = (wrapper.vm as any).$options.props.rule.validator
+      validator = wrapper.vm.$options.props.rule.validator
     })
 
     test('should return true for data in the correct schema', () => {
@@ -307,14 +298,14 @@ describe('EntriesRelationList.vue', () => {
 
     test('should not have the option to add component if not editable', () => {
       wrapper = mount(EntriesRelationList, {
-        propsData: {
+        props: {
           rule: ruleData,
           editable: false,
         },
       })
       const component = wrapper.findComponent(EntriesRelationList)
       const addSectionButton = component.find('.add-section-button')
-      expect(addSectionButton.element).toBeUndefined()
+      expect(addSectionButton.exists()).toBeFalsy()
     })
   })
 
@@ -322,8 +313,7 @@ describe('EntriesRelationList.vue', () => {
     test('should remove section', async () => {
       const component = wrapper.findComponent(EntriesRelationList)
       const removeSectionButton = component.find('.remove-section-button')
-      removeSectionButton.trigger('click')
-      await Vue.nextTick()
+      await removeSectionButton.trigger('click')
       const tables = wrapper.findAll('.entries-table')
       expect(tables.length).toEqual(1)
     })
@@ -331,26 +321,26 @@ describe('EntriesRelationList.vue', () => {
     test('should not have the option to remove section if no sections exist', () => {
       ruleData.sections = []
       wrapper = mount(EntriesRelationList, {
-        propsData: {
+        props: {
           rule: ruleData,
           editable: true,
         },
       })
       const component = wrapper.findComponent(EntriesRelationList)
       const removeSectionButton = component.find('.remove-section-button')
-      expect(removeSectionButton.element).toBeUndefined()
+      expect(removeSectionButton.exists()).toBeFalsy()
     })
 
     test('should not have the option to remove component if not editable', () => {
       wrapper = mount(EntriesRelationList, {
-        propsData: {
+        props: {
           rule: ruleData,
           editable: false,
         },
       })
       const component = wrapper.findComponent(EntriesRelationList)
       const removeSectionButton = component.find('.remove-section-button')
-      expect(removeSectionButton.element).toBeUndefined()
+      expect(removeSectionButton.exists()).toBeFalsy()
     })
   })
 
@@ -358,154 +348,136 @@ describe('EntriesRelationList.vue', () => {
     test('should open new entry row', async () => {
       const component = wrapper.findComponent(EntriesRelationList)
       const addEntryButton = component.find('.add-entry-button')
-      addEntryButton.trigger('click')
-      await Vue.nextTick()
+      await addEntryButton.trigger('click')
       const newEntryRow = component.find('.new-entry-row')
-      expect(newEntryRow.element).toBeDefined()
+      expect(newEntryRow.exists()).toBeTruthy()
     })
 
     test('should add new entry from input when confirm button is clicked', async () => {
       const component = wrapper.findComponent(EntriesRelationList)
       const addEntryButton = component.find('.add-entry-button')
-      addEntryButton.trigger('click')
-      await Vue.nextTick()
+      await addEntryButton.trigger('click')
       const newEntryRow = component.find('.new-entry-row')
       const newEntryTextarea = newEntryRow.find('.new-entry-textarea')
-      newEntryTextarea.setValue('1.2.3.4#annotation')
+      await newEntryTextarea.setValue('1.2.3.4#annotation')
       const confirmAddEntryButton = component.find('.confirm-add-entry-button')
-      confirmAddEntryButton.trigger('click')
-      await Vue.nextTick()
-      expect((wrapper.vm as any).rule.sections[0].entries.length).toEqual(3)
-      expect((wrapper.vm as any).rule.sections[0].entries[2]).toEqual(['ip', '1.2.3.4', 'annotation'])
+      await confirmAddEntryButton.trigger('click')
+      expect(wrapper.vm.rule.sections[0].entries.length).toEqual(3)
+      expect(wrapper.vm.rule.sections[0].entries[2]).toEqual(['ip', '1.2.3.4', 'annotation'])
     })
 
     test('should add new entry from input with general annotation when confirm button is clicked', async () => {
       const component = wrapper.findComponent(EntriesRelationList)
       const addEntryButton = component.find('.add-entry-button')
-      addEntryButton.trigger('click')
-      await Vue.nextTick()
+      await addEntryButton.trigger('click')
       const newEntryRow = component.find('.new-entry-row')
       const newEntryTextarea = newEntryRow.find('.new-entry-textarea')
-      newEntryTextarea.setValue('1.2.3.4')
+      await newEntryTextarea.setValue('1.2.3.4')
       const newEntryAnnotation = newEntryRow.find('.new-entry-value-annotation-input')
-      newEntryAnnotation.setValue('annot')
+      await newEntryAnnotation.setValue('annot')
       const confirmAddEntryButton = component.find('.confirm-add-entry-button')
-      confirmAddEntryButton.trigger('click')
-      await Vue.nextTick()
-      expect((wrapper.vm as any).rule.sections[0].entries.length).toEqual(3)
-      expect((wrapper.vm as any).rule.sections[0].entries[2]).toEqual(['ip', '1.2.3.4', 'annot'])
+      await confirmAddEntryButton.trigger('click')
+      expect(wrapper.vm.rule.sections[0].entries.length).toEqual(3)
+      expect(wrapper.vm.rule.sections[0].entries[2]).toEqual(['ip', '1.2.3.4', 'annot'])
     })
 
     test('should add multiple new entries from input when confirm button is clicked', async () => {
       const component = wrapper.findComponent(EntriesRelationList)
       const addEntryButton = component.find('.add-entry-button')
-      addEntryButton.trigger('click')
-      await Vue.nextTick()
+      await addEntryButton.trigger('click')
       const newEntryRow = component.find('.new-entry-row')
       const newEntryTextarea = newEntryRow.find('.new-entry-textarea')
-      newEntryTextarea.setValue('1.2.3.4#annotation\n127.0.0.1#localhost')
+      await newEntryTextarea.setValue('1.2.3.4#annotation\n127.0.0.1#localhost')
       const confirmAddEntryButton = component.find('.confirm-add-entry-button')
-      confirmAddEntryButton.trigger('click')
-      await Vue.nextTick()
-      expect((wrapper.vm as any).rule.sections[0].entries.length).toEqual(4)
-      expect((wrapper.vm as any).rule.sections[0].entries[2]).toEqual(['ip', '1.2.3.4', 'annotation'])
-      expect((wrapper.vm as any).rule.sections[0].entries[3]).toEqual(['ip', '127.0.0.1', 'localhost'])
+      await confirmAddEntryButton.trigger('click')
+      expect(wrapper.vm.rule.sections[0].entries.length).toEqual(4)
+      expect(wrapper.vm.rule.sections[0].entries[2]).toEqual(['ip', '1.2.3.4', 'annotation'])
+      expect(wrapper.vm.rule.sections[0].entries[3]).toEqual(['ip', '127.0.0.1', 'localhost'])
     })
 
     test('should add multiple new entries with general' +
       'annotation from input when confirm button is clicked', async () => {
       const component = wrapper.findComponent(EntriesRelationList)
       const addEntryButton = component.find('.add-entry-button')
-      addEntryButton.trigger('click')
-      await Vue.nextTick()
+      await addEntryButton.trigger('click')
       const newEntryRow = component.find('.new-entry-row')
       const newEntryTextarea = newEntryRow.find('.new-entry-textarea')
-      newEntryTextarea.setValue('1.2.3.4\n127.0.0.1#localhost')
+      await newEntryTextarea.setValue('1.2.3.4\n127.0.0.1#localhost')
       const newEntryAnnotation = newEntryRow.find('.new-entry-value-annotation-input')
-      newEntryAnnotation.setValue('annot')
+      await newEntryAnnotation.setValue('annot')
       const confirmAddEntryButton = component.find('.confirm-add-entry-button')
-      confirmAddEntryButton.trigger('click')
-      await Vue.nextTick()
-      expect((wrapper.vm as any).rule.sections[0].entries.length).toEqual(4)
-      expect((wrapper.vm as any).rule.sections[0].entries[2]).toEqual(['ip', '1.2.3.4', 'annot'])
-      expect((wrapper.vm as any).rule.sections[0].entries[3]).toEqual(['ip', '127.0.0.1', 'localhost'])
+      await confirmAddEntryButton.trigger('click')
+      expect(wrapper.vm.rule.sections[0].entries.length).toEqual(4)
+      expect(wrapper.vm.rule.sections[0].entries[2]).toEqual(['ip', '1.2.3.4', 'annot'])
+      expect(wrapper.vm.rule.sections[0].entries[3]).toEqual(['ip', '127.0.0.1', 'localhost'])
     })
 
     test('should add new entries from name-value input when confirm button is clicked', async () => {
       const component = wrapper.findComponent(EntriesRelationList)
       const addEntryButton = component.find('.add-entry-button')
-      addEntryButton.trigger('click')
-      await Vue.nextTick()
+      await addEntryButton.trigger('click')
       const newEntryRow = component.find('.new-entry-row')
       const typeSelection = newEntryRow.find('.new-entry-type-selection')
-      typeSelection.trigger('click')
+      await typeSelection.trigger('click')
       const options = typeSelection.findAll('option')
-      options.at(7).setSelected()
-      await Vue.nextTick()
+      await typeSelection.setValue(options.at(7).element.value)
       const newEntryInputName = newEntryRow.find('.new-entry-name-input')
-      newEntryInputName.setValue('something')
+      await newEntryInputName.setValue('something')
       const newEntryInputValue = newEntryRow.find('.new-entry-value-annotation-input')
-      newEntryInputValue.setValue('right')
+      await newEntryInputValue.setValue('right')
       const confirmAddEntryButton = component.find('.confirm-add-entry-button')
-      confirmAddEntryButton.trigger('click')
-      await Vue.nextTick()
-      expect((wrapper.vm as any).rule.sections[0].entries.length).toEqual(3)
-      expect((wrapper.vm as any).rule.sections[0].entries[2]).toEqual(['headers', ['something', 'right']])
+      await confirmAddEntryButton.trigger('click')
+      expect(wrapper.vm.rule.sections[0].entries.length).toEqual(3)
+      expect(wrapper.vm.rule.sections[0].entries[2]).toEqual(['headers', ['something', 'right']])
     })
 
     test('should not add new entries from multi-line' +
       'input when confirm button is clicked if has too few arguments', async () => {
       const component = wrapper.findComponent(EntriesRelationList)
       const addEntryButton = component.find('.add-entry-button')
-      addEntryButton.trigger('click')
-      await Vue.nextTick()
+      await addEntryButton.trigger('click')
       const newEntryRow = component.find('.new-entry-row')
       const typeSelection = newEntryRow.find('.new-entry-type-selection')
-      typeSelection.trigger('click')
+      await typeSelection.trigger('click')
       const options = typeSelection.findAll('option')
-      options.at(7).setSelected()
-      await Vue.nextTick()
+      await typeSelection.setValue(options.at(7).element.value)
       const newEntryInputName = newEntryRow.find('.new-entry-name-input')
-      newEntryInputName.setValue('something')
+      await newEntryInputName.setValue('something')
       const newEntryInputValue = newEntryRow.find('.new-entry-value-annotation-input')
-      newEntryInputValue.setValue('')
+      await newEntryInputValue.setValue('')
       const confirmAddEntryButton = component.find('.confirm-add-entry-button')
-      confirmAddEntryButton.trigger('click')
-      await Vue.nextTick()
-      expect((wrapper.vm as any).rule.sections[0].entries.length).toEqual(2)
+      await confirmAddEntryButton.trigger('click')
+      expect(wrapper.vm.rule.sections[0].entries.length).toEqual(2)
     })
 
     test('should not show new entry button if not editable', () => {
       wrapper = mount(EntriesRelationList, {
-        propsData: {
+        props: {
           rule: ruleData,
           editable: false,
         },
       })
       const component = wrapper.findComponent(EntriesRelationList)
       const addEntryButton = component.find('.add-entry-button')
-      expect(addEntryButton.element).toBeUndefined()
+      expect(addEntryButton.exists()).toBeFalsy()
     })
 
     test('should set section relation to `OR` if two items of same category added', async () => {
       const component = wrapper.findComponent(EntriesRelationList)
       // set relation to AND
       const sectionRelationToggle = component.findAll('.section-relation-toggle').at(0)
-      sectionRelationToggle.trigger('click')
-      await Vue.nextTick()
+      await sectionRelationToggle.trigger('click')
       expect(sectionRelationToggle.text()).toEqual('AND')
       // open new entry row
       const addEntryButton = component.find('.add-entry-button')
-      addEntryButton.trigger('click')
-      await Vue.nextTick()
+      await addEntryButton.trigger('click')
       // add input to new entry row
       const newEntryRow = component.find('.new-entry-row')
       const newEntryTextarea = newEntryRow.find('.new-entry-textarea')
-      newEntryTextarea.setValue('1.2.3.4#annotation\n1.2.3.5#wow')
+      await newEntryTextarea.setValue('1.2.3.4#annotation\n1.2.3.5#wow')
       // confirm add new entry
       const confirmAddEntryButton = component.find('.confirm-add-entry-button')
-      confirmAddEntryButton.trigger('click')
-      await Vue.nextTick()
+      await confirmAddEntryButton.trigger('click')
       // check
       expect(sectionRelationToggle.text()).toEqual('OR')
     })
@@ -518,71 +490,67 @@ describe('EntriesRelationList.vue', () => {
           '/login',
         ],
       ]
-      wrapper.setProps({rule: newRuleData})
-      await Vue.nextTick()
+      await wrapper.setProps({rule: newRuleData})
       const component = wrapper.findComponent(EntriesRelationList)
       // check relation is AND
       const sectionRelationToggle = component.findAll('.section-relation-toggle').at(0)
       expect(sectionRelationToggle.text()).toEqual('AND')
       // open new entry row
       const addEntryButton = component.find('.add-entry-button')
-      addEntryButton.trigger('click')
-      await Vue.nextTick()
+      await addEntryButton.trigger('click')
       // add input to new entry row
       const newEntryRow = component.find('.new-entry-row')
       const newEntryTextarea = newEntryRow.find('.new-entry-textarea')
-      newEntryTextarea.setValue('1.2.3.4#annotation')
+      await newEntryTextarea.setValue('1.2.3.4#annotation')
       // confirm add new entry
       const confirmAddEntryButton = component.find('.confirm-add-entry-button')
-      confirmAddEntryButton.trigger('click')
-      await Vue.nextTick()
+      await confirmAddEntryButton.trigger('click')
       // check relation is still AND
       expect(sectionRelationToggle.text()).toEqual('AND')
     })
 
     test('should not set section relation to `OR` if two headers added', async () => {
+      const headerName = 'user-agent'
+      const headerValue = 'curl'
       const component = wrapper.findComponent(EntriesRelationList)
       // set relation to AND
-      const sectionRelationToggle = component.findAll('.section-relation-toggle').at(0)
-      sectionRelationToggle.trigger('click')
-      await Vue.nextTick()
+      const sectionRelationToggle: DOMWrapper = component.findAll('.section-relation-toggle').at(0)
+      await sectionRelationToggle.trigger('click')
       expect(sectionRelationToggle.text()).toEqual('AND')
       // open new entry row
       let addEntryButton = component.find('.add-entry-button')
-      addEntryButton.trigger('click')
-      await Vue.nextTick()
+      await addEntryButton.trigger('click')
       let newEntryRow = component.find('.new-entry-row')
       // change entry type to headers
       let typeSelection = newEntryRow.find('.new-entry-type-selection')
-      typeSelection.trigger('click')
+      await typeSelection.trigger('click')
       let options = typeSelection.findAll('option')
-      options.at(7).setSelected()
-      await Vue.nextTick()
+      await typeSelection.setValue(options.at(7).element.value)
       // add input to new entry row
-      let newEntryTextarea = newEntryRow.find('.new-entry-textarea')
-      newEntryTextarea.setValue('something\nright\nhere')
+      let newEntryInputName = newEntryRow.find('.new-entry-name-input')
+      await newEntryInputName.setValue(headerName)
+      let newEntryInputValue = newEntryRow.find('.new-entry-value-annotation-input')
+      await newEntryInputValue.setValue(headerValue)
       // confirm add new entry
       let confirmAddEntryButton = component.find('.confirm-add-entry-button')
-      confirmAddEntryButton.trigger('click')
-      await Vue.nextTick()
+      await confirmAddEntryButton.trigger('click')
       // open new entry row - second time
       addEntryButton = component.find('.add-entry-button')
-      addEntryButton.trigger('click')
-      await Vue.nextTick()
+      await addEntryButton.trigger('click')
       newEntryRow = component.find('.new-entry-row')
       // change entry type to headers - second time
       typeSelection = newEntryRow.find('.new-entry-type-selection')
-      typeSelection.trigger('click')
+      await typeSelection.trigger('click')
       options = typeSelection.findAll('option')
-      options.at(7).setSelected()
-      await Vue.nextTick()
+      await typeSelection.setValue(options.at(7).element.value)
       // add input to new entry row - second time
-      newEntryTextarea = newEntryRow.find('.new-entry-textarea')
-      newEntryTextarea.setValue('something\nright\nhere')
+      newEntryInputName = newEntryRow.find('.new-entry-name-input')
+      await newEntryInputName.setValue(headerName)
+      newEntryInputValue = newEntryRow.find('.new-entry-value-annotation-input')
+      await newEntryInputValue.setValue(headerValue)
       // confirm add new entry - second time
       confirmAddEntryButton = component.find('.confirm-add-entry-button')
-      confirmAddEntryButton.trigger('click')
-      await Vue.nextTick()
+      await confirmAddEntryButton.trigger('click')
       // check
       expect(sectionRelationToggle.text()).toEqual('AND')
     })
@@ -592,16 +560,14 @@ describe('EntriesRelationList.vue', () => {
     test('should close adding mode', async () => {
       const component = wrapper.findComponent(EntriesRelationList)
       const addEntryButton = component.find('.add-entry-button')
-      addEntryButton.trigger('click')
-      await Vue.nextTick()
+      await addEntryButton.trigger('click')
       const cancelEntryButton = component.find('.cancel-entry-button')
-      cancelEntryButton.trigger('click')
-      await Vue.nextTick()
-      expect((wrapper.vm as any).newEntrySectionIndex).toEqual(-1)
+      await cancelEntryButton.trigger('click')
+      expect(wrapper.vm.newEntrySectionIndex).toEqual(-1)
     })
     test('should remove empty section', async () => {
       wrapper = mount(EntriesRelationList, {
-        propsData: {
+        props: {
           rule: {
             relation: 'OR',
             sections: [],
@@ -611,11 +577,9 @@ describe('EntriesRelationList.vue', () => {
       })
       const component = wrapper.findComponent(EntriesRelationList)
       const addSectionButton = component.find('.add-section-button')
-      addSectionButton.trigger('click')
-      await Vue.nextTick()
+      await addSectionButton.trigger('click')
       const cancelEntryButton = component.find('.cancel-entry-button')
-      cancelEntryButton.trigger('click')
-      await Vue.nextTick()
+      await cancelEntryButton.trigger('click')
       expect(component.findAll('.section').length).toEqual(0)
     })
   })
@@ -624,12 +588,11 @@ describe('EntriesRelationList.vue', () => {
     test('should remove entry', async () => {
       const component = wrapper.findComponent(EntriesRelationList)
       const removeEntryButton = component.find('.remove-entry-button')
-      removeEntryButton.trigger('click')
-      await Vue.nextTick()
-      expect((wrapper.vm as any).rule.sections[0].entries.length).toEqual(1)
+      await removeEntryButton.trigger('click')
+      expect(wrapper.vm.rule.sections[0].entries.length).toEqual(1)
     })
     test('should remove section if no entries left', async () => {
-      const entryData3 = {
+      const entryData3: GlobalFilterSection = {
         relation: 'AND',
         entries: [
           [
@@ -638,7 +601,7 @@ describe('EntriesRelationList.vue', () => {
           ],
         ],
       }
-      const rule = {
+      const rule: Rule = {
         relation: 'AND',
         sections: [
           entryData1,
@@ -646,7 +609,7 @@ describe('EntriesRelationList.vue', () => {
         ],
       }
       wrapper = mount(EntriesRelationList, {
-        propsData: {
+        props: {
           rule,
           editable: true,
         },
@@ -654,120 +617,118 @@ describe('EntriesRelationList.vue', () => {
       const component = wrapper.findComponent(EntriesRelationList)
       const section = component.findAll('.section').at(1)
       const removeEntryButton = section.find('.remove-entry-button')
-      removeEntryButton.trigger('click')
-      await Vue.nextTick()
+      await removeEntryButton.trigger('click')
       expect(component.findAll('.section').length).toEqual(rule.sections.length - 1)
     })
   })
 
   describe('validators', () => {
-    let newEntryTextarea: Wrapper<Vue>
-    let newEntrySecondAttr: Wrapper<Vue>
-    let component: Wrapper<Vue>
-    let newEntryRows: WrapperArray<Vue>
-    let newEntryRow: Wrapper<Vue>
-    let confirmAddEntryButton: Wrapper<Vue>
-    let options: WrapperArray<Vue>
+    let newEntryTextarea: DOMWrapper<Element>
+    let newEntrySecondAttr: DOMWrapper<Element>
+    let component: VueWrapper
+    let newEntryRows: DOMWrapper<Element>[]
+    let newEntryRow: DOMWrapper<Element>
+    let confirmAddEntryButton: DOMWrapper<Element>
+    let options: DOMWrapper<HTMLOptionElement>[]
     beforeEach(async () => {
       component = wrapper.findComponent(EntriesRelationList)
       // open new entry row
       const addEntryButton = component.find('.add-entry-button')
-      addEntryButton.trigger('click')
-      await Vue.nextTick()
+      await addEntryButton.trigger('click')
       // add input to new entry row
       newEntryRows = component.findAll('.new-entry-row')
       newEntryRow = newEntryRows.at(0)
       newEntryTextarea = newEntryRow.find('.new-entry-textarea')
       newEntrySecondAttr = newEntryRow.find('.new-entry-value-annotation-input')
       const typeSelection = newEntryRow.find('.new-entry-type-selection')
-      typeSelection.trigger('click')
+      await typeSelection.trigger('click')
       options = typeSelection.findAll('option')
       confirmAddEntryButton = component.find('.confirm-add-entry-button')
     })
     test('should not add entry if it contains an error or empty first attr', async () => {
-      newEntryTextarea.setValue('')
+      await newEntryTextarea.setValue('')
       // confirm add new entry
-      confirmAddEntryButton.trigger('click')
-      await Vue.nextTick()
+      await confirmAddEntryButton.trigger('click')
       // check
       const entries = component.findAll('.entry-row')
       expect(entries.length).toEqual(entryData1.entries.length + entryData2.entries.length)
       expect(newEntryRows.length).toEqual(1)
     })
     test('should highlight duplicated entries', async () => {
-      newEntryTextarea.setValue('1.2.3.4\n1.2.3.4\n1.2.3.4')
+      await newEntryTextarea.setValue('1.2.3.4\n1.2.3.4\n1.2.3.4')
       // confirm add new entry
-      confirmAddEntryButton.trigger('click')
-      await Vue.nextTick()
+      await confirmAddEntryButton.trigger('click')
       // check
-      expect((wrapper.vm as any).duplicatedEntries.length).toEqual(1)
+      expect(wrapper.vm.duplicatedEntries.length).toEqual(1)
     })
     test('should validate duplicated entries if category is args, cookies, headers', async () => {
       // open new entry row
-      const section = component.findAll('.section').at(1)
-      const addEntryButton = section.find('.add-entry-button')
-      addEntryButton.trigger('click')
-      await Vue.nextTick()
+      const component = wrapper.findComponent(EntriesRelationList)
+      const addEntryButton = component.find('.add-entry-button')
+      await addEntryButton.trigger('click')
       // change entry type to headers
-      options.at(7).setSelected()
-      await Vue.nextTick()
+      const typeSelection = newEntryRow.find('.new-entry-type-selection')
+      await typeSelection.trigger('click')
+      options = typeSelection.findAll('option')
+      await typeSelection.setValue(options.at(7).element.value)
       // add input to new entry row
-      newEntryRow = section.find('.new-entry-row')
+      newEntryRow = component.find('.new-entry-row')
       const newEntryFirstAttr = newEntryRow.find('.new-entry-name-input')
       const duplicateValues = entryData2.entries[0][1]
-      newEntryFirstAttr.setValue(duplicateValues[0])
-      newEntrySecondAttr.setValue(duplicateValues[1])
+      await newEntryFirstAttr.setValue(duplicateValues[0])
+      await newEntrySecondAttr.setValue(duplicateValues[1])
       // confirm add new entry
       confirmAddEntryButton = newEntryRow.find('.confirm-add-entry-button')
-      confirmAddEntryButton.trigger('click')
-      await Vue.nextTick()
+      await confirmAddEntryButton.trigger('click')
       // check
-      expect((wrapper.vm as any).duplicatedEntries.length).toEqual(1)
+      expect(wrapper.vm.duplicatedEntries.length).toEqual(1)
     })
     // TODO: Fix regex test for rust standards and re-apply this
     // test('should validate value as regex if category is path, query, or uri', async () => {
     //   // change entry type to path
-    //   options.at(0).setSelected()
-    //   await Vue.nextTick()
+    //   await nextTick()
     //   newEntryTextarea.setValue('\\')
     //   // check
-    //   expect((wrapper.vm as any).entriesErrors.length).toEqual(1)
+    //   expect(wrapper.vm.entriesErrors.length).toEqual(1)
     // })
     test('should validate value as ip if category is ip', async () => {
       // change entry type to ip
-      options.at(4).setSelected()
-      await Vue.nextTick()
-      newEntryTextarea.setValue('1.1.1.1.')
+      const typeSelection = newEntryRow.find('.new-entry-type-selection')
+      await typeSelection.trigger('click')
+      options = typeSelection.findAll('option')
+      await typeSelection.setValue(options.at(4).element.value)
+      await newEntryTextarea.setValue('1.1.1.1.')
       // check
-      expect((wrapper.vm as any).entriesErrors.length).toEqual(1)
+      expect(wrapper.vm.entriesErrors.length).toEqual(1)
     })
     test('should validate value as non-empty if category is not ip, path, query, uri', async () => {
       // change entry type to method
-      options.at(3).setSelected()
-      await Vue.nextTick()
-      newEntryTextarea.setValue(' ')
+      const typeSelection = newEntryRow.find('.new-entry-type-selection')
+      await typeSelection.trigger('click')
+      options = typeSelection.findAll('option')
+      await typeSelection.setValue(options.at(3).element.value)
+      await newEntryTextarea.setValue(' ')
       // check
-      expect((wrapper.vm as any).entriesErrors.length).toEqual(1)
+      expect(wrapper.vm.entriesErrors.length).toEqual(1)
     })
     // TODO: Fix regex test for rust standards and re-apply this
     // test('should validate second attribute if category is args, cookies, headers', async () => {
     //   // change entry type to headers
-    //   options.at(7).setSelected()
-    //   await Vue.nextTick()
+    //   await nextTick()
     //   newEntrySecondAttr.setValue('\\')
     //   // check
-    //   expect((wrapper.vm as any).entriesErrors.length).toEqual(1)
+    //   expect(wrapper.vm.entriesErrors.length).toEqual(1)
     // })
     test('should clear errors', async () => {
       // change entry type to headers
-      options.at(7).setSelected()
-      await Vue.nextTick()
-      newEntrySecondAttr.setValue('\\')
-      await Vue.nextTick()
-      newEntrySecondAttr.setValue('something')
-      await Vue.nextTick()
+      const typeSelection = newEntryRow.find('.new-entry-type-selection')
+      await typeSelection.trigger('click')
+      options = typeSelection.findAll('option')
+      await typeSelection.setValue(options.at(7).element.value)
+      await newEntrySecondAttr.setValue('\\')
+      await newEntrySecondAttr.setValue('something')
       // check
-      expect((wrapper.vm as any).entriesErrors.length).toEqual(0)
+      expect(wrapper.vm.entriesErrors.length).toEqual(0)
     })
   })
 })

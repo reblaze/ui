@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
+    "useDefineForClassFields": true,
     "strict": true,
     "jsx": "preserve",
     "importHelpers": true,
@@ -9,24 +10,20 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "strictNullChecks": false,
-    "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "sourceMap": true,
     "baseUrl": ".",
+    "allowJs": true,
     "types": [
-      "webpack-env"
+      "webpack-env",
+      "node"
     ],
     "typeRoots": [
       "./src/types",
       "./node_modules/@types"
     ],
     "paths": {
-      "@/*": [
-        "src/*"
-      ],
-      "~/*": [
-        "src/*"
-      ]
+      "@/*": [ "./src/*"]
     },
     "lib": [
       "esnext",
@@ -38,11 +35,11 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
-    "src/**/*.vue"
+    "src/**/*.vue",
+    "**/*.d.ts"
   ],
   "exclude": [
-    "src/**/*.js",
-    "src/types/**",
+    "src/**/__tests__/*.ts",
     "node_modules"
   ]
 }

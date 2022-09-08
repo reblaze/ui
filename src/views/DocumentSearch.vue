@@ -145,13 +145,13 @@ import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
 import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
 import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
 import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
-import RequestsUtils from '@/assets/RequestsUtils.ts'
-import Vue, {VueConstructor} from 'vue'
+import RequestsUtils from '@/assets/RequestsUtils'
+import {defineComponent} from 'vue'
 import {Document, DocumentType, SecurityPolicyEntryMatch} from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import Utils from '@/assets/Utils'
 
-type SearchDocument = Document & {
+export type SearchDocument = Document & {
   docType: DocumentType
   description: string
   tags: string
@@ -167,7 +167,9 @@ type ReferencesMap = {
   [key: string]: string[]
 }
 
-export default Vue.extend({
+type ComponentTypes = typeof SecurityPoliciesEditor | typeof ACLEditor | typeof FlowControlPolicyEditor |
+typeof GlobalFilterListEditor | typeof RateLimitsEditor | typeof ContentFilterEditor
+export default defineComponent({
 
   name: 'DocumentSearch',
   props: {},
@@ -178,8 +180,8 @@ export default Vue.extend({
     // We load [securitypolicies] before [aclprofiles, contentfilterprofiles, ratelimits] so we can pull all references correctly
     const componentsMap: {
       [key in DocumentType]?: {
-        component: VueConstructor
-        title: typeof titles[key]
+        component: ComponentTypes,
+        title: typeof titles[key],
         fields: string
       }
     } = {

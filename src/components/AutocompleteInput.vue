@@ -3,25 +3,7 @@
   <div class="dropdown"
        :class="{'is-active': suggestionsVisible}">
     <div class="dropdown-trigger">
-      <textarea v-if="inputType === 'textarea'"
-                :value="autocompleteTextareaValue"
-                :title="title"
-                :placeholder="title"
-                :data-qa="title"
-                class="autocomplete-input textarea is-small"
-                @keyup.enter="selectTextareaValue"
-                @keyup.space.prevent
-                @keyup.down="focusNextSuggestion"
-                @keyup.up="focusPreviousSuggestion"
-                @keyup.esc="closeDropdown"
-                @keyup.delete.prevent="onTextareaDelete"
-                @input="onInput"
-                @blur="inputBlurred"
-                @focus="onTextareaFocus"
-                @mousedown.prevent="moveCursorToEnd"
-                ref="autocompleteInput" />
-      <input v-else
-             v-model="autocompleteValue"
+      <input v-model="autocompleteValue"
              :title="title"
              :placeholder="title"
              :data-qa="title"
@@ -29,8 +11,8 @@
              class="autocomplete-input input is-small"
              aria-haspopup="true"
              aria-controls="dropdown-menu"
-             @keyup.enter="selectValue"
-             @keyup.space="selectValue"
+             @keyup.enter="selectValue()"
+             @keyup.space="selectValue()"
              @keyup.down="focusNextSuggestion"
              @keyup.up="focusPreviousSuggestion"
              @keyup.esc="closeDropdown"
@@ -58,31 +40,22 @@
 </template>
 
 <script lang="ts">
-import Utils from '@/assets/Utils.ts'
-import Vue, {PropType, VueConstructor} from 'vue'
+import Utils from '@/assets/Utils'
+import {PropType, defineComponent} from 'vue'
 
 export type AutocompleteSuggestion = {
   prefix?: string
   value: string
 }
 
+export type SelectionType = 'single' | 'multiple'
+
 export type AutocompleteInputEvents = 'keyup' | 'keydown' | 'keypress' | 'focus' | 'blur'
 
-export default (Vue as VueConstructor<Vue & {
-  $refs: {
-    autocompleteInput: HTMLInputElement
-  },
-  divider: string,
-  autocompleteValue: string,
-}>).extend({
+export default defineComponent({
   name: 'AutocompleteInput',
 
   props: {
-    inputType: {
-      type: String,
-      default: 'input',
-      validator: (val: string) => ['input', 'textarea'].includes(val),
-    },
     initialValue: {
       type: String,
       default: '',
@@ -95,7 +68,7 @@ export default (Vue as VueConstructor<Vue & {
     autoFocus: Boolean,
     selectionType: {
       type: String,
-      validator(val) {
+      validator: (val: SelectionType) => {
         if (!val) {
           return false
         }
@@ -116,22 +89,24 @@ export default (Vue as VueConstructor<Vue & {
   },
 
   watch: {
-    initialValue(newVal) {
-      if (this.skipNextWatchUpdate) {
-        this.skipNextWatchUpdate = false
-        return
-      }
-      const newValFiltered = this.filterFunction ? this.filterFunction(newVal) : newVal
-      if (this.autocompleteValue !== newVal) {
-        this.autocompleteValue = newValFiltered
-        this.closeDropdown()
-      }
+    initialValue: {
+      handler: function(newVal) {
+        if (this.skipNextWatchUpdate) {
+          this.skipNextWatchUpdate = false
+          return
+        }
+        const newValFiltered = this.filterFunction ? this.filterFunction(newVal) : newVal
+        if (this.autocompleteValue !== newVal) {
+          this.autocompleteValue = newValFiltered
+          this.closeDropdown()
+        }
+      },
     },
   },
 
   mounted() {
     const events: AutocompleteInputEvents[] = ['keyup', 'keydown', 'keypress', 'focus', 'blur']
-    events.map((event) => {
+    events.map((event: AutocompleteInputEvents) => {
       this.$refs.autocompleteInput.addEventListener(event,
           ($event: Event): void => {
             this.$emit(event, $event)
@@ -149,7 +124,7 @@ export default (Vue as VueConstructor<Vue & {
       open: false,
       focusedSuggestionIndex: -1,
       inputBlurredTimeout: null,
-      divider: this.inputType === 'textarea' ? '\n' : ' ',
+      divider: ' ',
       skipNextWatchUpdate: false,
     }
   },
@@ -188,16 +163,9 @@ export default (Vue as VueConstructor<Vue & {
         }
       },
     },
-
-    autocompleteTextareaValue() {
-      return this.autocompleteValue.split(this.divider).map(
-        (val: string) => {
-          val = val.trim()
-          return val ? `• ${val.replace('• ', '')}` : val
-        },
-      ).join(this.divider)
-    },
   },
+
+  emits: ['tag-changed', 'value-changed', 'value-submitted', 'keyup', 'keydown', 'keypress', 'focus', 'blur'],
 
   methods: {
 
@@ -230,46 +198,11 @@ export default (Vue as VueConstructor<Vue & {
           this.$refs.autocompleteInput.focus()
         })
       }
-      if (this.inputType === 'textarea') {
-        this.autocompleteValue = `${this.autocompleteValue.trim()}${this.divider}`
-      }
       this.skipNextWatchUpdate = true
     },
 
-    moveCursorToEnd(event: KeyboardEvent) {
-      const element = event.target as HTMLTextAreaElement
-      element.focus()
-      element.setSelectionRange(element.value.length, element.value.length)
-    },
-
-    selectTextareaValue(event: KeyboardEvent) {
-      if (event.key === 'Enter' && this.autocompleteValue.endsWith(this.divider)) {
-        event.preventDefault()
-      }
-      if (!(event.target as HTMLTextAreaElement).value) {
-        event.preventDefault()
-        return
-      }
-      this.selectValue()
-    },
-
-    onTextareaFocus() {
-      if (this.autocompleteValue.trim()) {
-        this.autocompleteValue = `${this.autocompleteValue.trim()}${this.divider}`
-      }
-    },
-
-    onTextareaDelete() {
-      const valueArray = this.autocompleteValue.trim().split(this.divider)
-      valueArray.splice(-1)
-      this.autocompleteValue = valueArray.join(this.divider)
-      this.valueSubmitted()
-    },
-
-    onInput({target}: KeyboardEvent) {
-      this.autocompleteValue = (target as HTMLTextAreaElement).value
-      this.openDropdown()
-      this.valueSubmitted()
+    onEnter(event: Event) {
+      this.selectValue(true)
     },
 
     selectValue(skipFocus?: boolean) {
