@@ -5,6 +5,7 @@ import {mount, VueWrapper, DOMWrapper} from '@vue/test-utils'
 import axios from 'axios'
 import * as bulmaToast from 'bulma-toast'
 import {Options} from 'bulma-toast'
+import {nextTick} from 'vue'
 
 jest.mock('axios')
 
@@ -448,6 +449,79 @@ describe('AutocompleteInput', () => {
       const type: string = undefined
       const isValid = validator(type)
       expect(isValid).toEqual(false)
+    })
+
+
+    test('autocompleteValue should changes to initialValue when skipNextWatchUpdate = false', async () => {
+      wrapper = mount(AutocompleteInput, {
+        props: {
+          initialValue: 'aylon',
+        },
+      })
+      expect(wrapper.vm.autocompleteValue).toEqual('aylon')
+      await wrapper.setProps({initialValue: 'test'})
+      expect(wrapper.vm.autocompleteValue).toEqual('test')
+    })
+
+    test('autocompleteValue should NOT changes to initialValue when skipNextWatchUpdate = TRUE', async () => {
+      wrapper = mount(AutocompleteInput, {
+        props: {
+          initialValue: 'aylon',
+        },
+      })
+      await wrapper.setData({skipNextWatchUpdate: true})
+      await wrapper.setProps({initialValue: 'test'})
+      expect(wrapper.vm.autocompleteValue).toEqual('aylon')
+    })
+
+    test('should set focus on autocompleteInput', async () => {
+      const elem = document.createElement('div')
+      if (document.body) {
+        document.body.appendChild(elem)
+      }
+      wrapper = mount(AutocompleteInput, {
+        props: {
+          suggestions: suggestions,
+          autoFocus: true,
+          clearInputAfterSelection: false,
+        },
+        attachTo: elem,
+      })
+      const input = wrapper.find('.autocomplete-input')
+      const wrapperElement = wrapper.find({ref: 'autocompleteInput'})
+      console.log('wrapperElement', wrapperElement)
+      await input.setValue('value')
+      await input.trigger('input')
+      const dropdownItems = wrapper.findAll('.dropdown-item')
+      await dropdownItems.at(1).trigger('mousedown')
+      // mousedown fire suggestionClick that fire this.$refs.autocompleteInput.focus() line 198
+      await nextTick()
+      expect(wrapper.emitted('focus')).toBeTruthy
+      expect(wrapperElement.element).toBe(document.activeElement)
+    })
+
+    test('onEnter should fire selectValue set', async () => {
+      wrapper = mount(AutocompleteInput, {
+        props: {
+          suggestions: suggestions,
+          autoFocus: true,
+          clearInputAfterSelection: false,
+        },
+      })
+      const spy = jest.spyOn(wrapper.vm, 'selectValue')
+      wrapper.vm.onEnter()
+      // await input.trigger('keyup.enter')
+      wrapper.vm.$forceUpdate()
+      await nextTick()
+      expect(spy).toHaveBeenCalled()
+    })
+
+    test('onDestroyed is fired', async () => {
+      wrapper = mount(AutocompleteInput)
+      const spy = jest.spyOn(wrapper.vm, 'clearInputBlurredTimeout')
+      wrapper.unmount()
+      expect(spy).toBeDefined()
+      expect(spy).toHaveBeenCalled()
     })
   })
 })

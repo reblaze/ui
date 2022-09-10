@@ -437,11 +437,11 @@ export default defineComponent({
       this.$nextTick(this.validateDuplicates)
     },
 
-    cancelAllEntries() {
-      this.setNewEntryIndex(-1)
-      this.invalidIPs = []
-      this.clearError()
-    },
+    // cancelAllEntries() {
+    //   this.setNewEntryIndex(-1)
+    //   this.invalidIPs = []
+    //   this.clearError()
+    // },
 
     cancelEntry(sectionIndex: number) {
       this.setNewEntryIndex(-1)

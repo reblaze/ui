@@ -264,9 +264,10 @@ export default defineComponent({
     },
   },
 
-  destroyed() {
+  unmounted() {
     this.clearInputBlurredTimeout()
   },
+
 })
 </script>
 

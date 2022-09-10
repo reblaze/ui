@@ -730,5 +730,33 @@ describe('EntriesRelationList.vue', () => {
       // check
       expect(wrapper.vm.entriesErrors.length).toEqual(0)
     })
+
+    test('validate should by regrex', async () => {
+      // wrapper = mount(EntriesRelationList, {
+      //   props: {
+      //     initialValue: 'aylon',
+      //   },
+      // })
+      const spy = jest.spyOn(wrapper.vm, 'validateRegex')
+      const component = wrapper.findComponent(EntriesRelationList)
+      const addEntryButton = component.find('.add-entry-button')
+      await addEntryButton.trigger('click')
+      // change entry type to headers
+      const typeSelection = newEntryRow.find('.new-entry-type-selection')
+      await typeSelection.trigger('click')
+      options = typeSelection.findAll('option')
+      await typeSelection.setValue(options.at(7).element.value)
+      // add input to new entry row
+      await wrapper.setData({newEntryCategory: 'path'})
+      wrapper.vm.$forceUpdate()
+      newEntryRow = component.find('.new-entry-row')
+      expect(wrapper.vm.newEntryCategory).toEqual('path')
+      const textArea = newEntryRow.find('.new-entry-textarea')
+      const input = newEntryRow.find('.new-entry-name-input')
+      expect(input.exists()).toBe(false)
+      expect(textArea.exists()).toBe(true)
+      await textArea.trigger('input')
+      expect(spy).toHaveBeenCalled()
+    })
   })
 })
