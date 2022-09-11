@@ -1463,21 +1463,24 @@ describe('DocumentList.vue', () => {
           description: 'c Jest testing description',
           tags: ['apple', 'crawler', 'curiefense'],
           isSortable: true,
-          isSearchable: true
+          isSearchable: true,
+          id: 3
         },
         {
           name:'b test2',
           description: 'b Jest testing description',
           tags: ['crawler', 'curiefense'],
           isSortable: false,
-          isSearchable: true
+          isSearchable: true,
+          id: 2
         },
         {
           name:'a test1',
           description: 'a Jest testing description',
           tags: ['curiefense'],
           isSortable: true,
-          isSearchable: false
+          isSearchable: false,
+          id: 1
         }
       ]
       sortedGlobalFilterMockByNameAsc = [
@@ -1693,7 +1696,6 @@ describe('DocumentList.vue', () => {
         expect(filterRow.exists()).toBe(false)
       })
 
-      // TODO: check with Aviv if it correct
       test('should have to check if the placeholders in the filter cells are the same as the column title', async () => {
         const filterButton = wrapper.find('.filter-toggle')
         await filterButton.trigger('click')
@@ -1798,6 +1800,18 @@ describe('DocumentList.vue', () => {
         const nameInput = wrapper.find('.unsearchable')
         await nameInput.trigger('click')
         expect(nameInput.element.classList).toContain('unsearchable')
+      })
+    })
+
+    describe('edit', () => {
+      test('edit document button', async () => {
+        const firstDataRow = wrapper.findAll('.edit-doc-button').at(0)
+        await firstDataRow.trigger('click')
+        const secondDataRow = wrapper.findAll('.edit-doc-button').at(1)
+        await secondDataRow.trigger('click')
+        expect(mockRouter.push).toHaveBeenCalledTimes(2)
+        expect(mockRouter.push).toHaveBeenCalledWith(`/config/master/globalfilters/${globalFilterMock[2]["id"]}`)
+        expect(mockRouter.push).toHaveBeenCalledWith(`/config/master/globalfilters/${globalFilterMock[1]["id"]}`)
       })
     })
   })

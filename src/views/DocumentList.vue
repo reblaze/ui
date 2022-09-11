@@ -120,7 +120,7 @@
                   <td class="is-size-7">
                     <div class="field is-grouped is-grouped-centered">
                       <button title="Edit"
-                              class="button is-small"
+                              class="button is-small edit-doc-button"
                               @click="editDoc(row.id)">
                 <span class="icon is-small">
                   <i class="fas fa-edit"></i>
