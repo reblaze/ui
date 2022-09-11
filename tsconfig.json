@@ -49,7 +49,7 @@
     "src/**/*.tsx",
     "src/**/*.vue",
     "**/*.d.ts"
-  ],
+, "src/views/__tests__/DocumentList"  ],
   "exclude": [
     "src/**/__tests__/*.ts",
    // "src/**/*.js",

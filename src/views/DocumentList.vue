@@ -43,20 +43,20 @@
             <div class="content">
               <table class="table is-bordered is-fullwidth is-size-7 document-list-table is-hoverable vectors-table">
                 <thead>
-                <tr>
+                <tr class="header-row">
                   <th v-for="col in columns"
                       :key="col.fieldNames.join(', ')"
-                      class="column-header is-size-7"
+                      class="column-header is-size-7 column-title"
                       :class="`${col.classes}${col.isSortable ? ' is-clickable' : null}`"
                       @click="sortColumn(col)">
                     <div v-if="col.isSortable">
                       <div class="arrow-wrapper">
-                <span class="arrow arrow-asc"
-                      :class="{ active: sortField === col.fieldNames && sortDir === 'asc', }"/>
+                        <span class="arrow arrow-asc"
+                              :class="{ active: sortField === col.fieldNames && sortDir === 'asc', }"/>
                       </div>
                       <div class="arrow-wrapper">
-                <span class="arrow arrow-desc"
-                      :class="{active: sortField === col.fieldNames && sortDir === 'desc', }"/>
+                        <span class="arrow arrow-desc"
+                              :class="{active: sortField === col.fieldNames && sortDir === 'desc', }"/>
                       </div>
                     </div>
                     {{ col.columnTitle }}
@@ -64,7 +64,7 @@
                   <th class="column-header width-80px">
                     <div class="field is-grouped is-grouped-centered">
                       <p class="control">
-                        <button class="button is-size-7"
+                        <button class="button is-size-7 new-document-button"
                                 title="Add new document"
                                 :disabled="!selectedBranch || !selectedDocType"
                                 :class="{'is-loading': isNewLoading}"
@@ -87,27 +87,28 @@
                     </div>
                   </th>
                 </tr>
-                <tr class="search-row" v-if="filtersVisible">
-                  <th class="control has-icons-right"
+                <tr class="search-row header-row" v-if="filtersVisible">
+                  <th class="control has-icons-right searchable"
                       v-for="col in columns"
                       :key="col.columnTitle">
                     <div v-if="col.isSearchable">
-                      <input class="input is-small filter-input search-input-vectors-score"
+                      <input class="input is-small filter-input"
                              :title="col.columnTitle"
                              :placeholder="col.columnTitle"
                              v-model="filter[col.fieldNames.join(', ')]"
                              @change="updateDataDisplay()"/>
                       <span class="icon is-small is-right">
-                <i class="fa fa-filter" aria-hidden="true"></i>
-              </span>
+                        <i class="fa fa-filter" aria-hidden="true"></i>
+                      </span>
                     </div>
                   </th>
-                  <th></th>
+                  <th class="unsearchable"></th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr v-for="row in getSlicedDataArrayDisplay(docsDisplayData, currentPage)"
-                    :key="row.id">
+                    :key="row.id"
+                    class="data-row">
                   <td v-for="col in columns"
                       :key="col.fieldNames.join(', ')"
                       :title="row[col.columnTitle]">
@@ -240,7 +241,6 @@ export default defineComponent({
 
       selectedBranch: null,
       selectedDocType: null as DocumentType,
-
       // Documents
       docs: [] as GenericObject[],
       docsDisplayData: [] as GenericObject[],
