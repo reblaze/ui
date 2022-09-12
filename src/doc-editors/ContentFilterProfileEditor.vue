@@ -66,13 +66,11 @@
                      class="content-type-option-wrapper mb-3">
                   <label class="checkbox is-size-7">
                     <input type="checkbox"
-                           @change="updateContentType(contentTypeOption.value,
-                           getContentTypeStatus(contentTypeOption.value))"
+                           @change="updateContentType(contentTypeOption.value, $event.target.checked)"
                            class="checkbox-input"
                            :data-qa="`content-type-${contentTypeOption.value}-checkbox`"
                            :class="`content-type-${contentTypeOption.value}-input`"
-                           :checked="getContentTypeStatus(contentTypeOption.value)"
-                           >
+                           :checked="getContentTypeStatus(contentTypeOption.value)">
                     {{ contentTypeOption.displayName }}
                   </label>
                 </div>
@@ -121,9 +119,9 @@
                   </td>
                   <td class="is-size-7 width-20px">
                     <a title="remove entry"
-                       data-qa="remove-entry-btn"
+                       data-qa="remove-tag-entry-btn"
                        tabindex="0"
-                       class="is-small has-text-grey remove-entry-button"
+                       class="is-small has-text-grey remove-tag-entry-button"
                        @click="removeTag(section, idx)"
                        @keypress.space.prevent
                        @keypress.space="removeTag(section, idx)"
@@ -134,7 +132,7 @@
                 </tr>
                 <tr>
                   <td>
-                    <autocomplete-input
+                    <tag-autocomplete-input
                         v-if="addNewColName === section"
                         selection-type="single"
                         title="Tag"
@@ -142,13 +140,13 @@
                         :clear-input-after-selection="true"
                         :auto-focus="true"
                         @keydown.esc="cancelAddNewTag"
-                        @value-submitted="addTag(section, $event)"/>
+                        @tag-submitted="addTag(section, $event)"/>
                   </td>
                   <td class="is-size-7 width-20px">
                     <a title="add new entry"
-                       data-qa="new-entry-btn"
+                       data-qa="new-tag-entry-btn"
                        tabindex="0"
-                       class="is-size-7 width-20px is-small has-text-grey add-new-entry-button"
+                       class="is-size-7 width-20px is-small has-text-grey add-new-tag-entry-button"
                        @click="openTagInput(section)"
                        @keypress.space.prevent
                        @keypress.space="openTagInput(section)"
@@ -488,6 +486,7 @@
                         </td>
                         <td class="has-text-centered width-5pct">
                           <button title="Delete entry"
+                                  data-qa="remove-entry-btn"
                                   :data-curie="genRowKey(tab, 'names', idx)"
                                   @click="deleteEntryRow(tab, 'names', idx)"
                                   class="button is-light is-small remove-entry-button">
@@ -598,6 +597,7 @@ import {
   Dictionary,
 } from '@/types'
 import AutocompleteInput, {AutocompleteSuggestion} from '@/components/AutocompleteInput.vue'
+import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import Utils from '@/assets/Utils'
 
 type ContentFilterProfileType = {
@@ -607,7 +607,10 @@ type ContentFilterProfileType = {
 
 export default defineComponent({
   name: 'ContentFilterEditor',
-  components: {AutocompleteInput},
+  components: {
+    AutocompleteInput,
+    TagAutocompleteInput,
+  },
   props: {
     selectedDoc: Object,
     selectedBranch: String,
@@ -707,10 +710,6 @@ export default defineComponent({
     },
 
     tagsInvalid(): boolean {
-      const doc = this.localDoc
-      if (!doc) {
-        return true
-      }
       const activeValid = this.localDoc.active?.length > 0
       const reportValid = this.localDoc.report?.length > 0
       const ignoreValid = this.localDoc.ignore?.length > 0

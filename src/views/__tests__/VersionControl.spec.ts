@@ -356,6 +356,112 @@ describe('VersionControl.vue', () => {
     expect(downloadFileSpy).not.toHaveBeenCalled()
   })
 
+  test('should not throw errors if no branches exist - null response', (done) => {
+    try {
+      jest.spyOn(axios, 'get').mockImplementation((path) => {
+        if (path === '/conf/api/v2/configs/') {
+          return Promise.resolve(null)
+        }
+        return Promise.resolve({data: {}})
+      })
+      wrapper = mount(VersionControl)
+      done()
+    } catch (err) {
+      expect(err).not.toBeDefined()
+      done()
+    }
+  })
+
+  test('should not throw errors if no branches exist - empty data', (done) => {
+    try {
+      jest.spyOn(axios, 'get').mockImplementation((path) => {
+        if (path === '/conf/api/v2/configs/') {
+          return Promise.resolve({data: []})
+        }
+        return Promise.resolve({data: {}})
+      })
+      wrapper = mount(VersionControl)
+      done()
+    } catch (err) {
+      expect(err).not.toBeDefined()
+      done()
+    }
+  })
+
+  test('should not throw errors if no branch data exist - null response', (done) => {
+    try {
+      jest.spyOn(axios, 'get').mockImplementation((path) => {
+        if (path === '/conf/api/v2/configs/') {
+          return Promise.resolve({data: gitData})
+        }
+        if (path === '/conf/api/v2/configs/master/') {
+          return Promise.resolve(null)
+        }
+        return Promise.resolve({data: {}})
+      })
+      wrapper = mount(VersionControl)
+      done()
+    } catch (err) {
+      expect(err).not.toBeDefined()
+      done()
+    }
+  })
+
+  test('should not throw errors if no branch data exist - empty data', (done) => {
+    try {
+      jest.spyOn(axios, 'get').mockImplementation((path) => {
+        if (path === '/conf/api/v2/configs/') {
+          return Promise.resolve({data: gitData})
+        }
+        if (path === '/conf/api/v2/configs/master/') {
+          return Promise.resolve({data: null})
+        }
+        return Promise.resolve({data: {}})
+      })
+      wrapper = mount(VersionControl)
+      done()
+    } catch (err) {
+      expect(err).not.toBeDefined()
+      done()
+    }
+  })
+
+  test('should have an empty git log array if got no git log data from server - response null', () => {
+    jest.spyOn(axios, 'get').mockImplementation((path) => {
+      if (path === '/conf/api/v2/configs/') {
+        return Promise.resolve({data: gitData})
+      }
+      if (path === '/conf/api/v2/configs/master/') {
+        return Promise.resolve({data: gitData[0]})
+      }
+      if (path === '/conf/api/v2/configs/master/v/') {
+        return Promise.resolve(null)
+      }
+      return Promise.resolve({data: []})
+    })
+    wrapper = mount(VersionControl)
+    const gitHistory = wrapper.findComponent(GitHistory)
+    expect(gitHistory).toBeTruthy()
+  })
+
+  test('should have an empty git log array if got no git log data from server - data null', () => {
+    jest.spyOn(axios, 'get').mockImplementation((path) => {
+      if (path === '/conf/api/v2/configs/') {
+        return Promise.resolve({data: gitData})
+      }
+      if (path === '/conf/api/v2/configs/master/') {
+        return Promise.resolve({data: gitData[0]})
+      }
+      if (path === '/conf/api/v2/configs/master/v/') {
+        return Promise.resolve({data: null})
+      }
+      return Promise.resolve({data: []})
+    })
+    wrapper = mount(VersionControl)
+    const gitHistory = wrapper.findComponent(GitHistory)
+    expect(gitHistory).toBeTruthy()
+  })
+
   describe('fork branch', () => {
     let postSpy: any
     let originalError: any

@@ -110,7 +110,95 @@ describe('CurieDBEditor.vue', () => {
     expect(gitHistory).toBeTruthy()
   })
 
-  test('should log message when receiving no databases from the server', (done) => {
+  test('should have an empty git log array if got no git log data from server - response null', () => {
+    jest.spyOn(axios, 'get').mockImplementation((path) => {
+      if (path === '/conf/api/v2/db/') {
+        return Promise.resolve({data: ['system', 'namespaceCopy', 'anotherDB']})
+      }
+      const db = wrapper.vm.selectedNamespace
+      const key = wrapper.vm.selectedKey
+      if (path === `/conf/api/v2/db/new namespace/`) {
+        return Promise.resolve({data: {key: {}}})
+      }
+      if (path === `/conf/api/v2/db/${db}/`) {
+        return Promise.resolve({data: dbData})
+      }
+      if (path === `/conf/api/v2/db/${db}/k/${key}/v/`) {
+        return Promise.resolve(null)
+      }
+      return Promise.resolve({data: {}})
+    })
+    wrapper = mount(CurieDBEditor)
+    const gitHistory = wrapper.findComponent(GitHistory)
+    expect(gitHistory).toBeTruthy()
+  })
+
+  test('should have an empty git log array if got no git log data from server - data null', () => {
+    jest.spyOn(axios, 'get').mockImplementation((path) => {
+      if (path === '/conf/api/v2/db/') {
+        return Promise.resolve({data: ['system', 'namespaceCopy', 'anotherDB']})
+      }
+      const db = wrapper.vm.selectedNamespace
+      const key = wrapper.vm.selectedKey
+      if (path === `/conf/api/v2/db/new namespace/`) {
+        return Promise.resolve({data: {key: {}}})
+      }
+      if (path === `/conf/api/v2/db/${db}/`) {
+        return Promise.resolve({data: dbData})
+      }
+      if (path === `/conf/api/v2/db/${db}/k/${key}/v/`) {
+        return Promise.resolve({data: null})
+      }
+      return Promise.resolve({data: {}})
+    })
+    wrapper = mount(CurieDBEditor)
+    const gitHistory = wrapper.findComponent(GitHistory)
+    expect(gitHistory).toBeTruthy()
+  })
+
+  test('should log message when receiving no databases from the server - null response', (done) => {
+    const originalLog = console.log
+    let consoleOutput: string[] = []
+    const mockedLog = (output: string) => consoleOutput.push(output)
+    consoleOutput = []
+    console.log = mockedLog
+    jest.spyOn(axios, 'get').mockImplementation((path) => {
+      if (path === '/conf/api/v2/db/') {
+        return Promise.resolve(null)
+      }
+      return Promise.resolve({data: {}})
+    })
+    wrapper = mount(CurieDBEditor)
+    // allow all requests to finish
+    setImmediate(() => {
+      expect(consoleOutput).toContain(`failed loading namespace, none are present!`)
+      console.log = originalLog
+      done()
+    })
+  })
+
+  test('should log message when receiving no databases from the server - null data', (done) => {
+    const originalLog = console.log
+    let consoleOutput: string[] = []
+    const mockedLog = (output: string) => consoleOutput.push(output)
+    consoleOutput = []
+    console.log = mockedLog
+    jest.spyOn(axios, 'get').mockImplementation((path) => {
+      if (path === '/conf/api/v2/db/') {
+        return Promise.resolve({data: null})
+      }
+      return Promise.resolve({data: {}})
+    })
+    wrapper = mount(CurieDBEditor)
+    // allow all requests to finish
+    setImmediate(() => {
+      expect(consoleOutput).toContain(`failed loading namespace, none are present!`)
+      console.log = originalLog
+      done()
+    })
+  })
+
+  test('should log message when receiving no databases from the server - empty array', (done) => {
     const originalLog = console.log
     let consoleOutput: string[] = []
     const mockedLog = (output: string) => consoleOutput.push(output)
@@ -141,6 +229,19 @@ describe('CurieDBEditor.vue', () => {
   })
 
   test('should be able to switch key through dropdown', () => {
+    const wantedValue = Object.keys(dbData)[1]
+    const keySelection = wrapper.find('.key-selection')
+    keySelection.trigger('click')
+    const options = keySelection.findAll('option')
+    keySelection.setValue(options.at(1).element.value)
+    expect(wrapper.vm.selectedKey).toEqual(wantedValue)
+  })
+
+  test('should be able to switch key through dropdown when using json editor', async () => {
+    for (let i = 0; i < 3; i++) {
+      jest.advanceTimersByTime(100)
+      await nextTick()
+    }
     const wantedValue = Object.keys(dbData)[1]
     const keySelection = wrapper.find('.key-selection')
     keySelection.trigger('click')
@@ -395,8 +496,21 @@ describe('CurieDBEditor.vue', () => {
       expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/new namespace/k/key/`, value)
     })
 
+    test('should use correct values when saving key changes when not using json editor', async () => {
+      await wrapper.setData({isJsonEditor: false, editor: null})
+      const value = {
+        buckets: {},
+        foo: 'bar',
+      }
+      const valueInput = wrapper.find('.value-input')
+      await valueInput.setValue(JSON.stringify(value))
+      const saveKeyButton = wrapper.find('.save-button')
+      await saveKeyButton.trigger('click')
+      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/new namespace/k/key/`, value)
+    })
+
     test('should not be able to save key changes' +
-      'if value is an invalid json when not using json editor', async () => {
+      ' if value is an invalid json when not using json editor', async () => {
       await wrapper.setData({isJsonEditor: false, editor: null})
       const value = '{'
       const valueInput = wrapper.find('.value-input')
@@ -494,7 +608,7 @@ describe('CurieDBEditor.vue', () => {
       })
     })
 
-    test('should display correct message when there is no key data', (done) => {
+    test('should display correct message when there is no key data - empty data', (done) => {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
         if (path === '/conf/api/v2/db/') {
           return Promise.resolve({data: ['system', 'namespaceCopy', 'anotherDB']})
@@ -502,6 +616,30 @@ describe('CurieDBEditor.vue', () => {
         const db = wrapper.vm.selectedNamespace
         if (path === `/conf/api/v2/db/${db}/`) {
           return Promise.resolve({data: {}})
+        }
+        return Promise.resolve({
+          data: {},
+        })
+      })
+      wrapper = mount(CurieDBEditor)
+      // allow all requests to finish
+      setImmediate(() => {
+        const noDataMessage = wrapper.find('.no-data-message')
+        expect(noDataMessage?.exists()).toBeTruthy()
+        expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found!')
+        expect(noDataMessage?.text()?.toLowerCase()).toContain('missing key.')
+        done()
+      })
+    })
+
+    test('should display correct message when there is no key data - null response', (done) => {
+      jest.spyOn(axios, 'get').mockImplementation((path) => {
+        if (path === '/conf/api/v2/db/') {
+          return Promise.resolve({data: ['system', 'namespaceCopy', 'anotherDB']})
+        }
+        const db = wrapper.vm.selectedNamespace
+        if (path === `/conf/api/v2/db/${db}/`) {
+          return Promise.resolve(null)
         }
         return Promise.resolve({
           data: {},

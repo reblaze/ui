@@ -256,10 +256,10 @@
                     </div>
                   </td>
                   <td>
-                    {{ newSecurityPolicyConnectionData.map?.id }}
+                    {{ newSecurityPolicyConnectionData.map.id }}
                   </td>
                   <td>
-                    {{ newSecurityPolicyConnectionData.map?.match }}
+                    {{ newSecurityPolicyConnectionData.map.match }}
                   </td>
                   <td>
                     <div class="select is-small">
@@ -450,14 +450,14 @@ export default defineComponent({
 
     newSecurityPolicyConnectionEntries(): SecurityPolicyEntryMatch[] {
       const securityPolicy = this.newSecurityPolicyConnections.find((securityPolicy) => {
-        return securityPolicy.id === this.newSecurityPolicyConnectionData.map?.id
+        return securityPolicy.id === this.newSecurityPolicyConnectionData.map.id
       })
-      return securityPolicy?.map?.filter((securityPolicyEntry) => {
+      return securityPolicy.map.filter((securityPolicyEntry) => {
         return !securityPolicyEntry.limit_ids.includes(this.localDoc.id)
       })
     },
   },
-  emits: ['update:selectedDoc'],
+  emits: ['update:selectedDoc', 'go-to-route'],
   methods: {
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
@@ -578,7 +578,7 @@ export default defineComponent({
     },
 
     addNewSecurityPolicyConnection() {
-      const id = this.newSecurityPolicyConnectionData.map?.id
+      const id = this.newSecurityPolicyConnectionData.map.id
       const entryMatch = this.newSecurityPolicyConnectionEntries[this.newSecurityPolicyConnectionData.entryIndex].match
       const methodName = 'PUT'
       const selectedDocType = 'securitypolicies'
@@ -662,7 +662,7 @@ export default defineComponent({
     },
 
     referToSecurityPolicy(id: string) {
-      this.$router.push(`/config/${this.selectedBranch}/securitypolicies/${id}`)
+      this.$emit('go-to-route', `/config/${this.selectedBranch}/securitypolicies/${id}`)
     },
   },
   created() {

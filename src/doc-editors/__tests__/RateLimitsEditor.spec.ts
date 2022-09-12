@@ -470,8 +470,8 @@ describe('RateLimitsEditor.vue', () => {
       const connectedSecurityPoliciesEntryRow = wrapper.findAll('.connected-entry-row').at(0)
       const referralButton = connectedSecurityPoliciesEntryRow.find('.security-policy-referral-button')
       await referralButton.trigger('click')
-      expect(mockRouter.push).toHaveBeenCalledTimes(1)
-      expect(mockRouter.push).toHaveBeenCalledWith(wantedRoute)
+      expect(wrapper.emitted('go-to-route')).toBeTruthy()
+      expect(wrapper.emitted('go-to-route')[0]).toEqual([wantedRoute])
     })
 
     test('should show the new connection row when `+` button is clicked', async () => {
