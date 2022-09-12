@@ -396,10 +396,6 @@ export default defineComponent({
       return _.cloneDeep(this.selectedDoc as FlowControlPolicy)
     },
 
-    pickType(val: IncludeExcludeType[]): IncludeExcludeType[] {
-      return val
-    },
-
     duplicateTags(): Dictionary<string> {
       const doc = this.localDoc
       const allTags = _.concat(doc['include'], doc['exclude'])

@@ -1,5 +1,6 @@
 // @ts-nocheck
 import ContentFilterEditor from '@/doc-editors/ContentFilterProfileEditor.vue'
+import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {shallowMount} from '@vue/test-utils'
 import {
@@ -14,6 +15,7 @@ import {
 import AutocompleteInput from '@/components/AutocompleteInput.vue'
 import _ from 'lodash'
 import axios from 'axios'
+import {nextTick} from 'vue'
 
 jest.mock('axios')
 
@@ -58,10 +60,10 @@ describe('ContentFilterProfileEditor.vue', () => {
         unicode: false,
       },
       'masking_seed': '',
-      'content_type': [],
-      'active': [],
-      'report': [],
-      'ignore': [],
+      'content_type': ['json', 'multipart_form'],
+      'active': ['active-tag1', 'active-tag2'],
+      'report': ['report-tag1'],
+      'ignore': ['ignore-tag1'],
     }]
     contentFilterRulesDocs = [
       {
@@ -188,8 +190,151 @@ describe('ContentFilterProfileEditor.vue', () => {
     })
   })
 
-  describe('normalize sections', () => {
-    describe('with missing sections', () => {
+  describe('tags', () => {
+    test('should not have any warning in the tags table when there are no duplicate tags', () => {
+      const tagsWithWarning = wrapper.findAll('.has-text-danger')
+      expect(tagsWithWarning.length).toEqual(0)
+    })
+
+    test('should show a warning when there are duplicate tags', () => {
+      docs[0]['report'].push('test-tag')
+      docs[0]['active'].push('test-tag')
+      wrapper = shallowMount(ContentFilterEditor, {
+        props: {
+          selectedDoc: docs[0],
+        },
+      })
+      const tagsWithWarning = wrapper.findAll('.has-text-danger')
+      expect(tagsWithWarning.length).toEqual(2)
+    })
+
+    test('should add tag to correct section when tag selected', async () => {
+      const newActiveEntryButton = wrapper.findAll('.add-new-tag-entry-button').at(1)
+      await newActiveEntryButton.trigger('click')
+      const newTag = 'test-tag'
+      const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+      tagAutocompleteInput.vm.$emit('tag-submitted', newTag)
+      expect(wrapper.vm.localDoc.active.includes(newTag)).toBeTruthy()
+    })
+
+    test('should remove tag from correct section when tag removed', () => {
+      const removeActiveEntryButton = wrapper.findAll('.remove-tag-entry-button').at(2)
+      removeActiveEntryButton.trigger('click')
+      expect(wrapper.vm.localDoc.active).toEqual(['active-tag1'])
+    })
+
+    test('should hide tag input when tag selection cancelled', async () => {
+      const newActiveEntryButton = wrapper.findAll('.add-new-tag-entry-button').at(1)
+      await newActiveEntryButton.trigger('click')
+      const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+      tagAutocompleteInput.vm.$emit('keydown', new KeyboardEvent('keydown', {key: 'esc'}))
+      await nextTick()
+      expect(tagAutocompleteInput.exists()).toBeFalsy()
+    })
+
+    test('should display tags invalid message if all tag lists are empty', async () => {
+      docs[0]['ignore'] = []
+      docs[0]['active'] = []
+      docs[0]['report'] = []
+      wrapper = shallowMount(ContentFilterEditor, {
+        props: {
+          selectedDoc: docs[0],
+        },
+      })
+      const invalidMsg = 'Content Filter Profile does not contain any tags, Content Filter Rules will be ineffective.'
+      const tagsInvalidElement = wrapper.find('.tags-invalid')
+      expect(tagsInvalidElement.exists()).toBeTruthy()
+      expect(tagsInvalidElement.html()).toContain(invalidMsg)
+    })
+
+    test('should not display tags invalid message if tag list is not empty - ignore', async () => {
+      docs[0]['ignore'] = ['test']
+      delete docs[0]['active']
+      delete docs[0]['report']
+      wrapper = shallowMount(ContentFilterEditor, {
+        props: {
+          selectedDoc: docs[0],
+        },
+      })
+      const tagsInvalidElement = wrapper.find('.tags-invalid')
+      expect(tagsInvalidElement.exists()).toBeFalsy()
+    })
+
+    test('should not display tags invalid message if tag list is not empty - active', async () => {
+      delete docs[0]['ignore']
+      docs[0]['active'] = ['test']
+      delete docs[0]['report']
+      wrapper = shallowMount(ContentFilterEditor, {
+        props: {
+          selectedDoc: docs[0],
+        },
+      })
+      const tagsInvalidElement = wrapper.find('.tags-invalid')
+      expect(tagsInvalidElement.exists()).toBeFalsy()
+    })
+
+    test('should not display tags invalid message if tag list is not empty - report', async () => {
+      delete docs[0]['ignore']
+      delete docs[0]['active']
+      docs[0]['report'] = ['test']
+      wrapper = shallowMount(ContentFilterEditor, {
+        props: {
+          selectedDoc: docs[0],
+        },
+      })
+      const tagsInvalidElement = wrapper.find('.tags-invalid')
+      expect(tagsInvalidElement.exists()).toBeFalsy()
+    })
+  })
+
+  describe('content types', () => {
+    test('should have correct content type booleans in checkbox inputs', () => {
+      const jsonInput = wrapper.find('.content-type-json-input').element as HTMLInputElement
+      expect(jsonInput.checked).toEqual(docs[0].content_type.includes('json'))
+      const multipartFormInput = wrapper.find('.content-type-multipart_form-input').element as HTMLInputElement
+      expect(multipartFormInput.checked).toEqual(docs[0].content_type.includes('multipart_form'))
+      const urlEncodedInput = wrapper.find('.content-type-url_encoded-input').element as HTMLInputElement
+      expect(urlEncodedInput.checked).toEqual(docs[0].content_type.includes('url_encoded'))
+      const xmlInput = wrapper.find('.content-type-xml-input').element as HTMLInputElement
+      expect(xmlInput.checked).toEqual(docs[0].content_type.includes('xml'))
+    })
+
+    test('should have all inactive content type booleans in checkbox inputs if property does not exist', () => {
+      delete docs[0]['content_type']
+      wrapper = shallowMount(ContentFilterEditor, {
+        props: {
+          selectedDoc: docs[0],
+        },
+      })
+      const jsonInput = wrapper.find('.content-type-json-input').element as HTMLInputElement
+      expect(jsonInput.checked).toEqual(false)
+      const multipartFormInput = wrapper.find('.content-type-multipart_form-input').element as HTMLInputElement
+      expect(multipartFormInput.checked).toEqual(false)
+      const urlEncodedInput = wrapper.find('.content-type-url_encoded-input').element as HTMLInputElement
+      expect(urlEncodedInput.checked).toEqual(false)
+      const xmlInput = wrapper.find('.content-type-xml-input').element as HTMLInputElement
+      expect(xmlInput.checked).toEqual(false)
+    })
+
+    test('should emit new content type when one changed to true', async () => {
+      const xmlInput = wrapper.find('.content-type-xml-input')
+      xmlInput.setValue(true)
+      await xmlInput.trigger('change')
+      expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
+      expect(wrapper.emitted('update:selectedDoc')[0][0].content_type).toContain('xml')
+    })
+
+    test('should emit new content type when one changed to false', async () => {
+      const jsonInput = wrapper.find('.content-type-json-input')
+      jsonInput.setValue(false)
+      await jsonInput.trigger('change')
+      expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
+      expect(wrapper.emitted('update:selectedDoc')[0][0].content_type).not.toContain('json')
+    })
+  })
+
+  describe('normalize doc data', () => {
+    describe('sections - with missing sections', () => {
       let docsForNormalization: ContentFilterProfile[]
       let defaultSectionsValue: ContentFilterProfileSection
       beforeEach(async () => {
@@ -246,7 +391,7 @@ describe('ContentFilterProfileEditor.vue', () => {
       })
     })
 
-    describe('with all sections provided', () => {
+    describe('sections - with all sections provided', () => {
       test('should not emit new doc if all sections are provided', async () => {
         const docsShouldNotNormalize: ContentFilterProfile[] = [{
           'id': '__default__',
@@ -297,16 +442,76 @@ describe('ContentFilterProfileEditor.vue', () => {
         expect(wrapper.emitted('update:selectedDoc')).toBeFalsy()
       })
     })
+
+    describe('decoding', () => {
+      let docsForNormalization: ContentFilterProfile[]
+      let defaultContentFilterProfileDecoding: ContentFilterProfile['decoding']
+      beforeEach(async () => {
+        // TS ignore because we want to test the status of normalization where some of the data is missing
+        // @ts-ignore
+        docsForNormalization = [{
+          'id': '__default__',
+          'name': 'default contentfilter',
+          'ignore_alphanum': true,
+          'headers': {
+            'names': [],
+            'regex': [],
+            'max_count': 42,
+            'max_length': 1024,
+          },
+          'cookies': {
+            'names': [],
+            'regex': [],
+            'max_count': 42,
+            'max_length': 1024,
+          },
+          'args': {
+            'names': [],
+            'regex': [],
+            'max_count': 512,
+            'max_length': 1024,
+          },
+          'path': {
+            'names': [],
+            'regex': [],
+            'max_count': 42,
+            'max_length': 1024,
+          },
+          'masking_seed': '',
+          'content_type': [],
+          'active': [],
+          'report': [],
+          'ignore': [],
+        }]
+        defaultContentFilterProfileDecoding = {
+          base64: true,
+          dual: false,
+          html: false,
+          unicode: false,
+        }
+        wrapper = shallowMount(ContentFilterEditor, {
+          props: {
+            selectedDoc: docsForNormalization[0],
+            selectedBranch: 'master',
+          },
+        })
+      })
+
+      test('should emit default decoding when given profile with undefined decoding', () => {
+        expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
+        expect(wrapper.emitted('update:selectedDoc')[0][0].decoding).toEqual(defaultContentFilterProfileDecoding)
+      })
+    })
   })
 
-  test('should unpack exclusions correctly from model for view', async () => {
+  test('should unpack exclusions correctly from model to view', async () => {
     const unpackedExclusions = 'cf-rule-id:100000 cf-risk:5'
     const packedExclusions = ['cf-rule-id:100000', 'cf-risk:5']
     const actualUnpackedExclusions = wrapper.vm.exclusionsToString(packedExclusions)
     expect(actualUnpackedExclusions).toEqual(unpackedExclusions)
   })
 
-  test('should unpack empty exclusions correctly from model for view', async () => {
+  test('should unpack empty exclusions correctly from model to view', async () => {
     const unpackedExclusions = ''
     const packedExclusions: ContentFilterEntryMatch['exclusions'] = []
     const actualUnpackedExclusions = wrapper.vm.exclusionsToString(packedExclusions)
@@ -385,7 +590,7 @@ describe('ContentFilterProfileEditor.vue', () => {
             const regInput = newRow.find('.new-entry-reg')
             await regInput.setValue('bar')
             const input = newRow.find('.new-entry-restrict')
-            await input.setChecked(true)
+            await input.setValue(true)
             const confirmButton = newRow.find('.confirm-add-new-parameter')
             await confirmButton.trigger('click')
             const actualValue = (wrapper.find('.entry-restrict').element as HTMLInputElement).checked
@@ -398,7 +603,7 @@ describe('ContentFilterProfileEditor.vue', () => {
             const regInput = newRow.find('.new-entry-reg')
             await regInput.setValue('bar')
             const input = newRow.find('.new-entry-mask')
-            await input.setChecked(true)
+            await input.setValue(true)
             const confirmButton = newRow.find('.confirm-add-new-parameter')
             await confirmButton.trigger('click')
             const actualValue = (wrapper.find('.entry-mask').element as HTMLInputElement).checked
@@ -413,6 +618,20 @@ describe('ContentFilterProfileEditor.vue', () => {
             const wantedValue = ['cf-rule-id:100001', 'cf-risk:3']
             const autocompleteInput = wrapper.findComponent(AutocompleteInput)
             await autocompleteInput.vm.$emit('value-submitted', 'cf-rule-id:100001 cf-risk:3')
+            const confirmButton = newRow.find('.confirm-add-new-parameter')
+            await confirmButton.trigger('click')
+            const actualValue = wrapper.vm.localDoc[tab][type][0].exclusions
+            expect(actualValue).toEqual(wantedValue)
+          })
+
+          test('should add empty exclusions when creating new parameter', async () => {
+            const keyInput = newRow.find('.new-entry-key')
+            await keyInput.setValue('foo')
+            const regInput = newRow.find('.new-entry-reg')
+            await regInput.setValue('bar')
+            const wantedValue = []
+            const autocompleteInput = wrapper.findComponent(AutocompleteInput)
+            await autocompleteInput.vm.$emit('value-submitted', '')
             const confirmButton = newRow.find('.confirm-add-new-parameter')
             await confirmButton.trigger('click')
             const actualValue = wrapper.vm.localDoc[tab][type][0].exclusions

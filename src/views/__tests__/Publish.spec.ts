@@ -185,8 +185,34 @@ describe('Publish.vue', () => {
     })
   })
 
-  test('should display no version and 0 buckets if no logs are present', async () => {
+  test('should display no version and 0 buckets if no logs are present - empty array', async () => {
     gitData[0].logs = []
+    wrapper = mount(Publish)
+    const versionDisplay = wrapper.find('.version-display')
+    expect(versionDisplay.text()).toEqual(`Version:`)
+    const bucketsDisplay = wrapper.find('.buckets-display')
+    expect(bucketsDisplay.text()).toEqual('Buckets: 0')
+  })
+
+  test('should display no version and 0 buckets if no logs are present - property does not exist', async () => {
+    delete gitData[0].logs
+    wrapper = mount(Publish)
+    const versionDisplay = wrapper.find('.version-display')
+    expect(versionDisplay.text()).toEqual(`Version:`)
+    const bucketsDisplay = wrapper.find('.buckets-display')
+    expect(bucketsDisplay.text()).toEqual('Buckets: 0')
+  })
+
+  test('should display no version and 0 buckets if no logs are present - version does not exist', async () => {
+    gitData[0].logs = [{
+      'date': '2020-11-08T21:31:41+01:00',
+      'parents': [
+        '16379cdf39501574b4a2f5a227b82a4454884b84',
+      ],
+      'message': 'Create config [master]\n',
+      'email': 'curiefense@reblaze.com',
+      'author': 'Curiefense API',
+    }]
     wrapper = mount(Publish)
     const versionDisplay = wrapper.find('.version-display')
     expect(versionDisplay.text()).toEqual(`Version:`)
@@ -220,6 +246,82 @@ describe('Publish.vue', () => {
     // allow all requests to finish
     const gitBranches = wrapper.find('.buckets-display')
     expect(gitBranches.text()).toEqual('Buckets: 1')
+  })
+
+  test('should not throw errors if no branches exist - null response', (done) => {
+    try {
+      jest.spyOn(axios, 'get').mockImplementation((path) => {
+        if (path === '/conf/api/v2/configs/') {
+          return Promise.resolve(null)
+        }
+        if (path === `/conf/api/v2/db/system/k/publishinfo/`) {
+          return Promise.resolve({data: publishInfoData})
+        }
+        return Promise.resolve({data: {}})
+      })
+      wrapper = mount(Publish)
+      done()
+    } catch (err) {
+      expect(err).not.toBeDefined()
+      done()
+    }
+  })
+
+  test('should not throw errors if no branches exist - empty data', (done) => {
+    try {
+      jest.spyOn(axios, 'get').mockImplementation((path) => {
+        if (path === '/conf/api/v2/configs/') {
+          return Promise.resolve({data: []})
+        }
+        if (path === `/conf/api/v2/db/system/k/publishinfo/`) {
+          return Promise.resolve({data: publishInfoData})
+        }
+        return Promise.resolve({data: {}})
+      })
+      wrapper = mount(Publish)
+      done()
+    } catch (err) {
+      expect(err).not.toBeDefined()
+      done()
+    }
+  })
+
+  test('should not throw errors if no publish info exists', (done) => {
+    try {
+      jest.spyOn(axios, 'get').mockImplementation((path) => {
+        if (path === '/conf/api/v2/configs/') {
+          return Promise.resolve({data: gitData})
+        }
+        if (path === `/conf/api/v2/db/system/k/publishinfo/`) {
+          return Promise.resolve({data: {}})
+        }
+        return Promise.resolve({data: {}})
+      })
+      wrapper = mount(Publish)
+      done()
+    } catch (err) {
+      expect(err).not.toBeDefined()
+      done()
+    }
+  })
+
+  test('should not throw errors if no publish info exists', (done) => {
+    try {
+      jest.spyOn(axios, 'get').mockImplementation((path) => {
+        if (path === '/conf/api/v2/configs/') {
+          return Promise.resolve({data: gitData})
+        }
+        if (path === `/conf/api/v2/db/system/k/publishinfo/`) {
+          return Promise.resolve({data: {}})
+        }
+        return Promise.resolve({data: {}})
+      })
+      wrapper = mount(Publish)
+      done()
+    } catch (err) {
+      expect(err).not.toBeDefined()
+      done()
+    }
   })
 
   describe('commits table display', () => {

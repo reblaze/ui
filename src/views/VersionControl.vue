@@ -219,7 +219,7 @@ export default defineComponent({
     },
 
     isSelectedBranchForkNameValid(): boolean {
-      const newName = this.forkBranchName?.trim()
+      const newName = this.forkBranchName.trim()
       const isBranchNameEmpty = newName === ''
       const isBranchNameContainsSpaces = newName.includes(' ')
       const isBranchNameDuplicate = this.branchNames.includes(newName)
@@ -227,7 +227,7 @@ export default defineComponent({
     },
 
     isSelectedBranchDeleteNameValid(): boolean {
-      const newName = this.deleteBranchName?.trim()
+      const newName = this.deleteBranchName.trim()
       return newName === this.selectedBranch
     },
 
@@ -260,8 +260,7 @@ export default defineComponent({
     async loadConfigs(activeBranch?: string) {
       // store configs
       const response = await RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'})
-      const configs = response?.data
-      this.configs = configs
+      this.configs = response?.data || []
       if (!activeBranch) {
         // pick first branch name as selected if not given active branch
         this.selectedBranch = this.branchNames[0]
@@ -271,19 +270,20 @@ export default defineComponent({
         })
       }
       // counters
-      this.commits = _.sum(_.map(_.map(configs, 'logs'), (logs) => {
+      this.commits = _.sum(_.map(_.map(this.configs, 'logs'), (logs) => {
         return _.size(logs)
       }))
-      this.branches = _.size(configs)
+      this.branches = _.size(this.configs)
       console.log('config counters', this.branches, this.commits)
     },
 
     async loadSelectedBranchData() {
       this.isDownloadLoading = true
-      this.selectedBranchData = (await RequestsUtils.sendRequest({
+      const response = await RequestsUtils.sendRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/`,
-      }))?.data
+      })
+      this.selectedBranchData = response?.data
       this.isDownloadLoading = false
     },
 

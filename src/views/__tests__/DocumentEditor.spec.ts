@@ -4,7 +4,7 @@ import GitHistory from '@/components/GitHistory.vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import Utils from '@/assets/Utils'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
-import {DOMWrapper, shallowMount} from '@vue/test-utils'
+import {DOMWrapper, shallowMount, VueWrapper} from '@vue/test-utils'
 import axios from 'axios'
 import _ from 'lodash'
 import {
@@ -24,7 +24,7 @@ import {nextTick} from 'vue'
 jest.mock('axios')
 
 describe('DocumentEditor.vue', () => {
-  let wrapper: DOMWrapper
+  let wrapper: VueWrapper
   let mockRoute: any
   let mockRouter: any
   let gitData: Branch[]
@@ -866,7 +866,15 @@ describe('DocumentEditor.vue', () => {
       name: `DocumentEditor`,
     }
     mockRouter = {
-      push: jest.fn(),
+      push: jest.fn((val) => {
+        const splitParams = val.split('/')
+        wrapper.vm.$route.params = {
+          branch: splitParams[2],
+          doc_type: splitParams[3],
+          doc_id: splitParams[4],
+        }
+        wrapper.vm.$route.path = val
+      }),
     }
     wrapper = shallowMount(DocumentEditor, {
       global: {
@@ -890,6 +898,66 @@ describe('DocumentEditor.vue', () => {
     const gitHistory = wrapper.findComponent(GitHistory)
     expect(gitHistory).toBeTruthy()
     expect((gitHistory.vm as any).gitLog).toEqual(aclDocsLogs[0])
+  })
+
+  test('should have an empty git log array if got no git log data from server - response null', () => {
+    jest.spyOn(axios, 'get').mockImplementation((path) => {
+      if (path === '/conf/api/v2/configs/') {
+        return Promise.resolve({data: gitData})
+      }
+      const branch = wrapper.vm.selectedBranch
+      const docID = wrapper.vm.selectedDocID
+      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
+        return Promise.resolve({data: aclDocs})
+      }
+      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/${docID}/`) {
+        return Promise.resolve({data: aclDocs[0]})
+      }
+      if (path === `/conf/api/v2/configs/master/d/aclprofiles/e/${docID}/v/`) {
+        return Promise.resolve(null)
+      }
+      return Promise.resolve({data: []})
+    })
+    wrapper = shallowMount(DocumentEditor, {
+      global: {
+        mocks: {
+          $route: mockRoute,
+          $router: mockRouter,
+        },
+      },
+    })
+    const gitHistory = wrapper.findComponent(GitHistory)
+    expect(gitHistory).toBeTruthy()
+  })
+
+  test('should have an empty git log array if got no git log data from server - data null', () => {
+    jest.spyOn(axios, 'get').mockImplementation((path) => {
+      if (path === '/conf/api/v2/configs/') {
+        return Promise.resolve({data: gitData})
+      }
+      const branch = wrapper.vm.selectedBranch
+      const docID = wrapper.vm.selectedDocID
+      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
+        return Promise.resolve({data: aclDocs})
+      }
+      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/${docID}/`) {
+        return Promise.resolve({data: aclDocs[0]})
+      }
+      if (path === `/conf/api/v2/configs/master/d/aclprofiles/e/${docID}/v/`) {
+        return Promise.resolve({data: null})
+      }
+      return Promise.resolve({data: []})
+    })
+    wrapper = shallowMount(DocumentEditor, {
+      global: {
+        mocks: {
+          $route: mockRoute,
+          $router: mockRouter,
+        },
+      },
+    })
+    const gitHistory = wrapper.findComponent(GitHistory)
+    expect(gitHistory).toBeTruthy()
   })
 
   test('should send API request to restore to the correct version', async () => {
@@ -1111,7 +1179,7 @@ describe('DocumentEditor.vue', () => {
     })
 
     test('should load correct default branch if non existent in route params', (done) => {
-      mockRoute.params = {}
+      delete mockRoute.params
       wrapper = shallowMount(DocumentEditor, {
         global: {
           mocks: {
@@ -1129,7 +1197,7 @@ describe('DocumentEditor.vue', () => {
     })
 
     test('should load correct default document type if non existent in route params', (done) => {
-      mockRoute.params = {}
+      delete mockRoute.params
       wrapper = shallowMount(DocumentEditor, {
         global: {
           mocks: {
@@ -1147,7 +1215,7 @@ describe('DocumentEditor.vue', () => {
     })
 
     test('should load correct default document id if non existent in route params', (done) => {
-      mockRoute.params = {}
+      delete mockRoute.params
       wrapper = shallowMount(DocumentEditor, {
         global: {
           mocks: {
@@ -1320,81 +1388,58 @@ describe('DocumentEditor.vue', () => {
   })
 
   describe('dropdowns', () => {
-    test('should be able to switch branches through dropdown', (done) => {
+    test('should be able to switch branches through dropdown', async () => {
       const branchSelection = wrapper.find('.branch-selection')
-      branchSelection.trigger('click')
+      await branchSelection.trigger('click')
       const options = branchSelection.findAll('option')
-      branchSelection.setValue(options.at(1).element.value)
-      // allow all requests to finish
-      setImmediate(() => {
-        expect((branchSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
-        done()
-      })
+      await branchSelection.setValue(options.at(1).element.value)
+      expect((branchSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
     })
 
-    test('should not switch doc type when switching branches', (done) => {
+    test('should not switch doc type when switching branches', async () => {
       const docTypeSelection = wrapper.find('.doc-type-selection')
-      docTypeSelection.trigger('click')
+      await docTypeSelection.trigger('click')
       const docTypeOptions = docTypeSelection.findAll('option')
-      docTypeSelection.setValue(docTypeOptions.at(2).element.value)
+      await docTypeSelection.setValue(docTypeOptions.at(2).element.value)
       const branchSelection = wrapper.find('.branch-selection')
-      branchSelection.trigger('click')
+      await branchSelection.trigger('click')
       const branchOptions = branchSelection.findAll('option')
-      branchSelection.setValue(branchOptions.at(1).element.value)
-      // allow all requests to finish
-      setImmediate(() => {
-        expect((docTypeSelection.element as HTMLSelectElement).selectedIndex).toEqual(2)
-        done()
-      })
+      await branchSelection.setValue(branchOptions.at(1).element.value)
+      expect((docTypeSelection.element as HTMLSelectElement).selectedIndex).toEqual(2)
     })
 
-    test('should not switch selected doc when switching branches', (done) => {
+    test('should not switch selected doc when switching branches', async () => {
       const docSelection = wrapper.find('.doc-selection')
-      docSelection.trigger('click')
+      await docSelection.trigger('click')
       const docOptions = docSelection.findAll('option')
-      docSelection.setValue(docOptions.at(1).element.value)
+      await docSelection.setValue(docOptions.at(1).element.value)
       const branchSelection = wrapper.find('.branch-selection')
-      branchSelection.trigger('click')
+      await branchSelection.trigger('click')
       const branchOptions = branchSelection.findAll('option')
-      branchSelection.setValue(branchOptions.at(1).element.value)
-      // allow all requests to finish
-      setImmediate(() => {
-        expect((docSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
-        done()
-      })
+      await branchSelection.setValue(branchOptions.at(1).element.value)
+      expect((docSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
     })
 
-    test('should be able to switch doc types through dropdown', (done) => {
+    test('should be able to switch doc types through dropdown', async () => {
       const docTypeSelection = wrapper.find('.doc-type-selection')
-      docTypeSelection.trigger('click')
+      await docTypeSelection.trigger('click')
       const options = docTypeSelection.findAll('option')
-      docTypeSelection.setValue(options.at(2).element.value)
-      // allow all requests to finish
-      setImmediate(() => {
-        expect((docTypeSelection.element as HTMLSelectElement).selectedIndex).toEqual(2)
-        done()
-      })
+      await docTypeSelection.setValue(options.at(2).element.value)
+      expect((docTypeSelection.element as HTMLSelectElement).selectedIndex).toEqual(2)
     })
 
-    test('should be able to switch docs through dropdown', (done) => {
+    test('should be able to switch docs through dropdown', async () => {
       // switch to profiling lists
       const docTypeSelection = wrapper.find('.doc-type-selection')
-      docTypeSelection.trigger('click')
+      await docTypeSelection.trigger('click')
       const docTypeOptions = docTypeSelection.findAll('option')
-      docTypeSelection.setValue(docTypeOptions.at(0).element.value)
-      // allow all requests to finish
-      setImmediate(() => {
-        // switch to a different document
-        const docSelection = wrapper.find('.doc-selection')
-        docSelection.trigger('click')
-        const options = docSelection.findAll('option')
-        docSelection.setValue(options.at(1).element.value)
-        // allow all requests to finish
-        setImmediate(() => {
-          expect((docSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
-          done()
-        })
-      })
+      await docTypeSelection.setValue(docTypeOptions.at(0).element.value)
+      // switch to a different document
+      const docSelection = wrapper.find('.doc-selection')
+      await docSelection.trigger('click')
+      const options = docSelection.findAll('option')
+      await docSelection.setValue(options.at(1).element.value)
+      expect((docSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
     })
   })
 
@@ -1721,6 +1766,160 @@ describe('DocumentEditor.vue', () => {
         expect(noDataMessage?.text()?.toLowerCase()).toContain('missing document.')
         done()
       })
+    })
+
+    test('should not throw errors if no doc data exist - null response', (done) => {
+      try {
+        jest.spyOn(axios, 'get').mockImplementation((path) => {
+          if (path === '/conf/api/v2/configs/') {
+            return Promise.resolve({data: gitData})
+          }
+          const branch = wrapper.vm.selectedBranch
+          const docID = wrapper.vm.selectedDocID
+          if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
+            return Promise.resolve({data: _.map(aclDocs, (i) => _.pick(i, 'id', 'name'))})
+          }
+          if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/${docID}/`) {
+            return Promise.resolve(null)
+          }
+          return Promise.resolve({data: []})
+        })
+        wrapper = shallowMount(DocumentEditor, {
+          global: {
+            mocks: {
+              $route: mockRoute,
+              $router: mockRouter,
+            },
+          },
+        })
+        done()
+      } catch (err) {
+        expect(err).not.toBeDefined()
+        done()
+      }
+    })
+
+    test('should not throw errors if no doc data exist - null data', (done) => {
+      try {
+        jest.spyOn(axios, 'get').mockImplementation((path) => {
+          if (path === '/conf/api/v2/configs/') {
+            return Promise.resolve({data: gitData})
+          }
+          const branch = wrapper.vm.selectedBranch
+          const docID = wrapper.vm.selectedDocID
+          if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
+            return Promise.resolve({data: _.map(aclDocs, (i) => _.pick(i, 'id', 'name'))})
+          }
+          if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/${docID}/`) {
+            return Promise.resolve({data: null})
+          }
+          return Promise.resolve({data: []})
+        })
+        wrapper = shallowMount(DocumentEditor, {
+          global: {
+            mocks: {
+              $route: mockRoute,
+              $router: mockRouter,
+            },
+          },
+        })
+        done()
+      } catch (err) {
+        expect(err).not.toBeDefined()
+        done()
+      }
+    })
+
+    test('should not throw errors if no referenced docs data exist - null response', (done) => {
+      try {
+        jest.spyOn(axios, 'get').mockImplementation((path, config) => {
+          if (path === '/conf/api/v2/configs/') {
+            return Promise.resolve({data: gitData})
+          }
+          const branch = wrapper.vm.selectedBranch
+          const docID = wrapper.vm.selectedDocID
+          if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
+            if (config && config.headers && config.headers['x-fields'] === 'id, name') {
+              return Promise.resolve({data: _.map(aclDocs, (i) => _.pick(i, 'id', 'name'))})
+            }
+            return Promise.resolve({data: aclDocs})
+          }
+          if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/${docID}/`) {
+            return Promise.resolve({data: aclDocs[0]})
+          }
+          if (path === `/conf/api/v2/configs/master/d/aclprofiles/e/${docID}/v/`) {
+            return Promise.resolve({data: aclDocsLogs[0]})
+          }
+          if (path === `/conf/api/v2/configs/${branch}/d/securitypolicies/`) {
+            return Promise.resolve(null)
+          }
+          if (path === '/conf/api/v2/configs/master/v/') {
+            return Promise.resolve({data: gitData[0].logs})
+          }
+          if (path === '/conf/api/v2/configs/zzz_branch/v/') {
+            return Promise.resolve({data: gitData[1].logs})
+          }
+          return Promise.resolve({data: []})
+        })
+        wrapper = shallowMount(DocumentEditor, {
+          global: {
+            mocks: {
+              $route: mockRoute,
+              $router: mockRouter,
+            },
+          },
+        })
+        done()
+      } catch (err) {
+        expect(err).not.toBeDefined()
+        done()
+      }
+    })
+
+    test('should not throw errors if no referenced docs data exist - null data', (done) => {
+      try {
+        jest.spyOn(axios, 'get').mockImplementation((path, config) => {
+          if (path === '/conf/api/v2/configs/') {
+            return Promise.resolve({data: gitData})
+          }
+          const branch = wrapper.vm.selectedBranch
+          const docID = wrapper.vm.selectedDocID
+          if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
+            if (config && config.headers && config.headers['x-fields'] === 'id, name') {
+              return Promise.resolve({data: _.map(aclDocs, (i) => _.pick(i, 'id', 'name'))})
+            }
+            return Promise.resolve({data: aclDocs})
+          }
+          if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/${docID}/`) {
+            return Promise.resolve({data: aclDocs[0]})
+          }
+          if (path === `/conf/api/v2/configs/master/d/aclprofiles/e/${docID}/v/`) {
+            return Promise.resolve({data: aclDocsLogs[0]})
+          }
+          if (path === `/conf/api/v2/configs/${branch}/d/securitypolicies/`) {
+            return Promise.resolve({data: null})
+          }
+          if (path === '/conf/api/v2/configs/master/v/') {
+            return Promise.resolve({data: gitData[0].logs})
+          }
+          if (path === '/conf/api/v2/configs/zzz_branch/v/') {
+            return Promise.resolve({data: gitData[1].logs})
+          }
+          return Promise.resolve({data: []})
+        })
+        wrapper = shallowMount(DocumentEditor, {
+          global: {
+            mocks: {
+              $route: mockRoute,
+              $router: mockRouter,
+            },
+          },
+        })
+        done()
+      } catch (err) {
+        expect(err).not.toBeDefined()
+        done()
+      }
     })
   })
 

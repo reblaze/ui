@@ -63,7 +63,7 @@
             <div class="field">
               <label class="label is-small">Tags</label>
               <div class="control"
-                      data-qa="tag-input">
+                   data-qa="tag-input">
                 <tag-autocomplete-input :initial-tag="selectedDocTags"
                                         :selection-type="'multiple'"
                                         @tag-changed="selectedDocTags = $event">
@@ -151,7 +151,7 @@ import ResponseAction from '@/components/ResponseAction.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import EntriesRelationList from '@/components/EntriesRelationList.vue'
 import {defineComponent} from 'vue'
-import {Category, Relation, GlobalFilter, GlobalFilterSection, GlobalFilterSectionEntry} from '@/types'
+import {Category, GlobalFilter, GlobalFilterSection, GlobalFilterSectionEntry, Relation} from '@/types'
 import {AxiosResponse} from 'axios'
 import DateTimeUtils from '@/assets/DateTimeUtils'
 
@@ -184,9 +184,9 @@ export default defineComponent({
 
   computed: {
     sectionsEntriesDisplay(): string {
-      const sectionsCounter = (this.localDoc?.rule?.sections?.length !== 1) ? 'sections' : 'section'
+      const sectionsCounter = (this.localDoc.rule?.sections?.length !== 1) ? 'sections' : 'section'
       const entriesCounter = (this.localDocTotalEntries !== 1) ? 'entries' : 'entry'
-      const sectionsLength = this.localDoc?.rule?.sections?.length
+      const sectionsLength = this.localDoc.rule?.sections?.length
       return `${sectionsLength} ${sectionsCounter}\t|\t${this.localDocTotalEntries} ${entriesCounter}`
     },
 
@@ -223,20 +223,20 @@ export default defineComponent({
 
     localDocTotalEntries(): number {
       let totalEntries = 0
-      if (this.localDoc?.rule?.sections?.length) {
+      if (this.localDoc.rule?.sections?.length) {
         totalEntries = _.sumBy(this.localDoc.rule.sections, (section: GlobalFilterSection) => {
-          return section.entries?.length
+          return section.entries?.length || 0
         })
       }
       return totalEntries
     },
 
     formattedModifiedDate(): string {
-      return DateTimeUtils.isoToNowCuriefenseFormat(this.localDoc?.mdate)
+      return DateTimeUtils.isoToNowCuriefenseFormat(this.localDoc.mdate)
     },
 
     fullFormattedModifiedDate(): string {
-      return DateTimeUtils.isoToNowFullCuriefenseFormat(this.localDoc?.mdate)
+      return DateTimeUtils.isoToNowFullCuriefenseFormat(this.localDoc.mdate)
     },
   },
 
@@ -311,7 +311,10 @@ export default defineComponent({
         })
       }
       const url = this.localDoc.source
-      RequestsUtils.sendRequest({methodName: 'GET', url: `tools/fetch?url=${url}`}).then((response: AxiosResponse) => {
+      RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: `tools/fetch?url=${url}`,
+      }).then((response: AxiosResponse) => {
         const data = response.data
         let entries: GlobalFilterSectionEntry[]
         const convertedData = data as GlobalFilter
