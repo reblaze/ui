@@ -14,6 +14,7 @@ import {
   SecurityPolicy,
 } from '@/types'
 import {setImmediate} from 'timers'
+import {nextTick} from 'vue'
 
 jest.useFakeTimers()
 jest.mock('axios')
@@ -396,7 +397,7 @@ describe('DocumentSearch.vue', () => {
       if (path === '/conf/api/v2/configs/') {
         return Promise.resolve({data: gitData})
       }
-      const branch = (wrapper.vm as any).selectedBranch
+      const branch = wrapper.vm.selectedBranch
       if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
         return Promise.resolve({data: aclDocs})
       }
@@ -421,8 +422,10 @@ describe('DocumentSearch.vue', () => {
       push: jest.fn(),
     }
     wrapper = shallowMount(DocumentSearch, {
-      mocks: {
-        $router: mockRouter,
+      global: {
+        mocks: {
+          $router: mockRouter,
+        },
       },
     })
     // allow all requests to finish
@@ -432,10 +435,11 @@ describe('DocumentSearch.vue', () => {
   })
   afterEach(() => {
     jest.clearAllMocks()
+    jest.clearAllTimers()
   })
 
   function isItemInFilteredDocs(item: BasicDocument, doctype: string) {
-    const isInModel = (wrapper.vm as any).filteredDocs.some((doc: any) => {
+    const isInModel = wrapper.vm.filteredDocs.some((doc: any) => {
       return doc.id === item.id && doc.docType === doctype
     })
     const isInView = wrapper.findAll('.doc-id-cell').filter((w: any) => {
@@ -502,18 +506,17 @@ describe('DocumentSearch.vue', () => {
     searchTypeSelection.trigger('click')
     const options = searchTypeSelection.findAll('option')
     searchTypeSelection.setValue(options.at(1).element.value)
-    await wrapper.vm.$nextTick()
+    await nextTick()
     const searchInput = wrapper.find('.search-input')
     // Using a partial name instead of 'security policy'
     // The search is executing a RegEx which means 'securitypolicies' would not
     // match 'security policies'
     searchInput.setValue('security pol')
-    searchInput.trigger('input')
-    await wrapper.vm.$nextTick()
+    await searchInput.trigger('input')
 
     // Get connections cell
     const connectionsCell = wrapper.find('.doc-connections-cell')
-    const doc = (wrapper.vm as any).filteredDocs[0]
+    const doc = wrapper.vm.filteredDocs[0]
 
     // check that security policy exists without duplicated connections
     expect(isItemInFilteredDocs(securityPoliciesDocs[0], 'securitypolicies')).toBeTruthy()
@@ -531,20 +534,18 @@ describe('DocumentSearch.vue', () => {
       let searchTypeSelection = wrapper.find('.search-type-selection')
       searchTypeSelection.trigger('click')
       let options = searchTypeSelection.findAll('option')
-      searchTypeSelection.setValue(options.at(1).element.value)
-      await wrapper.vm.$nextTick()
+      await searchTypeSelection.setValue(options.at(1).element.value)
 
       const searchInput = wrapper.find('.search-input')
       searchInput.setValue('default')
-      searchInput.trigger('input')
-      await wrapper.vm.$nextTick()
+      await searchInput.trigger('input')
 
       // switch filter type
       searchTypeSelection = wrapper.find('.search-type-selection')
       searchTypeSelection.trigger('click')
       options = searchTypeSelection.findAll('option')
-      searchTypeSelection.setValue(options.at(0).element.value)
-      await wrapper.vm.$nextTick()
+      await searchTypeSelection.setValue(options.at(0).element.value)
+      // nextTick()
 
       expect(isItemInFilteredDocs(aclDocs[0], 'aclprofiles')).toBeTruthy()
       expect(isItemInFilteredDocs(aclDocs[1], 'aclprofiles')).toBeTruthy()
@@ -560,13 +561,11 @@ describe('DocumentSearch.vue', () => {
       const searchTypeSelection = wrapper.find('.search-type-selection')
       searchTypeSelection.trigger('click')
       const options = searchTypeSelection.findAll('option')
-      searchTypeSelection.setValue(options.at(0).element.value)
-      await wrapper.vm.$nextTick()
+      await searchTypeSelection.setValue(options.at(0).element.value)
 
       const searchInput = wrapper.find('.search-input')
       searchInput.setValue('default')
-      searchInput.trigger('input')
-      await wrapper.vm.$nextTick()
+      await searchInput.trigger('input')
 
       expect(isItemInFilteredDocs(aclDocs[0], 'aclprofiles')).toBeTruthy()
       expect(isItemInFilteredDocs(aclDocs[1], 'aclprofiles')).toBeTruthy()
@@ -582,13 +581,11 @@ describe('DocumentSearch.vue', () => {
       const searchTypeSelection = wrapper.find('.search-type-selection')
       searchTypeSelection.trigger('click')
       const options = searchTypeSelection.findAll('option')
-      searchTypeSelection.setValue(options.at(1).element.value)
-      await wrapper.vm.$nextTick()
+      await searchTypeSelection.setValue(options.at(1).element.value)
 
       const searchInput = wrapper.find('.search-input')
       searchInput.setValue('flow')
-      searchInput.trigger('input')
-      await wrapper.vm.$nextTick()
+      await searchInput.trigger('input')
       expect(isItemInFilteredDocs(flowControlPolicyDocs[0], 'flowcontrol')).toBeTruthy()
       expect(numberOfFilteredDocs()).toEqual(1)
     })
@@ -598,13 +595,11 @@ describe('DocumentSearch.vue', () => {
       const searchTypeSelection = wrapper.find('.search-type-selection')
       searchTypeSelection.trigger('click')
       const options = searchTypeSelection.findAll('option')
-      searchTypeSelection.setValue(options.at(2).element.value)
-      await wrapper.vm.$nextTick()
+      await searchTypeSelection.setValue(options.at(2).element.value)
 
       const searchInput = wrapper.find('.search-input')
       searchInput.setValue('c03dabe4b9ca')
-      searchInput.trigger('input')
-      await wrapper.vm.$nextTick()
+      await searchInput.trigger('input')
       expect(isItemInFilteredDocs(flowControlPolicyDocs[0], 'flowcontrol')).toBeTruthy()
       expect(numberOfFilteredDocs()).toEqual(1)
     })
@@ -614,13 +609,11 @@ describe('DocumentSearch.vue', () => {
       const searchTypeSelection = wrapper.find('.search-type-selection')
       searchTypeSelection.trigger('click')
       const options = searchTypeSelection.findAll('option')
-      searchTypeSelection.setValue(options.at(3).element.value)
-      await wrapper.vm.$nextTick()
+      await searchTypeSelection.setValue(options.at(3).element.value)
 
       const searchInput = wrapper.find('.search-input')
       searchInput.setValue('default entry')
-      searchInput.trigger('input')
-      await wrapper.vm.$nextTick()
+      await searchInput.trigger('input')
       expect(isItemInFilteredDocs(securityPoliciesDocs[0], 'securitypolicies')).toBeTruthy()
       expect(numberOfFilteredDocs()).toEqual(1)
     })
@@ -631,12 +624,12 @@ describe('DocumentSearch.vue', () => {
       searchTypeSelection.trigger('click')
       const options = searchTypeSelection.findAll('option')
       searchTypeSelection.setValue(options.at(4).element.value)
-      await wrapper.vm.$nextTick()
+      await nextTick()
 
       const searchInput = wrapper.find('.search-input')
       searchInput.setValue('default')
       searchInput.trigger('input')
-      await wrapper.vm.$nextTick()
+      await nextTick()
       expect(isItemInFilteredDocs(profilingListDocs[0], 'globalfilters')).toBeTruthy()
       expect(numberOfFilteredDocs()).toEqual(1)
     })
@@ -646,13 +639,11 @@ describe('DocumentSearch.vue', () => {
       const searchTypeSelection = wrapper.find('.search-type-selection')
       searchTypeSelection.trigger('click')
       const options = searchTypeSelection.findAll('option')
-      searchTypeSelection.setValue(options.at(5).element.value)
-      await wrapper.vm.$nextTick()
+      await searchTypeSelection.setValue(options.at(5).element.value)
 
       const searchInput = wrapper.find('.search-input')
       searchInput.setValue('china')
-      searchInput.trigger('input')
-      await wrapper.vm.$nextTick()
+      await searchInput.trigger('input')
       expect(isItemInFilteredDocs(aclDocs[0], 'aclprofiles')).toBeTruthy()
       expect(numberOfFilteredDocs()).toEqual(1)
     })
@@ -662,13 +653,11 @@ describe('DocumentSearch.vue', () => {
       const searchTypeSelection = wrapper.find('.search-type-selection')
       searchTypeSelection.trigger('click')
       const options = searchTypeSelection.findAll('option')
-      searchTypeSelection.setValue(options.at(6).element.value)
-      await wrapper.vm.$nextTick()
+      await searchTypeSelection.setValue(options.at(6).element.value)
 
       const searchInput = wrapper.find('.search-input')
       searchInput.setValue('default')
-      searchInput.trigger('input')
-      await wrapper.vm.$nextTick()
+      await searchInput.trigger('input')
       expect(isItemInFilteredDocs(aclDocs[1], 'aclprofiles')).toBeTruthy()
       expect(isItemInFilteredDocs(securityPoliciesDocs[0], 'securitypolicies')).toBeTruthy()
       expect(isItemInFilteredDocs(rateLimitDocs[0], 'ratelimits')).toBeTruthy()

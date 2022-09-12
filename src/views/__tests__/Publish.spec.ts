@@ -7,6 +7,7 @@ import {Branch} from '@/types'
 import * as bulmaToast from 'bulma-toast'
 import {Options} from 'bulma-toast'
 import {setImmediate} from 'timers'
+import {nextTick} from 'vue'
 
 jest.mock('axios')
 
@@ -166,10 +167,10 @@ describe('Publish.vue', () => {
       return Promise.resolve({data: {}})
     })
     wrapper = mount(Publish)
-    await wrapper.vm.$nextTick()
   })
   afterEach(() => {
     jest.clearAllMocks()
+    jest.clearAllTimers()
   })
 
   test('should be able to switch branches through dropdown', (done) => {
@@ -187,7 +188,6 @@ describe('Publish.vue', () => {
   test('should display no version and 0 buckets if no logs are present', async () => {
     gitData[0].logs = []
     wrapper = mount(Publish)
-    await wrapper.vm.$nextTick()
     const versionDisplay = wrapper.find('.version-display')
     expect(versionDisplay.text()).toEqual(`Version:`)
     const bucketsDisplay = wrapper.find('.buckets-display')
@@ -204,25 +204,22 @@ describe('Publish.vue', () => {
     expect(bucketsDisplay.text()).toEqual('Buckets: 1')
   })
 
-  test('should display correct amount of buckets without counting unavailable buckets', async (done) => {
-    (wrapper.vm as any).publishInfo = {
+  test('should display correct amount of buckets without counting unavailable buckets', async () => {
+    wrapper.vm.publishInfo = {
       'buckets': [
         {'name': 'prod', 'url': 's3://curiefense-test01/prod'},
         {'name': 'devops', 'url': 's3://curiefense-test01/devops'},
       ],
       'branch_buckets': [{'name': 'master', 'buckets': ['prod', 'fake']}, {'name': 'devops', 'buckets': ['devops']}],
     }
-    await wrapper.vm.$nextTick()
+    await nextTick()
     const branchSelection = wrapper.find('.branch-selection')
-    branchSelection.trigger('click')
+    await branchSelection.trigger('click')
     const options = branchSelection.findAll('option')
-    branchSelection.setValue(options.at(1).element.value)
+    await branchSelection.setValue(options.at(1).element.value)
     // allow all requests to finish
-    setImmediate(() => {
-      const gitBranches = wrapper.find('.buckets-display')
-      expect(gitBranches.text()).toEqual('Buckets: 1')
-      done()
-    })
+    const gitBranches = wrapper.find('.buckets-display')
+    expect(gitBranches.text()).toEqual('Buckets: 1')
   })
 
   describe('commits table display', () => {
@@ -252,8 +249,9 @@ describe('Publish.vue', () => {
         'branch_buckets': [{'name': 'master'}, {'name': 'devops'}],
       }
       wrapper = mount(Publish)
-      await wrapper.vm.$nextTick()
-      await wrapper.vm.$forceUpdate()
+      await nextTick()
+      wrapper.vm.$forceUpdate()
+      await nextTick()
       const bucketRows = wrapper.findAll('.bucket-row')
       const bucketRow0 = bucketRows.at(0)
       expect((bucketRow0.element as HTMLElement).classList).not.toContain('has-background-warning-light')
@@ -270,8 +268,9 @@ describe('Publish.vue', () => {
         'branch_buckets': [{'name': 'master1'}, {'name': 'devops1'}],
       }
       wrapper = mount(Publish)
-      await wrapper.vm.$nextTick()
-      await wrapper.vm.$forceUpdate()
+      await nextTick()
+      wrapper.vm.$forceUpdate()
+      await nextTick()
       const bucketRows = wrapper.findAll('.bucket-row')
       const bucketRow0 = bucketRows.at(0)
       expect((bucketRow0.element as HTMLElement).classList).not.toContain('has-background-warning-light')
@@ -312,8 +311,7 @@ describe('Publish.vue', () => {
       // allow all requests to finish
       setImmediate(async () => {
         const viewMoreButton = wrapper.find('.view-more-button')
-        viewMoreButton.trigger('click')
-        await wrapper.vm.$nextTick()
+        await viewMoreButton.trigger('click')
         const commitRows = wrapper.findAll('.commit-row')
         expect(commitRows.length).toEqual(9)
         done()
@@ -328,11 +326,9 @@ describe('Publish.vue', () => {
       // allow all requests to finish
       setImmediate(async () => {
         const viewMoreButton = wrapper.find('.view-more-button')
-        viewMoreButton.trigger('click')
-        await wrapper.vm.$nextTick()
+        await viewMoreButton.trigger('click')
         const viewLessButton = wrapper.find('.view-less-button')
-        viewLessButton.trigger('click')
-        await wrapper.vm.$nextTick()
+        await viewLessButton.trigger('click')
         const commitRows = wrapper.findAll('.commit-row')
         expect(commitRows.length).toEqual(5)
         done()
@@ -352,8 +348,7 @@ describe('Publish.vue', () => {
     test('should publish with preset data if not changed', async () => {
       const wantedPath = `/conf/api/v2/tools/publish/devops/v/${gitData[0].version}/`
       const wantedData = [publishInfoData.buckets[0]]
-      publishButton.trigger('click')
-      await wrapper.vm.$nextTick()
+      await publishButton.trigger('click')
       expect(putSpy).toHaveBeenCalledWith(wantedPath, wantedData)
     })
 
@@ -361,10 +356,8 @@ describe('Publish.vue', () => {
       const wantedPath = `/conf/api/v2/tools/publish/devops/v/${gitData[0].logs[1].version}/`
       const wantedData = [publishInfoData.buckets[0]]
       const commitRow = wrapper.findAll('.commit-row').at(1)
-      commitRow.trigger('click')
-      await wrapper.vm.$nextTick()
-      publishButton.trigger('click')
-      await wrapper.vm.$nextTick()
+      await commitRow.trigger('click')
+      await publishButton.trigger('click')
       expect(putSpy).toHaveBeenCalledWith(wantedPath, wantedData)
     })
 
@@ -372,10 +365,8 @@ describe('Publish.vue', () => {
       const wantedPath = `/conf/api/v2/tools/publish/devops/v/${gitData[0].version}/`
       const wantedData = publishInfoData.buckets
       const bucketRow = wrapper.findAll('.bucket-row').at(1)
-      bucketRow.trigger('click')
-      await wrapper.vm.$nextTick()
-      publishButton.trigger('click')
-      await wrapper.vm.$nextTick()
+      await bucketRow.trigger('click')
+      await publishButton.trigger('click')
       expect(putSpy).toHaveBeenCalledWith(wantedPath, wantedData)
     })
 
@@ -383,22 +374,17 @@ describe('Publish.vue', () => {
       const wantedPath = `/conf/api/v2/tools/publish/devops/v/${gitData[0].version}/`
       const wantedData = [publishInfoData.buckets[1]]
       const newBucketRow = wrapper.findAll('.bucket-row').at(1)
-      newBucketRow.trigger('click')
-      await wrapper.vm.$nextTick()
+      await newBucketRow.trigger('click')
       const preselectedBucketRow = wrapper.findAll('.bucket-row').at(0)
-      preselectedBucketRow.trigger('click')
-      await wrapper.vm.$nextTick()
-      publishButton.trigger('click')
-      await wrapper.vm.$nextTick()
+      await preselectedBucketRow.trigger('click')
+      await publishButton.trigger('click')
       expect(putSpy).toHaveBeenCalledWith(wantedPath, wantedData)
     })
 
     test('should not publish without a selected bucket', async () => {
       const preselectedBucketRow = wrapper.findAll('.bucket-row').at(0)
-      preselectedBucketRow.trigger('click')
-      await wrapper.vm.$nextTick()
-      publishButton.trigger('click')
-      await wrapper.vm.$nextTick()
+      await preselectedBucketRow.trigger('click')
+      await publishButton.trigger('click')
       expect((publishButton.element as HTMLButtonElement).disabled).toBeTruthy()
       expect(putSpy).not.toHaveBeenCalled()
     })
@@ -437,8 +423,7 @@ describe('Publish.vue', () => {
       jest.spyOn(bulmaToast, 'toast').mockImplementation((output: Options) => {
         toastOutput.push(output)
       })
-      publishButton.trigger('click')
-      await wrapper.vm.$nextTick()
+      await publishButton.trigger('click')
     })
 
     test('should only contain buckets which were in the publish request', async () => {
@@ -498,8 +483,7 @@ describe('Publish.vue', () => {
       jest.spyOn(bulmaToast, 'toast').mockImplementation((output: Options) => {
         toastOutput.push(output)
       })
-      publishButton.trigger('click')
-      await wrapper.vm.$nextTick()
+      await publishButton.trigger('click')
     })
 
     test('should only contain buckets which were in the publish request', async () => {
@@ -555,8 +539,7 @@ describe('Publish.vue', () => {
       jest.spyOn(bulmaToast, 'toast').mockImplementation((output: Options) => {
         toastOutput.push(output)
       })
-      publishButton.trigger('click')
-      await wrapper.vm.$nextTick()
+      await publishButton.trigger('click')
     })
     afterEach(() => {
       console.error = originalError

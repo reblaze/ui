@@ -10,7 +10,7 @@ jest.mock('axios')
 
 describe('AutocompleteInput', () => {
   let wrapper: VueWrapper
-  let suggestions: any[]
+  let suggestions: AutocompleteSuggestion[]
   beforeEach(() => {
     suggestions = [
       {
@@ -210,7 +210,7 @@ describe('AutocompleteInput', () => {
         clearInputAfterSelection: false,
       },
       attachTo: elem,
-    }) as VueWrapper<any>
+    }) as VueWrapper
     const input = wrapper.find('.autocomplete-input')
     await input.setValue('value')
     await input.trigger('input')
@@ -220,12 +220,12 @@ describe('AutocompleteInput', () => {
   })
 
   describe('keyboard control', () => {
-    let input: typeof wrapper | any
-    let dropdownItems: typeof wrapper | any
+    let input: DOMWrapper
+    let dropdownItems: DOMWrapper[]
     beforeEach(async () => {
       input = wrapper.find('.autocomplete-input')
-      input.setValue('value')
-      input.trigger('input')
+      await input.setValue('value')
+      await input.trigger('input')
       dropdownItems = wrapper.findAll('.dropdown-item')
     })
 
@@ -382,7 +382,7 @@ describe('AutocompleteInput', () => {
   })
 
   describe('multiple values selection', () => {
-    let input: any
+    let input: DOMWrapper
     beforeEach(async () => {
       wrapper = mount(AutocompleteInput, {
         props: {
@@ -420,7 +420,7 @@ describe('AutocompleteInput', () => {
   describe('selection type prop validator', () => {
     let validator: Function
     beforeEach(() => {
-      validator = (wrapper.vm as any).$options.props.selectionType.validator
+      validator = wrapper.vm.$options.props.selectionType.validator
     })
 
     test('should return true for `single` type`', () => {

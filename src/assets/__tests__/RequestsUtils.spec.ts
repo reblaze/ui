@@ -20,6 +20,7 @@ describe('RequestsUtils.ts', () => {
   })
   afterEach(() => {
     jest.clearAllMocks()
+    jest.clearAllTimers()
   })
 
   function buildFuncDescribe(func: Function, baseUrl: string, urlTrail: string) {

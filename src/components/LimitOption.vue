@@ -199,9 +199,13 @@ export default defineComponent({
       return this.optionsData[this.type]
     },
   },
-
+  updated() {
+    if (!_.isEqual(this.prevSelectedOption, this.selectedOption)) {
+      this.prevSelectedOption = {...this.selectedOption}
+      this.$emit('change', {...this.selectedOption})
+    }
+  },
   emits: ['change', 'remove'],
-
   methods: {
     isCategoryArgsCookiesHeaders(limitRuleType: LimitRuleType) {
       return (new RegExp('(args|cookies|headers)')).test(limitRuleType)
@@ -210,11 +214,5 @@ export default defineComponent({
   mounted() {
     this.prevSelectedOption = {...this.selectedOption}
   },
-  updated() {
-    if (!_.isEqual(this.prevSelectedOption, this.selectedOption)) {
-      this.$emit('change', {...this.selectedOption})
-    }
-  },
-
 })
 </script>

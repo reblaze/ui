@@ -18,7 +18,8 @@
                            data-qa="document-name-input"
                            title="Document name"
                            placeholder="Document name"
-                           v-model="localDoc.name"/>
+                           v-model="localDoc.name"
+                           @change="emitDocUpdate"/>
                   </div>
                 </div>
                 <div class="field textarea-field">
@@ -28,7 +29,7 @@
                               data-qa="description-input"
                               title="description"
                               v-model="localDoc.description"
-                              @change="emitDocUpdate()"
+                              @change="emitDocUpdate"
                               rows="5">
                     </textarea>
                   </div>
@@ -43,7 +44,7 @@
                            title="Category"
                            placeholder="Category"
                            v-model="localDoc.category"
-                           @change="emitDocUpdate()"/>
+                           @change="emitDocUpdate"/>
                   </div>
                 </div>
                 <div class="field">
@@ -54,7 +55,7 @@
                            title="Subcategory"
                            placeholder="Subcategory"
                            v-model="localDoc.subcategory"
-                           @change="emitDocUpdate()"/>
+                           @change="emitDocUpdate"/>
                   </div>
                 </div>
                 <div class="field">
@@ -83,7 +84,7 @@
                            title="Tags"
                            placeholder="Space separated tags"
                            v-model="selectedDocTags"
-                           @change="emitDocUpdate()"/>
+                           @change="emitDocUpdate"/>
                   </div>
                   <div class="is-size-7">
                     Automatic Tags:
@@ -101,7 +102,7 @@
                        title="Message to appear in the logs"
                        placeholder="Log message"
                        v-model="localDoc.msg"
-                       @change="emitDocUpdate()"
+                       @change="emitDocUpdate"
                        required>
               </div>
             </div>
@@ -114,7 +115,7 @@
                        title="Match"
                        placeholder="matching regex"
                        v-model="localDoc.operand"
-                       @change="emitDocUpdate()"
+                       @change="emitDocUpdate"
                        required>
                 <span class="icon is-small is-left has-text-grey">
                       <i class="fas fa-code"></i>

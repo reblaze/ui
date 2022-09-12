@@ -2,6 +2,7 @@
 import LimitOption, {OptionObject} from '@/components/LimitOption.vue'
 import {beforeEach, describe, expect, test} from '@jest/globals'
 import {mount} from '@vue/test-utils'
+import {nextTick} from 'vue'
 
 describe('LimitOption.vue', () => {
   let option: OptionObject
@@ -17,7 +18,7 @@ describe('LimitOption.vue', () => {
         useValue: true,
       },
     })
-    await wrapper.vm.$nextTick()
+    await nextTick()
   })
 
   test('should render dropdown correctly with all possible types as options', () => {
@@ -32,7 +33,7 @@ describe('LimitOption.vue', () => {
 
   test('should render dropdown correctly without self as possible type as option', async () => {
     wrapper.setProps({useDefaultSelf: false})
-    await wrapper.vm.$nextTick()
+    await nextTick()
     const selection = wrapper.find('.option-type-selection')
     const options = selection.findAll('option')
     expect(options.at(0).text()).toEqual('Header')
@@ -73,7 +74,7 @@ describe('LimitOption.vue', () => {
           showRemove: true,
         },
       })
-      await wrapper.vm.$nextTick()
+      await nextTick()
       const button = wrapper.find('.remove-option-button')
       expect(button.exists()).toBeTruthy()
     })
@@ -85,7 +86,7 @@ describe('LimitOption.vue', () => {
           showRemove: false,
         },
       })
-      await wrapper.vm.$nextTick()
+      await nextTick()
       const button = wrapper.find('.remove-option-button')
       expect(button.exists()).toBeFalsy()
     })
@@ -96,7 +97,7 @@ describe('LimitOption.vue', () => {
           option: option,
         },
       })
-      await wrapper.vm.$nextTick()
+      await nextTick()
       const button = wrapper.find('.remove-option-button')
       expect(button.exists()).toBeFalsy()
     })
@@ -113,7 +114,7 @@ describe('LimitOption.vue', () => {
           ignoreAttributes: ['tags', 'method'],
         },
       })
-      await wrapper.vm.$nextTick()
+      await nextTick()
       const selection = wrapper.find('.option-attribute-selection')
       const options = selection.findAll('option')
       expect(options.at(0).text()).toEqual('IP Address')
@@ -136,7 +137,7 @@ describe('LimitOption.vue', () => {
           ignoreAttributes: ['ip', 'uri', 'country'],
         },
       })
-      await wrapper.vm.$nextTick()
+      await nextTick()
       const selection = wrapper.find('.option-attribute-selection')
       const options = selection.findAll('option')
       expect(options.at(0).text()).toEqual('Provider')
@@ -158,7 +159,7 @@ describe('LimitOption.vue', () => {
           ignoreAttributes: [],
         },
       })
-      await wrapper.vm.$nextTick()
+      await nextTick()
       const selection = wrapper.find('.option-attribute-selection')
       const options = selection.findAll('option')
       expect(options.at(0).text()).toEqual('IP Address')
@@ -176,7 +177,14 @@ describe('LimitOption.vue', () => {
 
   describe('emit changes', () => {
     describe('type dropdown', () => {
-      test('should emit new option when type selected from dropdown - self', async () => {
+      test('should not emit new option when selected type selected from dropdown again', async () => {
+        const selection = wrapper.find('.option-type-selection')
+        const options = selection.findAll('option')
+        await selection.setValue(options.at(0).element.value)
+        expect(wrapper.emitted('change')).toBeFalsy()
+      })
+
+      test('should emit new option when type selected from dropdown - self - headers - self', async () => {
         const wantedEmit = {
           type: 'self',
           key: 'self',
@@ -184,11 +192,10 @@ describe('LimitOption.vue', () => {
         const selection = wrapper.find('.option-type-selection')
         const options = selection.findAll('option')
         // set to not self so we would be able to change to default
-        selection.setValue(options.at(1).element.value)
-        selection.setValue(options.at(0).element.value)
-        await wrapper.vm.$nextTick()
+        await selection.setValue(options.at(1).element.value)
+        await selection.setValue(options.at(0).element.value)
         expect(wrapper.emitted('change')).toBeTruthy()
-        expect(wrapper.emitted('change')[0]).toEqual([wantedEmit])
+        expect(wrapper.emitted('change')[1]).toEqual([wantedEmit])
       })
 
       test('should emit new option when type selected from dropdown - headers', async () => {
@@ -201,7 +208,7 @@ describe('LimitOption.vue', () => {
         const options = selection.findAll('option')
         selection.setValue(options.at(1).element.value)
         // options.at(1).setSelected()
-        await wrapper.vm.$nextTick()
+        await nextTick()
         expect(wrapper.emitted('change')).toBeTruthy()
         expect(wrapper.emitted('change')[0]).toEqual([wantedEmit])
       })
@@ -215,7 +222,7 @@ describe('LimitOption.vue', () => {
         const selection = wrapper.find('.option-type-selection')
         const options = selection.findAll('option')
         options.at(2).setSelected()
-        await wrapper.vm.$nextTick()
+        await nextTick()
         expect(wrapper.emitted('change')).toBeTruthy()
         expect(wrapper.emitted('change')[0]).toEqual([wantedEmit])
       })
@@ -229,7 +236,7 @@ describe('LimitOption.vue', () => {
         const selection = wrapper.find('.option-type-selection')
         const options = selection.findAll('option')
         options.at(3).setSelected()
-        await wrapper.vm.$nextTick()
+        await nextTick()
         expect(wrapper.emitted('change')).toBeTruthy()
         expect(wrapper.emitted('change')[0]).toEqual([wantedEmit])
       })
@@ -243,7 +250,7 @@ describe('LimitOption.vue', () => {
         const selection = wrapper.find('.option-type-selection')
         const options = selection.findAll('option')
         options.at(4).setSelected()
-        await wrapper.vm.$nextTick()
+        await nextTick()
         expect(wrapper.emitted('change')).toBeTruthy()
         expect(wrapper.emitted('change')[0]).toEqual([wantedEmit])
       })
@@ -261,10 +268,10 @@ describe('LimitOption.vue', () => {
         const selection = wrapper.find('.option-type-selection')
         const options = selection.findAll('option')
         options.at(1).setSelected()
-        await wrapper.vm.$nextTick()
+        await nextTick()
         const input = wrapper.find('.option-name-input')
         input.setValue(wantedKeyValue)
-        await wrapper.vm.$nextTick()
+        await nextTick()
         expect(wrapper.emitted('change')).toBeTruthy()
         expect(wrapper.emitted('change')[1]).toEqual([wantedEmit])
       })
@@ -280,10 +287,10 @@ describe('LimitOption.vue', () => {
         const selection = wrapper.find('.option-type-selection')
         const options = selection.findAll('option')
         options.at(2).setSelected()
-        await wrapper.vm.$nextTick()
+        await nextTick()
         const input = wrapper.find('.option-name-input')
         input.setValue(wantedKeyValue)
-        await wrapper.vm.$nextTick()
+        await nextTick()
         expect(wrapper.emitted('change')).toBeTruthy()
         expect(wrapper.emitted('change')[1]).toEqual([wantedEmit])
       })
@@ -299,10 +306,10 @@ describe('LimitOption.vue', () => {
         const selection = wrapper.find('.option-type-selection')
         const options = selection.findAll('option')
         options.at(3).setSelected()
-        await wrapper.vm.$nextTick()
+        await nextTick()
         const input = wrapper.find('.option-name-input')
         input.setValue(wantedKeyValue)
-        await wrapper.vm.$nextTick()
+        await nextTick()
         expect(wrapper.emitted('change')).toBeTruthy()
         expect(wrapper.emitted('change')[1]).toEqual([wantedEmit])
       })
@@ -317,11 +324,11 @@ describe('LimitOption.vue', () => {
         const typeSelection = wrapper.find('.option-type-selection')
         const typeOptions = typeSelection.findAll('option')
         typeOptions.at(4).setSelected()
-        await wrapper.vm.$nextTick()
+        await nextTick()
         const keySelection = wrapper.find('.option-attribute-selection')
         const keyOptions = keySelection.findAll('option')
         keyOptions.at(3).setSelected()
-        await wrapper.vm.$nextTick()
+        await nextTick()
         expect(wrapper.emitted('change')).toBeTruthy()
         expect(wrapper.emitted('change')[1]).toEqual([wantedEmit])
       })
@@ -338,10 +345,10 @@ describe('LimitOption.vue', () => {
         const selection = wrapper.find('.option-type-selection')
         const options = selection.findAll('option')
         options.at(1).setSelected()
-        await wrapper.vm.$nextTick()
+        await nextTick()
         const input = wrapper.find('.option-value-input')
         input.setValue(wantedValue)
-        await wrapper.vm.$nextTick()
+        await nextTick()
         expect(wrapper.emitted('change')).toBeTruthy()
         expect(wrapper.emitted('change')[1]).toEqual([wantedEmit])
       })
@@ -356,10 +363,10 @@ describe('LimitOption.vue', () => {
         const selection = wrapper.find('.option-type-selection')
         const options = selection.findAll('option')
         options.at(2).setSelected()
-        await wrapper.vm.$nextTick()
+        await nextTick()
         const input = wrapper.find('.option-value-input')
         input.setValue(wantedValue)
-        await wrapper.vm.$nextTick()
+        await nextTick()
         expect(wrapper.emitted('change')).toBeTruthy()
         expect(wrapper.emitted('change')[1]).toEqual([wantedEmit])
       })
@@ -374,10 +381,10 @@ describe('LimitOption.vue', () => {
         const selection = wrapper.find('.option-type-selection')
         const options = selection.findAll('option')
         options.at(3).setSelected()
-        await wrapper.vm.$nextTick()
+        await nextTick()
         const input = wrapper.find('.option-value-input')
         input.setValue(wantedValue)
-        await wrapper.vm.$nextTick()
+        await nextTick()
         expect(wrapper.emitted('change')).toBeTruthy()
         expect(wrapper.emitted('change')[1]).toEqual([wantedEmit])
       })
@@ -392,10 +399,10 @@ describe('LimitOption.vue', () => {
         const selection = wrapper.find('.option-type-selection')
         const options = selection.findAll('option')
         options.at(4).setSelected()
-        await wrapper.vm.$nextTick()
+        await nextTick()
         const input = wrapper.find('.option-value-input')
         input.setValue(wantedValue)
-        await wrapper.vm.$nextTick()
+        await nextTick()
         expect(wrapper.emitted('change')).toBeTruthy()
         expect(wrapper.emitted('change')[1]).toEqual([wantedEmit])
       })
@@ -412,7 +419,7 @@ describe('LimitOption.vue', () => {
               useValue: true,
             },
           })
-          await wrapper.vm.$nextTick()
+          await nextTick()
           const selection = wrapper.find('.option-type-selection')
           const options = selection.findAll('option')
           options.at(2).setSelected()
@@ -439,7 +446,7 @@ describe('LimitOption.vue', () => {
           }
           const input = wrapper.find('.option-name-input')
           input.setValue(wantedKeyValue)
-          await wrapper.vm.$nextTick()
+          await nextTick()
           expect(wrapper.emitted('change')).toBeTruthy()
           expect(wrapper.emitted('change')[1]).toEqual([wantedEmit])
         })
@@ -453,7 +460,7 @@ describe('LimitOption.vue', () => {
           }
           const input = wrapper.find('.option-value-input')
           input.setValue(wantedValue)
-          await wrapper.vm.$nextTick()
+          await nextTick()
           expect(wrapper.emitted('change')).toBeTruthy()
           expect(wrapper.emitted('change')[1]).toEqual([wantedEmit])
         })
@@ -467,7 +474,7 @@ describe('LimitOption.vue', () => {
               useValue: true,
             },
           })
-          await wrapper.vm.$nextTick()
+          await nextTick()
           const selection = wrapper.find('.option-type-selection')
           const options = selection.findAll('option')
           options.at(2).setSelected()
@@ -494,7 +501,7 @@ describe('LimitOption.vue', () => {
           }
           const input = wrapper.find('.option-name-input')
           input.setValue(wantedKeyValue)
-          await wrapper.vm.$nextTick()
+          await nextTick()
           expect(wrapper.emitted('change')).toBeTruthy()
           expect(wrapper.emitted('change')[1]).toEqual([wantedEmit])
         })
@@ -508,7 +515,7 @@ describe('LimitOption.vue', () => {
           }
           const input = wrapper.find('.option-value-input')
           input.setValue(wantedValue)
-          await wrapper.vm.$nextTick()
+          await nextTick()
           expect(wrapper.emitted('change')).toBeTruthy()
           expect(wrapper.emitted('change')[1]).toEqual([wantedEmit])
         })
@@ -524,10 +531,10 @@ describe('LimitOption.vue', () => {
             removable: true,
           },
         })
-        await wrapper.vm.$nextTick()
+        await nextTick()
         const button = wrapper.find('.remove-option-button')
         button.trigger('click')
-        await wrapper.vm.$nextTick()
+        await nextTick()
         expect(wrapper.emitted('remove')).toBeTruthy()
       })
 
@@ -539,10 +546,10 @@ describe('LimitOption.vue', () => {
             removable: false,
           },
         })
-        await wrapper.vm.$nextTick()
+        await nextTick()
         const button = wrapper.find('.remove-option-button')
         button.trigger('click')
-        await wrapper.vm.$nextTick()
+        await nextTick()
         expect(wrapper.emitted('remove')).toBeFalsy()
       })
     })

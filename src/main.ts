@@ -12,13 +12,10 @@ app.use(router)
 app.use(VueAxios, axios)
 
 app.mount('#app')
-
 declare module '@vue/runtime-core' {
     export interface ComponentCustomProperties {
       $refs: {
-        [key: string]: HTMLElement | any,
+        [key: string]: any,
       },
-      $goto: any,
-      // ... more stuff
     }
   }

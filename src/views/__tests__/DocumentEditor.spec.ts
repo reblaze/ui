@@ -768,8 +768,8 @@ describe('DocumentEditor.vue', () => {
       if (path === '/conf/api/v2/configs/') {
         return Promise.resolve({data: gitData})
       }
-      const branch = (wrapper.vm as any).selectedBranch
-      const docID = (wrapper.vm as any).selectedDocID
+      const branch = wrapper.vm.selectedBranch
+      const docID = wrapper.vm.selectedDocID
       if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve({data: _.map(aclDocs, (i) => _.pick(i, 'id', 'name'))})
@@ -883,6 +883,7 @@ describe('DocumentEditor.vue', () => {
   })
   afterEach(() => {
     jest.clearAllMocks()
+    jest.clearAllTimers()
   })
 
   test('should have a git history component with correct data', () => {
@@ -941,8 +942,8 @@ describe('DocumentEditor.vue', () => {
       if (path === '/conf/api/v2/configs/') {
         return Promise.resolve({data: gitData})
       }
-      const branch = (wrapper.vm as any).selectedBranch
-      const doctype = (wrapper.vm as any).selectedDocType
+      const branch = wrapper.vm.selectedBranch
+      const doctype = wrapper.vm.selectedDocType
       if (path === `/conf/api/v2/configs/${branch}/d/${doctype}/`) {
         return Promise.reject(new Error())
       }
@@ -1406,7 +1407,7 @@ describe('DocumentEditor.vue', () => {
       docTypeSelection.setValue(options.at(4).element.value)
       // allow all requests to finish
       setImmediate(async () => {
-        const doc = (wrapper.vm as any).selectedDoc
+        const doc = wrapper.vm.selectedDoc
         doc.name = `${doc.name} changed`
         jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
         const getSpy = jest.spyOn(axios, 'get')
@@ -1418,7 +1419,7 @@ describe('DocumentEditor.vue', () => {
     })
 
     test('should be able to save document changes', () => {
-      const doc = (wrapper.vm as any).selectedDoc
+      const doc = wrapper.vm.selectedDoc
       doc.name = `${doc.name} changed`
       const putSpy = jest.spyOn(axios, 'put')
       putSpy.mockImplementation(() => Promise.resolve())
@@ -1428,7 +1429,7 @@ describe('DocumentEditor.vue', () => {
     })
 
     test('should be able to fork document', () => {
-      const originalDoc = (wrapper.vm as any).selectedDoc
+      const originalDoc = wrapper.vm.selectedDoc
       const forkedDoc = {...originalDoc}
       forkedDoc.id = expect.any(String)
       forkedDoc.name = `copy of ${forkedDoc.name}`
@@ -1454,7 +1455,7 @@ describe('DocumentEditor.vue', () => {
           },
         },
       })
-      const originalDoc = (wrapper.vm as any).selectedDoc
+      const originalDoc = wrapper.vm.selectedDoc
       const forkedDoc = {...originalDoc}
       forkedDoc.id = expect.any(String)
       forkedDoc.name = `copy of ${forkedDoc.name}`
@@ -1473,7 +1474,7 @@ describe('DocumentEditor.vue', () => {
       docTypeSelection.setValue(options.at(2).element.value)
       // allow all requests to finish
       setImmediate(() => {
-        const originalDoc = (wrapper.vm as any).selectedDoc
+        const originalDoc = wrapper.vm.selectedDoc
         const forkedDoc = {...originalDoc}
         forkedDoc.id = expect.any(String)
         forkedDoc.name = `copy of ${forkedDoc.name}`
@@ -1517,7 +1518,7 @@ describe('DocumentEditor.vue', () => {
       // create new document so we can delete it
       const newDocumentButton = wrapper.find('.new-document-button')
       await newDocumentButton.trigger('click')
-      const docID = (wrapper.vm as any).selectedDocID
+      const docID = wrapper.vm.selectedDocID
       const deleteDocumentButton = wrapper.find('.delete-document-button')
       await deleteDocumentButton.trigger('click')
       expect(deleteSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclprofiles/e/${docID}/`)
@@ -1581,8 +1582,8 @@ describe('DocumentEditor.vue', () => {
         if (path === '/conf/api/v2/configs/') {
           return Promise.resolve({data: gitData})
         }
-        const branch = (wrapper.vm as any).selectedBranch
-        const docID = (wrapper.vm as any).selectedDocID
+        const branch = wrapper.vm.selectedBranch
+        const docID = wrapper.vm.selectedDocID
         if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
           if (config && config.headers && config.headers['x-fields'] === 'id, name') {
             return Promise.resolve({data: _.map(aclDocs, (i) => _.pick(i, 'id', 'name'))})
@@ -1615,9 +1616,6 @@ describe('DocumentEditor.vue', () => {
       })
       const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {
       })
-      await nextTick()
-      await nextTick()
-      await nextTick()
       const downloadDocButton = wrapper.find('.download-doc-button')
       await downloadDocButton.trigger('click')
       expect(downloadFileSpy).not.toHaveBeenCalled()
@@ -1629,9 +1627,6 @@ describe('DocumentEditor.vue', () => {
       const wantedFileData = aclDocs
       const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {
       })
-      await nextTick()
-      await nextTick()
-      await nextTick()
       const downloadDocButton = wrapper.find('.download-doc-button')
       await downloadDocButton.trigger('click')
       expect(downloadFileSpy).toHaveBeenCalledWith(wantedFileName, wantedFileType, wantedFileData)
@@ -1692,7 +1687,7 @@ describe('DocumentEditor.vue', () => {
 
     test('should display correct message when there is no doc type data', (done) => {
       // it is not possible to get to this state from the UI, but we protect from it anyway
-      (wrapper.vm as any).selectedDocType = null
+      wrapper.vm.selectedDocType = null
       // allow all requests to finish
       setImmediate(() => {
         const noDataMessage: DOMWrapper = wrapper.find('.no-data-message')
@@ -1756,7 +1751,7 @@ describe('DocumentEditor.vue', () => {
         if (path === '/conf/api/v2/configs/') {
           return Promise.resolve({data: gitData})
         }
-        const branch = (wrapper.vm as any).selectedBranch
+        const branch = wrapper.vm.selectedBranch
         if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
           return new Promise(() => {
           })

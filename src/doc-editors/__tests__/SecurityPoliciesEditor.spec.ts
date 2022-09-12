@@ -7,6 +7,7 @@ import {ACLProfile, ContentFilterProfile, RateLimit, SecurityPolicy} from '@/typ
 import axios from 'axios'
 import _ from 'lodash'
 import {setImmediate} from 'timers'
+import {nextTick} from 'vue'
 
 jest.mock('axios')
 
@@ -232,7 +233,8 @@ describe('SecurityPoliciesEditor.vue', () => {
       if (!wrapper) {
         return Promise.resolve({data: []})
       }
-      if (path === `/conf/api/v2/configs/${selectedBranch}/d/aclprofiles/`) {
+      const branch = wrapper.vm.selectedBranch
+      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve(
             {
@@ -244,19 +246,19 @@ describe('SecurityPoliciesEditor.vue', () => {
         }
         return Promise.resolve({data: aclDocs})
       }
-      if (path === `/conf/api/v2/configs/${selectedBranch}/d/securitypolicies/`) {
-        if (config && config.headers && config.headers['x-fields'] === 'id, name') {
+      if (path === `/conf/api/v2/configs/${branch}/d/securitypolicies/`) {
+        if (config && config.headers && config.headers['x-fields'] === 'match') {
           return Promise.resolve(
             {
               data: _.map(securityPoliciesDocs, (doc: SecurityPolicy) => {
-                return _.pick(doc, 'id', 'name')
+                return _.pick(doc, 'match')
               }),
             },
           )
         }
         return Promise.resolve({data: securityPoliciesDocs})
       }
-      if (path === `/conf/api/v2/configs/${selectedBranch}/d/contentfilterprofiles/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/contentfilterprofiles/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve(
             {
@@ -268,7 +270,7 @@ describe('SecurityPoliciesEditor.vue', () => {
         }
         return Promise.resolve({data: contentFilterDocs})
       }
-      if (path === `/conf/api/v2/configs/${selectedBranch}/d/ratelimits/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/ratelimits/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve(
             {
@@ -280,7 +282,7 @@ describe('SecurityPoliciesEditor.vue', () => {
         }
         return Promise.resolve({data: rateLimitsDocs})
       }
-      if (path === `/conf/api/v2/configs/${selectedBranch}/d/ratelimits/e/f971e92459e2/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/ratelimits/e/f971e92459e2/`) {
         return Promise.resolve({data: rateLimitsDocs[0]})
       }
       return Promise.resolve({data: []})
@@ -291,7 +293,7 @@ describe('SecurityPoliciesEditor.vue', () => {
     wrapper = shallowMount(SecurityPoliciesEditor, {
       props: {
         selectedDoc: securityPoliciesDocs[0],
-        selectedBranch,
+        selectedBranch: selectedBranch,
       },
       global: {
         mocks: {
@@ -302,6 +304,7 @@ describe('SecurityPoliciesEditor.vue', () => {
   })
   afterEach(() => {
     jest.clearAllMocks()
+    jest.clearAllTimers()
   })
 
   test('should update initial domain match if selectedDoc updates from a state without match', (done) => {
@@ -342,9 +345,8 @@ describe('SecurityPoliciesEditor.vue', () => {
     })
     wrapper.setProps({selectedDoc: fullPolicy})
     // allow all requests to finish
-    jest.useFakeTimers()
     setImmediate(() => {
-      expect((wrapper.vm as any).initialDocDomainMatch).toBe(wantedMatch)
+      expect(wrapper.vm.initialDocDomainMatch).toBe(wantedMatch)
       jest.useRealTimers()
       done()
     })
@@ -390,13 +392,13 @@ describe('SecurityPoliciesEditor.vue', () => {
     wrapper.setProps({selectedDoc: fullPolicy})
     // allow all requests to finish
     setImmediate(() => {
-      expect((wrapper.vm as any).initialDocDomainMatch).toBe(wantedMatch)
+      expect(wrapper.vm.initialDocDomainMatch).toBe(wantedMatch)
       done()
     })
   })
 
   test('should not send new requests to API if selected branch does not update', (done) => {
-    jest.resetAllMocks()
+    jest.clearAllMocks()
     const branch = _.cloneDeep(selectedBranch)
     wrapper.setProps({
       selectedBranch: branch,
@@ -409,7 +411,7 @@ describe('SecurityPoliciesEditor.vue', () => {
   })
 
   test('should not send new requests to API if selected branch updates to empty string', (done) => {
-    jest.resetAllMocks()
+    jest.clearAllMocks()
     wrapper.setProps({
       selectedBranch: '',
     })
@@ -421,7 +423,7 @@ describe('SecurityPoliciesEditor.vue', () => {
   })
 
   test('should not send new requests to API if selected branch updates to null', (done) => {
-    jest.resetAllMocks()
+    jest.clearAllMocks()
     wrapper.setProps({
       selectedBranch: null,
     })
@@ -433,7 +435,7 @@ describe('SecurityPoliciesEditor.vue', () => {
   })
 
   test('should not send new requests to API if selected branch updates to undefined', (done) => {
-    jest.resetAllMocks()
+    jest.clearAllMocks()
     wrapper.setProps({
       selectedBranch: undefined,
     })
@@ -444,17 +446,21 @@ describe('SecurityPoliciesEditor.vue', () => {
     })
   })
 
-  test('should send a single new request to API if selected branch updates', async () => {
-    jest.resetAllMocks()
+  test('should send a single new request to API if selected branch updates', (done) => {
+    jest.clearAllMocks()
     const branch = 'devops'
-    await wrapper.setProps({
+    wrapper.setProps({
       selectedBranch: branch,
     })
-    expect(axiosGetSpy).toHaveBeenCalledTimes(1)
+    // allow all requests to finish
+    setImmediate(() => {
+      expect(axiosGetSpy).toHaveBeenCalledTimes(1)
+      done()
+    })
   })
 
   test('should not change the initial domain match if document data updates with new data and same ID', async () => {
-    jest.resetAllMocks()
+    jest.clearAllMocks()
     const wantedDomainMatch = securityPoliciesDocs[0].match
     const newDomainMatch = 'example.com'
     securityPoliciesDocs[0] = {
@@ -485,16 +491,16 @@ describe('SecurityPoliciesEditor.vue', () => {
     await wrapper.setProps({
       selectedDoc: securityPoliciesDocs[0],
     })
-    expect((wrapper.vm as any).initialDocDomainMatch).toEqual(wantedDomainMatch)
+    expect(wrapper.vm.initialDocDomainMatch).toEqual(wantedDomainMatch)
   })
 
   test('should change the initial domain match if document data updates with new ID', async () => {
-    jest.resetAllMocks()
+    jest.clearAllMocks()
     const wantedDomainMatch = securityPoliciesDocs[1].match
     await wrapper.setProps({
       selectedDoc: securityPoliciesDocs[1],
     })
-    expect((wrapper.vm as any).initialDocDomainMatch).toEqual(wantedDomainMatch)
+    expect(wrapper.vm.initialDocDomainMatch).toEqual(wantedDomainMatch)
   })
 
   describe('form data', () => {
@@ -622,10 +628,12 @@ describe('SecurityPoliciesEditor.vue', () => {
       const entryRateLimitsTable = currentEntryRow.find('.current-entry-rate-limits-table')
       const removeButton = entryRateLimitsTable.find('.rate-limit-remove-button')
       await removeButton.trigger('click')
-      await wrapper.vm.$forceUpdate()
+      wrapper.vm.$forceUpdate()
+      await nextTick()
       const addButton = entryRateLimitsTable.find('.rate-limit-text-add-button')
       await addButton.trigger('click')
-      await wrapper.vm.$forceUpdate()
+      wrapper.vm.$forceUpdate()
+      await nextTick()
       const enwRateLimitRow = entryRateLimitsTable.find('.new-rate-limit-row')
       expect(enwRateLimitRow.exists()).toBeTruthy()
     })
@@ -683,7 +691,8 @@ describe('SecurityPoliciesEditor.vue', () => {
       const entryRateLimitsTable = currentEntryRow.find('.current-entry-rate-limits-table')
       const removeButton = entryRateLimitsTable.find('.rate-limit-remove-button')
       await removeButton.trigger('click')
-      await wrapper.vm.$forceUpdate()
+      wrapper.vm.$forceUpdate()
+      await nextTick()
       const entryRateLimitsRows = entryRateLimitsTable.findAll('.rate-limit-row')
       expect(entryRateLimitsRows.length).toEqual(securityPoliciesDocs[0].map[0].limit_ids.length - 1)
     })
@@ -696,7 +705,8 @@ describe('SecurityPoliciesEditor.vue', () => {
       const entryRateLimitsTable = currentEntryRow.find('.current-entry-rate-limits-table')
       const removeButton = entryRateLimitsTable.find('.rate-limit-remove-button')
       await removeButton.trigger('click')
-      await wrapper.vm.$forceUpdate()
+      wrapper.vm.$forceUpdate()
+      await nextTick()
       const referralButton = entryRateLimitsTable.find('.rate-limit-referral-button')
       await referralButton.trigger('click')
       expect(mockRouter.push).toHaveBeenCalledTimes(1)
@@ -909,7 +919,8 @@ describe('SecurityPoliciesEditor.vue', () => {
           await entryMatch.trigger('change')
           await entryMatch.trigger('input')
           await forkButton.trigger('click')
-          await wrapper.vm.$forceUpdate()
+          wrapper.vm.$forceUpdate()
+          await nextTick()
           let table = wrapper.find('.entries-table')
           const entryRow = table.findAll('.entry-row').at(2)
           await entryRow.trigger('click')
@@ -926,7 +937,8 @@ describe('SecurityPoliciesEditor.vue', () => {
           await entryMatch.trigger('change')
           await entryMatch.trigger('input')
           await forkButton.trigger('click')
-          await wrapper.vm.$forceUpdate()
+          wrapper.vm.$forceUpdate()
+          await nextTick()
           let table = wrapper.find('.entries-table')
           const entryRow = table.findAll('.entry-row').at(2)
           await entryRow.trigger('click')
@@ -939,7 +951,8 @@ describe('SecurityPoliciesEditor.vue', () => {
         test('should not revert entry match data of new entry when forking selected entry', async () => {
           const validMatch = expect.stringContaining('/new/path/to/match/profile/')
           forkButton.trigger('click')
-          await wrapper.vm.$forceUpdate()
+          wrapper.vm.$forceUpdate()
+          await nextTick()
           let table = wrapper.find('.entries-table')
           let entryRow = table.findAll('.entry-row').at(1)
           await entryRow.trigger('click')
@@ -955,7 +968,8 @@ describe('SecurityPoliciesEditor.vue', () => {
         test('should not revert entry match data of new entry when forking selected entry', async () => {
           const validMatch = expect.stringContaining('/new/path/to/match/profile/')
           forkButton.trigger('click')
-          await wrapper.vm.$forceUpdate()
+          wrapper.vm.$forceUpdate()
+          await nextTick()
           let table = wrapper.find('.entries-table')
           let entryRow = table.findAll('.entry-row').at(2)
           await entryRow.trigger('click')
@@ -977,7 +991,8 @@ describe('SecurityPoliciesEditor.vue', () => {
           // reset all events for clearer event emitting
           wrapper.emitted('form-invalid').length = 0
           await removeButton.trigger('click')
-          await wrapper.vm.$forceUpdate()
+          wrapper.vm.$forceUpdate()
+          await nextTick()
           expect(wrapper.emitted('form-invalid')).toBeTruthy()
           expect(wrapper.emitted('form-invalid')[0]).toEqual([false])
         })
@@ -987,7 +1002,8 @@ describe('SecurityPoliciesEditor.vue', () => {
           let entryRow = table.findAll('.entry-row').at(1)
           await entryRow.trigger('click')
           removeButton.trigger('click')
-          await wrapper.vm.$forceUpdate()
+          wrapper.vm.$forceUpdate()
+          await nextTick()
           table = wrapper.find('.entries-table')
           entryRow = table.findAll('.entry-row').at(0)
           await entryRow.trigger('click')
@@ -1154,7 +1170,8 @@ describe('SecurityPoliciesEditor.vue', () => {
 
       test('should remove map entry after clicking remove button', async () => {
         removeButton.trigger('click')
-        await wrapper.vm.$forceUpdate()
+        wrapper.vm.$forceUpdate()
+        await nextTick()
         const table = wrapper.find('.entries-table')
         const entryRows = table.findAll('.entry-row')
         expect(entryRows.length).toEqual(securityPoliciesDocs[0].map.length - 1)
@@ -1162,9 +1179,11 @@ describe('SecurityPoliciesEditor.vue', () => {
 
       test('should close map entry after clicking remove button', async () => {
         forkButton.trigger('click')
-        await wrapper.vm.$forceUpdate()
+        wrapper.vm.$forceUpdate()
+        await nextTick()
         removeButton.trigger('click')
-        await wrapper.vm.$forceUpdate()
+        wrapper.vm.$forceUpdate()
+        await nextTick()
         const table = wrapper.find('.entries-table')
         const currentEntryRows = table.findAll('.current-entry-row')
         expect(currentEntryRows.length).toEqual(0)
@@ -1172,7 +1191,8 @@ describe('SecurityPoliciesEditor.vue', () => {
 
       test('should not change any other entry after clicking remove button', async () => {
         removeButton.trigger('click')
-        await wrapper.vm.$forceUpdate()
+        wrapper.vm.$forceUpdate()
+        await nextTick()
         const table = wrapper.find('.entries-table')
         const entryRows = table.findAll('.entry-row')
         let entryName

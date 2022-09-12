@@ -66,11 +66,12 @@
                      class="content-type-option-wrapper mb-3">
                   <label class="checkbox is-size-7">
                     <input type="checkbox"
-                           @change="updateContentType(contentTypeOption.value, contentTypeOption.checked)"
+                           @change="updateContentType(contentTypeOption.value,
+                           getContentTypeStatus(contentTypeOption.value))"
                            class="checkbox-input"
                            :data-qa="`content-type-${contentTypeOption.value}-checkbox`"
                            :class="`content-type-${contentTypeOption.value}-input`"
-                           v-model="contentTypeOption.checked"
+                           :checked="getContentTypeStatus(contentTypeOption.value)"
                            >
                     {{ contentTypeOption.displayName }}
                   </label>
@@ -597,8 +598,12 @@ import {
   Dictionary,
 } from '@/types'
 import AutocompleteInput, {AutocompleteSuggestion} from '@/components/AutocompleteInput.vue'
-
 import Utils from '@/assets/Utils'
+
+type ContentFilterProfileType = {
+  value: keyof ContentFilterProfile['decoding'],
+  displayName: 'base64' | 'URL' | 'HTML' |'Unicode'
+}
 
 export default defineComponent({
   name: 'ContentFilterEditor',
@@ -650,44 +655,38 @@ export default defineComponent({
           'Malformed data will get rejected',
       decodingOptions: [
         {
-          value: 'base64' as keyof ContentFilterProfile['decoding'],
+          value: 'base64',
           displayName: 'Base64',
         },
         {
-          value: 'dual' as keyof ContentFilterProfile['decoding'],
+          value: 'dual',
           displayName: 'URL',
         },
         {
-          value: 'html' as keyof ContentFilterProfile['decoding'],
+          value: 'html',
           displayName: 'HTML',
         },
         {
-          value: 'unicode' as keyof ContentFilterProfile['decoding'],
+          value: 'unicode',
           displayName: 'Unicode',
         },
-      ],
+      ] as ContentFilterProfileType[],
       contentTypeOptions: [
         {
           value: 'json',
           displayName: 'JSON',
-          checked: false,
         },
         {
           value: 'multipart_form',
           displayName: 'Multipart Form',
-          checked: false,
-
         },
         {
           value: 'url_encoded',
           displayName: 'URL Encoded',
-          checked: false,
-
         },
         {
           value: 'xml',
           displayName: 'XML',
-          checked: false,
         },
       ],
     }
