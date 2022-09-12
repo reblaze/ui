@@ -71,6 +71,9 @@ describe('GlobalFilterListEditor.vue', () => {
           }],
       },
     }]
+    jest.spyOn(axios, 'get').mockImplementation(() => {
+      return Promise.resolve({data: {}})
+    })
     wrapper = shallowMount(GlobalFilterListEditor, {
       props: {
         selectedDoc: docs[0],
