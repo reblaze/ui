@@ -1138,45 +1138,6 @@ describe('DocumentList.vue', () => {
         await button.trigger('click')
       })
     })
-
-    // TODO: I need this 2 tests?
-    /*test('should display correct message when there is no doc type data', (done) => {
-      // it is not possible to get to this state from the UI, but we protect from it anyway
-      wrapper.vm.selectedDocType = null
-      // allow all requests to finish
-      setImmediate(() => {
-        const noDataMessage: DOMWrapper = wrapper.find('.no-data-message')
-        expect(noDataMessage.exists()).toBeTruthy()
-        expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found!')
-        expect(noDataMessage?.text()?.toLowerCase()).toContain('missing document type.')
-        done()
-      })
-    })
-
-    test('should display correct message when there is no doc data', (done) => {
-      jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v2/configs/') {
-          return Promise.resolve({data: gitData})
-        }
-        return Promise.resolve({data: []})
-      })
-      wrapper = shallowMount(DocumentList, {
-        global: {
-          mocks: {
-            $route: mockRoute,
-            $router: mockRouter,
-          },
-        },
-      })
-      // allow all requests to finish
-      setImmediate(() => {
-        const noDataMessage: DOMWrapper = wrapper.find('.no-data-message')
-        expect(noDataMessage.exists()).toBeTruthy()
-        expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found!')
-        expect(noDataMessage?.text()?.toLowerCase()).toContain('missing document.')
-        done()
-      })
-    })*/
   })
 
   describe('loading indicator', () => {
@@ -1450,6 +1411,7 @@ describe('DocumentList.vue', () => {
   })
 
   describe('table', () => {
+    let paginationGlobalFilterMock : GlobalFilter[]
     let globalFilterMock : GlobalFilter[]
     let sortedGlobalFilterMockByNameAsc : GlobalFilter
     let sortedGlobalFilterMockByNameDesc : GlobalFilter
@@ -1457,6 +1419,96 @@ describe('DocumentList.vue', () => {
     let sortedGlobalFilterMockByDescriptionAsc : GlobalFilter
     let columnTitle : string[]
     beforeEach((done) => {
+      paginationGlobalFilterMock = [
+        {
+          name:'c test3',
+          description: 'c Jest testing description',
+          tags: ['apple', 'crawler', 'curiefense'],
+          isSortable: true,
+          isSearchable: true,
+          id: 3
+        },
+        {
+          name:'b test2',
+          description: 'b Jest testing description',
+          tags: ['crawler', 'curiefense'],
+          isSortable: false,
+          isSearchable: true,
+          id: 2
+        },
+        {
+          name:'a test1',
+          description: 'a Jest testing description',
+          tags: ['curiefense'],
+          isSortable: true,
+          isSearchable: false,
+          id: 1
+        },
+        {
+          name:'d test1',
+          description: 'd Jest testing description',
+          tags: ['test1'],
+          isSortable: true,
+          isSearchable: false,
+          id: 4
+        },
+        {
+          name:'e test1',
+          description: 'e Jest testing description',
+          tags: ['test2'],
+          isSortable: true,
+          isSearchable: false,
+          id: 5
+        },
+        {
+          name:'f test1',
+          description: 'f Jest testing description',
+          tags: ['test3'],
+          isSortable: true,
+          isSearchable: false,
+          id: 6
+        },
+        {
+          name:'g test1',
+          description: 'g Jest testing description',
+          tags: ['test4'],
+          isSortable: true,
+          isSearchable: false,
+          id: 7
+        },
+        {
+          name:'h test1',
+          description: 'h Jest testing description',
+          tags: ['test5'],
+          isSortable: true,
+          isSearchable: false,
+          id: 8
+        },
+        {
+          name:'i test1',
+          description: 'i Jest testing description',
+          tags: ['test6'],
+          isSortable: true,
+          isSearchable: false,
+          id: 9
+        },
+        {
+          name:'j test1',
+          description: 'j Jest testing description',
+          tags: ['test7'],
+          isSortable: true,
+          isSearchable: false,
+          id: 10
+        },
+        {
+          name:'k test1',
+          description: 'k Jest testing description',
+          tags: ['test8'],
+          isSortable: true,
+          isSearchable: false,
+          id: 11
+        }
+      ]
       globalFilterMock = [
         {
           name:'c test3',
@@ -1532,8 +1584,20 @@ describe('DocumentList.vue', () => {
       columnTitle = ["Name", "Description", "Tags"]
       sortedGlobalFilterMockByNameDesc = [...sortedGlobalFilterMockByNameAsc].reverse();
       sortedGlobalFilterMockByDescriptionDesc = [...sortedGlobalFilterMockByDescriptionAsc].reverse();
-      jest.spyOn(axios, 'get').mockImplementation(() => {
-        return Promise.resolve({data: globalFilterMock})
+      jest.spyOn(axios, 'get').mockImplementation((path, config) => {
+        if (path === '/conf/api/v2/configs/') {
+          return Promise.resolve({data: gitData})
+        }
+        const branch = wrapper.vm.selectedBranch
+        if (path === `/conf/api/v2/configs/${branch}/d/globalfilters/`) {
+          const globalFilterXFields = _.flatMap(COLUMN_OPTIONS_MAP?.globalfilters, 'fieldNames')
+          globalFilterXFields.unshift('id')
+          if (config && config.headers && config.headers['x-fields'] === globalFilterXFields.join(', ')) {
+            return Promise.resolve({data: _.map(globalFilterMock, (i) => _.pick(i, globalFilterXFields))})
+          }
+          return Promise.resolve({data: globalFilterMock})
+        }
+        return Promise.resolve({data: []})
       })
 
       mockRoute.params.doc_type = 'globalfilters'
@@ -1804,7 +1868,7 @@ describe('DocumentList.vue', () => {
     })
 
     describe('edit', () => {
-      test('edit document button', async () => {
+      test('should have edit document when click on edit document button', async () => {
         const firstDataRow = wrapper.findAll('.edit-doc-button').at(0)
         await firstDataRow.trigger('click')
         const secondDataRow = wrapper.findAll('.edit-doc-button').at(1)
@@ -1812,6 +1876,156 @@ describe('DocumentList.vue', () => {
         expect(mockRouter.push).toHaveBeenCalledTimes(2)
         expect(mockRouter.push).toHaveBeenCalledWith(`/config/master/globalfilters/${globalFilterMock[2]["id"]}`)
         expect(mockRouter.push).toHaveBeenCalledWith(`/config/master/globalfilters/${globalFilterMock[1]["id"]}`)
+      })
+    })
+
+    describe('pagination', () => {
+      let paginationGlobalFilterMock: GlobalFilter[]
+      beforeEach((done) => {
+        paginationGlobalFilterMock = [
+          {
+            name:'c test3',
+            description: 'c Jest testing description',
+            tags: ['apple', 'crawler', 'curiefense'],
+            isSortable: true,
+            isSearchable: true,
+            id: 3
+          },
+          {
+            name:'b test2',
+            description: 'b Jest testing description',
+            tags: ['crawler', 'curiefense'],
+            isSortable: false,
+            isSearchable: true,
+            id: 2
+          },
+          {
+            name:'a test1',
+            description: 'a Jest testing description',
+            tags: ['curiefense'],
+            isSortable: true,
+            isSearchable: false,
+            id: 1
+          },
+          {
+            name:'d test1',
+            description: 'd Jest testing description',
+            tags: ['test1'],
+            isSortable: true,
+            isSearchable: false,
+            id: 4
+          },
+          {
+            name:'e test1',
+            description: 'e Jest testing description',
+            tags: ['test2'],
+            isSortable: true,
+            isSearchable: false,
+            id: 5
+          },
+          {
+            name:'f test1',
+            description: 'f Jest testing description',
+            tags: ['test3'],
+            isSortable: true,
+            isSearchable: false,
+            id: 6
+          },
+          {
+            name:'g test1',
+            description: 'g Jest testing description',
+            tags: ['test4'],
+            isSortable: true,
+            isSearchable: false,
+            id: 7
+          },
+          {
+            name:'h test1',
+            description: 'h Jest testing description',
+            tags: ['test5'],
+            isSortable: true,
+            isSearchable: false,
+            id: 8
+          },
+          {
+            name:'i test1',
+            description: 'i Jest testing description',
+            tags: ['test6'],
+            isSortable: true,
+            isSearchable: false,
+            id: 9
+          },
+          {
+            name:'j test1',
+            description: 'j Jest testing description',
+            tags: ['test7'],
+            isSortable: true,
+            isSearchable: false,
+            id: 10
+          },
+          {
+            name:'k test1',
+            description: 'k Jest testing description',
+            tags: ['test8'],
+            isSortable: true,
+            isSearchable: false,
+            id: 11
+          }
+        ]
+        jest.spyOn(axios, 'get').mockImplementation((path, config) => {
+          if (path === '/conf/api/v2/configs/') {
+            return Promise.resolve({data: gitData})
+          }
+          const branch = wrapper.vm.selectedBranch
+          if (path === `/conf/api/v2/configs/${branch}/d/globalfilters/`) {
+            const globalFilterXFields = _.flatMap(COLUMN_OPTIONS_MAP?.globalfilters, 'fieldNames')
+            globalFilterXFields.unshift('id')
+            if (config && config.headers && config.headers['x-fields'] === globalFilterXFields.join(', ')) {
+              return Promise.resolve({data: _.map(paginationGlobalFilterMock, (i) => _.pick(i, globalFilterXFields))})
+            }
+            return Promise.resolve({data: paginationGlobalFilterMock})
+          }
+          return Promise.resolve({data: []})
+        })
+  
+        mockRoute.params.doc_type = 'globalfilters'
+        mockRoute.path = `/list/master/globalfilters`
+        wrapper = shallowMount(DocumentList, {
+          global: {
+            mocks: {
+              $route: mockRoute,
+              $router: mockRouter,
+            },
+          },
+        })
+        setImmediate(() => {
+          done()
+        })
+      })
+
+      test('should not show pagination bar when the amount of elements is less than 10', () => {
+        jest.spyOn(axios, 'get').mockImplementation(() => {
+          return Promise.resolve({data: globalFilterMock})
+        })
+        mockRoute.params.doc_type = 'globalfilters'
+        mockRoute.path = `/list/master/globalfilters`
+        wrapper = shallowMount(DocumentList, {
+          global: {
+            mocks: {
+              $route: mockRoute,
+              $router: mockRouter,
+            },
+          },
+        })
+        const pagination = wrapper.find('.pagination')
+        expect(pagination.exists()).toBe(false)
+      })
+
+      test('should show pagination bar when the amount of elements is more or equal to 10', () => {
+        console.log("Display data", wrapper.vm.docsDisplayData)
+        console.log("Total pages ", wrapper.vm.totalPages)
+        const pagination = wrapper.find('.pagination-row')
+        expect(pagination.exists()).toBe(true)
       })
     })
   })

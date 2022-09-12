@@ -129,8 +129,8 @@
                     </div>
                   </td>
                 </tr>
-                <tr v-if="totalPages > 1">
-                  <td :colspan="columns.length+1">
+                <tr v-if="totalPages > 1" class="pagination-row">
+                  <td :colspan="columns.length+1" >
                     <div class="pagination is-small">
                       <button class="pagination-previous"
                               @click="prevPage"
