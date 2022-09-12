@@ -213,7 +213,7 @@ export default defineComponent({
       const selectedBranch = _.find(this.configs, (conf) => {
         return conf.id === this.selectedBranchName
       })
-      this.gitLog = selectedBranch?.logs
+      this.gitLog = selectedBranch.logs
       this.selectedCommit = this.gitLog?.[0]?.version || null
     },
 
@@ -226,17 +226,15 @@ export default defineComponent({
 
     setDefaultBuckets() {
       this.selectedBucketNames = []
-      if (this.publishInfo?.branch_buckets?.length) {
-        const bucketList = _.find(this.publishInfo.branch_buckets, (list) => {
-          return list.name === this.selectedBranchName
-        })
-        if (bucketList) {
-          this.selectedBucketNames = _.cloneDeep(_.filter(bucketList.buckets, (bucket) => {
-            return _.find(this.publishInfo.buckets, (publishInfoBucket) => {
-              return publishInfoBucket.name === bucket
-            })
-          }))
-        }
+      const bucketList = _.find(this.publishInfo.branch_buckets, (list) => {
+        return list.name === this.selectedBranchName
+      })
+      if (bucketList) {
+        this.selectedBucketNames = _.cloneDeep(_.filter(bucketList.buckets, (bucket) => {
+          return _.find(this.buckets, (publishInfoBucket) => {
+            return publishInfoBucket.name === bucket
+          })
+        }))
       }
     },
 
@@ -246,7 +244,7 @@ export default defineComponent({
         url: `db/system/k/publishinfo/`,
         failureMessage: 'Failed while attempting to load publish info',
       }).then((response: AxiosResponse) => {
-        this.publishInfo = response?.data
+        this.publishInfo = {...this.publishInfo, ...response.data}
         this.setDefaultBuckets()
       })
     },
@@ -263,7 +261,10 @@ export default defineComponent({
     loadConfigs() {
       // store configs
       RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'}).then((response: AxiosResponse<Branch[]>) => {
-        this.configs = response?.data
+        this.configs = response?.data || []
+        if (!this.configs.length) {
+          return
+        }
         // pick first branch name as selected
         this.selectedBranchName = this.branchNames[0]
         this.loadBranchLogs()
