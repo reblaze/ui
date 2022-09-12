@@ -164,7 +164,7 @@ export default defineComponent({
       optionsData,
       options: limitOptionsTypes,
       attributes: attributes,
-      type: this.option?.type || 'attrs',
+      type: this.option.type || 'attrs',
       prevSelectedOption: null as OptionObject,
     }
   },

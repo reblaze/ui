@@ -105,7 +105,7 @@ export default defineComponent({
 
     currentTag(): string {
       let currentTag: string
-      if (this?.selectionType === 'multiple') {
+      if (this.selectionType === 'multiple') {
         const tags = this.tag.toString().split(' ')
         currentTag = tags[tags.length - 1].trim() as string
       } else {

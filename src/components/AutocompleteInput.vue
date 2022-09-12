@@ -133,19 +133,19 @@ export default defineComponent({
 
     // Filtering the suggestions based on the input
     matches(): AutocompleteSuggestion[] {
-      return this.suggestions?.filter((suggestion: AutocompleteSuggestion) => {
+      return this.suggestions.filter((suggestion: AutocompleteSuggestion) => {
         return suggestion.value.toLowerCase().includes(this.currentValue.toLowerCase())
       })
     },
 
     suggestionsVisible(): boolean {
-      return this.currentValue !== '' && this.matches?.length && this.open
+      return this.currentValue !== '' && this.matches.length && this.open
     },
 
     currentValue: {
       get(): string {
         let currentValue
-        if (this?.selectionType.toLowerCase() === 'multiple') {
+        if (this.selectionType.toLowerCase() === 'multiple') {
           const values = this.autocompleteValue.split(this.divider)
           currentValue = values[values.length - 1]
         } else {
@@ -199,10 +199,6 @@ export default defineComponent({
         })
       }
       this.skipNextWatchUpdate = true
-    },
-
-    onEnter(event: Event) {
-      this.selectValue(true)
     },
 
     selectValue(skipFocus?: boolean) {

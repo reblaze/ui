@@ -437,11 +437,12 @@ export default defineComponent({
       this.$nextTick(this.validateDuplicates)
     },
 
-    // cancelAllEntries() {
-    //   this.setNewEntryIndex(-1)
-    //   this.invalidIPs = []
-    //   this.clearError()
-    // },
+    // this function is being used by a parent component
+    cancelAllEntries() {
+      this.setNewEntryIndex(-1)
+      this.invalidIPs = []
+      this.clearError()
+    },
 
     cancelEntry(sectionIndex: number) {
       this.setNewEntryIndex(-1)

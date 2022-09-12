@@ -331,4 +331,12 @@ describe('SideMenu.vue', () => {
       done()
     })
   })
+
+  test('should return current route path', () => {
+    console.log('wrapper.vm.$route', wrapper.vm.$route)
+    const routeInner = wrapper.vm.currentRoutePath
+    expect(routeInner).toEqual(wrapper.vm.$route.path)
+    const routeOuter = wrapper.findAll('.is-active').at(0)
+    console.log('routeOuter', routeOuter)
+  })
 })
