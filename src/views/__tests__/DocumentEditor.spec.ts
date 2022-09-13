@@ -897,7 +897,7 @@ describe('DocumentEditor.vue', () => {
   test('should have a git history component with correct data', () => {
     const gitHistory = wrapper.findComponent(GitHistory)
     expect(gitHistory).toBeTruthy()
-    expect((gitHistory.vm as any).gitLog).toEqual(aclDocsLogs[0])
+    expect(gitHistory.vm.gitLog).toEqual(aclDocsLogs[0])
   })
 
   test('should have an empty git log array if got no git log data from server - response null', () => {

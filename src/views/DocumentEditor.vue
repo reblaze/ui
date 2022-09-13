@@ -378,9 +378,9 @@ export default defineComponent({
       this.isDocumentInvalid = false
       await this.loadSelectedDocData()
       this.addMissingDefaultsToDoc()
+      await this.goToRoute()
       this.setLoadingDocStatus(false)
       this.loadGitLog()
-      this.goToRoute()
     },
 
     resetGitLog() {
