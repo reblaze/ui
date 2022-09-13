@@ -294,9 +294,6 @@ export default defineComponent({
       const sortModifier = this.sortDir === 'asc' ? 1 : -1
       return this.docs.filter((item: any) => {
         const keys = Object.keys(this.filter)
-        if (!keys) {
-          return item
-        }
         return _.reduce(
             keys,
             (match: any, key: any) => {
@@ -305,7 +302,7 @@ export default defineComponent({
                 return column.fieldNames.join(', ') === key
               })
               if (columnOption?.displayFunction) {
-                getFilterValue = columnOption?.displayFunction
+                getFilterValue = columnOption.displayFunction
               } else {
                 getFilterValue = (item: any) => {
                   return item[key]?.toString() || ''

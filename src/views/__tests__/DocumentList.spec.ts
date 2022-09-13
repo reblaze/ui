@@ -13,7 +13,6 @@ import {
   Branch,
   Commit,
   ContentFilterProfile,
-  Document,
   FlowControlPolicy,
   GlobalFilter,
   RateLimit,
@@ -33,9 +32,7 @@ describe('DocumentList.vue', () => {
   let aclDocsLogs: Commit[][]
   let aclGitOldVersion: ACLProfile[]
   let globalFilterDocs: GlobalFilter[]
-  let globalFilterDocsLogs: Commit[][]
   let securityPoliciesDocs: SecurityPolicy[]
-  let securityPoliciesDocsLogs: Commit[][]
   let flowControlPolicyDocs: FlowControlPolicy[]
   let contentFilterDocs: ContentFilterProfile[]
   let rateLimitsDocs: RateLimit[]
@@ -863,6 +860,58 @@ describe('DocumentList.vue', () => {
     expect(gitHistory.vm.gitLog).toEqual(aclDocsLogs[0])
   })
 
+  test('should have an empty git log array if got no git log data from server - response null', () => {
+    jest.spyOn(axios, 'get').mockImplementation((path) => {
+      if (path === '/conf/api/v2/configs/') {
+        return Promise.resolve({data: gitData})
+      }
+      const branch = wrapper.vm.selectedBranch
+      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
+        return Promise.resolve({data: aclDocs})
+      }
+      if (path === `/conf/api/v2/configs/master/d/aclprofiles/v/`) {
+        return Promise.resolve(null)
+      }
+      return Promise.resolve({data: []})
+    })
+    wrapper = shallowMount(DocumentList, {
+      global: {
+        mocks: {
+          $route: mockRoute,
+          $router: mockRouter,
+        },
+      },
+    })
+    const gitHistory = wrapper.findComponent(GitHistory)
+    expect(gitHistory).toBeTruthy()
+  })
+
+  test('should have an empty git log array if got no git log data from server - data null', () => {
+    jest.spyOn(axios, 'get').mockImplementation((path) => {
+      if (path === '/conf/api/v2/configs/') {
+        return Promise.resolve({data: gitData})
+      }
+      const branch = wrapper.vm.selectedBranch
+      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
+        return Promise.resolve({data: aclDocs})
+      }
+      if (path === `/conf/api/v2/configs/master/d/aclprofiles/v/`) {
+        return Promise.resolve({data: null})
+      }
+      return Promise.resolve({data: []})
+    })
+    wrapper = shallowMount(DocumentList, {
+      global: {
+        mocks: {
+          $route: mockRoute,
+          $router: mockRouter,
+        },
+      },
+    })
+    const gitHistory = wrapper.findComponent(GitHistory)
+    expect(gitHistory).toBeTruthy()
+  })
+
   test('should send API request to restore to the correct version', async () => {
     const wantedVersion = {
       version: '7f8a987c8e5e9db7c734ac8841c543d5bc5d9657',
@@ -1225,8 +1274,8 @@ describe('DocumentList.vue', () => {
 
       test('should be able to add a new globalfilters document', (done) => {
         mockRoute.params = {
-            branch: 'master',
-            doc_type: 'globalfilters',
+          branch: 'master',
+          doc_type: 'globalfilters',
         },
         mockRoute.path = `/list/master/globalfilters`
         wrapper = shallowMount(DocumentList, {
@@ -1248,7 +1297,6 @@ describe('DocumentList.vue', () => {
           expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/globalfilters/e/`, newGlobalFilterDoc)
           done()
         })
-
       })
 
       test('should be able to add a new contentfilterprofiles document', (done) => {
@@ -1411,179 +1459,86 @@ describe('DocumentList.vue', () => {
   })
 
   describe('table', () => {
-    let paginationGlobalFilterMock : GlobalFilter[]
     let globalFilterMock : GlobalFilter[]
     let sortedGlobalFilterMockByNameAsc : GlobalFilter
-    let sortedGlobalFilterMockByNameDesc : GlobalFilter
     let sortedGlobalFilterMockByDescriptionDesc : GlobalFilter
     let sortedGlobalFilterMockByDescriptionAsc : GlobalFilter
     let columnTitle : string[]
     beforeEach((done) => {
-      paginationGlobalFilterMock = [
-        {
-          name:'c test3',
-          description: 'c Jest testing description',
-          tags: ['apple', 'crawler', 'curiefense'],
-          isSortable: true,
-          isSearchable: true,
-          id: 3
-        },
-        {
-          name:'b test2',
-          description: 'b Jest testing description',
-          tags: ['crawler', 'curiefense'],
-          isSortable: false,
-          isSearchable: true,
-          id: 2
-        },
-        {
-          name:'a test1',
-          description: 'a Jest testing description',
-          tags: ['curiefense'],
-          isSortable: true,
-          isSearchable: false,
-          id: 1
-        },
-        {
-          name:'d test1',
-          description: 'd Jest testing description',
-          tags: ['test1'],
-          isSortable: true,
-          isSearchable: false,
-          id: 4
-        },
-        {
-          name:'e test1',
-          description: 'e Jest testing description',
-          tags: ['test2'],
-          isSortable: true,
-          isSearchable: false,
-          id: 5
-        },
-        {
-          name:'f test1',
-          description: 'f Jest testing description',
-          tags: ['test3'],
-          isSortable: true,
-          isSearchable: false,
-          id: 6
-        },
-        {
-          name:'g test1',
-          description: 'g Jest testing description',
-          tags: ['test4'],
-          isSortable: true,
-          isSearchable: false,
-          id: 7
-        },
-        {
-          name:'h test1',
-          description: 'h Jest testing description',
-          tags: ['test5'],
-          isSortable: true,
-          isSearchable: false,
-          id: 8
-        },
-        {
-          name:'i test1',
-          description: 'i Jest testing description',
-          tags: ['test6'],
-          isSortable: true,
-          isSearchable: false,
-          id: 9
-        },
-        {
-          name:'j test1',
-          description: 'j Jest testing description',
-          tags: ['test7'],
-          isSortable: true,
-          isSearchable: false,
-          id: 10
-        },
-        {
-          name:'k test1',
-          description: 'k Jest testing description',
-          tags: ['test8'],
-          isSortable: true,
-          isSearchable: false,
-          id: 11
-        }
-      ]
       globalFilterMock = [
         {
-          name:'c test3',
+          name: 'c test3',
           description: 'c Jest testing description',
           tags: ['apple', 'crawler', 'curiefense'],
           isSortable: true,
           isSearchable: true,
-          id: 3
+          id: 3,
         },
         {
-          name:'b test2',
+          name: 'b test2',
           description: 'b Jest testing description',
           tags: ['crawler', 'curiefense'],
           isSortable: false,
           isSearchable: true,
-          id: 2
+          id: 2,
         },
         {
-          name:'a test1',
+          name: 'a test1',
           description: 'a Jest testing description',
           tags: ['curiefense'],
           isSortable: true,
           isSearchable: false,
-          id: 1
-        }
+          id: 1,
+        },
       ]
       sortedGlobalFilterMockByNameAsc = [
         {
-          name:'a test1',
+          name: 'a test1',
           description: 'a Jest testing description',
           tags: ['curiefense'],
           isSortable: true,
-          isSearchable: false
+          isSearchable: false,
         },
         {
-          name:'b test2',
+          name: 'b test2',
           description: 'b Jest testing description',
           tags: ['crawler', 'curiefense'],
           isSortable: false,
-          isSearchable: true
+          isSearchable: true,
         },
         {
-          name:'c test3',
+          name: 'c test3',
           description: 'c Jest testing description',
           tags: ['apple', 'crawler', 'curiefense'],
           isSortable: true,
-          isSearchable: true
-        }
+          isSearchable: true,
+        },
       ]
       sortedGlobalFilterMockByDescriptionAsc = [
         {
-          name:'c test3',
+          name: 'c test3',
           description: 'a Jest testing description',
           tags: ['curiefense'],
           isSortable: true,
-          isSearchable: false
+          isSearchable: false,
         },
         {
-          name:'b test2',
+          name: 'b test2',
           description: 'b Jest testing description',
           tags: ['crawler', 'curiefense'],
           isSortable: false,
-          isSearchable: true
+          isSearchable: true,
         },
         {
-          name:'a test1',
+          name: 'a test1',
           description: 'c Jest testing description',
           tags: ['apple', 'crawler', 'curiefense'],
           isSortable: true,
-          isSearchable: true
-        }
+          isSearchable: true,
+        },
       ]
-      columnTitle = ["Name", "Description", "Tags"]
-      sortedGlobalFilterMockByNameDesc = [...sortedGlobalFilterMockByNameAsc].reverse();
-      sortedGlobalFilterMockByDescriptionDesc = [...sortedGlobalFilterMockByDescriptionAsc].reverse();
+      columnTitle = ['Name', 'Description', 'Tags']
+      sortedGlobalFilterMockByDescriptionDesc = [...sortedGlobalFilterMockByDescriptionAsc].reverse()
       jest.spyOn(axios, 'get').mockImplementation((path, config) => {
         if (path === '/conf/api/v2/configs/') {
           return Promise.resolve({data: gitData})
@@ -1614,7 +1569,7 @@ describe('DocumentList.vue', () => {
         done()
       })
     })
-    
+
     describe('sorting', () => {
       test('should have the correct arrow active by default', () => {
         const ascArrowElement = wrapper.find('.arrow-asc')
@@ -1643,7 +1598,7 @@ describe('DocumentList.vue', () => {
         const arrowElement = nameCell.find('.arrow-asc')
         expect(arrowElement.element.classList).toContain('active')
       })
-      
+
       test('should have values sorted in ascending order', async () =>{
         const header = wrapper.findAll('.column-title').at(1)
         await header.trigger('click')
@@ -1653,9 +1608,9 @@ describe('DocumentList.vue', () => {
         const descriptionCellSecondRow = secondRow.findAll('td').at(1)
         const thirdRow = wrapper.findAll('.data-row').at(2)
         const descriptionCellThirdRow = thirdRow.findAll('td').at(1)
-        expect(descriptionCellFirstRow.text()).toBe(sortedGlobalFilterMockByDescriptionAsc[0]["description"])
-        expect(descriptionCellSecondRow.text()).toBe(sortedGlobalFilterMockByDescriptionAsc[1]["description"])
-        expect(descriptionCellThirdRow.text()).toBe(sortedGlobalFilterMockByDescriptionAsc[2]["description"])
+        expect(descriptionCellFirstRow.text()).toBe(sortedGlobalFilterMockByDescriptionAsc[0]['description'])
+        expect(descriptionCellSecondRow.text()).toBe(sortedGlobalFilterMockByDescriptionAsc[1]['description'])
+        expect(descriptionCellThirdRow.text()).toBe(sortedGlobalFilterMockByDescriptionAsc[2]['description'])
       })
 
       test('should have values sorted in descending order', async () =>{
@@ -1668,9 +1623,9 @@ describe('DocumentList.vue', () => {
         const descriptionCellSecondRow = secondRow.findAll('td').at(1)
         const thirdRow = wrapper.findAll('.data-row').at(2)
         const descriptionCellThirdRow = thirdRow.findAll('td').at(1)
-        expect(descriptionCellFirstRow.text()).toBe(sortedGlobalFilterMockByDescriptionDesc[0]["description"])
-        expect(descriptionCellSecondRow.text()).toBe(sortedGlobalFilterMockByDescriptionDesc[1]["description"])
-        expect(descriptionCellThirdRow.text()).toBe(sortedGlobalFilterMockByDescriptionDesc[2]["description"])
+        expect(descriptionCellFirstRow.text()).toBe(sortedGlobalFilterMockByDescriptionDesc[0]['description'])
+        expect(descriptionCellSecondRow.text()).toBe(sortedGlobalFilterMockByDescriptionDesc[1]['description'])
+        expect(descriptionCellThirdRow.text()).toBe(sortedGlobalFilterMockByDescriptionDesc[2]['description'])
       })
 
       test('should have values sorted in ascending order after sorted descending order', async () =>{
@@ -1684,12 +1639,11 @@ describe('DocumentList.vue', () => {
         const thirdRow = wrapper.findAll('.data-row').at(2)
         const nameCellThirdRow = thirdRow.findAll('td').at(0)
 
-        expect(nameCellFirstRow.text()).toBe(sortedGlobalFilterMockByNameAsc[0]["name"])
-        expect(nameCellSecondRow.text()).toBe(sortedGlobalFilterMockByNameAsc[1]["name"])
-        expect(nameCellThirdRow.text()).toBe(sortedGlobalFilterMockByNameAsc[2]["name"])
-
+        expect(nameCellFirstRow.text()).toBe(sortedGlobalFilterMockByNameAsc[0]['name'])
+        expect(nameCellSecondRow.text()).toBe(sortedGlobalFilterMockByNameAsc[1]['name'])
+        expect(nameCellThirdRow.text()).toBe(sortedGlobalFilterMockByNameAsc[2]['name'])
       })
-            
+
       test('should have asc arrow in new sorting column when previous was asc arrow', async () =>{
         const descriptionCell = wrapper.findAll('.column-title').at(1)
         await descriptionCell.trigger('click')
@@ -1722,9 +1676,9 @@ describe('DocumentList.vue', () => {
         const descriptionCellSecondRow = secondRow.findAll('td').at(1)
         const thirdRow = wrapper.findAll('.data-row').at(2)
         const descriptionCellThirdRow = thirdRow.findAll('td').at(1)
-        expect(descriptionCellFirstRow.text()).toBe(sortedGlobalFilterMockByDescriptionAsc[0]["description"])
-        expect(descriptionCellSecondRow.text()).toBe(sortedGlobalFilterMockByDescriptionAsc[1]["description"])
-        expect(descriptionCellThirdRow.text()).toBe(sortedGlobalFilterMockByDescriptionAsc[2]["description"])
+        expect(descriptionCellFirstRow.text()).toBe(sortedGlobalFilterMockByDescriptionAsc[0]['description'])
+        expect(descriptionCellSecondRow.text()).toBe(sortedGlobalFilterMockByDescriptionAsc[1]['description'])
+        expect(descriptionCellThirdRow.text()).toBe(sortedGlobalFilterMockByDescriptionAsc[2]['description'])
       })
     })
 
@@ -1766,9 +1720,9 @@ describe('DocumentList.vue', () => {
         const nameInput = wrapper.findAll('.filter-input').at(0).attributes('placeholder')
         const descriptionInput = wrapper.findAll('.filter-input').at(1).attributes('placeholder')
         const tagsInput = wrapper.findAll('.filter-input').at(2).attributes('placeholder')
-        expect(nameInput).toBe(columnTitle[0]);
-        expect(descriptionInput).toBe(columnTitle[1]);
-        expect(tagsInput).toBe(columnTitle[2]);
+        expect(nameInput).toBe(columnTitle[0])
+        expect(descriptionInput).toBe(columnTitle[1])
+        expect(tagsInput).toBe(columnTitle[2])
       })
 
       test('should have to filter values', async () =>{
@@ -1777,11 +1731,11 @@ describe('DocumentList.vue', () => {
         const nameInput = wrapper.findAll('.filter-input').at(0)
         await nameInput.trigger('click')
         await nameInput.setValue('a')
-        await nameInput.trigger('keydown', { keyCode: 13 })
+        await nameInput.trigger('keydown', {keyCode: 13})
         const firstDataCell = wrapper.findAll('.data-cell').at(0)
         const secondDataCell = wrapper.findAll('.data-cell').at(1)
-        expect(firstDataCell.text()).toBe(globalFilterMock[2]["name"])
-        expect(secondDataCell.text()).toBe(globalFilterMock[2]["description"])
+        expect(firstDataCell.text()).toBe(globalFilterMock[2]['name'])
+        expect(secondDataCell.text()).toBe(globalFilterMock[2]['description'])
       })
 
       test('should have return whole values when empty filter', async () =>{
@@ -1790,16 +1744,16 @@ describe('DocumentList.vue', () => {
         const nameInput = wrapper.findAll('.filter-input').at(0)
         await nameInput.trigger('click')
         await nameInput.setValue('')
-        await nameInput.trigger('keydown', { keyCode: 13 })
+        await nameInput.trigger('keydown', {keyCode: 13})
         const firstRow = wrapper.findAll('.data-row').at(0)
         const nameCellFirstRow = firstRow.findAll('td').at(0)
         const secondRow = wrapper.findAll('.data-row').at(1)
         const nameCellSecondRow = secondRow.findAll('td').at(0)
         const thirdRow = wrapper.findAll('.data-row').at(2)
         const nameCellThirdRow = thirdRow.findAll('td').at(0)
-        expect(nameCellFirstRow.text()).toBe(sortedGlobalFilterMockByNameAsc[0]["name"])
-        expect(nameCellSecondRow.text()).toBe(sortedGlobalFilterMockByNameAsc[1]["name"])
-        expect(nameCellThirdRow.text()).toBe(sortedGlobalFilterMockByNameAsc[2]["name"])
+        expect(nameCellFirstRow.text()).toBe(sortedGlobalFilterMockByNameAsc[0]['name'])
+        expect(nameCellSecondRow.text()).toBe(sortedGlobalFilterMockByNameAsc[1]['name'])
+        expect(nameCellThirdRow.text()).toBe(sortedGlobalFilterMockByNameAsc[2]['name'])
       })
 
       test('should have to check multi filter by adding description and name', async () => {
@@ -1808,14 +1762,14 @@ describe('DocumentList.vue', () => {
         const descriptionInput = wrapper.findAll('.filter-input').at(1)
         await descriptionInput.trigger('click')
         await descriptionInput.setValue('Jest')
-        await descriptionInput.trigger('keydown', { keyCode: 13 })
+        await descriptionInput.trigger('keydown', {keyCode: 13})
         const nameInput = wrapper.findAll('.filter-input').at(0)
         await nameInput.trigger('click')
         await nameInput.setValue('a')
-        await nameInput.trigger('keydown', { keyCode: 13 })
+        await nameInput.trigger('keydown', {keyCode: 13})
         const dataRow = wrapper.find('.data-row')
         const nameCellFirstRow = dataRow.findAll('td').at(0)
-        expect(nameCellFirstRow.text()).toBe(sortedGlobalFilterMockByNameAsc[0]["name"])
+        expect(nameCellFirstRow.text()).toBe(sortedGlobalFilterMockByNameAsc[0]['name'])
       })
 
       test('should have to check multi filter by combination of adding and removing description and name', async () => {
@@ -1824,17 +1778,17 @@ describe('DocumentList.vue', () => {
         const descriptionInput = wrapper.findAll('.filter-input').at(1)
         await descriptionInput.trigger('click')
         await descriptionInput.setValue('Jest')
-        await descriptionInput.trigger('keydown', { keyCode: 13 })
+        await descriptionInput.trigger('keydown', {keyCode: 13})
         const nameInput = wrapper.findAll('.filter-input').at(0)
         await nameInput.trigger('click')
         await nameInput.setValue('a')
-        await descriptionInput.trigger('keydown', { keyCode: 13 })
+        await descriptionInput.trigger('keydown', {keyCode: 13})
         await nameInput.trigger('click')
         await nameInput.setValue('')
-        await descriptionInput.trigger('keydown', { keyCode: 13 })
+        await descriptionInput.trigger('keydown', {keyCode: 13})
         const dataRow = wrapper.find('.data-row')
         const nameCellFirstRow = dataRow.findAll('td').at(0)
-        expect(nameCellFirstRow.text()).toBe(sortedGlobalFilterMockByNameAsc[0]["name"])
+        expect(nameCellFirstRow.text()).toBe(sortedGlobalFilterMockByNameAsc[0]['name'])
       })
 
       test('should have to check add value for description then remove it and add name filter', async () => {
@@ -1843,19 +1797,19 @@ describe('DocumentList.vue', () => {
         const descriptionInput = wrapper.findAll('.filter-input').at(1)
         await descriptionInput.trigger('click')
         await descriptionInput.setValue('Jest')
-        await descriptionInput.trigger('keydown', { keyCode: 13 })
+        await descriptionInput.trigger('keydown', {keyCode: 13})
         await descriptionInput.trigger('click')
         await descriptionInput.setValue('')
         const nameInput = wrapper.findAll('.filter-input').at(0)
         await nameInput.trigger('click')
         await nameInput.setValue('a')
-        await descriptionInput.trigger('keydown', { keyCode: 13 })
+        await descriptionInput.trigger('keydown', {keyCode: 13})
         await nameInput.trigger('click')
         await nameInput.setValue('')
-        await descriptionInput.trigger('keydown', { keyCode: 13 })
+        await descriptionInput.trigger('keydown', {keyCode: 13})
         const dataRow = wrapper.find('.data-row')
         const nameCellFirstRow = dataRow.findAll('td').at(0)
-        expect(nameCellFirstRow.text()).toBe(sortedGlobalFilterMockByNameAsc[0]["name"])
+        expect(nameCellFirstRow.text()).toBe(sortedGlobalFilterMockByNameAsc[0]['name'])
       })
 
       test('should not have a search inputh when dont have searchable permission', async () => {
@@ -1874,8 +1828,8 @@ describe('DocumentList.vue', () => {
         const secondDataRow = wrapper.findAll('.edit-doc-button').at(1)
         await secondDataRow.trigger('click')
         expect(mockRouter.push).toHaveBeenCalledTimes(2)
-        expect(mockRouter.push).toHaveBeenCalledWith(`/config/master/globalfilters/${globalFilterMock[2]["id"]}`)
-        expect(mockRouter.push).toHaveBeenCalledWith(`/config/master/globalfilters/${globalFilterMock[1]["id"]}`)
+        expect(mockRouter.push).toHaveBeenCalledWith(`/config/master/globalfilters/${globalFilterMock[2]['id']}`)
+        expect(mockRouter.push).toHaveBeenCalledWith(`/config/master/globalfilters/${globalFilterMock[1]['id']}`)
       })
     })
 
@@ -1884,93 +1838,93 @@ describe('DocumentList.vue', () => {
       beforeEach((done) => {
         paginationGlobalFilterMock = [
           {
-            name:'c test3',
-            description: 'c Jest testing description',
-            tags: ['apple', 'crawler', 'curiefense'],
-            isSortable: true,
-            isSearchable: true,
-            id: 3
-          },
-          {
-            name:'b test2',
-            description: 'b Jest testing description',
-            tags: ['crawler', 'curiefense'],
-            isSortable: false,
-            isSearchable: true,
-            id: 2
-          },
-          {
-            name:'a test1',
+            name: 'a test1',
             description: 'a Jest testing description',
             tags: ['curiefense'],
             isSortable: true,
             isSearchable: false,
-            id: 1
+            id: 1,
           },
           {
-            name:'d test1',
+            name: 'b test2',
+            description: 'b Jest testing description',
+            tags: ['crawler', 'curiefense'],
+            isSortable: false,
+            isSearchable: true,
+            id: 2,
+          },
+          {
+            name: 'c test3',
+            description: 'c Jest testing description',
+            tags: ['apple', 'crawler', 'curiefense'],
+            isSortable: true,
+            isSearchable: true,
+            id: 3,
+          },
+          {
+            name: 'd test1',
             description: 'd Jest testing description',
             tags: ['test1'],
             isSortable: true,
             isSearchable: false,
-            id: 4
+            id: 4,
           },
           {
-            name:'e test1',
+            name: 'e test1',
             description: 'e Jest testing description',
             tags: ['test2'],
             isSortable: true,
             isSearchable: false,
-            id: 5
+            id: 5,
           },
           {
-            name:'f test1',
+            name: 'f test1',
             description: 'f Jest testing description',
             tags: ['test3'],
             isSortable: true,
             isSearchable: false,
-            id: 6
+            id: 6,
           },
           {
-            name:'g test1',
+            name: 'g test1',
             description: 'g Jest testing description',
             tags: ['test4'],
             isSortable: true,
             isSearchable: false,
-            id: 7
+            id: 7,
           },
           {
-            name:'h test1',
+            name: 'h test1',
             description: 'h Jest testing description',
             tags: ['test5'],
             isSortable: true,
             isSearchable: false,
-            id: 8
+            id: 8,
           },
           {
-            name:'i test1',
+            name: 'i test1',
             description: 'i Jest testing description',
             tags: ['test6'],
             isSortable: true,
             isSearchable: false,
-            id: 9
+            id: 9,
           },
           {
-            name:'j test1',
+            name: 'j test1',
             description: 'j Jest testing description',
             tags: ['test7'],
             isSortable: true,
             isSearchable: false,
-            id: 10
+            id: 10,
           },
           {
-            name:'k test1',
+            name: 'k test1',
             description: 'k Jest testing description',
             tags: ['test8'],
             isSortable: true,
             isSearchable: false,
-            id: 11
-          }
+            id: 11,
+          },
         ]
         jest.spyOn(axios, 'get').mockImplementation((path, config) => {
           if (path === '/conf/api/v2/configs/') {
@@ -1987,7 +1941,7 @@ describe('DocumentList.vue', () => {
           }
           return Promise.resolve({data: []})
         })
-  
+
         mockRoute.params.doc_type = 'globalfilters'
         mockRoute.path = `/list/master/globalfilters`
         wrapper = shallowMount(DocumentList, {
@@ -2022,11 +1976,69 @@ describe('DocumentList.vue', () => {
       })
 
       test('should show pagination bar when the amount of elements is more or equal to 10', () => {
-        console.log("Display data", wrapper.vm.docsDisplayData)
-        console.log("Total pages ", wrapper.vm.totalPages)
         const pagination = wrapper.find('.pagination-row')
         expect(pagination.exists()).toBe(true)
+      })
+
+      test('should the page be in the first page as default', () => {
+        const firstRow = wrapper.findAll('.data-row').at(0)
+        const nameCell = firstRow.findAll('td').at(0)
+        const currentPage = wrapper.vm.currentPage
+        expect(nameCell.text()).toBe(paginationGlobalFilterMock[0]['name'])
+        expect(currentPage).toBe(1)
+      })
+
+      test('should have to click on the next button page', async () => {
+        const paginationNextButton = wrapper.find('.pagination-next')
+        await paginationNextButton.trigger('click')
+        const firstRow = wrapper.findAll('.data-row').at(0)
+        const nameCell = firstRow.findAll('td').at(0)
+        expect(nameCell.text()).toBe(paginationGlobalFilterMock[10]['name'])
+      })
+
+      test('should have to click on previous page button after next page button', async () => {
+        const paginationNextButton = wrapper.find('.pagination-next')
+        await paginationNextButton.trigger('click')
+        const paginationPreviousButton = wrapper.find('.pagination-previous')
+        await paginationPreviousButton.trigger('click')
+        const firstRow = wrapper.findAll('.data-row').at(0)
+        const nameCell = firstRow.findAll('td').at(0)
+        expect(nameCell.text()).toBe(paginationGlobalFilterMock[0]['name'])
+      })
+
+      test('should have to sort as descending order and see the last element of the array from the second page', async () => {
+        const headerRow = wrapper.find('.header-row')
+        const nameCell = headerRow.findAll('th').at(0)
+        await nameCell.trigger('click')
+        const dataRow = wrapper.findAll('.data-row').at(0)
+        const firstNameCell = dataRow.findAll('td').at(0)
+        expect(firstNameCell.text()).toBe(paginationGlobalFilterMock[10]['name'])
+      })
+
+      test('should have to filter the last element from the array', async () => {
+        const filterButton = wrapper.find('.filter-toggle')
+        await filterButton.trigger('click')
+        const nameInput = wrapper.findAll('.filter-input').at(0)
+        await nameInput.trigger('click')
+        await nameInput.setValue('k')
+        await nameInput.trigger('keydown', {keyCode: 13})
+        const firstDataCell = wrapper.findAll('.data-cell').at(0)
+        expect(firstDataCell.text()).toBe(paginationGlobalFilterMock[10]['name'])
+      })
+
+      test('should have to go to second page and filter the first element from the array', async () => {
+        const paginationNextButton = wrapper.find('.pagination-next')
+        await paginationNextButton.trigger('click')
+        const filterButton = wrapper.find('.filter-toggle')
+        await filterButton.trigger('click')
+        const nameInput = wrapper.findAll('.filter-input').at(0)
+        await nameInput.trigger('click')
+        await nameInput.setValue('a')
+        await nameInput.trigger('keydown', {keyCode: 13})
+        const firstDataCell = wrapper.findAll('.data-cell').at(0)
+        expect(firstDataCell.text()).toBe(paginationGlobalFilterMock[0]['name'])
       })
     })
   })
 })
+
