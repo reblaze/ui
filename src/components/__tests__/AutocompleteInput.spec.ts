@@ -253,7 +253,7 @@ describe('AutocompleteInput', () => {
       expect(dropdownItems.at(2).element.classList.contains('is-active')).toBeFalsy()
     })
 
-    test('should set focus on autocompleteInput', async () => {
+    test('should set focus on autocomplete Input when click on dropdown suggestion', async () => {
       wrapper = mount(AutocompleteInput, {
         props: {
           suggestions: suggestions,
@@ -264,7 +264,6 @@ describe('AutocompleteInput', () => {
       })
       const input = wrapper.find('.autocomplete-input')
       let wrapperElement = wrapper.find({ref: 'autocompleteInput'})
-      console.log('wrapperElement', wrapperElement)
       await input.setValue('value')
       await input.trigger('input')
       const dropdownItems = wrapper.findAll('.dropdown-item')
@@ -473,7 +472,7 @@ describe('AutocompleteInput', () => {
     })
 
 
-    test('autocompleteValue should changes to initialValue when skipNextWatchUpdate = false', async () => {
+    test('autocompleteValue should changes to initialValue prop when skipNextWatchUpdate = false', async () => {
       wrapper = mount(AutocompleteInput, {
         props: {
           initialValue: 'aylon',
