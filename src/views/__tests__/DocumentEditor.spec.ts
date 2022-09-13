@@ -960,6 +960,66 @@ describe('DocumentEditor.vue', () => {
     expect(gitHistory).toBeTruthy()
   })
 
+  test('should have an empty git log array if got no git log data from server - response null', () => {
+    jest.spyOn(axios, 'get').mockImplementation((path) => {
+      if (path === '/conf/api/v2/configs/') {
+        return Promise.resolve({data: gitData})
+      }
+      const branch = wrapper.vm.selectedBranch
+      const docID = wrapper.vm.selectedDocID
+      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
+        return Promise.resolve({data: aclDocs})
+      }
+      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/${docID}/`) {
+        return Promise.resolve({data: aclDocs[0]})
+      }
+      if (path === `/conf/api/v2/configs/master/d/aclprofiles/e/${docID}/v/`) {
+        return Promise.resolve(null)
+      }
+      return Promise.resolve({data: []})
+    })
+    wrapper = shallowMount(DocumentEditor, {
+      global: {
+        mocks: {
+          $route: mockRoute,
+          $router: mockRouter,
+        },
+      },
+    })
+    const gitHistory = wrapper.findComponent(GitHistory)
+    expect(gitHistory).toBeTruthy()
+  })
+
+  test('should have an empty git log array if got no git log data from server - data null', () => {
+    jest.spyOn(axios, 'get').mockImplementation((path) => {
+      if (path === '/conf/api/v2/configs/') {
+        return Promise.resolve({data: gitData})
+      }
+      const branch = wrapper.vm.selectedBranch
+      const docID = wrapper.vm.selectedDocID
+      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
+        return Promise.resolve({data: aclDocs})
+      }
+      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/${docID}/`) {
+        return Promise.resolve({data: aclDocs[0]})
+      }
+      if (path === `/conf/api/v2/configs/master/d/aclprofiles/e/${docID}/v/`) {
+        return Promise.resolve({data: null})
+      }
+      return Promise.resolve({data: []})
+    })
+    wrapper = shallowMount(DocumentEditor, {
+      global: {
+        mocks: {
+          $route: mockRoute,
+          $router: mockRouter,
+        },
+      },
+    })
+    const gitHistory = wrapper.findComponent(GitHistory)
+    expect(gitHistory).toBeTruthy()
+  })
+
   test('should send API request to restore to the correct version', async () => {
     const wantedVersion = {
       version: '7f8a987c8e5e9db7c734ac8841c543d5bc5d9657',
