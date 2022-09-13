@@ -327,7 +327,7 @@ export default defineComponent({
     },
 
     isSelectedNamespaceNewNameValid(): boolean {
-      const newName = this.namespaceNameInput?.trim()
+      const newName = this.namespaceNameInput.trim()
       const isNamespaceNameEmpty = newName === ''
       const isNamespaceNameDuplicate = this.databases.includes(newName) ? this.selectedNamespace !== newName : false
       return !isNamespaceNameEmpty && !isNamespaceNameDuplicate
@@ -359,7 +359,7 @@ export default defineComponent({
     async loadDatabases() {
       this.setLoadingDocStatus(true)
       await RequestsUtils.sendRequest({methodName: 'GET', url: 'db/'}).then((response: AxiosResponse<string[]>) => {
-        this.databases = response?.data || []
+        this.databases = response?.data?.length ? response.data : []
         console.log('Databases: ', this.databases)
         this.loadFirstNamespace()
       })
@@ -367,7 +367,7 @@ export default defineComponent({
     },
 
     loadFirstNamespace() {
-      const namespace = this.databases?.[0]
+      const namespace = this.databases[0]
       if (namespace) {
         this.loadNamespace(namespace)
       } else {
@@ -502,9 +502,6 @@ export default defineComponent({
     },
 
     async addNewKey(newKey?: string, newValue?: string) {
-      if (!this.selectedNamespace) {
-        return
-      }
       this.isNewKeyLoading = true
       if (!newKey) {
         newKey = Utils.generateUniqueEntityName('new key', this.namespaceKeys)
@@ -529,9 +526,6 @@ export default defineComponent({
     },
 
     downloadKey() {
-      if (!this.selectedKeyValue) {
-        return
-      }
       Utils.downloadFile(this.selectedKey, 'json', JSON.parse(this.selectedKeyValue))
     },
 
@@ -565,7 +559,7 @@ export default defineComponent({
       this.loadingGitlog = true
       const url = `db/${this.selectedNamespace}/k/${this.selectedKey}/v/`
       const response = await RequestsUtils.sendRequest({methodName: 'GET', url})
-      this.gitLog = response?.data
+      this.gitLog = response?.data || []
       this.loadingGitlog = false
     },
 

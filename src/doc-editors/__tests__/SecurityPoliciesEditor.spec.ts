@@ -709,8 +709,8 @@ describe('SecurityPoliciesEditor.vue', () => {
       await nextTick()
       const referralButton = entryRateLimitsTable.find('.rate-limit-referral-button')
       await referralButton.trigger('click')
-      expect(mockRouter.push).toHaveBeenCalledTimes(1)
-      expect(mockRouter.push).toHaveBeenCalledWith(`/config/${selectedBranch}/ratelimits`)
+      expect(wrapper.emitted('go-to-route')).toBeTruthy()
+      expect(wrapper.emitted('go-to-route')[0]).toEqual([`/config/${selectedBranch}/ratelimits`])
     })
   })
 

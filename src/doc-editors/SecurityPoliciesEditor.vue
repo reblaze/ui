@@ -408,7 +408,7 @@ export default defineComponent({
       return this.localDoc.map.length > 1 && !isDefaultPath
     },
   },
-
+  emits: ['update:selectedDoc', 'form-invalid', 'go-to-route'],
   methods: {
     emitDocUpdate(): void {
       this.$emit('update:selectedDoc', this.localDoc)
@@ -433,7 +433,7 @@ export default defineComponent({
     // },
 
     isSelectedDomainMatchValid(): boolean {
-      const newDomainMatch = this.localDoc.match?.trim()
+      const newDomainMatch = this.localDoc.match.trim()
       const isDomainMatchEmpty = newDomainMatch === ''
       const isDomainMatchDuplicate = this.domainNames.includes(
           newDomainMatch,
@@ -445,7 +445,7 @@ export default defineComponent({
     },
 
     isSelectedMapEntryMatchValid(index: number): boolean {
-      const newMapEntryMatch = this.localDoc.map[index]?.match.trim() || ''
+      const newMapEntryMatch = this.localDoc.map[index].match.trim() || ''
       let isValid = newMapEntryMatch.startsWith('/')
       if (isValid) {
         const isMapEntryMatchEmpty = newMapEntryMatch === ''
@@ -554,7 +554,7 @@ export default defineComponent({
 
     referToRateLimit() {
       this.$emit('form-invalid', false)
-      this.$router.push(`/config/${this.selectedBranch}/ratelimits`)
+      this.$emit('go-to-route', `/config/${this.selectedBranch}/ratelimits`)
     },
 
     contentfilteracllimitProfileNames() {

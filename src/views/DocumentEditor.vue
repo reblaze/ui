@@ -163,6 +163,7 @@
             v-model:docs="docs"
             :apiPath="documentAPIPath"
             @form-invalid="isDocumentInvalid = $event"
+            @go-to-route="goToRoute($event)"
             ref="currentComponent">
         </component>
         <hr/>
@@ -299,7 +300,7 @@ export default defineComponent({
 
     selectedDoc: {
       get(): Document {
-        return this.docs?.[this.selectedDocIndex]
+        return this.docs[this.selectedDocIndex]
       },
       set(newDoc: Document): void {
         this.docs[this.selectedDocIndex] = newDoc
@@ -339,11 +340,14 @@ export default defineComponent({
 
   methods: {
 
-    goToRoute() {
-      const currentRoute = `/config/${this.selectedBranch}/${this.selectedDocType}/${this.selectedDocID}`
-      if (this.$route.path !== currentRoute) {
-        console.log('Switching document, new document path: ' + currentRoute)
-        this.$router.push(currentRoute)
+    async goToRoute(newRoute?: string) {
+      if (!newRoute) {
+        newRoute = `/config/${this.selectedBranch}/${this.selectedDocType}/${this.selectedDocID}`
+      }
+      if (this.$route.path !== newRoute) {
+        console.log('Switching document, new document path: ' + newRoute)
+        await this.$router.push(newRoute)
+        await this.setSelectedDataFromRouteParams()
       }
     },
 
@@ -422,7 +426,7 @@ export default defineComponent({
           methodName: 'GET',
           url: `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`,
         })
-        this.selectedDoc = response?.data
+        this.selectedDoc = response?.data || this.selectedDoc
       }
       this.setLoadingDocStatus(false)
     },

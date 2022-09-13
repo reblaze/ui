@@ -1,7 +1,7 @@
 // @ts-nocheck
 import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
-import {shallowMount, VueWrapper} from '@vue/test-utils'
+import {mount, shallowMount, VueWrapper} from '@vue/test-utils'
 import {GlobalFilter, GlobalFilterSectionEntry} from '@/types'
 import ResponseAction from '@/components/ResponseAction.vue'
 import TagsAutocompleteInput from '@/components/TagAutocompleteInput.vue'
@@ -71,6 +71,9 @@ describe('GlobalFilterListEditor.vue', () => {
           }],
       },
     }]
+    jest.spyOn(axios, 'get').mockImplementation(() => {
+      return Promise.resolve({data: {}})
+    })
     wrapper = shallowMount(GlobalFilterListEditor, {
       props: {
         selectedDoc: docs[0],
@@ -138,7 +141,20 @@ describe('GlobalFilterListEditor.vue', () => {
         expect(display.text()).toContain('0 sections')
       })
 
-      test('should display correct zero amount of entries', () => {
+      test('should display correct zero amount of entries - not an array', () => {
+        docs[0].rule.sections = [
+          {'relation': 'OR', 'entries': null},
+        ]
+        wrapper = shallowMount(GlobalFilterListEditor, {
+          props: {
+            selectedDoc: docs[0],
+          },
+        })
+        const display = wrapper.find('.sections-entries-display')
+        expect(display.text()).toContain('0 entries')
+      })
+
+      test('should display correct zero amount of entries - length zero', () => {
         docs[0].rule.sections = [
           {'relation': 'OR', 'entries': []},
         ]
@@ -218,6 +234,39 @@ describe('GlobalFilterListEditor.vue', () => {
     test('should have entries relation component with editable false prop', () => {
       const entriesRelationListComponent = wrapper.findComponent(EntriesRelationList)
       expect(entriesRelationListComponent.props('editable')).toBeFalsy()
+    })
+  })
+
+  describe('selected doc change', () => {
+    let cancelAllEntriesSpy
+    beforeEach(() => {
+      const basicDocument = {
+        'id': '__default__',
+        'name': 'default entry',
+      }
+      wrapper = mount(GlobalFilterListEditor, {
+        props: {
+          selectedDoc: basicDocument,
+        },
+      })
+      cancelAllEntriesSpy = jest.spyOn(wrapper.vm.$refs.entriesRelationList, 'cancelAllEntries')
+    })
+
+    test('should cancel all new entries relation filter if selectedDoc updates - new ID', async () => {
+      await wrapper.setProps({selectedDoc: docs[0]})
+      expect(cancelAllEntriesSpy).toHaveBeenCalled()
+    })
+
+    test('should cancel all new entries relation filter if selectedDoc updates - new empty', async () => {
+      await wrapper.setProps({selectedDoc: {}})
+      expect(cancelAllEntriesSpy).toHaveBeenCalled()
+    })
+
+    test('should cancel all new entries relation filter if selectedDoc updates - old empty', async () => {
+      await wrapper.setProps({selectedDoc: {}})
+      jest.clearAllMocks()
+      await wrapper.setProps({selectedDoc: docs[0]})
+      expect(cancelAllEntriesSpy).toHaveBeenCalled()
     })
   })
 
@@ -619,7 +668,7 @@ describe('GlobalFilterListEditor.vue', () => {
         [
           'ip',
           '203.208.60.0/24',
-          'Crawler',
+          null,
         ],
         [
           'ip',
@@ -672,7 +721,7 @@ describe('GlobalFilterListEditor.vue', () => {
         [
           'asn',
           'as34109',
-          'spam',
+          null,
         ],
         [
           'asn',
@@ -808,7 +857,7 @@ describe('GlobalFilterListEditor.vue', () => {
       expect(entriesRelationListComponent.props('rule')).toEqual(wantedData)
     })
 
-    test('should update entries relation component with correct data - global filter structure', async () => {
+    test('should update entries relation component with correct data - global filter', async () => {
       const globalFilter: GlobalFilter = {
         'id': 'xlbp148c',
         'name': 'API Discovery',
@@ -841,24 +890,92 @@ describe('GlobalFilterListEditor.vue', () => {
       expect(entriesRelationListComponent.props('rule')).toEqual(wantedData)
     })
 
-    test('should not update entries relation component when no data found', async () => {
+    test('should not update entries relation component with correct data - global filter - no entries', async () => {
       const wantedData: GlobalFilter['rule'] = docs[0].rule
       resolveData = {
         data: {
-          'type': 'acl',
-          'name': 'Crawler example',
-          'id': 'example_id',
+          'id': 'xlbp148c',
+          'name': 'API Discovery',
+          'source': 'self-managed',
+          'mdate': '2020-05-23T00:04:41',
+          'description': 'Tag API Requests',
           'active': true,
-          'mdate': '2020-11-04 07:54:27.417791',
-          'source': 'https://example.com',
-          'description': 'some example crawlers',
-          'entries_relation': 'OR',
-          'tags': [
-            'allowlist',
-            'crawler',
-          ],
-          'entries': [],
+          'tags': ['api', 'okay'],
+          'action': {
+            'type': 'monitor',
+            'params': {},
+          },
+          'rule': {
+            'relation': 'OR',
+            'sections': [],
+          },
         },
+      }
+      const button = wrapper.find('.update-now-button')
+      await button.trigger('click')
+      wrapper.vm.$forceUpdate()
+      await nextTick()
+      const entriesRelationListComponent = wrapper.findComponent(EntriesRelationList)
+      expect(entriesRelationListComponent.props('rule')).toEqual(wantedData)
+    })
+
+    test('should not update entries relation component with correct data - global filter - no sections', async () => {
+      const wantedData: GlobalFilter['rule'] = docs[0].rule
+      resolveData = {
+        data: {
+          'id': 'xlbp148c',
+          'name': 'API Discovery',
+          'source': 'self-managed',
+          'mdate': '2020-05-23T00:04:41',
+          'description': 'Tag API Requests',
+          'active': true,
+          'tags': ['api', 'okay'],
+          'action': {
+            'type': 'monitor',
+            'params': {},
+          },
+          'rule': {
+            'relation': 'OR',
+          },
+        },
+      }
+      const button = wrapper.find('.update-now-button')
+      await button.trigger('click')
+      wrapper.vm.$forceUpdate()
+      await nextTick()
+      const entriesRelationListComponent = wrapper.findComponent(EntriesRelationList)
+      expect(entriesRelationListComponent.props('rule')).toEqual(wantedData)
+    })
+
+    test('should not update entries relation component with correct data - global filter - no rule', async () => {
+      const wantedData: GlobalFilter['rule'] = docs[0].rule
+      resolveData = {
+        data: {
+          'id': 'xlbp148c',
+          'name': 'API Discovery',
+          'source': 'self-managed',
+          'mdate': '2020-05-23T00:04:41',
+          'description': 'Tag API Requests',
+          'active': true,
+          'tags': ['api', 'okay'],
+          'action': {
+            'type': 'monitor',
+            'params': {},
+          },
+        },
+      }
+      const button = wrapper.find('.update-now-button')
+      await button.trigger('click')
+      wrapper.vm.$forceUpdate()
+      await nextTick()
+      const entriesRelationListComponent = wrapper.findComponent(EntriesRelationList)
+      expect(entriesRelationListComponent.props('rule')).toEqual(wantedData)
+    })
+
+    test('should not update entries relation component when no data found', async () => {
+      const wantedData: GlobalFilter['rule'] = docs[0].rule
+      resolveData = {
+        data: null,
       }
       const button = wrapper.find('.update-now-button')
       await button.trigger('click')
