@@ -16,6 +16,7 @@
                 <tbody>
                 <tr v-for="(entry,entryIndex) in sectionsCurrentPage[sectionIndex]"
                     :key="entryIndex"
+                    :name="entryIndex"
                     class="entry-row"
                     :class="{'has-text-danger': isEntryDuplicate( sectionIndex, entry )}">
                   <td class="is-size-7 width-50px has-text-centered has-text-weight-medium">
@@ -108,7 +109,7 @@
                               :class="{ 'is-danger': isErrorField( `${newEntryCategory}${sectionIndex}` )}"
                               rows="3">
                     </textarea>
-                    <div class="help is-danger" v-if="invalidIPs.length">
+                    <div class="invalid-ips-errors help is-danger" v-if="invalidIPs.length">
                       <div class="mr-2">Please check the following:</div>
                       <div v-for="(err,errIndex) in invalidIPs" :key="errIndex">
                         {{ err }}
@@ -158,7 +159,7 @@
                 <tr v-if="totalPages(section) > 1">
                   <td colspan="5">
                     <nav aria-label="pagination" class="pagination is-small" role="navigation">
-                      <a :disabled="sectionsCurrentPageIndex[sectionIndex] === 1"
+                      <button :disabled="sectionsCurrentPageIndex[sectionIndex] === 1"
                          class="is-pulled-left pagination-previous"
                          tabindex="0"
                          @click="navigate(section, sectionIndex, sectionsCurrentPageIndex[sectionIndex] - 1)"
@@ -166,8 +167,8 @@
                          @keypress.space="navigate(section, sectionIndex, sectionsCurrentPageIndex[sectionIndex] - 1)"
                          @keypress.enter="navigate(section, sectionIndex, sectionsCurrentPageIndex[sectionIndex] - 1)">
                         Previous page
-                      </a>
-                      <a :disabled="sectionsCurrentPageIndex[sectionIndex] === totalPages(section)"
+                      </button>
+                      <button :disabled="sectionsCurrentPageIndex[sectionIndex] === totalPages(section)"
                          class="is-pulled-right pagination-next"
                          tabindex="0"
                          @click="navigate(section, sectionIndex, sectionsCurrentPageIndex[sectionIndex] + 1)"
@@ -175,7 +176,7 @@
                          @keypress.space="navigate(section, sectionIndex, sectionsCurrentPageIndex[sectionIndex] + 1)"
                          @keypress.enter="navigate(section, sectionIndex, sectionsCurrentPageIndex[sectionIndex] + 1)">
                         Next page
-                      </a>
+                      </button>
                     </nav>
                   </td>
                 </tr>
@@ -364,7 +365,7 @@ export default defineComponent({
     },
 
     sectionTotalEntries(section: GlobalFilterSection) {
-      return section?.entries?.length || 0
+      return section.entries?.length || 0
     },
 
     dualCell(cell: GlobalFilterSectionEntry[1]) {

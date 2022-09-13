@@ -212,7 +212,6 @@ describe('EntriesRelationList.vue', () => {
           ['uri', '/about6'],
           ['uri', '/about7'],
           ['uri', '/about8'],
-          ['uri', '/about9'],
         ],
       }
       ruleData = {
@@ -241,17 +240,21 @@ describe('EntriesRelationList.vue', () => {
     })
 
     test('should correctly render next page when next page button is clicked', async () => {
+      checkedTable = wrapper.findAll('.entries-table').at(0)
       const nextPageButton = checkedTable.find('.pagination-next')
       await nextPageButton.trigger('click')
       checkedTable = wrapper.findAll('.entries-table').at(0)
       const entryRows = checkedTable.findAll('.entry-row')
-      expect(entryRows.length).toEqual(10)
+      expect(entryRows.length).toEqual(9)
     })
 
     test('should have next page button disabled if currently in last page', async () => {
       const nextPageButton = checkedTable.find('.pagination-next')
       await nextPageButton.trigger('click')
-      expect(nextPageButton.attributes('disabled')).toBeTruthy()
+      // checkedTable = wrapper.findAll('.entries-table').at(0)
+      // const entryRows = checkedTable.findAll('.entry-row')
+      // expect(entryRows.length).toEqual(9)
+      expect(nextPageButton.element.disabled).toBeTruthy()
     })
 
     test('should correctly render prev page when next prev button is clicked', async () => {
@@ -266,44 +269,10 @@ describe('EntriesRelationList.vue', () => {
 
     test('should have prev page button disabled if currently in first page', async () => {
       const prevPageButton = checkedTable.find('.pagination-previous')
-      expect(prevPageButton.attributes('disabled')).toBeTruthy()
+      expect(prevPageButton.element.disabled).toBeTruthy()
     })
 
-    test('should not show pagination when sections is empty', () => {
-      const ruleData = {
-        relation: 'AND',
-        sections: [
-          {},
-        ],
-      }
-      wrapper = mount(EntriesRelationList, {
-        props: {
-          'rule': ruleData,
-          'editable': true,
-        },
-      })
-      const sections = wrapper.findAll('.section')
-      const pagination = sections.at(0)?.find('.pagination')
-      expect(pagination?.exists()).toBeFalsy()
-    })
-
-    // test('should not show pagination when sections is null', () => {
-    //   const ruleData = {
-    //     relation: 'AND',
-    //     sections: null,
-    //   }
-    //   wrapper = mount(EntriesRelationList, {
-    //     props: {
-    //       'rule': ruleData,
-    //       'editable': true,
-    //     },
-    //   })
-    //   const sections = wrapper.findAll('.section')
-    //   const pagination = sections.at(0)?.find('.pagination')
-    //   expect(pagination?.exists()).toBeFalsy()
-    // })
-
-    test('should not show pagination when sections.entries is empty', () => {
+    test('should not show pagination when sections entries are empty', () => {
       const ruleData = {
         relation: 'AND',
         sections: [
@@ -325,7 +294,7 @@ describe('EntriesRelationList.vue', () => {
       expect(pagination?.exists()).toBeFalsy()
     })
 
-    test('should not show pagination when sections.entries is null', () => {
+    test('should not show pagination when sections entries is null', () => {
       const ruleData = {
         relation: 'AND',
         sections: [
@@ -346,101 +315,33 @@ describe('EntriesRelationList.vue', () => {
       expect(pagination?.exists()).toBeFalsy()
     })
 
-    test('should show pagination when sections.entries.length > 0', () => {
+    test('should not show pagination when there are 20 entries or less', () => {
       const ruleData = {
         relation: 'AND',
         sections: [
           {
             relation: 'AND',
             entries: [
-              [
-                'headers',
-                ['user-agent', 'curl'],
-              ],
-              [
-                'headers',
-                ['content-type', 'application/json'],
-              ],
-              [
-                'headers',
-                ['user-agent', 'curl'],
-              ],
-              [
-                'headers',
-                ['content-type', 'application/json'],
-              ],
-              [
-                'headers',
-                ['user-agent', 'curl'],
-              ],
-              [
-                'headers',
-                ['content-type', 'application/json'],
-              ],
-              [
-                'headers',
-                ['user-agent', 'curl'],
-              ],
-              [
-                'headers',
-                ['content-type', 'application/json'],
-              ],
-              [
-                'headers',
-                ['user-agent', 'curl'],
-              ],
-              [
-                'headers',
-                ['content-type', 'application/json'],
-              ],
-              [
-                'headers',
-                ['user-agent', 'curl'],
-              ],
-              [
-                'headers',
-                ['content-type', 'application/json'],
-              ],
-              [
-                'headers',
-                ['user-agent', 'curl'],
-              ],
-              [
-                'headers',
-                ['content-type', 'application/json'],
-              ],
-              [
-                'headers',
-                ['user-agent', 'curl'],
-              ],
-              [
-                'headers',
-                ['content-type', 'application/json'],
-              ],
-              [
-                'headers',
-                ['user-agent', 'curl'],
-              ],
-              [
-                'headers',
-                ['content-type', 'application/json'],
-              ],
-              [
-                'headers',
-                ['user-agent', 'curl'],
-              ],
-              [
-                'headers',
-                ['content-type', 'application/json'],
-              ],
-              [
-                'headers',
-                ['user-agent', 'curl'],
-              ],
-              [
-                'headers',
-                ['content-type', 'application/json'],
-              ],
+              ['uri', '/login0'],
+              ['uri', '/login1'],
+              ['uri', '/login2'],
+              ['uri', '/login3'],
+              ['uri', '/login4'],
+              ['uri', '/login5'],
+              ['uri', '/login6'],
+              ['uri', '/login7'],
+              ['uri', '/login8'],
+              ['uri', '/login9'],
+              ['uri', '/account0'],
+              ['uri', '/account1'],
+              ['uri', '/account2'],
+              ['uri', '/account3'],
+              ['uri', '/account4'],
+              ['uri', '/account5'],
+              ['uri', '/account6'],
+              ['uri', '/account7'],
+              ['uri', '/account8'],
+              ['uri', '/account9'],
             ],
           },
         ],
@@ -452,10 +353,8 @@ describe('EntriesRelationList.vue', () => {
         },
       })
       const sections = wrapper.findAll('.section')
-      // const nSections = wrapper.vm.sectionTotalEntries(wrapper.vm.rule.sections[0])
-      // console.log('entries22', nSections, 'rows20', wrapper.vm.rowsPerPage)
-      const pagination = sections.at(0).find('.pagination')
-      expect(pagination?.exists()).toBeTruthy()
+      const pagination = sections.at(0)?.find('.pagination')
+      expect(pagination?.exists()).toBeFalsy()
     })
   })
 
@@ -471,25 +370,25 @@ describe('EntriesRelationList.vue', () => {
     })
 
     test('should return false for relation not `or` or `and`', () => {
-      (ruleData as any).relation = 'unknown value'
+      (ruleData as GlobalFilter).relation = 'unknown value'
       const isValid = validator(ruleData)
       expect(isValid).toEqual(false)
     })
 
     test('should return false for entries with too few arguments', () => {
-      (ruleData as any).sections[0].entries[0] = ['ip']
+      (ruleData as GlobalFilter).sections[0].entries[0] = ['ip']
       const isValid = validator(ruleData)
       expect(isValid).toEqual(false)
     })
 
     test('should return false for entries with too many arguments', () => {
-      (ruleData as any).sections[0].entries[0] = ['ip', 'test', 'banana', 'apple', 'pear', 'eggplant']
+      (ruleData as GlobalFilter).sections[0].entries[0] = ['ip', 'test', 'banana', 'apple', 'pear', 'eggplant']
       const isValid = validator(ruleData)
       expect(isValid).toEqual(false)
     })
 
     test('should return false for object entry which does not match the schema', () => {
-      (ruleData as any).sections[0].entries[0] = {
+      (ruleData as GlobalFilter).sections[0].entries[0] = {
         prop: 'value',
       }
       const isValid = validator(ruleData)
@@ -766,6 +665,30 @@ describe('EntriesRelationList.vue', () => {
       // check
       expect(sectionRelationToggle.text()).toEqual('AND')
     })
+
+
+    test('should paint the row in red in case of adding a duplicated entry', async () => {
+      const addEntryButton = wrapper.find('.add-entry-button')
+      await addEntryButton.trigger('click')
+      const newEntryRow = wrapper.find('.new-entry-row')
+      const newEntryTextarea = newEntryRow.find('.new-entry-textarea')
+      await newEntryTextarea.setValue('1.1.1.1')
+      const confirmAddEntryButton = newEntryRow.find('.confirm-add-entry-button')
+      await confirmAddEntryButton.trigger('click')
+      // add a second entry
+      // addEntryButton = wrapper.find('.add-entry-button')
+      // await addEntryButton.trigger('click')
+      // newEntryRow = wrapper.find('.new-entry-row')
+      // newEntryTextarea = newEntryRow.find('.new-entry-textarea')
+      // await newEntryTextarea.setValue('1.2.3.4')
+      // confirmAddEntryButton = newEntryRow.find('.confirm-add-entry-button')
+      // await confirmAddEntryButton.trigger('click')
+      // counting only the rows in that section
+      const section = wrapper.findAll('.section').at(0)
+      const rows = section.findAll('.entry-row')
+      console.log('rows: ', rows.length-1, rows.map((row) => row.html()))
+      expect(rows.at(rows.length-1).element.classList.contains('has-text-danger')).toBeTruthy()
+    })
   })
 
   describe('cancel entry button', () => {
@@ -992,6 +915,36 @@ describe('EntriesRelationList.vue', () => {
       expect(textArea.exists()).toBe(true)
       await textArea.trigger('input')
       expect(spy).toHaveBeenCalled()
+    })
+
+    test('should display correct error for single line invalid ip', async () => {
+      // change entry type to ip
+      const wantedValue = 'a.b.c.d'
+      const typeSelection = newEntryRow.find('.new-entry-type-selection')
+      await typeSelection.trigger('click')
+      options = typeSelection.findAll('option')
+      await typeSelection.setValue(options.at(4).element.value)
+      await newEntryTextarea.setValue(wantedValue)
+      const errorsDiv = wrapper.find('.invalid-ips-errors')
+
+      // check
+      expect(errorsDiv.text()).toContain(wantedValue)
+    })
+
+    test('should display correct error for multiline invalid ip', async () => {
+      // change entry type to ip
+      const invalidValue = 'a.b.c.d'
+      const validValue = '1.1.1.1'
+      const typeSelection = newEntryRow.find('.new-entry-type-selection')
+      await typeSelection.trigger('click')
+      options = typeSelection.findAll('option')
+      await typeSelection.setValue(options.at(4).element.value)
+      await newEntryTextarea.setValue(invalidValue + '\n' + validValue)
+      const errorsDiv = wrapper.find('.invalid-ips-errors')
+
+      // check
+      expect(errorsDiv.text()).toContain(`(line 1) ${invalidValue}`)
+      expect(errorsDiv.text()).not.toContain(`(line 2) ${validValue}`)
     })
   })
 })

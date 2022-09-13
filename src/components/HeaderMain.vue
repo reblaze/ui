@@ -15,7 +15,6 @@
 import packageJson from '@/../package.json'
 import {defineComponent} from 'vue'
 
-
 export default defineComponent({
   name: 'HeaderMain',
   data() {
