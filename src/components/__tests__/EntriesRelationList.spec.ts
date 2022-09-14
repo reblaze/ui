@@ -946,28 +946,5 @@ describe('EntriesRelationList.vue', () => {
       expect(errorsDiv.text()).toContain(`(line 1) ${invalidValue}`)
       expect(errorsDiv.text()).not.toContain(`(line 2) ${validValue}`)
     })
-
-    // test('should display Section # when there are duplicate ip entries and more than 1 section', async () => {
-    //   // change entry type to ip
-    //   // const invalidValue = 'a.b.c.d'
-    //   const validValue = '1.1.1.1'
-    //   // const typeSelection = newEntryRow.find('.new-entry-type-selection')
-    //   // await typeSelection.trigger('click')
-    //   // options = typeSelection.findAll('option')
-    //   // await typeSelection.setValue(options.at(4).element.value)
-    //   // await newEntryTextarea.setValue(validValue)
-    //   wrapper.vm.$forceUpdate()
-    //   const newSectioButton = wrapper.find('.add-section-button')
-    //   await nextTick()
-    //   await newSectioButton.trigger('click')
-    //   const newEntryRow2 = wrapper.find('.new-entry-row')
-    //   const textInput = newEntryRow2.findAll('td').at(1)
-    //   await textInput?.setValue(validValue)
-    //   const errorsDiv = wrapper.find('.invalid-ips-errors')
-    //   const errorsPopup = wrapper.find('.notification')
-    //   // check
-    //   expect(errorsDiv.text()).toContain(`Section`)
-    //   expect(errorsPopup.text()).toContain(`Section`)
-    // })
   })
 })
