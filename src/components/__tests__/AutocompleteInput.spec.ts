@@ -472,7 +472,7 @@ describe('AutocompleteInput', () => {
     })
 
 
-    test('autocompleteValue should changes to initialValue prop when skipNextWatchUpdate = false', async () => {
+    test('should change autocompleteValue to initialValue prop value when skipNextWatchUpdate = false', async () => {
       wrapper = mount(AutocompleteInput, {
         props: {
           initialValue: 'aylon',
@@ -483,7 +483,7 @@ describe('AutocompleteInput', () => {
       expect(wrapper.vm.autocompleteValue).toEqual('test')
     })
 
-    test('autocompleteValue should not changes to initialValue when skipNextWatchUpdate = true', async () => {
+    test('should not change autocompleteValue to initialValue prop value when skipNextWatchUpdate = true', async () => {
       wrapper = mount(AutocompleteInput, {
         props: {
           initialValue: 'aylon',
@@ -494,7 +494,7 @@ describe('AutocompleteInput', () => {
       expect(wrapper.vm.autocompleteValue).toEqual('aylon')
     })
 
-    test('when the component is being unmounted, clearInputBlurredTimeout function is being fired', async () => {
+    test('should fire clearInputBlurredTimeout event on component unmounted lifecycle hook', async () => {
       wrapper = mount(AutocompleteInput)
       const spy = jest.spyOn(wrapper.vm, 'clearInputBlurredTimeout')
       wrapper.unmount()

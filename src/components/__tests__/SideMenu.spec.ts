@@ -333,53 +333,6 @@ describe('SideMenu.vue', () => {
     })
   })
 
-  test('should return current route path when route equal null', () => {
-    $route = null
-    wrapper = mount(SideMenu, {
-      global: {
-        mocks: {
-          $route,
-        },
-      },
-      stubs: ['router-link', 'router-view'],
-    })
-    const routerLink = wrapper.findAll(['router-link']).at(2)
-    expect(routerLink.attributes('data-curie')).toEqual('/CurieDB')
-    const routeInner = wrapper.vm.currentRoutePath
-    expect(routeInner).toEqual('')
-    const currentRoute = window.location.pathname
-    expect(currentRoute).toBe('/')
-  })
-
-  test('should take url from API call', async () => {
-    dbData = {
-      links: {
-        swagger_url: 'Aylon',
-        kibana_url: kibanaURL,
-        grafana_url: grafanaURL,
-        prometheus_url: prometheusURL,
-      },
-    },
-    wrapper = mount(SideMenu)
-    jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === `/conf/api/v2/db/system/`) {
-        return Promise.resolve({data: dbData})
-      }
-      if (path === '/conf/api/v2/configs/') {
-        return Promise.resolve({data: gitData})
-      }
-      return Promise.resolve({data: {}})
-    })
-    wrapper.vm.$forceUpdate()
-    await nextTick()
-    await nextTick()
-    await nextTick()
-    await nextTick()
-    console.log('url', wrapper.vm.menuItems.settings.swagger.url,
-    'defaultUrl', wrapper.vm.defaultSwaggerURL)
-    expect(wrapper.vm.menuItems.settings.swagger.url).toEqual('Aylon')
-  })
-
   test('should take defaultUrl when API call failed', async () => {
     dbData = {
       links: {
