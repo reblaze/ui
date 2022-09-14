@@ -20,6 +20,8 @@ import {
 } from '@/types'
 import {setImmediate, setTimeout} from 'timers'
 import {nextTick} from 'vue'
+import {createRouter, createWebHistory} from 'vue-router'
+import { routes } from "@/router"
 
 jest.mock('axios')
 
@@ -747,13 +749,22 @@ describe('DocumentList.vue', () => {
         }
         return Promise.resolve({data: aclDocs})
       }
-      if (path === `/conf/api/v2/configs/master/d/aclprofiles/v/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/v/`) {
         return Promise.resolve({data: aclDocsLogs[0]})
       }
       if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/v/7f8a987c8e5e9db7c734ac8841c543d5bc5d9657/`) {
         return Promise.resolve({data: aclGitOldVersion})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/globalfilters/`) {
+      if (path === `/conf/api/v2/configs/master/d/globalfilters/`) {
+        const globalFilterXFields = _.flatMap(COLUMN_OPTIONS_MAP?.globalfilters, 'fieldNames')
+        globalFilterXFields.unshift('id')
+        if (config && config.headers && config.headers['x-fields'] === globalFilterXFields.join(', ')) {
+          return Promise.resolve({data: _.map(globalFilterDocs, (i) => _.pick(i, globalFilterXFields))})
+        }
+        return Promise.resolve({data: globalFilterDocs})
+      }
+      if (path === `/conf/api/v2/configs/zzz_branch/d/globalfilters/`) {
+        globalFilterDocs.shift()
         const globalFilterXFields = _.flatMap(COLUMN_OPTIONS_MAP?.globalfilters, 'fieldNames')
         globalFilterXFields.unshift('id')
         if (config && config.headers && config.headers['x-fields'] === globalFilterXFields.join(', ')) {
@@ -968,22 +979,18 @@ describe('DocumentList.vue', () => {
   })
 
   describe('route params', () => {
-    beforeEach((done)=>{
-      mockRoute.params = {
-        branch: 'zzz_branch',
-        doc_type: 'flowcontrol',
-      }
+    let router
+    beforeEach(async()=>{
+      router = createRouter({
+        history: createWebHistory(process.env.BASE_URL),
+        routes,
+      })
+      router.push('/list/zzz_branch/flowcontrol')
+      await router.isReady()
       wrapper = shallowMount(DocumentList, {
         global: {
-          mocks: {
-            $route: mockRoute,
-            $router: mockRouter,
-          },
-        },
-      })
-
-      setImmediate(() => {
-        done()
+          plugins: [router]
+        }
       })
     })
     test('should load correct branch from route when valid', () => {
@@ -998,17 +1005,8 @@ describe('DocumentList.vue', () => {
       expect(nameCellFirstRow.text()).toBe('flow control policy')
     })
 
-    test('should load correct default branch if non existent in route params', (done) => {
-      mockRoute.params = {}
-      wrapper = shallowMount(DocumentList, {
-        global: {
-          mocks: {
-            $route: mockRoute,
-            $router: mockRouter,
-          },
-        },
-      })
-      // allow all requests to finish
+    test('should load correct default branch if got non existent branch in route params', (done) => {
+      router.push('/list/random123/random123')
       setImmediate(() => {
         const firstRow = wrapper.findAll('.data-row').at(0)
         const nameCellFirstRow = firstRow.findAll('td').at(0)
@@ -1018,23 +1016,21 @@ describe('DocumentList.vue', () => {
     })
 
     test('should load correct default document type if non existent in route params', (done) => {
-      mockRoute.params = {}
-      wrapper = shallowMount(DocumentList, {
-        global: {
-          mocks: {
-            $route: mockRoute,
-            $router: mockRouter,
-          },
-        },
-      })
-      // allow all requests to finish
+      router.push('/list/zzz_branch/random123')
       setImmediate(() => {
-        setImmediate(() => {
-          const firstRow = wrapper.findAll('.data-row').at(0)
-          const nameCellFirstRow = firstRow.findAll('td').at(0)
-          expect(nameCellFirstRow.text()).toBe('an ACL')
-          done()
-        })
+        const firstRow = wrapper.findAll('.data-row').at(0)
+        const nameCellFirstRow = firstRow.findAll('td').at(0)
+        expect(nameCellFirstRow.text()).toBe('devop internal demo')
+        done()
+      })
+    })
+
+    test('should load correct data when changing doc type', (done) => {
+      router.push('/list/master/contentfilterprofiles')
+      setImmediate(() => {
+        const firstRow = wrapper.findAll('.data-row').at(0)
+        const nameCellFirstRow = firstRow.findAll('td').at(0)
+        expect(nameCellFirstRow.text()).toBe('content filter')
         done()
       })
     })
