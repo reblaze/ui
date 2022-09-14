@@ -497,7 +497,7 @@ export default defineComponent({
       this.$router.push('/versioncontrol')
     },
 
-    loadGitLog(interaction?: boolean) {
+    loadGitLog() {
       this.isGitLogLoading = true
       const config = this.selectedBranch
       const document = this.selectedDocType
@@ -505,9 +505,6 @@ export default defineComponent({
       if (config && document) {
         RequestsUtils.sendRequest({methodName: 'GET', url}).then((response: AxiosResponse<Commit[]>) => {
           this.gitLog = response?.data
-          if (interaction) {
-            this.loadConfigs()
-          }
           this.isGitLogLoading = false
         })
       }

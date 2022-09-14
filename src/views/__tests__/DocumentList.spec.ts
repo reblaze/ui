@@ -32,9 +32,7 @@ describe('DocumentList.vue', () => {
   let aclDocsLogs: Commit[][]
   let aclGitOldVersion: ACLProfile[]
   let globalFilterDocs: GlobalFilter[]
-  let globalFilterDocsLogs: Commit[][]
   let securityPoliciesDocs: SecurityPolicy[]
-  let securityPoliciesDocsLogs : Commit[][]
   let flowControlPolicyDocs: FlowControlPolicy[]
   let contentFilterDocs: ContentFilterProfile[]
   let rateLimitsDocs: RateLimit[]
@@ -577,20 +575,6 @@ describe('DocumentList.vue', () => {
         },
       },
     ]
-    globalFilterDocsLogs = [
-      [
-        {
-          'version': '1662043d2a18d6ad2c9c94d6f826593ff5506354',
-          'date': '2020-11-08T21:31:41+01:00',
-          'parents': [
-            '16379cdf39501574b4a2f5a227b82a4454884b84',
-          ],
-          'message': 'Create config [master]\n',
-          'email': 'curiefense@reblaze.com',
-          'author': 'Curiefense API',
-        },
-      ],
-    ]
     securityPoliciesDocs = [
       {
         'id': '__default__',
@@ -608,20 +592,6 @@ describe('DocumentList.vue', () => {
           },
         ],
       },
-    ]
-    securityPoliciesDocsLogs = [
-      [
-        {
-          'version': '1662043d2a18d6ad2c9c94d6f826593ff5506354',
-          'date': '2020-11-08T21:31:41+01:00',
-          'parents': [
-            '16379cdf39501574b4a2f5a227b82a4454884b84',
-          ],
-          'message': 'Create config [master]\n',
-          'email': 'curiefense@reblaze.com',
-          'author': 'Curiefense API',
-        },
-      ],
     ]
     flowControlPolicyDocs = [
       {
@@ -1398,6 +1368,7 @@ describe('DocumentList.vue', () => {
     let sortedGlobalFilterMockByDescriptionAsc : GlobalFilter
     let columnTitle : string[]
     beforeEach((done) => {
+      columnTitle = ['Name', 'Description', 'Tags']
       globalFilterMock = [
         {
           name: 'c test3',
@@ -1406,6 +1377,9 @@ describe('DocumentList.vue', () => {
           isSortable: true,
           isSearchable: true,
           id: 3,
+          action: {
+            type: 'challenge',
+          },
         },
         {
           name: 'b test2',
@@ -1414,6 +1388,9 @@ describe('DocumentList.vue', () => {
           isSortable: false,
           isSearchable: true,
           id: 2,
+          action: {
+            type: 'default',
+          },
         },
         {
           name: 'a test1',
@@ -1422,55 +1399,13 @@ describe('DocumentList.vue', () => {
           isSortable: true,
           isSearchable: false,
           id: 1,
+          action: {
+            type: 'default',
+          },
         },
       ]
-      sortedGlobalFilterMockByNameAsc = [
-        {
-          name: 'a test1',
-          description: 'a Jest testing description',
-          tags: ['curiefense'],
-          isSortable: true,
-          isSearchable: false,
-        },
-        {
-          name: 'b test2',
-          description: 'b Jest testing description',
-          tags: ['crawler', 'curiefense'],
-          isSortable: false,
-          isSearchable: true,
-        },
-        {
-          name: 'c test3',
-          description: 'c Jest testing description',
-          tags: ['apple', 'crawler', 'curiefense'],
-          isSortable: true,
-          isSearchable: true,
-        },
-      ]
-      sortedGlobalFilterMockByDescriptionAsc = [
-        {
-          name: 'c test3',
-          description: 'a Jest testing description',
-          tags: ['curiefense'],
-          isSortable: true,
-          isSearchable: false,
-        },
-        {
-          name: 'b test2',
-          description: 'b Jest testing description',
-          tags: ['crawler', 'curiefense'],
-          isSortable: false,
-          isSearchable: true,
-        },
-        {
-          name: 'a test1',
-          description: 'c Jest testing description',
-          tags: ['apple', 'crawler', 'curiefense'],
-          isSortable: true,
-          isSearchable: true,
-        },
-      ]
-      columnTitle = ['Name', 'Description', 'Tags']
+      sortedGlobalFilterMockByNameAsc = globalFilterMock.slice().sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0))
+      sortedGlobalFilterMockByDescriptionAsc = globalFilterMock.slice().sort((a, b) => (a.description > b.description) ? 1 : ((b.description > a.description) ? -1 : 0))
       sortedGlobalFilterMockByDescriptionDesc = [...sortedGlobalFilterMockByDescriptionAsc].reverse()
       jest.spyOn(axios, 'get').mockImplementation((path, config) => {
         if (path === '/conf/api/v2/configs/') {
@@ -1487,7 +1422,6 @@ describe('DocumentList.vue', () => {
         }
         return Promise.resolve({data: []})
       })
-
       mockRoute.params.doc_type = 'globalfilters'
       mockRoute.path = `/list/master/globalfilters`
       wrapper = shallowMount(DocumentList, {
@@ -1504,6 +1438,8 @@ describe('DocumentList.vue', () => {
     })
 
     describe('sorting', () => {
+      // TODO: need to sorting the action
+
       test('should have the correct arrow active by default', () => {
         const ascArrowElement = wrapper.find('.arrow-asc')
         expect(ascArrowElement.element.classList).toContain('active')
@@ -1571,10 +1507,24 @@ describe('DocumentList.vue', () => {
         const nameCellSecondRow = secondRow.findAll('td').at(0)
         const thirdRow = wrapper.findAll('.data-row').at(2)
         const nameCellThirdRow = thirdRow.findAll('td').at(0)
-
         expect(nameCellFirstRow.text()).toBe(sortedGlobalFilterMockByNameAsc[0]['name'])
         expect(nameCellSecondRow.text()).toBe(sortedGlobalFilterMockByNameAsc[1]['name'])
         expect(nameCellThirdRow.text()).toBe(sortedGlobalFilterMockByNameAsc[2]['name'])
+      })
+
+      test('should have action values sorted in ascending order', async () =>{
+        const header = wrapper.findAll('.column-title').at(4)
+        await header.trigger('click')
+        console.log(wrapper.html())
+        const firstRow = wrapper.findAll('.data-row').at(0)
+        const actionCellFirstRow = firstRow.findAll('td').at(4)
+        const secondRow = wrapper.findAll('.data-row').at(1)
+        const actionCellSecondRow = secondRow.findAll('td').at(4)
+        const thirdRow = wrapper.findAll('.data-row').at(2)
+        const actionCellThirdRow = thirdRow.findAll('td').at(4)
+        expect(actionCellFirstRow.text()).toBe('503 Service Unavailable')
+        expect(actionCellSecondRow.text()).toBe('503 Service Unavailable')
+        expect(actionCellThirdRow.text()).toBe('Challenge')
       })
 
       test('should have asc arrow in new sorting column when previous was asc arrow', async () =>{
@@ -1665,6 +1615,19 @@ describe('DocumentList.vue', () => {
         await nameInput.trigger('click')
         await nameInput.setValue('a')
         await nameInput.trigger('keydown', {keyCode: 13})
+        const firstDataCell = wrapper.findAll('.data-cell').at(0)
+        const secondDataCell = wrapper.findAll('.data-cell').at(1)
+        expect(firstDataCell.text()).toBe(globalFilterMock[2]['name'])
+        expect(secondDataCell.text()).toBe(globalFilterMock[2]['description'])
+      })
+
+      test('should have to filter tags values', async () =>{
+        const filterButton = wrapper.find('.filter-toggle')
+        await filterButton.trigger('click')
+        const tagsInput = wrapper.findAll('.filter-input').at(2)
+        await tagsInput.trigger('click')
+        await tagsInput.setValue('curiefense')
+        await tagsInput.trigger('keydown', {keyCode: 13})
         const firstDataCell = wrapper.findAll('.data-cell').at(0)
         const secondDataCell = wrapper.findAll('.data-cell').at(1)
         expect(firstDataCell.text()).toBe(globalFilterMock[2]['name'])
