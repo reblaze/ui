@@ -32,7 +32,9 @@ describe('DocumentList.vue', () => {
   let aclDocsLogs: Commit[][]
   let aclGitOldVersion: ACLProfile[]
   let globalFilterDocs: GlobalFilter[]
+  let globalFilterDocsLogs: Commit[][]
   let securityPoliciesDocs: SecurityPolicy[]
+  let securityPoliciesDocsLogs : Commit[][]
   let flowControlPolicyDocs: FlowControlPolicy[]
   let contentFilterDocs: ContentFilterProfile[]
   let rateLimitsDocs: RateLimit[]
@@ -775,6 +777,9 @@ describe('DocumentList.vue', () => {
         }
         return Promise.resolve({data: aclDocs})
       }
+      if (path === `/conf/api/v2/configs/master/d/aclprofiles/v/`) {
+        return Promise.resolve({data: aclDocsLogs[0]})
+      }
       if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/v/7f8a987c8e5e9db7c734ac8841c543d5bc5d9657/`) {
         return Promise.resolve({data: aclGitOldVersion})
       }
@@ -796,7 +801,7 @@ describe('DocumentList.vue', () => {
       }
       if (path === `/conf/api/v2/configs/${branch}/d/flowcontrol/`) {
         const flowcontrolXFields = _.flatMap(COLUMN_OPTIONS_MAP?.flowcontrol, 'fieldNames')
-        flowControlPolicyDocs.unshift('id')
+        flowcontrolXFields.unshift('id')
         if (config && config.headers && config.headers['x-fields'] === flowcontrolXFields.join(', ')) {
           return Promise.resolve({data: _.map(flowControlPolicyDocs, (i) => _.pick(i, flowcontrolXFields))})
         }
@@ -835,7 +840,14 @@ describe('DocumentList.vue', () => {
       name: `DocumentList`,
     }
     mockRouter = {
-      push: jest.fn(),
+      push: jest.fn((val) => {
+        const splitParams = val.split('/')
+        wrapper.vm.$route.params = {
+          branch: splitParams[2],
+          doc_type: splitParams[3],
+        }
+        wrapper.vm.$route.path = val
+      }),
     }
     wrapper = shallowMount(DocumentList, {
       global: {
@@ -986,7 +998,7 @@ describe('DocumentList.vue', () => {
   })
 
   describe('route params', () => {
-    test('should load correct branch from route when valid', (done) => {
+    beforeEach((done)=>{
       mockRoute.params = {
         branch: 'zzz_branch',
         doc_type: 'flowcontrol',
@@ -999,104 +1011,21 @@ describe('DocumentList.vue', () => {
           },
         },
       })
-      // allow all requests to finish
+
       setImmediate(() => {
-        const branchSelection = wrapper.find('.branch-selection')
-        expect(branchSelection.element.selectedIndex).toEqual(1)
         done()
       })
     })
-
-    test('should load correct doc type from route when valid', (done) => {
-      mockRoute.params = {
-        branch: 'zzz_branch',
-        doc_type: 'flowcontrol',
-      }
-      wrapper = shallowMount(DocumentList, {
-        global: {
-          mocks: {
-            $route: mockRoute,
-            $router: mockRouter,
-          },
-        },
-      })
-      // allow all requests to finish
-      setImmediate(() => {
-        const docTypeSelection = wrapper.find('.doc-type-selection')
-        expect(docTypeSelection.element.selectedIndex).toEqual(1)
-        done()
-      })
+    test('should load correct branch from route when valid', () => {
+      const firstRow = wrapper.findAll('.data-row').at(0)
+      const nameCellFirstRow = firstRow.findAll('td').at(0)
+      expect(nameCellFirstRow.text()).toBe('flow control policy')
     })
 
-    test('should load correct doc from route when valid', (done) => {
-      mockRoute.params = {
-        branch: 'zzz_branch',
-        doc_type: 'flowcontrol',
-      }
-      wrapper = shallowMount(DocumentList, {
-        global: {
-          mocks: {
-            $route: mockRoute,
-            $router: mockRouter,
-          },
-        },
-      })
-      // allow all requests to finish
-      setImmediate(() => {
-        const docSelection = wrapper.find('.doc-selection')
-        expect(docSelection.element.selectedIndex).toEqual(1)
-        done()
-      })
-    })
-
-    test('should load correct branch from route without changing document type', (done) => {
-      mockRoute.params = {
-        branch: 'zzz_branch',
-        doc_type: 'aclprofiles',
-      }
-      wrapper = shallowMount(DocumentList, {
-        global: {
-          mocks: {
-            $route: mockRoute,
-            $router: mockRouter,
-          },
-        },
-      })
-      // allow all requests to finish
-      setImmediate(() => {
-        const branchSelection = wrapper.find('.branch-selection')
-        expect(branchSelection.element.selectedIndex).toEqual(1)
-        const docTypeSelection = wrapper.find('.doc-type-selection')
-        expect(docTypeSelection.element.selectedIndex).toEqual(4)
-        const docSelection = wrapper.find('.doc-selection')
-        expect(docSelection.element.selectedIndex).toEqual(1)
-        done()
-      })
-    })
-
-    test('should load correct document type from route without changing branch', (done) => {
-      mockRoute.params = {
-        branch: 'master',
-        doc_type: 'securitypolicies',
-      }
-      wrapper = shallowMount(DocumentList, {
-        global: {
-          mocks: {
-            $route: mockRoute,
-            $router: mockRouter,
-          },
-        },
-      })
-      // allow all requests to finish
-      setImmediate(() => {
-        const branchSelection = wrapper.find('.branch-selection')
-        expect(branchSelection.element.selectedIndex).toEqual(0)
-        const docTypeSelection = wrapper.find('.doc-type-selection')
-        expect(docTypeSelection.element.selectedIndex).toEqual(2)
-        const docSelection = wrapper.find('.doc-selection')
-        expect(docSelection.element.selectedIndex).toEqual(0)
-        done()
-      })
+    test('should load correct doc type from route when valid', () => {
+      const firstRow = wrapper.findAll('.data-row').at(0)
+      const nameCellFirstRow = firstRow.findAll('td').at(0)
+      expect(nameCellFirstRow.text()).toBe('flow control policy')
     })
 
     test('should load correct default branch if non existent in route params', (done) => {
@@ -1111,8 +1040,9 @@ describe('DocumentList.vue', () => {
       })
       // allow all requests to finish
       setImmediate(() => {
-        const branchSelection = wrapper.find('.branch-selection')
-        expect(branchSelection.element.selectedIndex).toEqual(0)
+        const firstRow = wrapper.findAll('.data-row').at(0)
+        const nameCellFirstRow = firstRow.findAll('td').at(0)
+        expect(nameCellFirstRow.text()).toBe('API Discovery')
         done()
       })
     })
@@ -1129,8 +1059,12 @@ describe('DocumentList.vue', () => {
       })
       // allow all requests to finish
       setImmediate(() => {
-        const docTypeSelection = wrapper.find('.doc-type-selection')
-        expect(docTypeSelection.element.selectedIndex).toEqual(0)
+        setImmediate(() => {
+          const firstRow = wrapper.findAll('.data-row').at(0)
+          const nameCellFirstRow = firstRow.findAll('td').at(0)
+          expect(nameCellFirstRow.text()).toBe('an ACL')
+          done()
+        })
         done()
       })
     })
@@ -1157,7 +1091,6 @@ describe('DocumentList.vue', () => {
         const noDataMessage: DOMWrapper = wrapper.find('.no-data-message')
         expect(noDataMessage.exists()).toBeTruthy()
         expect(noDataMessage.text().toLowerCase()).toContain('no data found!')
-        expect(noDataMessage.text().toLowerCase()).toContain('missing branch.')
         done()
       })
     })
@@ -1211,8 +1144,7 @@ describe('DocumentList.vue', () => {
       expect(docLoadingIndicator.exists()).toBeTruthy()
     })
 
-    // TODO This function should change?
-    test('should display loading indicator when doc not loaded', async () => {
+    test('should display loading indicator when doc type not loaded', async () => {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
         if (path === '/conf/api/v2/configs/') {
           return Promise.resolve({data: gitData})
@@ -1404,7 +1336,6 @@ describe('DocumentList.vue', () => {
       })
     })
 
-    // TODO: need to change the x-fields like before?
     test('should not attempt to download document when download button is clicked' +
       ' if the full docs data was not loaded yet', async () => {
       jest.spyOn(axios, 'get').mockImplementation((path, config) => {
@@ -1413,8 +1344,10 @@ describe('DocumentList.vue', () => {
         }
         const branch = wrapper.vm.selectedBranch
         if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
-          if (config && config.headers && config.headers['x-fields'] === 'id, name') {
-            return Promise.resolve({data: _.map(aclDocs, (i) => _.pick(i, 'id', 'name'))})
+          const aclXFields = _.flatMap(COLUMN_OPTIONS_MAP?.aclprofiles, 'fieldNames')
+          aclXFields.unshift('id')
+          if (config && config.headers && config.headers['x-fields'] === aclXFields.join(', ')) {
+            return Promise.resolve({data: _.map(aclDocs, (i) => _.pick(i, aclXFields))})
           }
           setTimeout(() => {
             return Promise.resolve({data: aclDocs})

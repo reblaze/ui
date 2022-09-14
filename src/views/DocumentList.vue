@@ -377,17 +377,26 @@ export default defineComponent({
     goToRoute() {
       const currentRoute = `/list/${this.selectedBranch}/${this.selectedDocType}`
       if (this.$route.path !== currentRoute) {
-        console.log('Switching document, new document path: ' + currentRoute)
+        console.log('Switching document list, new document list path: ' + currentRoute)
         this.$router.push(currentRoute)
       }
     },
 
     async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
-      const branchNameFromRoute = this.$route.params.branch === 'undefined' ? null : this.$route.params.branch
-      this.selectedBranch = branchNameFromRoute || this.branchNames[0]
+      const branchNameFromRoute = this.$route.params?.branch?.toString()
+      if (branchNameFromRoute && this.branchNames.includes(branchNameFromRoute)) {
+        this.selectedBranch = branchNameFromRoute
+      } else {
+        this.selectedBranch = this.branchNames[0]
+      }
       const prevDocType = this.selectedDocType
-      this.selectedDocType = (this.$route.params.doc_type || Object.keys(this.componentsMap)[0]) as DocumentType
+      const docTypeFromRoute = this.$route.params?.doc_type?.toString()
+      if (docTypeFromRoute && Object.keys(this.componentsMap).includes(docTypeFromRoute)) {
+        this.selectedDocType = docTypeFromRoute as DocumentType
+      } else {
+        this.selectedDocType = Object.keys(this.componentsMap)[0] as DocumentType
+      }
       this.columns = COLUMN_OPTIONS_MAP[this.selectedDocType]
       this.sortField = this.columns[0]?.fieldNames || []
       if (!prevDocType || prevDocType !== this.selectedDocType) {
@@ -483,28 +492,6 @@ export default defineComponent({
       this.isNewLoading = false
       this.setLoadingDocStatus(false)
     },
-
-    async loadReferencedDocsIDs() {
-      const response = await RequestsUtils.sendRequest({
-        methodName: 'GET',
-        url: `configs/${this.selectedBranch}/d/securitypolicies/`,
-      })
-      const docs = response?.data
-      const referencedACL: string[] = []
-      const referencedContentFilter: string[] = []
-      const referencedLimit: string[] = []
-      _.forEach(docs, (doc) => {
-        _.forEach(doc.map, (mapEntry) => {
-          referencedACL.push(mapEntry['acl_profile'])
-          referencedContentFilter.push(mapEntry['content_filter_profile'])
-          referencedLimit.push(mapEntry['limit_ids'])
-        })
-      })
-      this.referencedIDsACL = _.uniq(referencedACL)
-      this.referencedIDsContentFilter = _.uniq(referencedContentFilter)
-      this.referencedIDsLimits = _.uniq(_.flatten(referencedLimit))
-    },
-
 
     referToVersionControl() {
       this.$router.push('/versioncontrol')
