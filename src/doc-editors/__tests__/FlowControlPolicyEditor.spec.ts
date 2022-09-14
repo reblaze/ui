@@ -91,15 +91,15 @@ describe('FlowControlPolicyEditor.vue', () => {
       const wantedType = Object.keys(docs[0].key[0])[0]
       const wantedValue = Object.values(docs[0].key[0])[0]
       const limitOptionComponent = wrapper.findAllComponents(LimitOption).at(0)
-      const actualType = (limitOptionComponent.vm as any).option.type
-      const actualValue = (limitOptionComponent.vm as any).option.key
+      const actualType = limitOptionComponent.vm.option.type
+      const actualValue = limitOptionComponent.vm.option.key
       expect(actualType).toEqual(wantedType)
       expect(actualValue).toEqual(wantedValue)
     })
 
     test('should have response action component with correct data', () => {
       const ResponseActionComponent = wrapper.findComponent(ResponseAction)
-      expect((ResponseActionComponent.vm as any).action).toEqual(docs[0].action)
+      expect(ResponseActionComponent.vm.action).toEqual(docs[0].action)
     })
 
     test('should have correct description in input', () => {

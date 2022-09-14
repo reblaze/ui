@@ -731,8 +731,8 @@ describe('SecurityPoliciesEditor.vue', () => {
 
     // TODO: Fix regex test for rust standards and re-apply this
     // test('should emit form is invalid when filling match with illegal characters', async () => {
-    //   const input = wrapper.find('.document-domain-name');
-    //   (input.element as HTMLInputElement).value = 'БЮ'
+    //   const input = wrapper.find('.document-domain-name')
+    //   input.element.value = 'БЮ'
     //   input.trigger('input')
     //   await nextTick()
     //   expect(wrapper.emitted('form-invalid')).toBeTruthy()
@@ -778,8 +778,8 @@ describe('SecurityPoliciesEditor.vue', () => {
     //   entryRow.trigger('click')
     //   await nextTick()
     //   const currentEntryRow = table.find('.current-entry-row')
-    //   const entryMatch = currentEntryRow.find('.current-entry-match');
-    //   (entryMatch.element as HTMLInputElement).value = '/א'
+    //   const entryMatch = currentEntryRow.find('.current-entry-match')
+    //   entryMatch.element.value = '/א'
     //   entryMatch.trigger('input')
     //   await nextTick()
     //   expect(wrapper.emitted('form-invalid')).toBeTruthy()
