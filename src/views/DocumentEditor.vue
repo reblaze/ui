@@ -221,6 +221,7 @@ import ContentFilterEditor from '@/doc-editors/ContentFilterProfileEditor.vue'
 import ContentFilterRulesEditor from '@/doc-editors/ContentFilterRulesEditor.vue'
 import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
 import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
+import CloudFunctionsEditor from '@/doc-editors/CloudFunctionsEditor.vue'
 import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
 import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
@@ -277,6 +278,7 @@ export default defineComponent({
         'aclprofiles': shallowRef({component: ACLEditor}),
         'contentfilterprofiles': shallowRef({component: ContentFilterEditor}),
         'contentfilterrules': shallowRef({component: ContentFilterRulesEditor}),
+        'cloudfunctions': shallowRef({component: CloudFunctionsEditor}),
       },
       apiRoot: RequestsUtils.confAPIRoot,
       apiVersion: RequestsUtils.confAPIVersion,
@@ -331,6 +333,9 @@ export default defineComponent({
         return this.referencedIDsContentFilter.includes(this.selectedDocID)
       }
       if (this.selectedDocType === 'ratelimits') {
+        return this.referencedIDsLimits.includes(this.selectedDocID)
+      }
+      if (this.selectedDocType === 'cloudfunctions') {
         return this.referencedIDsLimits.includes(this.selectedDocID)
       }
       return false

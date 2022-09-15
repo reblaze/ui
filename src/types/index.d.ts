@@ -101,6 +101,7 @@ declare module CuriefenseClient {
     | 'securitypolicies'
     | 'contentfilterprofiles'
     | 'contentfilterrules'
+    | 'cloudfunctions'
 
   // Document types helpers - END
 
@@ -163,6 +164,16 @@ declare module CuriefenseClient {
     name: string
     match: string
     map: SecurityPolicyEntryMatch[]
+  }
+  type CloudFunctionsType = {
+    name: string,
+    description: string,
+    code: string
+  }
+  // phase: { id: string, name: string}
+  type CloudFunctionsPhase = {
+    id: string, 
+    name: string
   }
 
   type RateLimit = {
