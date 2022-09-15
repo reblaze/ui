@@ -1034,6 +1034,15 @@ describe('DocumentList.vue', () => {
         done()
       })
     })
+
+    test('should not load new data if new route is not DocumentList', (done) => {
+      const spy = jest.spyOn(wrapper.vm, 'setSelectedDataFromRouteParams')
+      router.push('/config/master/contentfilterprofiles')
+      setImmediate(() => {
+        expect(spy).not.toHaveBeenCalled()
+        done()
+      })
+    })
   })
 
   describe('no data', () => {
@@ -1370,8 +1379,6 @@ describe('DocumentList.vue', () => {
           name: 'c test3',
           description: 'c Jest testing description',
           tags: ['apple', 'crawler', 'curiefense'],
-          isSortable: true,
-          isSearchable: true,
           id: 3,
           action: {
             type: 'challenge',
@@ -1381,8 +1388,6 @@ describe('DocumentList.vue', () => {
           name: 'b test2',
           description: 'b Jest testing description',
           tags: ['crawler', 'curiefense'],
-          isSortable: false,
-          isSearchable: true,
           id: 2,
           action: {
             type: 'default',
@@ -1392,8 +1397,6 @@ describe('DocumentList.vue', () => {
           name: 'a test1',
           description: 'a Jest testing description',
           tags: ['curiefense'],
-          isSortable: true,
-          isSearchable: false,
           id: 1,
           action: {
             type: 'default',
@@ -1476,6 +1479,61 @@ describe('DocumentList.vue', () => {
         expect(descriptionCellFirstRow.text()).toBe(sortedGlobalFilterMockByDescriptionAsc[0]['description'])
         expect(descriptionCellSecondRow.text()).toBe(sortedGlobalFilterMockByDescriptionAsc[1]['description'])
         expect(descriptionCellThirdRow.text()).toBe(sortedGlobalFilterMockByDescriptionAsc[2]['description'])
+      })
+
+      test('should be able to sort null values', (done) =>{
+        globalFilterMock = [
+          {
+            name: 'c test3',
+            description: 'c Jest testing description',
+            tags: ['apple', 'crawler', 'curiefense'],
+            id: 3,
+            action: {
+              type: 'challenge',
+            },
+          },
+          {
+            name: 'b test2',
+            description: 'b Jest testing description',
+            tags: ['crawler', 'curiefense'],
+            id: 2,
+            action: {
+              type: 'default',
+            },
+          },
+          {
+            name: 'a test1',
+            description: null,
+            tags: ['curiefense'],
+            id: 1,
+            action: {
+              type: 'default',
+            },
+          },
+        ]
+
+        wrapper = shallowMount(DocumentList, {
+          global: {
+            mocks: {
+              $route: mockRoute,
+              $router: mockRouter,
+            },
+          },
+        })
+        setImmediate(() => {
+          const header = wrapper.findAll('.column-title').at(1)
+          header.trigger('click')
+          const firstRow = wrapper.findAll('.data-row').at(0)
+          const descriptionCellFirstRow = firstRow.findAll('td').at(1)
+          const secondRow = wrapper.findAll('.data-row').at(1)
+          const descriptionCellSecondRow = secondRow.findAll('td').at(1)
+          const thirdRow = wrapper.findAll('.data-row').at(2)
+          const descriptionCellThirdRow = thirdRow.findAll('td').at(1)
+          expect(descriptionCellFirstRow.text()).toBe('')
+          expect(descriptionCellSecondRow.text()).toBe(globalFilterMock[1]['description'])
+          expect(descriptionCellThirdRow.text()).toBe(globalFilterMock[0]['description'])
+          done()
+        })
       })
 
       test('should have values sorted in descending order', async () =>{
@@ -1628,6 +1686,60 @@ describe('DocumentList.vue', () => {
         const secondDataCell = wrapper.findAll('.data-cell').at(1)
         expect(firstDataCell.text()).toBe(globalFilterMock[2]['name'])
         expect(secondDataCell.text()).toBe(globalFilterMock[2]['description'])
+      })
+      
+      test('should be able to filter null values', async () =>{
+        globalFilterMock = [
+          {
+            name: 'c test3',
+            description: 'c Jest testing description',
+            tags: ['apple', 'crawler', 'curiefense'],
+            id: 3,
+            action: {
+              type: 'challenge',
+            },
+          },
+          {
+            name: 'b test2',
+            description: 'b Jest testing description',
+            tags: ['crawler', 'curiefense'],
+            id: 2,
+            action: {
+              type: 'default',
+            },
+          },
+          {
+            name: 'a test1',
+            description: null,
+            tags: ['curiefense'],
+            id: 1,
+            action: {
+              type: 'default',
+            },
+          },
+        ]
+
+        wrapper = shallowMount(DocumentList, {
+          global: {
+            mocks: {
+              $route: mockRoute,
+              $router: mockRouter,
+            },
+          },
+        })
+        await nextTick()
+        const filterButton = wrapper.find('.filter-toggle')
+        await filterButton.trigger('click')
+        const descriptionInput = wrapper.findAll('.filter-input').at(1)
+        await descriptionInput.trigger('click')
+        await descriptionInput.setValue('Jest')
+        await descriptionInput.trigger('keydown', {keyCode: 13})
+        const dataRows = wrapper.findAll('.data-row')
+        const firstDataCell = dataRows.at(0).findAll('.data-cell').at(1)
+        const secondDataCell = dataRows.at(1).findAll('.data-cell').at(1)
+        expect(firstDataCell.text()).toBe(globalFilterMock[1]['description'])
+        expect(secondDataCell.text()).toBe(globalFilterMock[0]['description'])
+        expect(dataRows.length).toBe(2)
       })
 
       test('should have return whole values when empty filter', async () =>{

@@ -212,7 +212,7 @@ export default defineComponent({
   watch: {
     $route: {
       handler: async function(val) {
-        if (val?.name?.includes('DocumentList')) {
+        if (val.name.includes('DocumentList')) {
           this.setLoadingDocStatus(true)
           await this.setSelectedDataFromRouteParams()
           this.setLoadingDocStatus(false)
@@ -288,7 +288,7 @@ export default defineComponent({
   },
   methods: {
     getDataArrayDisplay() {
-      if (!this.docs?.length) {
+      if (!this.docs.length) {
         return []
       }
       const sortModifier = this.sortDir === 'asc' ? 1 : -1
@@ -301,7 +301,7 @@ export default defineComponent({
               const columnOption = this.columns.find((column) => {
                 return column.fieldNames.join(', ') === key
               })
-              if (columnOption?.displayFunction) {
+              if (columnOption.displayFunction) {
                 getFilterValue = columnOption.displayFunction
               } else {
                 getFilterValue = (item: any) => {
@@ -330,7 +330,7 @@ export default defineComponent({
     },
 
     getSlicedDataArrayDisplay(dataArray: any, currentPage: any): any[] {
-      if (!dataArray?.length) {
+      if (!dataArray.length) {
         return []
       }
       const sliceStart = this.rowsPerPage * (currentPage - 1)
@@ -384,21 +384,21 @@ export default defineComponent({
 
     async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
-      const branchNameFromRoute = this.$route.params?.branch?.toString()
+      const branchNameFromRoute = this.$route.params.branch.toString()
       if (branchNameFromRoute && this.branchNames.includes(branchNameFromRoute)) {
         this.selectedBranch = branchNameFromRoute
       } else {
         this.selectedBranch = this.branchNames[0]
       }
       const prevDocType = this.selectedDocType
-      const docTypeFromRoute = this.$route.params?.doc_type?.toString()
+      const docTypeFromRoute = this.$route.params.doc_type.toString()
       if (docTypeFromRoute && Object.keys(this.componentsMap).includes(docTypeFromRoute)) {
         this.selectedDocType = docTypeFromRoute as DocumentType
       } else {
         this.selectedDocType = Object.keys(this.componentsMap)[0] as DocumentType
       }
       this.columns = COLUMN_OPTIONS_MAP[this.selectedDocType]
-      this.sortField = this.columns[0]?.fieldNames || []
+      this.sortField = this.columns[0].fieldNames || []
       if (!prevDocType || prevDocType !== this.selectedDocType) {
         await this.loadDocs(this.selectedDocType)
       }
