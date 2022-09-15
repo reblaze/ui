@@ -21,7 +21,7 @@ import {
 import {setImmediate, setTimeout} from 'timers'
 import {nextTick} from 'vue'
 import {createRouter, createWebHistory} from 'vue-router'
-import { routes } from "@/router"
+import {routes} from '@/router'
 
 jest.mock('axios')
 
@@ -980,7 +980,7 @@ describe('DocumentList.vue', () => {
 
   describe('route params', () => {
     let router
-    beforeEach(async()=>{
+    beforeEach(async ()=>{
       router = createRouter({
         history: createWebHistory(process.env.BASE_URL),
         routes,
@@ -989,8 +989,8 @@ describe('DocumentList.vue', () => {
       await router.isReady()
       wrapper = shallowMount(DocumentList, {
         global: {
-          plugins: [router]
-        }
+          plugins: [router],
+        },
       })
     })
     test('should load correct branch from route when valid', () => {
@@ -1437,8 +1437,6 @@ describe('DocumentList.vue', () => {
     })
 
     describe('sorting', () => {
-      // TODO: need to sorting the action
-
       test('should have the correct arrow active by default', () => {
         const ascArrowElement = wrapper.find('.arrow-asc')
         expect(ascArrowElement.element.classList).toContain('active')
@@ -1569,7 +1567,6 @@ describe('DocumentList.vue', () => {
       test('should have action values sorted in ascending order', async () =>{
         const header = wrapper.findAll('.column-title').at(4)
         await header.trigger('click')
-        console.log(wrapper.html())
         const firstRow = wrapper.findAll('.data-row').at(0)
         const actionCellFirstRow = firstRow.findAll('td').at(4)
         const secondRow = wrapper.findAll('.data-row').at(1)
@@ -1687,7 +1684,7 @@ describe('DocumentList.vue', () => {
         expect(firstDataCell.text()).toBe(globalFilterMock[2]['name'])
         expect(secondDataCell.text()).toBe(globalFilterMock[2]['description'])
       })
-      
+
       test('should be able to filter null values', async () =>{
         globalFilterMock = [
           {
