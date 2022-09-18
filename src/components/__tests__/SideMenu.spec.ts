@@ -4,6 +4,7 @@ import {DOMWrapper, mount} from '@vue/test-utils'
 import axios from 'axios'
 import {Branch} from '../../types'
 import {setImmediate} from 'timers'
+import {nextTick} from 'vue'
 
 jest.mock('axios')
 
@@ -60,9 +61,9 @@ describe('SideMenu.vue', () => {
     prometheusURL = 'https://10.0.0.1:9090/'
     dbData = {
       links: {
+        swagger_url: swaggerURL,
         kibana_url: kibanaURL,
         grafana_url: grafanaURL,
-        swagger_url: swaggerURL,
         prometheus_url: prometheusURL,
       },
     }
@@ -328,5 +329,34 @@ describe('SideMenu.vue', () => {
       menuItemShouldContainWantedSectionItems('analytics', wantedAnalyticsMenuItems)
       done()
     })
+  })
+
+  test('should take defaultUrl when API call failed', async () => {
+    dbData = {
+      links: {
+        swagger_url: 'Aylon',
+        kibana_url: kibanaURL,
+        grafana_url: grafanaURL,
+        prometheus_url: prometheusURL,
+      },
+    }
+    jest.clearAllMocks()
+    jest.spyOn(axios, 'get').mockImplementation((path) => {
+      if (path === `/conf/api/v2/db/system/`) {
+        return Promise.resolve(null)
+      }
+      if (path === '/conf/api/v2/configs/') {
+        return Promise.resolve({data: gitData})
+      }
+      return Promise.resolve({data: {}})
+    })
+    const wrapper = mount(SideMenu)
+    await wrapper.setData({defaultSwaggerURL: 'Aviv'})
+    wrapper.vm.$forceUpdate()
+    await nextTick()
+    await nextTick()
+    await nextTick()
+    await nextTick()
+    expect(wrapper.vm.menuItems.settings.swagger.url).toEqual(wrapper.vm.defaultSwaggerURL)
   })
 })

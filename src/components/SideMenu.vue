@@ -120,7 +120,7 @@ export default defineComponent({
   },
   computed: {
     currentRoutePath() {
-      return this.$route.path || ''
+      return this.$route?.path || ''
     },
   },
   methods: {

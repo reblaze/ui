@@ -5,6 +5,7 @@ import {mount, VueWrapper, DOMWrapper} from '@vue/test-utils'
 import axios from 'axios'
 import * as bulmaToast from 'bulma-toast'
 import {Options} from 'bulma-toast'
+import {nextTick} from 'vue'
 
 jest.mock('axios')
 
@@ -176,47 +177,45 @@ describe('AutocompleteInput', () => {
   })
 
   test('should auto focus on the autocomplete input after suggestion clicked' +
-    ' if autoFocus prop is true', async () => {
-    const elem = document.createElement('div')
-    if (document.body) {
-      document.body.appendChild(elem)
-    }
+    ' if autoFocus prop is true', (done) => {
     wrapper = mount(AutocompleteInput, {
       props: {
         suggestions: suggestions,
         autoFocus: true,
         clearInputAfterSelection: false,
       },
-      attachTo: elem,
+      attachTo: document.body,
     })
     const input = wrapper.find('.autocomplete-input')
-    await input.setValue('value')
-    await input.trigger('input')
+    input.setValue('value')
+    input.trigger('input')
     const dropdownItems = wrapper.findAll('.dropdown-item')
-    await dropdownItems[1].trigger('mousedown')
-    expect(input.element).toBe(document.activeElement)
+    dropdownItems[1].trigger('mousedown')
+    setImmediate(() => {
+      expect(input.element).toBe(document.activeElement)
+      done()
+    })
   })
 
   test('should not auto focus on the autocomplete input after suggestion clicked' +
-    ' if autoFocus prop is false', async () => {
-    const elem = document.createElement('div')
-    if (document.body) {
-      document.body.appendChild(elem)
-    }
+    ' if autoFocus prop is false', (done) => {
     wrapper = mount(AutocompleteInput, {
       props: {
         suggestions: suggestions,
         autoFocus: false,
         clearInputAfterSelection: false,
       },
-      attachTo: elem,
-    }) as VueWrapper
+      attachTo: document.body,
+    })
     const input = wrapper.find('.autocomplete-input')
-    await input.setValue('value')
-    await input.trigger('input')
-    const dropdownItems: undefined | DOMWrapper<Element> = wrapper.findAll('.dropdown-item').at(1)
-    await dropdownItems.trigger('mousedown')
-    expect(input.element).not.toBe(document.activeElement)
+    input.setValue('value')
+    input.trigger('input')
+    const dropdownItems = wrapper.findAll('.dropdown-item')
+    dropdownItems[1].trigger('mousedown')
+    setImmediate(() => {
+      expect(input.element).not.toBe(document.activeElement)
+      done()
+    })
   })
 
   describe('keyboard control', () => {
@@ -252,6 +251,28 @@ describe('AutocompleteInput', () => {
       expect(dropdownItems.at(0).element.classList.contains('is-active')).toBeFalsy()
       expect(dropdownItems.at(1).element.classList.contains('is-active')).toBeFalsy()
       expect(dropdownItems.at(2).element.classList.contains('is-active')).toBeFalsy()
+    })
+
+    test('should set focus on autocomplete Input when click on dropdown suggestion', async () => {
+      wrapper = mount(AutocompleteInput, {
+        props: {
+          suggestions: suggestions,
+          autoFocus: true,
+          clearInputAfterSelection: false,
+        },
+        attachTo: document.body,
+      })
+      const input = wrapper.find('.autocomplete-input')
+      let wrapperElement = wrapper.find({ref: 'autocompleteInput'})
+      await input.setValue('value')
+      await input.trigger('input')
+      const dropdownItems = wrapper.findAll('.dropdown-item')
+      await dropdownItems.at(1).trigger('mousedown')
+      // mousedown fire suggestionClick that fire this.$refs.autocompleteInput.focus() line 198
+      await nextTick()
+      wrapperElement = wrapper.find({ref: 'autocompleteInput'})
+      expect(wrapper.emitted('focus')).toBeTruthy
+      expect(wrapperElement.element).toBe(document.activeElement)
     })
 
     test('should select focused suggestion when enter is pressed', async () => {
@@ -448,6 +469,37 @@ describe('AutocompleteInput', () => {
       const type: string = undefined
       const isValid = validator(type)
       expect(isValid).toEqual(false)
+    })
+
+
+    test('should change autocompleteValue to initialValue prop value when skipNextWatchUpdate = false', async () => {
+      wrapper = mount(AutocompleteInput, {
+        props: {
+          initialValue: 'aylon',
+        },
+      })
+      expect(wrapper.vm.autocompleteValue).toEqual('aylon')
+      await wrapper.setProps({initialValue: 'test'})
+      expect(wrapper.vm.autocompleteValue).toEqual('test')
+    })
+
+    test('should not change autocompleteValue to initialValue prop value when skipNextWatchUpdate = true', async () => {
+      wrapper = mount(AutocompleteInput, {
+        props: {
+          initialValue: 'aylon',
+        },
+      })
+      await wrapper.setData({skipNextWatchUpdate: true})
+      await wrapper.setProps({initialValue: 'test'})
+      expect(wrapper.vm.autocompleteValue).toEqual('aylon')
+    })
+
+    test('should fire clearInputBlurredTimeout event on component unmounted lifecycle hook', async () => {
+      wrapper = mount(AutocompleteInput)
+      const spy = jest.spyOn(wrapper.vm, 'clearInputBlurredTimeout')
+      wrapper.unmount()
+      expect(spy).toBeDefined()
+      expect(spy).toHaveBeenCalled()
     })
   })
 })

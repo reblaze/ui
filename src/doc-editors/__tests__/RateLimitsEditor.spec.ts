@@ -157,8 +157,8 @@ describe('RateLimitsEditor.vue', () => {
       const wantedType = Object.keys(rateLimitsDocs[0].key[0])[0]
       const wantedValue = Object.values(rateLimitsDocs[0].key[0])[0]
       const limitOptionComponent = wrapper.findAllComponents(LimitOption).at(0)
-      const actualType = (limitOptionComponent.vm as any).option.type
-      const actualValue = (limitOptionComponent.vm as any).option.key
+      const actualType = limitOptionComponent.vm.option.type
+      const actualValue = limitOptionComponent.vm.option.key
       expect(actualType).toEqual(wantedType)
       expect(actualValue).toEqual(wantedValue)
     })
@@ -167,8 +167,8 @@ describe('RateLimitsEditor.vue', () => {
       const wantedType = Object.keys(rateLimitsDocs[0].pairwith)[0]
       const wantedValue = Object.values(rateLimitsDocs[0].pairwith)[0]
       const limitOptionComponent = wrapper.findAllComponents(LimitOption).at(1)
-      const actualType = (limitOptionComponent.vm as any).option.type
-      const actualValue = (limitOptionComponent.vm as any).option.key
+      const actualType = limitOptionComponent.vm.option.type
+      const actualValue = limitOptionComponent.vm.option.key
       expect(actualType).toEqual(wantedType)
       expect(actualValue).toEqual(wantedValue)
     })
@@ -176,20 +176,20 @@ describe('RateLimitsEditor.vue', () => {
     test('should have count-by limit option component with correct ignored attributes', () => {
       const wantedIgnoredAttributes = ['tags']
       const limitOptionComponent = wrapper.findAllComponents(LimitOption).at(0)
-      const actualIgnoredAttributes = (limitOptionComponent.vm as any).ignoreAttributes
+      const actualIgnoredAttributes = limitOptionComponent.vm.ignoreAttributes
       expect(wantedIgnoredAttributes).toEqual(actualIgnoredAttributes)
     })
 
     test('should have event limit option component with correct ignored attributes', () => {
       const wantedIgnoredAttributes = ['tags']
       const limitOptionComponent = wrapper.findAllComponents(LimitOption).at(0)
-      const actualIgnoredAttributes = (limitOptionComponent.vm as any).ignoreAttributes
+      const actualIgnoredAttributes = limitOptionComponent.vm.ignoreAttributes
       expect(wantedIgnoredAttributes).toEqual(actualIgnoredAttributes)
     })
 
     test('should have response action component with correct data', () => {
       const ResponseActionComponent = wrapper.findComponent(ResponseAction)
-      expect((ResponseActionComponent.vm as any).action).toEqual(rateLimitsDocs[0].thresholds[0].action)
+      expect(ResponseActionComponent.vm.action).toEqual(rateLimitsDocs[0].thresholds[0].action)
     })
 
     test('should have correct include data in table', () => {
