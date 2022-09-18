@@ -7,6 +7,7 @@ import PublishChanges from '@/views/Publish.vue'
 import VersionControl from '@/views/VersionControl.vue'
 import DocumentSearch from '@/views/DocumentSearch.vue'
 import DocumentList from '@/views/DocumentList.vue'
+import CustomResponseEditor from '@/doc-editors/CustomResponseEditor.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -64,6 +65,7 @@ const routes: Array<RouteRecordRaw> = [
       {path: 'publish', name: 'PublishChanges', component: PublishChanges},
       {path: 'versioncontrol', name: 'VersionControl', component: VersionControl},
       {path: 'search', name: 'DocumentSearch', component: DocumentSearch},
+      {path: 'responseeditor', name: 'CustomResponseEditor', component: CustomResponseEditor},
     ],
   },
   {
