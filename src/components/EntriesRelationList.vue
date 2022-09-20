@@ -300,7 +300,7 @@ export default defineComponent({
         for (let i = 0; i < this.localRule.sections.length; i++) {
           const section = this.localRule.sections[i]
           this.sectionsCurrentPageIndex[i] = 1
-          if (this.sectionContainsSameCategoryItems(section)) {
+          if (this.sectionContainsSamentryCategoryegoryItems(section)) {
             section.relation = 'OR'
           }
         }
@@ -325,7 +325,7 @@ export default defineComponent({
       this.$emit('update:rule', this.localRule)
     },
 
-    sectionContainsSameCategoryItems(section: GlobalFilterSection) {
+    sectionContainsSamentryCategoryegoryItems(section: GlobalFilterSection) {
       const countedCategories = _.countBy(section.entries, (entry) => {
         return this.listEntryTypes[entry[0]].title
       })
@@ -344,7 +344,7 @@ export default defineComponent({
     },
 
     toggleSectionRelation(section: GlobalFilterSection) {
-      if (this.sectionContainsSameCategoryItems(section)) {
+      if (this.sectionContainsSamentryCategoryegoryItems(section)) {
         return
       }
       section.relation = (section.relation === 'AND') ? 'OR' : 'AND'
@@ -420,7 +420,7 @@ export default defineComponent({
         })
       }
       // change relation to 'OR' if needed
-      if (this.sectionContainsSameCategoryItems(section)) {
+      if (this.sectionContainsSamentryCategoryegoryItems(section)) {
         section.relation = 'OR'
       }
       this.setNewEntryIndex(-1)
@@ -482,9 +482,10 @@ export default defineComponent({
       this.rule.sections.forEach(
           ({entries}, sectionIndex: number) => entries.map(
               ({0: category, 1: value}) => {
-                const isDuplicate = entries.filter(({0: eCat, 1: eVal}) => {
-                  return eCat === category && _.isEqual(eVal, value)
-                })?.length > 1
+                const filteredEntries = entries.filter(({0: entryCategory, 1: entryValue}) => {
+                  return entryCategory === category && _.isEqual(entryValue, value)
+                })
+                const isDuplicate = filteredEntries.length > 1
                 if (isDuplicate && !this.isEntryDuplicate(sectionIndex, [category, value])) {
                   this.duplicatedEntries.push([sectionIndex, category, value])
                 }
@@ -497,7 +498,7 @@ export default defineComponent({
             (prev: string, [section, category, value]: GlobalFilterSectionEntry) => {
               const sectionMsg = this.rule.sections.length > 1 ? `Section ${section + 1}: ` : ''
               return `${prev}<br/>` +
-                  `${sectionMsg}${this.listEntryTypes[category as Category]?.title} = ${this.dualCell(value)}`
+                  `${sectionMsg}${this.listEntryTypes[category as Category].title} = ${this.dualCell(value)}`
             },
             '',
         )
