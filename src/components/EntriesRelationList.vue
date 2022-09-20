@@ -300,7 +300,7 @@ export default defineComponent({
         for (let i = 0; i < this.localRule.sections.length; i++) {
           const section = this.localRule.sections[i]
           this.sectionsCurrentPageIndex[i] = 1
-          if (this.sectionContainsSamentryCategoryegoryItems(section)) {
+          if (this.sectionContainsSameCategoryItems(section)) {
             section.relation = 'OR'
           }
         }
@@ -325,7 +325,7 @@ export default defineComponent({
       this.$emit('update:rule', this.localRule)
     },
 
-    sectionContainsSamentryCategoryegoryItems(section: GlobalFilterSection) {
+    sectionContainsSameCategoryItems(section: GlobalFilterSection) {
       const countedCategories = _.countBy(section.entries, (entry) => {
         return this.listEntryTypes[entry[0]].title
       })
@@ -344,7 +344,7 @@ export default defineComponent({
     },
 
     toggleSectionRelation(section: GlobalFilterSection) {
-      if (this.sectionContainsSamentryCategoryegoryItems(section)) {
+      if (this.sectionContainsSameCategoryItems(section)) {
         return
       }
       section.relation = (section.relation === 'AND') ? 'OR' : 'AND'
@@ -420,7 +420,7 @@ export default defineComponent({
         })
       }
       // change relation to 'OR' if needed
-      if (this.sectionContainsSamentryCategoryegoryItems(section)) {
+      if (this.sectionContainsSameCategoryItems(section)) {
         section.relation = 'OR'
       }
       this.setNewEntryIndex(-1)
