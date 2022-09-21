@@ -54,7 +54,7 @@ type menuItem = {
 export default defineComponent({
   name: 'SideMenu',
   data() {
-    const swaggerURL = `${location.protocol}//${location.hostname}:30000/api/v2/`
+    const swaggerURL = `${location.protocol}//${location.hostname}:30000/api/v3/`
     const kibanaURL = `${location.protocol}//${location.hostname}:5601/app/discover`
     const grafanaURL = `${location.protocol}//${location.hostname}:30300/`
     const prometheusURL = `${location.protocol}//${location.hostname}:9090/`

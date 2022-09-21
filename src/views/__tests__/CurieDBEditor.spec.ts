@@ -82,18 +82,18 @@ describe('CurieDBEditor.vue', () => {
       }
     })
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v2/db/') {
+      if (path === '/conf/api/v3/db/') {
         return Promise.resolve({data: ['system', 'namespaceCopy', 'anotherDB']})
       }
       const db = wrapper.vm.selectedNamespace
       const key = wrapper.vm.selectedKey
-      if (path === `/conf/api/v2/db/new namespace/`) {
+      if (path === `/conf/api/v3/db/new namespace/`) {
         return Promise.resolve({data: {key: {}}})
       }
-      if (path === `/conf/api/v2/db/${db}/`) {
+      if (path === `/conf/api/v3/db/${db}/`) {
         return Promise.resolve({data: dbData})
       }
-      if (path === `/conf/api/v2/db/${db}/k/${key}/v/`) {
+      if (path === `/conf/api/v3/db/${db}/k/${key}/v/`) {
         return Promise.resolve({data: dbKeyLogs})
       }
       return Promise.resolve({data: {}})
@@ -112,18 +112,18 @@ describe('CurieDBEditor.vue', () => {
 
   test('should have an empty git log array if got no git log data from server - response null', () => {
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v2/db/') {
+      if (path === '/conf/api/v3/db/') {
         return Promise.resolve({data: ['system', 'namespaceCopy', 'anotherDB']})
       }
       const db = wrapper.vm.selectedNamespace
       const key = wrapper.vm.selectedKey
-      if (path === `/conf/api/v2/db/new namespace/`) {
+      if (path === `/conf/api/v3/db/new namespace/`) {
         return Promise.resolve({data: {key: {}}})
       }
-      if (path === `/conf/api/v2/db/${db}/`) {
+      if (path === `/conf/api/v3/db/${db}/`) {
         return Promise.resolve({data: dbData})
       }
-      if (path === `/conf/api/v2/db/${db}/k/${key}/v/`) {
+      if (path === `/conf/api/v3/db/${db}/k/${key}/v/`) {
         return Promise.resolve(null)
       }
       return Promise.resolve({data: {}})
@@ -135,18 +135,18 @@ describe('CurieDBEditor.vue', () => {
 
   test('should have an empty git log array if got no git log data from server - data null', () => {
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v2/db/') {
+      if (path === '/conf/api/v3/db/') {
         return Promise.resolve({data: ['system', 'namespaceCopy', 'anotherDB']})
       }
       const db = wrapper.vm.selectedNamespace
       const key = wrapper.vm.selectedKey
-      if (path === `/conf/api/v2/db/new namespace/`) {
+      if (path === `/conf/api/v3/db/new namespace/`) {
         return Promise.resolve({data: {key: {}}})
       }
-      if (path === `/conf/api/v2/db/${db}/`) {
+      if (path === `/conf/api/v3/db/${db}/`) {
         return Promise.resolve({data: dbData})
       }
-      if (path === `/conf/api/v2/db/${db}/k/${key}/v/`) {
+      if (path === `/conf/api/v3/db/${db}/k/${key}/v/`) {
         return Promise.resolve({data: null})
       }
       return Promise.resolve({data: {}})
@@ -163,7 +163,7 @@ describe('CurieDBEditor.vue', () => {
     consoleOutput = []
     console.log = mockedLog
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v2/db/') {
+      if (path === '/conf/api/v3/db/') {
         return Promise.resolve(null)
       }
       return Promise.resolve({data: {}})
@@ -184,7 +184,7 @@ describe('CurieDBEditor.vue', () => {
     consoleOutput = []
     console.log = mockedLog
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v2/db/') {
+      if (path === '/conf/api/v3/db/') {
         return Promise.resolve({data: null})
       }
       return Promise.resolve({data: {}})
@@ -205,7 +205,7 @@ describe('CurieDBEditor.vue', () => {
     consoleOutput = []
     console.log = mockedLog
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v2/db/') {
+      if (path === '/conf/api/v3/db/') {
         return Promise.resolve({data: []})
       }
       return Promise.resolve({data: {}})
@@ -258,7 +258,7 @@ describe('CurieDBEditor.vue', () => {
     putSpy.mockImplementation(() => Promise.resolve())
     const gitHistory = wrapper.findComponent(GitHistory)
     gitHistory.vm.$emit('restore-version', wantedVersion)
-    expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/system/v/${wantedVersion.version}/revert/`)
+    expect(putSpy).toHaveBeenCalledWith(`/conf/api/v3/db/system/v/${wantedVersion.version}/revert/`)
   })
 
   test('should load last loaded key if still exists after restoring version', () => {
@@ -336,7 +336,7 @@ describe('CurieDBEditor.vue', () => {
       putSpy.mockImplementation(() => Promise.resolve())
       const forkNamespaceButton = wrapper.find('.fork-namespace-button')
       await forkNamespaceButton.trigger('click')
-      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/copy of system/`, dbData)
+      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v3/db/copy of system/`, dbData)
     })
 
     test('should be able to add a new namespace', async () => {
@@ -347,7 +347,7 @@ describe('CurieDBEditor.vue', () => {
       putSpy.mockImplementation(() => Promise.resolve())
       const newNamespaceButton = wrapper.find('.new-namespace-button')
       await newNamespaceButton.trigger('click')
-      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/new namespace/`, newNamespace)
+      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v3/db/new namespace/`, newNamespace)
     })
 
     test('should be able to delete a namespace', (done) => {
@@ -361,7 +361,7 @@ describe('CurieDBEditor.vue', () => {
         const namespaceName = wrapper.vm.selectedNamespace
         const deleteNamespaceButton = wrapper.find('.delete-namespace-button')
         await deleteNamespaceButton.trigger('click')
-        expect(deleteSpy).toHaveBeenCalledWith(`/conf/api/v2/db/${namespaceName}/`)
+        expect(deleteSpy).toHaveBeenCalledWith(`/conf/api/v3/db/${namespaceName}/`)
         done()
       })
     })
@@ -382,7 +382,7 @@ describe('CurieDBEditor.vue', () => {
       putSpy.mockImplementation(() => Promise.resolve())
       const forkKeyButton = wrapper.find('.fork-key-button')
       await forkKeyButton.trigger('click')
-      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/system/k/copy of publishinfo/`, doc)
+      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v3/db/system/k/copy of publishinfo/`, doc)
     })
 
     test('should be able to add a new key', async () => {
@@ -391,7 +391,7 @@ describe('CurieDBEditor.vue', () => {
       putSpy.mockImplementation(() => Promise.resolve())
       const newKeyButton = wrapper.find('.new-key-button')
       await newKeyButton.trigger('click')
-      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/system/k/new key/`, newKey)
+      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v3/db/system/k/new key/`, newKey)
     })
 
     test('should be able to delete a key', (done) => {
@@ -405,7 +405,7 @@ describe('CurieDBEditor.vue', () => {
         const keyName = wrapper.vm.selectedKey
         const deleteKeyButton = wrapper.find('.delete-key-button')
         await deleteKeyButton.trigger('click')
-        expect(deleteSpy).toHaveBeenCalledWith(`/conf/api/v2/db/system/k/${keyName}/`)
+        expect(deleteSpy).toHaveBeenCalledWith(`/conf/api/v3/db/system/k/${keyName}/`)
         done()
       })
     })
@@ -453,7 +453,7 @@ describe('CurieDBEditor.vue', () => {
       wrapper.vm.selectedKeyValue = JSON.stringify(value)
       const saveKeyButton = wrapper.find('.save-button')
       await saveKeyButton.trigger('click')
-      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/newDB/`, wantedResult)
+      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v3/db/newDB/`, wantedResult)
     })
 
     test('should be able to save key changes even if key name changes', async () => {
@@ -467,7 +467,7 @@ describe('CurieDBEditor.vue', () => {
       await wrapper.setData({selectedKeyValue: JSON.stringify(value)})
       const saveKeyButton = wrapper.find('.save-button')
       await saveKeyButton.trigger('click')
-      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/new namespace/k/key_name/`, value)
+      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v3/db/new namespace/k/key_name/`, value)
     })
 
     test('should be able to save key changes', async () => {
@@ -478,7 +478,7 @@ describe('CurieDBEditor.vue', () => {
       await wrapper.setData({selectedKeyValue: JSON.stringify(value)})
       const saveKeyButton = wrapper.find('.save-button')
       await saveKeyButton.trigger('click')
-      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/new namespace/k/key/`, value)
+      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v3/db/new namespace/k/key/`, value)
     })
 
     test('should use correct values when saving key changes when using json editor', async () => {
@@ -493,7 +493,7 @@ describe('CurieDBEditor.vue', () => {
       wrapper.vm.$data.editor.set(value)
       const saveKeyButton = wrapper.find('.save-button')
       await saveKeyButton.trigger('click')
-      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/new namespace/k/key/`, value)
+      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v3/db/new namespace/k/key/`, value)
     })
 
     test('should use correct values when saving key changes when not using json editor', async () => {
@@ -506,7 +506,7 @@ describe('CurieDBEditor.vue', () => {
       await valueInput.setValue(JSON.stringify(value))
       const saveKeyButton = wrapper.find('.save-button')
       await saveKeyButton.trigger('click')
-      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/new namespace/k/key/`, value)
+      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v3/db/new namespace/k/key/`, value)
     })
 
     test('should not be able to save key changes' +
@@ -592,7 +592,7 @@ describe('CurieDBEditor.vue', () => {
   describe('no data', () => {
     test('should display correct message when there is no namespace list data', (done) => {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v2/db/') {
+        if (path === '/conf/api/v3/db/') {
           return Promise.resolve({data: []})
         }
         return Promise.resolve({data: {}})
@@ -610,11 +610,11 @@ describe('CurieDBEditor.vue', () => {
 
     test('should display correct message when there is no key data - empty data', (done) => {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v2/db/') {
+        if (path === '/conf/api/v3/db/') {
           return Promise.resolve({data: ['system', 'namespaceCopy', 'anotherDB']})
         }
         const db = wrapper.vm.selectedNamespace
-        if (path === `/conf/api/v2/db/${db}/`) {
+        if (path === `/conf/api/v3/db/${db}/`) {
           return Promise.resolve({data: {}})
         }
         return Promise.resolve({
@@ -634,11 +634,11 @@ describe('CurieDBEditor.vue', () => {
 
     test('should display correct message when there is no key data - null response', (done) => {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v2/db/') {
+        if (path === '/conf/api/v3/db/') {
           return Promise.resolve({data: ['system', 'namespaceCopy', 'anotherDB']})
         }
         const db = wrapper.vm.selectedNamespace
-        if (path === `/conf/api/v2/db/${db}/`) {
+        if (path === `/conf/api/v3/db/${db}/`) {
           return Promise.resolve(null)
         }
         return Promise.resolve({
@@ -660,7 +660,7 @@ describe('CurieDBEditor.vue', () => {
   describe('loading indicator', () => {
     test('should display loading indicator when namespaces list not loaded', () => {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v2/db/') {
+        if (path === '/conf/api/v3/db/') {
           return new Promise(() => {
           })
         }
@@ -673,11 +673,11 @@ describe('CurieDBEditor.vue', () => {
 
     test('should display loading indicator when namespace not loaded', () => {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v2/db/') {
+        if (path === '/conf/api/v3/db/') {
           return Promise.resolve({data: ['system', 'namespaceCopy', 'anotherDB']})
         }
         const db = wrapper.vm.selectedNamespace
-        if (path === `/conf/api/v2/db/${db}/`) {
+        if (path === `/conf/api/v3/db/${db}/`) {
           return new Promise(() => {
           })
         }
