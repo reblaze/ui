@@ -4,7 +4,7 @@
       <div class="card-content">
         <div class="content">
           <div class="columns columns-divided">
-            <div class="column is-5">
+            <div class="column is-4">
               <div class="field">
                 <label class="label is-small">
                   Name
@@ -15,12 +15,17 @@
                 </label>
                 <div class="control">
                   <input class="input is-small document-name"
-                         data-qa="ratelimit-name-input"
+                         data-qa="cloudfunctions-name-input"
+                         type="text"
                          title="Document name"
                          placeholder="Document name"
                          @change="emitDocUpdate"
                          v-model="localDoc.name"/>
                 </div>
+                <p class="help is-danger" v-if="isError('name')">
+                  {{!localDoc.name?.trim() ? 'A cloud function with this name already exists' :
+                  'Please fill in the function name' }}
+                </p>
               </div>
               <div class="field">
                 <label class="label is-small">
@@ -28,10 +33,10 @@
                 </label>
                 <div class="control">
                   <input class="input is-small document-description"
-                         data-qa="ratelimit-description-input"
+                         data-qa="cloud-functions-description-input"
                          type="text"
-                         title="Rate limit rule description"
-                         placeholder="Rate limit rule description"
+                         title="Cloud functions description"
+                         placeholder="Cloud functions description"
                          @change="emitDocUpdate"
                          v-model="localDoc.description">
                 </div>
@@ -41,180 +46,40 @@
                   Phase
                 </label>
                 <div class="group-phase mb-3">
-                  <select v-model="newSecurityPolicyConnectionDataMapId"
-                                @change="phaseOptionChange()"
+                  <select v-model="localDoc.phase"
+                                @change="emitDocUpdate"
                                 class="phase-map"
                                 data-qa="site-name-dropdown"
-                                title="Type">
-                          <option v-for="phase in cloudFunctionsPhaseList" :key="phase.id" :value="phase.id">
-                            {{ phase.name }}
+                                defaultValue="localDoc.phase.name"
+                                title="phase">
+                          <option v-for="(phase, key) in cloudPhases"
+                              :key="key"
+                              :value="key">
+                            {{ phase }}
                           </option>
                   </select>
                 </div>
               </div>
             </div>
-            <div class="column is-7">
+            <div class="column is-8">
               <div class="field">
                 <label class="label is-small">Code</label>
                 <textarea class="is-small textarea is-family-monospace functions-code"
-                              data-qa="description-input"
-                              title="description"
-                              v-model="cloudFunction.code"
+                              data-qa="code-input"
+                              title="code"
+                              v-model="localDoc.code"
                               @change="emitDocUpdate"
                               rows="20">
                     </textarea>
               </div>
             </div>
           </div>
-          <div>
-            <div class="has-text-left has-text-weight-bold pb-3">Connections to Security Policies</div>
-            <table class="table connected-security-policies-table">
-              <thead>
-              <tr>
-                <th class="is-size-7 width-200px">Name</th>
-                <th class="is-size-7 width-120px">ID</th>
-                <th class="is-size-7 width-300px">Domain Match</th>
-                <th class="is-size-7 width-300px">Entry Match</th>
-                <th class="is-size-7 width-80px has-text-centered">
-                  <a v-if="!newSecurityPolicyConnectionOpened"
-                     class="has-text-grey-dark is-small new-connection-button"
-                     data-qa="attach-to-site-btn"
-                     title="Add new connection"
-                     tabindex="0"
-                     @click="openNewSecurityPolicyConnection"
-                     @keypress.space.prevent
-                     @keypress.space="openNewSecurityPolicyConnection"
-                     @keypress.enter="openNewSecurityPolicyConnection">
-                    <span class="icon is-small"><i class="fas fa-plus"></i></span>
-                  </a>
-                  <a v-else
-                     class="has-text-grey-dark is-small new-connection-button"
-                     data-qa="cancel-attaching-to-site"
-                     title="Cancel adding new connection"
-                     tabindex="0"
-                     @click="closeNewSecurityPolicyConnection"
-                     @keypress.space.prevent
-                     @keypress.space="closeNewSecurityPolicyConnection"
-                     @keypress.enter="closeNewSecurityPolicyConnection">
-                    <span class="icon is-small"><i class="fas fa-minus"></i></span>
-                  </a>
-                </th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr v-if="newSecurityPolicyConnectionOpened"
-                  class="has-background-warning-light new-connection-row">
-                <template v-if="newSecurityPolicyConnections.length > 0">
-                  <td>
-                    <div class="select is-small">
-                      <select v-model="newSecurityPolicyConnectionDataMapId"
-                              @change="newSecurityPolicyConnectionDataChanged()"
-                              class="new-connection-map"
-                              data-qa="site-name-dropdown"
-                              title="Type">
-                        <option v-for="map in newSecurityPolicyConnections" :key="map.id" :value="map.id">
-                          {{ map.name }}
-                        </option>
-                      </select>
-                    </div>
-                  </td>
-                  <td>
-                    {{ newSecurityPolicyConnectionData.map.id }}
-                  </td>
-                  <td>
-                    {{ newSecurityPolicyConnectionData.map.match }}
-                  </td>
-                  <td>
-                    <div class="select is-small">
-                      <select v-model="newSecurityPolicyConnectionData.entryIndex"
-                              class="new-connection-entry-index"
-                              data-qa="site-path-dropdown"
-                              title="Type">
-                        <option v-for="(mapEntry, index) in newSecurityPolicyConnectionEntries"
-                                :key="mapEntry.match"
-                                :value="index">
-                          {{ mapEntry.match }}
-                        </option>
-                      </select>
-                    </div>
-                  </td>
-                  <td class="has-text-centered">
-                    <button title="Add new connection"
-                            data-qa="add-new-connection-btn"
-                            class="button is-light is-small add-new-connection"
-                            @click="addNewSecurityPolicyConnection">
-                      <span class="icon is-small"><i class="fas fa-plus fa-xs"></i></span>
-                    </button>
-                  </td>
-                </template>
-                <template v-else>
-                  <td colspan="5">
-                    All Security Policies entries are currently connected to this Rate Limit
-                  </td>
-                </template>
-              </tr>
-              <tr v-for="(connection, index) in connectedSecurityPoliciesEntries" :key="index">
-                <td class="is-size-7 is-vcentered py-3 width-200px connected-entry-row"
-                    :title="connection[0]">
-                  <a title="Add new"
-                     class="security-policy-referral-button"
-                     @click="referToSecurityPolicy(connection.id)">
-                    {{ connection.name }}
-                  </a>
-                </td>
-                <td class="is-size-7 is-vcentered py-3 width-120px"
-                    :title="connection.id">
-                  {{ connection.id }}
-                </td>
-                <td class="is-size-7 is-vcentered py-3 width-300px"
-                    :title="connection.domainMatch">
-                  {{ connection.domainMatch }}
-                </td>
-                <td class="is-size-7 is-vcentered py-3 width-300px"
-                    :title="connection.entryMatch">
-                  {{ connection.entryMatch }}
-                </td>
-                <td class="is-size-7 is-vcentered width-80px height-50px">
-                    <span v-show="currentEntryDeleteIndex !== index">
-                    <a tabindex="0"
-                       title="Remove connection to the Security Policy"
-                       data-qa="remove-attached-site-btn"
-                       class="is-small has-text-grey remove-connection-button"
-                       @click="setEntryDeleteIndex(index)"
-                       @keypress.space.prevent
-                       @keypress.space="setEntryDeleteIndex(index)"
-                       @keypress.enter="setEntryDeleteIndex(index)">
-                      Remove
-                    </a>
-                    </span>
-                  <span v-show="currentEntryDeleteIndex === index">
-                      <a class="is-size-7 has-text-grey add-button confirm-remove-connection-button"
-                         data-qa="confirm-remove-btn"
-                         title="Confirm"
-                         tabindex="0"
-                         @click="removeSecurityPolicyConnection(connection.id, connection.entryMatch)"
-                         @keypress.space.prevent
-                         @keypress.space="removeSecurityPolicyConnection(connection.id, connection.entryMatch)"
-                         @keypress.enter="removeSecurityPolicyConnection(connection.id, connection.entryMatch)">
-                      <i class="fas fa-check"></i> Confirm
-                    </a>
-                    <br/>
-                    <a class="is-size-7 has-text-grey cancel-remove-connection-button"
-                       data-qa="cancel-remove-btn"
-                       title="Cancel"
-                       tabindex="0"
-                       @click="setEntryDeleteIndex(-1)"
-                       @keypress.space.prevent
-                       @keypress.space="setEntryDeleteIndex(-1)"
-                       @keypress.enter="setEntryDeleteIndex(-1)">
-                      <i class="fas fa-times"></i> Cancel
-                    </a>
-                    </span>
-                </td>
-              </tr>
-              </tbody>
-            </table>
-          </div>
+          <security-policies-connections
+              selectedDocType="cloudfunctions"
+              :selectedDocId="localDoc.id"
+              @go-to-route="emitGoToRoute"
+              :selectedBranch="selectedBranch">
+          </security-policies-connections>
         </div>
       </div>
     </div>
@@ -223,188 +88,126 @@
 
 <script lang="ts">
 import _ from 'lodash'
+// import DatasetsUtils from '@/assets/DatasetsUtils'
 import {defineComponent} from 'vue'
 import {
-  Dictionary,
-  IncludeExcludeType,
-  CloudFunctionsType,
+  CloudFunctions,
   CloudFunctionsPhase,
-  RateLimit,
-  SecurityPolicy,
-  SecurityPolicyEntryMatch,
-  ThresholdActionPair,
 } from '@/types'
-import DatasetsUtils from '@/assets/DatasetsUtils'
-import RequestsUtils from '@/assets/RequestsUtils'
-import {AxiosResponse} from 'axios'
+import SecurityPoliciesConnections from '@/components/SecurityPoliciesConnections.vue'
+
+export type PhaseOption = 'requestpre' | 'requespost' | 'responsepre' | 'responsepost'
+// const cloudFunctionsMockData: CloudFunctions = {
+//   'id': 'f971e92459e2',
+//   'name': 'NEW CLOUD FUNCTION',
+//   'description': '5 requests per minute',
+//   'phase': 'requestpre',
+//   'code': `-- begin custom code
+//   --custom response header
+//   ngx.header['foo'] = 'bar'`,
+// }
 
 export default defineComponent({
-  name: 'RateLimits',
+  name: 'CloudFunctionsEditor',
   props: {
-    selectedDoc: Object,
+    selectedDoc: {},
     selectedBranch: String,
     apiPath: String,
+    docs: Array,
   },
-  // components: {
+  components: {
   //   ResponseAction,
   //   LimitOption,
   //   TagAutocompleteInput,
-  // },
+    SecurityPoliciesConnections,
+  },
   data() {
     return {
-      filters: ['include', 'exclude'] as IncludeExcludeType[],
-      addNewTagColName: null,
-      titles: DatasetsUtils.titles,
-      securityPolicies: [] as SecurityPolicy[],
-      currentEntryDeleteIndex: -1,
-      cloudFunctionsPhaseList: [
-        {id: '1', name: 'Request Pre Reblaze'},
-        {id: '2', name: 'Request Post Reblaze'},
-        {id: '3', name: 'Response Pre Reblaze'},
-        {id: '4', name: 'Response Post Reblaze'},
-      ] as CloudFunctionsPhase[],
-
-      newSecurityPolicyConnectionData: {
-        map: null,
-        entryIndex: 0,
-      } as {
-        map: SecurityPolicy,
-        entryIndex: number,
+      worker: {
+        id: String,
+        name: String,
+        description: String,
+        phase: String,
+        code: String,
+        linked_sites: Array,
+        match: String,
       },
-      newSecurityPolicyConnectionDataMapId: null,
-      newSecurityPolicyConnectionOpened: false,
-      connectedSecurityPoliciesEntries: [],
+      workers: [] as CloudFunctions[],
+      isDeleteModalVisible: false,
+      changes: [],
+      isModal: false,
+
+      currentEntryDeleteIndex: -1,
+
+      cloudPhases: {
+        'requestpre': 'Request Pre Reblaze',
+        'requestpost': 'Request Post Reblaze',
+        'responsepre': 'Response Pre Reblaze',
+        'responsepost': 'Response Post Reblaze',
+      } as CloudFunctionsPhase,
+
       keysAreValid: true,
-      removable: false,
     }
   },
   computed: {
-    localDoc(): any { // CloudFunction
-      return _.cloneDeep(this.selectedDoc as RateLimit)
-    },
-
-    cloudFunction: { // CloudFunction
-      get: function(): any {
-        return this.generateOption(this.localDoc.pairwith)
-      },
-      set: function(value: any['function']): void {
-        this.localDoc.pairwith = value
-        this.emitDocUpdate()
-      },
-    },
-
-    duplicateTags(): Dictionary<string> {
-      const doc = this.localDoc
-      const allTags = _.concat(doc['include'], doc['exclude'])
-      const dupTags = _.filter(allTags, (val, i, iteratee) => _.includes(iteratee, val, i + 1))
-      return _.fromPairs(_.zip(dupTags, dupTags))
-    },
-
-    phaseOption: {
-      get: function(): any {
-        return this.cloudFunctionsPhaseList['0'].name // .filter((phase: CloudFunctionsPhase) => phase.id == id) // index
-      },
-      set: function(value: CloudFunctionsPhase['name']): void {
-        this.cloudFunctionsPhaseList['0'].name = value
-        this.emitDocUpdate()
-      },
-    },
-
-    upToOneBanAction(): Boolean {
-      const counts = _.countBy(this.localDoc.thresholds, (threshold) => {
-        return threshold.action.type
-      })
-      return _.get(counts, 'ban', 0) <= 1
-    },
-
-    newSecurityPolicyConnections(): SecurityPolicy[] {
-      return this.securityPolicies.filter((securityPolicy) => {
-        return !securityPolicy.map.every((securityPolicyEntry) => {
-          return securityPolicyEntry.limit_ids.includes(this.localDoc.id)
-        })
-      })
-    },
-
-    newSecurityPolicyConnectionEntries(): SecurityPolicyEntryMatch[] {
-      const securityPolicy = this.newSecurityPolicyConnections.find((securityPolicy) => {
-        return securityPolicy.id === this.newSecurityPolicyConnectionData.map.id
-      })
-      return securityPolicy.map.filter((securityPolicyEntry) => {
-        return !securityPolicyEntry.limit_ids.includes(this.localDoc.id)
-      })
+    localDoc(): CloudFunctions { // CloudFunction
+      return _.cloneDeep(this.selectedDoc as CloudFunctions)
+      // return _.cloneDeep(this.cloudFunctionsMockData as CloudFunctions)
     },
   },
   emits: ['update:selectedDoc', 'go-to-route'],
   methods: {
 
-    phaseOptionChange() {
-      return 'phase'
-    },
-
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
     },
+    emitGoToRoute(url: string) {
+      this.$emit('go-to-route', url)
+    },
+    // @input="validateName"
+    // validateName(name: string) {
+    // }
 
-    getOptionTextKey(option: CloudFunctionsType, index: number) {
-      if (!option) {
-        return ''
+    openModal() {
+      this.isDeleteModalVisible = true
+      document.addEventListener('keyup', this.escEventListener)
+    },
+    closeModal() {
+      this.isDeleteModalVisible = false
+      document.removeEventListener('keyup', this.escEventListener)
+    },
+    escEventListener(key: any): void {
+      if (key === 'Escape') {
+        this.closeModal()
       }
-      const [type] = Object.keys(option)
-      return `${this.localDoc.id}_${type}_${index}`
     },
 
-    generateOption(data: CloudFunctionsType): any {
-      if (!data) {
-        return {}
+    newWorker() {
+      return {
+        name: 'NEW CLOUD FUNCTION',
+        code: '-- begin custom code\n--custom response header\nngx.header["foo"] = "bar"\n',
+        phase: 'requestpost',
       }
-      // const [firstObjectKey] = Object.keys(data)
-      const name = 'abcdefg'
-      const description = 'jksdfsajbcdsbcsbcsblibclsdcdlsc'
-      const code = 'abcd'
-      return {name, description, code}
     },
 
-    addThreshold() {
-      this.localDoc.thresholds.push({limit: '', action: {type: 'default'}} as ThresholdActionPair)
-      this.emitDocUpdate()
-    },
-
-    removeThreshold(index: number) {
-      if (this.localDoc.thresholds.length > 1) {
-        this.localDoc.thresholds.splice(index, 1)
-      }
-      this.emitDocUpdate()
-    },
-
-    addKey() {
-      this.localDoc.key.push({attrs: 'ip'})
-      this.emitDocUpdate()
-      this.checkKeysValidity()
-    },
-
-    removeKey(index: number) {
-      if (this.localDoc.key.length > 1) {
-        this.localDoc.key.splice(index, 1)
-      }
-      this.emitDocUpdate()
-      this.checkKeysValidity()
-    },
-
-    // updateKeyOption(option: OptionObject, index: number) {
-    //   this.localDoc.key.splice(index, 1, {
-    //     [option.type]: option.key,
-    //   })
-    //   this.emitDocUpdate()
-    //   this.checkKeysValidity()
+    // validate() {
+    //   const {currentWorker, workers} = this
+    //   const isDuplicated = workers.filter(
+    //       ({name}) => name.toLowerCase().trim() === currentWorker.toLowerCase().trim()).length > 1
+    //   const isValid = !isDuplicated && currentWorker && this.currentWorker.trim()
+    //   if (!isValid) {
+    //     this.errors.push('name')
+    //   }
+    //   return isValid
     // },
 
     checkKeysValidity() {
-      const keysToCheck = _.countBy(this.localDoc.key, (item) => {
+      const keysToCheck = _.countBy(this.localDoc.id, (item) => {
         if (!item) {
           return ''
         }
         const key = Object.keys(item)[0]
-        return `${key}_${item[key]}`
+        return `${key}_${item[parseInt(key)]}`
       })
       this.keysAreValid = true
       for (const key of Object.keys(keysToCheck)) {
@@ -416,157 +219,37 @@ export default defineComponent({
       return this.keysAreValid
     },
 
-    updateEvent(option: CloudFunctionsPhase) {
-      this.phaseOption = {id: option.id, name: option.name}
-    },
-
-    getConnectedSecurityPoliciesEntries() {
-      this.connectedSecurityPoliciesEntries = _.sortBy(_.flatMap(_.filter(this.securityPolicies, (securityPolicy) => {
-        return _.some(securityPolicy.map, (mapEntry: SecurityPolicyEntryMatch) => {
-          return mapEntry.limit_ids.includes(this.localDoc.id)
-        })
-      }), (securityPolicy) => {
-        return _.compact(_.map(securityPolicy.map, (mapEntry) => {
-          if (mapEntry.limit_ids.includes(this.localDoc.id)) {
-            return {
-              name: securityPolicy.name,
-              id: securityPolicy.id,
-              domainMatch: securityPolicy.match,
-              entryMatch: mapEntry.match,
-            }
-          } else {
-            return null
-          }
-        }))
-      }))
-    },
-
-    openNewSecurityPolicyConnection() {
-      this.newSecurityPolicyConnectionOpened = true
-      this.newSecurityPolicyConnectionData.map =
-          this.newSecurityPolicyConnections.length > 0 ? this.newSecurityPolicyConnections[0] : null
-      this.newSecurityPolicyConnectionDataMapId = this.newSecurityPolicyConnectionData.map?.id
-      this.newSecurityPolicyConnectionData.entryIndex = 0
-    },
-
-    closeNewSecurityPolicyConnection() {
-      this.newSecurityPolicyConnectionOpened = false
-    },
-
-    newSecurityPolicyConnectionDataChanged() {
-      this.newSecurityPolicyConnectionData.entryIndex = 0
-      this.newSecurityPolicyConnectionData.map = this.newSecurityPolicyConnections.find((connection) => {
-        return connection.id === this.newSecurityPolicyConnectionDataMapId
-      })
-    },
-
-    addNewSecurityPolicyConnection() {
-      const id = this.newSecurityPolicyConnectionData.map.id
-      const entryMatch = this.newSecurityPolicyConnectionEntries[this.newSecurityPolicyConnectionData.entryIndex].match
-      const methodName = 'PUT'
-      const selectedDocType = 'securitypolicies'
-      const urlTrail = `configs/${this.selectedBranch}/d/${selectedDocType}/e/${id}/`
-      const doc = _.find(this.securityPolicies, (securityPolicy) => {
-        return securityPolicy.id === id
-      })
-      const mapEntry = _.find(doc.map, (mapEntry) => {
-        return mapEntry.match === entryMatch
-      })
-      mapEntry.limit_ids.push(this.localDoc.id)
-      this.closeNewSecurityPolicyConnection()
-      const docTypeText = this.titles[selectedDocType + '-singular']
-      const successMessage = `The connection to the ${docTypeText} was added.`
-      const failureMessage = `Failed while attempting to add the connection to the ${docTypeText}.`
-      RequestsUtils.sendRequest({methodName, url: urlTrail, data: doc, successMessage, failureMessage}).then(() => {
-        this.getConnectedSecurityPoliciesEntries()
-      })
-    },
-
-    removeSecurityPolicyConnection(id: SecurityPolicy['id'], entryMatch: SecurityPolicyEntryMatch['match']) {
-      const methodName = 'PUT'
-      const selectedDocType = 'securitypolicies'
-      const urlTrail = `configs/${this.selectedBranch}/d/${selectedDocType}/e/${id}/`
-      const doc = _.find(this.securityPolicies, (securityPolicy) => {
-        return securityPolicy.id === id
-      })
-      const mapEntry = _.find(doc.map, (mapEntry) => {
-        return mapEntry.match === entryMatch
-      })
-      const limitIdIndex = _.findIndex(mapEntry.limit_ids, (rateLimitID) => {
-        return rateLimitID === this.localDoc.id
-      })
-      mapEntry.limit_ids.splice(limitIdIndex, 1)
-      const docTypeText = this.titles[selectedDocType + '-singular']
-      const successMessage = `The connection to the ${docTypeText} was removed.`
-      const failureMessage = `Failed while attempting to remove the connection to the ${docTypeText}.`
-      RequestsUtils.sendRequest({methodName, url: urlTrail, data: doc, successMessage, failureMessage}).then(() => {
-        this.setEntryDeleteIndex(-1)
-        this.getConnectedSecurityPoliciesEntries()
-      })
-    },
-
-    setEntryDeleteIndex(index: number) {
-      this.closeNewSecurityPolicyConnection()
-      this.currentEntryDeleteIndex = index
-    },
-
-    loadSecurityPolicies() {
-      RequestsUtils.sendRequest({
-        methodName: 'GET',
-        url: `configs/${this.selectedBranch}/d/securitypolicies/`,
-      }).then((response: AxiosResponse<SecurityPolicy[]>) => {
-        this.securityPolicies = _.sortBy(response.data)
-        this.getConnectedSecurityPoliciesEntries()
-        this.newSecurityPolicyConnectionData.map =
-            this.newSecurityPolicyConnections.length > 0 ? this.newSecurityPolicyConnections[0] : null
-        this.newSecurityPolicyConnectionDataMapId = this.newSecurityPolicyConnectionData.map?.id
-      })
-    },
-
-    addNewTag(section: IncludeExcludeType, entry: string) {
-      if (entry && entry.length > 2) {
-        this.localDoc[section].push(entry)
-        this.emitDocUpdate()
-      }
-    },
-
-    openTagInput(section: IncludeExcludeType) {
-      this.addNewTagColName = section
-    },
-
-    cancelAddNewTag() {
-      this.addNewTagColName = null
-    },
-
-    removeTag(section: IncludeExcludeType, index: number) {
-      this.localDoc[section].splice(index, 1)
-      this.addNewTagColName = null
-      this.emitDocUpdate()
-    },
-
-    referToSecurityPolicy(id: string) {
-      this.$emit('go-to-route', `/config/${this.selectedBranch}/securitypolicies/${id}`)
+    isError(name: string) {
+      console.error('error', name)
+      return false
     },
   },
   created() {
-    this.loadSecurityPolicies()
+    console.log('created docs', this.localDoc, 'doc', this.docs)
   },
   mounted() {
-    this.checkKeysValidity()
+    console.log('mounted docs', this.localDoc, 'doc', this.docs, 'apiPath', this.apiPath)
+    // this.selectedDoc = cloudFunctionsMockData
+  //  this.checkKeysValidity()
   },
-  watch: {
-    selectedDoc: {
-      handler: function() {
-        this.getConnectedSecurityPoliciesEntries()
-      },
-      immediate: true,
-      deep: true,
-    },
+
+  updated() {
+    console.log('updated localDoc', this.localDoc)
   },
+
+  // watch: {
+  //   selectedDoc: {
+  //     handler: function() {
+  //       this.getConnectedSecurityPoliciesEntries()
+  //     },
+  //     immediate: true,
+  //     deep: true,
+  //   },
+  // },
 })
 </script>
 
-<style scoped lang="scss">
+<style scoped lang='scss'>
 
 .form-label {
   padding-top: 0.25rem;

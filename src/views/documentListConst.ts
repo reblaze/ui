@@ -273,4 +273,27 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       classes: 'width-80px',
     },
   ],
+  'cloudfunctions': [
+    {
+      columnTitle: 'Name',
+      fieldNames: ['name'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-150px',
+    },
+    {
+      columnTitle: 'Description',
+      fieldNames: ['description'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-250px',
+    },
+    {
+      columnTitle: 'Phase',
+      fieldNames: ['phase'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-300px',
+    },
+  ],
 }

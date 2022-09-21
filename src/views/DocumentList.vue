@@ -202,6 +202,7 @@ import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
 import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
 import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
 import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
+import CloudFunctionsEditor from '@/doc-editors/CloudFunctionsEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {defineComponent, shallowRef} from 'vue'
 import {ColumnOptions, Commit, Document, DocumentType, GenericObject} from '@/types'
@@ -267,7 +268,37 @@ export default defineComponent({
         'aclprofiles': shallowRef({component: ACLEditor}),
         'contentfilterprofiles': shallowRef({component: ContentFilterEditor}),
         'contentfilterrules': shallowRef({component: ContentFilterRulesEditor}),
+        'cloudfunctions': shallowRef({component: CloudFunctionsEditor}),
       },
+      // for cloudfunctions
+      cloudFunctionsMockData: [{
+        'id': 'f971e92459e2',
+        'name': 'NEW CLOUD FUNCTION',
+        'description': '5 requests per minute',
+        'phase': [
+          {
+            'id': '1',
+            'name': 'Request Pre Reblaze list',
+          },
+        ],
+        'code': `-- begin custom code
+        --custom response header
+        ngx.header['foo'] = 'bar'`,
+      },
+      {
+        'id': 'f123456789',
+        'name': 'NEW CLOUD FUNCTION',
+        'description': '2 requests per minute',
+        'phase': [
+          {
+            'id': 'responsepost',
+            'name': 'Response Post Reblaze list',
+          },
+        ],
+        'code': `-- begin custom code
+        --custom response header
+        ngx.header['foo'] = 'bar'`,
+      }],
     }
   },
   computed: {
@@ -430,17 +461,21 @@ export default defineComponent({
       this.isDownloadLoading = true
       const branch = this.selectedBranch
       const fieldNames = _.flatMap(this.columns, 'fieldNames')
-      const response = await RequestsUtils.sendRequest({
-        methodName: 'GET',
-        url: `configs/${branch}/d/${doctype}/`,
-        data: {headers: {'x-fields': `id, ${fieldNames.join(', ')}`}},
-        onFail: () => {
-          console.log('Error while attempting to load documents')
-          this.docs = []
-          this.isDownloadLoading = false
-        },
-      })
+      const response = (doctype == 'cloudfunctions') ?
+        await Promise.resolve({data: this.cloudFunctionsMockData}) :
+        await RequestsUtils.sendRequest({
+          methodName: 'GET',
+          url: `configs/${branch}/d/${doctype}/`,
+          data: {headers: {'x-fields': `id, ${fieldNames.join(', ')}`}},
+          onFail: () => {
+            console.log('Error while attempting to load documents')
+            this.docs = []
+            this.isDownloadLoading = false
+          },
+        })
       this.docs = response?.data || []
+      console.log('DocumentList doctype', doctype)
+      console.log('DocumentList loadDocs', this.docs)
       this.docsDisplayData = this.docs
       this.isDownloadLoading = false
       this.updateDataDisplay()
@@ -486,9 +521,10 @@ export default defineComponent({
       const failureMessage = `Failed while attempting to create the new ${docTypeText}.`
       const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/`
       const data = docToAdd
-      await RequestsUtils.sendRequest({methodName: 'POST', url, data, successMessage, failureMessage}).then(() => {
-        this.editDoc(docToAdd.id)
-      })
+      await RequestsUtils.sendRequest({methodName: 'POST', url, data, successMessage, failureMessage})
+        .then(() => {
+          this.editDoc(docToAdd.id)
+        })
       this.isNewLoading = false
       this.setLoadingDocStatus(false)
     },
@@ -530,12 +566,16 @@ export default defineComponent({
     this.setLoadingDocStatus(true)
     this.updateDataDisplay()
     this.setLoadingDocStatus(false)
+    console.log('mounted loadingDocCounter', this.loadingDocCounter, 'selectedBranch', this.selectedBranch,
+    'selectedDocType', this.selectedDocType)
   },
   async created() {
     this.setLoadingDocStatus(true)
     await this.loadConfigs()
     this.setSelectedDataFromRouteParams()
     this.setLoadingDocStatus(false)
+    console.log('created loadingDocCounter', this.loadingDocCounter, 'selectedBranch', this.selectedBranch,
+    'selectedDocType', this.selectedDocType)
   },
 })
 </script>

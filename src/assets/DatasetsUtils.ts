@@ -8,6 +8,7 @@ import {
   HttpRequestMethods,
   RateLimit,
   SecurityPolicy,
+  CloudFunctions,
 } from '@/types'
 
 const titles: { [key: string]: string } = {
@@ -43,6 +44,7 @@ const titles: { [key: string]: string } = {
   'attrs-entry': 'Attribute',
   'aclprofiles': 'ACL Profiles',
   'aclprofiles-singular': 'ACL Profile',
+  'cloudfunctions': 'Cloud Functions',
   'ratelimits': 'Rate Limits',
   'ratelimits-singular': 'Rate Limit',
   'securitypolicies': 'Security Policies',
@@ -183,6 +185,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
           'acl_active': false,
           'content_filter_active': false,
           'limit_ids': [],
+          'workers': [],
         },
       ],
     }
@@ -237,6 +240,18 @@ const newDocEntryFactory: { [key: string]: Function } = {
           method: 'POST' as HttpRequestMethods,
         },
       ],
+    }
+  },
+
+  cloudfunctions(): CloudFunctions {
+    return {
+      'id': generateUUID2(),
+      'name': 'New Cloud Function',
+      'description': 'New Cloud Function Description and Remarks',
+      'phase': 'requestpost',
+      'code': `-- begin custom code
+        --custom response header
+        ngx.header['foo'] = 'fo0foo'`,
     }
   },
 

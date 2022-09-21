@@ -215,6 +215,11 @@ export default defineComponent({
         title: titles['contentfilterprofiles'],
         fields: 'id, name',
       },
+      'cloudfunctions': {
+        component: ContentFilterEditor,
+        title: titles['cloudfunctions'],
+        fields: 'id, name, description',
+      },
     }
 
     const searchTypeMap: {

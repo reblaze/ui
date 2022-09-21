@@ -230,6 +230,21 @@ import {defineComponent, shallowRef} from 'vue'
 import {Commit, Document, DocumentType, HttpRequestMethods, SecurityPolicy} from '@/types'
 import axios, {AxiosResponse} from 'axios'
 
+const cloudFunctionsMockData = [{
+  'id': 'f971e92459e2',
+  'name': 'NEW CLOUD FUNCTION',
+  'description': '5 requests per minute',
+  'phase': [
+    {
+      'id': '1',
+      'name': 'Request Pre Reblaze editor',
+    },
+  ],
+  'code': `-- begin custom code
+  --custom response header
+  ngx.header['foo'] = 'bar'`,
+}]
+
 export default defineComponent({
   name: 'DocumentEditor',
   props: {},
@@ -254,6 +269,7 @@ export default defineComponent({
       referencedIDsACL: [],
       referencedIDsContentFilter: [],
       referencedIDsLimits: [],
+      referencedIDsCloudFunctions: [],
 
       selectedBranch: null,
       selectedDocType: null as DocumentType,
@@ -336,7 +352,7 @@ export default defineComponent({
         return this.referencedIDsLimits.includes(this.selectedDocID)
       }
       if (this.selectedDocType === 'cloudfunctions') {
-        return this.referencedIDsLimits.includes(this.selectedDocID)
+        return this.referencedIDsCloudFunctions.includes(this.selectedDocID)
       }
       return false
     },
@@ -403,6 +419,7 @@ export default defineComponent({
       try {
         const response = await RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'})
         configs = response.data
+        console.log('load config', configs)
       } catch (err) {
         console.log('Error while attempting to get configs')
         console.log(err)
@@ -420,6 +437,7 @@ export default defineComponent({
     },
 
     updateDocIdNames() {
+      console.log('updateDocIdNames', this.docs)
       this.docIdNames = _.sortBy(_.map(this.docs, (doc) => [doc.id, doc.name]), (entry) => entry[1])
     },
 
@@ -427,10 +445,16 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       // check if the selected doc only has id and name, if it does, attempt to load the rest of the document data
       if (this.selectedDoc && Object.keys(this.selectedDoc).length === 2) {
-        const response = await RequestsUtils.sendRequest({
-          methodName: 'GET',
-          url: `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`,
-        })
+        let response
+        if (this.selectedDocType == 'cloudfunctions') {
+          console.log('loadSelectedDocData ')
+          response = await Promise.resolve({data: cloudFunctionsMockData})
+        } else {
+          response = await RequestsUtils.sendRequest({
+            methodName: 'GET',
+            url: `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`,
+          })
+        }
         this.selectedDoc = response?.data || this.selectedDoc
       }
       this.setLoadingDocStatus(false)
@@ -439,28 +463,41 @@ export default defineComponent({
     async loadDocs(doctype: DocumentType, skipDocSelection?: boolean) {
       this.isDownloadLoading = true
       const branch = this.selectedBranch
-      const response = await RequestsUtils.sendRequest({
-        methodName: 'GET',
-        url: `configs/${branch}/d/${doctype}/`,
-        data: {headers: {'x-fields': 'id, name'}},
-        onFail: () => {
-          console.log('Error while attempting to load documents')
-          this.docs = []
-          this.isDownloadLoading = false
-        },
-      })
+      let response
+      if (doctype == 'cloudfunctions') {
+        response = await Promise.resolve({data: cloudFunctionsMockData})
+      } else {
+        response = await RequestsUtils.sendRequest({
+          methodName: 'GET',
+          url: `configs/${branch}/d/${doctype}/`,
+          data: {headers: {'x-fields': 'id, name'}},
+          onFail: () => {
+            console.log('Error while attempting to load documents')
+            this.docs = []
+            this.isDownloadLoading = false
+          },
+        })
+      }
       this.docs = response?.data || []
       // After we load the basic data (id and name) we can async load the full data
       this.cancelSource.cancel(`Operation cancelled and restarted for a new document type ${doctype}`)
       this.cancelSource = axios.CancelToken.source()
-      RequestsUtils.sendRequest({
-        methodName: 'GET',
-        url: `configs/${branch}/d/${doctype}/`,
-        config: {cancelToken: this.cancelSource.token},
-      }).then((response: AxiosResponse) => {
-        this.docs = response?.data || []
-        this.isDownloadLoading = false
-      })
+      if (doctype == 'cloudfunctions') {
+        Promise.resolve({data: cloudFunctionsMockData as any}).then((response: any) => {
+          this.docs = response?.data || []
+          this.isDownloadLoading = false
+        })
+      } else {
+        RequestsUtils.sendRequest({
+          methodName: 'GET',
+          url: `configs/${branch}/d/${doctype}/`,
+          config: {cancelToken: this.cancelSource.token},
+        }).then((response: AxiosResponse) => {
+          this.docs = response?.data || []
+          this.isDownloadLoading = false
+        })
+      }
+
       this.updateDocIdNames()
       if (this.docIdNames && this.docIdNames.length && this.docIdNames[0].length) {
         if (!skipDocSelection || !_.find(this.docIdNames, (idName: [Document['id'], Document['name']]) => {
@@ -478,8 +515,12 @@ export default defineComponent({
       this.loadingGitlog = true
       const config = this.selectedBranch
       const document = this.selectedDocType
-      const entry = this.selectedDocID
+      let entry = this.selectedDocID
+      if (document==='cloudfunctions') {
+        entry = 'f971e92459e2'
+      }
       const url = `configs/${config}/d/${document}/e/${entry}/v/`
+      console.log('url for api', url)
       if (config && document && entry) {
         RequestsUtils.sendRequest({methodName: 'GET', url}).then((response: AxiosResponse<Commit[]>) => {
           this.gitLog = response?.data || []
@@ -636,6 +677,7 @@ export default defineComponent({
       const referencedACL: string[] = []
       const referencedContentFilter: string[] = []
       const referencedLimit: string[] = []
+      const referencedCloudFunctions: string[] = []
       _.forEach(docs, (doc) => {
         _.forEach(doc.map, (mapEntry) => {
           referencedACL.push(mapEntry['acl_profile'])
@@ -646,6 +688,7 @@ export default defineComponent({
       this.referencedIDsACL = _.uniq(referencedACL)
       this.referencedIDsContentFilter = _.uniq(referencedContentFilter)
       this.referencedIDsLimits = _.uniq(_.flatten(referencedLimit))
+      this.referencedIDsCloudFunctions = _.uniq(_.flatten(referencedCloudFunctions))
     },
 
     async restoreGitVersion(gitVersion: Commit) {
@@ -692,6 +735,7 @@ export default defineComponent({
     this.setSelectedDataFromRouteParams()
     this.loadReferencedDocsIDs()
     this.setLoadingDocStatus(false)
+    console.log('selectedDoc', this.selectedDoc)
   },
 
 })

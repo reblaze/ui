@@ -41,6 +41,7 @@ declare module CuriefenseClient {
     acl_active: boolean
     content_filter_active: boolean
     limit_ids: string[]
+    workers: string[]
   }
 
   type GlobalFilterSectionEntry = [Category, string | string[], string?]
@@ -91,7 +92,7 @@ declare module CuriefenseClient {
 
   type Document =
     BasicDocument
-    & (ACLProfile | FlowControlPolicy | GlobalFilter | RateLimit | SecurityPolicy | ContentFilterProfile | ContentFilterRule)
+    & (ACLProfile | FlowControlPolicy | GlobalFilter | RateLimit | CloudFunctions | SecurityPolicy | ContentFilterProfile | ContentFilterRule)
 
   type DocumentType =
     'aclprofiles'
@@ -165,16 +166,18 @@ declare module CuriefenseClient {
     match: string
     map: SecurityPolicyEntryMatch[]
   }
-  type CloudFunctionsType = {
+
+  type CloudFunctions = {
+    id: string,
     name: string,
-    description: string,
-    code: string
+    key?: string,
+    description?: string,
+    code?: string,
+    phase?: CloudFunctionsPhase,
+    match?: string,
   }
   // phase: { id: string, name: string}
-  type CloudFunctionsPhase = {
-    id: string, 
-    name: string
-  }
+  type CloudFunctionsPhase = {[key]: value}
 
   type RateLimit = {
     id: string
