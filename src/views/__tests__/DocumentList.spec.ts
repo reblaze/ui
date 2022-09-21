@@ -549,13 +549,10 @@ describe('DocumentList.vue', () => {
         'description': 'Tag API Requests',
         'active': true,
         'tags': ['api'],
-        'action': {
-          'type': 'monitor',
-          'params': {},
-        },
+        'action': 'monitor',
         'rule': {
           'relation': 'OR',
-          'sections': [
+          'entries': [
             {'relation': 'OR', 'entries': [['ip', '1.1.1.1', null]]},
             {'relation': 'OR', 'entries': [['ip', '2.2.2.2', null]]},
             {'relation': 'OR', 'entries': [['headers', ['headerrr', 'valueeee'], 'anooo']]}],
@@ -568,13 +565,10 @@ describe('DocumentList.vue', () => {
         'description': 'this is my own list',
         'active': false,
         'tags': ['internal', 'devops'],
-        'action': {
-          'type': 'monitor',
-          'params': {},
-        },
+        'action': 'monitor',
         'rule': {
           'relation': 'OR',
-          'sections': [
+          'entries': [
             {'relation': 'OR', 'entries': [['ip', '1.1.1.1', null]]},
             {'relation': 'OR', 'entries': [['ip', '2.2.2.2', null]]},
             {'relation': 'OR', 'entries': [['headers', ['headerrr', 'valueeee'], 'anooo']]}],
@@ -631,10 +625,7 @@ describe('DocumentList.vue', () => {
             'args': {},
           },
         ],
-        'action': {
-          'type': 'default',
-          'params': {},
-        },
+        'action': 'default',
         'timeframe': 60,
         'id': 'c03dabe4b9ca',
       },
@@ -669,10 +660,7 @@ describe('DocumentList.vue', () => {
             'args': {},
           },
         ],
-        'action': {
-          'type': 'default',
-          'params': {},
-        },
+        'action': 'default',
         'timeframe': 60,
         'id': '4435d797ab0c',
       },
@@ -736,7 +724,7 @@ describe('DocumentList.vue', () => {
       'thresholds': [
         {
           'limit': '5',
-          'action': {'type': 'default', 'params': {'action': {'type': 'default', 'params': {}}}},
+          'action': 'default',
         },
       ],
       'include': ['badpeople'],
@@ -751,7 +739,7 @@ describe('DocumentList.vue', () => {
       'thresholds': [
         {
           'limit': '5',
-          'action': {'type': 'default', 'params': {'action': {'type': 'default', 'params': {}}}},
+          'action': 'default',
         },
       ],
       'include': ['all'],
@@ -766,7 +754,7 @@ describe('DocumentList.vue', () => {
       'thresholds': [
         {
           'limit': '10',
-          'action': {'type': 'default', 'params': {'action': {'type': 'default', 'params': {}}}},
+          'action': 'default',
         },
       ],
       'include': ['blocklist'],

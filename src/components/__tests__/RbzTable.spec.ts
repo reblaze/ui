@@ -3,7 +3,6 @@ import RbzTable from '@/components/RbzTable.vue'
 import {beforeEach, describe, expect, test} from '@jest/globals'
 import {shallowMount, VueWrapper} from '@vue/test-utils'
 import {ColumnOptions, FlowControlPolicy, GenericObject, GlobalFilter} from '@/types'
-import {RESPONSE_ACTIONS} from '../responseActionConst'
 
 describe('RbzTable.vue', () => {
   let wrapper: VueWrapper
@@ -50,9 +49,6 @@ describe('RbzTable.vue', () => {
       {
         title: 'Action',
         fieldNames: ['action'],
-        displayFunction: (item: GlobalFilter) => {
-          return RESPONSE_ACTIONS[item?.action?.type]?.title
-        },
         isSortable: true,
         classes: 'width-80px',
       },
@@ -63,27 +59,24 @@ describe('RbzTable.vue', () => {
         description: 'c Jest testing description',
         tags: ['apple', 'crawler', 'curiefense'],
         id: '7785d66b1f92',
-        action: {
-          type: 'challenge',
-        },
+        active: true,
+        action: 'challenge',
       },
       {
         name: 'b test2',
         description: 'b Jest testing description',
         tags: ['crawler', 'curiefense'],
         id: '3c098b67018f',
-        action: {
-          type: 'default',
-        },
+        active: false,
+        action: 'default',
       },
       {
         name: 'a test1',
         description: 'a Jest testing description',
         tags: ['curiefense'],
         id: 'e52d14612210',
-        action: {
-          type: 'default',
-        },
+        active: false,
+        action: 'default',
       },
     ]
     sortedDataByNameAsc = data.slice().sort((a, b) => {
@@ -139,27 +132,21 @@ describe('RbzTable.vue', () => {
           description: 'c Jest testing description',
           tags: ['apple', 'crawler', 'curiefense'],
           id: '7785d66b1f92',
-          action: {
-            type: 'challenge',
-          },
+          action: 'challenge',
         },
         {
           name: 'b test2',
           description: 'b Jest testing description',
           tags: ['crawler', 'curiefense'],
           id: '3c098b67018f',
-          action: {
-            type: 'default',
-          },
+          action: 'default',
         },
         {
           name: 'a test1',
           description: null,
           tags: ['curiefense'],
           id: 'e52d14612210',
-          action: {
-            type: 'default',
-          },
+          action: 'default',
         },
       ]
       await wrapper.setProps({data: data})
@@ -221,17 +208,17 @@ describe('RbzTable.vue', () => {
     })
 
     test('should have displayFunction values sorted in ascending order', async () => {
-      const header = wrapper.findAll('.column-title').at(4)
+      const header = wrapper.findAll('.column-title').at(3)
       await header.trigger('click')
       const firstRow = wrapper.findAll('.data-row').at(0)
-      const actionCellFirstRow = firstRow.findAll('td').at(4)
+      const actionCellFirstRow = firstRow.findAll('td').at(3)
       const secondRow = wrapper.findAll('.data-row').at(1)
-      const actionCellSecondRow = secondRow.findAll('td').at(4)
+      const actionCellSecondRow = secondRow.findAll('td').at(3)
       const thirdRow = wrapper.findAll('.data-row').at(2)
-      const actionCellThirdRow = thirdRow.findAll('td').at(4)
-      expect(actionCellFirstRow.text()).toBe('503 Service Unavailable')
-      expect(actionCellSecondRow.text()).toBe('503 Service Unavailable')
-      expect(actionCellThirdRow.text()).toBe('Challenge')
+      const actionCellThirdRow = thirdRow.findAll('td').at(3)
+      expect(actionCellFirstRow.text()).toBe('no')
+      expect(actionCellSecondRow.text()).toBe('no')
+      expect(actionCellThirdRow.text()).toBe('yes')
     })
 
     test('should have asc arrow in new sort column when previous sort column was asc order', async () => {
@@ -309,9 +296,6 @@ describe('RbzTable.vue', () => {
         {
           title: 'Action',
           fieldNames: ['action'],
-          displayFunction: (item: FlowControlPolicy) => {
-            return RESPONSE_ACTIONS[item?.action?.type]?.title
-          },
           isSortable: true,
           isSearchable: true,
           classes: 'width-80px',
@@ -400,27 +384,21 @@ describe('RbzTable.vue', () => {
           description: 'c Jest testing description',
           tags: ['apple', 'crawler', 'curiefense'],
           id: '7785d66b1f92',
-          action: {
-            type: 'challenge',
-          },
+          action: 'challenge',
         },
         {
           name: 'b test2',
           description: 'b Jest testing description',
           tags: ['crawler', 'curiefense'],
           id: '3c098b67018f',
-          action: {
-            type: 'default',
-          },
+          action: 'default',
         },
         {
           name: 'a test1',
           description: null,
           tags: ['curiefense'],
           id: 'e52d14612210',
-          action: {
-            type: 'default',
-          },
+          action: 'default',
         },
       ]
       await wrapper.setProps({data: data})

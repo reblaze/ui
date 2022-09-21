@@ -35,6 +35,42 @@
                        v-model="localDoc.masking_seed"/>
               </div>
             </div>
+
+            <div class="field textarea-field">
+              <label class="label is-small">Description</label>
+              <div class="control">
+                    <textarea class="is-small textarea document-description"
+                              data-qa="description-input"
+                              title="Document description"
+                              v-model="localDoc.description"
+                              @change="emitDocUpdate"
+                              rows="5">
+                    </textarea>
+              </div>
+            </div>
+            <div class="field">
+              <label class="label is-small">
+                Action
+              </label>
+              <div class="control">
+                <input class="input is-small document-action"
+                       title="Action"
+                       data-qa="action-input"
+                       placeholder="Action"
+                       @change="emitDocUpdate"
+                       v-model="localDoc.action"/>
+              </div>
+            </div>
+            <div class="field">
+              <label class="label is-small">Tags</label>
+              <div class="control"
+                   data-qa="tag-input">
+                <tag-autocomplete-input :initial-tag="selectedDocTags"
+                                        :selection-type="'multiple'"
+                                        @tag-changed="selectedDocTags = $event">
+                </tag-autocomplete-input>
+              </div>
+            </div>
             <div class="field ignore-alphanumeric-input-field"
                  :title="additionalInfoIgnoreAlphanumericInput">
               <label class="checkbox is-size-7">
@@ -46,8 +82,18 @@
                 Ignore Alphanumeric Input
               </label>
               <span class="icon is-small info-icon">
-                    <i class="fas fa-info-circle"></i>
-                  </span>
+                <i class="fas fa-info-circle"></i>
+              </span>
+            </div>
+            <div class="field ignore-body-input-field">
+              <label class="checkbox is-size-7">
+                <input type="checkbox"
+                       data-qa="ignore-body-btn"
+                       class="checkbox-input ignore-body-input"
+                       @change="emitDocUpdate"
+                       v-model="localDoc.ignore_body"/>
+                Ignore Body
+              </label>
             </div>
           </div>
           <div class="column is-4">
