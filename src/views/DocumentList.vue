@@ -41,112 +41,13 @@
         <div class="card">
           <div class="card-content">
             <div class="content">
-              <table class="table is-bordered is-fullwidth is-size-7 document-list-table is-hoverable vectors-table">
-                <thead>
-                <tr class="header-row">
-                  <th v-for="col in columns"
-                      :key="col.fieldNames.join(', ')"
-                      class="column-header is-size-7 column-title"
-                      :class="`${col.classes}${col.isSortable ? ' is-clickable' : null}`"
-                      @click="sortColumn(col)">
-                    <div v-if="col.isSortable">
-                      <div class="arrow-wrapper">
-                        <span class="arrow arrow-asc"
-                              :class="{ active: sortField === col.fieldNames && sortDir === 'asc', }"/>
-                      </div>
-                      <div class="arrow-wrapper">
-                        <span class="arrow arrow-desc"
-                              :class="{active: sortField === col.fieldNames && sortDir === 'desc', }"/>
-                      </div>
-                    </div>
-                    {{ col.columnTitle }}
-                  </th>
-                  <th class="column-header width-80px">
-                    <div class="field is-grouped is-grouped-centered">
-                      <p class="control">
-                        <button class="button is-size-7 new-document-button"
-                                title="Add new document"
-                                :disabled="!selectedBranch || !selectedDocType"
-                                :class="{'is-loading': isNewLoading}"
-                                @click="addNewDoc()">
-                          <span class="icon is-small">
-                    <i class="fas fa-plus"></i>
-                  </span>
-                        </button>
-                      </p>
-                      <p class="control">
-                        <button class="button is-size-7 filter-toggle"
-                                :class="{'is-active': filtersVisible }"
-                                title="Filter table data"
-                                @click="filtersVisible = !filtersVisible">
-                  <span class="icon is-small">
-                      <i class="fas fa-filter"></i>
-                  </span>
-                        </button>
-                      </p>
-                    </div>
-                  </th>
-                </tr>
-                <tr class="search-row header-row" v-if="filtersVisible">
-                  <th class="control has-icons-right searchable"
-                      v-for="col in columns"
-                      :key="col.columnTitle">
-                    <div v-if="col.isSearchable">
-                      <input class="input is-small filter-input"
-                             :title="col.columnTitle"
-                             :placeholder="col.columnTitle"
-                             v-model="filter[col.fieldNames.join(', ')]"
-                             @change="updateDataDisplay()"/>
-                      <span class="icon is-small is-right">
-                        <i class="fa fa-filter" aria-hidden="true"></i>
-                      </span>
-                    </div>
-                  </th>
-                  <th class="unsearchable"></th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr v-for="row in getSlicedDataArrayDisplay(docsDisplayData, currentPage)"
-                    :key="row.id"
-                    class="data-row">
-                  <td v-for="col in columns"
-                      :key="col.fieldNames.join(', ')"
-                      :title="row[col.columnTitle]">
-                    <div class="is-size-7 vertical-scroll data-cell"
-                         :class="col.classes">
-                      {{ col.displayFunction ? col.displayFunction(row) : row[col.fieldNames[0]] }}
-                    </div>
-                  </td>
-                  <td class="is-size-7">
-                    <div class="field is-grouped is-grouped-centered">
-                      <button title="Edit"
-                              class="button is-small edit-doc-button"
-                              @click="editDoc(row.id)">
-                <span class="icon is-small">
-                  <i class="fas fa-edit"></i>
-                </span>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                <tr v-if="totalPages > 1" class="pagination-row">
-                  <td :colspan="columns.length+1" >
-                    <div class="pagination is-small">
-                      <button class="pagination-previous"
-                              @click="prevPage"
-                              :disabled="currentPage === 1">
-                        Previous Page
-                      </button>
-                      <button class="pagination-next"
-                              @click="nextPage"
-                              :disabled="currentPage === totalPages">
-                        Next Page
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                </tbody>
-              </table>
+              <rbz-table :columns="columns"
+                         :data="docs"
+                         :show-new-button="true"
+                         @new-button-clicked="addNewDoc"
+                         :show-edit-button="true"
+                         @edit-button-clicked="editDoc">
+              </rbz-table>
               <span class="is-family-monospace has-text-grey-lighter">
                 {{ documentListAPIPath }}
               </span>
@@ -208,6 +109,7 @@ import {defineComponent, shallowRef} from 'vue'
 import {ColumnOptions, Commit, Document, DocumentType, GenericObject} from '@/types'
 import {COLUMN_OPTIONS_MAP} from './documentListConst'
 import {AxiosResponse} from 'axios'
+import RbzTable from '@/components/RbzTable.vue'
 
 export default defineComponent({
   watch: {
@@ -223,30 +125,22 @@ export default defineComponent({
     },
   },
   components: {
+    RbzTable,
     GitHistory,
   },
   data() {
     return {
       columns: [] as ColumnOptions[],
-      currentPage: 1,
       configs: [],
-      filter: {} as GenericObject,
-      filtersVisible: false,
       gitLog: [],
-      rowsPerPage: 10,
-      sortField: [] as ColumnOptions['fieldNames'],
-      sortFieldDisplayFunction: null as ColumnOptions['displayFunction'],
-      sortDir: 'asc',
       titles: DatasetsUtils.titles,
-      totalPages: 1,
 
       selectedBranch: null,
       selectedDocType: null as DocumentType,
       // Documents
       docs: [] as GenericObject[],
-      docsDisplayData: [] as GenericObject[],
       docIdNames: [] as [Document['id'], Document['name']][],
-
+      docsDisplayData: [] as GenericObject[],
       // To prevent deletion of docs referenced by Security Policies
       referencedIDsACL: [],
       referencedIDsContentFilter: [],
@@ -270,17 +164,12 @@ export default defineComponent({
         'contentfilterrules': shallowRef({component: ContentFilterRulesEditor}),
         'cloudfunctions': shallowRef({component: CloudFunctionsEditor}),
       },
-      // for cloudfunctions
+      // for cloudfunctions mock data - remove later
       cloudFunctionsMockData: [{
         'id': 'f971e92459e2',
-        'name': 'NEW CLOUD FUNCTION',
+        'name': 'New Cloud Functions',
         'description': '5 requests per minute',
-        'phase': [
-          {
-            'id': '1',
-            'name': 'Request Pre Reblaze list',
-          },
-        ],
+        'phase': 'requestpost',
         'code': `-- begin custom code
         --custom response header
         ngx.header['foo'] = 'bar'`,
@@ -318,93 +207,6 @@ export default defineComponent({
 
   },
   methods: {
-    getDataArrayDisplay() {
-      if (!this.docs.length) {
-        return []
-      }
-      const sortModifier = this.sortDir === 'asc' ? 1 : -1
-      return this.docs.filter((item: any) => {
-        const keys = Object.keys(this.filter)
-        return _.reduce(
-            keys,
-            (match: any, key: any) => {
-              let getFilterValue: (item: any) => string
-              const columnOption = this.columns.find((column) => {
-                return column.fieldNames.join(', ') === key
-              })
-              if (columnOption.displayFunction) {
-                getFilterValue = columnOption.displayFunction
-              } else {
-                getFilterValue = (item: any) => {
-                  return item[key]?.toString() || ''
-                }
-              }
-              return (match && getFilterValue(item).toLowerCase().includes(this.filter[key].toLowerCase()))
-            }, true)
-      }).sort((a: any, b: any) => {
-        let getSortValue: (item: any) => string
-        if (this.sortFieldDisplayFunction) {
-          getSortValue = this.sortFieldDisplayFunction
-        } else {
-          getSortValue = (item: any) => {
-            return item[this.sortField[0]]?.toString() || ''
-          }
-        }
-        if (getSortValue(a)?.toLowerCase() < getSortValue(b)?.toLowerCase()) {
-          return -1 * sortModifier
-        }
-        if (getSortValue(a)?.toLowerCase() > getSortValue(b)?.toLowerCase()) {
-          return 1 * sortModifier
-        }
-        return 0
-      })
-    },
-
-    getSlicedDataArrayDisplay(dataArray: any, currentPage: any): any[] {
-      if (!dataArray.length) {
-        return []
-      }
-      const sliceStart = this.rowsPerPage * (currentPage - 1)
-      const sliceEnd = sliceStart + this.rowsPerPage
-      return dataArray.slice(sliceStart, sliceEnd)
-    },
-
-    sortColumn(column: ColumnOptions) {
-      if (!column.isSortable) {
-        return
-      }
-      if (column.fieldNames === this.sortField) {
-        this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc'
-      } else {
-        this.sortDir = 'asc'
-      }
-      this.sortField = column.fieldNames
-      this.sortFieldDisplayFunction = column.displayFunction
-      this.updateDataDisplay()
-    },
-
-    prevPage() {
-      if (this.currentPage > 1) {
-        this.currentPage--
-        this.updateDataDisplay()
-      }
-    },
-
-    nextPage() {
-      if (this.currentPage < this.totalPages) {
-        this.currentPage++
-        this.updateDataDisplay()
-      }
-    },
-
-    updateDataDisplay() {
-      this.docsDisplayData = this.getDataArrayDisplay()
-      this.totalPages = Math.ceil(this.docsDisplayData.length / this.rowsPerPage) || 1
-      if (this.currentPage > this.totalPages) {
-        this.currentPage = this.totalPages
-      }
-    },
-
     goToRoute() {
       const currentRoute = `/list/${this.selectedBranch}/${this.selectedDocType}`
       if (this.$route.path !== currentRoute) {
@@ -415,32 +217,26 @@ export default defineComponent({
 
     async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
-      const branchNameFromRoute = this.$route.params.branch.toString()
+      const branchNameFromRoute = this.$route.params.branch?.toString()
       if (branchNameFromRoute && this.branchNames.includes(branchNameFromRoute)) {
         this.selectedBranch = branchNameFromRoute
       } else {
         this.selectedBranch = this.branchNames[0]
       }
       const prevDocType = this.selectedDocType
-      const docTypeFromRoute = this.$route.params.doc_type.toString()
+      const docTypeFromRoute = this.$route.params.doc_type?.toString()
       if (docTypeFromRoute && Object.keys(this.componentsMap).includes(docTypeFromRoute)) {
         this.selectedDocType = docTypeFromRoute as DocumentType
       } else {
         this.selectedDocType = Object.keys(this.componentsMap)[0] as DocumentType
       }
       this.columns = COLUMN_OPTIONS_MAP[this.selectedDocType]
-      this.sortField = this.columns[0].fieldNames || []
       if (!prevDocType || prevDocType !== this.selectedDocType) {
         await this.loadDocs(this.selectedDocType)
       }
       this.setLoadingDocStatus(false)
       this.loadGitLog()
       this.goToRoute()
-    },
-
-    newDoc(): Document {
-      const factory = DatasetsUtils.newDocEntryFactory[this.selectedDocType]
-      return factory && factory()
     },
 
     async loadConfigs() {
@@ -474,11 +270,8 @@ export default defineComponent({
           },
         })
       this.docs = response?.data || []
-      console.log('DocumentList doctype', doctype)
-      console.log('DocumentList loadDocs', this.docs)
       this.docsDisplayData = this.docs
       this.isDownloadLoading = false
-      this.updateDataDisplay()
       this.loadGitLog()
     },
 
@@ -496,20 +289,14 @@ export default defineComponent({
       }
     },
 
+    newDoc(): Document {
+      const factory = DatasetsUtils.newDocEntryFactory[this.selectedDocType]
+      return factory && factory()
+    },
+
     editDoc(id: string) {
       const routeToDoc = `/config/${this.selectedBranch}/${this.selectedDocType}/${id}`
       this.$router.push(routeToDoc)
-    },
-
-
-    // Collect every request to display a loading indicator
-    // The loading indicator will be displayed as long as at least one request is still active (counter > 0)
-    setLoadingDocStatus(isLoading: boolean) {
-      if (isLoading) {
-        this.loadingDocCounter++
-      } else {
-        this.loadingDocCounter--
-      }
     },
 
     async addNewDoc() {
@@ -527,6 +314,16 @@ export default defineComponent({
         })
       this.isNewLoading = false
       this.setLoadingDocStatus(false)
+    },
+
+    // Collect every request to display a loading indicator
+    // The loading indicator will be displayed as long as at least one request is still active (counter > 0)
+    setLoadingDocStatus(isLoading: boolean) {
+      if (isLoading) {
+        this.loadingDocCounter++
+      } else {
+        this.loadingDocCounter--
+      }
     },
 
     referToVersionControl() {
@@ -562,20 +359,12 @@ export default defineComponent({
       await this.loadDocs(this.selectedDocType)
     },
   },
-  mounted() {
-    this.setLoadingDocStatus(true)
-    this.updateDataDisplay()
-    this.setLoadingDocStatus(false)
-    console.log('mounted loadingDocCounter', this.loadingDocCounter, 'selectedBranch', this.selectedBranch,
-    'selectedDocType', this.selectedDocType)
-  },
+
   async created() {
     this.setLoadingDocStatus(true)
     await this.loadConfigs()
     this.setSelectedDataFromRouteParams()
     this.setLoadingDocStatus(false)
-    console.log('created loadingDocCounter', this.loadingDocCounter, 'selectedBranch', this.selectedBranch,
-    'selectedDocType', this.selectedDocType)
   },
 })
 </script>
@@ -604,71 +393,5 @@ export default defineComponent({
   100% {
     opacity: 1;
   }
-}
-
-.arrow-wrapper {
-  float: right;
-  height: 0;
-}
-
-.arrow {
-  border-left: 4px solid transparent;
-  border-right: 4px solid transparent;
-  display: inline-block;
-  height: 0;
-  opacity: 0.3;
-  width: 0;
-}
-
-.arrow.active {
-  opacity: 1;
-}
-
-.arrow-asc {
-  border-bottom: 6px solid #000;
-  border-top: 0;
-  vertical-align: top;
-}
-
-.arrow-desc {
-  border-bottom: 0;
-  border-top: 6px solid #000;
-  vertical-align: bottom;
-}
-
-.vectors-table.table.is-hoverable tbody tr:hover,
-.document-list-table.table.is-hoverable.is-striped tbody tr:hover {
-  background-color: #e8e8e8;
-}
-
-.document-list-table th {
-  background-color: #eef6fc;
-  padding: 0.25em 0.5em;
-}
-
-.document-list-table .search-row th {
-  padding: 0;
-}
-
-.document-list-table .search-row .filter-input {
-  background-color: transparent;
-  border: 0;
-}
-
-.document-list-table td {
-  padding: 0.5em;
-}
-
-.filter-toggle {
-  cursor: pointer;
-  opacity: 0.3;
-}
-
-.filter-toggle.is-active {
-  opacity: 1;
-}
-
-.data-cell {
-  max-height: 4.5rem;
 }
 </style>
