@@ -55,20 +55,8 @@ declare module CuriefenseClient {
   }
 
   type ThresholdActionPair = {
-    limit: string
-    action: ResponseActionType
-  }
-
-  type ResponseActionType = {
-    type: 'default' | 'challenge' | 'monitor' | 'response' | 'redirect' | 'ban' | 'request_header'
-    params?: {
-      status?: string
-      duration?: string
-      headers?: string
-      content?: string
-      location?: string
-      action?: ResponseActionType
-    }
+    limit: number
+    action: string
   }
 
   type ACLProfileFilter = 'allow' | 'allow_bot' | 'deny_bot' | 'passthrough' | 'force_deny' | 'deny'
@@ -114,6 +102,9 @@ declare module CuriefenseClient {
   type ACLProfile = {
     id: string
     name: string
+    description: string
+    action: string
+    tags: string[]
     allow: string[]
     allow_bot: string[]
     deny_bot: string[]
@@ -125,6 +116,10 @@ declare module CuriefenseClient {
   type ContentFilterProfile = {
     id: string
     name: string
+    description: string
+    action: string
+    tags: string[]
+    ignore_body: boolean
     ignore_alphanum: boolean
     headers: ContentFilterProfileSection,
     cookies: ContentFilterProfileSection,
@@ -151,10 +146,10 @@ declare module CuriefenseClient {
     description: string
     active: boolean
     tags: string[]
-    action: ResponseActionType
+    action: string
     rule: {
       relation: Relation
-      sections: GlobalFilterSection[]
+      entries: GlobalFilterSection[]
     }
   }
 
@@ -168,10 +163,11 @@ declare module CuriefenseClient {
   type RateLimit = {
     id: string
     name: string
+    global: boolean
     description: string
     thresholds: ThresholdActionPair[]
     key: LimitOptionType[]
-    timeframe: string
+    timeframe: number
     exclude: string[]
     include: string[]
     pairwith: LimitOptionType
@@ -186,7 +182,7 @@ declare module CuriefenseClient {
     active: boolean
     description: string
     key: LimitOptionType[]
-    action: ResponseActionType
+    tags: string[]
     exclude: string[]
     include: string[]
     sequence: {
@@ -210,13 +206,6 @@ declare module CuriefenseClient {
     tags: string[]
   }
 
-  type ContentFilterRuleGroup = {
-    id: string
-    name: string
-    description?: string
-    content_filter_rule_ids: ContentFilterRule['id'][]
-  }
-
   // Document types - END
 
   // Document other - START
@@ -224,7 +213,6 @@ declare module CuriefenseClient {
   type ColumnOptions = {
     title: string
     fieldNames: string[]
-    titleDisplayFunction?: (item: any) => string // Will be rendered as HTML
     displayFunction?: (item: any) => string // Will be rendered as HTML
     isSortable?: boolean
     isSearchable?: boolean
@@ -255,23 +243,6 @@ declare module CuriefenseClient {
     message: string
     email: string
     author: string
-  }
-
-  type SearchDocument = Document & {
-    docType: DocumentType
-    description: string
-    tags: string
-    connections: string[]
-    connectedACL: string[]
-    connectedContentFilter: string[]
-    connectedRateLimits: string[]
-    connectedSecurityPolicies: string[]
-    map: SecurityPolicyEntryMatch[]
-  }
-
-  type Rule = {
-    relation: Relation,
-    sections: GlobalFilterSection[],
   }
 
   // Git - END

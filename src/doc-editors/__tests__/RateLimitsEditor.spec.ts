@@ -1,7 +1,6 @@
 // @ts-nocheck
 import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
 import LimitOption from '@/components/LimitOption.vue'
-import ResponseAction from '@/components/ResponseAction.vue'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {mount, shallowMount, VueWrapper} from '@vue/test-utils'
 import {RateLimit, SecurityPolicy} from '@/types'
@@ -24,7 +23,7 @@ describe('RateLimitsEditor.vue', () => {
       'thresholds': [
         {
           'limit': '5',
-          'action': {'type': 'default'},
+          'action': 'default',
         },
       ],
       'timeframe': '60',
@@ -127,22 +126,6 @@ describe('RateLimitsEditor.vue', () => {
       expect(element.value).toEqual(rateLimitsDocs[0].description)
     })
 
-    test('should show error when more than one ban actions exist', async () => {
-      const addKeyButton = wrapper.find('.add-threshold-button')
-      await addKeyButton.trigger('click')
-      wrapper.vm.$forceUpdate()
-      await nextTick()
-      expect(wrapper.find('.up-to-one-ban').exists()).toBeFalsy()
-      const responseActionComponents = wrapper.findAllComponents(ResponseAction)
-      let selection = responseActionComponents.at(0).find('.action-type-selection')
-      let options = selection.findAll('option')
-      await selection.setValue(options.at(5).element.value)
-      selection = responseActionComponents.at(1).find('.action-type-selection')
-      options = selection.findAll('option')
-      await selection.setValue(options.at(5).element.value)
-      expect(wrapper.find('.up-to-one-ban').exists()).toBeTruthy()
-    })
-
     test('should have correct threshold in input', () => {
       const element = wrapper.find('.document-limit').element as HTMLInputElement
       expect(element.value).toEqual(rateLimitsDocs[0].thresholds[0].limit)
@@ -188,8 +171,8 @@ describe('RateLimitsEditor.vue', () => {
     })
 
     test('should have response action component with correct data', () => {
-      const ResponseActionComponent = wrapper.findComponent(ResponseAction)
-      expect(ResponseActionComponent.vm.action).toEqual(rateLimitsDocs[0].thresholds[0].action)
+      const element = wrapper.find('.document-action').element as HTMLTextAreaElement
+      expect(element.value).toEqual(rateLimitsDocs[0].thresholds[0].action.toString())
     })
 
     test('should have correct include data in table', () => {
@@ -289,8 +272,8 @@ describe('RateLimitsEditor.vue', () => {
     test('should add threshold when button is clicked', async () => {
       const addThresholdButton = wrapper.find('.add-threshold-button')
       await addThresholdButton.trigger('click')
-      const wantedLimit = ''
-      const wantedAction = {type: 'default'}
+      const wantedLimit = 0
+      const wantedAction = 'default'
       const actualLimit = wrapper.vm.localDoc.thresholds[1].limit
       const actualAction = wrapper.vm.localDoc.thresholds[1].action
       expect(wrapper.vm.localDoc.thresholds.length).toEqual(2)
@@ -312,21 +295,6 @@ describe('RateLimitsEditor.vue', () => {
       const removeThresholdButton = wrapper.find('.remove-threshold-option-button')
       await removeThresholdButton.trigger('click')
       expect(wrapper.vm.localDoc.thresholds.length).toEqual(1)
-    })
-
-    test('should update threshold when change event occurs', async () => {
-      const newLimitOption = '20'
-      const newActionOption = {
-        new: 'value',
-        params: {},
-      }
-      const thresholdLimitField = wrapper.find('.document-limit')
-      await thresholdLimitField.setValue(newLimitOption)
-      await thresholdLimitField.trigger('change')
-      const thresholdActionField = wrapper.findComponent(ResponseAction)
-      thresholdActionField.vm.$emit('update:action', newActionOption, 0)
-      expect(wrapper.vm.localDoc.thresholds[0].limit).toEqual(newLimitOption)
-      expect(wrapper.vm.localDoc.thresholds[0].action).toEqual(newActionOption)
     })
   })
 

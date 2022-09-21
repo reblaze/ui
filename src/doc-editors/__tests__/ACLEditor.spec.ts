@@ -14,6 +14,9 @@ describe('ACLEditor.vue', () => {
       {
         'id': '__default__',
         'name': 'default-acl',
+        'description': 'New ACL Profile Description and Remarks',
+        'action': 'default',
+        'tags': ['test', 'tag'],
         'allow': [],
         'allow_bot': [
           'google',
@@ -48,6 +51,16 @@ describe('ACLEditor.vue', () => {
   test('should have correct name in input', () => {
     const element = wrapper.find('.document-name').element as HTMLInputElement
     expect(element.value).toEqual(docs[0].name)
+  })
+
+  test('should have correct name in input', () => {
+    const element = wrapper.find('.document-description').element as HTMLInputElement
+    expect(element.value).toEqual(docs[0].description)
+  })
+
+  test('should have tags input component with correct data', () => {
+    const tagAutocompleteInputComponent = wrapper.findComponent(TagAutocompleteInput)
+    expect(tagAutocompleteInputComponent.props('initialTag')).toEqual(docs[0].tags.join(' '))
   })
 
   test('should not have any warning in the tags table when there are no duplicate tags', () => {
@@ -107,7 +120,7 @@ describe('ACLEditor.vue', () => {
     const newPassthroughEntryButton = wrapper.findAll('.add-new-entry-button').at(1)
     await newPassthroughEntryButton.trigger('click')
     const newTag = 'test-tag'
-    const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+    const tagAutocompleteInput = wrapper.find('.operation-tags').findComponent(TagAutocompleteInput)
     tagAutocompleteInput.vm.$emit('tag-submitted', newTag)
     expect(wrapper.vm.localDoc.passthrough.includes(newTag)).toBeTruthy()
   })
@@ -122,8 +135,57 @@ describe('ACLEditor.vue', () => {
     const newPassthroughEntryButton = wrapper.findAll('.add-new-entry-button').at(1)
     await newPassthroughEntryButton.trigger('click')
     wrapper.vm.cancelAddNewTag()
-    const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+    const tagAutocompleteInput = wrapper.find('.operation-tags').findComponent(TagAutocompleteInput)
     await nextTick()
     expect(tagAutocompleteInput.exists()).toBeFalsy()
+  })
+
+  describe('tags management', () => {
+    test('should emit doc update when adding tags', () => {
+      const newTag = 'test-tag'
+      const newTagInputValue = `${docs[0].tags.join(' ')} ${newTag}`
+      const wantedEmit = JSON.parse(JSON.stringify(docs[0]))
+      wantedEmit.tags.push(newTag)
+      // change tags
+      const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+      tagAutocompleteInput.vm.$emit('tag-changed', newTagInputValue)
+      // check
+      expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
+      expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
+    })
+
+    test('should set document tags to be an empty array if empty string provided', () => {
+      const newTagInputValue = ''
+      const wantedEmit = JSON.parse(JSON.stringify(docs[0]))
+      wantedEmit.tags = []
+      // change tags
+      const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+      tagAutocompleteInput.vm.$emit('tag-changed', newTagInputValue)
+      // check
+      expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
+      expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
+    })
+
+    test('should set tags input to be an empty string if document tags do not exist', () => {
+      delete docs[0].tags
+      wrapper = shallowMount(ACLEditor, {
+        props: {
+          selectedDoc: docs[0],
+        },
+      })
+      const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+      expect(tagAutocompleteInput.props('initialTag')).toEqual('')
+    })
+
+    test('should set tags input to be an empty string if document tags is empty', () => {
+      docs[0].tags = []
+      wrapper = shallowMount(ACLEditor, {
+        props: {
+          selectedDoc: docs[0],
+        },
+      })
+      const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+      expect(tagAutocompleteInput.props('initialTag')).toEqual('')
+    })
   })
 })

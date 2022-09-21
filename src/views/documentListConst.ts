@@ -7,7 +7,6 @@ import {
   GlobalFilter,
   RateLimit,
 } from '@/types'
-import {RESPONSE_ACTIONS} from '@/components/responseActionConst'
 import _ from 'lodash'
 
 export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
@@ -48,9 +47,6 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
     {
       title: 'Action',
       fieldNames: ['action'],
-      displayFunction: (item: GlobalFilter) => {
-        return RESPONSE_ACTIONS[item?.action?.type]?.title
-      },
       isSortable: true,
       isSearchable: true,
       classes: 'width-80px',
@@ -91,9 +87,6 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
     {
       title: 'Action',
       fieldNames: ['action'],
-      displayFunction: (item: FlowControlPolicy) => {
-        return RESPONSE_ACTIONS[item?.action?.type]?.title
-      },
       isSortable: true,
       isSearchable: true,
       classes: 'width-80px',
