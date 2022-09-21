@@ -130,19 +130,19 @@ describe('VersionControl.vue', () => {
       },
     ]
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v2/configs/') {
+      if (path === '/conf/api/v3/configs/') {
         return Promise.resolve({data: gitData})
       }
-      if (path === '/conf/api/v2/configs/master/') {
+      if (path === '/conf/api/v3/configs/master/') {
         return Promise.resolve({data: gitData[0]})
       }
-      if (path === '/conf/api/v2/configs/zzz_branch/') {
+      if (path === '/conf/api/v3/configs/zzz_branch/') {
         return Promise.resolve({data: gitData[1]})
       }
-      if (path === '/conf/api/v2/configs/master/v/') {
+      if (path === '/conf/api/v3/configs/master/v/') {
         return Promise.resolve({data: gitData[0].logs})
       }
-      if (path === '/conf/api/v2/configs/zzz_branch/v/') {
+      if (path === '/conf/api/v3/configs/zzz_branch/v/') {
         return Promise.resolve({data: gitData[1].logs})
       }
       return Promise.resolve({data: []})
@@ -162,7 +162,7 @@ describe('VersionControl.vue', () => {
   test('should display correct zero amount of branches', (done) => {
     gitData = []
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v2/configs/') {
+      if (path === '/conf/api/v3/configs/') {
         return Promise.resolve({data: gitData})
       }
       return Promise.resolve({data: []})
@@ -179,7 +179,7 @@ describe('VersionControl.vue', () => {
   test('should display correct zero amount of commits', (done) => {
     gitData = []
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v2/configs/') {
+      if (path === '/conf/api/v3/configs/') {
         return Promise.resolve({data: gitData})
       }
       return Promise.resolve({data: []})
@@ -213,13 +213,13 @@ describe('VersionControl.vue', () => {
       },
     ]
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v2/configs/') {
+      if (path === '/conf/api/v3/configs/') {
         return Promise.resolve({data: gitData})
       }
-      if (path === '/conf/api/v2/configs/master/') {
+      if (path === '/conf/api/v3/configs/master/') {
         return Promise.resolve({data: gitData[0]})
       }
-      if (path === '/conf/api/v2/configs/master/v/') {
+      if (path === '/conf/api/v3/configs/master/v/') {
         return Promise.resolve({data: gitData[0].logs})
       }
       return Promise.resolve({data: []})
@@ -253,13 +253,13 @@ describe('VersionControl.vue', () => {
       },
     ]
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v2/configs/') {
+      if (path === '/conf/api/v3/configs/') {
         return Promise.resolve({data: gitData})
       }
-      if (path === '/conf/api/v2/configs/master/') {
+      if (path === '/conf/api/v3/configs/master/') {
         return Promise.resolve({data: gitData[0]})
       }
-      if (path === '/conf/api/v2/configs/master/v/') {
+      if (path === '/conf/api/v3/configs/master/v/') {
         return Promise.resolve({data: gitData[0].logs})
       }
       return Promise.resolve({data: []})
@@ -328,7 +328,7 @@ describe('VersionControl.vue', () => {
     const gitHistory = wrapper.findComponent(GitHistory)
     gitHistory.vm.$emit('restore-version', wantedVersion)
     await nextTick()
-    expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/v/${wantedVersion.version}/revert/`)
+    expect(putSpy).toHaveBeenCalledWith(`/conf/api/v3/configs/master/v/${wantedVersion.version}/revert/`)
   })
 
   test('should attempt to download branch when download button is clicked', async () => {
@@ -359,7 +359,7 @@ describe('VersionControl.vue', () => {
   test('should not throw errors if no branches exist - null response', (done) => {
     try {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v2/configs/') {
+        if (path === '/conf/api/v3/configs/') {
           return Promise.resolve(null)
         }
         return Promise.resolve({data: {}})
@@ -375,7 +375,7 @@ describe('VersionControl.vue', () => {
   test('should not throw errors if no branches exist - empty data', (done) => {
     try {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v2/configs/') {
+        if (path === '/conf/api/v3/configs/') {
           return Promise.resolve({data: []})
         }
         return Promise.resolve({data: {}})
@@ -391,10 +391,10 @@ describe('VersionControl.vue', () => {
   test('should not throw errors if no branch data exist - null response', (done) => {
     try {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v2/configs/') {
+        if (path === '/conf/api/v3/configs/') {
           return Promise.resolve({data: gitData})
         }
-        if (path === '/conf/api/v2/configs/master/') {
+        if (path === '/conf/api/v3/configs/master/') {
           return Promise.resolve(null)
         }
         return Promise.resolve({data: {}})
@@ -410,10 +410,10 @@ describe('VersionControl.vue', () => {
   test('should not throw errors if no branch data exist - empty data', (done) => {
     try {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v2/configs/') {
+        if (path === '/conf/api/v3/configs/') {
           return Promise.resolve({data: gitData})
         }
-        if (path === '/conf/api/v2/configs/master/') {
+        if (path === '/conf/api/v3/configs/master/') {
           return Promise.resolve({data: null})
         }
         return Promise.resolve({data: {}})
@@ -428,13 +428,13 @@ describe('VersionControl.vue', () => {
 
   test('should have an empty git log array if got no git log data from server - response null', () => {
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v2/configs/') {
+      if (path === '/conf/api/v3/configs/') {
         return Promise.resolve({data: gitData})
       }
-      if (path === '/conf/api/v2/configs/master/') {
+      if (path === '/conf/api/v3/configs/master/') {
         return Promise.resolve({data: gitData[0]})
       }
-      if (path === '/conf/api/v2/configs/master/v/') {
+      if (path === '/conf/api/v3/configs/master/v/') {
         return Promise.resolve(null)
       }
       return Promise.resolve({data: []})
@@ -446,13 +446,13 @@ describe('VersionControl.vue', () => {
 
   test('should have an empty git log array if got no git log data from server - data null', () => {
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v2/configs/') {
+      if (path === '/conf/api/v3/configs/') {
         return Promise.resolve({data: gitData})
       }
-      if (path === '/conf/api/v2/configs/master/') {
+      if (path === '/conf/api/v3/configs/master/') {
         return Promise.resolve({data: gitData[0]})
       }
-      if (path === '/conf/api/v2/configs/master/v/') {
+      if (path === '/conf/api/v3/configs/master/v/') {
         return Promise.resolve({data: null})
       }
       return Promise.resolve({data: []})
@@ -498,7 +498,7 @@ describe('VersionControl.vue', () => {
       const forkBranchSaveButton = wrapper.find('.fork-branch-confirm')
       await forkBranchNameInput.setValue(newBranchName)
       await forkBranchSaveButton.trigger('click')
-      expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/clone/${newBranchName}/`, {
+      expect(postSpy).toHaveBeenCalledWith(`/conf/api/v3/configs/master/clone/${newBranchName}/`, {
         'description': 'string',
         'id': 'string',
       })
@@ -590,7 +590,7 @@ describe('VersionControl.vue', () => {
       const deleteBranchSaveButton = wrapper.find('.delete-branch-confirm')
       await deleteBranchNameInput.setValue(currentBranchName)
       await deleteBranchSaveButton.trigger('click')
-      expect(deleteSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/${currentBranchName}/`)
+      expect(deleteSpy).toHaveBeenCalledWith(`/conf/api/v3/configs/${currentBranchName}/`)
     })
 
     test('should not be able to delete if name is empty', async () => {
