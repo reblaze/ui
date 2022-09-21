@@ -9,130 +9,220 @@
                     Name
                     <span class="has-text-grey is-pulled-right document-id"
                           title="Rule id">
-                      aaa
+                        {{ localDoc.id }}
                     </span>
-                    <!-- TODO: add {{ localDoc.id }} instead "aaa" -->
                   </label>
+                </div>
+                <div class="field">
                   <div class="control">
                     <input class="input is-small document-name"
                            data-qa="list-name-input"
                            title="List name"
-                           placeholder="List name"/>
-                           <!-- TODO: add to input @change="emitDocUpdate", v-model="localDoc.name" and :readonly="readonly" -->
+                           placeholder="List name"
+                           @change="emitDocUpdate"
+                           v-model="localDoc.name"/>
                   </div>
-                  <p class="subtitle is-7 has-text-grey sections-entries-display">
-                    aaa
-                  </p>
-                  <!-- TODO: add {{ sectionsEntriesDisplay }} instead "aaa" -->
                 </div>
                 <div class="field">
-                  <label class="checkbox is-size-7">
-                    <input type="checkbox"
-                           data-qa="active-checkbox"
-                           class="document-active">
-                           <!-- TODO: add to input :readonly="readonly", :disabled="readonly", @change="emitDocUpdate" and v-model="localDoc.active" -->
-                    Active
-                  </label>
-                </div>
-                <div class="field">
-                  <div class="control"> <!-- TODO: add to div v-if="editable" -->
-                    <label class="label is-small">Sections Relation</label>
-                    <div class="tags has-addons mb-0 document-sections-relation"
-                         tabindex="0"
-                         @keypress.space.prevent>
-                         <!-- TODO: add to div @keypress.space="toggleRuleRelation()" and @keypress.enter="toggleRuleRelation()" -->
-                      <span class="tag pointer mb-0"
-                            data-qa="relation-toggle">
-                            <!-- TODO: addto span :class="localDoc.rule.relation === 'AND' ? 'is-info xis-light is-selected' : ''" and @click="setRuleRelation('AND')" -->
-                        AND
-                      </span>
-                      <span class="tag pointer mb-0">
-                        <!-- TODO: add to span :class="localDoc.rule.relation === 'OR' ? 'is-info xis-light is-selected' : ''" and @click="setRuleRelation('OR')" -->
-                        OR
-                      </span>
+                  <div class="field textarea-field">
+                    <label class="label is-small">Description</label>
+                    <div class="control">
+                      <textarea class="is-small textarea document-description"
+                                title="Description"
+                                rows="5"
+                                @change="emitDocUpdate"
+                                v-model="localDoc.description">
+                      </textarea>
                     </div>
                   </div>
+                </div>
+                <div class="field">
+                  <label class="label is-small">Type</label>
+                  <div class="select is-small">
+                    <select v-model="selected"
+                            title="Switch selections"
+                            @change="switchType()">
+                    <option v-for="name in selectedType"
+                            :key="name"
+                            :value="name">
+                        {{ name }}
+                    </option>
+                    </select>
+                    </div>
                 </div>
                 <div class="field">
                   <label class="label is-small">Tags</label>
-                  <div class="control"
-                       data-qa="tag-input">
-                    <tag-autocomplete-input :selection-type="'multiple'"></tag-autocomplete-input>
-                    <!--TODO: add to tagautocomplete-input :initial-tag="selectedDocTags" and @tag-changed="selectedDocTags = $event" -->
-                  </div>
-                </div>
-                <div class="field">
-                  <a
-                     class="is-small has-text-grey is-size-7 is-pulled-right update-now-button"
-                     data-qa="update-now-btn"
-                     tabindex="0"
-                     @keypress.space.prevent>
-                    update now
-                  </a>
-                  <!-- TODO: add to a tag v-if="externalSource" , @click="fetchList", @keypress.space="fetchList" and @keypress.enter="fetchList" -->
-                  <label class="label is-small">Source</label>
                   <div class="control">
-                    <input class="input is-small document-source"
+                    <tag-autocomplete-input class="is-small document-source"
                            data-qa="source-input"
                            title="List source"
-                           placeholder="List source"/>
-                           <!-- TODO: add to input tag @change="emitDocUpdate" v-model="localDoc.source" :readonly="readonly" -->
+                           placeholder="List source"
+                           @change="emitDocUpdate"
+                           v-model="localDoc.tags"/>
                   </div>
-                  <p class="help"> <!-- TODO: add v-if="externalSource" and :title="fullFormattedModifiedDate" to p tag -->
-                    aaaa
-                  </p>
-                  <!-- TODO: add updated @ {{ formattedModifiedDate }} instead "aaa" -->
+                </div>
+              </div>
+              <div v-show= "showCustomResponse" class="column is-9">
+                <div class="field">
+                    <label class="label is-small status-code">
+                        Status code
+                    </label>
+                    <input type="textarea"
+                    data-qa="active-checkbox"
+                    class="document-active">
                 </div>
                 <div class="field">
-                  <response-action :ignore="['ban']"
-                                   label-separated-line
-                                   is-single-input-column/>
-                                   <!-- TODO: add v-model:action="localDoc.action" and @update:action="emitDocUpdate" -->
-                </div>
-                <div class="field textarea-field">
-                  <label class="label is-small">Description</label>
-                  <div class="control">
-                    <textarea class="is-small textarea document-description"
-                              title="Description"
-                              rows="5">
-                    </textarea>
-                    <!-- TODO: add to textarea @change="emitDocUpdate"
-                                v-model="localDoc.description"
-                                :readonly="readonly" -->
-                  </div>
-                </div>
-                <div class="pt-6">
-                  <div class="field" > <!-- TODO: v-if="editable"-->
-                    <div class="control is-expanded">
-                      <button class="button is-small has-text-danger-dark remove-all-sections-button"
-                              data-qa="remove-all-sections-btn"
-                              title="Remove all sections"
-                              > <!-- TODO: add @click="removeAllSections" there-->
-                        Clear all sections
-                      </button>
+                  <label class="label is-small is-size-7 has-text-left form-label">
+                    Headers
+                  </label>
+                    <div v-for="(header, index) in headersArray" :key="header.key"
+                         class="columns mb-0 headers-columns">
+                      <div class="column">
+                        <input class="input is-small document-header-key"
+                                title="Header key"
+                                placeholder="Header key"
+                                v-model="header.key"/>
+                      </div>
+                      <div class="column">
+                        <input class="input is-small document-header-key"
+                                title="Header value"
+                                placeholder="Header value"
+                                v-model="header.value"/>
+                      </div>
+                      <div class="column is-narrow">
+                        <button class="button is-light is-small remove-icon is-small has-text-grey"
+                                title="Click to remove"
+                                @click="removeHeaderElement(index)">
+                          <span class="icon is-small"><i class="fas fa-trash fa-xs"></i></span>
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  <a title="Add new option rule"
+                  class="is-text is-small is-size-7 ml-3 add-key-button"
+                  data-qa="add-new-key-btn"
+                  tabindex="0"
+                  @keypress.space.prevent
+                  @click="addHeaderElement()">
+                    New entry
+                  </a>
                 </div>
-              </div>
-              <div class="column is-9">
-                <entries-relation-list ref="entriesRelationList">  <!-- TODO: add to entries-relation-list v-model:rule="localDoc.rule", :editable="editable", @update:rule="emitDocUpdate", @invalid="emitFormInvalid" -->
-                </entries-relation-list>
+                <div class="field">
+                    <label class="label is-small status-code">
+                        Content
+                    </label>
+                    <textarea type="textarea"
+                    data-qa="active-checkbox"
+                    class="is-small textarea"
+                    rows="20">
+                    </textarea>
+                </div>
               </div>
             </div>
-            <span class="is-family-monospace has-text-grey-lighter">aaa</span> <!-- TODO: should be {{ apiPath }} instead "aaa" -->
           </div>
         </div>
-      </div>
+    </div>
 </template>
 <script lang="ts">
-// import _ from 'lodash'
+import _ from 'lodash'
+import {CustomResponse} from '@/types'
 import {defineComponent} from 'vue'
-/* import RequestsUtils from '@/assets/RequestsUtils'
-import ResponseAction from '@/components/ResponseAction.vue'
-import {AxiosResponse} from 'axios'
-import DateTimeUtils from '@/assets/DateTimeUtils' */
+import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
+type HeaderObject = {
+  key: string
+  value: string
+}
 export default defineComponent({
+  components: {
+    TagAutocompleteInput,
+  },
+  watch: {
+    headersArray: {
+      handler: function(value: HeaderObject[]) {
+        const uniqHeaders = _.uniqBy(value, 'key')
+        const emptyKey = uniqHeaders.find((header) => {
+          return !header.key
+        })
+        if (uniqHeaders.length !== value.length || emptyKey) {
+          return
+        }
+        this.localDoc.params.headers = _.reduce(value, (result:CustomResponse['params']['headers'], header) => {
+          result[header.key] = header.value
+          return result
+        }, {})
+        this.emitDocUpdate()
+      },
+      deep: true,
+    },
+
+  },
+  props: {
+    selectedDoc: Object,
+    apiPath: String,
+  },
+  data() {
+    const selectedType = ['skip', 'custom', 'challenge', 'monitor']
+    return {
+      selectedType: selectedType,
+      selected: 'skip',
+      showCustomResponse: true,
+      headersArray: [] as HeaderObject[],
+    }
+  },
+  computed: {
+    localDoc(): CustomResponse {
+      return _.cloneDeep(this.selectedDoc as CustomResponse)
+    },
+  },
+  emits: ['update:selectedDoc'],
+  methods: {
+    emitDocUpdate() {
+      this.$emit('update:selectedDoc', this.localDoc)
+    },
+    switchType() {
+      console.log(this.selected)
+      this.selected === 'custom' ? this.showCustomResponse = true : this.showCustomResponse = false
+      console.log(this.showCustomResponse)
+    },
+    getHeadersArray(): HeaderObject[] {
+      if (!this.localDoc?.params?.headers) {
+        return []
+      }
+      return _.map(this.localDoc.params.headers, function(value, key) {
+        return {key: key, value: value}
+      })
+    },
+    removeHeaderElement(index:number) :void {
+      this.headersArray.splice(index, 1)
+    },
+    addHeaderElement() :void {
+      this.headersArray.push({key: '', value: ''})
+    },
+  },
+  created() {
+    this.headersArray = this.getHeadersArray()
+  },
 })
 </script>
 <style scoped lang="scss">
+  .inline {
+    align-items: center;
+    display: flex;
+    margin-top: 5px;
+  }
+
+  .status-code {
+    margin-right: 5px;
+  }
+
+  .name {
+    display: inline-grid;
+  }
+
+  .content-textarea {
+    display: flex;
+  }
+
+  .headers-columns {
+    width: 50%;
+  }
 </style>

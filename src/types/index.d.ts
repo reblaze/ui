@@ -91,7 +91,7 @@ declare module CuriefenseClient {
 
   type Document =
     BasicDocument
-    & (ACLProfile | FlowControlPolicy | GlobalFilter | RateLimit | SecurityPolicy | ContentFilterProfile | ContentFilterRule)
+    & (ACLProfile | FlowControlPolicy | GlobalFilter | RateLimit | SecurityPolicy | ContentFilterProfile | ContentFilterRule | CustomResponse)
 
   type DocumentType =
     'aclprofiles'
@@ -101,6 +101,7 @@ declare module CuriefenseClient {
     | 'securitypolicies'
     | 'contentfilterprofiles'
     | 'contentfilterrules'
+    | 'actions'
 
   // Document types helpers - END
 
@@ -175,6 +176,20 @@ declare module CuriefenseClient {
     exclude: string[]
     include: string[]
     pairwith: LimitOptionType
+  }
+
+  type CustomResponse = {
+    id: string
+    name: string
+    description: string
+    tags: string[]
+    type: string
+    params?: {
+      status: number
+      headers: GenericObject
+      content: string
+    }
+
   }
 
   type HttpRequestMethods = typeof httpRequestMethods[number]

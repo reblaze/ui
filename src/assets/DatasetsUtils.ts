@@ -55,6 +55,8 @@ const titles: { [key: string]: string } = {
   'globalfilters-singular': 'Global Filter',
   'flowcontrol': 'Flow Control Policies',
   'flowcontrol-singular': 'Flow Control Policy',
+  'actions': 'Custom Responses',
+  'actions-singular': 'Custom Response',
   'contentfiltergroups': 'Content Filter Rules Groups',
   'contentfiltergroups-singular': 'Content Filter Rules Group',
   'active': 'Active',
