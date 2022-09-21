@@ -3,9 +3,7 @@ import Utils from '@/assets/Utils'
 import {HttpRequestMethods} from '@/types'
 
 const confAPIRoot = '/conf/api'
-const confAPIVersion = 'v2'
-const logsAPIRoot = '/logs/api'
-const logsAPIVersion = 'v2'
+const confAPIVersion = 'v3'
 
 // eslint-disable-next-line no-unused-vars
 const axiosMethodsMap: Partial<{ [key in HttpRequestMethods]: Function }> = {
@@ -86,6 +84,4 @@ export default {
   sendRequest,
   confAPIRoot,
   confAPIVersion,
-  logsAPIRoot,
-  logsAPIVersion,
 }

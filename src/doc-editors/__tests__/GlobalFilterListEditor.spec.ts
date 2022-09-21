@@ -410,7 +410,7 @@ describe('GlobalFilterListEditor.vue', () => {
     beforeEach(() => {
       resolveData = {}
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path.includes('/conf/api/v2/tools/fetch')) {
+        if (path.includes('/conf/api/v3/tools/fetch')) {
           return Promise.resolve(resolveData)
         }
         return Promise.resolve({data: {}})

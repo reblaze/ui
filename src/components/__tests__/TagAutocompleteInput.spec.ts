@@ -62,7 +62,7 @@ describe('TagAutocompleteInput.vue', () => {
   test('should send request to create new DB if missing on component creation', (done) => {
     jest.spyOn(axios, 'get').mockImplementation(() => Promise.reject(new Error()))
     jest.spyOn(axios, 'post').mockImplementation((path) => {
-      expect(path).toEqual('/conf/api/v2/db/system/')
+      expect(path).toEqual('/conf/api/v3/db/system/')
       done()
       return Promise.resolve()
     })
@@ -79,13 +79,13 @@ describe('TagAutocompleteInput.vue', () => {
 
   test('should send request to create new key in DB if missing on component creation', (done) => {
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v2/db/system/') {
+      if (path === '/conf/api/v3/db/system/') {
         return Promise.resolve({data: {}})
       }
       return Promise.reject(new Error())
     })
     jest.spyOn(axios, 'put').mockImplementationOnce((path) => {
-      expect(path).toEqual('/conf/api/v2/db/system/k/tags/')
+      expect(path).toEqual('/conf/api/v3/db/system/k/tags/')
       done()
       return Promise.resolve()
     })
