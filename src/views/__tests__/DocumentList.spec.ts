@@ -770,11 +770,11 @@ describe('DocumentList.vue', () => {
       }
     })
     jest.spyOn(axios, 'get').mockImplementation((path, config) => {
-      if (path === '/conf/api/v2/configs/') {
+      if (path === '/conf/api/v3/configs/') {
         return Promise.resolve({data: gitData})
       }
       const branch = wrapper.vm.selectedBranch
-      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/`) {
         const aclXFields = _.flatMap(COLUMN_OPTIONS_MAP['aclprofiles'], 'fieldNames')
         aclXFields.unshift('id')
         if (config && config.headers && config.headers['x-fields'] === aclXFields.join(', ')) {
@@ -782,13 +782,13 @@ describe('DocumentList.vue', () => {
         }
         return Promise.resolve({data: aclDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/v/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/v/`) {
         return Promise.resolve({data: aclDocsLogs[0]})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/v/7f8a987c8e5e9db7c734ac8841c543d5bc5d9657/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/v/7f8a987c8e5e9db7c734ac8841c543d5bc5d9657/`) {
         return Promise.resolve({data: aclGitOldVersion})
       }
-      if (path === `/conf/api/v2/configs/master/d/globalfilters/`) {
+      if (path === `/conf/api/v3/configs/master/d/globalfilters/`) {
         const globalFilterXFields = _.flatMap(COLUMN_OPTIONS_MAP['globalfilters'], 'fieldNames')
         globalFilterXFields.unshift('id')
         if (config && config.headers && config.headers['x-fields'] === globalFilterXFields.join(', ')) {
@@ -796,7 +796,7 @@ describe('DocumentList.vue', () => {
         }
         return Promise.resolve({data: globalFilterDocs})
       }
-      if (path === `/conf/api/v2/configs/zzz_branch/d/globalfilters/`) {
+      if (path === `/conf/api/v3/configs/zzz_branch/d/globalfilters/`) {
         globalFilterDocs.shift()
         const globalFilterXFields = _.flatMap(COLUMN_OPTIONS_MAP['globalfilters'], 'fieldNames')
         globalFilterXFields.unshift('id')
@@ -805,7 +805,7 @@ describe('DocumentList.vue', () => {
         }
         return Promise.resolve({data: globalFilterDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/securitypolicies/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/securitypolicies/`) {
         const securitypoliciesXFields = _.flatMap(COLUMN_OPTIONS_MAP['securitypolicies'], 'fieldNames')
         securitypoliciesXFields.unshift('id')
         if (config && config.headers && config.headers['x-fields'] === securitypoliciesXFields?.join(', ')) {
@@ -813,7 +813,7 @@ describe('DocumentList.vue', () => {
         }
         return Promise.resolve({data: securityPoliciesDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/flowcontrol/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/flowcontrol/`) {
         const flowcontrolXFields = _.flatMap(COLUMN_OPTIONS_MAP?.flowcontrol, 'fieldNames')
         flowcontrolXFields.unshift('id')
         if (config && config.headers && config.headers['x-fields'] === flowcontrolXFields.join(', ')) {
@@ -821,7 +821,7 @@ describe('DocumentList.vue', () => {
         }
         return Promise.resolve({data: flowControlPolicyDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/contentfilterprofiles/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/contentfilterprofiles/`) {
         const contentfilterprofilesXFields = _.flatMap(COLUMN_OPTIONS_MAP['contentfilterprofiles'], 'fieldNames')
         contentfilterprofilesXFields.unshift('id')
         if (config && config.headers && config.headers['x-fields'] === contentfilterprofilesXFields.join(', ')) {
@@ -833,7 +833,7 @@ describe('DocumentList.vue', () => {
         }
         return Promise.resolve({data: contentFilterProfilesDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/contentfilterrules/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/contentfilterrules/`) {
         const contentfilterrulesXFields = _.flatMap(COLUMN_OPTIONS_MAP['contentfilterrules'], 'fieldNames')
         contentfilterrulesXFields.unshift('id')
         if (config && config.headers && config.headers['x-fields'] === contentfilterrulesXFields.join(', ')) {
@@ -841,7 +841,7 @@ describe('DocumentList.vue', () => {
         }
         return Promise.resolve({data: contentFilterRulesDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/ratelimits/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/ratelimits/`) {
         const ratelimitsXFields = _.flatMap(COLUMN_OPTIONS_MAP['ratelimits'], 'fieldNames')
         ratelimitsXFields.unshift('id')
         if (config && config.headers && config.headers['x-fields'] === ratelimitsXFields.join(', ')) {
@@ -849,10 +849,10 @@ describe('DocumentList.vue', () => {
         }
         return Promise.resolve({data: rateLimitsDocs})
       }
-      if (path === '/conf/api/v2/configs/master/v/') {
+      if (path === '/conf/api/v3/configs/master/v/') {
         return Promise.resolve({data: gitData[0].logs})
       }
-      if (path === '/conf/api/v2/configs/zzz_branch/v/') {
+      if (path === '/conf/api/v3/configs/zzz_branch/v/') {
         return Promise.resolve({data: gitData[1].logs})
       }
       return Promise.resolve({data: []})
@@ -901,14 +901,14 @@ describe('DocumentList.vue', () => {
 
     test('should have an empty git log array if got no git log data from server - response null', () => {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v2/configs/') {
+        if (path === '/conf/api/v3/configs/') {
           return Promise.resolve({data: gitData})
         }
         const branch = wrapper.vm.selectedBranch
-        if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
+        if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/`) {
           return Promise.resolve({data: aclDocs})
         }
-        if (path === `/conf/api/v2/configs/master/d/aclprofiles/v/`) {
+        if (path === `/conf/api/v3/configs/master/d/aclprofiles/v/`) {
           return Promise.resolve(null)
         }
         return Promise.resolve({data: []})
@@ -927,14 +927,14 @@ describe('DocumentList.vue', () => {
 
     test('should have an empty git log array if got no git log data from server - data null', () => {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v2/configs/') {
+        if (path === '/conf/api/v3/configs/') {
           return Promise.resolve({data: gitData})
         }
         const branch = wrapper.vm.selectedBranch
-        if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
+        if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/`) {
           return Promise.resolve({data: aclDocs})
         }
-        if (path === `/conf/api/v2/configs/master/d/aclprofiles/v/`) {
+        if (path === `/conf/api/v3/configs/master/d/aclprofiles/v/`) {
           return Promise.resolve({data: null})
         }
         return Promise.resolve({data: []})
@@ -955,7 +955,7 @@ describe('DocumentList.vue', () => {
       const wantedVersion = {
         version: '7f8a987c8e5e9db7c734ac8841c543d5bc5d9657',
       }
-      const wantedPath = `/conf/api/v2/configs/master/d/aclprofiles/v/${wantedVersion.version}/revert/`
+      const wantedPath = `/conf/api/v3/configs/master/d/aclprofiles/v/${wantedVersion.version}/revert/`
       const putSpy = jest.spyOn(axios, 'put')
       putSpy.mockImplementation(() => Promise.resolve())
       const gitHistory = wrapper.findComponent(GitHistory)
@@ -1050,7 +1050,7 @@ describe('DocumentList.vue', () => {
   describe('no data', () => {
     test('should display correct message when there is no branch data', (done) => {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v2/configs/') {
+        if (path === '/conf/api/v3/configs/') {
           return Promise.resolve({data: []})
         }
         return Promise.resolve({data: []})
@@ -1074,7 +1074,7 @@ describe('DocumentList.vue', () => {
 
     test('should display link to version control when there is no branch data', (done) => {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v2/configs/') {
+        if (path === '/conf/api/v3/configs/') {
           return Promise.resolve({data: []})
         }
         return Promise.resolve({data: []})
@@ -1105,7 +1105,7 @@ describe('DocumentList.vue', () => {
       consoleOutput = []
       console.log = mockedLog
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v2/configs/') {
+        if (path === '/conf/api/v3/configs/') {
           return Promise.reject(new Error())
         }
         return Promise.resolve({data: {}})
@@ -1133,12 +1133,12 @@ describe('DocumentList.vue', () => {
       consoleOutput = []
       console.log = mockedLog
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v2/configs/') {
+        if (path === '/conf/api/v3/configs/') {
           return Promise.resolve({data: gitData})
         }
         const branch = wrapper.vm.selectedBranch
         const doctype = wrapper.vm.selectedDocType
-        if (path === `/conf/api/v2/configs/${branch}/d/${doctype}/`) {
+        if (path === `/conf/api/v3/configs/${branch}/d/${doctype}/`) {
           return Promise.reject(new Error())
         }
         return Promise.resolve({data: {}})
@@ -1163,7 +1163,7 @@ describe('DocumentList.vue', () => {
   describe('loading indicator', () => {
     test('should display loading indicator when branch not loaded', async () => {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v2/configs/') {
+        if (path === '/conf/api/v3/configs/') {
           return new Promise(() => {
           })
         }
@@ -1184,11 +1184,11 @@ describe('DocumentList.vue', () => {
 
     test('should display loading indicator when doc type not loaded', async () => {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v2/configs/') {
+        if (path === '/conf/api/v3/configs/') {
           return Promise.resolve({data: gitData})
         }
         const branch = wrapper.vm.selectedBranch
-        if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
+        if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/`) {
           return new Promise(() => {
           })
         }
@@ -1227,11 +1227,11 @@ describe('DocumentList.vue', () => {
       test('should not attempt to download document when download button is clicked' +
         ' if the full docs data was not loaded yet', async () => {
         jest.spyOn(axios, 'get').mockImplementation((path, config) => {
-          if (path === '/conf/api/v2/configs/') {
+          if (path === '/conf/api/v3/configs/') {
             return Promise.resolve({data: gitData})
           }
           const branch = wrapper.vm.selectedBranch
-          if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
+          if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/`) {
             const aclXFields = _.flatMap(COLUMN_OPTIONS_MAP['aclprofiles'], 'fieldNames')
             aclXFields.unshift('id')
             if (config && config.headers && config.headers['x-fields'] === aclXFields.join(', ')) {
@@ -1241,7 +1241,7 @@ describe('DocumentList.vue', () => {
               return Promise.resolve({data: aclDocs})
             }, 5000)
           }
-          if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/v/7f8a987c8e5e9db7c734ac8841c543d5bc5d9657/`) {
+          if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/v/7f8a987c8e5e9db7c734ac8841c543d5bc5d9657/`) {
             return Promise.resolve({data: aclGitOldVersion})
           }
           return Promise.resolve({data: []})
@@ -1302,7 +1302,7 @@ describe('DocumentList.vue', () => {
           postSpy.mockImplementation(() => Promise.resolve())
           const rbzTable = wrapper.findComponent(RbzTable)
           rbzTable.vm.$emit('new-button-clicked')
-          expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclprofiles/e/`, newACLProfilesDoc)
+          expect(postSpy).toHaveBeenCalledWith(`/conf/api/v3/configs/master/d/aclprofiles/e/`, newACLProfilesDoc)
           done()
         })
       })
@@ -1329,7 +1329,7 @@ describe('DocumentList.vue', () => {
           postSpy.mockImplementation(() => Promise.resolve())
           const rbzTable = wrapper.findComponent(RbzTable)
           rbzTable.vm.$emit('new-button-clicked')
-          expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/globalfilters/e/`, newGlobalFilterDoc)
+          expect(postSpy).toHaveBeenCalledWith(`/conf/api/v3/configs/master/d/globalfilters/e/`, newGlobalFilterDoc)
           done()
         })
       })
@@ -1355,7 +1355,7 @@ describe('DocumentList.vue', () => {
           postSpy.mockImplementation(() => Promise.resolve())
           const rbzTable = wrapper.findComponent(RbzTable)
           rbzTable.vm.$emit('new-button-clicked')
-          const wantedPath = `/conf/api/v2/configs/master/d/contentfilterprofiles/e/`
+          const wantedPath = `/conf/api/v3/configs/master/d/contentfilterprofiles/e/`
           expect(postSpy).toHaveBeenCalledWith(wantedPath, newContentFilterProfilesDoc)
           done()
         })
@@ -1382,7 +1382,7 @@ describe('DocumentList.vue', () => {
           postSpy.mockImplementation(() => Promise.resolve())
           const rbzTable = wrapper.findComponent(RbzTable)
           rbzTable.vm.$emit('new-button-clicked')
-          expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/ratelimits/e/`, newRateLimitsDoc)
+          expect(postSpy).toHaveBeenCalledWith(`/conf/api/v3/configs/master/d/ratelimits/e/`, newRateLimitsDoc)
           done()
         })
       })
@@ -1408,7 +1408,7 @@ describe('DocumentList.vue', () => {
           postSpy.mockImplementation(() => Promise.resolve())
           const rbzTable = wrapper.findComponent(RbzTable)
           rbzTable.vm.$emit('new-button-clicked')
-          expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/flowcontrol/e/`, newFlowControlDoc)
+          expect(postSpy).toHaveBeenCalledWith(`/conf/api/v3/configs/master/d/flowcontrol/e/`, newFlowControlDoc)
           done()
         })
       })
@@ -1434,7 +1434,7 @@ describe('DocumentList.vue', () => {
           postSpy.mockImplementation(() => Promise.resolve())
           const rbzTable = wrapper.findComponent(RbzTable)
           rbzTable.vm.$emit('new-button-clicked')
-          const wantedPath = `/conf/api/v2/configs/master/d/contentfilterrules/e/`
+          const wantedPath = `/conf/api/v3/configs/master/d/contentfilterrules/e/`
           expect(postSpy).toHaveBeenCalledWith(wantedPath, newContentFilterRulesDoc)
           done()
         })

@@ -158,10 +158,10 @@ describe('Publish.vue', () => {
       'branch_buckets': [{'name': 'master', 'buckets': ['prod']}, {'name': 'devops', 'buckets': ['devops']}],
     }
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v2/configs/') {
+      if (path === '/conf/api/v3/configs/') {
         return Promise.resolve({data: gitData})
       }
-      if (path === `/conf/api/v2/db/system/k/publishinfo/`) {
+      if (path === `/conf/api/v3/db/system/k/publishinfo/`) {
         return Promise.resolve({data: publishInfoData})
       }
       return Promise.resolve({data: {}})
@@ -251,10 +251,10 @@ describe('Publish.vue', () => {
   test('should not throw errors if no branches exist - null response', (done) => {
     try {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v2/configs/') {
+        if (path === '/conf/api/v3/configs/') {
           return Promise.resolve(null)
         }
-        if (path === `/conf/api/v2/db/system/k/publishinfo/`) {
+        if (path === `/conf/api/v3/db/system/k/publishinfo/`) {
           return Promise.resolve({data: publishInfoData})
         }
         return Promise.resolve({data: {}})
@@ -270,10 +270,10 @@ describe('Publish.vue', () => {
   test('should not throw errors if no branches exist - empty data', (done) => {
     try {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v2/configs/') {
+        if (path === '/conf/api/v3/configs/') {
           return Promise.resolve({data: []})
         }
-        if (path === `/conf/api/v2/db/system/k/publishinfo/`) {
+        if (path === `/conf/api/v3/db/system/k/publishinfo/`) {
           return Promise.resolve({data: publishInfoData})
         }
         return Promise.resolve({data: {}})
@@ -289,10 +289,10 @@ describe('Publish.vue', () => {
   test('should not throw errors if no publish info exists', (done) => {
     try {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v2/configs/') {
+        if (path === '/conf/api/v3/configs/') {
           return Promise.resolve({data: gitData})
         }
-        if (path === `/conf/api/v2/db/system/k/publishinfo/`) {
+        if (path === `/conf/api/v3/db/system/k/publishinfo/`) {
           return Promise.resolve({data: {}})
         }
         return Promise.resolve({data: {}})
@@ -308,10 +308,10 @@ describe('Publish.vue', () => {
   test('should not throw errors if no publish info exists', (done) => {
     try {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v2/configs/') {
+        if (path === '/conf/api/v3/configs/') {
           return Promise.resolve({data: gitData})
         }
-        if (path === `/conf/api/v2/db/system/k/publishinfo/`) {
+        if (path === `/conf/api/v3/db/system/k/publishinfo/`) {
           return Promise.resolve({data: {}})
         }
         return Promise.resolve({data: {}})
@@ -448,14 +448,14 @@ describe('Publish.vue', () => {
     })
 
     test('should publish with preset data if not changed', async () => {
-      const wantedPath = `/conf/api/v2/tools/publish/devops/v/${gitData[0].version}/`
+      const wantedPath = `/conf/api/v3/tools/publish/devops/v/${gitData[0].version}/`
       const wantedData = [publishInfoData.buckets[0]]
       await publishButton.trigger('click')
       expect(putSpy).toHaveBeenCalledWith(wantedPath, wantedData)
     })
 
     test('should publish with new selected version', async () => {
-      const wantedPath = `/conf/api/v2/tools/publish/devops/v/${gitData[0].logs[1].version}/`
+      const wantedPath = `/conf/api/v3/tools/publish/devops/v/${gitData[0].logs[1].version}/`
       const wantedData = [publishInfoData.buckets[0]]
       const commitRow = wrapper.findAll('.commit-row').at(1)
       await commitRow.trigger('click')
@@ -464,7 +464,7 @@ describe('Publish.vue', () => {
     })
 
     test('should publish with both the pre-selected the new selected bucket', async () => {
-      const wantedPath = `/conf/api/v2/tools/publish/devops/v/${gitData[0].version}/`
+      const wantedPath = `/conf/api/v3/tools/publish/devops/v/${gitData[0].version}/`
       const wantedData = publishInfoData.buckets
       const bucketRow = wrapper.findAll('.bucket-row').at(1)
       await bucketRow.trigger('click')
@@ -473,7 +473,7 @@ describe('Publish.vue', () => {
     })
 
     test('should publish without de-selected bucket', async () => {
-      const wantedPath = `/conf/api/v2/tools/publish/devops/v/${gitData[0].version}/`
+      const wantedPath = `/conf/api/v3/tools/publish/devops/v/${gitData[0].version}/`
       const wantedData = [publishInfoData.buckets[1]]
       const newBucketRow = wrapper.findAll('.bucket-row').at(1)
       await newBucketRow.trigger('click')

@@ -107,7 +107,7 @@ describe('ContentFilterProfileEditor.vue', () => {
         return Promise.resolve({data: []})
       }
       const branch = wrapper.vm.selectedBranch
-      if (path === `/conf/api/v2/configs/${branch}/d/contentfilterrules/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/contentfilterrules/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve({data: _.map(contentFilterRulesDocs, (i: any) => _.pick(i, 'id', 'name'))})
         }
