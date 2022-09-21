@@ -179,13 +179,12 @@ declare module CuriefenseClient {
     name: string
     description: string
     tags: string[]
-    type: string
+    type: 'skip' | 'custom' | 'challenge' | 'monitor'
     params?: {
       status: number
       headers: GenericObject
       content: string
     }
-
   }
 
   type HttpRequestMethods = typeof httpRequestMethods[number]

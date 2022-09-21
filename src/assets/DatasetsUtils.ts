@@ -1,7 +1,7 @@
 import {
   ACLProfile,
   ContentFilterProfile,
-  ContentFilterRule,
+  ContentFilterRule, CustomResponse,
   FlowControlPolicy,
   GlobalFilter,
   HttpRequestMethods,
@@ -254,6 +254,16 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'category': '',
       'subcategory': '',
       'tags': [],
+    }
+  },
+
+  actions(): CustomResponse {
+    return {
+      'id': generateUUID2(),
+      'name': 'New Custom Response',
+      'description': 'New Custom Response Rule Description and Remarks',
+      'tags': [],
+      'type': 'monitor',
     }
   },
 }
