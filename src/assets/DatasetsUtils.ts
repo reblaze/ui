@@ -2,7 +2,6 @@ import {
   ACLProfile,
   ContentFilterProfile,
   ContentFilterRule,
-  ContentFilterRuleGroup,
   FlowControlPolicy,
   GlobalFilter,
   HttpRequestMethods,
@@ -57,8 +56,6 @@ const titles: { [key: string]: string } = {
   'flowcontrol-singular': 'Flow Control Policy',
   'actions': 'Custom Responses',
   'actions-singular': 'Custom Response',
-  'contentfiltergroups': 'Content Filter Rules Groups',
-  'contentfiltergroups-singular': 'Content Filter Rules Group',
   'active': 'Active',
   'report': 'Report',
   'ignore': 'Ignore',
@@ -99,6 +96,9 @@ const newDocEntryFactory: { [key: string]: Function } = {
     return {
       'id': generateUUID2(),
       'name': 'New ACL Profile',
+      'description': 'New ACL Profile Description and Remarks',
+      'action': 'default',
+      'tags': [],
       'allow': [],
       'allow_bot': [],
       'deny_bot': [],
@@ -112,6 +112,10 @@ const newDocEntryFactory: { [key: string]: Function } = {
     return {
       'id': generateUUID2(),
       'name': 'New Content Filter Profile',
+      'description': 'New Content Filter Profile Description and Remarks',
+      'action': 'default',
+      'tags': [],
+      'ignore_body': true,
       'ignore_alphanum': true,
       'headers': {
         'names': [],
@@ -160,12 +164,10 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'description': 'New Global Filter Description and Remarks',
       'active': false,
       'tags': ['trusted'],
-      'action': {
-        'type': 'monitor',
-      },
+      'action': 'monitor',
       'rule': {
         'relation': 'OR',
-        'sections': [],
+        'entries': [],
       },
     }
   },
@@ -194,12 +196,13 @@ const newDocEntryFactory: { [key: string]: Function } = {
     return {
       'id': generateUUID2(),
       'name': 'New Rate Limit Rule',
+      'global': false,
       'description': 'New Rate Limit Rule Description and Remarks',
-      'timeframe': '60',
+      'timeframe': 60,
       'thresholds': [
         {
-          'limit': '5',
-          'action': {'type': 'default'},
+          'limit': 5,
+          'action': 'default',
         },
       ],
       'include': ['all'],
@@ -224,9 +227,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'include': ['all'],
       'exclude': [],
       'timeframe': 60,
-      'action': {
-        'type': 'default',
-      },
+      'tags': [],
       'key': [
         {
           'attrs': 'ip',
@@ -253,15 +254,6 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'category': '',
       'subcategory': '',
       'tags': [],
-    }
-  },
-
-  contentfiltergroups(): ContentFilterRuleGroup {
-    return {
-      id: generateUUID2(),
-      name: 'New Content Filter Rule Group',
-      description: '',
-      content_filter_rule_ids: [],
     }
   },
 }

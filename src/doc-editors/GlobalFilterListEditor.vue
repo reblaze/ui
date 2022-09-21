@@ -21,7 +21,7 @@
                        v-model="localDoc.name"
                        :readonly="readonly"/>
               </div>
-              <p class="subtitle is-7 has-text-grey sections-entries-display">
+              <p class="subtitle is-7 has-text-grey entries-entries-display">
                 {{ sectionsEntriesDisplay }}
               </p>
             </div>
@@ -40,8 +40,8 @@
             <div class="field">
               <div class="control"
                    v-if="editable">
-                <label class="label is-small">Sections Relation</label>
-                <div class="tags has-addons mb-0 document-sections-relation"
+                <label class="label is-small">entries Relation</label>
+                <div class="tags has-addons mb-0 document-entries-relation"
                      tabindex="0"
                      @keypress.space.prevent
                      @keypress.space="toggleRuleRelation()"
@@ -98,31 +98,40 @@
               </p>
             </div>
             <div class="field">
-              <response-action v-model:action="localDoc.action"
-                               :ignore="['ban']"
-                               @update:action="emitDocUpdate"
-                               label-separated-line
-                               is-single-input-column/>
+              <div class="field">
+                <label class="label is-small">
+                  Action
+                </label>
+                <div class="control">
+                  <input class="input is-small document-action"
+                         title="Action"
+                         data-qa="action-input"
+                         placeholder="Action"
+                         @change="emitDocUpdate"
+                         v-model="localDoc.action"/>
+                </div>
+              </div>
             </div>
             <div class="field textarea-field">
               <label class="label is-small">Description</label>
               <div class="control">
                 <textarea class="is-small textarea document-description"
-                          title="Description"
-                          @change="emitDocUpdate"
+                          data-qa="description-input"
+                          title="Document description"
                           v-model="localDoc.description"
-                          rows="5"
-                          :readonly="readonly"></textarea>
+                          @change="emitDocUpdate"
+                          rows="5">
+                </textarea>
               </div>
             </div>
             <div class="pt-6">
               <div class="field" v-if="editable">
                 <div class="control is-expanded">
-                  <button class="button is-small has-text-danger-dark remove-all-sections-button"
-                          data-qa="remove-all-sections-btn"
-                          title="Remove all sections"
-                          @click="removeAllSections">
-                    Clear all sections
+                  <button class="button is-small has-text-danger-dark remove-all-entries-button"
+                          data-qa="remove-all-entries-btn"
+                          title="Remove all entries"
+                          @click="removeAllentries">
+                    Clear all entries
                   </button>
                 </div>
               </div>
@@ -147,7 +156,6 @@
 <script lang="ts">
 import _ from 'lodash'
 import RequestsUtils from '@/assets/RequestsUtils'
-import ResponseAction from '@/components/ResponseAction.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import EntriesRelationList from '@/components/EntriesRelationList.vue'
 import {defineComponent} from 'vue'
@@ -159,7 +167,6 @@ export default defineComponent({
   name: 'GlobalFilterListEditor',
 
   components: {
-    ResponseAction,
     EntriesRelationList,
     TagAutocompleteInput,
   },
@@ -184,9 +191,9 @@ export default defineComponent({
 
   computed: {
     sectionsEntriesDisplay(): string {
-      const sectionsCounter = (this.localDoc.rule?.sections?.length !== 1) ? 'sections' : 'section'
+      const sectionsCounter = (this.localDoc.rule?.entries?.length !== 1) ? 'sections' : 'section'
       const entriesCounter = (this.localDocTotalEntries !== 1) ? 'entries' : 'entry'
-      const sectionsLength = this.localDoc.rule?.sections?.length
+      const sectionsLength = this.localDoc.rule?.entries?.length
       return `${sectionsLength} ${sectionsCounter}\t|\t${this.localDocTotalEntries} ${entriesCounter}`
     },
 
@@ -223,8 +230,8 @@ export default defineComponent({
 
     localDocTotalEntries(): number {
       let totalEntries = 0
-      if (this.localDoc.rule?.sections?.length) {
-        totalEntries = _.sumBy(this.localDoc.rule.sections, (section: GlobalFilterSection) => {
+      if (this.localDoc.rule?.entries?.length) {
+        totalEntries = _.sumBy(this.localDoc.rule.entries, (section: GlobalFilterSection) => {
           return section.entries?.length || 0
         })
       }
@@ -261,8 +268,8 @@ export default defineComponent({
       this.localDoc.rule.relation === 'AND' ? this.setRuleRelation('OR') : this.setRuleRelation('AND')
     },
 
-    removeAllSections() {
-      this.localDoc.rule.sections.splice(0, this.localDoc.rule.sections.length)
+    removeAllentries() {
+      this.localDoc.rule.entries.splice(0, this.localDoc.rule.entries.length)
       this.emitDocUpdate()
     },
 
@@ -318,7 +325,7 @@ export default defineComponent({
         const data = response.data
         let entries: GlobalFilterSectionEntry[]
         const convertedData = data as GlobalFilter
-        if (convertedData?.rule?.sections?.length) {
+        if (convertedData?.rule?.entries?.length) {
           this.localDoc.rule = convertedData.rule
           this.localDoc.mdate = (new Date).toISOString()
           this.emitDocUpdate()
@@ -337,7 +344,7 @@ export default defineComponent({
             entries: entries,
           }
           this.localDoc.rule = {
-            'sections': [
+            'entries': [
               newSection,
             ],
             'relation': 'OR',

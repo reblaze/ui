@@ -75,9 +75,9 @@ describe('RequestsUtils.ts', () => {
       expect(document['description']).toEqual('New Global Filter Description and Remarks')
       expect(document['active']).toEqual(false)
       expect(document['tags']).toEqual(['trusted'])
-      expect(document['action']).toEqual({'type': 'monitor'})
+      expect(document['action']).toEqual('monitor')
       expect(document['rule']['relation']).toEqual('OR')
-      expect(document['rule']['sections']).toEqual([])
+      expect(document['rule']['entries']).toEqual([])
     })
 
     test('should generate a new Security Policy', async () => {
@@ -99,10 +99,10 @@ describe('RequestsUtils.ts', () => {
       expect(regexUUID2.test(document['id'])).toBeTruthy()
       expect(document['name']).toEqual('New Rate Limit Rule')
       expect(document['description']).toEqual('New Rate Limit Rule Description and Remarks')
-      expect(document['thresholds'][0]['limit']).toEqual('5')
-      expect(document['timeframe']).toEqual('60')
+      expect(document['thresholds'][0]['limit']).toEqual(5)
+      expect(document['timeframe']).toEqual(60)
       expect(document['key']).toEqual([{'attrs': 'ip'}])
-      expect(document['thresholds'][0]['action']).toEqual({'type': 'default'})
+      expect(document['thresholds'][0]['action']).toEqual('default')
       expect(document['pairwith']).toEqual({'self': 'self'})
       expect(document['exclude']).toEqual([])
       expect(document['include']).toEqual(['all'])
@@ -117,7 +117,7 @@ describe('RequestsUtils.ts', () => {
       expect(document['active']).toEqual(true)
       expect(document['description']).toEqual('New Flow Control Policy Description and Remarks')
       expect(document['key']).toEqual([{'attrs': 'ip'}])
-      expect(document['action']).toEqual({'type': 'default'})
+      expect(document['tags']).toEqual([])
       expect(document['exclude']).toEqual([])
       expect(document['include']).toEqual(['all'])
       expect(document['sequence']).toEqual([
@@ -139,19 +139,6 @@ describe('RequestsUtils.ts', () => {
       expect(document['operand']).toEqual('')
       expect(document['category']).toEqual('')
       expect(document['subcategory']).toEqual('')
-    })
-
-    test('should generate a new Content Filter Group', async () => {
-      const {
-        id,
-        name,
-        description,
-        content_filter_rule_ids: contentFilterIds,
-      } = newDocEntryFactory.contentfiltergroups()
-      expect(regexUUID2.test(id)).toBeTruthy()
-      expect(name).toEqual('New Content Filter Rule Group')
-      expect(description).toEqual('')
-      expect(contentFilterIds).toEqual([])
     })
   })
 })

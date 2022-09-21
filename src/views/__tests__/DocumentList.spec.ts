@@ -1,11 +1,11 @@
 // @ts-nocheck
 import DocumentList from '@/views/DocumentList.vue'
 import GitHistory from '@/components/GitHistory.vue'
+import RbzTable from '@/components/RbzTable'
 import DatasetsUtils from '@/assets/DatasetsUtils'
-import COLUMN_OPTIONS_MAP from '../documentListConst.ts'
 import Utils from '@/assets/Utils'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
-import {DOMWrapper, shallowMount} from '@vue/test-utils'
+import {DOMWrapper, mount, shallowMount} from '@vue/test-utils'
 import axios from 'axios'
 import _ from 'lodash'
 import {
@@ -13,6 +13,8 @@ import {
   Branch,
   Commit,
   ContentFilterProfile,
+  ContentFilterRule,
+  DocumentType,
   FlowControlPolicy,
   GlobalFilter,
   RateLimit,
@@ -22,6 +24,7 @@ import {setImmediate, setTimeout} from 'timers'
 import {nextTick} from 'vue'
 import {createRouter, createWebHistory} from 'vue-router'
 import {routes} from '@/router'
+import {COLUMN_OPTIONS_MAP} from '../documentListConst'
 
 jest.mock('axios')
 
@@ -36,7 +39,8 @@ describe('DocumentList.vue', () => {
   let globalFilterDocs: GlobalFilter[]
   let securityPoliciesDocs: SecurityPolicy[]
   let flowControlPolicyDocs: FlowControlPolicy[]
-  let contentFilterDocs: ContentFilterProfile[]
+  let contentFilterProfilesDocs: ContentFilterProfile[]
+  let contentFilterRulesDocs: ContentFilterRule[]
   let rateLimitsDocs: RateLimit[]
   beforeEach((done) => {
     gitData = [
@@ -545,13 +549,10 @@ describe('DocumentList.vue', () => {
         'description': 'Tag API Requests',
         'active': true,
         'tags': ['api'],
-        'action': {
-          'type': 'monitor',
-          'params': {},
-        },
+        'action': 'monitor',
         'rule': {
           'relation': 'OR',
-          'sections': [
+          'entries': [
             {'relation': 'OR', 'entries': [['ip', '1.1.1.1', null]]},
             {'relation': 'OR', 'entries': [['ip', '2.2.2.2', null]]},
             {'relation': 'OR', 'entries': [['headers', ['headerrr', 'valueeee'], 'anooo']]}],
@@ -564,13 +565,10 @@ describe('DocumentList.vue', () => {
         'description': 'this is my own list',
         'active': false,
         'tags': ['internal', 'devops'],
-        'action': {
-          'type': 'monitor',
-          'params': {},
-        },
+        'action': 'monitor',
         'rule': {
           'relation': 'OR',
-          'sections': [
+          'entries': [
             {'relation': 'OR', 'entries': [['ip', '1.1.1.1', null]]},
             {'relation': 'OR', 'entries': [['ip', '2.2.2.2', null]]},
             {'relation': 'OR', 'entries': [['headers', ['headerrr', 'valueeee'], 'anooo']]}],
@@ -627,10 +625,7 @@ describe('DocumentList.vue', () => {
             'args': {},
           },
         ],
-        'action': {
-          'type': 'default',
-          'params': {},
-        },
+        'action': 'default',
         'timeframe': 60,
         'id': 'c03dabe4b9ca',
       },
@@ -665,15 +660,12 @@ describe('DocumentList.vue', () => {
             'args': {},
           },
         ],
-        'action': {
-          'type': 'default',
-          'params': {},
-        },
+        'action': 'default',
         'timeframe': 60,
         'id': '4435d797ab0c',
       },
     ]
-    contentFilterDocs = [{
+    contentFilterProfilesDocs = [{
       'id': '009e846e819e',
       'name': 'content filter',
       'ignore_alphanum': true,
@@ -713,6 +705,17 @@ describe('DocumentList.vue', () => {
       'report': [],
       'ignore': [],
     }]
+    contentFilterRulesDocs = [{
+      'id': '100000',
+      'name': '100000',
+      'msg': 'SQLi Attempt (Conditional Operator Detected)',
+      'operand': '\\s(and|or)\\s+\\d+\\s+.*between\\s.*\\d+\\s+and\\s+\\d+.*',
+      'risk': 5,
+      'description': 'SQL injection',
+      'category': 'sqli',
+      'subcategory': 'statement injection',
+      'tags': [],
+    }]
     rateLimitsDocs = [{
       'id': 'f971e92459e2',
       'name': 'Rate Limit Example Rule 5/60',
@@ -721,13 +724,43 @@ describe('DocumentList.vue', () => {
       'thresholds': [
         {
           'limit': '5',
-          'action': {'type': 'default', 'params': {'action': {'type': 'default', 'params': {}}}},
+          'action': 'default',
         },
       ],
       'include': ['badpeople'],
       'exclude': ['goodpeople'],
       'key': [{'attrs': 'ip'}],
       'pairwith': {'self': 'self'},
+    }, {
+      'id': '7785d66b1f92',
+      'name': 'New Rate Limit Rule',
+      'description': 'test',
+      'timeframe': '600',
+      'thresholds': [
+        {
+          'limit': '5',
+          'action': 'default',
+        },
+      ],
+      'include': ['all'],
+      'exclude': [''],
+      'key': [{'attrs': 'ip'}],
+      'pairwith': null,
+    }, {
+      'id': '6fe6109e0e53',
+      'name': 'RL',
+      'description': 'foo bar',
+      'timeframe': '3600',
+      'thresholds': [
+        {
+          'limit': '10',
+          'action': 'default',
+        },
+      ],
+      'include': ['blocklist'],
+      'exclude': [''],
+      'key': [{'attrs': 'ip'}],
+      'pairwith': {'header': 'foo'},
     }]
     jest.spyOn(axios.CancelToken, 'source').mockImplementation(() => {
       return {
@@ -742,7 +775,7 @@ describe('DocumentList.vue', () => {
       }
       const branch = wrapper.vm.selectedBranch
       if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
-        const aclXFields = _.flatMap(COLUMN_OPTIONS_MAP?.aclprofiles, 'fieldNames')
+        const aclXFields = _.flatMap(COLUMN_OPTIONS_MAP['aclprofiles'], 'fieldNames')
         aclXFields.unshift('id')
         if (config && config.headers && config.headers['x-fields'] === aclXFields.join(', ')) {
           return Promise.resolve({data: _.map(aclDocs, (i) => _.pick(i, aclXFields))})
@@ -756,7 +789,7 @@ describe('DocumentList.vue', () => {
         return Promise.resolve({data: aclGitOldVersion})
       }
       if (path === `/conf/api/v2/configs/master/d/globalfilters/`) {
-        const globalFilterXFields = _.flatMap(COLUMN_OPTIONS_MAP?.globalfilters, 'fieldNames')
+        const globalFilterXFields = _.flatMap(COLUMN_OPTIONS_MAP['globalfilters'], 'fieldNames')
         globalFilterXFields.unshift('id')
         if (config && config.headers && config.headers['x-fields'] === globalFilterXFields.join(', ')) {
           return Promise.resolve({data: _.map(globalFilterDocs, (i) => _.pick(i, globalFilterXFields))})
@@ -765,7 +798,7 @@ describe('DocumentList.vue', () => {
       }
       if (path === `/conf/api/v2/configs/zzz_branch/d/globalfilters/`) {
         globalFilterDocs.shift()
-        const globalFilterXFields = _.flatMap(COLUMN_OPTIONS_MAP?.globalfilters, 'fieldNames')
+        const globalFilterXFields = _.flatMap(COLUMN_OPTIONS_MAP['globalfilters'], 'fieldNames')
         globalFilterXFields.unshift('id')
         if (config && config.headers && config.headers['x-fields'] === globalFilterXFields.join(', ')) {
           return Promise.resolve({data: _.map(globalFilterDocs, (i) => _.pick(i, globalFilterXFields))})
@@ -773,7 +806,7 @@ describe('DocumentList.vue', () => {
         return Promise.resolve({data: globalFilterDocs})
       }
       if (path === `/conf/api/v2/configs/${branch}/d/securitypolicies/`) {
-        const securitypoliciesXFields = _.flatMap(COLUMN_OPTIONS_MAP?.securitypolicies, 'fieldNames')
+        const securitypoliciesXFields = _.flatMap(COLUMN_OPTIONS_MAP['securitypolicies'], 'fieldNames')
         securitypoliciesXFields.unshift('id')
         if (config && config.headers && config.headers['x-fields'] === securitypoliciesXFields?.join(', ')) {
           return Promise.resolve({data: _.map(securityPoliciesDocs, (i) => _.pick(i, securitypoliciesXFields))})
@@ -789,15 +822,27 @@ describe('DocumentList.vue', () => {
         return Promise.resolve({data: flowControlPolicyDocs})
       }
       if (path === `/conf/api/v2/configs/${branch}/d/contentfilterprofiles/`) {
-        const contentfilterprofilesXFields = _.flatMap(COLUMN_OPTIONS_MAP?.contentfilterprofiles, 'fieldNames')
+        const contentfilterprofilesXFields = _.flatMap(COLUMN_OPTIONS_MAP['contentfilterprofiles'], 'fieldNames')
         contentfilterprofilesXFields.unshift('id')
         if (config && config.headers && config.headers['x-fields'] === contentfilterprofilesXFields.join(', ')) {
-          return Promise.resolve({data: _.map(contentFilterDocs, (i) => _.pick(i, contentfilterprofilesXFields))})
+          return Promise.resolve({
+            data: _.map(contentFilterProfilesDocs, (i) => {
+              return _.pick(i, contentfilterprofilesXFields)
+            }),
+          })
         }
-        return Promise.resolve({data: contentFilterDocs})
+        return Promise.resolve({data: contentFilterProfilesDocs})
+      }
+      if (path === `/conf/api/v2/configs/${branch}/d/contentfilterrules/`) {
+        const contentfilterrulesXFields = _.flatMap(COLUMN_OPTIONS_MAP['contentfilterrules'], 'fieldNames')
+        contentfilterrulesXFields.unshift('id')
+        if (config && config.headers && config.headers['x-fields'] === contentfilterrulesXFields.join(', ')) {
+          return Promise.resolve({data: _.map(contentFilterRulesDocs, (i) => _.pick(i, contentfilterrulesXFields))})
+        }
+        return Promise.resolve({data: contentFilterRulesDocs})
       }
       if (path === `/conf/api/v2/configs/${branch}/d/ratelimits/`) {
-        const ratelimitsXFields = _.flatMap(COLUMN_OPTIONS_MAP?.ratelimits, 'fieldNames')
+        const ratelimitsXFields = _.flatMap(COLUMN_OPTIONS_MAP['ratelimits'], 'fieldNames')
         ratelimitsXFields.unshift('id')
         if (config && config.headers && config.headers['x-fields'] === ratelimitsXFields.join(', ')) {
           return Promise.resolve({data: _.map(rateLimitsDocs, (i) => _.pick(i, ratelimitsXFields))})
@@ -847,180 +892,138 @@ describe('DocumentList.vue', () => {
     jest.clearAllMocks()
   })
 
-  test('should have a git history component with correct data', () => {
-    const gitHistory = wrapper.findComponent(GitHistory)
-    expect(gitHistory).toBeTruthy()
-    expect(gitHistory.vm.gitLog).toEqual(aclDocsLogs[0])
-  })
-
-  test('should have an empty git log array if got no git log data from server - response null', () => {
-    jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v2/configs/') {
-        return Promise.resolve({data: gitData})
-      }
-      const branch = wrapper.vm.selectedBranch
-      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
-        return Promise.resolve({data: aclDocs})
-      }
-      if (path === `/conf/api/v2/configs/master/d/aclprofiles/v/`) {
-        return Promise.resolve(null)
-      }
-      return Promise.resolve({data: []})
+  describe('git history', () => {
+    test('should have a git history component with correct data', () => {
+      const gitHistory = wrapper.findComponent(GitHistory)
+      expect(gitHistory).toBeTruthy()
+      expect(gitHistory.vm.gitLog).toEqual(aclDocsLogs[0])
     })
-    wrapper = shallowMount(DocumentList, {
-      global: {
-        mocks: {
-          $route: mockRoute,
-          $router: mockRouter,
+
+    test('should have an empty git log array if got no git log data from server - response null', () => {
+      jest.spyOn(axios, 'get').mockImplementation((path) => {
+        if (path === '/conf/api/v2/configs/') {
+          return Promise.resolve({data: gitData})
+        }
+        const branch = wrapper.vm.selectedBranch
+        if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
+          return Promise.resolve({data: aclDocs})
+        }
+        if (path === `/conf/api/v2/configs/master/d/aclprofiles/v/`) {
+          return Promise.resolve(null)
+        }
+        return Promise.resolve({data: []})
+      })
+      wrapper = shallowMount(DocumentList, {
+        global: {
+          mocks: {
+            $route: mockRoute,
+            $router: mockRouter,
+          },
         },
-      },
+      })
+      const gitHistory = wrapper.findComponent(GitHistory)
+      expect(gitHistory).toBeTruthy()
     })
-    const gitHistory = wrapper.findComponent(GitHistory)
-    expect(gitHistory).toBeTruthy()
-  })
 
-  test('should have an empty git log array if got no git log data from server - data null', () => {
-    jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v2/configs/') {
-        return Promise.resolve({data: gitData})
-      }
-      const branch = wrapper.vm.selectedBranch
-      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
-        return Promise.resolve({data: aclDocs})
-      }
-      if (path === `/conf/api/v2/configs/master/d/aclprofiles/v/`) {
-        return Promise.resolve({data: null})
-      }
-      return Promise.resolve({data: []})
-    })
-    wrapper = shallowMount(DocumentList, {
-      global: {
-        mocks: {
-          $route: mockRoute,
-          $router: mockRouter,
+    test('should have an empty git log array if got no git log data from server - data null', () => {
+      jest.spyOn(axios, 'get').mockImplementation((path) => {
+        if (path === '/conf/api/v2/configs/') {
+          return Promise.resolve({data: gitData})
+        }
+        const branch = wrapper.vm.selectedBranch
+        if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
+          return Promise.resolve({data: aclDocs})
+        }
+        if (path === `/conf/api/v2/configs/master/d/aclprofiles/v/`) {
+          return Promise.resolve({data: null})
+        }
+        return Promise.resolve({data: []})
+      })
+      wrapper = shallowMount(DocumentList, {
+        global: {
+          mocks: {
+            $route: mockRoute,
+            $router: mockRouter,
+          },
         },
-      },
+      })
+      const gitHistory = wrapper.findComponent(GitHistory)
+      expect(gitHistory).toBeTruthy()
     })
-    const gitHistory = wrapper.findComponent(GitHistory)
-    expect(gitHistory).toBeTruthy()
-  })
 
-  test('should send API request to restore to the correct version', async () => {
-    const wantedVersion = {
-      version: '7f8a987c8e5e9db7c734ac8841c543d5bc5d9657',
-    }
-    const putSpy = jest.spyOn(axios, 'put')
-    putSpy.mockImplementation(() => Promise.resolve())
-    const gitHistory = wrapper.findComponent(GitHistory)
-    gitHistory.vm.$emit('restore-version', wantedVersion)
-    await nextTick()
-    expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclprofiles/v/${wantedVersion.version}/revert/`)
-  })
-
-  test('should log message when receiving no configs from the server', (done) => {
-    const originalLog = console.log
-    let consoleOutput: string[] = []
-    const mockedLog = (output: string) => consoleOutput.push(output)
-    consoleOutput = []
-    console.log = mockedLog
-    jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v2/configs/') {
-        return Promise.reject(new Error())
+    test('should send API request to restore to the correct version', async () => {
+      const wantedVersion = {
+        version: '7f8a987c8e5e9db7c734ac8841c543d5bc5d9657',
       }
-      return Promise.resolve({data: {}})
-    })
-    wrapper = shallowMount(DocumentList, {
-      global: {
-        mocks: {
-          $route: mockRoute,
-          $router: mockRouter,
-        },
-      },
-    })
-    // allow all requests to finish
-    setImmediate(() => {
-      expect(consoleOutput).toContain(`Error while attempting to get configs`)
-      console.log = originalLog
-      done()
-    })
-  })
-
-  test('should log message when receiving no documents from the server', (done) => {
-    const originalLog = console.log
-    let consoleOutput: string[] = []
-    const mockedLog = (output: string) => consoleOutput.push(output)
-    consoleOutput = []
-    console.log = mockedLog
-    jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v2/configs/') {
-        return Promise.resolve({data: gitData})
-      }
-      const branch = wrapper.vm.selectedBranch
-      const doctype = wrapper.vm.selectedDocType
-      if (path === `/conf/api/v2/configs/${branch}/d/${doctype}/`) {
-        return Promise.reject(new Error())
-      }
-      return Promise.resolve({data: {}})
-    })
-    wrapper = shallowMount(DocumentList, {
-      global: {
-        mocks: {
-          $route: mockRoute,
-          $router: mockRouter,
-        },
-      },
-    })
-    // allow all requests to finish
-    setImmediate(() => {
-      expect(consoleOutput).toContain(`Error while attempting to load documents`)
-      console.log = originalLog
-      done()
+      const wantedPath = `/conf/api/v2/configs/master/d/aclprofiles/v/${wantedVersion.version}/revert/`
+      const putSpy = jest.spyOn(axios, 'put')
+      putSpy.mockImplementation(() => Promise.resolve())
+      const gitHistory = wrapper.findComponent(GitHistory)
+      gitHistory.vm.$emit('restore-version', wantedVersion)
+      await nextTick()
+      expect(putSpy).toHaveBeenCalledWith(wantedPath)
     })
   })
 
   describe('route params', () => {
     let router
-    beforeEach(async ()=>{
+    let rbzTable
+    beforeEach(async () => {
       router = createRouter({
         history: createWebHistory(process.env.BASE_URL),
         routes,
       })
       router.push('/list/zzz_branch/flowcontrol')
       await router.isReady()
-      wrapper = shallowMount(DocumentList, {
+      wrapper = mount(DocumentList, {
         global: {
           plugins: [router],
         },
       })
+      rbzTable = wrapper.findComponent(RbzTable)
     })
     test('should load correct branch from route when valid', () => {
-      const firstRow = wrapper.findAll('.data-row').at(0)
-      const nameCellFirstRow = firstRow.findAll('td').at(0)
-      expect(nameCellFirstRow.text()).toBe('flow control policy')
+      expect(wrapper.vm.selectedBranch).toEqual('zzz_branch')
+      expect(rbzTable.vm.data[0].name).toEqual('flow control policy')
     })
 
     test('should load correct doc type from route when valid', () => {
-      const firstRow = wrapper.findAll('.data-row').at(0)
-      const nameCellFirstRow = firstRow.findAll('td').at(0)
-      expect(nameCellFirstRow.text()).toBe('flow control policy')
+      expect(wrapper.vm.selectedDocType).toEqual('flowcontrol')
+      expect(rbzTable.vm.data[0].name).toEqual('flow control policy')
     })
 
     test('should load correct default branch if got non existent branch in route params', (done) => {
       router.push('/list/random123/random123')
       setImmediate(() => {
-        const firstRow = wrapper.findAll('.data-row').at(0)
-        const nameCellFirstRow = firstRow.findAll('td').at(0)
-        expect(nameCellFirstRow.text()).toBe('API Discovery')
+        expect(wrapper.vm.selectedBranch).toEqual('master')
+        expect(rbzTable.vm.data[0].name).toEqual('API Discovery')
+        done()
+      })
+    })
+
+    test('should load correct default branch if none given in route params', (done) => {
+      router.push('/list')
+      setImmediate(() => {
+        expect(wrapper.vm.selectedBranch).toEqual('master')
+        expect(rbzTable.vm.data[0].name).toEqual('API Discovery')
         done()
       })
     })
 
     test('should load correct default document type if non existent in route params', (done) => {
+      router.push('/list/zzz_branch')
+      setImmediate(() => {
+        expect(wrapper.vm.selectedDocType).toEqual('globalfilters')
+        expect(rbzTable.vm.data[0].name).toEqual('devop internal demo')
+        done()
+      })
+    })
+
+    test('should load correct default document type if none given in route params', (done) => {
       router.push('/list/zzz_branch/random123')
       setImmediate(() => {
-        const firstRow = wrapper.findAll('.data-row').at(0)
-        const nameCellFirstRow = firstRow.findAll('td').at(0)
-        expect(nameCellFirstRow.text()).toBe('devop internal demo')
+        expect(wrapper.vm.selectedDocType).toEqual('globalfilters')
+        expect(rbzTable.vm.data[0].name).toEqual('devop internal demo')
         done()
       })
     })
@@ -1028,9 +1031,8 @@ describe('DocumentList.vue', () => {
     test('should load correct data when changing doc type', (done) => {
       router.push('/list/master/contentfilterprofiles')
       setImmediate(() => {
-        const firstRow = wrapper.findAll('.data-row').at(0)
-        const nameCellFirstRow = firstRow.findAll('td').at(0)
-        expect(nameCellFirstRow.text()).toBe('content filter')
+        expect(wrapper.vm.selectedDocType).toEqual('contentfilterprofiles')
+        expect(rbzTable.vm.data[0].name).toEqual('content filter')
         done()
       })
     })
@@ -1095,6 +1097,67 @@ describe('DocumentList.vue', () => {
         await button.trigger('click')
       })
     })
+
+    test('should log message when receiving no configs from the server', (done) => {
+      const originalLog = console.log
+      let consoleOutput: string[] = []
+      const mockedLog = (output: string) => consoleOutput.push(output)
+      consoleOutput = []
+      console.log = mockedLog
+      jest.spyOn(axios, 'get').mockImplementation((path) => {
+        if (path === '/conf/api/v2/configs/') {
+          return Promise.reject(new Error())
+        }
+        return Promise.resolve({data: {}})
+      })
+      wrapper = shallowMount(DocumentList, {
+        global: {
+          mocks: {
+            $route: mockRoute,
+            $router: mockRouter,
+          },
+        },
+      })
+      // allow all requests to finish
+      setImmediate(() => {
+        expect(consoleOutput).toContain(`Error while attempting to get configs`)
+        console.log = originalLog
+        done()
+      })
+    })
+
+    test('should log message when receiving no documents from the server', (done) => {
+      const originalLog = console.log
+      let consoleOutput: string[] = []
+      const mockedLog = (output: string) => consoleOutput.push(output)
+      consoleOutput = []
+      console.log = mockedLog
+      jest.spyOn(axios, 'get').mockImplementation((path) => {
+        if (path === '/conf/api/v2/configs/') {
+          return Promise.resolve({data: gitData})
+        }
+        const branch = wrapper.vm.selectedBranch
+        const doctype = wrapper.vm.selectedDocType
+        if (path === `/conf/api/v2/configs/${branch}/d/${doctype}/`) {
+          return Promise.reject(new Error())
+        }
+        return Promise.resolve({data: {}})
+      })
+      wrapper = shallowMount(DocumentList, {
+        global: {
+          mocks: {
+            $route: mockRoute,
+            $router: mockRouter,
+          },
+        },
+      })
+      // allow all requests to finish
+      setImmediate(() => {
+        expect(consoleOutput).toContain(`Error while attempting to load documents`)
+        console.log = originalLog
+        done()
+      })
+    })
   })
 
   describe('loading indicator', () => {
@@ -1143,14 +1206,6 @@ describe('DocumentList.vue', () => {
       const docLoadingIndicator = wrapper.find('.document-loading')
       expect(docLoadingIndicator.exists()).toBeTruthy()
     })
-
-    test('should display loading indicator when adding a new document', async () => {
-      jest.spyOn(axios, 'post').mockImplementation(() => new Promise(() => {
-      }))
-      const newDocumentButton = wrapper.find('.new-document-button')
-      await newDocumentButton.trigger('click')
-      expect(newDocumentButton.element.classList).toContain('is-loading')
-    })
   })
 
   describe('dropdowns', () => {
@@ -1168,24 +1223,97 @@ describe('DocumentList.vue', () => {
   })
 
   describe('buttons', () => {
+    describe('download button', () => {
+      test('should not attempt to download document when download button is clicked' +
+        ' if the full docs data was not loaded yet', async () => {
+        jest.spyOn(axios, 'get').mockImplementation((path, config) => {
+          if (path === '/conf/api/v2/configs/') {
+            return Promise.resolve({data: gitData})
+          }
+          const branch = wrapper.vm.selectedBranch
+          if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
+            const aclXFields = _.flatMap(COLUMN_OPTIONS_MAP['aclprofiles'], 'fieldNames')
+            aclXFields.unshift('id')
+            if (config && config.headers && config.headers['x-fields'] === aclXFields.join(', ')) {
+              return Promise.resolve({data: _.map(aclDocs, (i) => _.pick(i, aclXFields))})
+            }
+            setTimeout(() => {
+              return Promise.resolve({data: aclDocs})
+            }, 5000)
+          }
+          if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/v/7f8a987c8e5e9db7c734ac8841c543d5bc5d9657/`) {
+            return Promise.resolve({data: aclGitOldVersion})
+          }
+          return Promise.resolve({data: []})
+        })
+        wrapper = shallowMount(DocumentList, {
+          global: {
+            mocks: {
+              $route: mockRoute,
+              $router: mockRouter,
+            },
+          },
+        })
+        const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {
+        })
+        await nextTick()
+        await nextTick()
+        await nextTick()
+        const downloadDocButton = wrapper.find('.download-doc-button')
+        await downloadDocButton.trigger('click')
+        expect(downloadFileSpy).not.toHaveBeenCalled()
+      })
+
+      test('should attempt to download document when download button is clicked', async () => {
+        const wantedFileName = 'aclprofiles'
+        const wantedFileType = 'json'
+        const wantedFileData = aclDocs
+        const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {
+        })
+        await nextTick()
+        await nextTick()
+        await nextTick()
+        const downloadDocButton = wrapper.find('.download-doc-button')
+        await downloadDocButton.trigger('click')
+        expect(downloadFileSpy).toHaveBeenCalledWith(wantedFileName, wantedFileType, wantedFileData)
+      })
+    })
+
     describe('new document button', () => {
-      test('should be able to add a new aclprofiles document', () => {
-        const newACLProfilesDoc = DatasetsUtils.newDocEntryFactory.aclprofiles()
-        newACLProfilesDoc.id = expect.any(String)
-        const postSpy = jest.spyOn(axios, 'post')
-        postSpy.mockImplementation(() => Promise.resolve())
-        const newDocumentButton = wrapper.find('.new-document-button')
-        newDocumentButton.trigger('click')
-        expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclprofiles/e/`, newACLProfilesDoc)
+      test('should be able to add a new aclprofiles document', (done) => {
+        mockRoute.params = {
+          branch: 'master',
+          doc_type: 'aclprofiles',
+        }
+        mockRoute.path = `/list/master/aclprofiles`
+        wrapper = mount(DocumentList, {
+          global: {
+            mocks: {
+              $route: mockRoute,
+              $router: mockRouter,
+            },
+          },
+        })
+        // allow all requests to finish
+        setImmediate(() => {
+          const newACLProfilesDoc = DatasetsUtils.newDocEntryFactory.aclprofiles()
+          newACLProfilesDoc.id = expect.any(String)
+          const postSpy = jest.spyOn(axios, 'post')
+          postSpy.mockImplementation(() => Promise.resolve())
+          const rbzTable = wrapper.findComponent(RbzTable)
+          rbzTable.vm.$emit('new-button-clicked')
+          expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclprofiles/e/`, newACLProfilesDoc)
+          done()
+        })
       })
 
       test('should be able to add a new globalfilters document', (done) => {
         mockRoute.params = {
           branch: 'master',
           doc_type: 'globalfilters',
-        },
+        }
         mockRoute.path = `/list/master/globalfilters`
-        wrapper = shallowMount(DocumentList, {
+        wrapper = mount(DocumentList, {
           global: {
             mocks: {
               $route: mockRoute,
@@ -1199,8 +1327,8 @@ describe('DocumentList.vue', () => {
           newGlobalFilterDoc.id = expect.any(String)
           const postSpy = jest.spyOn(axios, 'post')
           postSpy.mockImplementation(() => Promise.resolve())
-          const newDocumentButton = wrapper.find('.new-document-button')
-          newDocumentButton.trigger('click')
+          const rbzTable = wrapper.findComponent(RbzTable)
+          rbzTable.vm.$emit('new-button-clicked')
           expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/globalfilters/e/`, newGlobalFilterDoc)
           done()
         })
@@ -1210,9 +1338,9 @@ describe('DocumentList.vue', () => {
         mockRoute.params = {
           branch: 'master',
           doc_type: 'contentfilterprofiles',
-        },
+        }
         mockRoute.path = `/list/master/contentfilterprofiles`
-        wrapper = shallowMount(DocumentList, {
+        wrapper = mount(DocumentList, {
           global: {
             mocks: {
               $route: mockRoute,
@@ -1225,9 +1353,10 @@ describe('DocumentList.vue', () => {
           newContentFilterProfilesDoc.id = expect.any(String)
           const postSpy = jest.spyOn(axios, 'post')
           postSpy.mockImplementation(() => Promise.resolve())
-          const newDocumentButton = wrapper.find('.new-document-button')
-          newDocumentButton.trigger('click')
-          expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/contentfilterprofiles/e/`, newContentFilterProfilesDoc)
+          const rbzTable = wrapper.findComponent(RbzTable)
+          rbzTable.vm.$emit('new-button-clicked')
+          const wantedPath = `/conf/api/v2/configs/master/d/contentfilterprofiles/e/`
+          expect(postSpy).toHaveBeenCalledWith(wantedPath, newContentFilterProfilesDoc)
           done()
         })
       })
@@ -1236,9 +1365,9 @@ describe('DocumentList.vue', () => {
         mockRoute.params = {
           branch: 'master',
           doc_type: 'ratelimits',
-        },
+        }
         mockRoute.path = `/list/master/ratelimits`
-        wrapper = shallowMount(DocumentList, {
+        wrapper = mount(DocumentList, {
           global: {
             mocks: {
               $route: mockRoute,
@@ -1251,8 +1380,8 @@ describe('DocumentList.vue', () => {
           newRateLimitsDoc.id = expect.any(String)
           const postSpy = jest.spyOn(axios, 'post')
           postSpy.mockImplementation(() => Promise.resolve())
-          const newDocumentButton = wrapper.find('.new-document-button')
-          newDocumentButton.trigger('click')
+          const rbzTable = wrapper.findComponent(RbzTable)
+          rbzTable.vm.$emit('new-button-clicked')
           expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/ratelimits/e/`, newRateLimitsDoc)
           done()
         })
@@ -1262,9 +1391,9 @@ describe('DocumentList.vue', () => {
         mockRoute.params = {
           branch: 'master',
           doc_type: 'flowcontrol',
-        },
+        }
         mockRoute.path = `/list/master/flowcontrol`
-        wrapper = shallowMount(DocumentList, {
+        wrapper = mount(DocumentList, {
           global: {
             mocks: {
               $route: mockRoute,
@@ -1277,8 +1406,8 @@ describe('DocumentList.vue', () => {
           newFlowControlDoc.id = expect.any(String)
           const postSpy = jest.spyOn(axios, 'post')
           postSpy.mockImplementation(() => Promise.resolve())
-          const newDocumentButton = wrapper.find('.new-document-button')
-          newDocumentButton.trigger('click')
+          const rbzTable = wrapper.findComponent(RbzTable)
+          rbzTable.vm.$emit('new-button-clicked')
           expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/flowcontrol/e/`, newFlowControlDoc)
           done()
         })
@@ -1288,9 +1417,9 @@ describe('DocumentList.vue', () => {
         mockRoute.params = {
           branch: 'master',
           doc_type: 'contentfilterrules',
-        },
+        }
         mockRoute.path = `/list/master/contentfilterrules`
-        wrapper = shallowMount(DocumentList, {
+        wrapper = mount(DocumentList, {
           global: {
             mocks: {
               $route: mockRoute,
@@ -1303,214 +1432,35 @@ describe('DocumentList.vue', () => {
           newContentFilterRulesDoc.id = expect.any(String)
           const postSpy = jest.spyOn(axios, 'post')
           postSpy.mockImplementation(() => Promise.resolve())
-          const newDocumentButton = wrapper.find('.new-document-button')
-          newDocumentButton.trigger('click')
-          expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/contentfilterrules/e/`, newContentFilterRulesDoc)
+          const rbzTable = wrapper.findComponent(RbzTable)
+          rbzTable.vm.$emit('new-button-clicked')
+          const wantedPath = `/conf/api/v2/configs/master/d/contentfilterrules/e/`
+          expect(postSpy).toHaveBeenCalledWith(wantedPath, newContentFilterRulesDoc)
           done()
         })
       })
     })
 
-    test('should not attempt to download document when download button is clicked' +
-      ' if the full docs data was not loaded yet', async () => {
-      jest.spyOn(axios, 'get').mockImplementation((path, config) => {
-        if (path === '/conf/api/v2/configs/') {
-          return Promise.resolve({data: gitData})
-        }
-        const branch = wrapper.vm.selectedBranch
-        if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
-          const aclXFields = _.flatMap(COLUMN_OPTIONS_MAP?.aclprofiles, 'fieldNames')
-          aclXFields.unshift('id')
-          if (config && config.headers && config.headers['x-fields'] === aclXFields.join(', ')) {
-            return Promise.resolve({data: _.map(aclDocs, (i) => _.pick(i, aclXFields))})
-          }
-          setTimeout(() => {
-            return Promise.resolve({data: aclDocs})
-          }, 5000)
-        }
-        if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/v/7f8a987c8e5e9db7c734ac8841c543d5bc5d9657/`) {
-          return Promise.resolve({data: aclGitOldVersion})
-        }
-        return Promise.resolve({data: []})
+    describe('edit document button', () => {
+      test('should redirect to correct document when clicking on edit document button', async () => {
+        const rbzTable = wrapper.findComponent(RbzTable)
+        rbzTable.vm.$emit('edit-button-clicked', aclDocs[1]['id'])
+        expect(mockRouter.push).toHaveBeenCalledWith(`/config/master/aclprofiles/${aclDocs[1]['id']}`)
+        rbzTable.vm.$emit('edit-button-clicked', aclDocs[0]['id'])
+        expect(mockRouter.push).toHaveBeenCalledWith(`/config/master/aclprofiles/${aclDocs[0]['id']}`)
       })
-      wrapper = shallowMount(DocumentList, {
-        global: {
-          mocks: {
-            $route: mockRoute,
-            $router: mockRouter,
-          },
-        },
-      })
-      const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {
-      })
-      await nextTick()
-      await nextTick()
-      await nextTick()
-      const downloadDocButton = wrapper.find('.download-doc-button')
-      await downloadDocButton.trigger('click')
-      expect(downloadFileSpy).not.toHaveBeenCalled()
-    })
-
-    test('should attempt to download document when download button is clicked', async () => {
-      const wantedFileName = 'aclprofiles'
-      const wantedFileType = 'json'
-      const wantedFileData = aclDocs
-      const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {
-      })
-      await nextTick()
-      await nextTick()
-      await nextTick()
-      const downloadDocButton = wrapper.find('.download-doc-button')
-      await downloadDocButton.trigger('click')
-      expect(downloadFileSpy).toHaveBeenCalledWith(wantedFileName, wantedFileType, wantedFileData)
     })
   })
 
-  describe('table', () => {
-    let globalFilterMock : GlobalFilter[]
-    let sortedGlobalFilterMockByNameAsc : GlobalFilter
-    let sortedGlobalFilterMockByDescriptionDesc : GlobalFilter
-    let sortedGlobalFilterMockByDescriptionAsc : GlobalFilter
-    let columnTitle : string[]
-    beforeEach((done) => {
-      columnTitle = ['Name', 'Description', 'Tags']
-      globalFilterMock = [
-        {
-          name: 'c test3',
-          description: 'c Jest testing description',
-          tags: ['apple', 'crawler', 'curiefense'],
-          id: 3,
-          action: {
-            type: 'challenge',
-          },
-        },
-        {
-          name: 'b test2',
-          description: 'b Jest testing description',
-          tags: ['crawler', 'curiefense'],
-          id: 2,
-          action: {
-            type: 'default',
-          },
-        },
-        {
-          name: 'a test1',
-          description: 'a Jest testing description',
-          tags: ['curiefense'],
-          id: 1,
-          action: {
-            type: 'default',
-          },
-        },
-      ]
-      sortedGlobalFilterMockByNameAsc = globalFilterMock.slice().sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0))
-      sortedGlobalFilterMockByDescriptionAsc = globalFilterMock.slice().sort((a, b) => (a.description > b.description) ? 1 : ((b.description > a.description) ? -1 : 0))
-      sortedGlobalFilterMockByDescriptionDesc = [...sortedGlobalFilterMockByDescriptionAsc].reverse()
-      jest.spyOn(axios, 'get').mockImplementation((path, config) => {
-        if (path === '/conf/api/v2/configs/') {
-          return Promise.resolve({data: gitData})
+  describe('document column options', () => {
+    const buildColumnOptionsTest = (docType: DocumentType) => {
+      test(`should load correct column options for ${docType}`, (done) => {
+        mockRoute.params = {
+          branch: 'master',
+          doc_type: docType,
         }
-        const branch = wrapper.vm.selectedBranch
-        if (path === `/conf/api/v2/configs/${branch}/d/globalfilters/`) {
-          const globalFilterXFields = _.flatMap(COLUMN_OPTIONS_MAP?.globalfilters, 'fieldNames')
-          globalFilterXFields.unshift('id')
-          if (config && config.headers && config.headers['x-fields'] === globalFilterXFields.join(', ')) {
-            return Promise.resolve({data: _.map(globalFilterMock, (i) => _.pick(i, globalFilterXFields))})
-          }
-          return Promise.resolve({data: globalFilterMock})
-        }
-        return Promise.resolve({data: []})
-      })
-      mockRoute.params.doc_type = 'globalfilters'
-      mockRoute.path = `/list/master/globalfilters`
-      wrapper = shallowMount(DocumentList, {
-        global: {
-          mocks: {
-            $route: mockRoute,
-            $router: mockRouter,
-          },
-        },
-      })
-      setImmediate(() => {
-        done()
-      })
-    })
-
-    describe('sorting', () => {
-      test('should have the correct arrow active by default', () => {
-        const ascArrowElement = wrapper.find('.arrow-asc')
-        expect(ascArrowElement.element.classList).toContain('active')
-      })
-
-      test('should have asc arrow active on click on non sorted column', async () => {
-        const header = wrapper.findAll('.column-title').at(1)
-        await header.trigger('click')
-        const arrowElement = header.find('.arrow-asc')
-        expect(arrowElement.element.classList).toContain('active')
-      })
-
-      test('should have desc arrow active on click on asc sorted column', async () => {
-        const header = wrapper.findAll('.column-title').at(1)
-        await header.trigger('click')
-        await header.trigger('click')
-        const arrowElement = header.find('.arrow-desc')
-        expect(arrowElement.element.classList).toContain('active')
-      })
-
-      test('should have asc arrow active on click on desc sorted column', async () => {
-        const nameCell = wrapper.findAll('.column-title').at(0)
-        await nameCell.trigger('click')
-        await nameCell.trigger('click')
-        const arrowElement = nameCell.find('.arrow-asc')
-        expect(arrowElement.element.classList).toContain('active')
-      })
-
-      test('should have values sorted in ascending order', async () =>{
-        const header = wrapper.findAll('.column-title').at(1)
-        await header.trigger('click')
-        const firstRow = wrapper.findAll('.data-row').at(0)
-        const descriptionCellFirstRow = firstRow.findAll('td').at(1)
-        const secondRow = wrapper.findAll('.data-row').at(1)
-        const descriptionCellSecondRow = secondRow.findAll('td').at(1)
-        const thirdRow = wrapper.findAll('.data-row').at(2)
-        const descriptionCellThirdRow = thirdRow.findAll('td').at(1)
-        expect(descriptionCellFirstRow.text()).toBe(sortedGlobalFilterMockByDescriptionAsc[0]['description'])
-        expect(descriptionCellSecondRow.text()).toBe(sortedGlobalFilterMockByDescriptionAsc[1]['description'])
-        expect(descriptionCellThirdRow.text()).toBe(sortedGlobalFilterMockByDescriptionAsc[2]['description'])
-      })
-
-      test('should be able to sort null values', (done) =>{
-        globalFilterMock = [
-          {
-            name: 'c test3',
-            description: 'c Jest testing description',
-            tags: ['apple', 'crawler', 'curiefense'],
-            id: 3,
-            action: {
-              type: 'challenge',
-            },
-          },
-          {
-            name: 'b test2',
-            description: 'b Jest testing description',
-            tags: ['crawler', 'curiefense'],
-            id: 2,
-            action: {
-              type: 'default',
-            },
-          },
-          {
-            name: 'a test1',
-            description: null,
-            tags: ['curiefense'],
-            id: 1,
-            action: {
-              type: 'default',
-            },
-          },
-        ]
-
-        wrapper = shallowMount(DocumentList, {
+        mockRoute.path = `/list/master/${docType}`
+        wrapper = mount(DocumentList, {
           global: {
             mocks: {
               $route: mockRoute,
@@ -1518,527 +1468,25 @@ describe('DocumentList.vue', () => {
             },
           },
         })
+        // allow all requests to finish
         setImmediate(() => {
-          const header = wrapper.findAll('.column-title').at(1)
-          header.trigger('click')
-          const firstRow = wrapper.findAll('.data-row').at(0)
-          const descriptionCellFirstRow = firstRow.findAll('td').at(1)
-          const secondRow = wrapper.findAll('.data-row').at(1)
-          const descriptionCellSecondRow = secondRow.findAll('td').at(1)
-          const thirdRow = wrapper.findAll('.data-row').at(2)
-          const descriptionCellThirdRow = thirdRow.findAll('td').at(1)
-          expect(descriptionCellFirstRow.text()).toBe('')
-          expect(descriptionCellSecondRow.text()).toBe(globalFilterMock[1]['description'])
-          expect(descriptionCellThirdRow.text()).toBe(globalFilterMock[0]['description'])
+          expect(wrapper.vm.columns).toEqual(COLUMN_OPTIONS_MAP[docType])
           done()
         })
       })
+    }
 
-      test('should have values sorted in descending order', async () =>{
-        const header = wrapper.findAll('.column-title').at(1)
-        await header.trigger('click')
-        await header.trigger('click')
-        const firstRow = wrapper.findAll('.data-row').at(0)
-        const descriptionCellFirstRow = firstRow.findAll('td').at(1)
-        const secondRow = wrapper.findAll('.data-row').at(1)
-        const descriptionCellSecondRow = secondRow.findAll('td').at(1)
-        const thirdRow = wrapper.findAll('.data-row').at(2)
-        const descriptionCellThirdRow = thirdRow.findAll('td').at(1)
-        expect(descriptionCellFirstRow.text()).toBe(sortedGlobalFilterMockByDescriptionDesc[0]['description'])
-        expect(descriptionCellSecondRow.text()).toBe(sortedGlobalFilterMockByDescriptionDesc[1]['description'])
-        expect(descriptionCellThirdRow.text()).toBe(sortedGlobalFilterMockByDescriptionDesc[2]['description'])
-      })
-
-      test('should have values sorted in ascending order after sorted descending order', async () =>{
-        const header = wrapper.findAll('.column-title').at(0)
-        await header.trigger('click')
-        await header.trigger('click')
-        const firstRow = wrapper.findAll('.data-row').at(0)
-        const nameCellFirstRow = firstRow.findAll('td').at(0)
-        const secondRow = wrapper.findAll('.data-row').at(1)
-        const nameCellSecondRow = secondRow.findAll('td').at(0)
-        const thirdRow = wrapper.findAll('.data-row').at(2)
-        const nameCellThirdRow = thirdRow.findAll('td').at(0)
-        expect(nameCellFirstRow.text()).toBe(sortedGlobalFilterMockByNameAsc[0]['name'])
-        expect(nameCellSecondRow.text()).toBe(sortedGlobalFilterMockByNameAsc[1]['name'])
-        expect(nameCellThirdRow.text()).toBe(sortedGlobalFilterMockByNameAsc[2]['name'])
-      })
-
-      test('should have action values sorted in ascending order', async () =>{
-        const header = wrapper.findAll('.column-title').at(4)
-        await header.trigger('click')
-        const firstRow = wrapper.findAll('.data-row').at(0)
-        const actionCellFirstRow = firstRow.findAll('td').at(4)
-        const secondRow = wrapper.findAll('.data-row').at(1)
-        const actionCellSecondRow = secondRow.findAll('td').at(4)
-        const thirdRow = wrapper.findAll('.data-row').at(2)
-        const actionCellThirdRow = thirdRow.findAll('td').at(4)
-        expect(actionCellFirstRow.text()).toBe('503 Service Unavailable')
-        expect(actionCellSecondRow.text()).toBe('503 Service Unavailable')
-        expect(actionCellThirdRow.text()).toBe('Challenge')
-      })
-
-      test('should have asc arrow in new sorting column when previous was asc arrow', async () =>{
-        const descriptionCell = wrapper.findAll('.column-title').at(1)
-        await descriptionCell.trigger('click')
-        const nameCell = wrapper.findAll('.column-title').at(0)
-        await nameCell.trigger('click')
-        const ascArrowElement = wrapper.findAll('.arrow-asc').at(0)
-        expect(ascArrowElement.element.classList).toContain('active')
-      })
-
-      test('should have asc arrow in new sorting column when previous was dsec arrow', async () =>{
-        const nameCell = wrapper.findAll('.column-title').at(0)
-        await nameCell.trigger('click')
-        const descriptionCell = wrapper.findAll('.column-title').at(1)
-        await descriptionCell.trigger('click')
-        const ascArrowElement = wrapper.findAll('.arrow-asc').at(1)
-        expect(ascArrowElement.element.classList).toContain('active')
-      })
-
-      test('should not have arrows when the column is non sortable', () => {
-        const tagsCell = wrapper.findAll('.column-title').at(2)
-        expect(tagsCell.element.classList).not.toContain('is-clickable')
-      })
-
-      test('should not do anything when clicking on non sortable cell', async () => {
-        const tagsCell = wrapper.findAll('.column-title').at(2)
-        await tagsCell.trigger('click')
-        const firstRow = wrapper.findAll('.data-row').at(0)
-        const descriptionCellFirstRow = firstRow.findAll('td').at(1)
-        const secondRow = wrapper.findAll('.data-row').at(1)
-        const descriptionCellSecondRow = secondRow.findAll('td').at(1)
-        const thirdRow = wrapper.findAll('.data-row').at(2)
-        const descriptionCellThirdRow = thirdRow.findAll('td').at(1)
-        expect(descriptionCellFirstRow.text()).toBe(sortedGlobalFilterMockByDescriptionAsc[0]['description'])
-        expect(descriptionCellSecondRow.text()).toBe(sortedGlobalFilterMockByDescriptionAsc[1]['description'])
-        expect(descriptionCellThirdRow.text()).toBe(sortedGlobalFilterMockByDescriptionAsc[2]['description'])
-      })
-    })
-
-    describe('filtering', () => {
-      test('should have invisible icon state on the first load', async () => {
-        const filterButton = wrapper.find('.filter-toggle')
-        expect(filterButton.element.classList).not.toContain('is-active')
-      })
-
-      test('should have to change to visible state after click on the filter icon', async () => {
-        const filterButton = wrapper.find('.filter-toggle')
-        await filterButton.trigger('click')
-        expect(filterButton.element.classList).toContain('is-active')
-      })
-
-      test('should not show the search row in the first load', async () => {
-        const filterHeader = wrapper.find('search-row')
-        expect(filterHeader.exists()).toBe(false)
-      })
-
-      test('should have to click on the filter button to expose the search row', async () => {
-        const filterButton = wrapper.find('.filter-toggle')
-        await filterButton.trigger('click')
-        const filterHeader = wrapper.findAll('.header-row').at(1)
-        expect(filterHeader.element.classList).toContain('search-row')
-      })
-
-      test('should have to click twice on the filter button to see if search row is disappear', async () => {
-        const filterButton = wrapper.find('.filter-toggle')
-        await filterButton.trigger('click')
-        await filterButton.trigger('click')
-        const filterRow = wrapper.find('search-row')
-        expect(filterRow.exists()).toBe(false)
-      })
-
-      test('should have to check if the placeholders in the filter cells are the same as the column title', async () => {
-        const filterButton = wrapper.find('.filter-toggle')
-        await filterButton.trigger('click')
-        const nameInput = wrapper.findAll('.filter-input').at(0).attributes('placeholder')
-        const descriptionInput = wrapper.findAll('.filter-input').at(1).attributes('placeholder')
-        const tagsInput = wrapper.findAll('.filter-input').at(2).attributes('placeholder')
-        expect(nameInput).toBe(columnTitle[0])
-        expect(descriptionInput).toBe(columnTitle[1])
-        expect(tagsInput).toBe(columnTitle[2])
-      })
-
-      test('should have to filter values', async () =>{
-        const filterButton = wrapper.find('.filter-toggle')
-        await filterButton.trigger('click')
-        const nameInput = wrapper.findAll('.filter-input').at(0)
-        await nameInput.trigger('click')
-        await nameInput.setValue('a')
-        await nameInput.trigger('keydown', {keyCode: 13})
-        const firstDataCell = wrapper.findAll('.data-cell').at(0)
-        const secondDataCell = wrapper.findAll('.data-cell').at(1)
-        expect(firstDataCell.text()).toBe(globalFilterMock[2]['name'])
-        expect(secondDataCell.text()).toBe(globalFilterMock[2]['description'])
-      })
-
-      test('should have to filter tags values', async () =>{
-        const filterButton = wrapper.find('.filter-toggle')
-        await filterButton.trigger('click')
-        const tagsInput = wrapper.findAll('.filter-input').at(2)
-        await tagsInput.trigger('click')
-        await tagsInput.setValue('curiefense')
-        await tagsInput.trigger('keydown', {keyCode: 13})
-        const firstDataCell = wrapper.findAll('.data-cell').at(0)
-        const secondDataCell = wrapper.findAll('.data-cell').at(1)
-        expect(firstDataCell.text()).toBe(globalFilterMock[2]['name'])
-        expect(secondDataCell.text()).toBe(globalFilterMock[2]['description'])
-      })
-
-      test('should be able to filter null values', async () =>{
-        globalFilterMock = [
-          {
-            name: 'c test3',
-            description: 'c Jest testing description',
-            tags: ['apple', 'crawler', 'curiefense'],
-            id: 3,
-            action: {
-              type: 'challenge',
-            },
-          },
-          {
-            name: 'b test2',
-            description: 'b Jest testing description',
-            tags: ['crawler', 'curiefense'],
-            id: 2,
-            action: {
-              type: 'default',
-            },
-          },
-          {
-            name: 'a test1',
-            description: null,
-            tags: ['curiefense'],
-            id: 1,
-            action: {
-              type: 'default',
-            },
-          },
-        ]
-
-        wrapper = shallowMount(DocumentList, {
-          global: {
-            mocks: {
-              $route: mockRoute,
-              $router: mockRouter,
-            },
-          },
-        })
-        await nextTick()
-        const filterButton = wrapper.find('.filter-toggle')
-        await filterButton.trigger('click')
-        const descriptionInput = wrapper.findAll('.filter-input').at(1)
-        await descriptionInput.trigger('click')
-        await descriptionInput.setValue('Jest')
-        await descriptionInput.trigger('keydown', {keyCode: 13})
-        const dataRows = wrapper.findAll('.data-row')
-        const firstDataCell = dataRows.at(0).findAll('.data-cell').at(1)
-        const secondDataCell = dataRows.at(1).findAll('.data-cell').at(1)
-        expect(firstDataCell.text()).toBe(globalFilterMock[1]['description'])
-        expect(secondDataCell.text()).toBe(globalFilterMock[0]['description'])
-        expect(dataRows.length).toBe(2)
-      })
-
-      test('should have return whole values when empty filter', async () =>{
-        const filterButton = wrapper.find('.filter-toggle')
-        await filterButton.trigger('click')
-        const nameInput = wrapper.findAll('.filter-input').at(0)
-        await nameInput.trigger('click')
-        await nameInput.setValue('')
-        await nameInput.trigger('keydown', {keyCode: 13})
-        const firstRow = wrapper.findAll('.data-row').at(0)
-        const nameCellFirstRow = firstRow.findAll('td').at(0)
-        const secondRow = wrapper.findAll('.data-row').at(1)
-        const nameCellSecondRow = secondRow.findAll('td').at(0)
-        const thirdRow = wrapper.findAll('.data-row').at(2)
-        const nameCellThirdRow = thirdRow.findAll('td').at(0)
-        expect(nameCellFirstRow.text()).toBe(sortedGlobalFilterMockByNameAsc[0]['name'])
-        expect(nameCellSecondRow.text()).toBe(sortedGlobalFilterMockByNameAsc[1]['name'])
-        expect(nameCellThirdRow.text()).toBe(sortedGlobalFilterMockByNameAsc[2]['name'])
-      })
-
-      test('should have to check multi filter by adding description and name', async () => {
-        const filterButton = wrapper.find('.filter-toggle')
-        await filterButton.trigger('click')
-        const descriptionInput = wrapper.findAll('.filter-input').at(1)
-        await descriptionInput.trigger('click')
-        await descriptionInput.setValue('Jest')
-        await descriptionInput.trigger('keydown', {keyCode: 13})
-        const nameInput = wrapper.findAll('.filter-input').at(0)
-        await nameInput.trigger('click')
-        await nameInput.setValue('a')
-        await nameInput.trigger('keydown', {keyCode: 13})
-        const dataRow = wrapper.find('.data-row')
-        const nameCellFirstRow = dataRow.findAll('td').at(0)
-        expect(nameCellFirstRow.text()).toBe(sortedGlobalFilterMockByNameAsc[0]['name'])
-      })
-
-      test('should have to check multi filter by combination of adding and removing description and name', async () => {
-        const filterButton = wrapper.find('.filter-toggle')
-        await filterButton.trigger('click')
-        const descriptionInput = wrapper.findAll('.filter-input').at(1)
-        await descriptionInput.trigger('click')
-        await descriptionInput.setValue('Jest')
-        await descriptionInput.trigger('keydown', {keyCode: 13})
-        const nameInput = wrapper.findAll('.filter-input').at(0)
-        await nameInput.trigger('click')
-        await nameInput.setValue('a')
-        await descriptionInput.trigger('keydown', {keyCode: 13})
-        await nameInput.trigger('click')
-        await nameInput.setValue('')
-        await descriptionInput.trigger('keydown', {keyCode: 13})
-        const dataRow = wrapper.find('.data-row')
-        const nameCellFirstRow = dataRow.findAll('td').at(0)
-        expect(nameCellFirstRow.text()).toBe(sortedGlobalFilterMockByNameAsc[0]['name'])
-      })
-
-      test('should have to check add value for description then remove it and add name filter', async () => {
-        const filterButton = wrapper.find('.filter-toggle')
-        await filterButton.trigger('click')
-        const descriptionInput = wrapper.findAll('.filter-input').at(1)
-        await descriptionInput.trigger('click')
-        await descriptionInput.setValue('Jest')
-        await descriptionInput.trigger('keydown', {keyCode: 13})
-        await descriptionInput.trigger('click')
-        await descriptionInput.setValue('')
-        const nameInput = wrapper.findAll('.filter-input').at(0)
-        await nameInput.trigger('click')
-        await nameInput.setValue('a')
-        await descriptionInput.trigger('keydown', {keyCode: 13})
-        await nameInput.trigger('click')
-        await nameInput.setValue('')
-        await descriptionInput.trigger('keydown', {keyCode: 13})
-        const dataRow = wrapper.find('.data-row')
-        const nameCellFirstRow = dataRow.findAll('td').at(0)
-        expect(nameCellFirstRow.text()).toBe(sortedGlobalFilterMockByNameAsc[0]['name'])
-      })
-
-      test('should not have a search inputh when dont have searchable permission', async () => {
-        const filterButton = wrapper.find('.filter-toggle')
-        await filterButton.trigger('click')
-        const nameInput = wrapper.find('.unsearchable')
-        await nameInput.trigger('click')
-        expect(nameInput.element.classList).toContain('unsearchable')
-      })
-    })
-
-    describe('edit', () => {
-      test('should have edit document when click on edit document button', async () => {
-        const firstDataRow = wrapper.findAll('.edit-doc-button').at(0)
-        await firstDataRow.trigger('click')
-        const secondDataRow = wrapper.findAll('.edit-doc-button').at(1)
-        await secondDataRow.trigger('click')
-        expect(mockRouter.push).toHaveBeenCalledTimes(2)
-        expect(mockRouter.push).toHaveBeenCalledWith(`/config/master/globalfilters/${globalFilterMock[2]['id']}`)
-        expect(mockRouter.push).toHaveBeenCalledWith(`/config/master/globalfilters/${globalFilterMock[1]['id']}`)
-      })
-    })
-
-    describe('pagination', () => {
-      let paginationGlobalFilterMock: GlobalFilter[]
-      beforeEach((done) => {
-        paginationGlobalFilterMock = [
-          {
-            name: 'a test1',
-            description: 'a Jest testing description',
-            tags: ['curiefense'],
-            isSortable: true,
-            isSearchable: false,
-            id: 1,
-          },
-          {
-            name: 'b test2',
-            description: 'b Jest testing description',
-            tags: ['crawler', 'curiefense'],
-            isSortable: false,
-            isSearchable: true,
-            id: 2,
-          },
-          {
-            name: 'c test3',
-            description: 'c Jest testing description',
-            tags: ['apple', 'crawler', 'curiefense'],
-            isSortable: true,
-            isSearchable: true,
-            id: 3,
-          },
-          {
-            name: 'd test1',
-            description: 'd Jest testing description',
-            tags: ['test1'],
-            isSortable: true,
-            isSearchable: false,
-            id: 4,
-          },
-          {
-            name: 'e test1',
-            description: 'e Jest testing description',
-            tags: ['test2'],
-            isSortable: true,
-            isSearchable: false,
-            id: 5,
-          },
-          {
-            name: 'f test1',
-            description: 'f Jest testing description',
-            tags: ['test3'],
-            isSortable: true,
-            isSearchable: false,
-            id: 6,
-          },
-          {
-            name: 'g test1',
-            description: 'g Jest testing description',
-            tags: ['test4'],
-            isSortable: true,
-            isSearchable: false,
-            id: 7,
-          },
-          {
-            name: 'h test1',
-            description: 'h Jest testing description',
-            tags: ['test5'],
-            isSortable: true,
-            isSearchable: false,
-            id: 8,
-          },
-          {
-            name: 'i test1',
-            description: 'i Jest testing description',
-            tags: ['test6'],
-            isSortable: true,
-            isSearchable: false,
-            id: 9,
-          },
-          {
-            name: 'j test1',
-            description: 'j Jest testing description',
-            tags: ['test7'],
-            isSortable: true,
-            isSearchable: false,
-            id: 10,
-          },
-          {
-            name: 'k test1',
-            description: 'k Jest testing description',
-            tags: ['test8'],
-            isSortable: true,
-            isSearchable: false,
-            id: 11,
-          },
-        ]
-        jest.spyOn(axios, 'get').mockImplementation((path, config) => {
-          if (path === '/conf/api/v2/configs/') {
-            return Promise.resolve({data: gitData})
-          }
-          const branch = wrapper.vm.selectedBranch
-          if (path === `/conf/api/v2/configs/${branch}/d/globalfilters/`) {
-            const globalFilterXFields = _.flatMap(COLUMN_OPTIONS_MAP?.globalfilters, 'fieldNames')
-            globalFilterXFields.unshift('id')
-            if (config && config.headers && config.headers['x-fields'] === globalFilterXFields.join(', ')) {
-              return Promise.resolve({data: _.map(paginationGlobalFilterMock, (i) => _.pick(i, globalFilterXFields))})
-            }
-            return Promise.resolve({data: paginationGlobalFilterMock})
-          }
-          return Promise.resolve({data: []})
-        })
-
-        mockRoute.params.doc_type = 'globalfilters'
-        mockRoute.path = `/list/master/globalfilters`
-        wrapper = shallowMount(DocumentList, {
-          global: {
-            mocks: {
-              $route: mockRoute,
-              $router: mockRouter,
-            },
-          },
-        })
-        setImmediate(() => {
-          done()
-        })
-      })
-
-      test('should not show pagination bar when the amount of elements is less than 10', () => {
-        jest.spyOn(axios, 'get').mockImplementation(() => {
-          return Promise.resolve({data: globalFilterMock})
-        })
-        mockRoute.params.doc_type = 'globalfilters'
-        mockRoute.path = `/list/master/globalfilters`
-        wrapper = shallowMount(DocumentList, {
-          global: {
-            mocks: {
-              $route: mockRoute,
-              $router: mockRouter,
-            },
-          },
-        })
-        const pagination = wrapper.find('.pagination')
-        expect(pagination.exists()).toBe(false)
-      })
-
-      test('should show pagination bar when the amount of elements is more or equal to 10', () => {
-        const pagination = wrapper.find('.pagination-row')
-        expect(pagination.exists()).toBe(true)
-      })
-
-      test('should the page be in the first page as default', () => {
-        const firstRow = wrapper.findAll('.data-row').at(0)
-        const nameCell = firstRow.findAll('td').at(0)
-        const currentPage = wrapper.vm.currentPage
-        expect(nameCell.text()).toBe(paginationGlobalFilterMock[0]['name'])
-        expect(currentPage).toBe(1)
-      })
-
-      test('should have to click on the next button page', async () => {
-        const paginationNextButton = wrapper.find('.pagination-next')
-        await paginationNextButton.trigger('click')
-        const firstRow = wrapper.findAll('.data-row').at(0)
-        const nameCell = firstRow.findAll('td').at(0)
-        expect(nameCell.text()).toBe(paginationGlobalFilterMock[10]['name'])
-      })
-
-      test('should have to click on previous page button after next page button', async () => {
-        const paginationNextButton = wrapper.find('.pagination-next')
-        await paginationNextButton.trigger('click')
-        const paginationPreviousButton = wrapper.find('.pagination-previous')
-        await paginationPreviousButton.trigger('click')
-        const firstRow = wrapper.findAll('.data-row').at(0)
-        const nameCell = firstRow.findAll('td').at(0)
-        expect(nameCell.text()).toBe(paginationGlobalFilterMock[0]['name'])
-      })
-
-      test('should have to sort as descending order and see the last element of the array from the second page', async () => {
-        const headerRow = wrapper.find('.header-row')
-        const nameCell = headerRow.findAll('th').at(0)
-        await nameCell.trigger('click')
-        const dataRow = wrapper.findAll('.data-row').at(0)
-        const firstNameCell = dataRow.findAll('td').at(0)
-        expect(firstNameCell.text()).toBe(paginationGlobalFilterMock[10]['name'])
-      })
-
-      test('should have to filter the last element from the array', async () => {
-        const filterButton = wrapper.find('.filter-toggle')
-        await filterButton.trigger('click')
-        const nameInput = wrapper.findAll('.filter-input').at(0)
-        await nameInput.trigger('click')
-        await nameInput.setValue('k')
-        await nameInput.trigger('keydown', {keyCode: 13})
-        const firstDataCell = wrapper.findAll('.data-cell').at(0)
-        expect(firstDataCell.text()).toBe(paginationGlobalFilterMock[10]['name'])
-      })
-
-      test('should have to go to second page and filter the first element from the array', async () => {
-        const paginationNextButton = wrapper.find('.pagination-next')
-        await paginationNextButton.trigger('click')
-        const filterButton = wrapper.find('.filter-toggle')
-        await filterButton.trigger('click')
-        const nameInput = wrapper.findAll('.filter-input').at(0)
-        await nameInput.trigger('click')
-        await nameInput.setValue('a')
-        await nameInput.trigger('keydown', {keyCode: 13})
-        const firstDataCell = wrapper.findAll('.data-cell').at(0)
-        expect(firstDataCell.text()).toBe(paginationGlobalFilterMock[0]['name'])
-      })
+    const documentTypes: DocumentType[] = [
+      'aclprofiles',
+      'flowcontrol',
+      'globalfilters',
+      'ratelimits',
+      'securitypolicies',
+      'contentfilterprofiles',
+      'contentfilterrules',
+    ]
+    documentTypes.forEach((docType) => {
+      buildColumnOptionsTest(docType)
     })
   })
 })

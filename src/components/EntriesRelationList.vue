@@ -5,23 +5,23 @@
         <div class="tile">
           <div class="tile is-parent is-vertical">
             <div class="tile is-child box is-primary section"
-                 v-for="(section, sectionIndex) in localRule.sections" :key="sectionIndex">
+                 v-for="(section, sectionIndex) in localRule.entries" :key="sectionIndex">
               <div class="has-text-centered relation-selection-wrapper"
-                   v-if="localRule.sections.length > 1 && sectionIndex > 0">
+                   v-if="localRule.entries.length > 1 && sectionIndex > 0">
                   <span class="tag has-text-weight-semibold">
                     {{ localRule.relation }}
                   </span>
               </div>
               <table class="table is-narrow entries-table mb-0">
                 <tbody>
-                <tr v-for="(entry,entryIndex) in sectionsCurrentPage[sectionIndex]"
+                <tr v-for="(entry,entryIndex) in entriesCurrentPage[sectionIndex]"
                     :key="entryIndex"
                     :name="entryIndex"
                     class="entry-row"
                     :class="{'has-text-danger': isEntryDuplicate( sectionIndex, entry )}">
                   <td class="is-size-7 width-50px has-text-centered has-text-weight-medium">
                       <span
-                          v-if="((entryIndex + 1) + ((sectionsCurrentPageIndex[sectionIndex] - 1) * rowsPerPage)) !== 1"
+                          v-if="((entryIndex + 1) + ((entriesCurrentPageIndex[sectionIndex] - 1) * rowsPerPage)) !== 1"
                           class="is-small pointer section-relation-toggle"
                           @click="toggleSectionRelation(section)">
                         {{ section.relation }}
@@ -159,22 +159,22 @@
                 <tr v-if="totalPages(section) > 1">
                   <td colspan="5">
                     <nav aria-label="pagination" class="pagination is-small" role="navigation">
-                      <button :disabled="sectionsCurrentPageIndex[sectionIndex] === 1"
+                      <button :disabled="entriesCurrentPageIndex[sectionIndex] === 1"
                          class="is-pulled-left pagination-previous"
                          tabindex="0"
-                         @click="navigate(section, sectionIndex, sectionsCurrentPageIndex[sectionIndex] - 1)"
+                         @click="navigate(section, sectionIndex, entriesCurrentPageIndex[sectionIndex] - 1)"
                          @keypress.space.prevent
-                         @keypress.space="navigate(section, sectionIndex, sectionsCurrentPageIndex[sectionIndex] - 1)"
-                         @keypress.enter="navigate(section, sectionIndex, sectionsCurrentPageIndex[sectionIndex] - 1)">
+                         @keypress.space="navigate(section, sectionIndex, entriesCurrentPageIndex[sectionIndex] - 1)"
+                         @keypress.enter="navigate(section, sectionIndex, entriesCurrentPageIndex[sectionIndex] - 1)">
                         Previous page
                       </button>
-                      <button :disabled="sectionsCurrentPageIndex[sectionIndex] === totalPages(section)"
+                      <button :disabled="entriesCurrentPageIndex[sectionIndex] === totalPages(section)"
                          class="is-pulled-right pagination-next"
                          tabindex="0"
-                         @click="navigate(section, sectionIndex, sectionsCurrentPageIndex[sectionIndex] + 1)"
+                         @click="navigate(section, sectionIndex, entriesCurrentPageIndex[sectionIndex] + 1)"
                          @keypress.space.prevent
-                         @keypress.space="navigate(section, sectionIndex, sectionsCurrentPageIndex[sectionIndex] + 1)"
-                         @keypress.enter="navigate(section, sectionIndex, sectionsCurrentPageIndex[sectionIndex] + 1)">
+                         @keypress.space="navigate(section, sectionIndex, entriesCurrentPageIndex[sectionIndex] + 1)"
+                         @keypress.enter="navigate(section, sectionIndex, entriesCurrentPageIndex[sectionIndex] + 1)">
                         Next page
                       </button>
                     </nav>
@@ -217,15 +217,15 @@ export default defineComponent({
       default: () => {
         return {
           relation: 'OR',
-          sections: [] as GlobalFilterSection[],
+          entries: [] as GlobalFilterSection[],
         }
       },
       validator: (value: GlobalFilter['rule']) => {
-        if (!value || !value.relation || !value.sections) {
+        if (!value || !value.relation || !value.entries) {
           return false
         }
         const isRelationValid = ['OR', 'AND'].includes(value.relation.toUpperCase())
-        const isListInvalid = value.sections.find((section: GlobalFilterSection) => {
+        const isListInvalid = value.entries.find((section: GlobalFilterSection) => {
           const isSectionRelationInvalid = !(['OR', 'AND'].includes(value.relation.toUpperCase()))
           const isSectionsEntriesInvalid = !section.entries || !section.entries.find ||
               section.entries.find((entry: GlobalFilterSectionEntry) => {
@@ -242,7 +242,7 @@ export default defineComponent({
   data() {
     return {
       // rowsPerPage: 20, >> computed property now
-      sectionsCurrentPageIndex: [],
+      entriesCurrentPageIndex: [],
       listEntryTypes: {
         'path': {'title': 'Path', 'pair': false},
         'query': {'title': 'Query', 'pair': false},
@@ -272,17 +272,17 @@ export default defineComponent({
 
     rowsPerPage(): number {
       // no pagination for multiple sections
-      return this.localRule.sections.length > 1 ? 1000 * 1000 : 20
+      return this.localRule.entries.length > 1 ? 1000 * 1000 : 20
     },
 
-    sectionsCurrentPage(): GlobalFilterSectionEntry[][] {
+    entriesCurrentPage(): GlobalFilterSectionEntry[][] {
       const pages = []
-      for (let i = 0; i < this.localRule.sections.length; i++) {
-        const section = this.localRule.sections[i]
+      for (let i = 0; i < this.localRule.entries.length; i++) {
+        const section = this.localRule.entries[i]
         if (this.sectionTotalEntries(section) !== 0) {
           pages[i] = _.slice(section.entries,
-              (this.sectionsCurrentPageIndex[i] - 1) * this.rowsPerPage,
-              this.rowsPerPage * this.sectionsCurrentPageIndex[i])
+              (this.entriesCurrentPageIndex[i] - 1) * this.rowsPerPage,
+              this.rowsPerPage * this.entriesCurrentPageIndex[i])
         }
       }
       return pages
@@ -296,10 +296,10 @@ export default defineComponent({
   watch: {
     rule: {
       handler: function() {
-        this.sectionsCurrentPageIndex = []
-        for (let i = 0; i < this.localRule.sections.length; i++) {
-          const section = this.localRule.sections[i]
-          this.sectionsCurrentPageIndex[i] = 1
+        this.entriesCurrentPageIndex = []
+        for (let i = 0; i < this.localRule.entries.length; i++) {
+          const section = this.localRule.entries[i]
+          this.entriesCurrentPageIndex[i] = 1
           if (this.sectionContainsSameCategoryItems(section)) {
             section.relation = 'OR'
           }
@@ -378,7 +378,7 @@ export default defineComponent({
 
     navigate(section: GlobalFilterSection, sectionIndex: number, pageNum: number) {
       if (pageNum >= 1 && pageNum <= this.totalPages(section)) {
-        this.sectionsCurrentPageIndex[sectionIndex]= pageNum
+        this.entriesCurrentPageIndex[sectionIndex]= pageNum
       }
     },
 
@@ -387,15 +387,15 @@ export default defineComponent({
         relation: 'OR' as Relation,
         entries: [] as GlobalFilterSectionEntry[],
       }
-      this.localRule.sections.push(newSection)
-      this.sectionsCurrentPageIndex[this.localRule.sections.length - 1] = 1
-      this.setNewEntryIndex(this.localRule.sections.length - 1)
+      this.localRule.entries.push(newSection)
+      this.entriesCurrentPageIndex[this.localRule.entries.length - 1] = 1
+      this.setNewEntryIndex(this.localRule.entries.length - 1)
       this.emitRuleUpdate()
     },
 
     removeSection(sectionIndex: number) {
-      this.localRule.sections.splice(sectionIndex, 1)
-      this.sectionsCurrentPageIndex.splice(sectionIndex, 1)
+      this.localRule.entries.splice(sectionIndex, 1)
+      this.entriesCurrentPageIndex.splice(sectionIndex, 1)
       this.emitRuleUpdate()
     },
 
@@ -429,7 +429,7 @@ export default defineComponent({
     },
 
     removeEntry(section: GlobalFilterSection, sectionIndex: number, entryIndex: number) {
-      const pointer = ((this.sectionsCurrentPageIndex[sectionIndex] - 1) * this.rowsPerPage) + entryIndex
+      const pointer = ((this.entriesCurrentPageIndex[sectionIndex] - 1) * this.rowsPerPage) + entryIndex
       section.entries.splice(pointer, 1)
       if (!section.entries.length) {
         this.removeSection(sectionIndex)
@@ -449,7 +449,7 @@ export default defineComponent({
       this.setNewEntryIndex(-1)
       this.invalidIPs = []
       this.clearError(`${this.newEntryCategory}${sectionIndex}`)
-      if (!this.localRule.sections[sectionIndex].entries.length) {
+      if (!this.localRule.entries[sectionIndex].entries.length) {
         this.removeSection(sectionIndex)
       }
     },
@@ -479,12 +479,13 @@ export default defineComponent({
 
     validateDuplicates() {
       this.duplicatedEntries = []
-      this.rule.sections.forEach(
+      this.rule.entries.forEach(
           ({entries}, sectionIndex: number) => entries.map(
               ({0: category, 1: value}) => {
-                const isDuplicate = entries.filter(({0: eCat, 1: eVal}) => {
-                  return eCat === category && _.isEqual(eVal, value)
-                })?.length > 1
+                const filteredEntries = entries.filter(({0: entryCategory, 1: entryValue}) => {
+                  return entryCategory === category && _.isEqual(entryValue, value)
+                })
+                const isDuplicate = filteredEntries.length > 1
                 if (isDuplicate && !this.isEntryDuplicate(sectionIndex, [category, value])) {
                   this.duplicatedEntries.push([sectionIndex, category, value])
                 }
@@ -495,9 +496,9 @@ export default defineComponent({
       if (this.duplicatedEntries.length) {
         const duplicatesMsg = this.duplicatedEntries.reduce(
             (prev: string, [section, category, value]: GlobalFilterSectionEntry) => {
-              const sectionMsg = this.rule.sections.length > 1 ? `Section ${section + 1}: ` : ''
+              const sectionMsg = this.rule.entries.length > 1 ? `Section ${section + 1}: ` : ''
               return `${prev}<br/>` +
-                  `${sectionMsg}${this.listEntryTypes[category as Category]?.title} = ${this.dualCell(value)}`
+                  `${sectionMsg}${this.listEntryTypes[category as Category].title} = ${this.dualCell(value)}`
             },
             '',
         )
@@ -600,7 +601,7 @@ export default defineComponent({
   margin-top: -1.5rem;
 }
 
-.sections-wrapper {
+.entries-wrapper {
   max-height: 1000px;
   overflow-y: auto;
 }

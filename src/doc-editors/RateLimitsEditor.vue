@@ -23,17 +23,25 @@
                 </div>
               </div>
               <div class="field">
-                <label class="label is-small">
-                  Description
-                </label>
-                <div class="control">
-                  <input class="input is-small document-description"
-                         data-qa="ratelimit-description-input"
-                         type="text"
-                         title="Rate limit rule description"
-                         placeholder="Rate limit rule description"
+                <label class="checkbox is-size-7">
+                  <input type="checkbox"
+                         data-qa="global-checkbox"
+                         class="document-global"
                          @change="emitDocUpdate"
-                         v-model="localDoc.description">
+                         v-model="localDoc.global">
+                  Global
+                </label>
+              </div>
+              <div class="field textarea-field">
+                <label class="label is-small">Description</label>
+                <div class="control">
+                  <textarea class="is-small textarea document-description"
+                            data-qa="description-input"
+                            title="Document description"
+                            v-model="localDoc.description"
+                            @change="emitDocUpdate"
+                            rows="5">
+                  </textarea>
                 </div>
               </div>
               <div class="field">
@@ -121,9 +129,19 @@
                       </a>
                     </div>
                   </div>
-                  <response-action v-model:action="threshold.action"
-                                   label-separated-line
-                                   @update:action="emitDocUpdate"/>
+                  <div class="field">
+                    <label class="label is-small">
+                      Action
+                    </label>
+                    <div class="control">
+                      <input class="input is-small document-action"
+                             title="Action"
+                             data-qa="action-input"
+                             placeholder="Action"
+                             @change="emitDocUpdate"
+                             v-model="threshold.action"/>
+                    </div>
+                  </div>
                 </div>
                 <a title="Add new threshold"
                    data-qa="add-another-threshold-btn"
@@ -135,10 +153,6 @@
                    @keypress.enter="addThreshold()">
                   New threshold
                 </a>
-                <p class="has-text-danger is-size-7 ml-3 mt-3 up-to-one-ban"
-                   v-if="!upToOneBanAction">
-                  There can't be more than one Ban action.
-                </p>
               </div>
             </div>
             <div class="column is-7">
@@ -360,7 +374,6 @@
 
 <script lang="ts">
 import _ from 'lodash'
-import ResponseAction from '@/components/ResponseAction.vue'
 import LimitOption, {OptionObject} from '@/components/LimitOption.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import {defineComponent} from 'vue'
@@ -386,7 +399,6 @@ export default defineComponent({
     apiPath: String,
   },
   components: {
-    ResponseAction,
     LimitOption,
     TagAutocompleteInput,
   },
@@ -433,13 +445,6 @@ export default defineComponent({
       },
     },
 
-    upToOneBanAction(): Boolean {
-      const counts = _.countBy(this.localDoc.thresholds, (threshold) => {
-        return threshold.action.type
-      })
-      return _.get(counts, 'ban', 0) <= 1
-    },
-
     newSecurityPolicyConnections(): SecurityPolicy[] {
       return this.securityPolicies.filter((securityPolicy) => {
         return !securityPolicy.map.every((securityPolicyEntry) => {
@@ -482,7 +487,7 @@ export default defineComponent({
     },
 
     addThreshold() {
-      this.localDoc.thresholds.push({limit: '', action: {type: 'default'}} as ThresholdActionPair)
+      this.localDoc.thresholds.push({limit: 0, action: 'default'} as ThresholdActionPair)
       this.emitDocUpdate()
     },
 
