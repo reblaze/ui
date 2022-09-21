@@ -222,11 +222,12 @@ declare module CuriefenseClient {
   // Document other - START
 
   type ColumnOptions = {
-    columnTitle: string
+    title: string
     fieldNames: string[]
-    displayFunction?: (item: any) => string
-    isSortable: boolean
-    isSearchable: boolean
+    titleDisplayFunction?: (item: any) => string // Will be rendered as HTML
+    displayFunction?: (item: any) => string // Will be rendered as HTML
+    isSortable?: boolean
+    isSearchable?: boolean
     classes?: string
   }
 

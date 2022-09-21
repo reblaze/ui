@@ -239,6 +239,10 @@ $color-light: hsl(0, 0%, 96%);
 
 /* Other */
 
+.is-clickable {
+  cursor: pointer;
+}
+
 .tag-cell {
   max-width: 0;
 }

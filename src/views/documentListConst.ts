@@ -13,31 +13,30 @@ import _ from 'lodash'
 export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
   'globalfilters': [
     {
-      columnTitle: 'Name',
+      title: 'Name',
       fieldNames: ['name'],
       isSortable: true,
       isSearchable: true,
       classes: 'width-120px',
     },
     {
-      columnTitle: 'Description',
+      title: 'Description',
       fieldNames: ['description'],
       isSortable: true,
       isSearchable: true,
       classes: 'ellipsis',
     },
     {
-      columnTitle: 'Tags',
+      title: 'Tags',
       fieldNames: ['tags'],
       displayFunction: (item: GlobalFilter) => {
         return item?.tags?.join('\n')
       },
-      isSortable: false,
       isSearchable: true,
       classes: 'width-100px white-space-pre ellipsis',
     },
     {
-      columnTitle: 'Active',
+      title: 'Active',
       fieldNames: ['active'],
       displayFunction: (item: GlobalFilter) => {
         return item?.active ? 'yes' : 'no'
@@ -47,7 +46,7 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       classes: 'width-80px',
     },
     {
-      columnTitle: 'Action',
+      title: 'Action',
       fieldNames: ['action'],
       displayFunction: (item: GlobalFilter) => {
         return RESPONSE_ACTIONS[item?.action?.type]?.title
@@ -59,21 +58,21 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
   ],
   'flowcontrol': [
     {
-      columnTitle: 'Name',
+      title: 'Name',
       fieldNames: ['name'],
       isSortable: true,
       isSearchable: true,
       classes: 'width-120px',
     },
     {
-      columnTitle: 'Description',
+      title: 'Description',
       fieldNames: ['description'],
       isSortable: true,
       isSearchable: true,
       classes: 'ellipsis',
     },
     {
-      columnTitle: 'Sequences',
+      title: 'Sequences',
       fieldNames: ['sequence'],
       displayFunction: (item: FlowControlPolicy) => {
         return item?.sequence?.length?.toString()
@@ -83,14 +82,14 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       classes: 'width-100px',
     },
     {
-      columnTitle: 'Timeframe',
+      title: 'Timeframe',
       fieldNames: ['timeframe'],
       isSortable: true,
       isSearchable: true,
       classes: 'width-100px',
     },
     {
-      columnTitle: 'Action',
+      title: 'Action',
       fieldNames: ['action'],
       displayFunction: (item: FlowControlPolicy) => {
         return RESPONSE_ACTIONS[item?.action?.type]?.title
@@ -102,28 +101,28 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
   ],
   'ratelimits': [
     {
-      columnTitle: 'Name',
+      title: 'Name',
       fieldNames: ['name'],
       isSortable: true,
       isSearchable: true,
       classes: 'width-120px',
     },
     {
-      columnTitle: 'Description',
+      title: 'Description',
       fieldNames: ['description'],
       isSortable: true,
       isSearchable: true,
       classes: 'ellipsis',
     },
     {
-      columnTitle: 'Timeframe',
+      title: 'Timeframe',
       fieldNames: ['timeframe'],
       isSortable: true,
       isSearchable: true,
       classes: 'width-100px',
     },
     {
-      columnTitle: 'Limits',
+      title: 'Limits',
       fieldNames: ['thresholds'],
       displayFunction: (item: RateLimit) => {
         return _.map(item.thresholds, 'limit').join('\n')
@@ -133,7 +132,7 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       classes: 'width-100px white-space-pre ellipsis',
     },
     {
-      columnTitle: 'Event',
+      title: 'Event',
       fieldNames: ['pairwith'],
       displayFunction: (item: RateLimit) => {
         if (!item.pairwith) {
@@ -149,21 +148,21 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
   ],
   'aclprofiles': [
     {
-      columnTitle: 'Name',
+      title: 'Name',
       fieldNames: ['name'],
       isSortable: true,
       isSearchable: true,
       classes: 'width-120px',
     },
     {
-      columnTitle: 'Description',
+      title: 'Description',
       fieldNames: ['description'],
       isSortable: true,
       isSearchable: true,
       classes: 'ellipsis',
     },
     {
-      columnTitle: 'Tags',
+      title: 'Tags',
       fieldNames: ['force_deny', 'passthrough', 'allow_bot', 'deny_bot', 'allow', 'deny'],
       displayFunction: (item: ACLProfile) => {
         return _.concat(
@@ -182,21 +181,21 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
   ],
   'contentfilterprofiles': [
     {
-      columnTitle: 'Name',
+      title: 'Name',
       fieldNames: ['name'],
       isSortable: true,
       isSearchable: true,
       classes: 'width-120px',
     },
     {
-      columnTitle: 'Description',
+      title: 'Description',
       fieldNames: ['description'],
       isSortable: true,
       isSearchable: true,
       classes: 'ellipsis',
     },
     {
-      columnTitle: 'Restrict Content Type',
+      title: 'Restrict Content Type',
       fieldNames: ['content_type'],
       displayFunction: (item: ContentFilterProfile) => {
         return item['content_type']?.join(', ')
@@ -206,7 +205,7 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       classes: 'width-150px',
     },
     {
-      columnTitle: 'Decoding',
+      title: 'Decoding',
       fieldNames: ['decoding'],
       displayFunction: (item: ContentFilterProfile) => {
         if (!item.decoding) {
@@ -228,42 +227,42 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
   ],
   'contentfilterrules': [
     {
-      columnTitle: 'Name',
+      title: 'Name',
       fieldNames: ['name'],
       isSortable: true,
       isSearchable: true,
       classes: 'width-120px',
     },
     {
-      columnTitle: 'Description',
+      title: 'Description',
       fieldNames: ['description'],
       isSortable: true,
       isSearchable: true,
       classes: 'ellipsis',
     },
     {
-      columnTitle: 'Category',
+      title: 'Category',
       fieldNames: ['category'],
       isSortable: true,
       isSearchable: true,
       classes: 'width-100px',
     },
     {
-      columnTitle: 'Subcategory',
+      title: 'Subcategory',
       fieldNames: ['subcategory'],
       isSortable: true,
       isSearchable: true,
       classes: 'width-120px',
     },
     {
-      columnTitle: 'Risk Level',
+      title: 'Risk Level',
       fieldNames: ['risk'],
       isSortable: true,
       isSearchable: true,
       classes: 'width-100px',
     },
     {
-      columnTitle: 'Tags',
+      title: 'Tags',
       fieldNames: ['tags'],
       displayFunction: (item: ContentFilterRule) => {
         return item?.tags?.join(', ')

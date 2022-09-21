@@ -482,9 +482,10 @@ export default defineComponent({
       this.rule.sections.forEach(
           ({entries}, sectionIndex: number) => entries.map(
               ({0: category, 1: value}) => {
-                const isDuplicate = entries.filter(({0: eCat, 1: eVal}) => {
-                  return eCat === category && _.isEqual(eVal, value)
-                })?.length > 1
+                const filteredEntries = entries.filter(({0: entryCategory, 1: entryValue}) => {
+                  return entryCategory === category && _.isEqual(entryValue, value)
+                })
+                const isDuplicate = filteredEntries.length > 1
                 if (isDuplicate && !this.isEntryDuplicate(sectionIndex, [category, value])) {
                   this.duplicatedEntries.push([sectionIndex, category, value])
                 }
@@ -497,7 +498,7 @@ export default defineComponent({
             (prev: string, [section, category, value]: GlobalFilterSectionEntry) => {
               const sectionMsg = this.rule.sections.length > 1 ? `Section ${section + 1}: ` : ''
               return `${prev}<br/>` +
-                  `${sectionMsg}${this.listEntryTypes[category as Category]?.title} = ${this.dualCell(value)}`
+                  `${sectionMsg}${this.listEntryTypes[category as Category].title} = ${this.dualCell(value)}`
             },
             '',
         )
