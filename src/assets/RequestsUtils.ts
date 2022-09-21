@@ -75,7 +75,6 @@ export interface IRequestParams {
   onFail?: Function,
 }
 
-
 const sendRequest = (requestParams: IRequestParams) => {
   const {methodName, url, data, config, successMessage, failureMessage, undoFunction, onFail} = requestParams
   const apiUrl = `${confAPIRoot}/${confAPIVersion}/${url}`

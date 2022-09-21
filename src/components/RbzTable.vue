@@ -118,8 +118,7 @@
 <script lang="ts">
 import _ from 'lodash'
 import {defineComponent, PropType} from 'vue'
-import {ColumnOptions, GenericObject, CloudFunctionsPhase} from '@/types'
-import DatasetsUtils from '@/assets/DatasetsUtils'
+import {ColumnOptions, GenericObject} from '@/types'
 
 export default defineComponent({
   name: 'RbzTable',
@@ -160,8 +159,6 @@ export default defineComponent({
 
       // Loading indicator
       loadingCounter: 0,
-
-      cloudPhases: DatasetsUtils.cloudPhases as CloudFunctionsPhase,
     }
   },
   emits: ['new-button-clicked', 'edit-button-clicked'],
