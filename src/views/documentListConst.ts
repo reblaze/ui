@@ -267,21 +267,21 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
   ],
   'actions': [
     {
-      columnTitle: 'Name',
+      title: 'Name',
       fieldNames: ['name'],
       isSortable: true,
       isSearchable: true,
       classes: 'width-120px',
     },
     {
-      columnTitle: 'Description',
+      title: 'Description',
       fieldNames: ['description'],
       isSortable: true,
       isSearchable: true,
       classes: 'ellipsis',
     },
     {
-      columnTitle: 'Tags',
+      title: 'Tags',
       fieldNames: ['tags'],
       displayFunction: (item: GlobalFilter) => {
         return item?.tags?.join('\n')
@@ -291,7 +291,7 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       classes: 'width-100px white-space-pre ellipsis',
     },
     {
-      columnTitle: 'Type',
+      title: 'Type',
       fieldNames: ['type'],
       isSortable: true,
       isSearchable: true,
