@@ -87,7 +87,7 @@
                           data-qa="description-input"
                           title="Document description"
                           v-model="localDoc.description"
-                          @change="emitDocUpdate"
+                          @input="emitDocUpdate"
                           rows="5">
                 </textarea>
               </div>

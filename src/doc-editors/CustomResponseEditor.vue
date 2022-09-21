@@ -12,13 +12,11 @@
                         {{ localDoc.id }}
                     </span>
                   </label>
-                </div>
-                <div class="field">
                   <div class="control">
                     <input class="input is-small document-name"
-                           data-qa="list-name-input"
-                           title="List name"
-                           placeholder="List name"
+                           title="Document name"
+                           data-qa="custom-response-document-name"
+                           placeholder="Document name"
                            @change="emitDocUpdate"
                            v-model="localDoc.name"/>
                   </div>
@@ -28,10 +26,11 @@
                     <label class="label is-small">Description</label>
                     <div class="control">
                       <textarea class="is-small textarea document-description"
-                                title="Description"
-                                rows="5"
-                                @change="emitDocUpdate"
-                                v-model="localDoc.description">
+                                data-qa="description-input"
+                                title="Document description"
+                                v-model="localDoc.description"
+                                @input="emitDocUpdate"
+                                rows="5">
                       </textarea>
                     </div>
                   </div>
@@ -39,9 +38,9 @@
                 <div class="field">
                   <label class="label is-small">Type</label>
                   <div class="select is-small">
-                    <select v-model="selected"
+                    <select v-model="localDoc.type"
                             title="Switch selections"
-                            @change="switchType()">
+                            @change="emitDocUpdate()">
                     <option v-for="name in selectedType"
                             :key="name"
                             :value="name">
@@ -52,24 +51,31 @@
                 </div>
                 <div class="field">
                   <label class="label is-small">Tags</label>
-                  <div class="control">
-                    <tag-autocomplete-input class="is-small document-source"
-                           data-qa="source-input"
-                           title="List source"
-                           placeholder="List source"
-                           @change="emitDocUpdate"
-                           v-model="localDoc.tags"/>
+                  <div class="control"
+                       data-qa="tag-input">
+                    <tag-autocomplete-input :initial-tag="selectedDocTags"
+                                            :selection-type="'multiple'"
+                                            @tag-changed="selectedDocTags = $event">
+                    </tag-autocomplete-input>
                   </div>
                 </div>
               </div>
-              <div v-show= "showCustomResponse" class="column is-9">
+              <div v-if="localDoc.type === 'custom'" class="column is-9">
                 <div class="field">
-                    <label class="label is-small status-code">
+                    <label class="label is-small status-code-label">
                         Status code
                     </label>
-                    <input type="textarea"
-                    data-qa="active-checkbox"
-                    class="document-active">
+                    <div class="columns mb-0 status-code">
+                      <div class="column is-5 pb-0">
+                        <input class="input is-small document-status"
+                               data-qa="status-input"
+                               type="number"
+                               title="Status code"
+                               placeholder="Status code"
+                               @change="emitDocUpdate"
+                               v-model.number="localDoc.params.status">
+                      </div>
+                    </div>
                 </div>
                 <div class="field">
                   <label class="label is-small is-size-7 has-text-left form-label">
@@ -77,13 +83,13 @@
                   </label>
                     <div v-for="(header, index) in headersArray" :key="header.key"
                          class="columns mb-0 headers-columns">
-                      <div class="column">
+                      <div class="column is-5">
                         <input class="input is-small document-header-key"
                                 title="Header key"
                                 placeholder="Header key"
                                 v-model="header.key"/>
                       </div>
-                      <div class="column">
+                      <div class="column is-5">
                         <input class="input is-small document-header-key"
                                 title="Header value"
                                 placeholder="Header value"
@@ -107,13 +113,14 @@
                   </a>
                 </div>
                 <div class="field">
-                    <label class="label is-small status-code">
+                    <label class="label is-small content">
                         Content
                     </label>
-                    <textarea type="textarea"
-                    data-qa="active-checkbox"
-                    class="is-small textarea"
-                    rows="20">
+                    <textarea class="is-small textarea document-content"
+                              title="Content"
+                              v-model="localDoc.params.content"
+                              @input="emitDocUpdate()"
+                              rows="20">
                     </textarea>
                 </div>
               </div>
@@ -136,6 +143,18 @@ export default defineComponent({
     TagAutocompleteInput,
   },
   watch: {
+    selectedDoc: {
+      handler: function(value) {
+        this.headersArray = this.getHeadersArray()
+        // adding necessary fields to all local doc sections if missing
+        if (!value['params']) {
+          this.normalizeParams()
+        }
+      },
+      immediate: true,
+      deep: true,
+    },
+
     headersArray: {
       handler: function(value: HeaderObject[]) {
         const uniqHeaders = _.uniqBy(value, 'key')
@@ -163,8 +182,6 @@ export default defineComponent({
     const selectedType = ['skip', 'custom', 'challenge', 'monitor']
     return {
       selectedType: selectedType,
-      selected: 'skip',
-      showCustomResponse: true,
       headersArray: [] as HeaderObject[],
     }
   },
@@ -172,16 +189,26 @@ export default defineComponent({
     localDoc(): CustomResponse {
       return _.cloneDeep(this.selectedDoc as CustomResponse)
     },
+
+    selectedDocTags: {
+      get: function(): string {
+        if (this.localDoc.tags && this.localDoc.tags.length > 0) {
+          return this.localDoc.tags.join(' ')
+        }
+        return ''
+      },
+      set: function(tags: string): void {
+        this.localDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
+          return tag.trim()
+        }) : []
+        this.emitDocUpdate()
+      },
+    },
   },
   emits: ['update:selectedDoc'],
   methods: {
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
-    },
-    switchType() {
-      console.log(this.selected)
-      this.selected === 'custom' ? this.showCustomResponse = true : this.showCustomResponse = false
-      console.log(this.showCustomResponse)
     },
     getHeadersArray(): HeaderObject[] {
       if (!this.localDoc?.params?.headers) {
@@ -197,9 +224,14 @@ export default defineComponent({
     addHeaderElement() :void {
       this.headersArray.push({key: '', value: ''})
     },
-  },
-  created() {
-    this.headersArray = this.getHeadersArray()
+    normalizeParams() {
+      this.localDoc.params = {
+        status: null,
+        headers: {},
+        content: '',
+      }
+      this.emitDocUpdate()
+    },
   },
 })
 </script>
@@ -222,7 +254,8 @@ export default defineComponent({
     display: flex;
   }
 
-  .headers-columns {
+  .headers-columns,
+  .status-code {
     width: 50%;
   }
 </style>
