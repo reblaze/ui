@@ -22,10 +22,6 @@
                          @change="emitDocUpdate"
                          v-model="localDoc.name"/>
                 </div>
-                <p class="help is-danger" v-if="isError('name')">
-                  {{!localDoc.name?.trim() ? 'A cloud function with this name already exists' :
-                  'Please fill in the function name' }}
-                </p>
               </div>
               <div class="field">
                 <label class="label is-small">
@@ -95,17 +91,9 @@ import {
   CloudFunctionsPhase,
 } from '@/types'
 import SecurityPoliciesConnections from '@/components/SecurityPoliciesConnections.vue'
+import DatasetsUtils from '@/assets/DatasetsUtils'
 
 export type PhaseOption = 'requestpre' | 'requespost' | 'responsepre' | 'responsepost'
-// const cloudFunctionsMockData: CloudFunctions = {
-//   'id': 'f971e92459e2',
-//   'name': 'NEW CLOUD FUNCTION',
-//   'description': '5 requests per minute',
-//   'phase': 'requestpre',
-//   'code': `-- begin custom code
-//   --custom response header
-//   ngx.header['foo'] = 'bar'`,
-// }
 
 export default defineComponent({
   name: 'CloudFunctionsEditor',
@@ -116,43 +104,16 @@ export default defineComponent({
     docs: Array,
   },
   components: {
-  //   ResponseAction,
-  //   LimitOption,
-  //   TagAutocompleteInput,
     SecurityPoliciesConnections,
   },
   data() {
     return {
-      worker: {
-        id: String,
-        name: String,
-        description: String,
-        phase: String,
-        code: String,
-        linked_sites: Array,
-        match: String,
-      },
-      workers: [] as CloudFunctions[],
-      isDeleteModalVisible: false,
-      changes: [],
-      isModal: false,
-
-      currentEntryDeleteIndex: -1,
-
-      cloudPhases: {
-        'requestpre': 'Request Pre Reblaze',
-        'requestpost': 'Request Post Reblaze',
-        'responsepre': 'Response Pre Reblaze',
-        'responsepost': 'Response Post Reblaze',
-      } as CloudFunctionsPhase,
-
-      keysAreValid: true,
+      cloudPhases: DatasetsUtils.cloudPhases as CloudFunctionsPhase,
     }
   },
   computed: {
-    localDoc(): CloudFunctions { // CloudFunction
+    localDoc(): CloudFunctions {
       return _.cloneDeep(this.selectedDoc as CloudFunctions)
-      // return _.cloneDeep(this.cloudFunctionsMockData as CloudFunctions)
     },
   },
   emits: ['update:selectedDoc', 'go-to-route'],
@@ -164,88 +125,7 @@ export default defineComponent({
     emitGoToRoute(url: string) {
       this.$emit('go-to-route', url)
     },
-    // @input="validateName"
-    // validateName(name: string) {
-    // }
-
-    openModal() {
-      this.isDeleteModalVisible = true
-      document.addEventListener('keyup', this.escEventListener)
-    },
-    closeModal() {
-      this.isDeleteModalVisible = false
-      document.removeEventListener('keyup', this.escEventListener)
-    },
-    escEventListener(key: any): void {
-      if (key === 'Escape') {
-        this.closeModal()
-      }
-    },
-
-    newWorker() {
-      return {
-        name: 'NEW CLOUD FUNCTION',
-        code: '-- begin custom code\n--custom response header\nngx.header["foo"] = "bar"\n',
-        phase: 'requestpost',
-      }
-    },
-
-    // validate() {
-    //   const {currentWorker, workers} = this
-    //   const isDuplicated = workers.filter(
-    //       ({name}) => name.toLowerCase().trim() === currentWorker.toLowerCase().trim()).length > 1
-    //   const isValid = !isDuplicated && currentWorker && this.currentWorker.trim()
-    //   if (!isValid) {
-    //     this.errors.push('name')
-    //   }
-    //   return isValid
-    // },
-
-    checkKeysValidity() {
-      const keysToCheck = _.countBy(this.localDoc.id, (item) => {
-        if (!item) {
-          return ''
-        }
-        const key = Object.keys(item)[0]
-        return `${key}_${item[parseInt(key)]}`
-      })
-      this.keysAreValid = true
-      for (const key of Object.keys(keysToCheck)) {
-        if (keysToCheck[key] > 1 || keysToCheck[''] > 0) {
-          this.keysAreValid = false
-          break
-        }
-      }
-      return this.keysAreValid
-    },
-
-    isError(name: string) {
-      console.error('error', name)
-      return false
-    },
   },
-  created() {
-    console.log('created docs', this.localDoc, 'doc', this.docs)
-  },
-  mounted() {
-    console.log('mounted docs', this.localDoc, 'doc', this.docs, 'apiPath', this.apiPath)
-    // this.selectedDoc = cloudFunctionsMockData
-  //  this.checkKeysValidity()
-  },
-
-  updated() {
-    console.log('updated localDoc', this.localDoc)
-  },
-
-  // watch: {
-  //   selectedDoc: {
-  //     handler: function() {
-  //       this.getConnectedSecurityPoliciesEntries()
-  //     },
-  //     immediate: true,
-  //     deep: true,
-  //   },
-  // },
 })
 </script>
 

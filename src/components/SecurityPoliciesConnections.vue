@@ -326,7 +326,7 @@ export default defineComponent({
         url: `configs/${this.selectedBranch}/d/securitypolicies/`,
       }).then((response: AxiosResponse<SecurityPolicy[]>) => {
         this.securityPolicies = _.sortBy(response.data)
-        // TODO: mock remove later
+        // TODO: adding workers to mapEntry - mock file to be removed later
         this.securityPolicies.forEach((securityPolicy: SecurityPolicy) => {
           securityPolicy.map.forEach((mapEntry) => {
             mapEntry.workers = []

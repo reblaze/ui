@@ -106,7 +106,7 @@ import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
 import CloudFunctionsEditor from '@/doc-editors/CloudFunctionsEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {defineComponent, shallowRef} from 'vue'
-import {ColumnOptions, Commit, Document, DocumentType, GenericObject} from '@/types'
+import {ColumnOptions, Commit, Document, DocumentType, GenericObject, CloudFunctionsPhase} from '@/types'
 import {COLUMN_OPTIONS_MAP} from './documentListConst'
 import {AxiosResponse} from 'axios'
 import RbzTable from '@/components/RbzTable.vue'
@@ -164,6 +164,8 @@ export default defineComponent({
         'contentfilterrules': shallowRef({component: ContentFilterRulesEditor}),
         'cloudfunctions': shallowRef({component: CloudFunctionsEditor}),
       },
+
+      cloudPhases: DatasetsUtils.cloudPhases as CloudFunctionsPhase,
       // for cloudfunctions mock data - remove later
       cloudFunctionsMockData: [{
         'id': 'f971e92459e2',
@@ -176,14 +178,9 @@ export default defineComponent({
       },
       {
         'id': 'f123456789',
-        'name': 'NEW CLOUD FUNCTION',
+        'name': 'New Cloud Function',
         'description': '2 requests per minute',
-        'phase': [
-          {
-            'id': 'responsepost',
-            'name': 'Response Post Reblaze list',
-          },
-        ],
+        'phase': 'responsepost',
         'code': `-- begin custom code
         --custom response header
         ngx.header['foo'] = 'bar'`,
@@ -257,6 +254,7 @@ export default defineComponent({
       this.isDownloadLoading = true
       const branch = this.selectedBranch
       const fieldNames = _.flatMap(this.columns, 'fieldNames')
+      // TODO: mock file to be removed later
       const response = (doctype == 'cloudfunctions') ?
         await Promise.resolve({data: this.cloudFunctionsMockData}) :
         await RequestsUtils.sendRequest({

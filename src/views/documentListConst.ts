@@ -9,6 +9,7 @@ import {
 } from '@/types'
 import {RESPONSE_ACTIONS} from '@/components/responseActionConst'
 import _ from 'lodash'
+import DatasetsUtils from '@/assets/DatasetsUtils'
 
 export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
   'globalfilters': [
@@ -290,6 +291,10 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
     {
       title: 'Phase',
       fieldNames: ['phase'],
+      displayFunction: (item) => {
+        const titles = DatasetsUtils.titles
+        return titles[item.phase]
+      },
       isSortable: true,
       isSearchable: true,
       classes: 'width-300px',

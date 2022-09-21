@@ -18,7 +18,7 @@
           </div>
         </div>
         <span v-if="col.titleDisplayFunction"
-              v-html="col.titleDisplayFunction(row)">
+              v-html="col.titleDisplayFunction(rowsPerPage)">
         </span>
         <span v-else>
           {{ col.title }}
@@ -118,7 +118,8 @@
 <script lang="ts">
 import _ from 'lodash'
 import {defineComponent, PropType} from 'vue'
-import {ColumnOptions, GenericObject} from '@/types'
+import {ColumnOptions, GenericObject, CloudFunctionsPhase} from '@/types'
+import DatasetsUtils from '@/assets/DatasetsUtils'
 
 export default defineComponent({
   name: 'RbzTable',
@@ -159,6 +160,8 @@ export default defineComponent({
 
       // Loading indicator
       loadingCounter: 0,
+
+      cloudPhases: DatasetsUtils.cloudPhases as CloudFunctionsPhase,
     }
   },
   emits: ['new-button-clicked', 'edit-button-clicked'],

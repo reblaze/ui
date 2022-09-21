@@ -230,16 +230,21 @@ import {defineComponent, shallowRef} from 'vue'
 import {Commit, Document, DocumentType, HttpRequestMethods, SecurityPolicy} from '@/types'
 import axios, {AxiosResponse} from 'axios'
 
+// TODO: mock file to be removed later
 const cloudFunctionsMockData = [{
   'id': 'f971e92459e2',
-  'name': 'NEW CLOUD FUNCTION',
+  'name': 'New Cloud Functions',
   'description': '5 requests per minute',
-  'phase': [
-    {
-      'id': '1',
-      'name': 'Request Pre Reblaze editor',
-    },
-  ],
+  'phase': 'requestpost',
+  'code': `-- begin custom code
+  --custom response header
+  ngx.header['foo'] = 'bar'`,
+},
+{
+  'id': 'f123456789',
+  'name': 'New Cloud Function',
+  'description': '2 requests per minute',
+  'phase': 'responsepost',
   'code': `-- begin custom code
   --custom response header
   ngx.header['foo'] = 'bar'`,
@@ -437,7 +442,6 @@ export default defineComponent({
     },
 
     updateDocIdNames() {
-      console.log('updateDocIdNames', this.docs)
       this.docIdNames = _.sortBy(_.map(this.docs, (doc) => [doc.id, doc.name]), (entry) => entry[1])
     },
 
@@ -446,8 +450,8 @@ export default defineComponent({
       // check if the selected doc only has id and name, if it does, attempt to load the rest of the document data
       if (this.selectedDoc && Object.keys(this.selectedDoc).length === 2) {
         let response
+        // TODO: mock file to be removed later
         if (this.selectedDocType == 'cloudfunctions') {
-          console.log('loadSelectedDocData ')
           response = await Promise.resolve({data: cloudFunctionsMockData})
         } else {
           response = await RequestsUtils.sendRequest({
@@ -464,6 +468,7 @@ export default defineComponent({
       this.isDownloadLoading = true
       const branch = this.selectedBranch
       let response
+      // TODO: mock file to be removed later
       if (doctype == 'cloudfunctions') {
         response = await Promise.resolve({data: cloudFunctionsMockData})
       } else {
@@ -482,6 +487,7 @@ export default defineComponent({
       // After we load the basic data (id and name) we can async load the full data
       this.cancelSource.cancel(`Operation cancelled and restarted for a new document type ${doctype}`)
       this.cancelSource = axios.CancelToken.source()
+      // TODO: mock file to be removed later
       if (doctype == 'cloudfunctions') {
         Promise.resolve({data: cloudFunctionsMockData as any}).then((response: any) => {
           this.docs = response?.data || []
@@ -520,7 +526,6 @@ export default defineComponent({
         entry = 'f971e92459e2'
       }
       const url = `configs/${config}/d/${document}/e/${entry}/v/`
-      console.log('url for api', url)
       if (config && document && entry) {
         RequestsUtils.sendRequest({methodName: 'GET', url}).then((response: AxiosResponse<Commit[]>) => {
           this.gitLog = response?.data || []
@@ -735,7 +740,6 @@ export default defineComponent({
     this.setSelectedDataFromRouteParams()
     this.loadReferencedDocsIDs()
     this.setLoadingDocStatus(false)
-    console.log('selectedDoc', this.selectedDoc)
   },
 
 })

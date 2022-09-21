@@ -9,6 +9,7 @@ import {
   RateLimit,
   SecurityPolicy,
   CloudFunctions,
+  CloudFunctionsPhase,
 } from '@/types'
 
 const titles: { [key: string]: string } = {
@@ -62,6 +63,10 @@ const titles: { [key: string]: string } = {
   'active': 'Active',
   'report': 'Report',
   'ignore': 'Ignore',
+  'requestpre': 'Request Pre Reblaze',
+  'requestpost': 'Request Post Reblaze',
+  'responsepre': 'Response Pre Reblaze',
+  'responsepost': 'Response Post Reblaze',
 }
 
 const limitOptionsTypes = {
@@ -251,7 +256,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'phase': 'requestpost',
       'code': `-- begin custom code
         --custom response header
-        ngx.header['foo'] = 'fo0foo'`,
+        ngx.header['foo'] = 'bar'`,
     }
   },
 
@@ -279,6 +284,13 @@ const newDocEntryFactory: { [key: string]: Function } = {
   },
 }
 
+const cloudPhases: CloudFunctionsPhase = {
+  'requestpre': 'Request Pre Reblaze',
+  'requestpost': 'Request Post Reblaze',
+  'responsepre': 'Response Pre Reblaze',
+  'responsepost': 'Response Post Reblaze',
+}
+
 export default {
   name: 'DatasetsUtils',
   titles,
@@ -287,4 +299,5 @@ export default {
   generateUUID2,
   newDocEntryFactory,
   defaultFlowControlSequenceItem,
+  cloudPhases,
 }

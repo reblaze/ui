@@ -177,7 +177,8 @@ declare module CuriefenseClient {
     match?: string,
   }
   // phase: { id: string, name: string}
-  type CloudFunctionsPhase = {[key]: value}
+  type CloudFunctionsPhase = {[key: CloudFunctionsPhaseType]: string}
+  type CloudFunctionsPhaseType = 'requestpre' | 'requestpost' | 'responsepre' | 'responsepost'
 
   type RateLimit = {
     id: string
