@@ -41,7 +41,7 @@ describe('EntriesRelationList.vue', () => {
     }
     ruleData = {
       relation: 'AND',
-      sections: [
+      entries: [
         entryData1,
         entryData2,
       ],
@@ -75,13 +75,13 @@ describe('EntriesRelationList.vue', () => {
     expect(values.at(0).text().toLowerCase()).toContain((wantedEntryData[0][1] as string).toLowerCase())
     expect(categories.at(1).text().toLowerCase()).toContain(wantedEntryData[1][0].toLowerCase())
     expect(values.at(1).text().toLowerCase()).toContain((wantedEntryData[1][1] as string).toLowerCase())
-    expect(ruleData.sections[0].entries).toEqual(wantedEntryData)
+    expect(ruleData.entries[0].entries).toEqual(wantedEntryData)
   })
 
   test('should display correct data from prop to view if data changed', async () => {
     const wantedEntryData = ['ip', '1.2.3.4']
     const newRuleData = JSON.parse(JSON.stringify(ruleData))
-    newRuleData.sections[0].entries = [wantedEntryData]
+    newRuleData.entries[0].entries = [wantedEntryData]
     await wrapper.setProps({rule: newRuleData})
     const categories = wrapper.findAll('.entry-category')
     const values = wrapper.findAll('.entry-value')
@@ -112,7 +112,7 @@ describe('EntriesRelationList.vue', () => {
     }
     ruleData = {
       relation: 'AND',
-      sections: [
+      entries: [
         entryData1,
         entryData2,
       ],
@@ -159,7 +159,7 @@ describe('EntriesRelationList.vue', () => {
 
     test('should not change section relation if section entries contains two entries of same category', async () => {
       const newRuleData = JSON.parse(JSON.stringify(ruleData))
-      newRuleData.sections[0].entries = [
+      newRuleData.entries[0].entries = [
         [
           'uri',
           '/login',
@@ -216,7 +216,7 @@ describe('EntriesRelationList.vue', () => {
       }
       ruleData = {
         relation: 'AND',
-        sections: [
+        entries: [
           entryData1,
         ],
       }
@@ -275,7 +275,7 @@ describe('EntriesRelationList.vue', () => {
     test('should not show pagination when sections entries are empty', () => {
       const ruleData = {
         relation: 'AND',
-        sections: [
+        entries: [
           {
             relation: 'AND',
             entries: [
@@ -297,7 +297,7 @@ describe('EntriesRelationList.vue', () => {
     test('should not show pagination when sections entries is null', () => {
       const ruleData = {
         relation: 'AND',
-        sections: [
+        entries: [
           {
             relation: 'AND',
             entries: null,
@@ -318,7 +318,7 @@ describe('EntriesRelationList.vue', () => {
     test('should not show pagination when there are 20 entries or less', () => {
       const ruleData = {
         relation: 'AND',
-        sections: [
+        entries: [
           {
             relation: 'AND',
             entries: [
@@ -376,19 +376,19 @@ describe('EntriesRelationList.vue', () => {
     })
 
     test('should return false for entries with too few arguments', () => {
-      (ruleData as GlobalFilter).sections[0].entries[0] = ['ip']
+      (ruleData as GlobalFilter).entries[0].entries[0] = ['ip']
       const isValid = validator(ruleData)
       expect(isValid).toEqual(false)
     })
 
     test('should return false for entries with too many arguments', () => {
-      (ruleData as GlobalFilter).sections[0].entries[0] = ['ip', 'test', 'banana', 'apple', 'pear', 'eggplant']
+      (ruleData as GlobalFilter).entries[0].entries[0] = ['ip', 'test', 'banana', 'apple', 'pear', 'eggplant']
       const isValid = validator(ruleData)
       expect(isValid).toEqual(false)
     })
 
     test('should return false for object entry which does not match the schema', () => {
-      (ruleData as GlobalFilter).sections[0].entries[0] = {
+      (ruleData as GlobalFilter).entries[0].entries[0] = {
         prop: 'value',
       }
       const isValid = validator(ruleData)
@@ -396,7 +396,7 @@ describe('EntriesRelationList.vue', () => {
     })
 
     test('should return false for undefined sections', () => {
-      ruleData.sections = undefined
+      ruleData.entries = undefined
       const isValid = validator(ruleData)
       expect(isValid).toEqual(false)
     })
@@ -443,7 +443,7 @@ describe('EntriesRelationList.vue', () => {
     })
 
     test('should not have the option to remove section if no sections exist', () => {
-      ruleData.sections = []
+      ruleData.entries = []
       wrapper = mount(EntriesRelationList, {
         props: {
           rule: ruleData,
@@ -482,8 +482,8 @@ describe('EntriesRelationList.vue', () => {
       await newEntryTextarea.setValue('1.2.3.4#annotation')
       const confirmAddEntryButton = wrapper.find('.confirm-add-entry-button')
       await confirmAddEntryButton.trigger('click')
-      expect(wrapper.vm.rule.sections[0].entries.length).toEqual(3)
-      expect(wrapper.vm.rule.sections[0].entries[2]).toEqual(['ip', '1.2.3.4', 'annotation'])
+      expect(wrapper.vm.rule.entries[0].entries.length).toEqual(3)
+      expect(wrapper.vm.rule.entries[0].entries[2]).toEqual(['ip', '1.2.3.4', 'annotation'])
     })
 
     test('should add new entry from input with general annotation when confirm button is clicked', async () => {
@@ -496,8 +496,8 @@ describe('EntriesRelationList.vue', () => {
       await newEntryAnnotation.setValue('annot')
       const confirmAddEntryButton = wrapper.find('.confirm-add-entry-button')
       await confirmAddEntryButton.trigger('click')
-      expect(wrapper.vm.rule.sections[0].entries.length).toEqual(3)
-      expect(wrapper.vm.rule.sections[0].entries[2]).toEqual(['ip', '1.2.3.4', 'annot'])
+      expect(wrapper.vm.rule.entries[0].entries.length).toEqual(3)
+      expect(wrapper.vm.rule.entries[0].entries[2]).toEqual(['ip', '1.2.3.4', 'annot'])
     })
 
     test('should add multiple new entries from input when confirm button is clicked', async () => {
@@ -508,9 +508,9 @@ describe('EntriesRelationList.vue', () => {
       await newEntryTextarea.setValue('1.2.3.4#annotation\n127.0.0.1#localhost')
       const confirmAddEntryButton = wrapper.find('.confirm-add-entry-button')
       await confirmAddEntryButton.trigger('click')
-      expect(wrapper.vm.rule.sections[0].entries.length).toEqual(4)
-      expect(wrapper.vm.rule.sections[0].entries[2]).toEqual(['ip', '1.2.3.4', 'annotation'])
-      expect(wrapper.vm.rule.sections[0].entries[3]).toEqual(['ip', '127.0.0.1', 'localhost'])
+      expect(wrapper.vm.rule.entries[0].entries.length).toEqual(4)
+      expect(wrapper.vm.rule.entries[0].entries[2]).toEqual(['ip', '1.2.3.4', 'annotation'])
+      expect(wrapper.vm.rule.entries[0].entries[3]).toEqual(['ip', '127.0.0.1', 'localhost'])
     })
 
     test('should add multiple new entries with general' +
@@ -524,9 +524,9 @@ describe('EntriesRelationList.vue', () => {
       await newEntryAnnotation.setValue('annot')
       const confirmAddEntryButton = wrapper.find('.confirm-add-entry-button')
       await confirmAddEntryButton.trigger('click')
-      expect(wrapper.vm.rule.sections[0].entries.length).toEqual(4)
-      expect(wrapper.vm.rule.sections[0].entries[2]).toEqual(['ip', '1.2.3.4', 'annot'])
-      expect(wrapper.vm.rule.sections[0].entries[3]).toEqual(['ip', '127.0.0.1', 'localhost'])
+      expect(wrapper.vm.rule.entries[0].entries.length).toEqual(4)
+      expect(wrapper.vm.rule.entries[0].entries[2]).toEqual(['ip', '1.2.3.4', 'annot'])
+      expect(wrapper.vm.rule.entries[0].entries[3]).toEqual(['ip', '127.0.0.1', 'localhost'])
     })
 
     test('should add new entries from name-value input when confirm button is clicked', async () => {
@@ -543,8 +543,8 @@ describe('EntriesRelationList.vue', () => {
       await newEntryInputValue.setValue('right')
       const confirmAddEntryButton = wrapper.find('.confirm-add-entry-button')
       await confirmAddEntryButton.trigger('click')
-      expect(wrapper.vm.rule.sections[0].entries.length).toEqual(3)
-      expect(wrapper.vm.rule.sections[0].entries[2]).toEqual(['headers', ['something', 'right']])
+      expect(wrapper.vm.rule.entries[0].entries.length).toEqual(3)
+      expect(wrapper.vm.rule.entries[0].entries[2]).toEqual(['headers', ['something', 'right']])
     })
 
     test('should not add new entries from multi-line' +
@@ -562,7 +562,7 @@ describe('EntriesRelationList.vue', () => {
       await newEntryInputValue.setValue('')
       const confirmAddEntryButton = wrapper.find('.confirm-add-entry-button')
       await confirmAddEntryButton.trigger('click')
-      expect(wrapper.vm.rule.sections[0].entries.length).toEqual(2)
+      expect(wrapper.vm.rule.entries[0].entries.length).toEqual(2)
     })
 
     test('should not show new entry button if not editable', () => {
@@ -597,7 +597,7 @@ describe('EntriesRelationList.vue', () => {
 
     test('should not set section relation to `OR` if no more than one item of same category added', async () => {
       const newRuleData = JSON.parse(JSON.stringify(ruleData))
-      newRuleData.sections[0].entries = [
+      newRuleData.entries[0].entries = [
         [
           'uri',
           '/login',
@@ -704,7 +704,7 @@ describe('EntriesRelationList.vue', () => {
         props: {
           rule: {
             relation: 'OR',
-            sections: [],
+            entries: [],
           },
           editable: true,
         },
@@ -721,7 +721,7 @@ describe('EntriesRelationList.vue', () => {
     test('should remove entry', async () => {
       const removeEntryButton = wrapper.find('.remove-entry-button')
       await removeEntryButton.trigger('click')
-      expect(wrapper.vm.rule.sections[0].entries.length).toEqual(1)
+      expect(wrapper.vm.rule.entries[0].entries.length).toEqual(1)
     })
     test('should remove section if no entries left', async () => {
       const entryData3: GlobalFilterSection = {
@@ -735,7 +735,7 @@ describe('EntriesRelationList.vue', () => {
       }
       const rule: Rule = {
         relation: 'AND',
-        sections: [
+        entries: [
           entryData1,
           entryData3,
         ],
@@ -749,7 +749,7 @@ describe('EntriesRelationList.vue', () => {
       const section = wrapper.findAll('.section').at(1)
       const removeEntryButton = section.find('.remove-entry-button')
       await removeEntryButton.trigger('click')
-      expect(wrapper.findAll('.section').length).toEqual(rule.sections.length - 1)
+      expect(wrapper.findAll('.section').length).toEqual(rule.entries.length - 1)
     })
   })
 
@@ -790,7 +790,7 @@ describe('EntriesRelationList.vue', () => {
       }
       ruleData = {
         relation: 'AND',
-        sections: [
+        entries: [
           entryData1,
           entryData2,
         ],

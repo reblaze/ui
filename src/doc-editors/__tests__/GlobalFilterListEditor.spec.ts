@@ -3,8 +3,6 @@ import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {mount, shallowMount, VueWrapper} from '@vue/test-utils'
 import {GlobalFilter, GlobalFilterSectionEntry} from '@/types'
-import ResponseAction from '@/components/ResponseAction.vue'
-import TagsAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import EntriesRelationList from '@/components/EntriesRelationList.vue'
 import axios from 'axios'
@@ -24,13 +22,10 @@ describe('GlobalFilterListEditor.vue', () => {
       'description': 'Tag API Requests',
       'active': true,
       'tags': ['api', 'okay'],
-      'action': {
-        'type': 'monitor',
-        'params': {},
-      },
+      'action': 'monitor',
       'rule': {
         'relation': 'OR',
-        'sections': [
+        'entries': [
           {'relation': 'OR', 'entries': [['ip', '1.1.1.1', null]]},
           {'relation': 'OR', 'entries': [['ip', '2.2.2.2', null]]},
           {'relation': 'OR', 'entries': [['headers', ['headerrr', 'valueeee'], 'anooo']]},
@@ -44,13 +39,10 @@ describe('GlobalFilterListEditor.vue', () => {
       'description': 'this is my own list',
       'active': false,
       'tags': ['internal', 'devops'],
-      'action': {
-        'type': 'monitor',
-        'params': {},
-      },
+      'action': 'monitor',
       'rule': {
         'relation': 'OR',
-        'sections': [
+        'entries': [
           {
             'relation': 'OR',
             'entries': [
@@ -96,8 +88,8 @@ describe('GlobalFilterListEditor.vue', () => {
       expect(element.checked).toEqual(docs[0].active)
     })
 
-    test('should have correct sections relation mode selected', () => {
-      const container = wrapper.find('.document-sections-relation')
+    test('should have correct entries relation mode selected', () => {
+      const container = wrapper.find('.document-entries-relation')
       // AND - span at 0
       // OR - span at 1
       const element = container.findAll('span').at(1).element as HTMLElement
@@ -105,8 +97,8 @@ describe('GlobalFilterListEditor.vue', () => {
     })
 
     test('should have tags input component with correct data', () => {
-      const tagsAutocompleteInputComponent = wrapper.findComponent(TagsAutocompleteInput)
-      expect(tagsAutocompleteInputComponent.props('initialTag')).toEqual(docs[0].tags.join(' '))
+      const tagAutocompleteInputComponent = wrapper.findComponent(TagAutocompleteInput)
+      expect(tagAutocompleteInputComponent.props('initialTag')).toEqual(docs[0].tags.join(' '))
     })
 
     test('should have correct source in input', () => {
@@ -114,9 +106,9 @@ describe('GlobalFilterListEditor.vue', () => {
       expect(element.value).toEqual(docs[0].source)
     })
 
-    test('should have response action component with correct data', () => {
-      const responseActionComponent = wrapper.findComponent(ResponseAction)
-      expect(responseActionComponent.props('action')).toEqual(docs[0].action)
+    test('should have response action input with correct data', () => {
+      const element = wrapper.find('.document-action').element as HTMLTextAreaElement
+      expect(element.value).toEqual(docs[0].action.toString())
     })
 
     test('should have correct description in input', () => {
@@ -131,18 +123,18 @@ describe('GlobalFilterListEditor.vue', () => {
 
     describe('sections entries display', () => {
       test('should display correct zero amount of sections', () => {
-        docs[0].rule.sections = []
+        docs[0].rule.entries = []
         wrapper = shallowMount(GlobalFilterListEditor, {
           props: {
             selectedDoc: docs[0],
           },
         })
-        const display = wrapper.find('.sections-entries-display')
+        const display = wrapper.find('.entries-entries-display')
         expect(display.text()).toContain('0 sections')
       })
 
       test('should display correct zero amount of entries - not an array', () => {
-        docs[0].rule.sections = [
+        docs[0].rule.entries = [
           {'relation': 'OR', 'entries': null},
         ]
         wrapper = shallowMount(GlobalFilterListEditor, {
@@ -150,12 +142,12 @@ describe('GlobalFilterListEditor.vue', () => {
             selectedDoc: docs[0],
           },
         })
-        const display = wrapper.find('.sections-entries-display')
+        const display = wrapper.find('.entries-entries-display')
         expect(display.text()).toContain('0 entries')
       })
 
       test('should display correct zero amount of entries - length zero', () => {
-        docs[0].rule.sections = [
+        docs[0].rule.entries = [
           {'relation': 'OR', 'entries': []},
         ]
         wrapper = shallowMount(GlobalFilterListEditor, {
@@ -163,12 +155,12 @@ describe('GlobalFilterListEditor.vue', () => {
             selectedDoc: docs[0],
           },
         })
-        const display = wrapper.find('.sections-entries-display')
+        const display = wrapper.find('.entries-entries-display')
         expect(display.text()).toContain('0 entries')
       })
 
       test('should display correct singular amount of sections', () => {
-        docs[0].rule.sections = [
+        docs[0].rule.entries = [
           {'relation': 'OR', 'entries': [['ip', '1.1.1.1', null]]},
         ]
         wrapper = shallowMount(GlobalFilterListEditor, {
@@ -176,12 +168,12 @@ describe('GlobalFilterListEditor.vue', () => {
             selectedDoc: docs[0],
           },
         })
-        const display = wrapper.find('.sections-entries-display')
+        const display = wrapper.find('.entries-entries-display')
         expect(display.text()).toContain('1 section')
       })
 
       test('should display correct singular amount of entries', () => {
-        docs[0].rule.sections = [
+        docs[0].rule.entries = [
           {'relation': 'OR', 'entries': [['ip', '1.1.1.1', null]]},
         ]
         wrapper = shallowMount(GlobalFilterListEditor, {
@@ -189,17 +181,17 @@ describe('GlobalFilterListEditor.vue', () => {
             selectedDoc: docs[0],
           },
         })
-        const display = wrapper.find('.sections-entries-display')
+        const display = wrapper.find('.entries-entries-display')
         expect(display.text()).toContain('1 entry')
       })
 
       test('should display correct plural amount of sections', () => {
-        const display = wrapper.find('.sections-entries-display')
+        const display = wrapper.find('.entries-entries-display')
         expect(display.text()).toContain('3 sections')
       })
 
       test('should display correct plural amount of entries', () => {
-        const display = wrapper.find('.sections-entries-display')
+        const display = wrapper.find('.entries-entries-display')
         expect(display.text()).toContain('3 entries')
       })
     })
@@ -217,12 +209,12 @@ describe('GlobalFilterListEditor.vue', () => {
     })
 
     test('should hide sections relation mode', () => {
-      const container = wrapper.find('.document-sections-relation')
+      const container = wrapper.find('.document-entries-relation')
       expect(container.exists()).toBeFalsy()
     })
 
     test('should hide remove all sections button', () => {
-      const button = wrapper.find('.remove-all-sections-button')
+      const button = wrapper.find('.remove-all-entries-button')
       expect(button.exists()).toBeFalsy()
     })
 
@@ -333,7 +325,7 @@ describe('GlobalFilterListEditor.vue', () => {
     let andElement: any
     let orElement: any
     beforeEach(() => {
-      container = wrapper.find('.document-sections-relation')
+      container = wrapper.find('.document-entries-relation')
       andElement = container.findAll('span').at(0)
       orElement = container.findAll('span').at(1)
     })
@@ -405,9 +397,9 @@ describe('GlobalFilterListEditor.vue', () => {
   test('should remove all entries relation data from component when clear button is clicked', () => {
     const wantedRule: GlobalFilter['rule'] = {
       relation: docs[0].rule.relation,
-      sections: [],
+      entries: [],
     }
-    const button = wrapper.find('.remove-all-sections-button')
+    const button = wrapper.find('.remove-all-entries-button')
     button.trigger('click')
     const entriesRelationListComponent = wrapper.findComponent(EntriesRelationList)
     expect(entriesRelationListComponent.props('rule')).toEqual(wantedRule)
@@ -418,7 +410,7 @@ describe('GlobalFilterListEditor.vue', () => {
     beforeEach(() => {
       resolveData = {}
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path.includes('/conf/api/v2/tools/fetch')) {
+        if (path.includes('/conf/api/v3/tools/fetch')) {
           return Promise.resolve(resolveData)
         }
         return Promise.resolve({data: {}})
@@ -451,7 +443,7 @@ describe('GlobalFilterListEditor.vue', () => {
       ]
       const wantedData: GlobalFilter['rule'] = {
         relation: 'OR',
-        sections: [{
+        entries: [{
           entries: wantedEntries,
           relation: 'OR',
         }],
@@ -501,7 +493,7 @@ describe('GlobalFilterListEditor.vue', () => {
       ]
       const wantedData: GlobalFilter['rule'] = {
         relation: 'OR',
-        sections: [{
+        entries: [{
           entries: wantedEntries,
           relation: 'OR',
         }],
@@ -551,7 +543,7 @@ describe('GlobalFilterListEditor.vue', () => {
       ]
       const wantedData: GlobalFilter['rule'] = {
         relation: 'OR',
-        sections: [{
+        entries: [{
           entries: wantedEntries,
           relation: 'OR',
         }],
@@ -601,7 +593,7 @@ describe('GlobalFilterListEditor.vue', () => {
       ]
       const wantedData: GlobalFilter['rule'] = {
         relation: 'OR',
-        sections: [{
+        entries: [{
           entries: wantedEntries,
           relation: 'OR',
         }],
@@ -642,7 +634,7 @@ describe('GlobalFilterListEditor.vue', () => {
       ]
       const wantedData: GlobalFilter['rule'] = {
         relation: 'OR',
-        sections: [{
+        entries: [{
           entries: wantedEntries,
           relation: 'OR',
         }],
@@ -683,7 +675,7 @@ describe('GlobalFilterListEditor.vue', () => {
       ]
       const wantedData: GlobalFilter['rule'] = {
         relation: 'OR',
-        sections: [{
+        entries: [{
           entries: wantedEntries,
           relation: 'OR',
         }],
@@ -736,7 +728,7 @@ describe('GlobalFilterListEditor.vue', () => {
       ]
       const wantedData: GlobalFilter['rule'] = {
         relation: 'OR',
-        sections: [{
+        entries: [{
           entries: wantedEntries,
           relation: 'OR',
         }],
@@ -794,7 +786,7 @@ describe('GlobalFilterListEditor.vue', () => {
       ]
       const wantedData: GlobalFilter['rule'] = {
         relation: 'OR',
-        sections: [{
+        entries: [{
           entries: wantedEntries,
           relation: 'OR',
         }],
@@ -838,7 +830,7 @@ describe('GlobalFilterListEditor.vue', () => {
       ]
       const wantedData: GlobalFilter['rule'] = {
         relation: 'OR',
-        sections: [{
+        entries: [{
           entries: wantedEntries,
           relation: 'OR',
         }],
@@ -866,13 +858,10 @@ describe('GlobalFilterListEditor.vue', () => {
         'description': 'Tag API Requests',
         'active': true,
         'tags': ['api', 'okay'],
-        'action': {
-          'type': 'monitor',
-          'params': {},
-        },
+        'action': 'monitor',
         'rule': {
           'relation': 'OR',
-          'sections': [
+          'entries': [
             {'relation': 'OR', 'entries': [['ip', '1.2.3.4', null]]},
             {'relation': 'OR', 'entries': [['ip', '5.6.7.8', 'an IP']]},
             {'relation': 'OR', 'entries': [['asn', 'as612', 'annotation']]},
@@ -901,13 +890,10 @@ describe('GlobalFilterListEditor.vue', () => {
           'description': 'Tag API Requests',
           'active': true,
           'tags': ['api', 'okay'],
-          'action': {
-            'type': 'monitor',
-            'params': {},
-          },
+          'action': 'monitor',
           'rule': {
             'relation': 'OR',
-            'sections': [],
+            'entries': [],
           },
         },
       }
@@ -930,10 +916,7 @@ describe('GlobalFilterListEditor.vue', () => {
           'description': 'Tag API Requests',
           'active': true,
           'tags': ['api', 'okay'],
-          'action': {
-            'type': 'monitor',
-            'params': {},
-          },
+          'action': 'monitor',
           'rule': {
             'relation': 'OR',
           },
@@ -958,10 +941,7 @@ describe('GlobalFilterListEditor.vue', () => {
           'description': 'Tag API Requests',
           'active': true,
           'tags': ['api', 'okay'],
-          'action': {
-            'type': 'monitor',
-            'params': {},
-          },
+          'action': 'monitor',
         },
       }
       const button = wrapper.find('.update-now-button')

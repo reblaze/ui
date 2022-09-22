@@ -1,7 +1,6 @@
 // @ts-nocheck
 import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
 import LimitOption from '@/components/LimitOption.vue'
-import ResponseAction from '@/components/ResponseAction.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import {beforeEach, describe, expect, test, jest} from '@jest/globals'
 import {shallowMount} from '@vue/test-utils'
@@ -53,9 +52,7 @@ describe('FlowControlPolicyEditor.vue', () => {
         ],
         'active': true,
         'description': 'New Flow Control Policy Description and Remarks',
-        'action': {
-          'type': 'default',
-        },
+        'action': 'default',
         'timeframe': 60,
         'id': 'c03dabe4b9ca',
       },
@@ -95,11 +92,6 @@ describe('FlowControlPolicyEditor.vue', () => {
       const actualValue = limitOptionComponent.vm.option.key
       expect(actualType).toEqual(wantedType)
       expect(actualValue).toEqual(wantedValue)
-    })
-
-    test('should have response action component with correct data', () => {
-      const ResponseActionComponent = wrapper.findComponent(ResponseAction)
-      expect(ResponseActionComponent.vm.action).toEqual(docs[0].action)
     })
 
     test('should have correct description in input', () => {
@@ -220,7 +212,7 @@ describe('FlowControlPolicyEditor.vue', () => {
       const newIncludeEntryButton = wrapper.findAll('.add-new-filter-entry-button').at(0)
       // add first
       await newIncludeEntryButton.trigger('click')
-      const firstTagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+      const firstTagAutocompleteInput = wrapper.find('.filter-columns').findComponent(TagAutocompleteInput)
       firstTagAutocompleteInput.vm.$emit('tag-submitted', newTag)
       // check
       expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
@@ -243,7 +235,7 @@ describe('FlowControlPolicyEditor.vue', () => {
       const newIncludeEntryButton = wrapper.findAll('.add-new-filter-entry-button').at(0)
       // add first
       await newIncludeEntryButton.trigger('click')
-      const firstTagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+      const firstTagAutocompleteInput = wrapper.find('.filter-columns').findComponent(TagAutocompleteInput)
       firstTagAutocompleteInput.vm.$emit('tag-submitted', newTag)
       // check
       expect(wrapper.emitted('update:selectedDoc')).toBeFalsy()
@@ -261,7 +253,7 @@ describe('FlowControlPolicyEditor.vue', () => {
       await newIncludeEntryButton.trigger('click')
       wrapper.vm.cancelAddNewTag()
       await nextTick()
-      const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+      const tagAutocompleteInput = wrapper.find('.filter-columns').findComponent(TagAutocompleteInput)
       await nextTick()
       expect(tagAutocompleteInput.exists()).toBeFalsy()
     })

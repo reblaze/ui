@@ -56,7 +56,7 @@ describe('SideMenu.vue', () => {
     $route = {
       path: '/list',
     }
-    swaggerURL = 'https://10.0.0.1:30000/api/v2/'
+    swaggerURL = 'https://10.0.0.1:30000/api/v3/'
     kibanaURL = 'https://10.0.0.1:5601/app/discover/'
     grafanaURL = 'https://10.0.0.1:30300/'
     prometheusURL = 'https://10.0.0.1:9090/'
@@ -69,10 +69,10 @@ describe('SideMenu.vue', () => {
       },
     }
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === `/conf/api/v2/db/system/`) {
+      if (path === `/conf/api/v3/db/system/`) {
         return Promise.resolve({data: dbData})
       }
-      if (path === '/conf/api/v2/configs/') {
+      if (path === '/conf/api/v3/configs/') {
         return Promise.resolve({data: gitData})
       }
       return Promise.resolve({data: {}})
@@ -141,7 +141,7 @@ describe('SideMenu.vue', () => {
 
   test('should render all dynamic menu items when system db exists with links and URLs data', (done) => {
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === `/conf/api/v2/db/system/`) {
+      if (path === `/conf/api/v3/db/system/`) {
         return Promise.resolve({data: dbData})
       }
       return Promise.resolve({data: {}})
@@ -192,7 +192,7 @@ describe('SideMenu.vue', () => {
     delete dbData.links.prometheus_url
     delete dbData.links.swagger_url
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === `/conf/api/v2/db/system/`) {
+      if (path === `/conf/api/v3/db/system/`) {
         return Promise.resolve({data: dbData})
       }
       return Promise.resolve({data: {}})
@@ -207,7 +207,7 @@ describe('SideMenu.vue', () => {
     })
     const wantedSettingsMenuItems = [
       {
-        path: `${location.protocol}//${location.hostname}:30000/api/v2/`,
+        path: `${location.protocol}//${location.hostname}:30000/api/v3/`,
         title: 'API',
         external: true,
       },
@@ -240,7 +240,7 @@ describe('SideMenu.vue', () => {
   test('should render all dynamic menu items when system db exists without links data', (done) => {
     delete dbData.links
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === `/conf/api/v2/db/system/`) {
+      if (path === `/conf/api/v3/db/system/`) {
         return Promise.resolve({data: dbData})
       }
       return Promise.resolve({data: {}})
@@ -255,7 +255,7 @@ describe('SideMenu.vue', () => {
     })
     const wantedSettingsMenuItems = [
       {
-        path: `${location.protocol}//${location.hostname}:30000/api/v2/`,
+        path: `${location.protocol}//${location.hostname}:30000/api/v3/`,
         title: 'API',
         external: true,
       },
@@ -287,7 +287,7 @@ describe('SideMenu.vue', () => {
 
   test('should render all dynamic menu items when system db does not exist', (done) => {
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === `/conf/api/v2/db/system/`) {
+      if (path === `/conf/api/v3/db/system/`) {
         return Promise.resolve({data: {}})
       }
       return Promise.resolve({data: {}})
@@ -302,7 +302,7 @@ describe('SideMenu.vue', () => {
     })
     const wantedSettingsMenuItems = [
       {
-        path: `${location.protocol}//${location.hostname}:30000/api/v2/`,
+        path: `${location.protocol}//${location.hostname}:30000/api/v3/`,
         title: 'API',
         external: true,
       },
@@ -343,10 +343,10 @@ describe('SideMenu.vue', () => {
     }
     jest.clearAllMocks()
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === `/conf/api/v2/db/system/`) {
+      if (path === `/conf/api/v3/db/system/`) {
         return Promise.resolve(null)
       }
-      if (path === '/conf/api/v2/configs/') {
+      if (path === '/conf/api/v3/configs/') {
         return Promise.resolve({data: gitData})
       }
       return Promise.resolve({data: {}})

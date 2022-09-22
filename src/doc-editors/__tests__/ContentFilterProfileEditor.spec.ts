@@ -9,7 +9,6 @@ import {
   ContentFilterProfile,
   ContentFilterProfileSection,
   ContentFilterRule,
-  ContentFilterRuleGroup,
   NamesRegexType,
 } from '@/types'
 import AutocompleteInput from '@/components/AutocompleteInput.vue'
@@ -23,11 +22,14 @@ describe('ContentFilterProfileEditor.vue', () => {
   let docs: ContentFilterProfile[]
   let wrapper: any
   let contentFilterRulesDocs: ContentFilterRule[]
-  let contentFilterGroupsDocs: ContentFilterRuleGroup[]
   beforeEach(async () => {
     docs = [{
       'id': '__default__',
       'name': 'default contentfilter',
+      'description': 'New Content Filter Profile Description and Remarks',
+      'action': 'default',
+      'tags': [],
+      'ignore_body': true,
       'ignore_alphanum': true,
       'headers': {
         'names': [],
@@ -100,35 +102,16 @@ describe('ContentFilterProfileEditor.vue', () => {
         'tags': [],
       },
     ]
-    contentFilterGroupsDocs = [
-      {
-        id: '1000',
-        name: '1000',
-        description: '',
-        content_filter_rule_ids: ['100000', '100001'],
-      },
-      {
-        id: '1001',
-        name: '1001',
-        description: '',
-        content_filter_rule_ids: [],
-      },
-    ]
     jest.spyOn(axios, 'get').mockImplementation((path, config) => {
       if (!wrapper) {
         return Promise.resolve({data: []})
       }
       const branch = wrapper.vm.selectedBranch
-      if (path === `/conf/api/v2/configs/${branch}/d/contentfilterrules/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/contentfilterrules/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve({data: _.map(contentFilterRulesDocs, (i: any) => _.pick(i, 'id', 'name'))})
         }
         return Promise.resolve({data: contentFilterRulesDocs})
-      } else if (path === `/conf/api/v2/configs/${branch}/d/contentfiltergroups/`) {
-        if (config?.headers?.['x-fields'] === 'id, name') {
-          return Promise.resolve({data: _.map(contentFilterGroupsDocs, (i: any) => _.pick(i, 'id', 'name'))})
-        }
-        return Promise.resolve({data: contentFilterGroupsDocs})
       }
       return Promise.resolve({data: []})
     })
@@ -212,7 +195,7 @@ describe('ContentFilterProfileEditor.vue', () => {
       const newActiveEntryButton = wrapper.findAll('.add-new-tag-entry-button').at(1)
       await newActiveEntryButton.trigger('click')
       const newTag = 'test-tag'
-      const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+      const tagAutocompleteInput = wrapper.find('.tag-lists-wrapper').findComponent(TagAutocompleteInput)
       tagAutocompleteInput.vm.$emit('tag-submitted', newTag)
       expect(wrapper.vm.localDoc.active.includes(newTag)).toBeTruthy()
     })
@@ -226,7 +209,7 @@ describe('ContentFilterProfileEditor.vue', () => {
     test('should hide tag input when tag selection cancelled', async () => {
       const newActiveEntryButton = wrapper.findAll('.add-new-tag-entry-button').at(1)
       await newActiveEntryButton.trigger('click')
-      const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+      const tagAutocompleteInput = wrapper.find('.tag-lists-wrapper').findComponent(TagAutocompleteInput)
       tagAutocompleteInput.vm.$emit('keydown', new KeyboardEvent('keydown', {key: 'esc'}))
       await nextTick()
       expect(tagAutocompleteInput.exists()).toBeFalsy()
