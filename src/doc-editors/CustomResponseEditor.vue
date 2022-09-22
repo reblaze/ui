@@ -250,22 +250,8 @@ export default defineComponent({
 })
 </script>
 <style scoped lang="scss">
-.inline {
-  align-items: center;
-  display: flex;
-  margin-top: 5px;
-}
-
 .status-code {
   margin-right: 5px;
-}
-
-.name {
-  display: inline-grid;
-}
-
-.content-textarea {
-  display: flex;
 }
 
 .headers-columns,
