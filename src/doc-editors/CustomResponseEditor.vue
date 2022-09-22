@@ -250,10 +250,6 @@ export default defineComponent({
 })
 </script>
 <style scoped lang="scss">
-.status-code {
-  margin-right: 5px;
-}
-
 .headers-columns,
 .status-code {
   width: 50%;
