@@ -71,17 +71,23 @@
               </p>
             </div>
             <div class="field">
-              <response-action v-model:action="localDoc.action"
-                               @update:action="emitDocUpdate"
-                               label-separated-line/>
+              <label class="label is-small">Tags</label>
+              <div class="control"
+                   data-qa="tag-input">
+                <tag-autocomplete-input :initial-tag="selectedDocTags"
+                                        :selection-type="'multiple'"
+                                        @tag-changed="selectedDocTags = $event">
+                </tag-autocomplete-input>
+              </div>
             </div>
             <div class="field textarea-field">
               <label class="label is-small">Description</label>
               <div class="control">
                 <textarea class="is-small textarea document-description"
-                          title="Description"
-                          @change="emitDocUpdate"
+                          data-qa="description-input"
+                          title="Document description"
                           v-model="localDoc.description"
+                          @input="emitDocUpdate"
                           rows="5">
                 </textarea>
               </div>
@@ -119,7 +125,7 @@
                   </tr>
                   <tr>
                     <td>
-                    <tag-autocomplete-input v-if="addNewTagColName === filter"
+                      <tag-autocomplete-input v-if="addNewTagColName === filter"
                                               ref="tagAutocompleteInput"
                                               :clear-input-after-selection="true"
                                               :selection-type="'single'"
@@ -222,22 +228,22 @@
                         {{ getListEntryTitle(sequenceEntry[0]) }}
                       </td>
                       <td class="width-100px">
-                        {{ (sequenceEntry[1][0])}}
+                        {{ (sequenceEntry[1][0]) }}
                       </td>
                       <td>
-                        {{ (sequenceEntry[1][1])}}
+                        {{ (sequenceEntry[1][1]) }}
                       </td>
                       <td class="width-80px">
                         <a class="is-small has-text-grey remove-entry-button"
-                            data-qa="remove-sequence-btn"
-                            title="Remove sequence entry"
-                            tabindex="0"
-                            @click="removeSequenceItemEntry(
+                           data-qa="remove-sequence-btn"
+                           title="Remove sequence entry"
+                           tabindex="0"
+                           @click="removeSequenceItemEntry(
                                 sequenceIndex, sequenceEntry[0], sequenceEntry[1][0])"
-                            @keypress.space.prevent
-                            @keypress.space="removeSequenceItemEntry(
+                           @keypress.space.prevent
+                           @keypress.space="removeSequenceItemEntry(
                                 sequenceIndex, sequenceEntry[0], sequenceEntry[1][0])"
-                            @keypress.enter="removeSequenceItemEntry(
+                           @keypress.enter="removeSequenceItemEntry(
                                 sequenceIndex, sequenceEntry[0], sequenceEntry[1][0])">
                           remove
                         </a>
@@ -345,13 +351,18 @@
 
 <script lang="ts">
 import _ from 'lodash'
-import ResponseAction from '@/components/ResponseAction.vue'
 import LimitOption, {OptionObject} from '@/components/LimitOption.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import {defineComponent} from 'vue'
-import {ArgsCookiesHeadersType, FlowControlPolicy, IncludeExcludeType} from '@/types'
-import {LimitOptionType, LimitRuleType, Dictionary} from '@/types'
+import {
+  ArgsCookiesHeadersType,
+  Dictionary,
+  FlowControlPolicy,
+  IncludeExcludeType,
+  LimitOptionType,
+  LimitRuleType,
+} from '@/types'
 import {httpRequestMethods} from '@/types/const'
 
 
@@ -364,7 +375,6 @@ export default defineComponent({
   },
 
   components: {
-    ResponseAction,
     LimitOption,
     TagAutocompleteInput,
   },

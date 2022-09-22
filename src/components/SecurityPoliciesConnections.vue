@@ -173,7 +173,6 @@ export default defineComponent({
     selectedDocType: String,
     selectedDocId: String,
     selectedBranch: String,
-    apiPath: String,
   },
   data() {
     return {

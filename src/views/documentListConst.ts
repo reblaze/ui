@@ -2,12 +2,11 @@ import {
   ACLProfile,
   ColumnOptionsMap,
   ContentFilterProfile,
-  ContentFilterRule,
+  ContentFilterRule, CustomResponse,
   FlowControlPolicy,
   GlobalFilter,
   RateLimit,
 } from '@/types'
-import {RESPONSE_ACTIONS} from '@/components/responseActionConst'
 import _ from 'lodash'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 
@@ -49,9 +48,6 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
     {
       title: 'Action',
       fieldNames: ['action'],
-      displayFunction: (item: GlobalFilter) => {
-        return RESPONSE_ACTIONS[item?.action?.type]?.title
-      },
       isSortable: true,
       isSearchable: true,
       classes: 'width-80px',
@@ -92,9 +88,6 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
     {
       title: 'Action',
       fieldNames: ['action'],
-      displayFunction: (item: FlowControlPolicy) => {
-        return RESPONSE_ACTIONS[item?.action?.type]?.title
-      },
       isSortable: true,
       isSearchable: true,
       classes: 'width-80px',
@@ -298,6 +291,42 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       isSortable: true,
       isSearchable: true,
       classes: 'width-150px',
+    },
+  ],
+  'actions': [
+    {
+      title: 'Name',
+      fieldNames: ['name'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-120px',
+    },
+    {
+      title: 'Description',
+      fieldNames: ['description'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'ellipsis',
+    },
+    {
+      title: 'Tags',
+      fieldNames: ['tags'],
+      displayFunction: (item: CustomResponse) => {
+        return item?.tags?.join('\n')
+      },
+      isSortable: false,
+      isSearchable: true,
+      classes: 'width-100px white-space-pre ellipsis',
+    },
+    {
+      title: 'Type',
+      fieldNames: ['type'],
+      displayFunction: (item: CustomResponse) => {
+        return _.capitalize(item?.type)
+      },
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-120px',
     },
   ],
 }

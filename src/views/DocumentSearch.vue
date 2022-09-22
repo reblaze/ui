@@ -151,7 +151,7 @@ import {Document, DocumentType, SecurityPolicyEntryMatch} from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import Utils from '@/assets/Utils'
 
-export type SearchDocument = Document & {
+type SearchDocument = Document & {
   docType: DocumentType
   description: string
   tags: string

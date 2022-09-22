@@ -17,10 +17,7 @@
                               :class="{'is-active': sortColumnTitle === col.title && sortDir === 'desc'}"/>
           </div>
         </div>
-        <span v-if="col.titleDisplayFunction"
-              v-html="col.titleDisplayFunction(rowsPerPage)">
-        </span>
-        <span v-else>
+        <span>
           {{ col.title }}
         </span>
       </th>

@@ -203,7 +203,7 @@ describe('SecurityPoliciesEditor.vue', () => {
         'thresholds': [
           {
             'limit': '5',
-            'action': {'type': 'default', 'params': {'action': {'type': 'default', 'params': {}}}},
+            'action': 'default',
           },
         ],
         'include': ['badpeople'],
@@ -219,7 +219,7 @@ describe('SecurityPoliciesEditor.vue', () => {
         'thresholds': [
           {
             'limit': '5',
-            'action': {'type': 'default', 'params': {'action': {'type': 'default', 'params': {}}}},
+            'action': 'default',
           },
         ],
         'include': ['badpeople'],
@@ -234,7 +234,7 @@ describe('SecurityPoliciesEditor.vue', () => {
         return Promise.resolve({data: []})
       }
       const branch = wrapper.vm.selectedBranch
-      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve(
             {
@@ -246,7 +246,7 @@ describe('SecurityPoliciesEditor.vue', () => {
         }
         return Promise.resolve({data: aclDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/securitypolicies/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/securitypolicies/`) {
         if (config && config.headers && config.headers['x-fields'] === 'match') {
           return Promise.resolve(
             {
@@ -258,7 +258,7 @@ describe('SecurityPoliciesEditor.vue', () => {
         }
         return Promise.resolve({data: securityPoliciesDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/contentfilterprofiles/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/contentfilterprofiles/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve(
             {
@@ -270,7 +270,7 @@ describe('SecurityPoliciesEditor.vue', () => {
         }
         return Promise.resolve({data: contentFilterDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/ratelimits/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/ratelimits/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve(
             {
@@ -282,7 +282,7 @@ describe('SecurityPoliciesEditor.vue', () => {
         }
         return Promise.resolve({data: rateLimitsDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/ratelimits/e/f971e92459e2/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/ratelimits/e/f971e92459e2/`) {
         return Promise.resolve({data: rateLimitsDocs[0]})
       }
       return Promise.resolve({data: []})

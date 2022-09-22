@@ -150,7 +150,7 @@ describe('CloudFunctionsEditor.vue', () => {
       expect(wrapper.emitted('update:selectedDoc')[0][0].description).toContain(newDesciption)
     })
 
-    test('should have a link to each connected Security Policy', async () => {
+    test.skip('should have a link to each connected Security Policy', async () => {
       cloudFunctionsDocs = [{
         'id': 'f971e92459e2',
         'name': 'New Cloud Functions',

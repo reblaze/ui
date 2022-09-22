@@ -54,7 +54,7 @@ type menuItem = {
 export default defineComponent({
   name: 'SideMenu',
   data() {
-    const swaggerURL = `${location.protocol}//${location.hostname}:30000/api/v2/`
+    const swaggerURL = `${location.protocol}//${location.hostname}:30000/api/v3/`
     const kibanaURL = `${location.protocol}//${location.hostname}:5601/app/discover`
     const grafanaURL = `${location.protocol}//${location.hostname}:30300/`
     const prometheusURL = `${location.protocol}//${location.hostname}:9090/`
@@ -167,6 +167,7 @@ export default defineComponent({
       items[`/${branchId}/contentfilterprofiles`] = {title: 'Content Filter Profiles'} as menuItem
       items[`/${branchId}/contentfilterrules`] = {title: 'Content Filter Rules'} as menuItem
       items[`/${branchId}/cloudfunctions`] = {title: 'Cloud Functions'} as menuItem
+      items[`/${branchId}/actions`] = {title: 'Custom Responses'} as menuItem
       // items[`/${branchId}/search`] = {title: 'Search'} as menuItem
     },
   },

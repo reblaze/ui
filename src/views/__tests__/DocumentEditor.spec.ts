@@ -545,13 +545,10 @@ describe('DocumentEditor.vue', () => {
         'description': 'Tag API Requests',
         'active': true,
         'tags': ['api'],
-        'action': {
-          'type': 'monitor',
-          'params': {},
-        },
+        'action': 'monitor',
         'rule': {
           'relation': 'OR',
-          'sections': [
+          'entries': [
             {'relation': 'OR', 'entries': [['ip', '1.1.1.1', null]]},
             {'relation': 'OR', 'entries': [['ip', '2.2.2.2', null]]},
             {'relation': 'OR', 'entries': [['headers', ['headerrr', 'valueeee'], 'anooo']]}],
@@ -564,13 +561,10 @@ describe('DocumentEditor.vue', () => {
         'description': 'this is my own list',
         'active': false,
         'tags': ['internal', 'devops'],
-        'action': {
-          'type': 'monitor',
-          'params': {},
-        },
+        'action': 'monitor',
         'rule': {
           'relation': 'OR',
-          'sections': [
+          'entries': [
             {'relation': 'OR', 'entries': [['ip', '1.1.1.1', null]]},
             {'relation': 'OR', 'entries': [['ip', '2.2.2.2', null]]},
             {'relation': 'OR', 'entries': [['headers', ['headerrr', 'valueeee'], 'anooo']]}],
@@ -655,10 +649,7 @@ describe('DocumentEditor.vue', () => {
             'args': {},
           },
         ],
-        'action': {
-          'type': 'default',
-          'params': {},
-        },
+        'action': 'default',
         'timeframe': 60,
         'id': 'c03dabe4b9ca',
       },
@@ -693,10 +684,7 @@ describe('DocumentEditor.vue', () => {
             'args': {},
           },
         ],
-        'action': {
-          'type': 'default',
-          'params': {},
-        },
+        'action': 'default',
         'timeframe': 60,
         'id': '4435d797ab0c',
       },
@@ -749,7 +737,7 @@ describe('DocumentEditor.vue', () => {
       'thresholds': [
         {
           'limit': '5',
-          'action': {'type': 'default', 'params': {'action': {'type': 'default', 'params': {}}}},
+          'action': 'default',
         },
       ],
       'include': ['badpeople'],
@@ -765,93 +753,93 @@ describe('DocumentEditor.vue', () => {
       }
     })
     jest.spyOn(axios, 'get').mockImplementation((path, config) => {
-      if (path === '/conf/api/v2/configs/') {
+      if (path === '/conf/api/v3/configs/') {
         return Promise.resolve({data: gitData})
       }
       const branch = wrapper.vm.selectedBranch
       const docID = wrapper.vm.selectedDocID
-      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve({data: _.map(aclDocs, (i) => _.pick(i, 'id', 'name'))})
         }
         return Promise.resolve({data: aclDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/__default__/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/e/__default__/`) {
         return Promise.resolve({data: aclDocs[0]})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/5828321c37e0/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/e/5828321c37e0/`) {
         return Promise.resolve({data: aclDocs[1]})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/v/7f8a987c8e5e9db7c734ac8841c543d5bc5d9657/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/v/7f8a987c8e5e9db7c734ac8841c543d5bc5d9657/`) {
         return Promise.resolve({data: aclGitOldVersion})
       }
-      if (path === `/conf/api/v2/configs/master/d/aclprofiles/e/__default__/v/`) {
+      if (path === `/conf/api/v3/configs/master/d/aclprofiles/e/__default__/v/`) {
         return Promise.resolve({data: aclDocsLogs[0]})
       }
-      if (path === `/conf/api/v2/configs/zzz_branch/d/aclprofiles/e/__default__/v/`) {
+      if (path === `/conf/api/v3/configs/zzz_branch/d/aclprofiles/e/__default__/v/`) {
         return Promise.resolve({data: aclDocsLogs[1]})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/5828321c37e0/v/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/e/5828321c37e0/v/`) {
         return Promise.resolve({data: aclDocsLogs[1]})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/globalfilters/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/globalfilters/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve({data: _.map(profilingListDocs, (i) => _.pick(i, 'id', 'name'))})
         }
         return Promise.resolve({data: profilingListDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/globalfilters/e/xlbp148c/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/globalfilters/e/xlbp148c/`) {
         return Promise.resolve({data: profilingListDocs[0]})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/globalfilters/e/07656fbe/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/globalfilters/e/07656fbe/`) {
         return Promise.resolve({data: profilingListDocs[1]})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/globalfilters/e/${docID}/v/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/globalfilters/e/${docID}/v/`) {
         return Promise.resolve({data: profilingListDocsLogs[0]})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/securitypolicies/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/securitypolicies/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve({data: _.map(securityPoliciesDocs, (i) => _.pick(i, 'id', 'name'))})
         }
         return Promise.resolve({data: securityPoliciesDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/securitypolicies/e/__default__/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/securitypolicies/e/__default__/`) {
         return Promise.resolve({data: securityPoliciesDocs[0]})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/securitypolicies/e/${docID}/v/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/securitypolicies/e/${docID}/v/`) {
         return Promise.resolve({data: securityPoliciesDocsLogs[0]})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/flowcontrol/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/flowcontrol/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve({data: _.map(flowControlPolicyDocs, (i) => _.pick(i, 'id', 'name'))})
         }
         return Promise.resolve({data: flowControlPolicyDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/flowcontrol/e/c03dabe4b9ca/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/flowcontrol/e/c03dabe4b9ca/`) {
         return Promise.resolve({data: flowControlPolicyDocs[0]})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/contentfilterprofiles/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/contentfilterprofiles/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve({data: _.map(contentFilterDocs, (i) => _.pick(i, 'id', 'name'))})
         }
         return Promise.resolve({data: contentFilterDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/contentfilterprofiles/e/009e846e819e/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/contentfilterprofiles/e/009e846e819e/`) {
         return Promise.resolve({data: contentFilterDocs[0]})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/ratelimits/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/ratelimits/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve({data: _.map(rateLimitsDocs, (i) => _.pick(i, 'id', 'name'))})
         }
         return Promise.resolve({data: rateLimitsDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/ratelimits/e/f971e92459e2/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/ratelimits/e/f971e92459e2/`) {
         return Promise.resolve({data: rateLimitsDocs[0]})
       }
-      if (path === '/conf/api/v2/configs/master/v/') {
+      if (path === '/conf/api/v3/configs/master/v/') {
         return Promise.resolve({data: gitData[0].logs})
       }
-      if (path === '/conf/api/v2/configs/zzz_branch/v/') {
+      if (path === '/conf/api/v3/configs/zzz_branch/v/') {
         return Promise.resolve({data: gitData[1].logs})
       }
       return Promise.resolve({data: []})
@@ -902,18 +890,18 @@ describe('DocumentEditor.vue', () => {
 
   test('should have an empty git log array if got no git log data from server - response null', () => {
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v2/configs/') {
+      if (path === '/conf/api/v3/configs/') {
         return Promise.resolve({data: gitData})
       }
       const branch = wrapper.vm.selectedBranch
       const docID = wrapper.vm.selectedDocID
-      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/`) {
         return Promise.resolve({data: aclDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/${docID}/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/e/${docID}/`) {
         return Promise.resolve({data: aclDocs[0]})
       }
-      if (path === `/conf/api/v2/configs/master/d/aclprofiles/e/${docID}/v/`) {
+      if (path === `/conf/api/v3/configs/master/d/aclprofiles/e/${docID}/v/`) {
         return Promise.resolve(null)
       }
       return Promise.resolve({data: []})
@@ -932,18 +920,18 @@ describe('DocumentEditor.vue', () => {
 
   test('should have an empty git log array if got no git log data from server - data null', () => {
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v2/configs/') {
+      if (path === '/conf/api/v3/configs/') {
         return Promise.resolve({data: gitData})
       }
       const branch = wrapper.vm.selectedBranch
       const docID = wrapper.vm.selectedDocID
-      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/`) {
         return Promise.resolve({data: aclDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/${docID}/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/e/${docID}/`) {
         return Promise.resolve({data: aclDocs[0]})
       }
-      if (path === `/conf/api/v2/configs/master/d/aclprofiles/e/${docID}/v/`) {
+      if (path === `/conf/api/v3/configs/master/d/aclprofiles/e/${docID}/v/`) {
         return Promise.resolve({data: null})
       }
       return Promise.resolve({data: []})
@@ -962,18 +950,18 @@ describe('DocumentEditor.vue', () => {
 
   test('should have an empty git log array if got no git log data from server - response null', () => {
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v2/configs/') {
+      if (path === '/conf/api/v3/configs/') {
         return Promise.resolve({data: gitData})
       }
       const branch = wrapper.vm.selectedBranch
       const docID = wrapper.vm.selectedDocID
-      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/`) {
         return Promise.resolve({data: aclDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/${docID}/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/e/${docID}/`) {
         return Promise.resolve({data: aclDocs[0]})
       }
-      if (path === `/conf/api/v2/configs/master/d/aclprofiles/e/${docID}/v/`) {
+      if (path === `/conf/api/v3/configs/master/d/aclprofiles/e/${docID}/v/`) {
         return Promise.resolve(null)
       }
       return Promise.resolve({data: []})
@@ -992,18 +980,18 @@ describe('DocumentEditor.vue', () => {
 
   test('should have an empty git log array if got no git log data from server - data null', () => {
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v2/configs/') {
+      if (path === '/conf/api/v3/configs/') {
         return Promise.resolve({data: gitData})
       }
       const branch = wrapper.vm.selectedBranch
       const docID = wrapper.vm.selectedDocID
-      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/`) {
         return Promise.resolve({data: aclDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/${docID}/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/e/${docID}/`) {
         return Promise.resolve({data: aclDocs[0]})
       }
-      if (path === `/conf/api/v2/configs/master/d/aclprofiles/e/${docID}/v/`) {
+      if (path === `/conf/api/v3/configs/master/d/aclprofiles/e/${docID}/v/`) {
         return Promise.resolve({data: null})
       }
       return Promise.resolve({data: []})
@@ -1029,7 +1017,7 @@ describe('DocumentEditor.vue', () => {
     const gitHistory = wrapper.findComponent(GitHistory)
     gitHistory.vm.$emit('restore-version', wantedVersion)
     await nextTick()
-    expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclprofiles/v/${wantedVersion.version}/revert/`)
+    expect(putSpy).toHaveBeenCalledWith(`/conf/api/v3/configs/master/d/aclprofiles/v/${wantedVersion.version}/revert/`)
   })
 
   test('should log message when receiving no configs from the server', (done) => {
@@ -1039,7 +1027,7 @@ describe('DocumentEditor.vue', () => {
     consoleOutput = []
     console.log = mockedLog
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v2/configs/') {
+      if (path === '/conf/api/v3/configs/') {
         return Promise.reject(new Error())
       }
       return Promise.resolve({data: {}})
@@ -1067,12 +1055,12 @@ describe('DocumentEditor.vue', () => {
     consoleOutput = []
     console.log = mockedLog
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v2/configs/') {
+      if (path === '/conf/api/v3/configs/') {
         return Promise.resolve({data: gitData})
       }
       const branch = wrapper.vm.selectedBranch
       const doctype = wrapper.vm.selectedDocType
-      if (path === `/conf/api/v2/configs/${branch}/d/${doctype}/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/${doctype}/`) {
         return Promise.reject(new Error())
       }
       return Promise.resolve({data: {}})
@@ -1297,7 +1285,7 @@ describe('DocumentEditor.vue', () => {
     test('should display correct zero amount of branches', (done) => {
       gitData = []
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v2/configs/') {
+        if (path === '/conf/api/v3/configs/') {
           return Promise.resolve({data: gitData})
         }
         return Promise.resolve({data: []})
@@ -1321,7 +1309,7 @@ describe('DocumentEditor.vue', () => {
     test('should display correct zero amount of commits', (done) => {
       gitData = []
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v2/configs/') {
+        if (path === '/conf/api/v3/configs/') {
           return Promise.resolve({data: gitData})
         }
         return Promise.resolve({data: []})
@@ -1362,13 +1350,13 @@ describe('DocumentEditor.vue', () => {
         },
       ]
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v2/configs/') {
+        if (path === '/conf/api/v3/configs/') {
           return Promise.resolve({data: gitData})
         }
-        if (path === '/conf/api/v2/configs/master/') {
+        if (path === '/conf/api/v3/configs/master/') {
           return Promise.resolve({data: gitData[0]})
         }
-        if (path === '/conf/api/v2/configs/master/v/') {
+        if (path === '/conf/api/v3/configs/master/v/') {
           return Promise.resolve({data: gitData[0].logs})
         }
         return Promise.resolve({data: []})
@@ -1409,13 +1397,13 @@ describe('DocumentEditor.vue', () => {
         },
       ]
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v2/configs/') {
+        if (path === '/conf/api/v3/configs/') {
           return Promise.resolve({data: gitData})
         }
-        if (path === '/conf/api/v2/configs/master/') {
+        if (path === '/conf/api/v3/configs/master/') {
           return Promise.resolve({data: gitData[0]})
         }
-        if (path === '/conf/api/v2/configs/master/v/') {
+        if (path === '/conf/api/v3/configs/master/v/') {
           return Promise.resolve({data: gitData[0].logs})
         }
         return Promise.resolve({data: []})
@@ -1518,7 +1506,7 @@ describe('DocumentEditor.vue', () => {
         const getSpy = jest.spyOn(axios, 'get')
         const saveDocumentButton = wrapper.find('.save-document-button')
         saveDocumentButton.trigger('click')
-        expect(getSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/securitypolicies/`)
+        expect(getSpy).toHaveBeenCalledWith(`/conf/api/v3/configs/master/d/securitypolicies/`)
         done()
       })
     })
@@ -1530,7 +1518,7 @@ describe('DocumentEditor.vue', () => {
       putSpy.mockImplementation(() => Promise.resolve())
       const saveDocumentButton = wrapper.find('.save-document-button')
       saveDocumentButton.trigger('click')
-      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclprofiles/e/${doc.id}/`, doc)
+      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v3/configs/master/d/aclprofiles/e/${doc.id}/`, doc)
     })
 
     test('should be able to fork document', () => {
@@ -1542,12 +1530,12 @@ describe('DocumentEditor.vue', () => {
       postSpy.mockImplementation(() => Promise.resolve())
       const forkDocumentButton = wrapper.find('.fork-document-button')
       forkDocumentButton.trigger('click')
-      expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclprofiles/e/`, forkedDoc)
+      expect(postSpy).toHaveBeenCalledWith(`/conf/api/v3/configs/master/d/aclprofiles/e/`, forkedDoc)
     })
 
     test('should not be able to fork document if there is no selected doc', () => {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v2/configs/') {
+        if (path === '/conf/api/v3/configs/') {
           return Promise.resolve({data: gitData})
         }
         return Promise.resolve({data: []})
@@ -1588,7 +1576,7 @@ describe('DocumentEditor.vue', () => {
         postSpy.mockImplementation(() => Promise.resolve())
         const forkDocumentButton = wrapper.find('.fork-document-button')
         forkDocumentButton.trigger('click')
-        expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/securitypolicies/e/`, forkedDoc)
+        expect(postSpy).toHaveBeenCalledWith(`/conf/api/v3/configs/master/d/securitypolicies/e/`, forkedDoc)
         done()
       })
     })
@@ -1600,7 +1588,7 @@ describe('DocumentEditor.vue', () => {
       postSpy.mockImplementation(() => Promise.resolve())
       const newDocumentButton = wrapper.find('.new-document-button')
       newDocumentButton.trigger('click')
-      expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclprofiles/e/`, newDoc)
+      expect(postSpy).toHaveBeenCalledWith(`/conf/api/v3/configs/master/d/aclprofiles/e/`, newDoc)
     })
 
     test('should be able to add multiple new documents in a row with different IDs', () => {
@@ -1626,7 +1614,7 @@ describe('DocumentEditor.vue', () => {
       const docID = wrapper.vm.selectedDocID
       const deleteDocumentButton = wrapper.find('.delete-document-button')
       await deleteDocumentButton.trigger('click')
-      expect(deleteSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclprofiles/e/${docID}/`)
+      expect(deleteSpy).toHaveBeenCalledWith(`/conf/api/v3/configs/master/d/aclprofiles/e/${docID}/`)
     })
 
     test('should not be able to delete a document if its id is __default__', () => {
@@ -1684,12 +1672,12 @@ describe('DocumentEditor.vue', () => {
     test('should not attempt to download document when download button is clicked' +
       ' if the full docs data was not loaded yet', async () => {
       jest.spyOn(axios, 'get').mockImplementation((path, config) => {
-        if (path === '/conf/api/v2/configs/') {
+        if (path === '/conf/api/v3/configs/') {
           return Promise.resolve({data: gitData})
         }
         const branch = wrapper.vm.selectedBranch
         const docID = wrapper.vm.selectedDocID
-        if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
+        if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/`) {
           if (config && config.headers && config.headers['x-fields'] === 'id, name') {
             return Promise.resolve({data: _.map(aclDocs, (i) => _.pick(i, 'id', 'name'))})
           }
@@ -1697,16 +1685,16 @@ describe('DocumentEditor.vue', () => {
             return Promise.resolve({data: aclDocs})
           }, 5000)
         }
-        if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/__default__/`) {
+        if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/e/__default__/`) {
           return Promise.resolve({data: aclDocs[0]})
         }
-        if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/5828321c37e0/`) {
+        if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/e/5828321c37e0/`) {
           return Promise.resolve({data: aclDocs[1]})
         }
-        if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/v/7f8a987c8e5e9db7c734ac8841c543d5bc5d9657/`) {
+        if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/v/7f8a987c8e5e9db7c734ac8841c543d5bc5d9657/`) {
           return Promise.resolve({data: aclGitOldVersion})
         }
-        if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/${docID}/v/`) {
+        if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/e/${docID}/v/`) {
           return Promise.resolve({data: aclDocsLogs[0]})
         }
         return Promise.resolve({data: []})
@@ -1741,7 +1729,7 @@ describe('DocumentEditor.vue', () => {
   describe('no data', () => {
     test('should display correct message when there is no branch data', (done) => {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v2/configs/') {
+        if (path === '/conf/api/v3/configs/') {
           return Promise.resolve({data: []})
         }
         return Promise.resolve({data: []})
@@ -1766,7 +1754,7 @@ describe('DocumentEditor.vue', () => {
 
     test('should display link to version control when there is no branch data', (done) => {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v2/configs/') {
+        if (path === '/conf/api/v3/configs/') {
           return Promise.resolve({data: []})
         }
         return Promise.resolve({data: []})
@@ -1805,7 +1793,7 @@ describe('DocumentEditor.vue', () => {
 
     test('should display correct message when there is no doc data', (done) => {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v2/configs/') {
+        if (path === '/conf/api/v3/configs/') {
           return Promise.resolve({data: gitData})
         }
         return Promise.resolve({data: []})
@@ -1831,15 +1819,15 @@ describe('DocumentEditor.vue', () => {
     test('should not throw errors if no doc data exist - null response', (done) => {
       try {
         jest.spyOn(axios, 'get').mockImplementation((path) => {
-          if (path === '/conf/api/v2/configs/') {
+          if (path === '/conf/api/v3/configs/') {
             return Promise.resolve({data: gitData})
           }
           const branch = wrapper.vm.selectedBranch
           const docID = wrapper.vm.selectedDocID
-          if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
+          if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/`) {
             return Promise.resolve({data: _.map(aclDocs, (i) => _.pick(i, 'id', 'name'))})
           }
-          if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/${docID}/`) {
+          if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/e/${docID}/`) {
             return Promise.resolve(null)
           }
           return Promise.resolve({data: []})
@@ -1862,15 +1850,15 @@ describe('DocumentEditor.vue', () => {
     test('should not throw errors if no doc data exist - null data', (done) => {
       try {
         jest.spyOn(axios, 'get').mockImplementation((path) => {
-          if (path === '/conf/api/v2/configs/') {
+          if (path === '/conf/api/v3/configs/') {
             return Promise.resolve({data: gitData})
           }
           const branch = wrapper.vm.selectedBranch
           const docID = wrapper.vm.selectedDocID
-          if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
+          if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/`) {
             return Promise.resolve({data: _.map(aclDocs, (i) => _.pick(i, 'id', 'name'))})
           }
-          if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/${docID}/`) {
+          if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/e/${docID}/`) {
             return Promise.resolve({data: null})
           }
           return Promise.resolve({data: []})
@@ -1893,30 +1881,30 @@ describe('DocumentEditor.vue', () => {
     test('should not throw errors if no referenced docs data exist - null response', (done) => {
       try {
         jest.spyOn(axios, 'get').mockImplementation((path, config) => {
-          if (path === '/conf/api/v2/configs/') {
+          if (path === '/conf/api/v3/configs/') {
             return Promise.resolve({data: gitData})
           }
           const branch = wrapper.vm.selectedBranch
           const docID = wrapper.vm.selectedDocID
-          if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
+          if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/`) {
             if (config && config.headers && config.headers['x-fields'] === 'id, name') {
               return Promise.resolve({data: _.map(aclDocs, (i) => _.pick(i, 'id', 'name'))})
             }
             return Promise.resolve({data: aclDocs})
           }
-          if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/${docID}/`) {
+          if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/e/${docID}/`) {
             return Promise.resolve({data: aclDocs[0]})
           }
-          if (path === `/conf/api/v2/configs/master/d/aclprofiles/e/${docID}/v/`) {
+          if (path === `/conf/api/v3/configs/master/d/aclprofiles/e/${docID}/v/`) {
             return Promise.resolve({data: aclDocsLogs[0]})
           }
-          if (path === `/conf/api/v2/configs/${branch}/d/securitypolicies/`) {
+          if (path === `/conf/api/v3/configs/${branch}/d/securitypolicies/`) {
             return Promise.resolve(null)
           }
-          if (path === '/conf/api/v2/configs/master/v/') {
+          if (path === '/conf/api/v3/configs/master/v/') {
             return Promise.resolve({data: gitData[0].logs})
           }
-          if (path === '/conf/api/v2/configs/zzz_branch/v/') {
+          if (path === '/conf/api/v3/configs/zzz_branch/v/') {
             return Promise.resolve({data: gitData[1].logs})
           }
           return Promise.resolve({data: []})
@@ -1939,30 +1927,30 @@ describe('DocumentEditor.vue', () => {
     test('should not throw errors if no referenced docs data exist - null data', (done) => {
       try {
         jest.spyOn(axios, 'get').mockImplementation((path, config) => {
-          if (path === '/conf/api/v2/configs/') {
+          if (path === '/conf/api/v3/configs/') {
             return Promise.resolve({data: gitData})
           }
           const branch = wrapper.vm.selectedBranch
           const docID = wrapper.vm.selectedDocID
-          if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
+          if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/`) {
             if (config && config.headers && config.headers['x-fields'] === 'id, name') {
               return Promise.resolve({data: _.map(aclDocs, (i) => _.pick(i, 'id', 'name'))})
             }
             return Promise.resolve({data: aclDocs})
           }
-          if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/${docID}/`) {
+          if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/e/${docID}/`) {
             return Promise.resolve({data: aclDocs[0]})
           }
-          if (path === `/conf/api/v2/configs/master/d/aclprofiles/e/${docID}/v/`) {
+          if (path === `/conf/api/v3/configs/master/d/aclprofiles/e/${docID}/v/`) {
             return Promise.resolve({data: aclDocsLogs[0]})
           }
-          if (path === `/conf/api/v2/configs/${branch}/d/securitypolicies/`) {
+          if (path === `/conf/api/v3/configs/${branch}/d/securitypolicies/`) {
             return Promise.resolve({data: null})
           }
-          if (path === '/conf/api/v2/configs/master/v/') {
+          if (path === '/conf/api/v3/configs/master/v/') {
             return Promise.resolve({data: gitData[0].logs})
           }
-          if (path === '/conf/api/v2/configs/zzz_branch/v/') {
+          if (path === '/conf/api/v3/configs/zzz_branch/v/') {
             return Promise.resolve({data: gitData[1].logs})
           }
           return Promise.resolve({data: []})
@@ -1986,7 +1974,7 @@ describe('DocumentEditor.vue', () => {
   describe('loading indicator', () => {
     test('should display loading indicator when branch not loaded', async () => {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v2/configs/') {
+        if (path === '/conf/api/v3/configs/') {
           return new Promise(() => {
           })
         }
@@ -2007,11 +1995,11 @@ describe('DocumentEditor.vue', () => {
 
     test('should display loading indicator when doc not loaded', async () => {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v2/configs/') {
+        if (path === '/conf/api/v3/configs/') {
           return Promise.resolve({data: gitData})
         }
         const branch = wrapper.vm.selectedBranch
-        if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
+        if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/`) {
           return new Promise(() => {
           })
         }

@@ -21,6 +21,41 @@
                          v-model="localDoc.name"/>
                 </div>
               </div>
+              <div class="field textarea-field">
+                <label class="label is-small">Description</label>
+                <div class="control">
+                  <textarea class="is-small textarea document-description"
+                            data-qa="description-input"
+                            title="Document description"
+                            v-model="localDoc.description"
+                            @input="emitDocUpdate"
+                            rows="5">
+                  </textarea>
+                </div>
+              </div>
+              <div class="field">
+                <label class="label is-small">
+                  Action
+                </label>
+                <div class="control">
+                  <input class="input is-small document-action"
+                         title="Action"
+                         data-qa="action-input"
+                         placeholder="Action"
+                         @change="emitDocUpdate"
+                         v-model="localDoc.action"/>
+                </div>
+              </div>
+              <div class="field">
+                <label class="label is-small">Tags</label>
+                <div class="control"
+                     data-qa="tag-input">
+                  <tag-autocomplete-input :initial-tag="selectedDocTags"
+                                          :selection-type="'multiple'"
+                                          @tag-changed="selectedDocTags = $event">
+                  </tag-autocomplete-input>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -28,9 +63,9 @@
 
       <div class="content">
         <hr/>
-        <div class="columns">
+        <div class="columns operation-tags">
           <div class="column is-2" v-for="operation in operations" :key="operation">
-            <p class="title is-7 is-uppercase" :data-qa="titles[operation]">{{ titles[operation]}}</p>
+            <p class="title is-7 is-uppercase" :data-qa="titles[operation]">{{ titles[operation] }}</p>
             <hr class="bar" :class="`bar-${operationClassName(operation)}`"/>
             <table class="table is-narrow is-fullwidth">
               <tbody>
@@ -128,6 +163,20 @@ export default defineComponent({
       return result
     },
 
+    selectedDocTags: {
+      get: function(): string {
+        if (this.localDoc.tags && this.localDoc.tags.length > 0) {
+          return this.localDoc.tags.join(' ')
+        }
+        return ''
+      },
+      set: function(tags: string): void {
+        this.localDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
+          return tag.trim()
+        }) : []
+        this.emitDocUpdate()
+      },
+    },
   },
   methods: {
     emitDocUpdate() {

@@ -27,9 +27,9 @@
                   <div class="control">
                     <textarea class="is-small textarea document-description"
                               data-qa="description-input"
-                              title="description"
+                              title="Document description"
                               v-model="localDoc.description"
-                              @change="emitDocUpdate"
+                              @input="emitDocUpdate"
                               rows="5">
                     </textarea>
                   </div>

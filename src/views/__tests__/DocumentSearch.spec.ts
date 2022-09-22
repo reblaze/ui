@@ -192,13 +192,10 @@ describe('DocumentSearch.vue', () => {
         'description': 'Default Tag API Requests',
         'active': true,
         'tags': ['api'],
-        'action': {
-          'type': 'monitor',
-          'params': {},
-        },
+        'action': 'monitor',
         'rule': {
           'relation': 'OR',
-          'sections': [
+          'entries': [
             {
               'relation': 'OR', 'entries': [
                 [
@@ -244,13 +241,10 @@ describe('DocumentSearch.vue', () => {
         'description': 'this is my own list',
         'active': false,
         'tags': ['internal', 'devops'],
-        'action': {
-          'type': 'monitor',
-          'params': {},
-        },
+        'action': 'monitor',
         'rule': {
           'relation': 'OR',
-          'sections': [
+          'entries': [
             {'relation': 'OR', 'entries': [['ip', '1.1.1.1', null]]},
             {'relation': 'OR', 'entries': [['ip', '2.2.2.2', null]]},
             {'relation': 'OR', 'entries': [['headers', ['headerrr', 'valueeee'], 'anooo']]}],
@@ -325,10 +319,7 @@ describe('DocumentSearch.vue', () => {
             'args': {},
           },
         ],
-        'action': {
-          'type': 'default',
-          'params': {},
-        },
+        'action': 'default',
         'timeframe': 60,
         'id': 'c03dabe4b9ca',
       },
@@ -342,7 +333,7 @@ describe('DocumentSearch.vue', () => {
         'thresholds': [
           {
             'limit': '5',
-            'action': {'type': 'default'},
+            'action': 'default',
           },
         ],
         'include': ['badpeople'],
@@ -394,26 +385,26 @@ describe('DocumentSearch.vue', () => {
       },
     ]
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v2/configs/') {
+      if (path === '/conf/api/v3/configs/') {
         return Promise.resolve({data: gitData})
       }
       const branch = wrapper.vm.selectedBranch
-      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/`) {
         return Promise.resolve({data: aclDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/globalfilters/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/globalfilters/`) {
         return Promise.resolve({data: profilingListDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/securitypolicies/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/securitypolicies/`) {
         return Promise.resolve({data: securityPoliciesDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/flowcontrol/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/flowcontrol/`) {
         return Promise.resolve({data: flowControlPolicyDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/ratelimits/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/ratelimits/`) {
         return Promise.resolve({data: rateLimitDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/contentfilterprofiles/`) {
+      if (path === `/conf/api/v3/configs/${branch}/d/contentfilterprofiles/`) {
         return Promise.resolve({data: contentFilterDocs})
       }
       return Promise.resolve({data: []})
@@ -483,7 +474,7 @@ describe('DocumentSearch.vue', () => {
     consoleOutput = []
     console.log = mockedLog
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v2/configs/') {
+      if (path === '/conf/api/v3/configs/') {
         return Promise.reject(new Error())
       }
       return Promise.resolve({data: {}})
