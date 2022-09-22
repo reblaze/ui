@@ -1,7 +1,7 @@
 import {
   ACLProfile,
   ContentFilterProfile,
-  ContentFilterRule,
+  ContentFilterRule, CustomResponse,
   FlowControlPolicy,
   GlobalFilter,
   HttpRequestMethods,
@@ -54,6 +54,8 @@ const titles: { [key: string]: string } = {
   'globalfilters-singular': 'Global Filter',
   'flowcontrol': 'Flow Control Policies',
   'flowcontrol-singular': 'Flow Control Policy',
+  'actions': 'Custom Responses',
+  'actions-singular': 'Custom Response',
   'active': 'Active',
   'report': 'Report',
   'ignore': 'Ignore',
@@ -252,6 +254,16 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'category': '',
       'subcategory': '',
       'tags': [],
+    }
+  },
+
+  actions(): CustomResponse {
+    return {
+      'id': generateUUID2(),
+      'name': 'New Custom Response',
+      'description': 'New Custom Response Rule Description and Remarks',
+      'tags': [],
+      'type': 'monitor',
     }
   },
 }
