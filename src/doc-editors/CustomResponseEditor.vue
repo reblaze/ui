@@ -45,7 +45,7 @@
                   <option v-for="name in selectedType"
                           :key="name"
                           :value="name">
-                    {{ name }}
+                    {{ capitalize(name) }}
                   </option>
                 </select>
               </div>
@@ -98,13 +98,13 @@
                 </div>
                 <div class="column is-narrow">
                   <button class="button is-light is-small remove-icon is-small has-text-grey"
-                          title="Click to remove"
+                          title="Click to remove header"
                           @click="removeHeaderElement(index)">
                     <span class="icon is-small"><i class="fas fa-trash fa-xs"></i></span>
                   </button>
                 </div>
               </div>
-              <a title="Add new option rule"
+              <a title="Add new header"
                  class="is-text is-small is-size-7 ml-3 add-key-button"
                  data-qa="add-new-key-btn"
                  tabindex="0"
@@ -232,6 +232,10 @@ export default defineComponent({
 
     addHeaderElement(): void {
       this.headersArray.push({key: '', value: ''})
+    },
+
+    capitalize(value: string) {
+      return _.capitalize(value)
     },
 
     normalizeParams() {
