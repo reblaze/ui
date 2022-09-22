@@ -535,13 +535,6 @@ describe('RateLimitsEditor.vue', () => {
           ],
         },
       ]
-      const selectedBranch = 'master'
-      jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === `/conf/api/v2/configs/${selectedBranch}/d/securitypolicies/`) {
-          return Promise.resolve({data: securityPoliciesDocs})
-        }
-        return Promise.resolve({data: []})
-      })
       wrapper = mount(RateLimitsEditor, {
         props: {
           selectedDoc: rateLimitsDocs[0],

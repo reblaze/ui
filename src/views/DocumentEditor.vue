@@ -424,7 +424,6 @@ export default defineComponent({
       try {
         const response = await RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'})
         configs = response.data
-        console.log('load config', configs)
       } catch (err) {
         console.log('Error while attempting to get configs')
         console.log(err)
@@ -522,6 +521,7 @@ export default defineComponent({
       const config = this.selectedBranch
       const document = this.selectedDocType
       let entry = this.selectedDocID
+      // TODO remove this mock
       if (document==='cloudfunctions') {
         entry = 'f971e92459e2'
       }

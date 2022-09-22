@@ -9,7 +9,6 @@ import {
   RateLimit,
   SecurityPolicy,
   CloudFunctions,
-  CloudFunctionsPhase,
 } from '@/types'
 
 const titles: { [key: string]: string } = {
@@ -284,13 +283,6 @@ const newDocEntryFactory: { [key: string]: Function } = {
   },
 }
 
-const cloudPhases: CloudFunctionsPhase = {
-  'requestpre': 'Request Pre Reblaze',
-  'requestpost': 'Request Post Reblaze',
-  'responsepre': 'Response Pre Reblaze',
-  'responsepost': 'Response Post Reblaze',
-}
-
 export default {
   name: 'DatasetsUtils',
   titles,
@@ -299,5 +291,4 @@ export default {
   generateUUID2,
   newDocEntryFactory,
   defaultFlowControlSequenceItem,
-  cloudPhases,
 }

@@ -153,7 +153,6 @@
 
 <script lang="ts">
 import _ from 'lodash'
-// import ResponseAction from '@/components/ResponseAction.vue'
 import {defineComponent} from 'vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
@@ -208,10 +207,8 @@ export default defineComponent({
     },
 
     newSecurityPolicyConnections(): SecurityPolicy[] {
-      console.log('this.securityPolicies', this.securityPolicies)
       return this.securityPolicies.filter((securityPolicy) => {
         return !securityPolicy.map.every((securityPolicyEntry) => {
-          console.log('securityPolicyEntry', securityPolicyEntry)
           return securityPolicyEntry[this.linkedPath].includes(this.selectedDocId)
         })
       })
@@ -226,7 +223,7 @@ export default defineComponent({
       })
     },
   },
-  emits: ['update:selectedDocId', 'go-to-route'],
+  emits: ['go-to-route'],
   methods: {
     referToSecurityPolicy(id: string) {
       this.$emit('go-to-route', `/config/${this.selectedBranch}/securitypolicies/${id}`)
@@ -335,7 +332,6 @@ export default defineComponent({
         this.getConnectedSecurityPoliciesEntries()
         this.newSecurityPolicyConnectionData.map =
             this.newSecurityPolicyConnections.length > 0 ? this.newSecurityPolicyConnections[0] : null
-        console.log('newSecurityPolicyConnectionData', this.newSecurityPolicyConnectionData)
         this.newSecurityPolicyConnectionDataMapId = this.newSecurityPolicyConnectionData.map?.id
       })
     },

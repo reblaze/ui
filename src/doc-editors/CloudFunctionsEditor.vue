@@ -15,7 +15,7 @@
                 </label>
                 <div class="control">
                   <input class="input is-small document-name"
-                         data-qa="cloudfunctions-name-input"
+                         data-qa="cloud-functions-name-input"
                          type="text"
                          title="Document name"
                          placeholder="Document name"
@@ -23,18 +23,14 @@
                          v-model="localDoc.name"/>
                 </div>
               </div>
-              <div class="field">
-                <label class="label is-small">
-                  Description
-                </label>
+              <div class="field textarea-field">
+                <label class="label is-small">Description</label>
                 <div class="control">
-                  <input class="input is-small document-description"
-                         data-qa="cloud-functions-description-input"
-                         type="text"
-                         title="Cloud functions description"
-                         placeholder="Cloud functions description"
-                         @change="emitDocUpdate"
-                         v-model="localDoc.description">
+                  <textarea class="is-small textarea document-description"
+                            title="Document description"
+                            @change="emitDocUpdate"
+                            v-model="localDoc.description"
+                            rows="5"></textarea>
                 </div>
               </div>
               <div class="field">
@@ -44,14 +40,14 @@
                 <div class="group-phase mb-3">
                   <select v-model="localDoc.phase"
                                 @change="emitDocUpdate"
-                                class="phase-map"
+                                class="phase-selection"
                                 data-qa="site-name-dropdown"
                                 defaultValue="localDoc.phase.name"
-                                title="phase">
-                          <option v-for="(phase, key) in cloudPhases"
+                                title="Phase">
+                          <option v-for="key in cloudPhases"
                               :key="key"
                               :value="key">
-                            {{ phase }}
+                            {{titles[key]}}
                           </option>
                   </select>
                 </div>
@@ -60,7 +56,7 @@
             <div class="column is-8">
               <div class="field">
                 <label class="label is-small">Code</label>
-                <textarea class="is-small textarea is-family-monospace functions-code"
+                <textarea class="is-small textarea is-family-monospace cloud-functions-code"
                               data-qa="code-input"
                               title="code"
                               v-model="localDoc.code"
@@ -77,6 +73,7 @@
               :selectedBranch="selectedBranch">
           </security-policies-connections>
         </div>
+        <span class="is-family-monospace has-text-grey-lighter">{{ apiPath }}</span>
       </div>
     </div>
   </section>
@@ -84,21 +81,21 @@
 
 <script lang="ts">
 import _ from 'lodash'
-// import DatasetsUtils from '@/assets/DatasetsUtils'
 import {defineComponent} from 'vue'
 import {
   CloudFunctions,
-  CloudFunctionsPhase,
+  CloudFunctionsPhaseType,
 } from '@/types'
 import SecurityPoliciesConnections from '@/components/SecurityPoliciesConnections.vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 
 export type PhaseOption = 'requestpre' | 'requespost' | 'responsepre' | 'responsepost'
 
+
 export default defineComponent({
   name: 'CloudFunctionsEditor',
   props: {
-    selectedDoc: {},
+    selectedDoc: Object,
     selectedBranch: String,
     apiPath: String,
     docs: Array,
@@ -108,7 +105,8 @@ export default defineComponent({
   },
   data() {
     return {
-      cloudPhases: DatasetsUtils.cloudPhases as CloudFunctionsPhase,
+      cloudPhases: ['requestpre', 'requestpost', 'responsepre', 'responsepost'] as CloudFunctionsPhaseType[],
+      titles: DatasetsUtils.titles,
     }
   },
   computed: {
@@ -118,7 +116,6 @@ export default defineComponent({
   },
   emits: ['update:selectedDoc', 'go-to-route'],
   methods: {
-
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
     },
@@ -128,34 +125,3 @@ export default defineComponent({
   },
 })
 </script>
-
-<style scoped lang='scss'>
-
-.form-label {
-  padding-top: 0.25rem;
-}
-
-.bar {
-  margin: 1rem 0 0.5rem;
-}
-
-.seconds-suffix {
-  input {
-    padding-right: 60px;
-  }
-}
-
-.remove-threshold-option-button {
-  margin-left: auto;
-  margin-top: auto;
-}
-
-.button-wrapper-column {
-  display: flex;
-}
-
-.threshold-card {
-  padding: 20px;
-}
-
-</style>

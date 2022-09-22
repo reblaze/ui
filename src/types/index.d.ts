@@ -90,6 +90,8 @@ declare module CuriefenseClient {
 
   type NamesRegexType = 'names' | 'regex'
 
+  type CloudFunctionsPhaseType = 'requestpre' | 'requestpost' | 'responsepre' | 'responsepost'
+
   type Document =
     BasicDocument
     & (ACLProfile | FlowControlPolicy | GlobalFilter | RateLimit | CloudFunctions | SecurityPolicy | ContentFilterProfile | ContentFilterRule)
@@ -173,12 +175,9 @@ declare module CuriefenseClient {
     key?: string,
     description?: string,
     code?: string,
-    phase?: CloudFunctionsPhase,
+    phase?: CloudFunctionsPhaseType,
     match?: string,
   }
-  // phase: { id: string, name: string}
-  type CloudFunctionsPhase = {[key: CloudFunctionsPhaseType]: string}
-  type CloudFunctionsPhaseType = 'requestpre' | 'requestpost' | 'responsepre' | 'responsepost'
 
   type RateLimit = {
     id: string

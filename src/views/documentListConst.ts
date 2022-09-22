@@ -286,7 +286,7 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       fieldNames: ['description'],
       isSortable: true,
       isSearchable: true,
-      classes: 'width-250px',
+      classes: 'ellipsis',
     },
     {
       title: 'Phase',
@@ -297,7 +297,7 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       },
       isSortable: true,
       isSearchable: true,
-      classes: 'width-300px',
+      classes: 'width-150px',
     },
   ],
 }

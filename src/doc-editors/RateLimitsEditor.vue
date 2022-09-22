@@ -135,10 +135,6 @@
                    @keypress.enter="addThreshold()">
                   New threshold
                 </a>
-                <p class="has-text-danger is-size-7 ml-3 mt-3 up-to-one-ban"
-                   v-if="!upToOneBanAction">
-                  There can't be more than one Ban action.
-                </p>
               </div>
             </div>
             <div class="column is-7">
@@ -274,13 +270,6 @@ export default defineComponent({
         this.localDoc.pairwith = value
         this.emitDocUpdate()
       },
-    },
-
-    upToOneBanAction(): Boolean {
-      const counts = _.countBy(this.localDoc.thresholds, (threshold) => {
-        return threshold.action.type
-      })
-      return _.get(counts, 'ban', 0) <= 1
     },
   },
   emits: ['update:selectedDoc', 'go-to-route'],
