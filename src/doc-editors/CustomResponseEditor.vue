@@ -126,6 +126,7 @@
             </div>
           </div>
         </div>
+        <span class="is-family-monospace has-text-grey-lighter">{{ apiPath }}</span>
       </div>
     </div>
   </div>
