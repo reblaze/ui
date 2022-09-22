@@ -2,7 +2,7 @@ import {
   ACLProfile,
   ColumnOptionsMap,
   ContentFilterProfile,
-  ContentFilterRule,
+  ContentFilterRule, CustomResponse,
   FlowControlPolicy,
   GlobalFilter,
   RateLimit,
@@ -283,7 +283,7 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
     {
       title: 'Tags',
       fieldNames: ['tags'],
-      displayFunction: (item: GlobalFilter) => {
+      displayFunction: (item: CustomResponse) => {
         return item?.tags?.join('\n')
       },
       isSortable: false,
@@ -293,6 +293,9 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
     {
       title: 'Type',
       fieldNames: ['type'],
+      displayFunction: (item: CustomResponse) => {
+        return _.capitalize(item?.type)
+      },
       isSortable: true,
       isSearchable: true,
       classes: 'width-120px',
