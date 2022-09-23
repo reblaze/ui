@@ -158,6 +158,7 @@ export default defineComponent({
 
     async loadBranches() {
       const response = await RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'})
+      console.log('response', response.data)
       const branchId = response?.data?.[0]?.id || 'undefined'
       const items = this.menuItems.settings['/list'].items // reference
       items[`/${branchId}/globalfilters`] = {title: 'Global Filters'} as menuItem

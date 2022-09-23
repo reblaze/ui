@@ -4,10 +4,10 @@
             <table class="table connected-security-policies-table">
               <thead>
               <tr>
-                <th class="is-size-7 width-200px">Name</th>
+                <th class="is-size-7 width-150px">Name</th>
                 <th class="is-size-7 width-120px">ID</th>
-                <th class="is-size-7 width-300px">Domain Match</th>
-                <th class="is-size-7 width-300px">Entry Match</th>
+                <th class="is-size-7 ellipsis">Domain Match</th>
+                <th class="is-size-7 ellipsis">Entry Match</th>
                 <th class="is-size-7 width-80px has-text-centered">
                   <a v-if="!newSecurityPolicyConnectionOpened"
                      class="has-text-grey-dark is-small new-connection-button"
