@@ -6,11 +6,12 @@ import CurieDBEditor from '@/views/CurieDBEditor.vue'
 import PublishChanges from '@/views/Publish.vue'
 import VersionControl from '@/views/VersionControl.vue'
 import WebProxy from '@/views/WebProxy.vue'
-import RoutingProfile from '@/views/RoutingProfile.vue'
+import RoutingProfileList from '@/views/RoutingProfileList.vue'
 import MobileSDK from '@/views/MobileSDK.vue'
 import ProxyTemplate from '@/views/ProxyTemplate.vue'
 import DocumentSearch from '@/views/DocumentSearch.vue'
 import DocumentList from '@/views/DocumentList.vue'
+import RoutingProfileEditor from '@/doc-editors/RoutingProfileEditor.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -66,7 +67,23 @@ const routes: Array<RouteRecordRaw> = [
       },
       {path: 'CurieDB', name: 'CurieDBEditor', component: CurieDBEditor},
       {path: 'WebProxy', name: 'WebProxy', component: WebProxy},
-      {path: 'RoutingProfile', name: 'RoutingProfile', component: RoutingProfile},
+      {
+        path: 'RoutingProfileList',
+        name: 'RoutingProfileList',
+        component: RoutingProfileList,
+        children: [
+          {
+            path: '/routing-profile/list',
+            name: 'RoutingProfile/list',
+            component: RoutingProfileList,
+          },
+          {
+            path: 'config/:doc_id',
+            name: 'RoutingProfile/config',
+            component: RoutingProfileEditor,
+          },
+        ],
+      },
       {path: 'MobileSDK', name: 'MobileSDK', component: MobileSDK},
       {path: 'ProxyTemplate', name: 'ProxyTemplate', component: ProxyTemplate},
       {path: 'publish', name: 'PublishChanges', component: PublishChanges},

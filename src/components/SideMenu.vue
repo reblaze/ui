@@ -76,7 +76,7 @@ export default defineComponent({
           '/WebProxy': {
             title: 'Web Proxy',
           },
-          '/RoutingProfile': {
+          '/routing-profile/list': {
             title: 'Routing Profile',
           },
           '/MobileSDK': {

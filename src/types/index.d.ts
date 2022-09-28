@@ -239,6 +239,18 @@ declare module CuriefenseClient {
 
   // Document other - END
 
+  // TODO: add operational includes RoutingProfile 
+
+  // Document other - START
+  
+  type RoutingProfile = {
+    name: string,
+    id: string,
+    server_names: string[]
+  }
+  // Document other - END
+
+
 
   // Git - START
 
