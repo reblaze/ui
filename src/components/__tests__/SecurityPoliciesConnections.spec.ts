@@ -10,11 +10,13 @@ import {RateLimit, SecurityPolicy} from '@/types'
 jest.mock('axios')
 
 describe('SecurityPoliciesConnections.vue', () => {
+  // let rateLimitsDocsId: string[]
   let rateLimitsDocs: RateLimit[]
   let securityPoliciesDocs: SecurityPolicy[]
   let mockRouter: any
   let wrapper: VueWrapper
   beforeEach(() => {
+    // rateLimitsDocsId = ['f971e92459e2']
     rateLimitsDocs = [{
       'id': 'f971e92459e2',
       'name': 'Rate Limit Example Rule 5/60',
@@ -85,25 +87,25 @@ describe('SecurityPoliciesConnections.vue', () => {
     ]
     const selectedBranch = 'master'
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === `/conf/api/v2/configs/${selectedBranch}/d/securitypolicies/`) {
+      if (path === `/conf/api/v3/configs/${selectedBranch}/d/securitypolicies/`) {
         return Promise.resolve({data: securityPoliciesDocs})
       }
-      return Promise.resolve({data: []})
+      return Promise.resolve({data: [{aylon: 'rich'}]})
     })
     mockRouter = {
       push: jest.fn(),
     }
 
-    const onUpdate = async (selectedDocId: RateLimit) => {
-      await wrapper.setProps({selectedDocId})
-    }
+    // const onUpdate = async (selectedDocId: RateLimit) => {
+    //   await wrapper.setProps({selectedDocId})
+    // }
 
     wrapper = mount(SecurityPoliciesConnections, {
       props: {
         'selectedDocId': 'f971e92459e2',
         'selectedDocType': 'ratelimits',
         'selectedBranch': selectedBranch,
-        'onUpdate:selectedDoc': onUpdate,
+      //  'onUpdate:selectedDoc': onUpdate,
       },
       global: {
         mocks: {
@@ -197,7 +199,7 @@ describe('SecurityPoliciesConnections.vue', () => {
       ]
       const selectedBranch = 'master'
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === `/conf/api/v2/configs/${selectedBranch}/d/securitypolicies/`) {
+        if (path === `/conf/api/v3/configs/${selectedBranch}/d/securitypolicies/`) {
           return Promise.resolve({data: securityPoliciesDocs})
         }
         return Promise.resolve({data: []})
@@ -215,7 +217,61 @@ describe('SecurityPoliciesConnections.vue', () => {
       expect(newConnectionRow.text()).toEqual(wantedMessage)
     })
 
-    test('should show an appropriate message when there are no available new connections for cloudFunctionsEditor page',
+    test('should hide the new connection row when `-` button is clicked', async () => {
+      let newConnectionButton = wrapper.find('.new-connection-button')
+      await newConnectionButton.trigger('click')
+      newConnectionButton = wrapper.find('.new-connection-button')
+      await newConnectionButton.trigger('click')
+      const newConnectionRow = wrapper.find('.new-connection-row')
+      expect(newConnectionRow.exists()).toBeFalsy()
+    })
+
+    test('should send request to change Security Policy when new connection is added', async () => {
+      const putSpy = jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
+      const selectedBranch = wrapper.vm.selectedBranch
+      const wantedUrl = `/conf/api/v3/configs/${selectedBranch}/d/securitypolicies/e/${securityPoliciesDocs[1].id}/`
+      const wantedDoc = JSON.parse(JSON.stringify(securityPoliciesDocs[1]))
+      wantedDoc.map[1].limit_ids.push(rateLimitsDocs[0].id)
+      const newConnectionButton = wrapper.find('.new-connection-button')
+      await newConnectionButton.trigger('click')
+      const newConnectionRow = wrapper.find('.new-connection-row')
+      const newConnectionMapSelection = newConnectionRow.find('.new-connection-map')
+      const options = newConnectionMapSelection.findAll('option')
+      newConnectionMapSelection.setValue(options.at(1).element.value)
+      const addNewConnectionButton = wrapper.find('.add-new-connection')
+      await addNewConnectionButton.trigger('click')
+      wrapper.vm.$forceUpdate()
+      expect(putSpy).toHaveBeenCalledWith(wantedUrl, wantedDoc)
+    })
+
+    test('should send request to change Security Policy when removing connection was confirmed', async () => {
+      const putSpy = jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
+      // eslint-disable-next-line max-len
+      const wantedUrl = `/conf/api/v3/configs/${wrapper.vm.selectedBranch}/d/securitypolicies/e/${securityPoliciesDocs[0].id}/`
+      const wantedDoc = JSON.parse(JSON.stringify(securityPoliciesDocs[0]))
+      wantedDoc.map[0].limit_ids = []
+      const removeConnectionButton = wrapper.findAll('.remove-connection-button').at(0)
+      await removeConnectionButton.trigger('click')
+      const confirmRemoveConnectionButton = wrapper.find('.confirm-remove-connection-button')
+      await confirmRemoveConnectionButton.trigger('click')
+      expect(putSpy).toHaveBeenCalledWith(wantedUrl, wantedDoc)
+    })
+
+    test('should not send request to change Security Policy when removing connection was cancelled', async () => {
+      const putSpy = jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
+
+      console.log('this.securityPolicies', wrapper.vm.securityPolicies,
+      'selectedDocType', wrapper.vm.selectedDocType)
+      console.log('connectedSecurityPoliciesEntries entry', wrapper.vm.connectedSecurityPoliciesEntries)
+      const removeConnectionButton = wrapper.findAll('.remove-connection-button').at(0)
+      await removeConnectionButton.trigger('click')
+      const cancelRemoveConnectionButton = wrapper.find('.cancel-remove-connection-button')
+      await cancelRemoveConnectionButton.trigger('click')
+      expect(putSpy).not.toHaveBeenCalled()
+    })
+
+
+    test.skip('should show an appropriate message when no available new connections for cloudFunctions',
       async () => {
         const wantedMessage = `All Security Policies entries are currently connected to this entity`
         securityPoliciesDocs = [
@@ -247,71 +303,22 @@ describe('SecurityPoliciesConnections.vue', () => {
         ]
         const selectedBranch = 'master'
         jest.spyOn(axios, 'get').mockImplementation((path) => {
-          if (path === `/conf/api/v2/configs/${selectedBranch}/d/securitypolicies/`) {
+          if (path === `/conf/api/v3/configs/${selectedBranch}/d/securitypolicies/`) {
             return Promise.resolve({data: securityPoliciesDocs})
           }
           return Promise.resolve({data: []})
         })
-        wrapper = mount(SecurityPoliciesConnections, {
-          props: {
-            selectedDocId: 'f123456789',
-            selectedDocType: 'cloudfunctions',
-            selectedBranch: 'master',
-          },
-        })
+        // wrapper = mount(SecurityPoliciesConnections, {
+        //   props: {
+        //     selectedDocId: 'f123456789',
+        //     selectedDocType: 'cloudfunctions',
+        //     selectedBranch: 'master',
+        //   },
+        // })
         const newConnectionButton = wrapper.find('.new-connection-button')
         await newConnectionButton.trigger('click')
         const newConnectionRow = wrapper.find('.new-connection-row')
         expect(newConnectionRow.text()).toEqual(wantedMessage)
       })
-
-    test('should hide the new connection row when `-` button is clicked', async () => {
-      let newConnectionButton = wrapper.find('.new-connection-button')
-      await newConnectionButton.trigger('click')
-      newConnectionButton = wrapper.find('.new-connection-button')
-      await newConnectionButton.trigger('click')
-      const newConnectionRow = wrapper.find('.new-connection-row')
-      expect(newConnectionRow.exists()).toBeFalsy()
-    })
-
-    test('should send request to change Security Policy when new connection is added', async () => {
-      const putSpy = jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
-      const selectedBranch = wrapper.vm.selectedBranch
-      const wantedUrl = `/conf/api/v2/configs/${selectedBranch}/d/securitypolicies/e/${securityPoliciesDocs[1].id}/`
-      const wantedDoc = JSON.parse(JSON.stringify(securityPoliciesDocs[1]))
-      wantedDoc.map[1].limit_ids.push(rateLimitsDocs[0].id)
-      const newConnectionButton = wrapper.find('.new-connection-button')
-      await newConnectionButton.trigger('click')
-      const newConnectionRow = wrapper.find('.new-connection-row')
-      const newConnectionMapSelection = newConnectionRow.find('.new-connection-map')
-      const options = newConnectionMapSelection.findAll('option')
-      newConnectionMapSelection.setValue(options.at(1).element.value)
-      const addNewConnectionButton = wrapper.find('.add-new-connection')
-      await addNewConnectionButton.trigger('click')
-      wrapper.vm.$forceUpdate()
-      expect(putSpy).toHaveBeenCalledWith(wantedUrl, wantedDoc)
-    })
-
-    test('should send request to change Security Policy when removing connection was confirmed', async () => {
-      const putSpy = jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
-      // eslint-disable-next-line max-len
-      const wantedUrl = `/conf/api/v2/configs/${wrapper.vm.selectedBranch}/d/securitypolicies/e/${securityPoliciesDocs[0].id}/`
-      const wantedDoc = JSON.parse(JSON.stringify(securityPoliciesDocs[0]))
-      wantedDoc.map[0].limit_ids = []
-      const removeConnectionButton = wrapper.findAll('.remove-connection-button').at(0)
-      await removeConnectionButton.trigger('click')
-      const confirmRemoveConnectionButton = wrapper.find('.confirm-remove-connection-button')
-      await confirmRemoveConnectionButton.trigger('click')
-      expect(putSpy).toHaveBeenCalledWith(wantedUrl, wantedDoc)
-    })
-
-    test('should not send request to change Security Policy when removing connection was cancelled', async () => {
-      const putSpy = jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
-      const removeConnectionButton = wrapper.findAll('.remove-connection-button').at(0)
-      await removeConnectionButton.trigger('click')
-      const cancelRemoveConnectionButton = wrapper.find('.cancel-remove-connection-button')
-      await cancelRemoveConnectionButton.trigger('click')
-      expect(putSpy).not.toHaveBeenCalled()
-    })
   })
 })

@@ -34,6 +34,7 @@ declare module CuriefenseClient {
   }
 
   type SecurityPolicyEntryMatch = {
+    id: string,
     match: string
     name: string
     acl_profile: string
@@ -41,7 +42,6 @@ declare module CuriefenseClient {
     acl_active: boolean
     content_filter_active: boolean
     limit_ids: string[]
-    workers: string[]
   }
 
   type GlobalFilterSectionEntry = [Category, string | string[], string?]
@@ -94,6 +94,7 @@ declare module CuriefenseClient {
     | 'contentfilterrules'
     | 'cloudfunctions'
     | 'actions'
+    | 'dynamicrules'
 
   // Document types helpers - END
 
@@ -175,6 +176,17 @@ declare module CuriefenseClient {
     match?: string,
   }
 
+  type DynamicRules = {
+    id: string
+    name: string
+    description: string
+    timeframe: number
+    thresholds: number
+    exclude: string[]
+    include: string[]
+    tags: string[]
+  }
+  
   type RateLimit = {
     id: string
     name: string

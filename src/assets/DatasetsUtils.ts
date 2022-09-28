@@ -8,6 +8,7 @@ import {
   RateLimit,
   SecurityPolicy,
   CloudFunctions,
+  DynamicRules,
 } from '@/types'
 
 const titles: { [key: string]: string } = {
@@ -44,6 +45,7 @@ const titles: { [key: string]: string } = {
   'aclprofiles': 'ACL Profiles',
   'aclprofiles-singular': 'ACL Profile',
   'cloudfunctions': 'Cloud Functions',
+  'dynamicrules': 'Dynamic Rules',
   'ratelimits': 'Rate Limits',
   'ratelimits-singular': 'Rate Limit',
   'securitypolicies': 'Security Policies',
@@ -186,6 +188,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'match': `${id}.example.com`,
       'map': [
         {
+          'id': generateUUID2(),
           'match': '/',
           'name': 'default',
           'acl_profile': '__default__',
@@ -193,7 +196,6 @@ const newDocEntryFactory: { [key: string]: Function } = {
           'acl_active': false,
           'content_filter_active': false,
           'limit_ids': [],
-          'workers': [],
         },
       ],
     }
@@ -216,7 +218,13 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'exclude': [],
       'key': [
         {
-          'attrs': 'ip',
+          'attrs': 'securitypolicyid',
+        },
+        {
+          'attrs': 'pathmatchingid',
+        },
+        {
+          'headers': 'rbzsessionid',
         },
       ],
       'pairwith': {
@@ -259,6 +267,19 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'code': `-- begin custom code
         --custom response header
         ngx.header['foo'] = 'bar'`,
+    }
+  },
+
+  dynamicrules(): DynamicRules {
+    return {
+      'id': generateUUID2(),
+      'name': 'New Dynamic Rules',
+      'description': 'New Dynamic Rules Description and Remarks',
+      'timeframe': 30,
+      'thresholds': 250,
+      'tags': ['default dynamic rule'],
+      'include': ['all'],
+      'exclude': [],
     }
   },
 

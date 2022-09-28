@@ -69,7 +69,7 @@
           <security-policies-connections
               selectedDocType="cloudfunctions"
               :selectedDocId="localDoc.id"
-              @go-to-route="emitGoToRoute"
+
               :selectedBranch="selectedBranch">
           </security-policies-connections>
         </div>
@@ -78,7 +78,7 @@
     </div>
   </section>
 </template>
-
+// @go-to-route="emitGoToRoute"
 <script lang="ts">
 import _ from 'lodash'
 import {defineComponent} from 'vue'
@@ -119,9 +119,9 @@ export default defineComponent({
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
     },
-    emitGoToRoute(url: string) {
-      this.$emit('go-to-route', url)
-    },
+    // emitGoToRoute(url: string) {
+    //   this.$emit('go-to-route', url)
+    // },
   },
 })
 </script>

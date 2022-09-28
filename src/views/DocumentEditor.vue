@@ -222,6 +222,7 @@ import ContentFilterRulesEditor from '@/doc-editors/ContentFilterRulesEditor.vue
 import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
 import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
 import CloudFunctionsEditor from '@/doc-editors/CloudFunctionsEditor.vue'
+import DynamicRulesEditor from '@/doc-editors/DynamicRulesEditor.vue'
 import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
 import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
 import CustomResponseEditor from '@/doc-editors/CustomResponseEditor.vue'
@@ -276,6 +277,7 @@ export default defineComponent({
       referencedIDsContentFilter: [],
       referencedIDsLimits: [],
       referencedIDsCloudFunctions: [],
+      referencedIDsDynamicRules: [],
 
       selectedBranch: null,
       selectedDocType: null as DocumentType,
@@ -302,6 +304,7 @@ export default defineComponent({
         'contentfilterrules': shallowRef({component: ContentFilterRulesEditor}),
         'cloudfunctions': shallowRef({component: CloudFunctionsEditor}),
         'actions': shallowRef({component: CustomResponseEditor}),
+        'dynamicrules': shallowRef({component: DynamicRulesEditor}),
       },
       apiRoot: RequestsUtils.confAPIRoot,
       apiVersion: RequestsUtils.confAPIVersion,
@@ -360,6 +363,9 @@ export default defineComponent({
       }
       if (this.selectedDocType === 'cloudfunctions') {
         return this.referencedIDsCloudFunctions.includes(this.selectedDocID)
+      }
+      if (this.selectedDocType === 'dynamicrules') {
+        return this.referencedIDsDynamicRules.includes(this.selectedDocID)
       }
       return false
     },
@@ -460,6 +466,7 @@ export default defineComponent({
             url: `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`,
           })
         }
+        console.log('response?.data', response?.data)
         this.selectedDoc = response?.data || this.selectedDoc
       }
       this.setLoadingDocStatus(false)

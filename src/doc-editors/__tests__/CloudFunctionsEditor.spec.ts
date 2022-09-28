@@ -1,13 +1,9 @@
 // @ts-nocheck
 import CloudFunctionsEditor from '@/doc-editors/CloudFunctionsEditor.vue'
-// import {SecurityPoliciesConnections} from '@/components/SecurityPoliciesConnections.vue'
-// import ResponseAction from '@/components/ResponseAction.vue'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {mount, VueWrapper} from '@vue/test-utils'
 import {CloudFunctions, SecurityPolicy} from '@/types'
 import axios from 'axios'
-// import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
-// import {nextTick} from 'vue'
 
 jest.mock('axios')
 
