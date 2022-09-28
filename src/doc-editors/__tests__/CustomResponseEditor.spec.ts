@@ -52,7 +52,7 @@ describe('CustomResponseEditor.vue', () => {
     })
   })
   describe('form data', () => {
-    describe('each type without custom type', () => {
+    describe('Testing any type except custom type', () => {
       beforeEach(() => {
         wrapper.setProps({selectedDoc: docs[0]})
       })

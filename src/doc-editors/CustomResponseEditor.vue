@@ -62,7 +62,7 @@
               </div>
             </div>
           </div>
-          <div v-if="localDoc.type === 'custom'" class="column is-9 custom-panel">
+          <div v-if="localDoc.type === 'custom'" class="column is-9">
             <div class="custom-panel">
               <div class="field">
                 <label class="label is-small status-code-label">
