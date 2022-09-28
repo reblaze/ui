@@ -162,7 +162,6 @@ import {
   SecurityPolicyEntryMatch,
 } from '@/types'
 
-export type LinkedPath = 'limit_ids' | 'workers'
 export type SelectedDocType = 'ratelimits' | 'cloudfunctions'
 
 
@@ -201,14 +200,10 @@ export default defineComponent({
     },
   },
   computed: {
-    linkedPath(): LinkedPath {
-      return (this.selectedDocType ==='ratelimits') ? 'limit_ids' : 'workers'
-    },
-
     newSecurityPolicyConnections(): SecurityPolicy[] {
       return this.securityPolicies.filter((securityPolicy) => {
         return !securityPolicy.map.every((securityPolicyEntry) => {
-          return securityPolicyEntry[this.linkedPath].includes(this.selectedDocId)
+          return securityPolicyEntry['limit_ids'].includes(this.selectedDocId)
         })
       })
     },
@@ -218,7 +213,7 @@ export default defineComponent({
         return securityPolicy.id === this.newSecurityPolicyConnectionData.map.id
       })
       return securityPolicy.map.filter((securityPolicyEntry) => {
-        return !securityPolicyEntry[this.linkedPath].includes(this.selectedDocId)
+        return !securityPolicyEntry['limit_ids'].includes(this.selectedDocId)
       })
     },
   },
@@ -241,11 +236,11 @@ export default defineComponent({
     getConnectedSecurityPoliciesEntries() {
       this.connectedSecurityPoliciesEntries = _.sortBy(_.flatMap(_.filter(this.securityPolicies, (securityPolicy) => {
         return _.some(securityPolicy.map, (mapEntry: SecurityPolicyEntryMatch) => {
-          return mapEntry[this.linkedPath].includes(this.selectedDocId)
+          return mapEntry['limit_ids'].includes(this.selectedDocId)
         })
       }), (securityPolicy) => {
         return _.compact(_.map(securityPolicy.map, (mapEntry) => {
-          if (mapEntry[this.linkedPath].includes(this.selectedDocId)) {
+          if (mapEntry['limit_ids'].includes(this.selectedDocId)) {
             return {
               name: securityPolicy.name,
               id: securityPolicy.id,
@@ -283,7 +278,7 @@ export default defineComponent({
       const mapEntry = _.find(doc.map, (mapEntry) => {
         return mapEntry.match === entryMatch
       })
-      mapEntry[this.linkedPath].push(this.selectedDocId)
+      mapEntry['limit_ids'].push(this.selectedDocId)
       this.closeNewSecurityPolicyConnection()
       const docTypeText = this.titles[docType + '-singular']
       const successMessage = `The connection to the ${docTypeText} was added.`
@@ -303,10 +298,10 @@ export default defineComponent({
       const mapEntry = _.find(doc.map, (mapEntry) => {
         return mapEntry.match === entryMatch
       })
-      const docIdIndex = _.findIndex(mapEntry[this.linkedPath], (docID) => {
+      const docIdIndex = _.findIndex(mapEntry['limit_ids'], (docID) => {
         return docID === this.selectedDocId
       })
-      mapEntry[this.linkedPath].splice(docIdIndex, 1)
+      mapEntry['limit_ids'].splice(docIdIndex, 1)
       const docTypeText = this.titles[docType + '-singular']
       const successMessage = `The connection to the ${docTypeText} was removed.`
       const failureMessage = `Failed while attempting to remove the connection to the ${docTypeText}.`

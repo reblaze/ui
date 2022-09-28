@@ -66,12 +66,6 @@
               </div>
             </div>
           </div>
-          <security-policies-connections
-              selectedDocType="cloudfunctions"
-              :selectedDocId="localDoc.id"
-              @go-to-route="emitGoToRoute"
-              :selectedBranch="selectedBranch">
-          </security-policies-connections>
         </div>
         <span class="is-family-monospace has-text-grey-lighter">{{ apiPath }}</span>
       </div>
@@ -86,7 +80,7 @@ import {
   CloudFunctions,
   CloudFunctionsPhaseType,
 } from '@/types'
-import SecurityPoliciesConnections from '@/components/SecurityPoliciesConnections.vue'
+// import SecurityPoliciesConnections from '@/components/SecurityPoliciesConnections.vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 
 export type PhaseOption = 'requestpre' | 'requespost' | 'responsepre' | 'responsepost'
@@ -100,9 +94,9 @@ export default defineComponent({
     apiPath: String,
     docs: Array,
   },
-  components: {
-    SecurityPoliciesConnections,
-  },
+  // components: {
+  //   SecurityPoliciesConnections,
+  // },
   data() {
     return {
       cloudPhases: ['requestpre', 'requestpost', 'responsepre', 'responsepost'] as CloudFunctionsPhaseType[],
@@ -114,14 +108,14 @@ export default defineComponent({
       return _.cloneDeep(this.selectedDoc as CloudFunctions)
     },
   },
-  emits: ['update:selectedDoc', 'go-to-route'],
+  emits: ['update:selectedDoc'],
   methods: {
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
     },
-    emitGoToRoute(url: string) {
-      this.$emit('go-to-route', url)
-    },
+    // emitGoToRoute(url: string) {
+    //   this.$emit('go-to-route', url)
+    // },
   },
 })
 </script>
