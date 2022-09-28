@@ -5,6 +5,10 @@ import DocumentEditor from '@/views/DocumentEditor.vue'
 import CurieDBEditor from '@/views/CurieDBEditor.vue'
 import PublishChanges from '@/views/Publish.vue'
 import VersionControl from '@/views/VersionControl.vue'
+import WebProxy from '@/views/WebProxy.vue'
+import RoutingProfile from '@/views/RoutingProfile.vue'
+import MobileSDK from '@/views/MobileSDK.vue'
+import ProxyTemplate from '@/views/ProxyTemplate.vue'
 import DocumentSearch from '@/views/DocumentSearch.vue'
 import DocumentList from '@/views/DocumentList.vue'
 
@@ -61,6 +65,10 @@ const routes: Array<RouteRecordRaw> = [
         ],
       },
       {path: 'CurieDB', name: 'CurieDBEditor', component: CurieDBEditor},
+      {path: 'WebProxy', name: 'WebProxy', component: WebProxy},
+      {path: 'RoutingProfile', name: 'RoutingProfile', component: RoutingProfile},
+      {path: 'MobileSDK', name: 'MobileSDK', component: MobileSDK},
+      {path: 'ProxyTemplate', name: 'ProxyTemplate', component: ProxyTemplate},
       {path: 'publish', name: 'PublishChanges', component: PublishChanges},
       {path: 'versioncontrol', name: 'VersionControl', component: VersionControl},
       {path: 'search', name: 'DocumentSearch', component: DocumentSearch},
