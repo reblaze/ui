@@ -1485,6 +1485,7 @@ describe('DocumentList.vue', () => {
       'contentfilterprofiles',
       'contentfilterrules',
       'cloudfunctions',
+      'actions',
     ]
     documentTypes.forEach((docType) => {
       buildColumnOptionsTest(docType)

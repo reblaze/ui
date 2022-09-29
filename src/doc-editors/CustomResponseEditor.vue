@@ -56,73 +56,76 @@
                    data-qa="tag-input">
                 <tag-autocomplete-input :initial-tag="selectedDocTags"
                                         :selection-type="'multiple'"
-                                        @tag-changed="selectedDocTags = $event">
+                                        @tag-changed="selectedDocTags = $event"
+                                        class="document-autocomplete-input">
                 </tag-autocomplete-input>
               </div>
             </div>
           </div>
           <div v-if="localDoc.type === 'custom'" class="column is-9">
-            <div class="field">
-              <label class="label is-small status-code-label">
-                Status code
-              </label>
-              <div class="columns mb-0 status-code">
-                <div class="column is-5 pb-0">
-                  <input class="input is-small document-status-code"
-                         data-qa="status-input"
-                         type="number"
-                         title="Status code"
-                         placeholder="Status code"
-                         @change="emitDocUpdate"
-                         v-model.number="localDoc.params.status">
+            <div class="custom-panel">
+              <div class="field">
+                <label class="label is-small status-code-label">
+                  Status code
+                </label>
+                <div class="columns mb-0 status-code">
+                  <div class="column is-5 pb-0">
+                    <input class="input is-small document-status-code"
+                          data-qa="status-input"
+                          type="number"
+                          title="Status code"
+                          placeholder="Status code"
+                          @change="emitDocUpdate"
+                          v-model.number="localDoc.params.status"/>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="field">
-              <label class="label is-small is-size-7 has-text-left form-label">
-                Headers
-              </label>
-              <div v-for="(header, index) in headersArray" :key="index"
-                   class="columns mb-0 headers-columns">
-                <div class="column is-5">
-                  <input class="input is-small document-header-key"
-                         title="Header key"
-                         placeholder="Header key"
-                         v-model="header.key"/>
+              <div class="field">
+                <label class="label is-small is-size-7 has-text-left form-label">
+                  Headers
+                </label>
+                <div v-for="(header, index) in headersArray" :key="index"
+                    class="columns mb-0 headers-columns">
+                  <div class="column is-5">
+                    <input class="input is-small document-header-key"
+                          title="Header key"
+                          placeholder="Header key"
+                          v-model="header.key"/>
+                  </div>
+                  <div class="column is-5">
+                    <input class="input is-small document-header-value"
+                          title="Header value"
+                          placeholder="Header value"
+                          v-model="header.value"/>
+                  </div>
+                  <div class="column is-narrow">
+                    <button class="button is-light is-small remove-icon is-small has-text-grey"
+                            title="Click to remove header"
+                            @click="removeHeaderElement(index)">
+                      <span class="icon is-small"><i class="fas fa-trash fa-xs"></i></span>
+                    </button>
+                  </div>
                 </div>
-                <div class="column is-5">
-                  <input class="input is-small document-header-key"
-                         title="Header value"
-                         placeholder="Header value"
-                         v-model="header.value"/>
-                </div>
-                <div class="column is-narrow">
-                  <button class="button is-light is-small remove-icon is-small has-text-grey"
-                          title="Click to remove header"
-                          @click="removeHeaderElement(index)">
-                    <span class="icon is-small"><i class="fas fa-trash fa-xs"></i></span>
-                  </button>
-                </div>
+                <a title="Add new header"
+                  class="is-text is-small is-size-7 ml-3 add-key-button"
+                  data-qa="add-new-key-btn"
+                  tabindex="0"
+                  @keypress.space.prevent
+                  @click="addHeaderElement()">
+                  New entry
+                </a>
               </div>
-              <a title="Add new header"
-                 class="is-text is-small is-size-7 ml-3 add-key-button"
-                 data-qa="add-new-key-btn"
-                 tabindex="0"
-                 @keypress.space.prevent
-                 @click="addHeaderElement()">
-                New entry
-              </a>
-            </div>
-            <div class="field">
-              <label class="label is-small content">
-                Content
-              </label>
-              <textarea class="is-small textarea document-content"
-                        title="Content"
-                        v-model="localDoc.params.content"
-                        @input="emitDocUpdate()"
-                        rows="20">
-              </textarea>
+              <div class="field">
+                <label class="label is-small content">
+                  Content
+                </label>
+                <textarea class="is-small textarea document-content"
+                          title="Content"
+                          v-model="localDoc.params.content"
+                          @input="emitDocUpdate()"
+                          rows="20">
+                </textarea>
+              </div>
             </div>
           </div>
         </div>
@@ -153,7 +156,7 @@ export default defineComponent({
           this.headersArray = newHeadersArray
         }
         // adding necessary fields to all local doc sections if missing
-        if (!value['params']) {
+        if (!value['params'] && value['type'] === 'custom') {
           this.normalizeParams()
         }
       },
@@ -218,7 +221,7 @@ export default defineComponent({
     },
 
     getHeadersArray(): HeaderObject[] {
-      if (!this.localDoc?.params?.headers) {
+      if (!this.localDoc.params?.headers) {
         return []
       }
       return _.map(this.localDoc.params.headers, function(value, key) {

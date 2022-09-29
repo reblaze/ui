@@ -21,11 +21,13 @@
           {{ col.title }}
         </span>
       </th>
-      <th class="column-header width-70px">
+      <th class="column-header width-70px"
+          v-if="showMenuColumn">
         <div class="field is-grouped">
           <button class="button is-size-7 filter-toggle"
                   :class="{'is-active': filtersVisible }"
                   title="Filter table data"
+                  v-if="showFilterButton"
                   @click="filtersVisible = !filtersVisible">
             <span class="icon is-small">
               <i class="fas fa-filter"></i>
@@ -57,7 +59,7 @@
           </span>
         </div>
       </th>
-      <th></th>
+      <th v-if="showMenuColumn"></th>
     </tr>
     </thead>
     <tbody>
@@ -70,14 +72,17 @@
         <div class="is-size-7 vertical-scroll data-cell"
              :class="col.classes">
           <span v-if="col.displayFunction"
-                v-html="col.displayFunction(row)">
+                v-html="col.displayFunction(row)"
+                :title="col.displayFunction(row)">
           </span>
-          <span v-else>
+          <span v-else
+                :title="row[col.fieldNames[0]]">
             {{ row[col.fieldNames[0]] }}
           </span>
         </div>
       </td>
-      <td class="is-size-7">
+      <td class="is-size-7"
+          v-if="showMenuColumn">
         <div class="field is-grouped is-grouped-centered">
           <p class="control"
              v-if="showEditButton">
@@ -122,8 +127,14 @@ export default defineComponent({
   props: {
     columns: Array as PropType<ColumnOptions[]>,
     data: Array as PropType<GenericObject[]>,
+    showMenuColumn: Boolean,
+    showFilterButton: Boolean,
     showNewButton: Boolean,
     showEditButton: Boolean,
+    rowsPerPage: {
+      type: Number,
+      default: 10,
+    },
   },
   watch: {
     columns: {
@@ -152,7 +163,6 @@ export default defineComponent({
 
       // Pagination
       currentPage: 1,
-      rowsPerPage: 10,
 
       // Loading indicator
       loadingCounter: 0,

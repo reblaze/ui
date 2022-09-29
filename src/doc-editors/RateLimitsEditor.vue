@@ -51,11 +51,11 @@
                 <div class="control suffix seconds-suffix">
                   <input class="input is-small document-timeframe"
                          data-qa="ratelimit-timeframe-input"
-                         type="text"
+                         type="number"
                          title="Rate limit duration"
                          placeholder="Rate limit duration"
                          @change="emitDocUpdate"
-                         v-model="localDoc.timeframe">
+                         v-model.number="localDoc.timeframe">
                 </div>
               </div>
               <div class="group-key mb-3">
@@ -107,12 +107,12 @@
                         Limit
                       </label>
                       <input class="input is-small document-limit"
-                             type="text"
+                             type="number"
                              data-qa="ratelimit-limit-input"
                              title="Number of events"
                              placeholder="Number of events"
                              @change="emitDocUpdate"
-                             v-model="threshold.limit">
+                             v-model.number="threshold.limit">
                     </div>
                     <div class="button-wrapper-column column">
                       <a

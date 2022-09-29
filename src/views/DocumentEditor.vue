@@ -231,25 +231,6 @@ import {defineComponent, shallowRef} from 'vue'
 import {Commit, Document, DocumentType, HttpRequestMethods, SecurityPolicy} from '@/types'
 import axios, {AxiosResponse} from 'axios'
 
-// TODO: mock file to be removed later
-const cloudFunctionsMockData = [{
-  'id': 'f971e92459e2',
-  'name': 'New Cloud Functions',
-  'description': '5 requests per minute',
-  'phase': 'requestpost',
-  'code': `-- begin custom code
-  --custom response header
-  ngx.header['foo'] = 'bar'`,
-},
-{
-  'id': 'f123456789',
-  'name': 'New Cloud Function',
-  'description': '2 requests per minute',
-  'phase': 'responsepost',
-  'code': `-- begin custom code
-  --custom response header
-  ngx.header['foo'] = 'bar'`,
-}]
 
 export default defineComponent({
   name: 'DocumentEditor',
@@ -453,7 +434,10 @@ export default defineComponent({
         let response
         // TODO: mock file to be removed later
         if (this.selectedDocType == 'cloudfunctions') {
-          response = await Promise.resolve({data: cloudFunctionsMockData})
+          response = await RequestsUtils.sendReblazeRequest({
+            methodName: 'GET',
+            url: `configs/cloud-functions/${this.selectedDocID}/`,
+          })
         } else {
           response = await RequestsUtils.sendRequest({
             methodName: 'GET',
@@ -471,7 +455,16 @@ export default defineComponent({
       let response
       // TODO: mock file to be removed later
       if (doctype == 'cloudfunctions') {
-        response = await Promise.resolve({data: cloudFunctionsMockData})
+        response = await RequestsUtils.sendReblazeRequest({
+          methodName: 'GET',
+          url: 'configs/cloud-functions/',
+          data: {headers: {'x-fields': 'id, name'}},
+          onFail: () => {
+            console.log('Error while attempting to load documents')
+            this.docs = []
+            this.isDownloadLoading = false
+          },
+        })
       } else {
         response = await RequestsUtils.sendRequest({
           methodName: 'GET',
@@ -488,9 +481,12 @@ export default defineComponent({
       // After we load the basic data (id and name) we can async load the full data
       this.cancelSource.cancel(`Operation cancelled and restarted for a new document type ${doctype}`)
       this.cancelSource = axios.CancelToken.source()
-      // TODO: mock file to be removed later
       if (doctype == 'cloudfunctions') {
-        Promise.resolve({data: cloudFunctionsMockData as any}).then((response: any) => {
+        response = await RequestsUtils.sendReblazeRequest({
+          methodName: 'GET',
+          url: 'configs/cloud-functions/',
+          config: {cancelToken: this.cancelSource.token},
+        }).then((response: AxiosResponse) => {
           this.docs = response?.data || []
           this.isDownloadLoading = false
         })

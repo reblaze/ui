@@ -43,6 +43,8 @@
             <div class="content">
               <rbz-table :columns="columns"
                          :data="docs"
+                         :show-menu-column="true"
+                         :show-filter-button="true"
                          :show-new-button="true"
                          @new-button-clicked="addNewDoc"
                          :show-edit-button="true"
@@ -256,7 +258,16 @@ export default defineComponent({
       const fieldNames = _.flatMap(this.columns, 'fieldNames')
       // TODO: mock file to be removed later
       const response = (doctype == 'cloudfunctions') ?
-        await Promise.resolve({data: this.cloudFunctionsMockData}) :
+        await RequestsUtils.sendReblazeRequest({
+          methodName: 'GET',
+          url: `configs/cloud-functions/`,
+          data: {headers: {'x-fields': `id, ${fieldNames.join(', ')}`}},
+          onFail: () => {
+            console.log('Error while attempting to load documents')
+            this.docs = []
+            this.isDownloadLoading = false
+          },
+        }) :
         await RequestsUtils.sendRequest({
           methodName: 'GET',
           url: `configs/${branch}/d/${doctype}/`,
