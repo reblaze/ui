@@ -78,9 +78,11 @@ declare module CuriefenseClient {
 
   type NamesRegexType = 'names' | 'regex'
 
+  type CloudFunctionsPhaseType = 'requestpre' | 'requestpost' | 'responsepre' | 'responsepost'
+
   type Document =
     BasicDocument
-    & (ACLProfile | FlowControlPolicy | GlobalFilter | RateLimit | CloudFunctions | SecurityPolicy | ContentFilterProfile | ContentFilterRule)
+    & (ACLProfile | CloudFunctions | ContentFilterProfile | ContentFilterRule | CustomResponse | FlowControlPolicy | GlobalFilter | RateLimit | SecurityPolicy)
 
   type DocumentType =
     'aclprofiles'
@@ -91,6 +93,7 @@ declare module CuriefenseClient {
     | 'contentfilterprofiles'
     | 'contentfilterrules'
     | 'cloudfunctions'
+    | 'actions'
 
   // Document types helpers - END
 
@@ -168,12 +171,9 @@ declare module CuriefenseClient {
     key?: string,
     description?: string,
     code?: string,
-    phase?: CloudFunctionsPhase,
+    phase?: CloudFunctionsPhaseType,
     match?: string,
   }
-  // phase: { id: string, name: string}
-  type CloudFunctionsPhase = {[key: CloudFunctionsPhaseType]: string}
-  type CloudFunctionsPhaseType = 'requestpre' | 'requestpost' | 'responsepre' | 'responsepost'
 
   type RateLimit = {
     id: string
@@ -186,6 +186,19 @@ declare module CuriefenseClient {
     exclude: string[]
     include: string[]
     pairwith: LimitOptionType
+  }
+
+  type CustomResponse = {
+    id: string
+    name: string
+    description: string
+    tags: string[]
+    type: 'skip' | 'custom' | 'challenge' | 'monitor'
+    params?: {
+      status: number
+      headers: GenericObject
+      content: string
+    }
   }
 
   type HttpRequestMethods = typeof httpRequestMethods[number]

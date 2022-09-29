@@ -104,9 +104,10 @@ import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
 import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
 import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
 import CloudFunctionsEditor from '@/doc-editors/CloudFunctionsEditor.vue'
+import CustomResponseEditor from '@/doc-editors/CustomResponseEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {defineComponent, shallowRef} from 'vue'
-import {ColumnOptions, Commit, Document, DocumentType, GenericObject, CloudFunctionsPhase} from '@/types'
+import {ColumnOptions, Commit, Document, DocumentType, GenericObject} from '@/types'
 import {COLUMN_OPTIONS_MAP} from './documentListConst'
 import {AxiosResponse} from 'axios'
 import RbzTable from '@/components/RbzTable.vue'
@@ -140,7 +141,6 @@ export default defineComponent({
       // Documents
       docs: [] as GenericObject[],
       docIdNames: [] as [Document['id'], Document['name']][],
-      docsDisplayData: [] as GenericObject[],
       // To prevent deletion of docs referenced by Security Policies
       referencedIDsACL: [],
       referencedIDsContentFilter: [],
@@ -163,9 +163,9 @@ export default defineComponent({
         'contentfilterprofiles': shallowRef({component: ContentFilterEditor}),
         'contentfilterrules': shallowRef({component: ContentFilterRulesEditor}),
         'cloudfunctions': shallowRef({component: CloudFunctionsEditor}),
+        'actions': shallowRef({component: CustomResponseEditor}),
       },
 
-      cloudPhases: DatasetsUtils.cloudPhases as CloudFunctionsPhase,
       // for cloudfunctions mock data - remove later
       cloudFunctionsMockData: [{
         'id': 'f971e92459e2',
@@ -268,7 +268,6 @@ export default defineComponent({
           },
         })
       this.docs = response?.data || []
-      this.docsDisplayData = this.docs
       this.isDownloadLoading = false
       this.loadGitLog()
     },

@@ -39,7 +39,7 @@
                             data-qa="description-input"
                             title="Document description"
                             v-model="localDoc.description"
-                            @change="emitDocUpdate"
+                            @input="emitDocUpdate"
                             rows="5">
                   </textarea>
                 </div>
@@ -286,13 +286,6 @@ export default defineComponent({
         this.localDoc.pairwith = value
         this.emitDocUpdate()
       },
-    },
-
-    upToOneBanAction(): Boolean {
-      const counts = _.countBy(this.localDoc.thresholds, (threshold) => {
-        return threshold.action.type
-      })
-      return _.get(counts, 'ban', 0) <= 1
     },
   },
   emits: ['update:selectedDoc', 'go-to-route'],

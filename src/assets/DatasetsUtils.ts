@@ -1,14 +1,13 @@
 import {
   ACLProfile,
   ContentFilterProfile,
-  ContentFilterRule,
+  ContentFilterRule, CustomResponse,
   FlowControlPolicy,
   GlobalFilter,
   HttpRequestMethods,
   RateLimit,
   SecurityPolicy,
   CloudFunctions,
-  CloudFunctionsPhase,
 } from '@/types'
 
 const titles: { [key: string]: string } = {
@@ -57,6 +56,8 @@ const titles: { [key: string]: string } = {
   'globalfilters-singular': 'Global Filter',
   'flowcontrol': 'Flow Control Policies',
   'flowcontrol-singular': 'Flow Control Policy',
+  'actions': 'Custom Responses',
+  'actions-singular': 'Custom Response',
   'active': 'Active',
   'report': 'Report',
   'ignore': 'Ignore',
@@ -274,13 +275,16 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'tags': [],
     }
   },
-}
 
-const cloudPhases: CloudFunctionsPhase = {
-  'requestpre': 'Request Pre Reblaze',
-  'requestpost': 'Request Post Reblaze',
-  'responsepre': 'Response Pre Reblaze',
-  'responsepost': 'Response Post Reblaze',
+  actions(): CustomResponse {
+    return {
+      'id': generateUUID2(),
+      'name': 'New Custom Response',
+      'description': 'New Custom Response Rule Description and Remarks',
+      'tags': [],
+      'type': 'monitor',
+    }
+  },
 }
 
 export default {
@@ -291,5 +295,4 @@ export default {
   generateUUID2,
   newDocEntryFactory,
   defaultFlowControlSequenceItem,
-  cloudPhases,
 }
