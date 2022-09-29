@@ -15,7 +15,7 @@
                 <div class="control">
                   <input class="input is-small routing-name"
                          title="Document name"
-                         placeholder="Routing name"/> 
+                         placeholder="Routing name"/>
                          <!-- TODO: add to input: change="emitDocUpdate" v-model="localDoc.name" -->
                 </div>
               </div>
@@ -41,7 +41,7 @@
                 <div class="control">
                   <input class="input is-small cloud-function-path"
                          title="Routing cloud function"
-                         placeholder="Routing cloud function"/> 
+                         placeholder="Routing cloud function"/>
                          <!-- TODO: add to input: @change="emitDocUpdate" v-model="localDoc.name" -->
                 </div>
               </div>
@@ -89,7 +89,7 @@ export default defineComponent({
   },
   data() {
     return {
-      selectedType: ['a', 'b', 'c', 'd', 'e', 'f']
+      selectedType: ['a', 'b', 'c', 'd', 'e', 'f'],
     }
   },
   methods: {

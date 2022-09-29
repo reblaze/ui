@@ -22,7 +22,7 @@ import RbzTable from '@/components/RbzTable.vue'
 import {ColumnOptions, RoutingProfile} from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
-import { AxiosResponse } from 'axios'
+import {AxiosResponse} from 'axios'
 // import {ColumnOptions} from '@/types'
 
 export default defineComponent({
@@ -125,7 +125,7 @@ export default defineComponent({
         this.loadingDocCounter--
       }
     },
-    
+
     newDoc(): RoutingProfile {
       const factory = DatasetsUtils.newOperationEntryFactory['routingprofiles']
       return factory && factory()
