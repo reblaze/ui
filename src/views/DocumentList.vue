@@ -43,6 +43,8 @@
             <div class="content">
               <rbz-table :columns="columns"
                          :data="docs"
+                         :show-menu-column="true"
+                         :show-filter-button="true"
                          :show-new-button="true"
                          @new-button-clicked="addNewDoc"
                          :show-edit-button="true"
@@ -103,6 +105,7 @@ import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
 import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
 import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
 import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
+import CustomResponseEditor from '@/doc-editors/CustomResponseEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {defineComponent, shallowRef} from 'vue'
 import {ColumnOptions, Commit, Document, DocumentType, GenericObject} from '@/types'
@@ -161,6 +164,7 @@ export default defineComponent({
         'aclprofiles': shallowRef({component: ACLEditor}),
         'contentfilterprofiles': shallowRef({component: ContentFilterEditor}),
         'contentfilterrules': shallowRef({component: ContentFilterRulesEditor}),
+        'actions': shallowRef({component: CustomResponseEditor}),
       },
     }
   },

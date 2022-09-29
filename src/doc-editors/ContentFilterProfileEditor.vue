@@ -43,7 +43,7 @@
                               data-qa="description-input"
                               title="Document description"
                               v-model="localDoc.description"
-                              @change="emitDocUpdate"
+                              @input="emitDocUpdate"
                               rows="5">
                     </textarea>
               </div>
@@ -770,6 +770,21 @@ export default defineComponent({
         return 'Matching Value cannot be empty if Mask is unchecked & Ignore Tags is empty'
       }
       return 'Add new parameter'
+    },
+
+    selectedDocTags: {
+      get: function(): string {
+        if (this.localDoc.tags && this.localDoc.tags.length > 0) {
+          return this.localDoc.tags.join(' ')
+        }
+        return ''
+      },
+      set: function(tags: string): void {
+        this.localDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
+          return tag.trim()
+        }) : []
+        this.emitDocUpdate()
+      },
     },
   },
 

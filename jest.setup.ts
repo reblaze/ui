@@ -3,7 +3,6 @@ import {TextEncoder, TextDecoder} from 'util'
 
 global.URL.createObjectURL = <any>jest.fn()
 global.TextEncoder = TextEncoder
-
 global.TextDecoder = TextDecoder
 
 import {defineComponent} from 'vue'

@@ -2,7 +2,7 @@ import {
   ACLProfile,
   ColumnOptionsMap,
   ContentFilterProfile,
-  ContentFilterRule,
+  ContentFilterRule, CustomResponse,
   FlowControlPolicy,
   GlobalFilter,
   RateLimit,
@@ -263,6 +263,42 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       isSortable: true,
       isSearchable: true,
       classes: 'width-80px',
+    },
+  ],
+  'actions': [
+    {
+      title: 'Name',
+      fieldNames: ['name'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-120px',
+    },
+    {
+      title: 'Description',
+      fieldNames: ['description'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'ellipsis',
+    },
+    {
+      title: 'Tags',
+      fieldNames: ['tags'],
+      displayFunction: (item: CustomResponse) => {
+        return item?.tags?.join('\n')
+      },
+      isSortable: false,
+      isSearchable: true,
+      classes: 'width-100px white-space-pre ellipsis',
+    },
+    {
+      title: 'Type',
+      fieldNames: ['type'],
+      displayFunction: (item: CustomResponse) => {
+        return _.capitalize(item?.type)
+      },
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-120px',
     },
   ],
 }
