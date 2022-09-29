@@ -18,84 +18,8 @@
         </div>
       </div>
       <div v-if="dashboards[activeDashboardIndex]?.useDashboard === 'default'">
-        <!--First tables row-->
-        <div class="columns">
-          <div class="column is-4">
-            <rbz-table :columns="topTableColumns"
-                       :data="topTargetApps"
-                       :rowsPerPage="5">
-            </rbz-table>
-          </div>
-          <div class="column is-4">
-            <rbz-table :columns="topTableColumns"
-                       :data="topTargetUris"
-                       :rowsPerPage="5">
-            </rbz-table>
-          </div>
-          <div class="column is-4">
-            <rbz-table :columns="topTableColumns"
-                       :data="topTargetApps"
-                       :rowsPerPage="5">
-            </rbz-table>
-          </div>
-        </div>
-        <!--Second tables row-->
-        <div class="columns">
-          <div class="column is-4">
-            <rbz-table :columns="topTableColumns"
-                       :data="topCountries"
-                       :rowsPerPage="5">
-            </rbz-table>
-          </div>
-          <div class="column is-4">
-            <rbz-table :columns="topTableColumns"
-                       :data="topASNumbers"
-                       :rowsPerPage="5">
-            </rbz-table>
-          </div>
-          <div class="column is-4">
-            <rbz-table :columns="topTableColumns"
-                       :data="topIPAddresses"
-                       :rowsPerPage="5">
-            </rbz-table>
-          </div>
-        </div>
-        <!--Third tables row-->
-        <div class="columns">
-          <div class="column is-4">
-            <rbz-table :columns="topTableColumns"
-                       :data="topRateLimits"
-                       :rowsPerPage="5">
-            </rbz-table>
-          </div>
-          <div class="column is-4">
-            <rbz-table :columns="topTableColumns"
-                       :data="topACLs"
-                       :rowsPerPage="5">
-            </rbz-table>
-          </div>
-          <div class="column is-4">
-            <rbz-table :columns="topTableColumns"
-                       :data="topContentFilters"
-                       :rowsPerPage="5">
-            </rbz-table>
-          </div>
-        </div>
-        <!--Fourth tables row-->
-        <div class="columns">
-          <div class="column is-4">
-            <rbz-table :columns="topTableColumns"
-                       :data="topUserAgents"
-                       :rowsPerPage="5">
-            </rbz-table>
-          </div>
-          <div class="column is-4">
-            <rbz-table :columns="topTableColumns"
-                       :data="topTags"
-                       :rowsPerPage="5">
-            </rbz-table>
-          </div>
-        </div>
+        <reblaze-dashboard-default :data="data">
+        </reblaze-dashboard-default>
       </div>
       <div v-if="dashboards[activeDashboardIndex]?.useDashboard === 'threats'">
         Table
@@ -115,9 +39,7 @@
 <script lang="ts">
 import {defineComponent} from 'vue'
 import RequestsUtils from '@/assets/RequestsUtils'
-import RbzTable from '@/components/RbzTable.vue'
-import {ColumnOptions} from '@/types'
-import _ from 'lodash'
+import ReblazeDashboardDefault from '@/reblaze-dashboards/DefaultDashboard.vue'
 
 const jwt = require('jsonwebtoken')
 
@@ -127,16 +49,9 @@ type DashboardData = {
   useDashboard?: string
 }
 
-type topTableData = {
-  rowIdentification?: string
-  passed?: number
-  blocks?: number
-  report?: number
-}
-
 export default defineComponent({
   name: 'DashboardDisplay',
-  components: {RbzTable},
+  components: {ReblazeDashboardDefault},
   data() {
     const defaultMetabaseURL = 'http://localhost:3000'
     return {
@@ -145,81 +60,7 @@ export default defineComponent({
       dashboards: [] as DashboardData[],
       activeDashboardIndex: -1,
       data: [],
-
-      // Tables
-      topTableColumns: [
-        {
-          title: '',
-          fieldNames: ['rowIdentification'],
-          classes: 'width-100px ellipsis',
-        },
-        {
-          title: 'Passed',
-          fieldNames: ['passed'],
-          isSortable: true,
-          classes: 'width-60px',
-        },
-        {
-          title: 'blocked',
-          fieldNames: ['blocks'],
-          isSortable: true,
-          classes: 'width-60px',
-        },
-        {
-          title: 'Report',
-          fieldNames: ['report'],
-          isSortable: true,
-          classes: 'width-60px',
-        },
-      ] as ColumnOptions[],
     }
-  },
-  computed: {
-    topTargetApps(): topTableData[] {
-      const returnArray = []
-      const groupedObject = _.groupBy(this.data, 'Appid')
-      for (const appId of Object.keys(groupedObject)) {
-        returnArray.push({
-          rowIdentification: appId,
-          passed: _.sumBy(groupedObject[appId], (item) => item['Counters'].hits - item['Counters'].blocks),
-          blocks: _.sumBy(groupedObject[appId], (item) => item['Counters'].blocks),
-          report: _.sumBy(groupedObject[appId], (item) => item['Counters'].report),
-        })
-      }
-      return returnArray
-    },
-
-    topTargetUris(): topTableData[] {
-      return this.buildTopDataArrayFromCounters('top-blocked-uri', 'top-passed-uri', '')
-    },
-
-    topCountries(): topTableData[] {
-      return this.buildTopDataArrayFromCounters('top-blocked-countries', 'top-passed-countries', '')
-    },
-
-    topASNumbers(): topTableData[] {
-      return this.buildTopDataArrayFromCounters('top-blocked-asn', 'top-passed-asn', '')
-    },
-
-    topIPAddresses(): topTableData[] {
-      return this.buildTopDataArrayFromCounters('top-blocked-ip', 'top-passed-ip', '')
-    },
-
-    topRateLimits(): topTableData[] {
-      return []
-    },
-
-    topACLs(): topTableData[] {
-      return []
-    },
-
-    topContentFilters(): topTableData[] {
-      return []
-    },
-
-    topUserAgents(): topTableData[] {
-      return this.buildTopDataArrayFromCounters('top-blocked-user-agent', 'top-passed-user-agent', '')
-    },
   },
   methods: {
     async loadConfigurationFromDB() {
@@ -238,8 +79,8 @@ export default defineComponent({
     async loadData() {
       const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
-        url: 'agg_logs',
-        config: {headers: {'flavor': 'mongodb', 'Content-Type': 'application/json'}, data: {}},
+        url: 'metrics',
+        config: {headers: {'flavor': 'mongodb', 'Content-Type': 'application/json'}},
       })
       this.data = response?.data || []
       this.data = [
@@ -6911,40 +6752,6 @@ export default defineComponent({
           'ID': '63345587d760c192c35dacae',
         },
       ]
-    },
-
-    buildTopDataArrayFromCounters(blocksFieldName: string, passedFieldName: string, reportFieldName: string) {
-      const returnArray = []
-      const groupedObject: { [key: string]: topTableData } = {}
-      this.data.forEach((item) => {
-        if (item['Counters'][blocksFieldName]) {
-          for (const key of Object.keys(item['Counters'][blocksFieldName])) {
-            (groupedObject[key] || (groupedObject[key] = {})).blocks = groupedObject[key].blocks || 0
-            groupedObject[key].blocks += item['Counters'][blocksFieldName][key] || 0
-          }
-        }
-        if (item['Counters'][passedFieldName]) {
-          for (const key of Object.keys(item['Counters'][passedFieldName])) {
-            (groupedObject[key] || (groupedObject[key] = {})).passed = groupedObject[key].passed || 0
-            groupedObject[key].passed += item['Counters'][passedFieldName][key] || 0
-          }
-        }
-        if (item['Counters'][reportFieldName]) {
-          for (const key of Object.keys(item['Counters'][reportFieldName])) {
-            (groupedObject[key] || (groupedObject[key] = {})).report = groupedObject[key].report || 0
-            groupedObject[key].report += item['Counters'][reportFieldName][key] || 0
-          }
-        }
-      })
-      for (const key of Object.keys(groupedObject)) {
-        returnArray.push({
-          rowIdentification: key,
-          passed: groupedObject[key].passed,
-          blocks: groupedObject[key].blocks,
-          report: groupedObject[key].report,
-        })
-      }
-      return returnArray
     },
 
     getDashboardURL(metabaseId: number) {

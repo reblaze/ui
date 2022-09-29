@@ -1,6 +1,12 @@
 <template>
   <table class="table is-bordered is-fullwidth is-size-7 rbz-table is-hoverable">
     <thead>
+    <tr class="header-row" v-if="tableTitle">
+      <th :colspan="columns.length"
+          class="has-text-centered">
+        {{ tableTitle }}
+      </th>
+    </tr>
     <tr class="header-row">
       <th v-for="(col, index) in columns"
           :key="index"
@@ -131,6 +137,7 @@ export default defineComponent({
     showFilterButton: Boolean,
     showNewButton: Boolean,
     showEditButton: Boolean,
+    tableTitle: String,
     rowsPerPage: {
       type: Number,
       default: 10,
