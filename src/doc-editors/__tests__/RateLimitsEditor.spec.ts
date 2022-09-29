@@ -29,7 +29,8 @@ describe('RateLimitsEditor.vue', () => {
       'timeframe': '60',
       'include': ['blocklist'],
       'exclude': ['allowlist'],
-      'key': [{'attrs': 'ip'}],
+      'key': [{'attrs': 'securitypolicyid'},
+        {'attrs': 'pathmatchingid'}, {'headers': 'rbzsessionid'}],
       'pairwith': {'self': 'self'},
     }]
     securityPoliciesDocs = [
@@ -149,6 +150,7 @@ describe('RateLimitsEditor.vue', () => {
     test('should have event limit option component with correct data', () => {
       const wantedType = Object.keys(rateLimitsDocs[0].pairwith)[0]
       const wantedValue = Object.values(rateLimitsDocs[0].pairwith)[0]
+      console.log('all', wrapper.findAllComponents(LimitOption))
       const limitOptionComponent = wrapper.findAllComponents(LimitOption).at(1)
       const actualType = limitOptionComponent.vm.option.type
       const actualValue = limitOptionComponent.vm.option.key
@@ -406,8 +408,11 @@ describe('RateLimitsEditor.vue', () => {
     })
 
     test('should remove tag from correct filter when tag removed', async () => {
-      const removeIncludeEntryButton = wrapper.find('.remove-filter-entry-button')
+      const includeEntries = wrapper.find('.include-filter-column')
+      const removeIncludeEntryButton = includeEntries.find('.remove-filter-entry-button')
       await removeIncludeEntryButton.trigger('click')
+      wrapper.vm.$forceUpdate()
+      await nextTick()
       expect(wrapper.vm.localDoc.include.length).toEqual(0)
     })
 
