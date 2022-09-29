@@ -156,7 +156,7 @@ export default defineComponent({
           this.headersArray = newHeadersArray
         }
         // adding necessary fields to all local doc sections if missing
-        if (!value['params']) {
+        if (!value['params'] && value['type'] === 'custom') {
           this.normalizeParams()
         }
       },

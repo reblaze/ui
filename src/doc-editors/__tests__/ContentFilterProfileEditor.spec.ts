@@ -66,6 +66,7 @@ describe('ContentFilterProfileEditor.vue', () => {
       'active': ['active-tag1', 'active-tag2'],
       'report': ['report-tag1'],
       'ignore': ['ignore-tag1'],
+      'tags': ['test-tag'],
     }]
     contentFilterRulesDocs = [
       {
@@ -313,6 +314,55 @@ describe('ContentFilterProfileEditor.vue', () => {
       await jsonInput.trigger('change')
       expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
       expect(wrapper.emitted('update:selectedDoc')[0][0].content_type).not.toContain('json')
+    })
+  })
+
+  describe('tags management', () => {
+    test('should emit doc update when adding tags', () => {
+      const newTag = 'test-tag'
+      const newTagInputValue = `${docs[0].tags.join(' ')} ${newTag}`
+      const wantedEmit = JSON.parse(JSON.stringify(docs[0]))
+      wantedEmit.tags.push(newTag)
+      // change tags
+      const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+      tagAutocompleteInput.vm.$emit('tag-changed', newTagInputValue)
+      // check
+      expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
+      expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
+    })
+
+    test('should set document tags to be an empty array if empty string provided', () => {
+      const newTagInputValue = ''
+      const wantedEmit = JSON.parse(JSON.stringify(docs[0]))
+      wantedEmit.tags = []
+      // change tags
+      const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+      tagAutocompleteInput.vm.$emit('tag-changed', newTagInputValue)
+      // check
+      expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
+      expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
+    })
+
+    test('should set tags input to be an empty string if document tags do not exist', () => {
+      delete docs[0].tags
+      wrapper = shallowMount(ContentFilterEditor, {
+        props: {
+          selectedDoc: docs[0],
+        },
+      })
+      const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+      expect(tagAutocompleteInput.props('initialTag')).toEqual('')
+    })
+
+    test('should set tags input to be an empty string if document tags is empty', () => {
+      docs[0].tags = []
+      wrapper = shallowMount(ContentFilterEditor, {
+        props: {
+          selectedDoc: docs[0],
+        },
+      })
+      const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+      expect(tagAutocompleteInput.props('initialTag')).toEqual('')
     })
   })
 

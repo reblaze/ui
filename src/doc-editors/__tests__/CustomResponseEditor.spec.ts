@@ -1,7 +1,6 @@
 // @ts-nocheck
 import CustomResponseEditor from '@/doc-editors/CustomResponseEditor.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
-import EntriesRelationList from '@/components/EntriesRelationList.vue'
 import {beforeEach, describe, expect, test} from '@jest/globals'
 import {shallowMount, VueWrapper} from '@vue/test-utils'
 
@@ -169,14 +168,7 @@ describe('CustomResponseEditor.vue', () => {
       tagAutocompleteInput.vm.$emit('tag-changed', newTagInputValue)
       // check
       expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
-      expect(wrapper.emitted('update:selectedDoc'[0])).toEqual([wantedEmit])
-    })
-
-    test('should emit form validness when EntriesRelationList is validated', () => {
-      const entriesRelationListComponent = wrapper.findComponent(EntriesRelationList)
-      entriesRelationListComponent.vm.$emit('invalid', false)
-      // check
-      expect(wrapper.emitted('form-invalid')).toBeTruthy()
+      expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
     })
 
     test('should set document tags to be an empty array if empty string provided', () => {
