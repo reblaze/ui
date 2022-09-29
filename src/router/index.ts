@@ -68,21 +68,14 @@ const routes: Array<RouteRecordRaw> = [
       {path: 'CurieDB', name: 'CurieDBEditor', component: CurieDBEditor},
       {path: 'WebProxy', name: 'WebProxy', component: WebProxy},
       {
-        path: 'RoutingProfileList',
-        name: 'RoutingProfileList',
+        path: '/routing-profile/list',
+        name: 'RoutingProfile/list',
         component: RoutingProfileList,
-        children: [
-          {
-            path: '/routing-profile/list',
-            name: 'RoutingProfile/list',
-            component: RoutingProfileList,
-          },
-          {
-            path: 'config/:doc_id',
-            name: 'RoutingProfile/config',
-            component: RoutingProfileEditor,
-          },
-        ],
+      },
+      {
+        path: '/routing-profile/config/:doc_id',
+        name: 'RoutingProfile/config',
+        component: RoutingProfileEditor,
       },
       {path: 'MobileSDK', name: 'MobileSDK', component: MobileSDK},
       {path: 'ProxyTemplate', name: 'ProxyTemplate', component: ProxyTemplate},

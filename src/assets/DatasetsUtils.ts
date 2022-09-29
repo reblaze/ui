@@ -6,6 +6,7 @@ import {
   GlobalFilter,
   HttpRequestMethods,
   RateLimit,
+  RoutingProfile,
   SecurityPolicy,
 } from '@/types'
 
@@ -57,6 +58,8 @@ const titles: { [key: string]: string } = {
   'actions': 'Custom Responses',
   'actions-singular': 'Custom Response',
   'active': 'Active',
+  'routingprofiles': 'Routing Profiles',
+  'routingprofiles-singular': 'Routing Profiles',
   'report': 'Report',
   'ignore': 'Ignore',
 }
@@ -267,6 +270,20 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 }
+const newOperationEntryFactory: { [key: string]: Function } = {
+  routingprofiles(): RoutingProfile {
+    return {
+      'id': '',
+      'name': 'New Routing Profile',
+      'server_names': [],
+      'locations': [{
+        'path': '/',
+        'backend_id': '',
+      }],
+      'cloud_functions': [],
+    }
+  },
+}
 
 export default {
   name: 'DatasetsUtils',
@@ -275,5 +292,6 @@ export default {
   generateUUID,
   generateUUID2,
   newDocEntryFactory,
+  newOperationEntryFactory,
   defaultFlowControlSequenceItem,
 }

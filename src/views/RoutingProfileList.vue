@@ -6,7 +6,8 @@
               <rbz-table :columns="columns"
                          :data="mockArray"
                          :show-new-button="true"
-                         :show-edit-button="true">
+                         :show-edit-button="true"
+                         @edit-button-clicked="editDoc">
               </rbz-table>
             </div>
         </div>
@@ -18,6 +19,10 @@ import _ from 'lodash'
 import {defineComponent} from 'vue'
 // import {AxiosResponse} from 'axios'
 import RbzTable from '@/components/RbzTable.vue'
+import {ColumnOptions, RoutingProfile} from '@/types'
+import DatasetsUtils from '@/assets/DatasetsUtils'
+import RequestsUtils from '@/assets/RequestsUtils'
+import { AxiosResponse } from 'axios'
 // import {ColumnOptions} from '@/types'
 
 export default defineComponent({
@@ -30,14 +35,7 @@ export default defineComponent({
         {
           'name': 'NAME_test1',
           'id': 'ID_1a2b',
-          'server_names': [
-            {
-              'server1': 'TEST server1',
-            },
-            {
-              'server2': 'TEST server2',
-            },
-          ],
+          'server_names': ['server1'],
           'locations': [
             {
               'path': '/test1',
@@ -85,33 +83,73 @@ export default defineComponent({
         {
           title: 'Path',
           fieldNames: ['locations'],
-          displayFunction: (item) => {
-            return _.map(item?.locations, 'path')?.join('\n')
+          displayFunction: (item: RoutingProfile) => {
+            return _.map(item.locations, 'path')?.join('\n')
+          },
+          isSortable: true,
+          isSearchable: true,
+          classes: 'width-120px white-space-pre',
+        },
+        {
+          title: 'BE Service',
+          fieldNames: ['beservice'],
+          displayFunction: (item: RoutingProfile) => {
+            return _.map(item.locations, 'backend_id')?.join('\n')
+          },
+          isSortable: true,
+          isSearchable: true,
+          classes: 'width-120px white-space-pre',
+        },
+        {
+          title: 'Cloud Functions',
+          fieldNames: ['locations'],
+          displayFunction: (item: RoutingProfile) => {
+            return item.id
           },
           isSortable: true,
           isSearchable: true,
           classes: 'width-120px',
         },
-        {
-          title: 'BE Service',
-          fieldNames: ['beservice'],
-          isSortable: true,
-          isSearchable: true,
-          classes: 'width-120px',
-        },
-        {
-          title: 'Cloud Functions Active out of Total',
-          fieldNames: ['locations'],
-          isSortable: true,
-          isSearchable: true,
-          classes: 'width-120px',
-        },
-      ],
+      ] as ColumnOptions[],
+      isNewLoading: false,
+      loadingDocCounter: 0,
+      titles: DatasetsUtils.titles,
     }
   },
 
   methods: {
+    setLoadingDocStatus(isLoading: boolean) {
+      if (isLoading) {
+        this.loadingDocCounter++
+      } else {
+        this.loadingDocCounter--
+      }
+    },
+    
+    newDoc(): RoutingProfile {
+      const factory = DatasetsUtils.newOperationEntryFactory['routingprofiles']
+      return factory && factory()
+    },
 
+    editDoc(id: string) {
+      const routeToDoc = `/routing-profile/config/${id}`
+      this.$router.push(routeToDoc)
+    },
+    async addNewDoc() {
+      this.setLoadingDocStatus(true)
+      this.isNewLoading = true
+      const docToAdd = this.newDoc()
+      const docTypeText = this.titles['routingprofiles-singular']
+      const successMessage = `New ${docTypeText} was created.`
+      const failureMessage = `Failed while attempting to create the new ${docTypeText}.`
+      const url = `/config/routing-profiles/${docToAdd.name}/`
+      const data = docToAdd
+      await RequestsUtils.sendRequest({methodName: 'POST', url, data, successMessage, failureMessage}).then((response:AxiosResponse) => {
+        this.editDoc(response.data.id)
+      })
+      this.isNewLoading = false
+      this.setLoadingDocStatus(false)
+    },
   },
 })
 </script>
