@@ -75,12 +75,11 @@
 
 <script lang="ts">
 import _ from 'lodash'
-import {defineComponent} from 'vue'
+import {defineComponent, PropType} from 'vue'
 import {
-  CloudFunctions,
+  CloudFunction,
   CloudFunctionsPhaseType,
 } from '@/types'
-// import SecurityPoliciesConnections from '@/components/SecurityPoliciesConnections.vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 
 export type PhaseOption = 'requestpre' | 'requespost' | 'responsepre' | 'responsepost'
@@ -89,14 +88,11 @@ export type PhaseOption = 'requestpre' | 'requespost' | 'responsepre' | 'respons
 export default defineComponent({
   name: 'CloudFunctionsEditor',
   props: {
-    selectedDoc: Object,
+    selectedDoc: Object as PropType<CloudFunction>,
     selectedBranch: String,
     apiPath: String,
     docs: Array,
   },
-  // components: {
-  //   SecurityPoliciesConnections,
-  // },
   data() {
     return {
       cloudPhases: ['requestpre', 'requestpost', 'responsepre', 'responsepost'] as CloudFunctionsPhaseType[],
@@ -104,8 +100,8 @@ export default defineComponent({
     }
   },
   computed: {
-    localDoc(): CloudFunctions {
-      return _.cloneDeep(this.selectedDoc as CloudFunctions)
+    localDoc(): CloudFunction {
+      return _.cloneDeep(this.selectedDoc as CloudFunction)
     },
   },
   emits: ['update:selectedDoc'],
@@ -113,9 +109,6 @@ export default defineComponent({
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
     },
-    // emitGoToRoute(url: string) {
-    //   this.$emit('go-to-route', url)
-    // },
   },
 })
 </script>

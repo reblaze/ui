@@ -81,7 +81,7 @@ declare module CuriefenseClient {
 
   type Document =
     BasicDocument
-    & (ACLProfile | CloudFunctions | ContentFilterProfile | ContentFilterRule | CustomResponse | FlowControlPolicy | GlobalFilter | RateLimit | SecurityPolicy)
+    & (ACLProfile | CloudFunction | ContentFilterProfile | ContentFilterRule | CustomResponse | FlowControlPolicy | GlobalFilter | RateLimit | SecurityPolicy)
 
   type DocumentType =
     'aclprofiles'
@@ -164,7 +164,7 @@ declare module CuriefenseClient {
     map: SecurityPolicyEntryMatch[]
   }
 
-  type CloudFunctions = {
+  type CloudFunction = {
     id: string,
     name: string,
     key?: string,

@@ -7,7 +7,7 @@ import {
   HttpRequestMethods,
   RateLimit,
   SecurityPolicy,
-  CloudFunctions,
+  CloudFunction,
 } from '@/types'
 
 const titles: { [key: string]: string } = {
@@ -249,7 +249,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  cloudfunctions(): CloudFunctions {
+  cloudfunctions(): CloudFunction {
     return {
       'id': generateUUID2(),
       'name': 'New Cloud Function',

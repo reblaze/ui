@@ -522,11 +522,7 @@ export default defineComponent({
       this.loadingGitlog = true
       const config = this.selectedBranch
       const document = this.selectedDocType
-      let entry = this.selectedDocID
-      // TODO remove this mock
-      if (document==='cloudfunctions') {
-        entry = 'f971e92459e2'
-      }
+      const entry = this.selectedDocID
       const url = `configs/${config}/d/${document}/e/${entry}/v/`
       if (config && document && entry) {
         RequestsUtils.sendRequest({methodName: 'GET', url}).then((response: AxiosResponse<Commit[]>) => {

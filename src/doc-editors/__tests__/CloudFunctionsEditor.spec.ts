@@ -2,14 +2,14 @@
 import CloudFunctionsEditor from '@/doc-editors/CloudFunctionsEditor.vue'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {mount, VueWrapper} from '@vue/test-utils'
-import {CloudFunctions, SecurityPolicy} from '@/types'
+import {CloudFunction, SecurityPolicy} from '@/types'
 import axios from 'axios'
 
 jest.mock('axios')
 
 describe('CloudFunctionsEditor.vue', () => {
   let securityPoliciesDocs: SecurityPolicy[]
-  let cloudFunctionsDocs: CloudFunctions[]
+  let cloudFunctionsDocs: CloudFunction[]
   let mockRouter: any
   let wrapper: VueWrapper
   beforeEach(() => {

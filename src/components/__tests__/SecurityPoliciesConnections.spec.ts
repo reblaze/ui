@@ -4,7 +4,6 @@ import axios from 'axios'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {mount, VueWrapper} from '@vue/test-utils'
 import {RateLimit, SecurityPolicy} from '@/types'
-// import {nextTick} from 'vue'CloudFunctions
 
 
 jest.mock('axios')
@@ -231,7 +230,7 @@ describe('SecurityPoliciesConnections.vue', () => {
                 'acl_active': false,
                 'content_filter_profile': '__default__',
                 'content_filter_active': false,
-                'workers': ['f123456789', 'f971e92459e2'],
+                'limit_ids': ['f123456789', 'f971e92459e2'],
               },
               {
                 'name': 'entry name',
@@ -240,7 +239,7 @@ describe('SecurityPoliciesConnections.vue', () => {
                 'acl_active': false,
                 'content_filter_profile': '009e846e819e',
                 'content_filter_active': false,
-                'workers': ['f971e92459e2', 'f123456789'],
+                'limit_ids': ['f971e92459e2', 'f123456789'],
               },
             ],
           },
