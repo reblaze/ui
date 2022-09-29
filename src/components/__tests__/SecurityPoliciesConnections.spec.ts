@@ -85,7 +85,7 @@ describe('SecurityPoliciesConnections.vue', () => {
     ]
     const selectedBranch = 'master'
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === `/conf/api/v2/configs/${selectedBranch}/d/securitypolicies/`) {
+      if (path === `/conf/api/v3/configs/${selectedBranch}/d/securitypolicies/`) {
         return Promise.resolve({data: securityPoliciesDocs})
       }
       return Promise.resolve({data: []})
@@ -197,7 +197,7 @@ describe('SecurityPoliciesConnections.vue', () => {
       ]
       const selectedBranch = 'master'
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === `/conf/api/v2/configs/${selectedBranch}/d/securitypolicies/`) {
+        if (path === `/conf/api/v3/configs/${selectedBranch}/d/securitypolicies/`) {
           return Promise.resolve({data: securityPoliciesDocs})
         }
         return Promise.resolve({data: []})
@@ -247,7 +247,7 @@ describe('SecurityPoliciesConnections.vue', () => {
         ]
         const selectedBranch = 'master'
         jest.spyOn(axios, 'get').mockImplementation((path) => {
-          if (path === `/conf/api/v2/configs/${selectedBranch}/d/securitypolicies/`) {
+          if (path === `/conf/api/v3/configs/${selectedBranch}/d/securitypolicies/`) {
             return Promise.resolve({data: securityPoliciesDocs})
           }
           return Promise.resolve({data: []})
@@ -277,7 +277,7 @@ describe('SecurityPoliciesConnections.vue', () => {
     test('should send request to change Security Policy when new connection is added', async () => {
       const putSpy = jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
       const selectedBranch = wrapper.vm.selectedBranch
-      const wantedUrl = `/conf/api/v2/configs/${selectedBranch}/d/securitypolicies/e/${securityPoliciesDocs[1].id}/`
+      const wantedUrl = `/conf/api/v3/configs/${selectedBranch}/d/securitypolicies/e/${securityPoliciesDocs[1].id}/`
       const wantedDoc = JSON.parse(JSON.stringify(securityPoliciesDocs[1]))
       wantedDoc.map[1].limit_ids.push(rateLimitsDocs[0].id)
       const newConnectionButton = wrapper.find('.new-connection-button')
@@ -295,7 +295,7 @@ describe('SecurityPoliciesConnections.vue', () => {
     test('should send request to change Security Policy when removing connection was confirmed', async () => {
       const putSpy = jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
       // eslint-disable-next-line max-len
-      const wantedUrl = `/conf/api/v2/configs/${wrapper.vm.selectedBranch}/d/securitypolicies/e/${securityPoliciesDocs[0].id}/`
+      const wantedUrl = `/conf/api/v3/configs/${wrapper.vm.selectedBranch}/d/securitypolicies/e/${securityPoliciesDocs[0].id}/`
       const wantedDoc = JSON.parse(JSON.stringify(securityPoliciesDocs[0]))
       wantedDoc.map[0].limit_ids = []
       const removeConnectionButton = wrapper.findAll('.remove-connection-button').at(0)

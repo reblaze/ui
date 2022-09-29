@@ -41,7 +41,6 @@ declare module CuriefenseClient {
     acl_active: boolean
     content_filter_active: boolean
     limit_ids: string[]
-    workers: string[]
   }
 
   type GlobalFilterSectionEntry = [Category, string | string[], string?]

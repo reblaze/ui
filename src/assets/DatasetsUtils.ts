@@ -193,7 +193,6 @@ const newDocEntryFactory: { [key: string]: Function } = {
           'acl_active': false,
           'content_filter_active': false,
           'limit_ids': [],
-          'workers': [],
         },
       ],
     }
