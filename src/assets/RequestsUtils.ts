@@ -4,6 +4,8 @@ import {HttpRequestMethods} from '@/types'
 
 const confAPIRoot = '/conf/api'
 const confAPIVersion = 'v3'
+const reblazeAPIRoot = '/reblaze/api'
+const reblazeAPIVersion = 'v1.0'
 
 // eslint-disable-next-line no-unused-vars
 const axiosMethodsMap: Partial<{ [key in HttpRequestMethods]: Function }> = {
@@ -79,9 +81,18 @@ const sendRequest = (requestParams: IRequestParams) => {
   return processRequest(methodName, apiUrl, data, config, successMessage, failureMessage, undoFunction, onFail)
 }
 
+const sendReblazeRequest = (requestParams: IRequestParams) => {
+  const {methodName, url, data, config, successMessage, failureMessage, undoFunction, onFail} = requestParams
+  const apiUrl = `${reblazeAPIRoot}/${reblazeAPIVersion}/reblaze/${url}`
+  return processRequest(methodName, apiUrl, data, config, successMessage, failureMessage, undoFunction, onFail)
+}
+
 export default {
   name: 'RequestsUtils',
   sendRequest,
   confAPIRoot,
   confAPIVersion,
+  sendReblazeRequest,
+  reblazeAPIRoot,
+  reblazeAPIVersion,
 }

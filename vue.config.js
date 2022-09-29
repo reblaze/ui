@@ -1,5 +1,6 @@
 // Add in the top of the file
 const StyleLintPlugin = require('stylelint-webpack-plugin')
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
 
 module.exports = {
   devServer: {
@@ -9,17 +10,19 @@ module.exports = {
         pathRewrite: {'^/conf/api': '/api'},
         target: 'http://localhost:5000',
       },
-      '^/logs/api': {
-        pathRewrite: {'^/logs/api': '/api'},
-        target: 'http://localhost:5001',
+      '^/reblaze/api': {
+        pathRewrite: {'^/reblaze/api': '/api'},
+        target: 'http://localhost:8911',
       },
     },
   },
+  transpileDependencies: true,
   configureWebpack: {
     plugins: [
       new StyleLintPlugin({
         files: 'src/**/*.{vue, scss}',
       }),
+      new NodePolyfillPlugin(),
     ],
   },
 }

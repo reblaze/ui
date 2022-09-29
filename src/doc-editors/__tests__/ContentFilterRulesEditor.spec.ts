@@ -2,6 +2,7 @@
 import ContentFilterRulesEditor from '@/doc-editors/ContentFilterRulesEditor.vue'
 import {beforeEach, describe, expect, test} from '@jest/globals'
 import {shallowMount, VueWrapper} from '@vue/test-utils'
+import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import {ContentFilterRule} from '@/types'
 
 describe('ContentFilterRulesEditor.vue', () => {
@@ -17,7 +18,7 @@ describe('ContentFilterRulesEditor.vue', () => {
       'description': 'SQL injection',
       'category': 'sqli',
       'subcategory': 'statement injection',
-      'tags': [],
+      'tags': ['sqli'],
     }]
     wrapper = shallowMount(ContentFilterRulesEditor, {
       props: {
@@ -61,41 +62,6 @@ describe('ContentFilterRulesEditor.vue', () => {
       expect(element.value).toEqual(docs[0].subcategory)
     })
 
-    test('should have correct tags displayed - multiple', () => {
-      const wantedTags = ['test1', 'test2']
-      docs[0].tags = wantedTags
-      wrapper = shallowMount(ContentFilterRulesEditor, {
-        props: {
-          selectedDoc: docs[0],
-        },
-      })
-      const element = wrapper.find('.document-tags').element as HTMLInputElement
-      expect(element.value).toEqual(wantedTags.join(' '))
-    })
-
-    test('should have correct tags displayed - single', () => {
-      const wantedTag = 'test1'
-      docs[0].tags = [wantedTag]
-      wrapper = shallowMount(ContentFilterRulesEditor, {
-        props: {
-          selectedDoc: docs[0],
-        },
-      })
-      const element = wrapper.find('.document-tags').element as HTMLInputElement
-      expect(element.value).toEqual(wantedTag)
-    })
-
-    test('should have correct tags displayed - empty', () => {
-      docs[0].tags = []
-      wrapper = shallowMount(ContentFilterRulesEditor, {
-        props: {
-          selectedDoc: docs[0],
-        },
-      })
-      const element = wrapper.find('.document-tags').element as HTMLInputElement
-      expect(element.value).toEqual('')
-    })
-
     test('should have correct automatic tags displayed', () => {
       const element = wrapper.find('.document-automatic-tags').element as HTMLDivElement
       expect(element.innerHTML).toContain(`cf-rule-id:${docs[0].id.replace(/ /g, '-')}`)
@@ -135,6 +101,55 @@ describe('ContentFilterRulesEditor.vue', () => {
       })
       const element = wrapper.find('.document-automatic-tags').element as HTMLDivElement
       expect(element.innerHTML).toContain('cf-rule-subcategory:\n')
+    })
+  })
+
+  describe('tags management', () => {
+    test('should emit doc update when adding tags', () => {
+      const newTag = 'test-tag'
+      const newTagInputValue = `${docs[0].tags.join(' ')} ${newTag}`
+      const wantedEmit = JSON.parse(JSON.stringify(docs[0]))
+      wantedEmit.tags.push(newTag)
+      // change tags
+      const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+      tagAutocompleteInput.vm.$emit('tag-changed', newTagInputValue)
+      // check
+      expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
+      expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
+    })
+
+    test('should set document tags to be an empty array if empty string provided', () => {
+      const newTagInputValue = ''
+      const wantedEmit = JSON.parse(JSON.stringify(docs[0]))
+      wantedEmit.tags = []
+      // change tags
+      const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+      tagAutocompleteInput.vm.$emit('tag-changed', newTagInputValue)
+      // check
+      expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
+      expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
+    })
+
+    test('should set tags input to be an empty string if document tags do not exist', () => {
+      delete docs[0].tags
+      wrapper = shallowMount(ContentFilterRulesEditor, {
+        props: {
+          selectedDoc: docs[0],
+        },
+      })
+      const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+      expect(tagAutocompleteInput.props('initialTag')).toEqual('')
+    })
+
+    test('should set tags input to be an empty string if document tags is empty', () => {
+      docs[0].tags = []
+      wrapper = shallowMount(ContentFilterRulesEditor, {
+        props: {
+          selectedDoc: docs[0],
+        },
+      })
+      const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+      expect(tagAutocompleteInput.props('initialTag')).toEqual('')
     })
   })
 
@@ -213,27 +228,6 @@ describe('ContentFilterRulesEditor.vue', () => {
       wantedEmit.operand = wantedOperand
       const element = wrapper.find('.document-operand')
       element.setValue(wantedOperand)
-      await element.trigger('change')
-      expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
-      expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
-    })
-
-    test('should emit doc update when tags input changes - single', async () => {
-      const wantedTag = 'test1'
-      const wantedEmit = JSON.parse(JSON.stringify(docs[0]))
-      wantedEmit.tags = [wantedTag]
-      const element = wrapper.find('.document-tags')
-      element.setValue(wantedTag)
-      await element.trigger('change')
-      expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
-      expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
-    })
-
-    test('should emit doc update when tags input changes - multiple', async () => {
-      const wantedEmit = JSON.parse(JSON.stringify(docs[0]))
-      wantedEmit.tags = []
-      const element = wrapper.find('.document-tags')
-      element.setValue('')
       await element.trigger('change')
       expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
       expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
