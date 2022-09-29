@@ -78,13 +78,12 @@
               <div class="column is-4">
                 <div class="field">
                   <label class="label is-small">Tags</label>
-                  <div class="control">
-                    <input class="input is-small document-tags"
-                           data-qa="tags-input"
-                           title="Tags"
-                           placeholder="Space separated tags"
-                           v-model="selectedDocTags"
-                           @change="emitDocUpdate"/>
+                  <div class="control"
+                       data-qa="tag-input">
+                    <tag-autocomplete-input :initial-tag="selectedDocTags"
+                                            :selection-type="'multiple'"
+                                            @tag-changed="selectedDocTags = $event">
+                    </tag-autocomplete-input>
                   </div>
                   <div class="is-size-7 document-automatic-tags">
                     Automatic Tags:
@@ -133,9 +132,13 @@
 import {defineComponent} from 'vue'
 import {ContentFilterRule} from '@/types'
 import _ from 'lodash'
+import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 
 export default defineComponent({
   name: 'ContentFilterRulesEditor',
+  components: {
+    TagAutocompleteInput,
+  },
   props: {
     selectedDoc: Object,
   },

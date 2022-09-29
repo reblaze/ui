@@ -43,6 +43,8 @@
             <div class="content">
               <rbz-table :columns="columns"
                          :data="docs"
+                         :show-menu-column="true"
+                         :show-filter-button="true"
                          :show-new-button="true"
                          @new-button-clicked="addNewDoc"
                          :show-edit-button="true"
