@@ -55,15 +55,15 @@ export default defineComponent({
   name: 'SideMenu',
   data() {
     const swaggerURL = `${location.protocol}//${location.hostname}:30000/api/v3/`
-    const kibanaURL = `${location.protocol}//${location.hostname}:5601/app/discover`
+    // const kibanaURL = `${location.protocol}//${location.hostname}:5601/app/discover`
     const grafanaURL = `${location.protocol}//${location.hostname}:30300/`
-    const prometheusURL = `${location.protocol}//${location.hostname}:9090/`
+    // const prometheusURL = `${location.protocol}//${location.hostname}:9090/`
 
     return {
       defaultSwaggerURL: swaggerURL,
-      defaultKibanaURL: kibanaURL,
+      // defaultKibanaURL: kibanaURL,
       defaultGrafanaURL: grafanaURL,
-      defaultPrometheusURL: prometheusURL,
+      // defaultPrometheusURL: prometheusURL,
       menuItems: {
         settings: {
           '/list': {
@@ -83,21 +83,24 @@ export default defineComponent({
           },
         },
         analytics: {
-          'kibana': {
-            title: 'Kibana',
-            url: kibanaURL,
-            external: true,
+          '/dashboard': {
+            title: 'Dashboard',
           },
+          // 'kibana': {
+          //   title: 'Kibana',
+          //   url: kibanaURL,
+          //   external: true,
+          // },
           'grafana': {
             title: 'Grafana',
             url: grafanaURL,
             external: true,
           },
-          'prometheus': {
-            title: 'Prometheus',
-            url: prometheusURL,
-            external: true,
-          },
+          // 'prometheus': {
+          //   title: 'Prometheus',
+          //   url: prometheusURL,
+          //   external: true,
+          // },
         },
         git: {
           '/versioncontrol': {
@@ -131,29 +134,29 @@ export default defineComponent({
       })
       const systemDBData = response?.data
       const swaggerURL = systemDBData?.links?.swagger_url || this.defaultSwaggerURL
-      const kibanaURL = systemDBData?.links?.kibana_url || this.defaultKibanaURL
+      // const kibanaURL = systemDBData?.links?.kibana_url || this.defaultKibanaURL
       const grafanaURL = systemDBData?.links?.grafana_url || this.defaultGrafanaURL
-      const prometheusURL = systemDBData?.links?.prometheus_url || this.defaultPrometheusURL
+      // const prometheusURL = systemDBData?.links?.prometheus_url || this.defaultPrometheusURL
       this.menuItems.settings.swagger = {
         title: 'API',
         url: swaggerURL,
         external: true,
       }
-      this.menuItems.analytics.kibana = {
-        title: 'Kibana',
-        url: kibanaURL,
-        external: true,
-      }
+      // this.menuItems.analytics.kibana = {
+      //   title: 'Kibana',
+      //   url: kibanaURL,
+      //   external: true,
+      // }
       this.menuItems.analytics.grafana = {
         title: 'Grafana',
         url: grafanaURL,
         external: true,
       }
-      this.menuItems.analytics.prometheus = {
-        title: 'Prometheus',
-        url: prometheusURL,
-        external: true,
-      }
+      // this.menuItems.analytics.prometheus = {
+      //   title: 'Prometheus',
+      //   url: prometheusURL,
+      //   external: true,
+      // }
     },
 
     async loadBranches() {

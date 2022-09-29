@@ -1,6 +1,7 @@
 import {createRouter, createWebHistory} from 'vue-router'
 import {RouteRecordRaw} from 'vue-router'
 import MainComponent from '@/views/MainComponent.vue'
+import DashboardDisplay from '@/views/Dashboard.vue'
 import DocumentEditor from '@/views/DocumentEditor.vue'
 import CurieDBEditor from '@/views/CurieDBEditor.vue'
 import PublishChanges from '@/views/Publish.vue'
@@ -13,8 +14,9 @@ const routes: Array<RouteRecordRaw> = [
     path: '/',
     name: 'MainComponent',
     component: MainComponent,
-    redirect: '/config',
+    redirect: '/dashboard',
     children: [
+      {path: 'dashboard', name: 'DashboardDisplay', component: DashboardDisplay},
       {
         path: 'config',
         name: 'DocumentEditor',
