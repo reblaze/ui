@@ -169,7 +169,6 @@ export default defineComponent({
       items[`/${branchId}/contentfilterrules`] = {title: 'Content Filter Rules'} as menuItem
       items[`/${branchId}/cloudfunctions`] = {title: 'Cloud Functions'} as menuItem
       items[`/${branchId}/actions`] = {title: 'Custom Responses'} as menuItem
-      items[`/${branchId}/dynamicrules`] = {title: 'Dynamic Rules'} as menuItem
       // items[`/${branchId}/search`] = {title: 'Search'} as menuItem
     },
   },

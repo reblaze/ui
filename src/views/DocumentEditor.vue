@@ -222,7 +222,6 @@ import ContentFilterRulesEditor from '@/doc-editors/ContentFilterRulesEditor.vue
 import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
 import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
 import CloudFunctionsEditor from '@/doc-editors/CloudFunctionsEditor.vue'
-import DynamicRulesEditor from '@/doc-editors/DynamicRulesEditor.vue'
 import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
 import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
 import CustomResponseEditor from '@/doc-editors/CustomResponseEditor.vue'
@@ -304,7 +303,6 @@ export default defineComponent({
         'contentfilterrules': shallowRef({component: ContentFilterRulesEditor}),
         'cloudfunctions': shallowRef({component: CloudFunctionsEditor}),
         'actions': shallowRef({component: CustomResponseEditor}),
-        'dynamicrules': shallowRef({component: DynamicRulesEditor}),
       },
       apiRoot: RequestsUtils.confAPIRoot,
       apiVersion: RequestsUtils.confAPIVersion,
@@ -363,9 +361,6 @@ export default defineComponent({
       }
       if (this.selectedDocType === 'cloudfunctions') {
         return this.referencedIDsCloudFunctions.includes(this.selectedDocID)
-      }
-      if (this.selectedDocType === 'dynamicrules') {
-        return this.referencedIDsDynamicRules.includes(this.selectedDocID)
       }
       return false
     },

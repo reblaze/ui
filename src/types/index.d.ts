@@ -94,7 +94,6 @@ declare module CuriefenseClient {
     | 'contentfilterrules'
     | 'cloudfunctions'
     | 'actions'
-    | 'dynamicrules'
 
   // Document types helpers - END
 
@@ -176,17 +175,6 @@ declare module CuriefenseClient {
     match?: string,
   }
 
-  type DynamicRules = {
-    id: string
-    name: string
-    description: string
-    timeframe: number
-    thresholds: number
-    exclude: string[]
-    include: string[]
-    tags: string[]
-  }
-  
   type RateLimit = {
     id: string
     name: string

@@ -6,7 +6,6 @@ import {
   FlowControlPolicy,
   GlobalFilter,
   RateLimit,
-  DynamicRules,
 } from '@/types'
 import _ from 'lodash'
 import DatasetsUtils from '@/assets/DatasetsUtils'
@@ -328,45 +327,6 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       isSortable: true,
       isSearchable: true,
       classes: 'width-150px',
-    },
-  ],
-  'dynamicrules': [
-    {
-      title: 'Name',
-      fieldNames: ['name'],
-      isSortable: true,
-      isSearchable: true,
-      classes: 'width-150px',
-    },
-    {
-      title: 'Description',
-      fieldNames: ['description'],
-      isSortable: true,
-      isSearchable: true,
-      classes: 'ellipsis',
-    },
-    {
-      title: 'Timeframe',
-      fieldNames: ['timeframe'],
-      isSortable: true,
-      isSearchable: true,
-      classes: 'width-100px',
-    },
-    {
-      title: 'Threshold',
-      fieldNames: ['thresholds'],
-      isSortable: true,
-      isSearchable: true,
-      classes: 'width-100px',
-    },
-    {
-      title: 'Tags',
-      fieldNames: ['tags'],
-      displayFunction: (item: DynamicRules) => {
-        return item?.tags?.join('\n')
-      },
-      isSearchable: true,
-      classes: 'width-100px white-space-pre ellipsis',
     },
   ],
 }

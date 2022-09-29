@@ -105,7 +105,6 @@ import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
 import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
 import CloudFunctionsEditor from '@/doc-editors/CloudFunctionsEditor.vue'
 import CustomResponseEditor from '@/doc-editors/CustomResponseEditor.vue'
-import DynamicRulesEditor from '@/doc-editors/DynamicRulesEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {defineComponent, shallowRef} from 'vue'
 import {ColumnOptions, Commit, Document, DocumentType, GenericObject} from '@/types'
@@ -165,7 +164,6 @@ export default defineComponent({
         'contentfilterrules': shallowRef({component: ContentFilterRulesEditor}),
         'cloudfunctions': shallowRef({component: CloudFunctionsEditor}),
         'actions': shallowRef({component: CustomResponseEditor}),
-        'dynamicrules': shallowRef({component: DynamicRulesEditor}),
       },
 
       // for cloudfunctions mock data - remove later

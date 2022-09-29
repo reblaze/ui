@@ -168,7 +168,7 @@ export type SelectedDocType = 'ratelimits' | 'cloudfunctions'
 
 export default defineComponent({
   name: 'SecurityPolicyConnections',
-  // securitypolicyid securitypolicyentryid
+  // securitypolicy securitypolicyentry
   props: {
     selectedDocType: String,
     selectedDocId: String,

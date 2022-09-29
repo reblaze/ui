@@ -217,15 +217,6 @@
               </div>
             </div>
           </div>
-          <!--// div class="container" >
-            <button type="button" class="collapsible" @click="toggleRecommendation">Rate Limit Recommendations</button>
-            <div class="content" v-if="accordion">
-              <div v-for="c of recommendations" :key="c.title">
-                  <p>{{ c.title }}</p>
-                  <p>{{ c.description }}</p>
-              </div>
-            </div>
-          <///-->
           <security-policies-connections
             selectedDocType="ratelimits"
             :selectedDocId="localDoc.id"
@@ -385,7 +376,7 @@ export default defineComponent({
 
     addNewTag(section: IncludeExcludeType, entry: string) {
       if (entry && entry.length > 2) {
-        // this.localDoc[section].push(entry)
+        this.localDoc[section].push(entry)
         this.emitDocUpdate()
       }
     },
@@ -399,7 +390,7 @@ export default defineComponent({
     },
 
     removeTag(section: IncludeExcludeType, index: number) {
-      // this.localDoc[section].splice(index, 1)
+      this.localDoc[section].splice(index, 1)
       this.addNewTagColName = null
       this.emitDocUpdate()
     },
@@ -416,31 +407,6 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-
-/* Style the collapsible content. Note: hidden by default */
-.content {
-  background-color: #f1f1f1;
-  display: none;
-  overflow: hidden;
-  padding: 0 18px;
-}
-
-.collapsible {
-  background-color: #eee;
-  border: 'none';
-  color: #444;
-  cursor: pointer;
-  font-size: 15px;
-  outline: 'none';
-  padding: 18px;
-  text-align: left;
-  width: 100%;
-}
-
-.active,
-.collapsible:hover {
-  background-color: #ccc;
-}
 
 .form-label {
   padding-top: 0.25rem;

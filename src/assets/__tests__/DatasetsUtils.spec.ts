@@ -102,8 +102,8 @@ describe('RequestsUtils.ts', () => {
       expect(document['thresholds'][0]['limit']).toEqual(5)
       expect(document['timeframe']).toEqual(60)
       // expect(document['key']).toEqual([{'attrs': 'ip'}])
-      expect(document['key']).toEqual([{'attrs': 'securitypolicyid'},
-        {'attrs': 'pathmatchingid'}, {'headers': 'rbzsessionid'}])
+      expect(document['key']).toEqual([{'attrs': 'securitypolicy'},
+        {'attrs': 'securitypolicyentry'}, {'headers': 'rbzsessionid'}])
       expect(document['thresholds'][0]['action']).toEqual('default')
       expect(document['pairwith']).toEqual({'self': 'self'})
       expect(document['exclude']).toEqual([])

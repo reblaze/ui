@@ -29,8 +29,7 @@ describe('RateLimitsEditor.vue', () => {
       'timeframe': '60',
       'include': ['blocklist'],
       'exclude': ['allowlist'],
-      'key': [{'attrs': 'securitypolicyid'},
-        {'attrs': 'pathmatchingid'}, {'headers': 'rbzsessionid'}],
+      'key': [{'attrs': 'securitypolicy'}, {'attrs': 'securitypolicyentry'}, {'headers': 'rbzsessionid'}],
       'pairwith': {'self': 'self'},
     }]
     securityPoliciesDocs = [
@@ -148,10 +147,11 @@ describe('RateLimitsEditor.vue', () => {
     })
 
     test('should have event limit option component with correct data', () => {
-      const wantedType = Object.keys(rateLimitsDocs[0].pairwith)[0]
-      const wantedValue = Object.values(rateLimitsDocs[0].pairwith)[0]
-      console.log('all', wrapper.findAllComponents(LimitOption))
-      const limitOptionComponent = wrapper.findAllComponents(LimitOption).at(1)
+      // const wantedType = Object.keys(rateLimitsDocs[0].pairwith)[0]
+      // const wantedValue = Object.values(rateLimitsDocs[0].pairwith)[0]
+      const [wantedType] = Object.keys(rateLimitsDocs[0].key[0])
+      const [wantedValue] = Object.values(rateLimitsDocs[0].key[0])
+      const limitOptionComponent = wrapper.findAllComponents(LimitOption).at(0) // at(1)
       const actualType = limitOptionComponent.vm.option.type
       const actualValue = limitOptionComponent.vm.option.key
       expect(actualType).toEqual(wantedType)
@@ -197,10 +197,10 @@ describe('RateLimitsEditor.vue', () => {
       const addKeyButton = wrapper.find('.add-key-button')
       await addKeyButton.trigger('click')
       const wantedType = 'attrs'
-      const wantedValue = 'ip'
-      const actualType = Object.keys(wrapper.vm.localDoc.key[1])[0]
-      const actualValue = Object.values(wrapper.vm.localDoc.key[1])[0]
-      expect(wrapper.vm.localDoc.key.length).toEqual(2)
+      const wantedValue = 'securitypolicyentry'
+      const [actualType] = Object.keys(wrapper.vm.localDoc.key[1])
+      const [actualValue] = Object.values(wrapper.vm.localDoc.key[1])
+      expect(wrapper.vm.localDoc.key.length).toEqual(4)
       expect(actualType).toEqual(wantedType)
       expect(actualValue).toEqual(wantedValue)
     })
@@ -232,11 +232,13 @@ describe('RateLimitsEditor.vue', () => {
       await addKeyButton.trigger('click')
       const limitOptionsComponent = wrapper.findComponent(LimitOption)
       limitOptionsComponent.vm.$emit('remove', 1)
-      expect(wrapper.vm.localDoc.key.length).toEqual(1)
+      expect(wrapper.vm.localDoc.key.length).toEqual(3)
     })
 
     test('should not be able to remove key when only one key exists', async () => {
       const limitOptionsComponent = wrapper.findComponent(LimitOption)
+      limitOptionsComponent.vm.$emit('remove', 1)
+      limitOptionsComponent.vm.$emit('remove', 1)
       limitOptionsComponent.vm.$emit('remove', 1)
       expect(wrapper.vm.localDoc.key.length).toEqual(1)
     })
