@@ -90,6 +90,8 @@ describe('RbzTable.vue', () => {
       props: {
         columns: columns,
         data: data,
+        showMenuColumn: true,
+        showFilterButton: true,
         showNewButton: true,
         showEditButton: true,
       },

@@ -55,6 +55,7 @@ describe('FlowControlPolicyEditor.vue', () => {
         'action': 'default',
         'timeframe': 60,
         'id': 'c03dabe4b9ca',
+        'tags': ['test-tag'],
       },
     ]
     wrapper = shallowMount(FlowControlPolicyEditor, {
@@ -256,6 +257,55 @@ describe('FlowControlPolicyEditor.vue', () => {
       const tagAutocompleteInput = wrapper.find('.filter-columns').findComponent(TagAutocompleteInput)
       await nextTick()
       expect(tagAutocompleteInput.exists()).toBeFalsy()
+    })
+  })
+
+  describe('tags management', () => {
+    test('should emit doc update when adding tags', () => {
+      const newTag = 'test-tag'
+      const newTagInputValue = `${docs[0].tags.join(' ')} ${newTag}`
+      const wantedEmit = JSON.parse(JSON.stringify(docs[0]))
+      wantedEmit.tags.push(newTag)
+      // change tags
+      const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+      tagAutocompleteInput.vm.$emit('tag-changed', newTagInputValue)
+      // check
+      expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
+      expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
+    })
+
+    test('should set document tags to be an empty array if empty string provided', () => {
+      const newTagInputValue = ''
+      const wantedEmit = JSON.parse(JSON.stringify(docs[0]))
+      wantedEmit.tags = []
+      // change tags
+      const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+      tagAutocompleteInput.vm.$emit('tag-changed', newTagInputValue)
+      // check
+      expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
+      expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
+    })
+
+    test('should set tags input to be an empty string if document tags do not exist', () => {
+      delete docs[0].tags
+      wrapper = shallowMount(FlowControlPolicyEditor, {
+        props: {
+          selectedDoc: docs[0],
+        },
+      })
+      const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+      expect(tagAutocompleteInput.props('initialTag')).toEqual('')
+    })
+
+    test('should set tags input to be an empty string if document tags is empty', () => {
+      docs[0].tags = []
+      wrapper = shallowMount(FlowControlPolicyEditor, {
+        props: {
+          selectedDoc: docs[0],
+        },
+      })
+      const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+      expect(tagAutocompleteInput.props('initialTag')).toEqual('')
     })
   })
 

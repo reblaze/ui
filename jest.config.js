@@ -11,17 +11,17 @@ module.exports = {
     '^.+\\.vue$': '@vue/vue3-jest',
     '^.+\\.jsx?$': 'babel-jest',
     '^.+\\.tsx?$': 'ts-jest',
-    ".+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2)$": "jest-transform-stub"
+    '.+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2)$': 'jest-transform-stub',
   },
   globals: {
-    rootDir: './'
+    rootDir: './',
   },
   testEnvironmentOptions: {
     customExportConditions: ['node', 'node-addons', 'core-js'],
   },
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
-      },
+  },
   testMatch: [
     '<rootDir>/**/__tests__/*.spec.ts',
   ],
@@ -32,7 +32,7 @@ module.exports = {
     'src/**/*.{ts,vue}',
     '!src/router/index.ts',
     '!src/main.ts',
-    '!**/*.d.ts'
+    '!**/*.d.ts',
   ],
   // Accept global coverage of 90% or higher, and 80% for each individual file
   // This should ensure most of the code is covered and leaves us room to skip hard-to-test areas

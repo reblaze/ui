@@ -412,6 +412,21 @@ export default defineComponent({
       const dupTags = _.filter(allTags, (val, i, iteratee) => _.includes(iteratee, val, i + 1))
       return _.fromPairs(_.zip(dupTags, dupTags))
     },
+
+    selectedDocTags: {
+      get: function(): string {
+        if (this.localDoc.tags && this.localDoc.tags.length > 0) {
+          return this.localDoc.tags.join(' ')
+        }
+        return ''
+      },
+      set: function(tags: string): void {
+        this.localDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
+          return tag.trim()
+        }) : []
+        this.emitDocUpdate()
+      },
+    },
   },
 
   emits: ['update:selectedDoc'],

@@ -62,7 +62,7 @@
               </div>
             </div>
           </div>
-          <div v-if="localDoc.type === 'custom'" class="column is-9 custom-panel">
+          <div v-if="localDoc.type === 'custom'" class="column is-9">
             <div class="custom-panel">
               <div class="field">
                 <label class="label is-small status-code-label">
@@ -156,7 +156,7 @@ export default defineComponent({
           this.headersArray = newHeadersArray
         }
         // adding necessary fields to all local doc sections if missing
-        if (!value['params']) {
+        if (!value['params'] && value['type'] === 'custom') {
           this.normalizeParams()
         }
       },
