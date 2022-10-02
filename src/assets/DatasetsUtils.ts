@@ -271,10 +271,11 @@ const newDocEntryFactory: { [key: string]: Function } = {
   },
 }
 const newOperationEntryFactory: { [key: string]: Function } = {
+  // TODO: remove the extention uuid in the name
   routingprofiles(): RoutingProfile {
     return {
-      'id': '',
-      'name': 'New Routing Profile',
+      'id': generateUUID2(),
+      'name': 'New Routing Profile1' + generateUUID2(),
       'server_names': [],
       'locations': [{
         'path': '/',

@@ -79,7 +79,7 @@ export default defineComponent({
           '/routing-profile/list': {
             title: 'Routing Profile',
           },
-          '/MobileSDK': {
+          '/mobilesdk/list': {
             title: 'MobileSDK',
           },
           '/ProxyTemplate': {

@@ -4,10 +4,13 @@
         <div class="media">
             <div class="media-content">
               <rbz-table :columns="columns"
-                         :data="mockArray"
-                         :show-new-button="true"
-                         :show-edit-button="true"
-                         @edit-button-clicked="editDoc">
+                          :data="profiles"
+                          :show-menu-column="true"
+                          :show-filter-button="true"
+                          :show-new-button="true"
+                          @new-button-clicked="addNewProfile"
+                          :show-edit-button="true"
+                          @edit-button-clicked="editProfile">
               </rbz-table>
             </div>
         </div>
@@ -17,12 +20,10 @@
 <script lang="ts">
 import _ from 'lodash'
 import {defineComponent} from 'vue'
-// import {AxiosResponse} from 'axios'
 import RbzTable from '@/components/RbzTable.vue'
 import {ColumnOptions, RoutingProfile} from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
-import {AxiosResponse} from 'axios'
 // import {ColumnOptions} from '@/types'
 
 export default defineComponent({
@@ -104,7 +105,7 @@ export default defineComponent({
           title: 'Cloud Functions',
           fieldNames: ['locations'],
           displayFunction: (item: RoutingProfile) => {
-            return item.id
+            return _.map(item.cloud_functions)?.join('\n')
           },
           isSortable: true,
           isSearchable: true,
@@ -114,42 +115,41 @@ export default defineComponent({
       isNewLoading: false,
       loadingDocCounter: 0,
       titles: DatasetsUtils.titles,
+      profiles: [],
     }
   },
 
   methods: {
-    setLoadingDocStatus(isLoading: boolean) {
-      if (isLoading) {
-        this.loadingDocCounter++
-      } else {
-        this.loadingDocCounter--
-      }
-    },
-
-    newDoc(): RoutingProfile {
+    newProfile(): RoutingProfile {
       const factory = DatasetsUtils.newOperationEntryFactory['routingprofiles']
       return factory && factory()
     },
 
-    editDoc(id: string) {
+    editProfile(id: string) {
       const routeToDoc = `/routing-profile/config/${id}`
       this.$router.push(routeToDoc)
     },
-    async addNewDoc() {
-      this.setLoadingDocStatus(true)
+    async addNewProfile() {
       this.isNewLoading = true
-      const docToAdd = this.newDoc()
-      const docTypeText = this.titles['routingprofiles-singular']
-      const successMessage = `New ${docTypeText} was created.`
-      const failureMessage = `Failed while attempting to create the new ${docTypeText}.`
-      const url = `/config/routing-profiles/${docToAdd.name}/`
-      const data = docToAdd
-      await RequestsUtils.sendRequest({methodName: 'POST', url, data, successMessage, failureMessage}).then((response:AxiosResponse) => {
-        this.editDoc(response.data.id)
-      })
+      const profileToAdd = this.newProfile()
+      const routingProfileText = this.titles['routingprofiles-singular']
+      const successMessage = `New ${routingProfileText} was created.`
+      const failureMessage = `Failed while attempting to create the new ${routingProfileText}.`
+      const url = `config/d/routing-profiles/e/${profileToAdd.id}/`
+      const data = profileToAdd
+      await RequestsUtils.sendReblazeRequest({methodName: 'POST', url, data, successMessage, failureMessage})
+      this.editProfile(profileToAdd.id)
       this.isNewLoading = false
-      this.setLoadingDocStatus(false)
     },
+
+    async loadProfiles() {
+      const url = 'config/d/routing-profiles/'
+      const response = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
+      this.profiles = _.values(response?.data)
+    },
+  },
+  created() {
+    this.loadProfiles()
   },
 })
 </script>

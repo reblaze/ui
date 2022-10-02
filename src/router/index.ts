@@ -12,6 +12,7 @@ import ProxyTemplate from '@/views/ProxyTemplate.vue'
 import DocumentSearch from '@/views/DocumentSearch.vue'
 import DocumentList from '@/views/DocumentList.vue'
 import RoutingProfileEditor from '@/doc-editors/RoutingProfileEditor.vue'
+import MobileSDKEditor from '@/doc-editors/MobileSDKEditor.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -77,7 +78,16 @@ const routes: Array<RouteRecordRaw> = [
         name: 'RoutingProfile/config',
         component: RoutingProfileEditor,
       },
-      {path: 'MobileSDK', name: 'MobileSDK', component: MobileSDK},
+      {
+        path: '/mobilesdk/list',
+        name: 'MobileSDK/list',
+        component: MobileSDK,
+      },
+      {
+        path: '/mobilesdk/config/:doc_id',
+        name: 'MobileSDK/config',
+        component: MobileSDKEditor,
+      },
       {path: 'ProxyTemplate', name: 'ProxyTemplate', component: ProxyTemplate},
       {path: 'publish', name: 'PublishChanges', component: PublishChanges},
       {path: 'versioncontrol', name: 'VersionControl', component: VersionControl},
