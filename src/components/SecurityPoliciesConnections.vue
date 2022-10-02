@@ -162,8 +162,6 @@ import {
   SecurityPolicyEntryMatch,
 } from '@/types'
 
-export type SelectedDocType = 'ratelimits' | 'cloudfunctions'
-
 
 export default defineComponent({
   name: 'SecurityPolicyConnections',

@@ -167,7 +167,7 @@
             ref="currentComponent">
         </component>
         <hr/>
-        <git-history v-if="selectedDocID"
+        <git-history v-if="selectedDocID && selectedDocType !== 'cloudfunctions'"
                      :gitLog="gitLog"
                      :apiPath="gitAPIPath"
                      :loading="loadingGitlog"
@@ -294,7 +294,7 @@ export default defineComponent({
     documentAPIPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
       if (this.selectedDocType === 'cloudfunctions') {
-        return `/configs/cloudfunctions/${this.selectedDocID}`
+        return `/config/d/cloudfunctions/e/${this.selectedDocID}`
       }
       return `${apiPrefix}/configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`
     },
@@ -436,11 +436,10 @@ export default defineComponent({
       // check if the selected doc only has id and name, if it does, attempt to load the rest of the document data
       if (this.selectedDoc && Object.keys(this.selectedDoc).length === 2) {
         let response
-        console.log('selectedDocType: ', this.selectedDocType)
         if (this.selectedDocType == 'cloudfunctions') {
           response = await RequestsUtils.sendReblazeRequest({
             methodName: 'GET',
-            url: `configs/cloud-functions/${this.selectedDocID}/`,
+            url: `config/d/cloud-functions/e/${this.selectedDocID}/`,
           })
         } else {
           response = await RequestsUtils.sendRequest({
@@ -456,54 +455,42 @@ export default defineComponent({
     async loadDocs(doctype: DocumentType, skipDocSelection?: boolean) {
       this.isDownloadLoading = true
       const branch = this.selectedBranch
+
+      let requestFunction
+      let url = ''
       let response
-      // TODO: mock file to be removed later
       if (doctype == 'cloudfunctions') {
-        response = await RequestsUtils.sendReblazeRequest({
-          methodName: 'GET',
-          url: 'configs/cloud-functions/',
-          data: {headers: {'x-fields': 'id, name'}},
-          onFail: () => {
-            console.log('Error while attempting to load documents')
-            this.docs = []
-            this.isDownloadLoading = false
-          },
-        })
+        requestFunction = RequestsUtils.sendReblazeRequest
+        url = `config/d/cloud-functions/`
       } else {
-        response = await RequestsUtils.sendRequest({
-          methodName: 'GET',
-          url: `configs/${branch}/d/${doctype}/`,
-          data: {headers: {'x-fields': 'id, name'}},
-          onFail: () => {
-            console.log('Error while attempting to load documents')
-            this.docs = []
-            this.isDownloadLoading = false
-          },
-        })
+        requestFunction = RequestsUtils.sendRequest
+        url = `configs/${branch}/d/${doctype}/`
       }
+      response = await requestFunction({
+        methodName: 'GET',
+        url,
+        config: {headers: {'x-fields': 'id, name'}},
+        onFail: () => {
+          console.log('Error while attempting to load documents')
+          this.docs = []
+          this.isDownloadLoading = false
+        },
+      })
+
       this.docs = response?.data || []
       // After we load the basic data (id and name) we can async load the full data
       this.cancelSource.cancel(`Operation cancelled and restarted for a new document type ${doctype}`)
       this.cancelSource = axios.CancelToken.source()
-      if (doctype == 'cloudfunctions') {
-        response = await RequestsUtils.sendReblazeRequest({
-          methodName: 'GET',
-          url: 'configs/cloud-functions/',
-          config: {cancelToken: this.cancelSource.token},
-        }).then((response: AxiosResponse) => {
-          this.docs = response?.data || []
+      response = await requestFunction({
+        methodName: 'GET',
+        url,
+        config: {cancelToken: this.cancelSource.token},
+        onFail: () => {
+          console.log('Error while attempting to load documents')
+          this.docs = []
           this.isDownloadLoading = false
-        })
-      } else {
-        RequestsUtils.sendRequest({
-          methodName: 'GET',
-          url: `configs/${branch}/d/${doctype}/`,
-          config: {cancelToken: this.cancelSource.token},
-        }).then((response: AxiosResponse) => {
-          this.docs = response?.data || []
-          this.isDownloadLoading = false
-        })
-      }
+        },
+      })
 
       this.updateDocIdNames()
       if (this.docIdNames && this.docIdNames.length && this.docIdNames[0].length) {
@@ -519,6 +506,9 @@ export default defineComponent({
     },
 
     loadGitLog(interaction?: boolean) {
+      if (this.selectedDocType == 'cloudfunctions') {
+        return
+      }
       this.loadingGitlog = true
       const config = this.selectedBranch
       const document = this.selectedDocType
@@ -634,32 +624,29 @@ export default defineComponent({
       }
 
       const data = this.selectedDoc
-      console.log('selectedDocType: ', this.selectedDocType)
-      if (this.selectedDocType === 'cloudfunctions') {
-        let url = ''
-        if (methodName !== 'POST') {
-          url = `configs/cloud-functions/${this.selectedDocID}/`
-        } else {
-          url = `configs/cloud-functions/${this.newDocName}`
-        }
-        await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage}).then(() => {
-          this.updateDocIdNames()
-          this.loadGitLog(true)
-        })
+      let requestFunction
+      let url = ''
+      console.log('this.selectedDocType', this.selectedDocType)
+      if (this.selectedDocType == 'cloudfunctions') {
+        requestFunction = RequestsUtils.sendReblazeRequest
+        url = `config/d/cloud-functions/e/${this.selectedDocID}/`
       } else {
-        let url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/`
+        requestFunction = RequestsUtils.sendRequest
+        url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/`
         if (methodName !== 'POST') {
           url += `${this.selectedDocID}/`
         }
-        await RequestsUtils.sendRequest({methodName, url, data, successMessage, failureMessage}).then(() => {
-          this.updateDocIdNames()
-          this.loadGitLog(true)
-          // If the saved doc was a security policy, refresh the referenced IDs lists
-          if (this.selectedDocType === 'securitypolicies') {
-            this.loadReferencedDocsIDs()
-          }
-        })
       }
+      await requestFunction({methodName, url, data, successMessage, failureMessage}).then(() => {
+        this.updateDocIdNames()
+        this.loadGitLog(true)
+        // If the saved doc was a security policy, refresh the referenced IDs lists
+        if (this.selectedDocType === 'securitypolicies') {
+          this.loadReferencedDocsIDs()
+        }
+      }).catch((error: any) => {
+        console.log('Error saving', error)
+      })
 
       this.isSaveLoading = false
     },
@@ -671,27 +658,21 @@ export default defineComponent({
       const docTypeText = this.titles[this.selectedDocType + '-singular']
       const successMessage = `The ${docTypeText} was deleted.`
       const failureMessage = `Failed while attempting to delete the ${docTypeText}.`
+      let requestFunction
+      let url = ''
+      const methodName = 'DELETE'
       if (this.selectedDocType == 'cloudfunctions') {
-        await RequestsUtils.sendReblazeRequest({
-          methodName: 'DELETE',
-          url: `configs/cloud-functions/${this.selectedDocID}/`,
-          successMessage,
-          failureMessage,
-        }).then(() => {
-          this.updateDocIdNames()
-          this.loadGitLog(true)
-        })
+        requestFunction = RequestsUtils.sendReblazeRequest
+        url = `config/d/cloud-functions/e/${this.selectedDocID}/`
       } else {
-        await RequestsUtils.sendRequest({
-          methodName: 'DELETE',
-          url: `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`,
-          successMessage,
-          failureMessage,
-        }).then(() => {
+        requestFunction = RequestsUtils.sendRequest
+        url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`
+      }
+      await requestFunction({methodName, url, successMessage, failureMessage})
+        .then(() => {
           this.updateDocIdNames()
           this.loadGitLog(true)
         })
-      }
 
       this.selectedDocID = this.docs[0].id
       await this.loadSelectedDocData()

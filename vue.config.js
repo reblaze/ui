@@ -12,7 +12,7 @@ module.exports = {
       },
       '^/reblaze/api': {
         pathRewrite: {'^/reblaze/api': '/api'},
-        target: 'http://192.168.1.177:8911',
+        target: 'http://localhost:8911',
       },
     },
   },
