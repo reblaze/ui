@@ -209,7 +209,13 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'exclude': [],
       'key': [
         {
-          'attrs': 'ip',
+          'attrs': 'securitypolicy',
+        },
+        {
+          'attrs': 'securitypolicyentry',
+        },
+        {
+          'headers': 'rbzsessionid',
         },
       ],
       'pairwith': {
