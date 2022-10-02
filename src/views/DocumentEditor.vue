@@ -294,7 +294,7 @@ export default defineComponent({
     documentAPIPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
       if (this.selectedDocType === 'cloudfunctions') {
-        return `/config/d/cloudfunctions/e/${this.selectedDocID}`
+        return `/config/d/cloud-functions/e/${this.selectedDocID}`
       }
       return `${apiPrefix}/configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`
     },
@@ -626,7 +626,6 @@ export default defineComponent({
       const data = this.selectedDoc
       let requestFunction
       let url = ''
-      console.log('this.selectedDocType', this.selectedDocType)
       if (this.selectedDocType == 'cloudfunctions') {
         requestFunction = RequestsUtils.sendReblazeRequest
         url = `config/d/cloud-functions/e/${this.selectedDocID}/`
@@ -644,8 +643,6 @@ export default defineComponent({
         if (this.selectedDocType === 'securitypolicies') {
           this.loadReferencedDocsIDs()
         }
-      }).catch((error: any) => {
-        console.log('Error saving', error)
       })
 
       this.isSaveLoading = false

@@ -57,10 +57,11 @@
           </div>
         </div>
         <hr/>
-        <git-history v-if="selectedDocType !=='cloudfunctions'" :gitLog="gitLog"
-                     :apiPath="gitAPIPath"
-                     :loading="isGitLogLoading"
-                     @restore-version="restoreGitVersion"></git-history>
+        <git-history v-if="selectedDocType !=='cloudfunctions'"
+                    :gitLog="gitLog"
+                    :apiPath="gitAPIPath"
+                    :loading="isGitLogLoading"
+                    @restore-version="restoreGitVersion"></git-history>
       </div>
 
       <div class="content no-data-wrapper"
@@ -181,8 +182,8 @@ export default defineComponent({
     },
 
     gitAPIPath(): string {
-      return `${this.apiRoot}/${this.apiVersion}/${this.apiVersion}/`+
-      `configs/${this.selectedBranch}/d/${this.selectedDocType}/v/`
+      const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
+      return `${apiPrefix}/configs/${this.selectedBranch}/d/${this.selectedDocType}/v/`
     },
 
     branchNames(): string[] {
