@@ -550,7 +550,7 @@ export default defineComponent({
     async switchDocID() {
       this.setLoadingDocStatus(true)
       this.loadGitLog()
-      const docName = this.selectedDoc ? this.selectedDoc.name : 'no name'
+      const docName = this.selectedDoc.name
       if (docName) {
         Utils.toast(
             `Switched to document ${docName} with ID "${this.selectedDocID}".`,

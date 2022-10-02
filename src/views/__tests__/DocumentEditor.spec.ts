@@ -850,7 +850,7 @@ describe('DocumentEditor.vue', () => {
       if (path === `/conf/api/v3/configs/${branch}/d/ratelimits/e/f971e92459e2/`) {
         return Promise.resolve({data: rateLimitsDocs[0]})
       }
-      if (path === `/reblaze/api/v3/configs/${branch}/d/cloud-functions/`) {
+      if (path === `/reblaze/api/config/d/cloud-functions/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve({data: _.map(cloudFunctionsDocs, (i) => _.pick(i, 'id', 'name'))})
         }
@@ -1501,13 +1501,15 @@ describe('DocumentEditor.vue', () => {
       const docTypeSelection = wrapper.find('.doc-type-selection')
       await docTypeSelection.trigger('click')
       const docTypeOptions = docTypeSelection.findAll('option')
+      // at(4) = aclprofiles
       await docTypeSelection.setValue(docTypeOptions.at(4).element.value)
       // switch to a different document
       const docSelection = wrapper.find('.doc-selection')
       await docSelection.trigger('click')
       const options = docSelection.findAll('option')
-      await docSelection.setValue(options.at(1).element.value)
-      expect((docSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
+      // options.at(0).element.value = 5828321c37e0
+      await docSelection.setValue(options.at(0).element.value)
+      expect((docSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
     })
   })
 
@@ -1737,9 +1739,13 @@ describe('DocumentEditor.vue', () => {
     test('should attempt to download document when download button is clicked', async () => {
       const wantedFileName = 'aclprofiles'
       const wantedFileType = 'json'
-      const wantedFileData = wrapper.vm.docs // aclDocs
+      const wantedFileData = aclDocs // wrapper.vm.docs
       const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {
       })
+      // switch to profiling lists
+      // const docTypeSelection = wrapper.find('.doc-type-selection')
+      // docTypeSelection.element.value = aclprofiles
+      // clicking on downlod button
       const downloadDocButton = wrapper.find('.download-doc-button')
       await downloadDocButton.trigger('click')
       await nextTick()
