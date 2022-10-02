@@ -17,6 +17,7 @@ import {
   GlobalFilter,
   RateLimit,
   SecurityPolicy,
+  CloudFunction,
 } from '@/types'
 import {setImmediate, setTimeout} from 'timers'
 import {nextTick} from 'vue'
@@ -38,6 +39,8 @@ describe('DocumentEditor.vue', () => {
   let flowControlPolicyDocs: FlowControlPolicy[]
   let contentFilterDocs: ContentFilterProfile[]
   let rateLimitsDocs: RateLimit[]
+  let cloudFunctionsDocs: CloudFunction[]
+
   beforeEach((done) => {
     gitData = [
       {
@@ -157,6 +160,7 @@ describe('DocumentEditor.vue', () => {
       {
         'id': '__default__',
         'name': 'default-acl',
+        'action': 'default',
         'allow': [],
         'allow_bot': [
           'google',
@@ -175,6 +179,7 @@ describe('DocumentEditor.vue', () => {
       {
         'id': '5828321c37e0',
         'name': 'an ACL',
+        'action': 'default',
         'allow': [],
         'allow_bot': [
           'google',
@@ -729,6 +734,14 @@ describe('DocumentEditor.vue', () => {
       'report': [],
       'ignore': [],
     }]
+    cloudFunctionsDocs = [{
+      'id': 'cf-12345678',
+      'name': 'New Cloud Functions',
+      'key': 'cf12345678',
+      'description': 'New Cloud Functions Documentation',
+      'code': 'foo = 12345678',
+      'phase': 'request0',
+    }]
     rateLimitsDocs = [{
       'id': 'f971e92459e2',
       'name': 'Rate Limit Example Rule 5/60',
@@ -745,6 +758,7 @@ describe('DocumentEditor.vue', () => {
       'key': [{'attrs': 'ip'}],
       'pairwith': {'self': 'self'},
     }]
+
     jest.spyOn(axios.CancelToken, 'source').mockImplementation(() => {
       return {
         token: null,
@@ -835,6 +849,12 @@ describe('DocumentEditor.vue', () => {
       }
       if (path === `/conf/api/v3/configs/${branch}/d/ratelimits/e/f971e92459e2/`) {
         return Promise.resolve({data: rateLimitsDocs[0]})
+      }
+      if (path === `/reblaze/api/v3/configs/${branch}/d/cloud-functions/`) {
+        if (config && config.headers && config.headers['x-fields'] === 'id, name') {
+          return Promise.resolve({data: _.map(cloudFunctionsDocs, (i) => _.pick(i, 'id', 'name'))})
+        }
+        return Promise.resolve({data: cloudFunctionsDocs[0]})
       }
       if (path === '/conf/api/v3/configs/master/v/') {
         return Promise.resolve({data: gitData[0].logs})
@@ -1481,7 +1501,7 @@ describe('DocumentEditor.vue', () => {
       const docTypeSelection = wrapper.find('.doc-type-selection')
       await docTypeSelection.trigger('click')
       const docTypeOptions = docTypeSelection.findAll('option')
-      await docTypeSelection.setValue(docTypeOptions.at(0).element.value)
+      await docTypeSelection.setValue(docTypeOptions.at(4).element.value)
       // switch to a different document
       const docSelection = wrapper.find('.doc-selection')
       await docSelection.trigger('click')
@@ -1717,11 +1737,13 @@ describe('DocumentEditor.vue', () => {
     test('should attempt to download document when download button is clicked', async () => {
       const wantedFileName = 'aclprofiles'
       const wantedFileType = 'json'
-      const wantedFileData = aclDocs
+      const wantedFileData = wrapper.vm.docs // aclDocs
       const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {
       })
       const downloadDocButton = wrapper.find('.download-doc-button')
       await downloadDocButton.trigger('click')
+      await nextTick()
+      expect(downloadFileSpy).toHaveBeenCalled()
       expect(downloadFileSpy).toHaveBeenCalledWith(wantedFileName, wantedFileType, wantedFileData)
     })
   })
