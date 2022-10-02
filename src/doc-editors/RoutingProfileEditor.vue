@@ -19,7 +19,6 @@
                     </button>
                   </p>
                   <p class="control">
-                    <!-- TODO: add to button :disabled="isDocumentInvalid || !selectedDoc" -->
                     <button class="button is-small save-document-button"
                             :class="{'is-loading': isSaveLoading}"
                             title="Save changes"
@@ -31,12 +30,10 @@
                     </button>
                   </p>
                   <p class="control">
-                    <!-- TODO: add to button
-                    :disabled="selectedDocNotDeletable"
-                    :class="{'is-loading': isDeleteLoading}" -->
                     <button class="button is-small has-text-danger delete-document-button"
                             title="Delete document"
                             data-qa="delete-document"
+                            :class="{'is-loading': isDeleteLoading}"
                             @click="deleteDoc">
                       <span class="icon is-small">
                         <i class="fas fa-trash"></i>
@@ -86,7 +83,6 @@
                 <div class="field textarea-field">
                   <label class="label is-small">Cloud Function</label>
                   <div class="control">
-                    <!-- TODO: add to textarea: v-model="selectedRoutingProfile.description" @input="emitDocUpdate" -->
                         <textarea class="is-small textarea routing-description"
                                   data-qa="routing-input"
                                   :title="cloudFunctionIds"
@@ -100,7 +96,6 @@
                 <div class="field textarea-field">
                   <label class="label is-small">Server Names</label>
                   <div class="control">
-                    <!-- TODO: add to textarea: v-model="selectedRoutingProfile.description" @input="emitDocUpdate" -->
                         <textarea class="is-small textarea routing-description"
                                   data-qa="routing-input"
                                   :title="serverNameIds"
@@ -176,40 +171,39 @@ export default defineComponent({
       isSaveLoading: false,
       isDeleteLoading: false,
       titles: DatasetsUtils.titles,
-      isDocumentInvalid: false,
     }
   },
   computed: {
-    // TODO: check with Aviv why get a lot of errors
     cloudFunctionIds: {
       get() {
-        return this.selectedRoutingProfile.cloud_functions.join('\n')
+        return this.selectedRoutingProfile.cloud_functions?.join('\n')
       },
-      set(cloudFunctionStringToAdd:any): void {
-        console.log(cloudFunctionStringToAdd.split('\n'))
-        this.selectedRoutingProfile.cloud_functions = cloudFunctionStringToAdd.split('\n')
-
+      set(cloudFunctionStringToAdd:string): void {
+        const splitCloudFunction = cloudFunctionStringToAdd.split('\n')
+        if (splitCloudFunction !== this.selectedRoutingProfile.cloud_functions) {
+          this.selectedRoutingProfile.cloud_functions = cloudFunctionStringToAdd.split('\n')
+        }
       },
     },
     serverNameIds: {
       get() {
-        return this.selectedRoutingProfile.server_names.join('\n')
+        return this.selectedRoutingProfile.server_names?.join('\n')
       },
       set(serverNameStringToAdd:string): void {
         const splitServerNames = serverNameStringToAdd.split('\n')
-        if(splitServerNames !== this.selectedRoutingProfile.server_names){
+        if (splitServerNames !== this.selectedRoutingProfile.server_names) {
           this.selectedRoutingProfile.server_names = splitServerNames
         }
       },
     },
   },
   methods: {
-    displayCloudFunctions(){
+    displayCloudFunctions() {
       console.log(_.map(this.selectedRoutingProfile, 'cloud_functions')?.join(', '))
       return _.map(this.selectedRoutingProfile, 'cloud_functions')?.join(', ')
     },
 
-    displayServerNames(){
+    displayServerNames() {
       console.log(_.map(this.selectedRoutingProfile, 'server_names')?.join(', '))
       return _.map(this.selectedRoutingProfile, 'server_names')?.join(', ')
     },
@@ -252,12 +246,12 @@ export default defineComponent({
 
     async saveChanges() {
       this.isSaveLoading = true
-      const methodName = "PUT"
-      let url = `config/d/routing-profiles/e/${this.selectedRoutingProfile.id}/`
+      const methodName = 'PUT'
+      const url = `config/d/routing-profiles/e/${this.selectedRoutingProfile.id}/`
       const data = this.selectedRoutingProfile
       data.server_names = data.server_names.filter((item:string) =>{
-          return item
-        })
+        return item
+      })
       const routingProfileText = this.titles['routing-singular']
       const successMessage = `Changes to the ${routingProfileText} were saved.`
       const failureMessage = `Failed while attempting to save the changes to the ${routingProfileText}.`
@@ -269,7 +263,7 @@ export default defineComponent({
       this.isDownloadLoading = true
       const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
-        url: `config/d/routing-profiles/e/${this.idFromRoute}/`,
+        url: `config/d/routing-profiles/e/${this.idFromRoute}`,
         onFail: () => {
           console.log('Error while attempting to load routing profiles')
           this.selectedRoutingProfile = null
@@ -286,7 +280,7 @@ export default defineComponent({
       await this.loadProfile()
     },
 
-    getLocations(){
+    getLocations() {
       if (!this.selectedRoutingProfile.locations) {
         return []
       }
@@ -297,7 +291,6 @@ export default defineComponent({
 
     addLocationElement(): void {
       this.selectedRoutingProfile.locations.push({path: '', backend_id: ''})
-
     },
 
     removeLocationElement(index: number): void {
@@ -309,6 +302,4 @@ export default defineComponent({
   },
 })
 </script>
-<style scoped lang="scss">
 
-</style>

@@ -24,7 +24,6 @@ import RbzTable from '@/components/RbzTable.vue'
 import {ColumnOptions, RoutingProfile} from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
-// import {ColumnOptions} from '@/types'
 
 export default defineComponent({
   components: {

@@ -24,7 +24,6 @@ import RbzTable from '@/components/RbzTable.vue'
 import {ColumnOptions, RoutingProfile} from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
-// import {ColumnOptions} from '@/types'
 
 export default defineComponent({
   components: {
@@ -113,7 +112,6 @@ export default defineComponent({
         },
       ] as ColumnOptions[],
       isNewLoading: false,
-      loadingDocCounter: 0,
       titles: DatasetsUtils.titles,
       profiles: [],
     }
@@ -126,8 +124,8 @@ export default defineComponent({
     },
 
     editProfile(id: string) {
-      const routeToDoc = `/routing-profile/config/${id}`
-      this.$router.push(routeToDoc)
+      const routeToEditProfile = `/routing-profile/config/${id}`
+      this.$router.push(routeToEditProfile)
     },
     async addNewProfile() {
       this.isNewLoading = true
@@ -135,7 +133,7 @@ export default defineComponent({
       const routingProfileText = this.titles['routingprofiles-singular']
       const successMessage = `New ${routingProfileText} was created.`
       const failureMessage = `Failed while attempting to create the new ${routingProfileText}.`
-      const url = `config/d/routing-profiles/e/${profileToAdd.id}/`
+      const url = `config/d/routing-profiles/e/${profileToAdd.id}`
       const data = profileToAdd
       await RequestsUtils.sendReblazeRequest({methodName: 'POST', url, data, successMessage, failureMessage})
       this.editProfile(profileToAdd.id)
@@ -153,7 +151,3 @@ export default defineComponent({
   },
 })
 </script>
-
-<style scoped lang="scss">
-
-</style>
