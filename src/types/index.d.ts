@@ -34,6 +34,7 @@ declare module CuriefenseClient {
   }
 
   type SecurityPolicyEntryMatch = {
+    id: string
     match: string
     name: string
     acl_profile: string

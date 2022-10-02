@@ -180,6 +180,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'match': `${id}.example.com`,
       'map': [
         {
+          'id': id,
           'match': '/',
           'name': 'default',
           'acl_profile': '__default__',

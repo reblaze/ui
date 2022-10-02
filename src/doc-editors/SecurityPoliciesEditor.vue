@@ -110,6 +110,7 @@
                             <div class="field">
                               <label class="label is-small">
                                 Name
+                                <span>{{mapEntry.id}}</span>
                               </label>
                               <div class="control">
                                 <input class="input is-small current-entry-name"
