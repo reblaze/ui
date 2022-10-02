@@ -52,7 +52,7 @@ const titles: { [key: string]: string } = {
   'contentfilterrules': 'Content Filter Rules',
   'contentfilterrules-singular': 'Content Filter Rule',
   'cloudfunctions': 'Cloud Functions',
-  'cloudfunctions-singular': 'Cloud Functions',
+  'cloudfunctions-singular': 'Cloud Function',
   'globalfilters': 'Global Filters',
   'globalfilters-singular': 'Global Filter',
   'flowcontrol': 'Flow Control Policies',
