@@ -1,3 +1,4 @@
+// @ts-nocheck
 import SideMenu from '@/components/SideMenu.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {DOMWrapper, mount} from '@vue/test-utils'
