@@ -162,9 +162,6 @@ import {
   SecurityPolicyEntryMatch,
 } from '@/types'
 
-export type LinkedPath = 'limit_ids' | 'workers'
-export type SelectedDocType = 'ratelimits' | 'cloudfunctions'
-
 
 export default defineComponent({
   name: 'SecurityPolicyConnections',
@@ -201,10 +198,6 @@ export default defineComponent({
     },
   },
   computed: {
-    linkedPath(): LinkedPath {
-      // return 'limit_ids' no more security policies connections for cloud functions
-      return (this.selectedDocType ==='ratelimits') ? 'limit_ids' : 'workers'
-    },
 
     newSecurityPolicyConnections(): SecurityPolicy[] {
       return this.securityPolicies.filter((securityPolicy) => {

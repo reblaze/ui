@@ -103,7 +103,6 @@ import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
 import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
 import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
 import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
-import CloudFunctionsEditor from '@/doc-editors/CloudFunctionsEditor.vue'
 import CustomResponseEditor from '@/doc-editors/CustomResponseEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {defineComponent, shallowRef} from 'vue'
@@ -162,29 +161,8 @@ export default defineComponent({
         'aclprofiles': shallowRef({component: ACLEditor}),
         'contentfilterprofiles': shallowRef({component: ContentFilterEditor}),
         'contentfilterrules': shallowRef({component: ContentFilterRulesEditor}),
-        'cloudfunctions': shallowRef({component: CloudFunctionsEditor}),
         'actions': shallowRef({component: CustomResponseEditor}),
       },
-
-      // for cloudfunctions mock data - remove later
-      cloudFunctionsMockData: [{
-        'id': 'f971e92459e2',
-        'name': 'New Cloud Functions',
-        'description': '5 requests per minute',
-        'phase': 'requestpost',
-        'code': `-- begin custom code
-        --custom response header
-        ngx.header['foo'] = 'bar'`,
-      },
-      {
-        'id': 'f123456789',
-        'name': 'New Cloud Function',
-        'description': '2 requests per minute',
-        'phase': 'responsepost',
-        'code': `-- begin custom code
-        --custom response header
-        ngx.header['foo'] = 'bar'`,
-      }],
     }
   },
   computed: {
@@ -255,18 +233,16 @@ export default defineComponent({
       const branch = this.selectedBranch
       const fieldNames = _.flatMap(this.columns, 'fieldNames')
       // TODO: mock file to be removed later
-      const response = (doctype == 'cloudfunctions') ?
-        await Promise.resolve({data: this.cloudFunctionsMockData}) :
-        await RequestsUtils.sendRequest({
-          methodName: 'GET',
-          url: `configs/${branch}/d/${doctype}/`,
-          data: {headers: {'x-fields': `id, ${fieldNames.join(', ')}`}},
-          onFail: () => {
-            console.log('Error while attempting to load documents')
-            this.docs = []
-            this.isDownloadLoading = false
-          },
-        })
+      const response = await RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: `configs/${branch}/d/${doctype}/`,
+        data: {headers: {'x-fields': `id, ${fieldNames.join(', ')}`}},
+        onFail: () => {
+          console.log('Error while attempting to load documents')
+          this.docs = []
+          this.isDownloadLoading = false
+        },
+      })
       this.docs = response?.data || []
       this.isDownloadLoading = false
       this.loadGitLog()

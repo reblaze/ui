@@ -167,7 +167,6 @@ export default defineComponent({
       items[`/${branchId}/aclprofiles`] = {title: 'ACL Profiles'} as menuItem
       items[`/${branchId}/contentfilterprofiles`] = {title: 'Content Filter Profiles'} as menuItem
       items[`/${branchId}/contentfilterrules`] = {title: 'Content Filter Rules'} as menuItem
-      items[`/${branchId}/cloudfunctions`] = {title: 'Cloud Functions'} as menuItem
       items[`/${branchId}/actions`] = {title: 'Custom Responses'} as menuItem
       // items[`/${branchId}/search`] = {title: 'Search'} as menuItem
     },

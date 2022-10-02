@@ -221,7 +221,6 @@ import ContentFilterEditor from '@/doc-editors/ContentFilterProfileEditor.vue'
 import ContentFilterRulesEditor from '@/doc-editors/ContentFilterRulesEditor.vue'
 import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
 import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
-import CloudFunctionsEditor from '@/doc-editors/CloudFunctionsEditor.vue'
 import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
 import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
 import CustomResponseEditor from '@/doc-editors/CustomResponseEditor.vue'
@@ -231,25 +230,6 @@ import {defineComponent, shallowRef} from 'vue'
 import {Commit, Document, DocumentType, HttpRequestMethods, SecurityPolicy} from '@/types'
 import axios, {AxiosResponse} from 'axios'
 
-// TODO: mock file to be removed later
-const cloudFunctionsMockData = [{
-  'id': 'f971e92459e2',
-  'name': 'New Cloud Functions',
-  'description': '5 requests per minute',
-  'phase': 'requestpost',
-  'code': `-- begin custom code
-  --custom response header
-  ngx.header['foo'] = 'bar'`,
-},
-{
-  'id': 'f123456789',
-  'name': 'New Cloud Function',
-  'description': '2 requests per minute',
-  'phase': 'responsepost',
-  'code': `-- begin custom code
-  --custom response header
-  ngx.header['foo'] = 'bar'`,
-}]
 
 export default defineComponent({
   name: 'DocumentEditor',
@@ -275,8 +255,6 @@ export default defineComponent({
       referencedIDsACL: [],
       referencedIDsContentFilter: [],
       referencedIDsLimits: [],
-      referencedIDsCloudFunctions: [],
-      referencedIDsDynamicRules: [],
 
       selectedBranch: null,
       selectedDocType: null as DocumentType,
@@ -301,7 +279,6 @@ export default defineComponent({
         'aclprofiles': shallowRef({component: ACLEditor}),
         'contentfilterprofiles': shallowRef({component: ContentFilterEditor}),
         'contentfilterrules': shallowRef({component: ContentFilterRulesEditor}),
-        'cloudfunctions': shallowRef({component: CloudFunctionsEditor}),
         'actions': shallowRef({component: CustomResponseEditor}),
       },
       apiRoot: RequestsUtils.confAPIRoot,
@@ -358,9 +335,6 @@ export default defineComponent({
       }
       if (this.selectedDocType === 'ratelimits') {
         return this.referencedIDsLimits.includes(this.selectedDocID)
-      }
-      if (this.selectedDocType === 'cloudfunctions') {
-        return this.referencedIDsCloudFunctions.includes(this.selectedDocID)
       }
       return false
     },
@@ -451,17 +425,10 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       // check if the selected doc only has id and name, if it does, attempt to load the rest of the document data
       if (this.selectedDoc && Object.keys(this.selectedDoc).length === 2) {
-        let response
-        // TODO: mock file to be removed later
-        if (this.selectedDocType == 'cloudfunctions') {
-          response = await Promise.resolve({data: cloudFunctionsMockData})
-        } else {
-          response = await RequestsUtils.sendRequest({
-            methodName: 'GET',
-            url: `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`,
-          })
-        }
-        console.log('response?.data', response?.data)
+        const response = await RequestsUtils.sendRequest({
+          methodName: 'GET',
+          url: `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`,
+        })
         this.selectedDoc = response?.data || this.selectedDoc
       }
       this.setLoadingDocStatus(false)
@@ -470,42 +437,31 @@ export default defineComponent({
     async loadDocs(doctype: DocumentType, skipDocSelection?: boolean) {
       this.isDownloadLoading = true
       const branch = this.selectedBranch
-      let response
-      // TODO: mock file to be removed later
-      if (doctype == 'cloudfunctions') {
-        response = await Promise.resolve({data: cloudFunctionsMockData})
-      } else {
-        response = await RequestsUtils.sendRequest({
-          methodName: 'GET',
-          url: `configs/${branch}/d/${doctype}/`,
-          data: {headers: {'x-fields': 'id, name'}},
-          onFail: () => {
-            console.log('Error while attempting to load documents')
-            this.docs = []
-            this.isDownloadLoading = false
-          },
-        })
-      }
+
+      const response = await RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: `configs/${branch}/d/${doctype}/`,
+        data: {headers: {'x-fields': 'id, name'}},
+        onFail: () => {
+          console.log('Error while attempting to load documents')
+          this.docs = []
+          this.isDownloadLoading = false
+        },
+      })
       this.docs = response?.data || []
       // After we load the basic data (id and name) we can async load the full data
       this.cancelSource.cancel(`Operation cancelled and restarted for a new document type ${doctype}`)
       this.cancelSource = axios.CancelToken.source()
-      // TODO: mock file to be removed later
-      if (doctype == 'cloudfunctions') {
-        Promise.resolve({data: cloudFunctionsMockData as any}).then((response: any) => {
-          this.docs = response?.data || []
-          this.isDownloadLoading = false
-        })
-      } else {
-        RequestsUtils.sendRequest({
-          methodName: 'GET',
-          url: `configs/${branch}/d/${doctype}/`,
-          config: {cancelToken: this.cancelSource.token},
-        }).then((response: AxiosResponse) => {
-          this.docs = response?.data || []
-          this.isDownloadLoading = false
-        })
-      }
+
+      RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: `configs/${branch}/d/${doctype}/`,
+        config: {cancelToken: this.cancelSource.token},
+      }).then((response: AxiosResponse) => {
+        this.docs = response?.data || []
+        this.isDownloadLoading = false
+      })
+
 
       this.updateDocIdNames()
       if (this.docIdNames && this.docIdNames.length && this.docIdNames[0].length) {
@@ -524,11 +480,8 @@ export default defineComponent({
       this.loadingGitlog = true
       const config = this.selectedBranch
       const document = this.selectedDocType
-      let entry = this.selectedDocID
-      // TODO remove this mock
-      if (document==='cloudfunctions') {
-        entry = 'f971e92459e2'
-      }
+      const entry = this.selectedDocID
+
       const url = `configs/${config}/d/${document}/e/${entry}/v/`
       if (config && document && entry) {
         RequestsUtils.sendRequest({methodName: 'GET', url}).then((response: AxiosResponse<Commit[]>) => {
@@ -686,7 +639,7 @@ export default defineComponent({
       const referencedACL: string[] = []
       const referencedContentFilter: string[] = []
       const referencedLimit: string[] = []
-      const referencedCloudFunctions: string[] = []
+
       _.forEach(docs, (doc) => {
         _.forEach(doc.map, (mapEntry) => {
           referencedACL.push(mapEntry['acl_profile'])
@@ -697,7 +650,6 @@ export default defineComponent({
       this.referencedIDsACL = _.uniq(referencedACL)
       this.referencedIDsContentFilter = _.uniq(referencedContentFilter)
       this.referencedIDsLimits = _.uniq(_.flatten(referencedLimit))
-      this.referencedIDsCloudFunctions = _.uniq(_.flatten(referencedCloudFunctions))
     },
 
     async restoreGitVersion(gitVersion: Commit) {

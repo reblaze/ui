@@ -8,7 +8,6 @@ import {
   RateLimit,
 } from '@/types'
 import _ from 'lodash'
-import DatasetsUtils from '@/assets/DatasetsUtils'
 
 export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
   'globalfilters': [
@@ -300,33 +299,6 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       isSortable: true,
       isSearchable: true,
       classes: 'width-80px',
-    },
-  ],
-  'cloudfunctions': [
-    {
-      title: 'Name',
-      fieldNames: ['name'],
-      isSortable: true,
-      isSearchable: true,
-      classes: 'width-150px',
-    },
-    {
-      title: 'Description',
-      fieldNames: ['description'],
-      isSortable: true,
-      isSearchable: true,
-      classes: 'ellipsis',
-    },
-    {
-      title: 'Phase',
-      fieldNames: ['phase'],
-      displayFunction: (item) => {
-        const titles = DatasetsUtils.titles
-        return titles[item.phase]
-      },
-      isSortable: true,
-      isSearchable: true,
-      classes: 'width-150px',
     },
   ],
 }
