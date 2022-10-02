@@ -82,8 +82,6 @@ import {
 } from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 
-export type PhaseOption = 'requestpre' | 'requespost' | 'responsepre' | 'responsepost'
-
 
 export default defineComponent({
   name: 'CloudFunctionsEditor',
@@ -95,7 +93,7 @@ export default defineComponent({
   },
   data() {
     return {
-      cloudPhases: ['requestpre', 'requestpost', 'responsepre', 'responsepost'] as CloudFunctionsPhaseType[],
+      cloudPhases: ['request0', 'request1', 'response0', 'response1'] as CloudFunctionsPhaseType[],
       titles: DatasetsUtils.titles,
     }
   },

@@ -264,6 +264,7 @@ export default defineComponent({
       docs: [] as Document[],
       docIdNames: [] as [Document['id'], Document['name']][],
       selectedDocID: null,
+      newDocName: null as string,
       cancelSource: axios.CancelToken.source(),
       isDownloadLoading: false,
       isDocumentInvalid: false,
@@ -292,6 +293,9 @@ export default defineComponent({
 
     documentAPIPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
+      if (this.selectedDocType === 'cloudfunctions') {
+        return `/configs/cloudfunctions/${this.selectedDocID}`
+      }
       return `${apiPrefix}/configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`
     },
 
@@ -432,7 +436,7 @@ export default defineComponent({
       // check if the selected doc only has id and name, if it does, attempt to load the rest of the document data
       if (this.selectedDoc && Object.keys(this.selectedDoc).length === 2) {
         let response
-        // TODO: mock file to be removed later
+        console.log('selectedDocType: ', this.selectedDocType)
         if (this.selectedDocType == 'cloudfunctions') {
           response = await RequestsUtils.sendReblazeRequest({
             methodName: 'GET',
@@ -600,6 +604,7 @@ export default defineComponent({
       this.resetGitLog()
       this.docs.unshift(docToAdd)
       this.selectedDocID = docToAdd.id
+      this.newDocName = docToAdd.name
       const docTypeText = this.titles[this.selectedDocType + '-singular']
       if (!successMessage) {
         successMessage = `New ${docTypeText} was created.`
@@ -615,14 +620,6 @@ export default defineComponent({
 
     async saveChanges(methodName?: HttpRequestMethods, successMessage?: string, failureMessage?: string) {
       this.isSaveLoading = true
-      if (!methodName) {
-        methodName = 'PUT'
-      }
-      let url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/`
-      if (methodName !== 'POST') {
-        url += `${this.selectedDocID}/`
-      }
-      const data = this.selectedDoc
 
       const docTypeText = this.titles[this.selectedDocType + '-singular']
       if (!successMessage) {
@@ -631,14 +628,39 @@ export default defineComponent({
       if (!failureMessage) {
         failureMessage = `Failed while attempting to save the changes to the ${docTypeText}.`
       }
-      await RequestsUtils.sendRequest({methodName, url, data, successMessage, failureMessage}).then(() => {
-        this.updateDocIdNames()
-        this.loadGitLog(true)
-        // If the saved doc was a security policy, refresh the referenced IDs lists
-        if (this.selectedDocType === 'securitypolicies') {
-          this.loadReferencedDocsIDs()
+
+      if (!methodName) {
+        methodName = 'PUT'
+      }
+
+      const data = this.selectedDoc
+      console.log('selectedDocType: ', this.selectedDocType)
+      if (this.selectedDocType === 'cloudfunctions') {
+        let url = ''
+        if (methodName !== 'POST') {
+          url = `configs/cloud-functions/${this.selectedDocID}/`
+        } else {
+          url = `configs/cloud-functions/${this.newDocName}`
         }
-      })
+        await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage}).then(() => {
+          this.updateDocIdNames()
+          this.loadGitLog(true)
+        })
+      } else {
+        let url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/`
+        if (methodName !== 'POST') {
+          url += `${this.selectedDocID}/`
+        }
+        await RequestsUtils.sendRequest({methodName, url, data, successMessage, failureMessage}).then(() => {
+          this.updateDocIdNames()
+          this.loadGitLog(true)
+          // If the saved doc was a security policy, refresh the referenced IDs lists
+          if (this.selectedDocType === 'securitypolicies') {
+            this.loadReferencedDocsIDs()
+          }
+        })
+      }
+
       this.isSaveLoading = false
     },
 
@@ -649,15 +671,28 @@ export default defineComponent({
       const docTypeText = this.titles[this.selectedDocType + '-singular']
       const successMessage = `The ${docTypeText} was deleted.`
       const failureMessage = `Failed while attempting to delete the ${docTypeText}.`
-      await RequestsUtils.sendRequest({
-        methodName: 'DELETE',
-        url: `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`,
-        successMessage,
-        failureMessage,
-      }).then(() => {
-        this.updateDocIdNames()
-        this.loadGitLog(true)
-      })
+      if (this.selectedDocType == 'cloudfunctions') {
+        await RequestsUtils.sendReblazeRequest({
+          methodName: 'DELETE',
+          url: `configs/cloud-functions/${this.selectedDocID}/`,
+          successMessage,
+          failureMessage,
+        }).then(() => {
+          this.updateDocIdNames()
+          this.loadGitLog(true)
+        })
+      } else {
+        await RequestsUtils.sendRequest({
+          methodName: 'DELETE',
+          url: `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`,
+          successMessage,
+          failureMessage,
+        }).then(() => {
+          this.updateDocIdNames()
+          this.loadGitLog(true)
+        })
+      }
+
       this.selectedDocID = this.docs[0].id
       await this.loadSelectedDocData()
       this.addMissingDefaultsToDoc()

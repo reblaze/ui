@@ -52,6 +52,7 @@ const titles: { [key: string]: string } = {
   'contentfilterprofiles-singular': 'Content Filter Profile',
   'contentfilterrules': 'Content Filter Rules',
   'contentfilterrules-singular': 'Content Filter Rule',
+  'cloudfunctions-singular': 'Cloud Functions',
   'globalfilters': 'Global Filters',
   'globalfilters-singular': 'Global Filter',
   'flowcontrol': 'Flow Control Policies',
@@ -61,10 +62,10 @@ const titles: { [key: string]: string } = {
   'active': 'Active',
   'report': 'Report',
   'ignore': 'Ignore',
-  'requestpre': 'Request Pre Reblaze',
-  'requestpost': 'Request Post Reblaze',
-  'responsepre': 'Response Pre Reblaze',
-  'responsepost': 'Response Post Reblaze',
+  'request0': 'Request Pre Reblaze',
+  'request1': 'Request Post Reblaze',
+  'response0': 'Response Pre Reblaze',
+  'response1': 'Response Post Reblaze',
 }
 
 const limitOptionsTypes = {
@@ -254,7 +255,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'id': generateUUID2(),
       'name': 'New Cloud Function',
       'description': 'New Cloud Function Description and Remarks',
-      'phase': 'requestpost',
+      'phase': 'request1',
       'code': `-- begin custom code
         --custom response header
         ngx.header['foo'] = 'bar'`,

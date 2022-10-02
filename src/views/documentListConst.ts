@@ -1,5 +1,6 @@
 import {
   ACLProfile,
+  CloudFunctionsPhaseType,
   ColumnOptionsMap,
   ContentFilterProfile,
   ContentFilterRule, CustomResponse,
@@ -284,9 +285,9 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
     {
       title: 'Phase',
       fieldNames: ['phase'],
-      displayFunction: (item) => {
+      displayFunction: (phase: CloudFunctionsPhaseType) => {
         const titles = DatasetsUtils.titles
-        return titles[item.phase]
+        return titles[phase]
       },
       isSortable: true,
       isSearchable: true,

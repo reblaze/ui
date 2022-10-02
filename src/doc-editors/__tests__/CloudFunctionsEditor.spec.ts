@@ -17,7 +17,7 @@ describe('CloudFunctionsEditor.vue', () => {
       'id': 'f971e92459e2',
       'name': 'New Cloud Functions',
       'description': '5 requests per minute',
-      'phase': 'requestpost',
+      'phase': 'request1',
       'code': `-- begin custom code
       --custom response header
       ngx.header['foo'] = 'bar'`,
@@ -26,7 +26,7 @@ describe('CloudFunctionsEditor.vue', () => {
       'id': 'f123456789',
       'name': 'New Cloud Function',
       'description': '2 requests per minute',
-      'phase': 'responsepost',
+      'phase': 'response1',
       'code': `-- begin custom code
       --custom response header
       ngx.header['foo'] = 'bar'`,

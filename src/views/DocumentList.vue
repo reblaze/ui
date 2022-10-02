@@ -156,6 +156,8 @@ export default defineComponent({
 
       apiRoot: RequestsUtils.confAPIRoot,
       apiVersion: RequestsUtils.confAPIVersion,
+      reblazeAPIRoot: RequestsUtils.reblazeAPIRoot,
+      reblazeAPIVersion: RequestsUtils.reblazeAPIVersion,
       componentsMap: {
         'globalfilters': shallowRef({component: GlobalFilterListEditor}),
         'flowcontrol': shallowRef({component: FlowControlPolicyEditor}),
@@ -168,36 +170,22 @@ export default defineComponent({
         'actions': shallowRef({component: CustomResponseEditor}),
       },
 
-      // for cloudfunctions mock data - remove later
-      cloudFunctionsMockData: [{
-        'id': 'f971e92459e2',
-        'name': 'New Cloud Functions',
-        'description': '5 requests per minute',
-        'phase': 'requestpost',
-        'code': `-- begin custom code
-        --custom response header
-        ngx.header['foo'] = 'bar'`,
-      },
-      {
-        'id': 'f123456789',
-        'name': 'New Cloud Function',
-        'description': '2 requests per minute',
-        'phase': 'responsepost',
-        'code': `-- begin custom code
-        --custom response header
-        ngx.header['foo'] = 'bar'`,
-      }],
     }
   },
   computed: {
     documentListAPIPath(): string {
-      const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
-      return `${apiPrefix}/configs/${this.selectedBranch}/d/${this.selectedDocType}/`
+      if (this.selectedDocType == 'cloudfunctions') {
+        return `${this.reblazeAPIRoot}/${this.reblazeAPIVersion}/configs/cloud-functions/`
+      }
+      return `${this.apiRoot}/${this.apiVersion}/configs/${this.selectedBranch}/d/${this.selectedDocType}/`
     },
 
     gitAPIPath(): string {
-      const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
-      return `${apiPrefix}/configs/${this.selectedBranch}/d/${this.selectedDocType}/v/`
+      if (this.selectedDocType == 'cloudfunctions') {
+        return `${this.reblazeAPIRoot}/${this.reblazeAPIVersion}/configs/cloud-functions/`
+      }
+      return `${this.apiRoot}/${this.apiVersion}/${this.apiVersion}/`+
+      `configs/${this.selectedBranch}/d/${this.selectedDocType}/v/`
     },
 
     branchNames(): string[] {
@@ -224,6 +212,7 @@ export default defineComponent({
       }
       const prevDocType = this.selectedDocType
       const docTypeFromRoute = this.$route.params.doc_type?.toString()
+      console.log('docTypeFromRoute', docTypeFromRoute)
       if (docTypeFromRoute && Object.keys(this.componentsMap).includes(docTypeFromRoute)) {
         this.selectedDocType = docTypeFromRoute as DocumentType
       } else {
@@ -256,9 +245,12 @@ export default defineComponent({
       this.isDownloadLoading = true
       const branch = this.selectedBranch
       const fieldNames = _.flatMap(this.columns, 'fieldNames')
-      // TODO: mock file to be removed later
-      const response = (doctype == 'cloudfunctions') ?
-        await RequestsUtils.sendReblazeRequest({
+
+      // const response = (doctype == 'cloudfunctions') ?
+      let response
+      if (doctype == 'cloudfunctions') {
+        console.log('documentList cloudfunctions response')
+        response = await RequestsUtils.sendReblazeRequest({
           methodName: 'GET',
           url: `configs/cloud-functions/`,
           data: {headers: {'x-fields': `id, ${fieldNames.join(', ')}`}},
@@ -267,8 +259,10 @@ export default defineComponent({
             this.docs = []
             this.isDownloadLoading = false
           },
-        }) :
-        await RequestsUtils.sendRequest({
+        })
+      } else {
+      // :
+        response = await RequestsUtils.sendRequest({
           methodName: 'GET',
           url: `configs/${branch}/d/${doctype}/`,
           data: {headers: {'x-fields': `id, ${fieldNames.join(', ')}`}},
@@ -278,6 +272,7 @@ export default defineComponent({
             this.isDownloadLoading = false
           },
         })
+      }
       this.docs = response?.data || []
       this.isDownloadLoading = false
       this.loadGitLog()
@@ -303,7 +298,10 @@ export default defineComponent({
     },
 
     editDoc(id: string) {
-      const routeToDoc = `/config/${this.selectedBranch}/${this.selectedDocType}/${id}`
+      let routeToDoc = `/config/${this.selectedBranch}/${this.selectedDocType}/${id}`
+      if (this.selectedDocType === 'cloudfunctions') {
+        routeToDoc = `/config/cloud-functions/${id}`
+      }
       this.$router.push(routeToDoc)
     },
 
@@ -314,12 +312,21 @@ export default defineComponent({
       const docTypeText = this.titles[this.selectedDocType + '-singular']
       const successMessage = `New ${docTypeText} was created.`
       const failureMessage = `Failed while attempting to create the new ${docTypeText}.`
-      const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/`
       const data = docToAdd
-      await RequestsUtils.sendRequest({methodName: 'POST', url, data, successMessage, failureMessage})
-        .then(() => {
-          this.editDoc(docToAdd.id)
-        })
+      if (this.selectedDocType === 'cloudfunctions') {
+        const url = `configs/cloud-functions/${docToAdd.name}`
+        console.log('add new doc function', url, data, successMessage)
+        await RequestsUtils.sendReblazeRequest({methodName: 'POST', url, data, successMessage, failureMessage})
+          .then(() => {
+            this.editDoc(docToAdd.id)
+          })
+      } else {
+        const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/`
+        await RequestsUtils.sendRequest({methodName: 'POST', url, data, successMessage, failureMessage})
+          .then(() => {
+            this.editDoc(docToAdd.id)
+          })
+      }
       this.isNewLoading = false
       this.setLoadingDocStatus(false)
     },
