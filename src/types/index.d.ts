@@ -230,6 +230,7 @@ declare module CuriefenseClient {
     displayFunction?: (item: any) => string // Will be rendered as HTML
     isSortable?: boolean
     isSearchable?: boolean
+    isNumber?: boolean // True if all values are always numbers, for sorting
     classes?: string
   }
 

@@ -151,6 +151,8 @@ export default defineComponent({
             return columnOptions.isSortable
           })
           this.sortColumnTitle = firstSortableColumn?.title || null
+          this.sortColumnDisplayFunction = firstSortableColumn?.displayFunction || null
+          this.sortColumnIsNumber = firstSortableColumn?.isNumber || false
         }
       },
       immediate: true,
@@ -167,6 +169,7 @@ export default defineComponent({
       sortDir: 'asc',
       sortColumnTitle: null as ColumnOptions['title'],
       sortColumnDisplayFunction: null as ColumnOptions['displayFunction'],
+      sortColumnIsNumber: false as ColumnOptions['isNumber'],
 
       // Pagination
       currentPage: 1,
@@ -212,13 +215,20 @@ export default defineComponent({
             const sortColumn = this.columns.find((column) => {
               return column.title === this.sortColumnTitle
             })
-            return item[sortColumn?.fieldNames[0]]?.toString() || ''
+            const defaultValue = this.sortColumnIsNumber ? 0 : ''
+            return item[sortColumn?.fieldNames[0]] || defaultValue
           }
         }
-        if (getSortValue(a).toLowerCase() < getSortValue(b).toLowerCase()) {
+        let sortValueA = getSortValue(a)
+        let sortValueB = getSortValue(b)
+        if (!this.sortColumnIsNumber) {
+          sortValueA = sortValueA.toLowerCase()
+          sortValueB = sortValueB.toLowerCase()
+        }
+        if (sortValueA < sortValueB) {
           return -1 * sortModifier
         }
-        if (getSortValue(a).toLowerCase() > getSortValue(b).toLowerCase()) {
+        if (sortValueA > sortValueB) {
           return 1 * sortModifier
         }
         return 0
@@ -258,6 +268,7 @@ export default defineComponent({
       }
       this.sortColumnTitle = column.title
       this.sortColumnDisplayFunction = column.displayFunction
+      this.sortColumnIsNumber = column.isNumber
     },
 
     prevPage() {

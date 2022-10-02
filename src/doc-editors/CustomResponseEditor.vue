@@ -99,7 +99,7 @@
                           v-model="header.value"/>
                   </div>
                   <div class="column is-narrow">
-                    <button class="button is-light is-small remove-icon is-small has-text-grey"
+                    <button class="button is-light is-small remove-icon has-text-grey"
                             title="Click to remove header"
                             @click="removeHeaderElement(index)">
                       <span class="icon is-small"><i class="fas fa-trash fa-xs"></i></span>
