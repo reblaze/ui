@@ -310,7 +310,6 @@ export default defineComponent({
 
     selectedDoc: {
       get(): Document {
-        console.log('this.selectedDocIndex', this.selectedDocIndex, 'docs', this.docs)
         return this.docs[this.selectedDocIndex]
       },
       set(newDoc: Document): void {
@@ -327,7 +326,6 @@ export default defineComponent({
 
     selectedDocIndex(): number {
       if (this.selectedDocID) {
-        console.log('this.selectedDocID', this.selectedDocID)
         return _.findIndex(this.docs, (doc) => {
           return doc.id === this.selectedDocID
         })
