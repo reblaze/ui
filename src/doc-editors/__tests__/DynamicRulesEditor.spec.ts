@@ -7,7 +7,7 @@ import {DynamicRules} from '@/types'
 // IncludeExcludeType,
 // ThresholdActionPair
 import axios from 'axios'
-// import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
+import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 // import {nextTick} from 'vue'
 
 jest.mock('axios')
@@ -56,8 +56,44 @@ describe('DynamicRulesEditor.vue', () => {
   })
 
   describe('form data', () => {
+    afterEach(() => {
+      jest.clearAllMocks()
+      jest.clearAllTimers()
+    })
+
     test('should have correct ID displayed', () => {
       expect(wrapper.find('.document-id').text()).toEqual(dynamicRulesDocs[0].id)
+    })
+
+    test('should have correct name in input', () => {
+      const element = wrapper.find('.document-name').element as HTMLInputElement
+      expect(element.value).toEqual(dynamicRulesDocs[0].name)
+    })
+
+    test('should have correct description in input', () => {
+      const element = wrapper.find('.document-description').element as HTMLInputElement
+      expect(element.value).toEqual(dynamicRulesDocs[0].description)
+    })
+
+    test('should have correct timeframe in input', () => {
+      const element = wrapper.find('.document-timeframe').element as HTMLInputElement
+      expect(element.value).toEqual(cloudFunctionsDocs[0].timeframe)
+    })
+
+    test('should have correct timeframe in input', () => {
+      const element = wrapper.find('.document-timeframe').element as HTMLInputElement
+      expect(element.value).toEqual(cloudFunctionsDocs[0].timeframe)
+    })
+
+    test('should emit correct data after input was changed', async () => {
+      const newDesciption = '4 new requests per minute'
+      const description = wrapper.find('.document-description')
+      description.value = newDesciption
+      await description.setValue(newDesciption)
+      await description.trigger('change')
+
+      expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
+      expect(wrapper.emitted('update:selectedDoc')[0][0].description).toContain(newDesciption)
     })
   })
 
