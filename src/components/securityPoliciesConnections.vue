@@ -164,7 +164,6 @@ import {
 
 export default defineComponent({
   name: 'SecurityPolicyConnections',
-  // securitypolicyid securitypolicyentryid
   props: {
     selectedDocType: String,
     selectedDocId: String,

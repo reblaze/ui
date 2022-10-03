@@ -70,7 +70,7 @@
                     :title="mapEntry.name">
                   {{ mapEntry.name }}
                 </td>
-                <td class="is-size-7 width-200px ellipsis entry-match"
+                <td class="is-size-7 width-400px ellipsis entry-match"
                     colspan="2"
                     :title="mapEntry.match">
                   {{ mapEntry.match }}
@@ -80,16 +80,16 @@
                     :title="mapEntry.content_filter_active ? 'Active mode' : 'Learning mode'">
                   {{ contentFilterProfileName(mapEntry.content_filter_profile) }}
                 </td>
-                <td class="is-size-7 width-100px ellipsis entry-acl"
+                <td class="is-size-7 width-150px ellipsis entry-acl"
                     :class="mapEntry.acl_active ? 'has-text-success' : 'has-text-danger'"
                     :title="mapEntry.acl_active ? 'Active mode' : 'Learning mode'">
                   {{ aclProfileName(mapEntry.acl_profile) }}
                 </td>
-                <td class="is-size-7 entry-rate-limits-count"
+                <td class="is-size-7 width-50px entry-rate-limits-count"
                     v-if="existingRateLimitIDs(mapEntry)">
                   {{ existingRateLimitIDs(mapEntry).length }}
                 </td>
-                <td class="is-size-7 width-100px"
+                <td class="is-size-7 width-70px"
                     :rowspan="mapEntryIndex === mapIndex ? '2' : '1'">
                   <a class="has-text-grey"
                      title="more details"

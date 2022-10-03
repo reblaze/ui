@@ -4,19 +4,16 @@ import axios from 'axios'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {mount, VueWrapper} from '@vue/test-utils'
 import {RateLimit, SecurityPolicy} from '@/types'
-// import {nextTick} from 'vue'CloudFunctions
 
 
 jest.mock('axios')
 
 describe('SecurityPoliciesConnections.vue', () => {
-  // let rateLimitsDocsId: string[]
   let rateLimitsDocs: RateLimit[]
   let securityPoliciesDocs: SecurityPolicy[]
   let mockRouter: any
   let wrapper: VueWrapper
   beforeEach(() => {
-    // rateLimitsDocsId = ['f971e92459e2']
     rateLimitsDocs = [{
       'id': 'f971e92459e2',
       'name': 'Rate Limit Example Rule 5/60',
@@ -96,16 +93,11 @@ describe('SecurityPoliciesConnections.vue', () => {
       push: jest.fn(),
     }
 
-    // const onUpdate = async (selectedDocId: RateLimit) => {
-    //   await wrapper.setProps({selectedDocId})
-    // }
-
     wrapper = mount(SecurityPoliciesConnections, {
       props: {
         'selectedDocId': 'f971e92459e2',
         'selectedDocType': 'ratelimits',
         'selectedBranch': selectedBranch,
-      //  'onUpdate:selectedDoc': onUpdate,
       },
       global: {
         mocks: {
@@ -259,10 +251,6 @@ describe('SecurityPoliciesConnections.vue', () => {
 
     test('should not send request to change Security Policy when removing connection was cancelled', async () => {
       const putSpy = jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
-
-      console.log('this.securityPolicies', wrapper.vm.securityPolicies,
-      'selectedDocType', wrapper.vm.selectedDocType)
-      console.log('connectedSecurityPoliciesEntries entry', wrapper.vm.connectedSecurityPoliciesEntries)
       const removeConnectionButton = wrapper.findAll('.remove-connection-button').at(0)
       await removeConnectionButton.trigger('click')
       const cancelRemoveConnectionButton = wrapper.find('.cancel-remove-connection-button')

@@ -147,6 +147,17 @@ describe('RateLimitsEditor.vue', () => {
     })
 
     test('should have event limit option component with correct data', () => {
+      const wantedType = Object.keys(rateLimitsDocs[0].pairwith)[0]
+      const wantedValue = Object.values(rateLimitsDocs[0].pairwith)[0]
+      const limitOptionComponent = wrapper.findAllComponents(LimitOption).at(1)
+
+      const actualType = limitOptionComponent.vm.option.type
+      const actualValue = limitOptionComponent.vm.option.key
+      expect(actualType).toEqual(wantedType)
+      expect(actualValue).toEqual(wantedValue)
+    })
+
+    test('should have limit option keys with correct data', () => {
       const wantedType = Object.keys(rateLimitsDocs[0].key[0])[0]
       const wantedValue = Object.values(rateLimitsDocs[0].key[0])[0]
       const limitOptionComponent = wrapper.findAllComponents(LimitOption).at(0)
@@ -235,8 +246,16 @@ describe('RateLimitsEditor.vue', () => {
 
     test('should not be able to remove key when only one key exists', async () => {
       const limitOptionsComponent = wrapper.findComponent(LimitOption)
+      console.log('limitOptionsComponent optionsData', limitOptionsComponent.vm.optionsData,
+      'eventOption', wrapper.vm.eventOption)
+      expect(limitOptionsComponent).toBeGreaterThanOrEqual(1)
       limitOptionsComponent.vm.$emit('remove', 1)
-      expect(wrapper.vm.localDoc.key.length).toEqual(2)
+      limitOptionsComponent.vm.$emit('remove', 1)
+      limitOptionsComponent.vm.$emit('remove', 1)
+      wrapper.vm.$forceUpdate()
+      console.log('limitOptionsComponent optionsData2', limitOptionsComponent.vm.optionsData,
+      'eventOption2', wrapper.vm.eventOption)
+      expect(wrapper.vm.localDoc.key.length).toEqual(1)
     })
 
     test('should update key when change event occurs', async () => {
