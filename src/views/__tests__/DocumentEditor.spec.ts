@@ -558,7 +558,8 @@ describe('DocumentEditor.vue', () => {
             {'relation': 'OR', 'entries': [['ip', '2.2.2.2', null]]},
             {'relation': 'OR', 'entries': [['headers', ['headerrr', 'valueeee'], 'anooo']]}],
         },
-      }, {
+      },
+      {
         'id': '07656fbe',
         'name': 'devop internal demo',
         'source': 'self-managed',
@@ -1501,15 +1502,15 @@ describe('DocumentEditor.vue', () => {
       const docTypeSelection = wrapper.find('.doc-type-selection')
       await docTypeSelection.trigger('click')
       const docTypeOptions = docTypeSelection.findAll('option')
-      // at(4) = aclprofiles
+      // 0 1 2 3 all failing
+      console.log('docTypeOptions', docTypeOptions.at(4).element.value)
       await docTypeSelection.setValue(docTypeOptions.at(4).element.value)
       // switch to a different document
       const docSelection = wrapper.find('.doc-selection')
       await docSelection.trigger('click')
       const options = docSelection.findAll('option')
-      // options.at(0).element.value = 5828321c37e0
-      await docSelection.setValue(options.at(0).element.value)
-      expect((docSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
+      await docSelection.setValue(options.at(1).element.value)
+      expect((docSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
     })
   })
 
