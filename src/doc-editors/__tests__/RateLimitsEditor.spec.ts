@@ -89,6 +89,9 @@ describe('RateLimitsEditor.vue', () => {
       if (path === `/conf/api/v3/configs/${selectedBranch}/d/securitypolicies/`) {
         return Promise.resolve({data: securityPoliciesDocs})
       }
+      if (path === `/conf/api/v3/configs/${selectedBranch}/ratelimits/f971e92459e2`) {
+        return Promise.resolve({data: rateLimitsDocs[0]})
+      }
       return Promise.resolve({data: []})
     })
     mockRouter = {
@@ -149,12 +152,10 @@ describe('RateLimitsEditor.vue', () => {
     test('should have event limit option component with correct data', () => {
       const wantedType = Object.keys(rateLimitsDocs[0].pairwith)[0]
       const wantedValue = Object.values(rateLimitsDocs[0].pairwith)[0]
-      const limitOptionComponent = wrapper.findAllComponents(LimitOption).at(1)
-
-      const actualType = limitOptionComponent.vm.option.type
-      const actualValue = limitOptionComponent.vm.option.key
-      expect(actualType).toEqual(wantedType)
+      const actualType = wrapper.vm.eventOption.type
+      const actualValue = wrapper.vm.eventOption.key
       expect(actualValue).toEqual(wantedValue)
+      expect(actualType).toEqual(wantedType)
     })
 
     test('should have limit option keys with correct data', () => {
@@ -244,17 +245,12 @@ describe('RateLimitsEditor.vue', () => {
       expect(wrapper.vm.localDoc.key.length).toEqual(3)
     })
 
-    test('should not be able to remove key when only one key exists', async () => {
+    test('should not be able to remove key when only one key exists', () => {
       const limitOptionsComponent = wrapper.findComponent(LimitOption)
-      console.log('limitOptionsComponent optionsData', limitOptionsComponent.vm.optionsData,
-      'eventOption', wrapper.vm.eventOption)
-      expect(limitOptionsComponent).toBeGreaterThanOrEqual(1)
+      expect(wrapper.vm.localDoc.key.length).toBeGreaterThanOrEqual(1) // 3
       limitOptionsComponent.vm.$emit('remove', 1)
       limitOptionsComponent.vm.$emit('remove', 1)
       limitOptionsComponent.vm.$emit('remove', 1)
-      wrapper.vm.$forceUpdate()
-      console.log('limitOptionsComponent optionsData2', limitOptionsComponent.vm.optionsData,
-      'eventOption2', wrapper.vm.eventOption)
       expect(wrapper.vm.localDoc.key.length).toEqual(1)
     })
 
