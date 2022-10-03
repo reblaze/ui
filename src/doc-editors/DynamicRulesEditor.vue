@@ -53,7 +53,7 @@
                   Thresholds
                 </label>
                 <div class="control">
-                  <input class="input is-small document-timeframe"
+                  <input class="input is-small document-threshold"
                          data-qa="dynamicrules-threshold-input"
                          type="text"
                          title="Dynamic Rules threshold"

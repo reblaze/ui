@@ -23,17 +23,18 @@ describe('DynamicRulesEditor.vue', () => {
       'description': 'New Dynamic Rules Description and Remarks',
       'timeframe': 30,
       'thresholds': 250,
-      'tags': ['default dynamic rule'],
+      'tags': ['default', 'dynamic', 'rule'],
       'include': ['all'],
       'exclude': [],
     }]
     const selectedBranch = 'master'
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === `/conf/api/v3/configs/${selectedBranch}/d/dynamicrules/abc123`) {
-        return Promise.resolve({data: dynamicRulesDocs})
-      }
+      // if (path === `/conf/api/v3/configs/${selectedBranch}/d/dynamicrules/abc123`) {
+      //   return Promise.resolve({data: dynamicRulesDocs})
+      // }
       return Promise.resolve({data: []})
     })
+
     mockRouter = {
       push: jest.fn(),
     }
@@ -77,12 +78,22 @@ describe('DynamicRulesEditor.vue', () => {
 
     test('should have correct timeframe in input', () => {
       const element = wrapper.find('.document-timeframe').element as HTMLInputElement
-      expect(element.value).toEqual(cloudFunctionsDocs[0].timeframe)
+      expect(element.value).toEqual(dynamicRulesDocs[0].timeframe.toString())
     })
 
-    test('should have correct timeframe in input', () => {
-      const element = wrapper.find('.document-timeframe').element as HTMLInputElement
-      expect(element.value).toEqual(cloudFunctionsDocs[0].timeframe)
+    test('should have correct Threshold in input', () => {
+      const element = wrapper.find('.document-threshold').element as HTMLInputElement
+      expect(element.value).toEqual(dynamicRulesDocs[0].thresholds.toString())
+    })
+
+    test('should have tags input component with correct data', () => {
+      const tagAutocompleteInputComponent = wrapper.findComponent(TagAutocompleteInput)
+      expect(tagAutocompleteInputComponent.props('initialTag')).toEqual(dynamicRulesDocs[0].tags.join(' '))
+    })
+
+    test('should not have any warning in the tags table when there are no duplicate tags', () => {
+      const tagsWithWarning = wrapper.findAll('.has-text-danger')
+      expect(tagsWithWarning.length).toEqual(0)
     })
 
     test('should emit correct data after input was changed', async () => {
@@ -121,15 +132,24 @@ describe('DynamicRulesEditor.vue', () => {
 
     test('should emit doc update when adding tags', async () => {
       const newTag = 'test-tag'
+      const newTagInputValue = `${dynamicRulesDocs[0].tags.join(' ')} ${newTag}`
+      console.log('newTagInputValue', newTagInputValue)
       const wantedEmit = JSON.parse(JSON.stringify(dynamicRulesDocs[0]))
-      wantedEmit.include.push(newTag)
-      const newIncludeEntryButton = wrapper.findAll('.add-new-filter-entry-button').at(0)
+      wantedEmit.tags.concat(' newTag')
+      console.log('wantedEmit.tags', wantedEmit.tags)
       // add first
-      await newIncludeEntryButton.trigger('click')
-      const firstTagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
-      firstTagAutocompleteInput.vm.$emit('tag-submitted', newTag)
+      // const newIncludeEntryButton = wrapper.findAll('.add-new-filter-entry-button').at(0)
+      // await newIncludeEntryButton.trigger('click')
+      const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+
+      // const inputTag = firstTagAutocompleteInput.find('.autocomplete-input')
+      // await inputTag.setValue(inputTag.value + newTag)
+      tagAutocompleteInput.vm.$emit('tag-changed', newTagInputValue)
       // check
+      console.log('emitted1', wrapper.vm.selectedDoc)
+      console.log('emitted2', wrapper.emitted('update:selectedDoc').tags)
       expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
+      expect(firstTagAutocompleteInput.vm.selectedDoc[0].tags).toEqual([wantedEmit])
       expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
     })
   })
