@@ -310,6 +310,7 @@ export default defineComponent({
 
     selectedDoc: {
       get(): Document {
+        console.log('this.selectedDocIndex', this.selectedDocIndex, 'docs', this.docs)
         return this.docs[this.selectedDocIndex]
       },
       set(newDoc: Document): void {
@@ -326,6 +327,7 @@ export default defineComponent({
 
     selectedDocIndex(): number {
       if (this.selectedDocID) {
+        console.log('this.selectedDocID', this.selectedDocID)
         return _.findIndex(this.docs, (doc) => {
           return doc.id === this.selectedDocID
         })
@@ -458,7 +460,6 @@ export default defineComponent({
 
       let requestFunction
       let url = ''
-      let response
       if (doctype == 'cloudfunctions') {
         requestFunction = RequestsUtils.sendReblazeRequest
         url = `config/d/cloud-functions/`
@@ -466,7 +467,7 @@ export default defineComponent({
         requestFunction = RequestsUtils.sendRequest
         url = `configs/${branch}/d/${doctype}/`
       }
-      response = await requestFunction({
+      const response = await requestFunction({
         methodName: 'GET',
         url,
         config: {headers: {'x-fields': 'id, name'}},
@@ -476,12 +477,12 @@ export default defineComponent({
           this.isDownloadLoading = false
         },
       })
-
       this.docs = response?.data || []
+
       // After we load the basic data (id and name) we can async load the full data
       this.cancelSource.cancel(`Operation cancelled and restarted for a new document type ${doctype}`)
       this.cancelSource = axios.CancelToken.source()
-      response = await requestFunction({
+      requestFunction({
         methodName: 'GET',
         url,
         config: {cancelToken: this.cancelSource.token},
@@ -490,6 +491,9 @@ export default defineComponent({
           this.docs = []
           this.isDownloadLoading = false
         },
+      }).then((response: AxiosResponse) => {
+        this.docs = response?.data || []
+        this.isDownloadLoading = false
       })
 
       this.updateDocIdNames()

@@ -797,6 +797,7 @@ describe('DocumentEditor.vue', () => {
       if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/e/5828321c37e0/v/`) {
         return Promise.resolve({data: aclDocsLogs[1]})
       }
+
       if (path === `/conf/api/v3/configs/${branch}/d/globalfilters/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve({data: _.map(profilingListDocs, (i) => _.pick(i, 'id', 'name'))})
@@ -851,7 +852,7 @@ describe('DocumentEditor.vue', () => {
       if (path === `/conf/api/v3/configs/${branch}/d/ratelimits/e/f971e92459e2/`) {
         return Promise.resolve({data: rateLimitsDocs[0]})
       }
-      if (path === `/reblaze/api/config/d/cloud-functions/`) {
+      if (path === `/reblaze/api/v1.0/reblaze/config/d/cloud-functions/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve({data: _.map(cloudFunctionsDocs, (i) => _.pick(i, 'id', 'name'))})
         }
@@ -1502,9 +1503,7 @@ describe('DocumentEditor.vue', () => {
       const docTypeSelection = wrapper.find('.doc-type-selection')
       await docTypeSelection.trigger('click')
       const docTypeOptions = docTypeSelection.findAll('option')
-      // 0 1 2 3 all failing
-      console.log('docTypeOptions', docTypeOptions.at(4).element.value)
-      await docTypeSelection.setValue(docTypeOptions.at(4).element.value)
+      await docTypeSelection.setValue(docTypeOptions.at(0).element.value)
       // switch to a different document
       const docSelection = wrapper.find('.doc-selection')
       await docSelection.trigger('click')
@@ -1738,22 +1737,14 @@ describe('DocumentEditor.vue', () => {
     })
 
     test('should attempt to download document when download button is clicked', async () => {
-      // const wantedFileName = 'aclprofiles'
-      // const wantedFileType = 'json'
-      // const wantedFileData = aclDocs // wrapper.vm.docs
-
+      const wantedFileName = 'aclprofiles'
+      const wantedFileType = 'json'
+      const wantedFileData = aclDocs
       const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {
       })
-      // switch to aclprofiles
-      // const docTypeSelection = wrapper.find('.doc-type-selection')
-      // docTypeSelection.element.value = aclprofiles
-      // clicking on downlod button
       const downloadDocButton = wrapper.find('.download-doc-button')
       await downloadDocButton.trigger('click')
-      await nextTick()
-      console.log('isDownloadLoading', wrapper.vm.isDownloadLoading)
-      expect(downloadFileSpy).toHaveBeenCalled()
-      // expect(downloadFileSpy).toHaveBeenCalledWith(wantedFileName, wantedFileType, wantedFileData)
+      expect(downloadFileSpy).toHaveBeenCalledWith(wantedFileName, wantedFileType, wantedFileData)
     })
   })
 
