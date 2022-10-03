@@ -250,6 +250,7 @@ describe('RateLimitsEditor.vue', () => {
       expect(wrapper.vm.localDoc.key.length).toBeGreaterThanOrEqual(1) // 3
       limitOptionsComponent.vm.$emit('remove', 1)
       limitOptionsComponent.vm.$emit('remove', 1)
+      expect(wrapper.vm.localDoc.key.length).toEqual(1)
       limitOptionsComponent.vm.$emit('remove', 1)
       expect(wrapper.vm.localDoc.key.length).toEqual(1)
     })
