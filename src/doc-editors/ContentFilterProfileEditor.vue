@@ -112,7 +112,8 @@
                      class="content-type-option-wrapper mb-3">
                   <label class="checkbox is-size-7">
                     <input type="checkbox"
-                           @change="updateContentType(contentTypeOption.value, $event.target.checked)"
+                           @change="updateContentType(contentTypeOption.value,
+                           ($event.target as HTMLInputElement).checked)"
                            class="checkbox-input"
                            :data-qa="`content-type-${contentTypeOption.value}-checkbox`"
                            :class="`content-type-${contentTypeOption.value}-input`"

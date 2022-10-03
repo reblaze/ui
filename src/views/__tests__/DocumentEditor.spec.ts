@@ -17,6 +17,7 @@ import {
   GlobalFilter,
   RateLimit,
   SecurityPolicy,
+  CloudFunction,
 } from '@/types'
 import {setImmediate, setTimeout} from 'timers'
 import {nextTick} from 'vue'
@@ -38,6 +39,8 @@ describe('DocumentEditor.vue', () => {
   let flowControlPolicyDocs: FlowControlPolicy[]
   let contentFilterDocs: ContentFilterProfile[]
   let rateLimitsDocs: RateLimit[]
+  let cloudFunctionsDocs: CloudFunction[]
+
   beforeEach((done) => {
     gitData = [
       {
@@ -157,6 +160,7 @@ describe('DocumentEditor.vue', () => {
       {
         'id': '__default__',
         'name': 'default-acl',
+        'action': 'default',
         'allow': [],
         'allow_bot': [
           'google',
@@ -175,6 +179,7 @@ describe('DocumentEditor.vue', () => {
       {
         'id': '5828321c37e0',
         'name': 'an ACL',
+        'action': 'default',
         'allow': [],
         'allow_bot': [
           'google',
@@ -553,7 +558,8 @@ describe('DocumentEditor.vue', () => {
             {'relation': 'OR', 'entries': [['ip', '2.2.2.2', null]]},
             {'relation': 'OR', 'entries': [['headers', ['headerrr', 'valueeee'], 'anooo']]}],
         },
-      }, {
+      },
+      {
         'id': '07656fbe',
         'name': 'devop internal demo',
         'source': 'self-managed',
@@ -729,6 +735,14 @@ describe('DocumentEditor.vue', () => {
       'report': [],
       'ignore': [],
     }]
+    cloudFunctionsDocs = [{
+      'id': 'cf-12345678',
+      'name': 'New Cloud Functions',
+      'key': 'cf12345678',
+      'description': 'New Cloud Functions Documentation',
+      'code': 'foo = 12345678',
+      'phase': 'request0',
+    }]
     rateLimitsDocs = [{
       'id': 'f971e92459e2',
       'name': 'Rate Limit Example Rule 5/60',
@@ -745,6 +759,7 @@ describe('DocumentEditor.vue', () => {
       'key': [{'attrs': 'ip'}],
       'pairwith': {'self': 'self'},
     }]
+
     jest.spyOn(axios.CancelToken, 'source').mockImplementation(() => {
       return {
         token: null,
@@ -782,6 +797,7 @@ describe('DocumentEditor.vue', () => {
       if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/e/5828321c37e0/v/`) {
         return Promise.resolve({data: aclDocsLogs[1]})
       }
+
       if (path === `/conf/api/v3/configs/${branch}/d/globalfilters/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve({data: _.map(profilingListDocs, (i) => _.pick(i, 'id', 'name'))})
@@ -835,6 +851,12 @@ describe('DocumentEditor.vue', () => {
       }
       if (path === `/conf/api/v3/configs/${branch}/d/ratelimits/e/f971e92459e2/`) {
         return Promise.resolve({data: rateLimitsDocs[0]})
+      }
+      if (path === `/reblaze/api/v1.0/reblaze/config/d/cloud-functions/`) {
+        if (config && config.headers && config.headers['x-fields'] === 'id, name') {
+          return Promise.resolve({data: _.map(cloudFunctionsDocs, (i) => _.pick(i, 'id', 'name'))})
+        }
+        return Promise.resolve({data: cloudFunctionsDocs[0]})
       }
       if (path === '/conf/api/v3/configs/master/v/') {
         return Promise.resolve({data: gitData[0].logs})

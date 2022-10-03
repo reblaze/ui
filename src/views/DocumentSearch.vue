@@ -141,6 +141,7 @@
 import _ from 'lodash'
 import ACLEditor from '@/doc-editors/ACLEditor.vue'
 import ContentFilterEditor from '@/doc-editors/ContentFilterProfileEditor.vue'
+import CloudFunctionsEditor from '@/doc-editors/CloudFunctionsEditor.vue'
 import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
 import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
 import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
@@ -168,7 +169,7 @@ type ReferencesMap = {
 }
 
 type ComponentTypes = typeof SecurityPoliciesEditor | typeof ACLEditor | typeof FlowControlPolicyEditor |
-typeof GlobalFilterListEditor | typeof RateLimitsEditor | typeof ContentFilterEditor
+typeof GlobalFilterListEditor | typeof RateLimitsEditor | typeof ContentFilterEditor | typeof CloudFunctionsEditor
 export default defineComponent({
 
   name: 'DocumentSearch',
@@ -214,6 +215,11 @@ export default defineComponent({
         component: ContentFilterEditor,
         title: titles['contentfilterprofiles'],
         fields: 'id, name',
+      },
+      'cloudfunctions': {
+        component: CloudFunctionsEditor,
+        title: titles['cloudfunctions'],
+        fields: 'id, name, description, phaze',
       },
     }
 

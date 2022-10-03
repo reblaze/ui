@@ -450,10 +450,60 @@ describe('RateLimitsEditor.vue', () => {
     })
 
     test('should show an appropriate message when there are no available new connections', async () => {
-      const wantedMessage = `All Security Policies entries are currently connected to this Rate Limit`
-      securityPoliciesDocs[0].map[1].limit_ids.push(rateLimitsDocs[0].id)
-      securityPoliciesDocs[1].map[1].limit_ids.push(rateLimitsDocs[0].id)
-      wrapper = shallowMount(RateLimitsEditor, {
+      const wantedMessage = `All Security Policies entries are currently connected to this entity`
+      securityPoliciesDocs = [
+        {
+          'id': '__default__',
+          'name': 'default entry',
+          'match': '__default__',
+          'map': [
+            {
+              'name': 'default',
+              'match': '/',
+              'acl_profile': '__default__',
+              'acl_active': false,
+              'content_filter_profile': '__default__',
+              'content_filter_active': false,
+              'limit_ids': ['f971e92459e2', '365757ec0689'],
+            },
+            {
+              'name': 'entry name',
+              'match': '/login',
+              'acl_profile': '5828321c37e0',
+              'acl_active': false,
+              'content_filter_profile': '009e846e819e',
+              'content_filter_active': false,
+              'limit_ids': ['f971e92459e2', '365757ec0689'],
+            },
+          ],
+        },
+        {
+          'id': '3086b9c5b518',
+          'name': 'copy of default entry',
+          'match': 'www.example.com',
+          'map': [
+            {
+              'name': 'default',
+              'match': '/',
+              'acl_profile': '__default__',
+              'acl_active': false,
+              'content_filter_profile': '__default__',
+              'content_filter_active': false,
+              'limit_ids': ['f971e92459e2', '365757ec0689'],
+            },
+            {
+              'name': 'entry name',
+              'match': '/login',
+              'acl_profile': '5828321c37e0',
+              'acl_active': false,
+              'content_filter_profile': '009e846e819e',
+              'content_filter_active': false,
+              'limit_ids': ['f971e92459e2', '365757ec0689'],
+            },
+          ],
+        },
+      ]
+      wrapper = mount(RateLimitsEditor, {
         props: {
           selectedDoc: rateLimitsDocs[0],
           selectedBranch: 'master',
