@@ -66,62 +66,47 @@
               </div>
             </div>
           </div>
-          <security-policies-connections
-              selectedDocType="cloudfunctions"
-              :selectedDocId="localDoc.id"
-
-              :selectedBranch="selectedBranch">
-          </security-policies-connections>
         </div>
         <span class="is-family-monospace has-text-grey-lighter">{{ apiPath }}</span>
       </div>
     </div>
   </section>
 </template>
-// @go-to-route="emitGoToRoute"
+
 <script lang="ts">
 import _ from 'lodash'
-import {defineComponent} from 'vue'
+import {defineComponent, PropType} from 'vue'
 import {
-  CloudFunctions,
+  CloudFunction,
   CloudFunctionsPhaseType,
 } from '@/types'
-import SecurityPoliciesConnections from '@/components/SecurityPoliciesConnections.vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
-
-export type PhaseOption = 'requestpre' | 'requespost' | 'responsepre' | 'responsepost'
 
 
 export default defineComponent({
   name: 'CloudFunctionsEditor',
   props: {
-    selectedDoc: Object,
+    selectedDoc: Object as PropType<CloudFunction>,
     selectedBranch: String,
     apiPath: String,
     docs: Array,
   },
-  components: {
-    SecurityPoliciesConnections,
-  },
   data() {
     return {
-      cloudPhases: ['requestpre', 'requestpost', 'responsepre', 'responsepost'] as CloudFunctionsPhaseType[],
+      cloudPhases: ['request0', 'request1', 'response0', 'response1'] as CloudFunctionsPhaseType[],
       titles: DatasetsUtils.titles,
     }
   },
   computed: {
-    localDoc(): CloudFunctions {
-      return _.cloneDeep(this.selectedDoc as CloudFunctions)
+    localDoc(): CloudFunction {
+      return _.cloneDeep(this.selectedDoc as CloudFunction)
     },
   },
-  emits: ['update:selectedDoc', 'go-to-route'],
+  emits: ['update:selectedDoc'],
   methods: {
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
     },
-    // emitGoToRoute(url: string) {
-    //   this.$emit('go-to-route', url)
-    // },
   },
 })
 </script>

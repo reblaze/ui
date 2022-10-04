@@ -57,10 +57,11 @@
           </div>
         </div>
         <hr/>
-        <git-history :gitLog="gitLog"
-                     :apiPath="gitAPIPath"
-                     :loading="isGitLogLoading"
-                     @restore-version="restoreGitVersion"></git-history>
+        <git-history v-if="selectedDocType !=='cloudfunctions'"
+                    :gitLog="gitLog"
+                    :apiPath="gitAPIPath"
+                    :loading="isGitLogLoading"
+                    @restore-version="restoreGitVersion"></git-history>
       </div>
 
       <div class="content no-data-wrapper"
@@ -157,6 +158,8 @@ export default defineComponent({
 
       apiRoot: RequestsUtils.confAPIRoot,
       apiVersion: RequestsUtils.confAPIVersion,
+      reblazeAPIRoot: RequestsUtils.reblazeAPIRoot,
+      reblazeAPIVersion: RequestsUtils.reblazeAPIVersion,
       componentsMap: {
         'globalfilters': shallowRef({component: GlobalFilterListEditor}),
         'flowcontrol': shallowRef({component: FlowControlPolicyEditor}),
@@ -169,32 +172,14 @@ export default defineComponent({
         'actions': shallowRef({component: CustomResponseEditor}),
         'dynamicrules': shallowRef({component: DynamicRulesEditor}),
       },
-
-      // for cloudfunctions mock data - remove later
-      cloudFunctionsMockData: [{
-        'id': 'f971e92459e2',
-        'name': 'New Cloud Functions',
-        'description': '5 requests per minute',
-        'phase': 'requestpost',
-        'code': `-- begin custom code
-        --custom response header
-        ngx.header['foo'] = 'bar'`,
-      },
-      {
-        'id': 'f123456789',
-        'name': 'New Cloud Function',
-        'description': '2 requests per minute',
-        'phase': 'responsepost',
-        'code': `-- begin custom code
-        --custom response header
-        ngx.header['foo'] = 'bar'`,
-      }],
     }
   },
   computed: {
     documentListAPIPath(): string {
-      const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
-      return `${apiPrefix}/configs/${this.selectedBranch}/d/${this.selectedDocType}/`
+      if (this.selectedDocType == 'cloudfunctions') {
+        return `${this.reblazeAPIRoot}/${this.reblazeAPIVersion}/config/d/cloud-functions/`
+      }
+      return `${this.apiRoot}/${this.apiVersion}/configs/${this.selectedBranch}/d/${this.selectedDocType}/`
     },
 
     gitAPIPath(): string {
@@ -258,19 +243,27 @@ export default defineComponent({
       this.isDownloadLoading = true
       const branch = this.selectedBranch
       const fieldNames = _.flatMap(this.columns, 'fieldNames')
-      // TODO: mock file to be removed later
-      const response = (doctype == 'cloudfunctions') ?
-        await Promise.resolve({data: this.cloudFunctionsMockData}) :
-        await RequestsUtils.sendRequest({
-          methodName: 'GET',
-          url: `configs/${branch}/d/${doctype}/`,
-          data: {headers: {'x-fields': `id, ${fieldNames.join(', ')}`}},
-          onFail: () => {
-            console.log('Error while attempting to load documents')
-            this.docs = []
-            this.isDownloadLoading = false
-          },
-        })
+
+      let requestFunction
+      let url = ''
+      if (doctype == 'cloudfunctions') {
+        requestFunction = RequestsUtils.sendReblazeRequest
+        url = `config/d/cloud-functions/`
+      } else {
+        requestFunction = RequestsUtils.sendRequest
+        url = `configs/${branch}/d/${doctype}/`
+      }
+      const response = await requestFunction({
+        methodName: 'GET',
+        url: url,
+        config: {headers: {'x-fields': `id, ${fieldNames.join(', ')}`}},
+        onFail: () => {
+          console.log('Error while attempting to load documents')
+          this.docs = []
+          this.isDownloadLoading = false
+        },
+      })
+
       this.docs = response?.data || []
       this.isDownloadLoading = false
       this.loadGitLog()
@@ -307,12 +300,21 @@ export default defineComponent({
       const docTypeText = this.titles[this.selectedDocType + '-singular']
       const successMessage = `New ${docTypeText} was created.`
       const failureMessage = `Failed while attempting to create the new ${docTypeText}.`
-      const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/`
       const data = docToAdd
-      await RequestsUtils.sendRequest({methodName: 'POST', url, data, successMessage, failureMessage})
-        .then(() => {
-          this.editDoc(docToAdd.id)
-        })
+      if (this.selectedDocType === 'cloudfunctions') {
+        const url = `config/d/cloud-functions/e/${docToAdd.id}`
+        console.log('add new doc function', url, data, successMessage)
+        await RequestsUtils.sendReblazeRequest({methodName: 'POST', url, data, successMessage, failureMessage})
+          .then(() => {
+            this.editDoc(docToAdd.id)
+          })
+      } else {
+        const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/`
+        await RequestsUtils.sendRequest({methodName: 'POST', url, data, successMessage, failureMessage})
+          .then(() => {
+            this.editDoc(docToAdd.id)
+          })
+      }
       this.isNewLoading = false
       this.setLoadingDocStatus(false)
     },
@@ -332,6 +334,9 @@ export default defineComponent({
     },
 
     loadGitLog() {
+      if (this.selectedDocType == 'cloudfunctions') {
+        return
+      }
       this.isGitLogLoading = true
       const config = this.selectedBranch
       const document = this.selectedDocType

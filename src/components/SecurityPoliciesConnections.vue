@@ -7,7 +7,7 @@
                 <th class="is-size-7 width-150px">Name</th>
                 <th class="is-size-7 width-120px">ID</th>
                 <th class="is-size-7 ellipsis">Domain Match</th>
-                <th class="is-size-7 ellipsis">Entry Match</th>
+                <th class="is-size-7 width-300px">Entry Match</th>
                 <th class="is-size-7 width-80px has-text-centered">
                   <a v-if="!newSecurityPolicyConnectionOpened"
                      class="has-text-grey-dark is-small new-connection-button"
@@ -162,13 +162,10 @@ import {
   SecurityPolicyEntryMatch,
 } from '@/types'
 
-export type LinkedPath = 'limit_ids' | 'workers'
-export type SelectedDocType = 'ratelimits' | 'cloudfunctions'
-
 
 export default defineComponent({
   name: 'SecurityPolicyConnections',
-  // securitypolicyid securitypolicyentryid
+
   props: {
     selectedDocType: String,
     selectedDocId: String,
@@ -201,11 +198,6 @@ export default defineComponent({
     },
   },
   computed: {
-    linkedPath(): LinkedPath {
-      // return 'limit_ids' no more security policies connections for cloud functions
-      return (this.selectedDocType ==='ratelimits') ? 'limit_ids' : 'workers'
-    },
-
     newSecurityPolicyConnections(): SecurityPolicy[] {
       return this.securityPolicies.filter((securityPolicy) => {
         return !securityPolicy.map.every((securityPolicyEntry) => {
@@ -223,7 +215,7 @@ export default defineComponent({
       })
     },
   },
-  emits: ['update:selectedDoc?', 'go-to-route'],
+  emits: ['go-to-route'],
   methods: {
     referToSecurityPolicy(id: string) {
       this.$emit('go-to-route', `/config/${this.selectedBranch}/securitypolicies/${id}`)
@@ -323,7 +315,6 @@ export default defineComponent({
         url: `configs/${this.selectedBranch}/d/securitypolicies/`,
       }).then((response: AxiosResponse<SecurityPolicy[]>) => {
         this.securityPolicies = _.sortBy(response.data)
-        console.log('load.securityPolicies', this.securityPolicies)
         this.getConnectedSecurityPoliciesEntries()
         this.newSecurityPolicyConnectionData.map =
             this.newSecurityPolicyConnections.length > 0 ? this.newSecurityPolicyConnections[0] : null

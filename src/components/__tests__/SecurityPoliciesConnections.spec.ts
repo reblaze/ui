@@ -4,19 +4,16 @@ import axios from 'axios'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {mount, VueWrapper} from '@vue/test-utils'
 import {RateLimit, SecurityPolicy} from '@/types'
-// import {nextTick} from 'vue'CloudFunctions
 
 
 jest.mock('axios')
 
 describe('SecurityPoliciesConnections.vue', () => {
-  // let rateLimitsDocsId: string[]
   let rateLimitsDocs: RateLimit[]
   let securityPoliciesDocs: SecurityPolicy[]
   let mockRouter: any
   let wrapper: VueWrapper
   beforeEach(() => {
-    // rateLimitsDocsId = ['f971e92459e2']
     rateLimitsDocs = [{
       'id': 'f971e92459e2',
       'name': 'Rate Limit Example Rule 5/60',
@@ -90,22 +87,22 @@ describe('SecurityPoliciesConnections.vue', () => {
       if (path === `/conf/api/v3/configs/${selectedBranch}/d/securitypolicies/`) {
         return Promise.resolve({data: securityPoliciesDocs})
       }
-      return Promise.resolve({data: [{aylon: 'rich'}]})
+      return Promise.resolve({data: []})
     })
     mockRouter = {
       push: jest.fn(),
     }
 
-    // const onUpdate = async (selectedDocId: RateLimit) => {
-    //   await wrapper.setProps({selectedDocId})
-    // }
+    const onUpdate = async (selectedDocId: RateLimit) => {
+      await wrapper.setProps({selectedDocId})
+    }
 
     wrapper = mount(SecurityPoliciesConnections, {
       props: {
         'selectedDocId': 'f971e92459e2',
         'selectedDocType': 'ratelimits',
         'selectedBranch': selectedBranch,
-      //  'onUpdate:selectedDoc': onUpdate,
+        'onUpdate:selectedDoc': onUpdate,
       },
       global: {
         mocks: {
@@ -217,6 +214,56 @@ describe('SecurityPoliciesConnections.vue', () => {
       expect(newConnectionRow.text()).toEqual(wantedMessage)
     })
 
+    test('should show an appropriate message when there are no available new connections for cloudFunctionsEditor page',
+      async () => {
+        const wantedMessage = `All Security Policies entries are currently connected to this entity`
+        securityPoliciesDocs = [
+          {
+            'id': '__default__',
+            'name': 'default entry',
+            'match': '__default__',
+            'map': [
+              {
+                'name': 'default',
+                'match': '/',
+                'acl_profile': '__default__',
+                'acl_active': false,
+                'content_filter_profile': '__default__',
+                'content_filter_active': false,
+                'limit_ids': ['f123456789', 'f971e92459e2'],
+              },
+              {
+                'name': 'entry name',
+                'match': '/login',
+                'acl_profile': '5828321c37e0',
+                'acl_active': false,
+                'content_filter_profile': '009e846e819e',
+                'content_filter_active': false,
+                'limit_ids': ['f971e92459e2', 'f123456789'],
+              },
+            ],
+          },
+        ]
+        const selectedBranch = 'master'
+        jest.spyOn(axios, 'get').mockImplementation((path) => {
+          if (path === `/conf/api/v3/configs/${selectedBranch}/d/securitypolicies/`) {
+            return Promise.resolve({data: securityPoliciesDocs})
+          }
+          return Promise.resolve({data: []})
+        })
+        wrapper = mount(SecurityPoliciesConnections, {
+          props: {
+            selectedDocId: 'f123456789',
+            selectedDocType: 'cloudfunctions',
+            selectedBranch: 'master',
+          },
+        })
+        const newConnectionButton = wrapper.find('.new-connection-button')
+        await newConnectionButton.trigger('click')
+        const newConnectionRow = wrapper.find('.new-connection-row')
+        expect(newConnectionRow.text()).toEqual(wantedMessage)
+      })
+
     test('should hide the new connection row when `-` button is clicked', async () => {
       let newConnectionButton = wrapper.find('.new-connection-button')
       await newConnectionButton.trigger('click')
@@ -259,66 +306,11 @@ describe('SecurityPoliciesConnections.vue', () => {
 
     test('should not send request to change Security Policy when removing connection was cancelled', async () => {
       const putSpy = jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
-
-      console.log('this.securityPolicies', wrapper.vm.securityPolicies,
-      'selectedDocType', wrapper.vm.selectedDocType)
-      console.log('connectedSecurityPoliciesEntries entry', wrapper.vm.connectedSecurityPoliciesEntries)
       const removeConnectionButton = wrapper.findAll('.remove-connection-button').at(0)
       await removeConnectionButton.trigger('click')
       const cancelRemoveConnectionButton = wrapper.find('.cancel-remove-connection-button')
       await cancelRemoveConnectionButton.trigger('click')
       expect(putSpy).not.toHaveBeenCalled()
     })
-
-
-    test.skip('should show an appropriate message when no available new connections for cloudFunctions',
-      async () => {
-        const wantedMessage = `All Security Policies entries are currently connected to this entity`
-        securityPoliciesDocs = [
-          {
-            'id': '__default__',
-            'name': 'default entry',
-            'match': '__default__',
-            'map': [
-              {
-                'name': 'default',
-                'match': '/',
-                'acl_profile': '__default__',
-                'acl_active': false,
-                'content_filter_profile': '__default__',
-                'content_filter_active': false,
-                'workers': ['f123456789', 'f971e92459e2'],
-              },
-              {
-                'name': 'entry name',
-                'match': '/login',
-                'acl_profile': '5828321c37e0',
-                'acl_active': false,
-                'content_filter_profile': '009e846e819e',
-                'content_filter_active': false,
-                'workers': ['f971e92459e2', 'f123456789'],
-              },
-            ],
-          },
-        ]
-        const selectedBranch = 'master'
-        jest.spyOn(axios, 'get').mockImplementation((path) => {
-          if (path === `/conf/api/v3/configs/${selectedBranch}/d/securitypolicies/`) {
-            return Promise.resolve({data: securityPoliciesDocs})
-          }
-          return Promise.resolve({data: []})
-        })
-        // wrapper = mount(SecurityPoliciesConnections, {
-        //   props: {
-        //     selectedDocId: 'f123456789',
-        //     selectedDocType: 'cloudfunctions',
-        //     selectedBranch: 'master',
-        //   },
-        // })
-        const newConnectionButton = wrapper.find('.new-connection-button')
-        await newConnectionButton.trigger('click')
-        const newConnectionRow = wrapper.find('.new-connection-row')
-        expect(newConnectionRow.text()).toEqual(wantedMessage)
-      })
   })
 })

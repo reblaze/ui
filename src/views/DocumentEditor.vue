@@ -167,7 +167,7 @@
             ref="currentComponent">
         </component>
         <hr/>
-        <git-history v-if="selectedDocID"
+        <git-history v-if="selectedDocID && selectedDocType !== 'cloudfunctions'"
                      :gitLog="gitLog"
                      :apiPath="gitAPIPath"
                      :loading="loadingGitlog"
@@ -232,25 +232,6 @@ import {defineComponent, shallowRef} from 'vue'
 import {Commit, Document, DocumentType, HttpRequestMethods, SecurityPolicy} from '@/types'
 import axios, {AxiosResponse} from 'axios'
 
-// TODO: mock file to be removed later
-const cloudFunctionsMockData = [{
-  'id': 'f971e92459e2',
-  'name': 'New Cloud Functions',
-  'description': '5 requests per minute',
-  'phase': 'requestpost',
-  'code': `-- begin custom code
-  --custom response header
-  ngx.header['foo'] = 'bar'`,
-},
-{
-  'id': 'f123456789',
-  'name': 'New Cloud Function',
-  'description': '2 requests per minute',
-  'phase': 'responsepost',
-  'code': `-- begin custom code
-  --custom response header
-  ngx.header['foo'] = 'bar'`,
-}]
 
 export default defineComponent({
   name: 'DocumentEditor',
@@ -285,6 +266,7 @@ export default defineComponent({
       docs: [] as Document[],
       docIdNames: [] as [Document['id'], Document['name']][],
       selectedDocID: null,
+      newDocName: null as string,
       cancelSource: axios.CancelToken.source(),
       isDownloadLoading: false,
       isDocumentInvalid: false,
@@ -314,6 +296,9 @@ export default defineComponent({
 
     documentAPIPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
+      if (this.selectedDocType === 'cloudfunctions') {
+        return `/config/d/cloud-functions/e/${this.selectedDocID}`
+      }
       return `${apiPrefix}/configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`
     },
 
@@ -457,16 +442,17 @@ export default defineComponent({
       // check if the selected doc only has id and name, if it does, attempt to load the rest of the document data
       if (this.selectedDoc && Object.keys(this.selectedDoc).length === 2) {
         let response
-        // TODO: mock file to be removed later
         if (this.selectedDocType == 'cloudfunctions') {
-          response = await Promise.resolve({data: cloudFunctionsMockData})
+          response = await RequestsUtils.sendReblazeRequest({
+            methodName: 'GET',
+            url: `config/d/cloud-functions/e/${this.selectedDocID}/`,
+          })
         } else {
           response = await RequestsUtils.sendRequest({
             methodName: 'GET',
             url: `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`,
           })
         }
-        console.log('response?.data', response?.data)
         this.selectedDoc = response?.data || this.selectedDoc
       }
       this.setLoadingDocStatus(false)
@@ -475,42 +461,44 @@ export default defineComponent({
     async loadDocs(doctype: DocumentType, skipDocSelection?: boolean) {
       this.isDownloadLoading = true
       const branch = this.selectedBranch
-      let response
-      // TODO: mock file to be removed later
+
+      let requestFunction
+      let url = ''
       if (doctype == 'cloudfunctions') {
-        response = await Promise.resolve({data: cloudFunctionsMockData})
+        requestFunction = RequestsUtils.sendReblazeRequest
+        url = `config/d/cloud-functions/`
       } else {
-        response = await RequestsUtils.sendRequest({
-          methodName: 'GET',
-          url: `configs/${branch}/d/${doctype}/`,
-          data: {headers: {'x-fields': 'id, name'}},
-          onFail: () => {
-            console.log('Error while attempting to load documents')
-            this.docs = []
-            this.isDownloadLoading = false
-          },
-        })
+        requestFunction = RequestsUtils.sendRequest
+        url = `configs/${branch}/d/${doctype}/`
       }
+      const response = await requestFunction({
+        methodName: 'GET',
+        url,
+        config: {headers: {'x-fields': 'id, name'}},
+        onFail: () => {
+          console.log('Error while attempting to load documents')
+          this.docs = []
+          this.isDownloadLoading = false
+        },
+      })
       this.docs = response?.data || []
+
       // After we load the basic data (id and name) we can async load the full data
       this.cancelSource.cancel(`Operation cancelled and restarted for a new document type ${doctype}`)
       this.cancelSource = axios.CancelToken.source()
-      // TODO: mock file to be removed later
-      if (doctype == 'cloudfunctions') {
-        Promise.resolve({data: cloudFunctionsMockData as any}).then((response: any) => {
-          this.docs = response?.data || []
+      requestFunction({
+        methodName: 'GET',
+        url,
+        config: {cancelToken: this.cancelSource.token},
+        onFail: () => {
+          console.log('Error while attempting to load documents')
+          this.docs = []
           this.isDownloadLoading = false
-        })
-      } else {
-        RequestsUtils.sendRequest({
-          methodName: 'GET',
-          url: `configs/${branch}/d/${doctype}/`,
-          config: {cancelToken: this.cancelSource.token},
-        }).then((response: AxiosResponse) => {
-          this.docs = response?.data || []
-          this.isDownloadLoading = false
-        })
-      }
+        },
+      }).then((response: AxiosResponse) => {
+        this.docs = response?.data || []
+        this.isDownloadLoading = false
+      })
 
       this.updateDocIdNames()
       if (this.docIdNames && this.docIdNames.length && this.docIdNames[0].length) {
@@ -523,17 +511,17 @@ export default defineComponent({
         this.addMissingDefaultsToDoc()
       }
       this.loadGitLog()
+      this.isDownloadLoading = false
     },
 
     loadGitLog(interaction?: boolean) {
+      if (this.selectedDocType == 'cloudfunctions') {
+        return
+      }
       this.loadingGitlog = true
       const config = this.selectedBranch
       const document = this.selectedDocType
-      let entry = this.selectedDocID
-      // TODO remove this mock
-      if (document==='cloudfunctions') {
-        entry = 'f971e92459e2'
-      }
+      const entry = this.selectedDocID
       const url = `configs/${config}/d/${document}/e/${entry}/v/`
       if (config && document && entry) {
         RequestsUtils.sendRequest({methodName: 'GET', url}).then((response: AxiosResponse<Commit[]>) => {
@@ -615,6 +603,7 @@ export default defineComponent({
       this.resetGitLog()
       this.docs.unshift(docToAdd)
       this.selectedDocID = docToAdd.id
+      this.newDocName = docToAdd.name
       const docTypeText = this.titles[this.selectedDocType + '-singular']
       if (!successMessage) {
         successMessage = `New ${docTypeText} was created.`
@@ -630,14 +619,6 @@ export default defineComponent({
 
     async saveChanges(methodName?: HttpRequestMethods, successMessage?: string, failureMessage?: string) {
       this.isSaveLoading = true
-      if (!methodName) {
-        methodName = 'PUT'
-      }
-      let url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/`
-      if (methodName !== 'POST') {
-        url += `${this.selectedDocID}/`
-      }
-      const data = this.selectedDoc
 
       const docTypeText = this.titles[this.selectedDocType + '-singular']
       if (!successMessage) {
@@ -646,7 +627,25 @@ export default defineComponent({
       if (!failureMessage) {
         failureMessage = `Failed while attempting to save the changes to the ${docTypeText}.`
       }
-      await RequestsUtils.sendRequest({methodName, url, data, successMessage, failureMessage}).then(() => {
+
+      if (!methodName) {
+        methodName = 'PUT'
+      }
+
+      const data = this.selectedDoc
+      let requestFunction
+      let url = ''
+      if (this.selectedDocType == 'cloudfunctions') {
+        requestFunction = RequestsUtils.sendReblazeRequest
+        url = `config/d/cloud-functions/e/${this.selectedDocID}/`
+      } else {
+        requestFunction = RequestsUtils.sendRequest
+        url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/`
+        if (methodName !== 'POST') {
+          url += `${this.selectedDocID}/`
+        }
+      }
+      await requestFunction({methodName, url, data, successMessage, failureMessage}).then(() => {
         this.updateDocIdNames()
         this.loadGitLog(true)
         // If the saved doc was a security policy, refresh the referenced IDs lists
@@ -654,6 +653,7 @@ export default defineComponent({
           this.loadReferencedDocsIDs()
         }
       })
+
       this.isSaveLoading = false
     },
 
@@ -664,15 +664,22 @@ export default defineComponent({
       const docTypeText = this.titles[this.selectedDocType + '-singular']
       const successMessage = `The ${docTypeText} was deleted.`
       const failureMessage = `Failed while attempting to delete the ${docTypeText}.`
-      await RequestsUtils.sendRequest({
-        methodName: 'DELETE',
-        url: `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`,
-        successMessage,
-        failureMessage,
-      }).then(() => {
-        this.updateDocIdNames()
-        this.loadGitLog(true)
-      })
+      let requestFunction
+      let url = ''
+      const methodName = 'DELETE'
+      if (this.selectedDocType == 'cloudfunctions') {
+        requestFunction = RequestsUtils.sendReblazeRequest
+        url = `config/d/cloud-functions/e/${this.selectedDocID}/`
+      } else {
+        requestFunction = RequestsUtils.sendRequest
+        url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`
+      }
+      await requestFunction({methodName, url, successMessage, failureMessage})
+        .then(() => {
+          this.updateDocIdNames()
+          this.loadGitLog(true)
+        })
+
       this.selectedDocID = this.docs[0].id
       await this.loadSelectedDocData()
       this.addMissingDefaultsToDoc()

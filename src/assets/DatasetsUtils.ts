@@ -7,7 +7,7 @@ import {
   HttpRequestMethods,
   RateLimit,
   SecurityPolicy,
-  CloudFunctions,
+  CloudFunction,
   DynamicRules,
 } from '@/types'
 
@@ -44,7 +44,6 @@ const titles: { [key: string]: string } = {
   'attrs-entry': 'Attribute',
   'aclprofiles': 'ACL Profiles',
   'aclprofiles-singular': 'ACL Profile',
-  'cloudfunctions': 'Cloud Functions',
   'dynamicrules': 'Dynamic Rules',
   'ratelimits': 'Rate Limits',
   'ratelimits-singular': 'Rate Limit',
@@ -54,6 +53,8 @@ const titles: { [key: string]: string } = {
   'contentfilterprofiles-singular': 'Content Filter Profile',
   'contentfilterrules': 'Content Filter Rules',
   'contentfilterrules-singular': 'Content Filter Rule',
+  'cloudfunctions': 'Cloud Functions',
+  'cloudfunctions-singular': 'Cloud Function',
   'globalfilters': 'Global Filters',
   'globalfilters-singular': 'Global Filter',
   'flowcontrol': 'Flow Control Policies',
@@ -63,10 +64,10 @@ const titles: { [key: string]: string } = {
   'active': 'Active',
   'report': 'Report',
   'ignore': 'Ignore',
-  'requestpre': 'Request Pre Reblaze',
-  'requestpost': 'Request Post Reblaze',
-  'responsepre': 'Response Pre Reblaze',
-  'responsepost': 'Response Post Reblaze',
+  'request0': 'Request Pre Reblaze',
+  'request1': 'Request Post Reblaze',
+  'response0': 'Response Pre Reblaze',
+  'response1': 'Response Post Reblaze',
 }
 
 const limitOptionsTypes = {
@@ -258,12 +259,12 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  cloudfunctions(): CloudFunctions {
+  cloudfunctions(): CloudFunction {
     return {
       'id': generateUUID2(),
       'name': 'New Cloud Function',
       'description': 'New Cloud Function Description and Remarks',
-      'phase': 'requestpost',
+      'phase': 'request1',
       'code': `-- begin custom code
         --custom response header
         ngx.header['foo'] = 'bar'`,
