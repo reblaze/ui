@@ -238,21 +238,23 @@ describe('RateLimitsEditor.vue', () => {
     })
 
     test('should remove key when remove event occurs', async () => {
+      expect(wrapper.vm.localDoc.key.length).toEqual(3) // default has 3 atributes keys
       const addKeyButton = wrapper.find('.add-key-button')
       await addKeyButton.trigger('click')
+      expect(wrapper.vm.localDoc.key.length).toEqual(4) // plus 1 = 4
       const limitOptionsComponent = wrapper.findComponent(LimitOption)
       limitOptionsComponent.vm.$emit('remove', 1)
-      expect(wrapper.vm.localDoc.key.length).toEqual(3)
+      expect(wrapper.vm.localDoc.key.length).toEqual(3) // minus 1 = 3
     })
 
     test('should not be able to remove key when only one key exists', () => {
+      expect(wrapper.vm.localDoc.key.length).toEqual(3) // default has 3 atributes keys
       const limitOptionsComponent = wrapper.findComponent(LimitOption)
-      expect(wrapper.vm.localDoc.key.length).toBeGreaterThanOrEqual(1) // 3
       limitOptionsComponent.vm.$emit('remove', 1)
       limitOptionsComponent.vm.$emit('remove', 1)
-      expect(wrapper.vm.localDoc.key.length).toEqual(1)
+      expect(wrapper.vm.localDoc.key.length).toEqual(1) // remove 2 remain 1
       limitOptionsComponent.vm.$emit('remove', 1)
-      expect(wrapper.vm.localDoc.key.length).toEqual(1)
+      expect(wrapper.vm.localDoc.key.length).toEqual(1) // trying to remove 1 more failes, cannot be 0
     })
 
     test('should update key when change event occurs', async () => {
