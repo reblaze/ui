@@ -82,7 +82,8 @@ declare module CuriefenseClient {
  
   type Document =
     BasicDocument
-    & (ACLProfile | CloudFunction | ContentFilterProfile | ContentFilterRule | CustomResponse | FlowControlPolicy | GlobalFilter | RateLimit | SecurityPolicy)
+    & (ACLProfile | CloudFunction | ContentFilterProfile | ContentFilterRule | CustomResponse |
+      DynamicRule | FlowControlPolicy | GlobalFilter | RateLimit | SecurityPolicy)
 
   type DocumentType =
     'aclprofiles'
@@ -176,12 +177,14 @@ declare module CuriefenseClient {
     match?: string,
   }
 
-  type DynamicRules = {
+  type DynamicRule = {
     id: string
     name: string
+    active: boolean
     description: string
     timeframe: number
     thresholds: number
+    action: string
     exclude: string[]
     include: string[]
     tags: string[]

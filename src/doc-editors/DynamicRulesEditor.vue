@@ -21,6 +21,16 @@
                          @change="emitDocUpdate"
                          v-model="localDoc.name"/>
                 </div>
+                <div class="field">
+              <label class="checkbox is-size-7">
+                <input type="checkbox"
+                       data-qa="active-checkbox"
+                       class="document-active"
+                       @change="emitDocUpdate"
+                       v-model="localDoc.active">
+                Active
+              </label>
+            </div>
               </div>
               <div class="field textarea-field">
                 <label class="label is-small">Description</label>
@@ -62,6 +72,20 @@
                          v-model="localDoc.thresholds">
                 </div>
               </div>
+
+              <div class="field">
+                    <label class="label is-small">
+                      Action
+                    </label>
+                    <div class="control">
+                      <input class="input is-small document-action"
+                             title="Action"
+                             data-qa="action-input"
+                             placeholder="Action"
+                             @change="emitDocUpdate"
+                             v-model="localDoc.action"/>
+                    </div>
+                </div>
               <div class="field">
                 <label class="label is-small">Tags</label>
                 <div class="control"
@@ -147,7 +171,7 @@ import {defineComponent} from 'vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import {
   Dictionary,
-  DynamicRules,
+  DynamicRule,
   IncludeExcludeType,
 } from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
@@ -159,7 +183,6 @@ export default defineComponent({
     selectedDoc: Object,
     selectedBranch: String,
     apiPath: String,
-  // docs: Array,
   },
   components: {
     TagAutocompleteInput,
@@ -173,8 +196,8 @@ export default defineComponent({
     }
   },
   computed: {
-    localDoc(): DynamicRules {
-      return _.cloneDeep(this.selectedDoc as DynamicRules)
+    localDoc(): DynamicRule {
+      return _.cloneDeep(this.selectedDoc as DynamicRule)
     },
     duplicateTags(): Dictionary<string> {
       const doc = this.localDoc

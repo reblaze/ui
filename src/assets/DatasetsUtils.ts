@@ -8,7 +8,7 @@ import {
   RateLimit,
   SecurityPolicy,
   CloudFunction,
-  DynamicRules,
+  DynamicRule,
 } from '@/types'
 
 const titles: { [key: string]: string } = {
@@ -271,13 +271,15 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  dynamicrules(): DynamicRules {
+  dynamicrules(): DynamicRule {
     return {
       'id': generateUUID2(),
       'name': 'New Dynamic Rules',
       'description': 'New Dynamic Rules Description and Remarks',
       'timeframe': 30,
       'thresholds': 250,
+      'action': 'dynamic',
+      'active': false,
       'tags': ['default dynamic rule'],
       'include': ['all'],
       'exclude': [],

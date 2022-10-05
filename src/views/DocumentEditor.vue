@@ -354,9 +354,7 @@ export default defineComponent({
       }
       return false
     },
-
   },
-
   methods: {
 
     async goToRoute(newRoute?: string) {
@@ -454,6 +452,22 @@ export default defineComponent({
           })
         }
         this.selectedDoc = response?.data || this.selectedDoc
+        console.log('selectedDoc:', this.selectedDoc)
+        let globalResponse
+        if (this.selectedDocType == 'dynamicrules') {
+          // get action to reblaze
+          // get doc to conf server
+          // this.docs.map(doc => {
+          globalResponse = RequestsUtils.sendRequest({
+            methodName: 'GET',
+            config: {headers: {'x-fields': 'id, active, action'}},
+            url: `configs/${this.selectedBranch}/d/globalfilters/e/dr_${this.selectedDocID}/`,
+          })
+          const globalDoc = globalResponse?.data
+          console.log('globalDoc', globalDoc)
+          // this.selectedDoc = {...this.selectedDoc, active: globalDoc.active, action: globalDoc.action}
+          // this.selectedDoc.action = globalDoc.action
+        }
       }
       this.setLoadingDocStatus(false)
     },
@@ -499,7 +513,25 @@ export default defineComponent({
         this.docs = response?.data || []
         this.isDownloadLoading = false
       })
-
+      console.log('this.docs', this.docs)
+      let globalDocs
+      if (this.selectedDocType == 'dynamicrules') {
+        // get action to reblaze
+        // get doc to conf server
+        RequestsUtils.sendRequest({
+          methodName: 'GET',
+          config: {headers: {'x-fields': 'id, active, action'}},
+          url: `configs/${branch}/d/globalfilters/`,
+        }).then(
+          globalDocs = response?.data,
+          console.log('globalDocs', globalDocs),
+          // this.docs = {...this.docs[0], active: globalDoc.active, action: globalDoc.action}
+        )
+        // this.docs = globalDocs.map(doc => {
+        //   this.selectedDoc.active = globalResponse.active
+        //   this.selectedDoc.action = globalResponse.action
+        // })
+      }
       this.updateDocIdNames()
       if (this.docIdNames && this.docIdNames.length && this.docIdNames[0].length) {
         if (!skipDocSelection || !_.find(this.docIdNames, (idName: [Document['id'], Document['name']]) => {
@@ -645,7 +677,8 @@ export default defineComponent({
           url += `${this.selectedDocID}/`
         }
       }
-      await requestFunction({methodName, url, data, successMessage, failureMessage}).then(() => {
+
+      requestFunction({methodName, url, data, successMessage, failureMessage}).then(() => {
         this.updateDocIdNames()
         this.loadGitLog(true)
         // If the saved doc was a security policy, refresh the referenced IDs lists
@@ -653,6 +686,28 @@ export default defineComponent({
           this.loadReferencedDocsIDs()
         }
       })
+
+      if (this.selectedDocType == 'dynamicrules') {
+        // save action to reblaze
+        // save doc to conf server
+        url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${this.selectedDocID}/`
+        console.log('this.selectedDocID', this.selectedDocID, 'this.selectedDoc.id', this.selectedDoc.id)
+        // globalData
+        // const data = {
+        //   'id': `dr_${this.selectedDoc.id}`,
+        //   'active': this.selectedDoc.active,
+        //   'action': this.selectedDoc.action,
+        // }
+        // const data = {...this.selectedDoc,
+        //   id: `dr_${this.selectedDoc.id}`,
+        //   active: this.selectedDoc.active,
+        //   action: this.selectedDoc.action
+        // }
+        // await requestFunction({methodName, url, data, successMessage, failureMessage}).then(() => {
+        //  // this.updateDocIdNames()
+        //  // this.loadGitLog(true)
+        // })
+      }
 
       this.isSaveLoading = false
     },
@@ -757,7 +812,6 @@ export default defineComponent({
     this.loadReferencedDocsIDs()
     this.setLoadingDocStatus(false)
   },
-
 })
 </script>
 <style scoped lang="scss">
