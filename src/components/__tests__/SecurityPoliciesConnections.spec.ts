@@ -214,56 +214,6 @@ describe('SecurityPoliciesConnections.vue', () => {
       expect(newConnectionRow.text()).toEqual(wantedMessage)
     })
 
-    test('should show an appropriate message when there are no available new connections for cloudFunctionsEditor page',
-      async () => {
-        const wantedMessage = `All Security Policies entries are currently connected to this entity`
-        securityPoliciesDocs = [
-          {
-            'id': '__default__',
-            'name': 'default entry',
-            'match': '__default__',
-            'map': [
-              {
-                'name': 'default',
-                'match': '/',
-                'acl_profile': '__default__',
-                'acl_active': false,
-                'content_filter_profile': '__default__',
-                'content_filter_active': false,
-                'limit_ids': ['f123456789', 'f971e92459e2'],
-              },
-              {
-                'name': 'entry name',
-                'match': '/login',
-                'acl_profile': '5828321c37e0',
-                'acl_active': false,
-                'content_filter_profile': '009e846e819e',
-                'content_filter_active': false,
-                'limit_ids': ['f971e92459e2', 'f123456789'],
-              },
-            ],
-          },
-        ]
-        const selectedBranch = 'master'
-        jest.spyOn(axios, 'get').mockImplementation((path) => {
-          if (path === `/conf/api/v3/configs/${selectedBranch}/d/securitypolicies/`) {
-            return Promise.resolve({data: securityPoliciesDocs})
-          }
-          return Promise.resolve({data: []})
-        })
-        wrapper = mount(SecurityPoliciesConnections, {
-          props: {
-            selectedDocId: 'f123456789',
-            selectedDocType: 'cloudfunctions',
-            selectedBranch: 'master',
-          },
-        })
-        const newConnectionButton = wrapper.find('.new-connection-button')
-        await newConnectionButton.trigger('click')
-        const newConnectionRow = wrapper.find('.new-connection-row')
-        expect(newConnectionRow.text()).toEqual(wantedMessage)
-      })
-
     test('should hide the new connection row when `-` button is clicked', async () => {
       let newConnectionButton = wrapper.find('.new-connection-button')
       await newConnectionButton.trigger('click')

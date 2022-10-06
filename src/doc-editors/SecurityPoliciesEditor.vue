@@ -70,7 +70,7 @@
                     :title="mapEntry.name">
                   {{ mapEntry.name }}
                 </td>
-                <td class="is-size-7 width-360px ellipsis entry-match"
+                <td class="is-size-7 width-400px ellipsis entry-match"
                     colspan="2"
                     :title="mapEntry.match">
                   {{ mapEntry.match }}
@@ -85,11 +85,11 @@
                     :title="mapEntry.acl_active ? 'Active mode' : 'Learning mode'">
                   {{ aclProfileName(mapEntry.acl_profile) }}
                 </td>
-                <td class="is-size-7 entry-rate-limits-count"
+                <td class="is-size-7 width-50px entry-rate-limits-count"
                     v-if="existingRateLimitIDs(mapEntry)">
                   {{ existingRateLimitIDs(mapEntry).length }}
                 </td>
-                <td class="is-size-7"
+                <td class="is-size-7 width-70px"
                     :rowspan="mapEntryIndex === mapIndex ? '2' : '1'">
                   <a class="has-text-grey"
                      title="more details"
@@ -110,6 +110,7 @@
                             <div class="field">
                               <label class="label is-small">
                                 Name
+                                <span>{{mapEntry.id}}</span>
                               </label>
                               <div class="control">
                                 <input class="input is-small current-entry-name"
