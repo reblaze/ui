@@ -167,7 +167,7 @@
             ref="currentComponent">
         </component>
         <hr/>
-        <git-history v-if="selectedDocID"
+        <git-history v-if="selectedDocID && selectedDocType !== 'cloudfunctions'"
                      :gitLog="gitLog"
                      :apiPath="gitAPIPath"
                      :loading="loadingGitlog"
@@ -221,6 +221,7 @@ import ContentFilterEditor from '@/doc-editors/ContentFilterProfileEditor.vue'
 import ContentFilterRulesEditor from '@/doc-editors/ContentFilterRulesEditor.vue'
 import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
 import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
+import CloudFunctionsEditor from '@/doc-editors/CloudFunctionsEditor.vue'
 import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
 import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
 import CustomResponseEditor from '@/doc-editors/CustomResponseEditor.vue'
@@ -229,6 +230,7 @@ import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
 import {defineComponent, shallowRef} from 'vue'
 import {Commit, Document, DocumentType, HttpRequestMethods, SecurityPolicy} from '@/types'
 import axios, {AxiosResponse} from 'axios'
+
 
 export default defineComponent({
   name: 'DocumentEditor',
@@ -254,6 +256,7 @@ export default defineComponent({
       referencedIDsACL: [],
       referencedIDsContentFilter: [],
       referencedIDsLimits: [],
+      referencedIDsCloudFunctions: [],
 
       selectedBranch: null,
       selectedDocType: null as DocumentType,
@@ -261,6 +264,7 @@ export default defineComponent({
       docs: [] as Document[],
       docIdNames: [] as [Document['id'], Document['name']][],
       selectedDocID: null,
+      newDocName: null as string,
       cancelSource: axios.CancelToken.source(),
       isDownloadLoading: false,
       isDocumentInvalid: false,
@@ -278,6 +282,7 @@ export default defineComponent({
         'aclprofiles': shallowRef({component: ACLEditor}),
         'contentfilterprofiles': shallowRef({component: ContentFilterEditor}),
         'contentfilterrules': shallowRef({component: ContentFilterRulesEditor}),
+        'cloudfunctions': shallowRef({component: CloudFunctionsEditor}),
         'actions': shallowRef({component: CustomResponseEditor}),
       },
       apiRoot: RequestsUtils.confAPIRoot,
@@ -288,6 +293,9 @@ export default defineComponent({
 
     documentAPIPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
+      if (this.selectedDocType === 'cloudfunctions') {
+        return `/config/d/cloud-functions/e/${this.selectedDocID}`
+      }
       return `${apiPrefix}/configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`
     },
 
@@ -334,6 +342,9 @@ export default defineComponent({
       }
       if (this.selectedDocType === 'ratelimits') {
         return this.referencedIDsLimits.includes(this.selectedDocID)
+      }
+      if (this.selectedDocType === 'cloudfunctions') {
+        return this.referencedIDsCloudFunctions.includes(this.selectedDocID)
       }
       return false
     },
@@ -424,10 +435,18 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       // check if the selected doc only has id and name, if it does, attempt to load the rest of the document data
       if (this.selectedDoc && Object.keys(this.selectedDoc).length === 2) {
-        const response = await RequestsUtils.sendRequest({
-          methodName: 'GET',
-          url: `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`,
-        })
+        let response
+        if (this.selectedDocType == 'cloudfunctions') {
+          response = await RequestsUtils.sendReblazeRequest({
+            methodName: 'GET',
+            url: `config/d/cloud-functions/e/${this.selectedDocID}/`,
+          })
+        } else {
+          response = await RequestsUtils.sendRequest({
+            methodName: 'GET',
+            url: `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`,
+          })
+        }
         this.selectedDoc = response?.data || this.selectedDoc
       }
       this.setLoadingDocStatus(false)
@@ -436,10 +455,20 @@ export default defineComponent({
     async loadDocs(doctype: DocumentType, skipDocSelection?: boolean) {
       this.isDownloadLoading = true
       const branch = this.selectedBranch
-      const response = await RequestsUtils.sendRequest({
+
+      let requestFunction
+      let url = ''
+      if (doctype == 'cloudfunctions') {
+        requestFunction = RequestsUtils.sendReblazeRequest
+        url = `config/d/cloud-functions/`
+      } else {
+        requestFunction = RequestsUtils.sendRequest
+        url = `configs/${branch}/d/${doctype}/`
+      }
+      const response = await requestFunction({
         methodName: 'GET',
-        url: `configs/${branch}/d/${doctype}/`,
-        data: {headers: {'x-fields': 'id, name'}},
+        url,
+        config: {headers: {'x-fields': 'id, name'}},
         onFail: () => {
           console.log('Error while attempting to load documents')
           this.docs = []
@@ -447,17 +476,24 @@ export default defineComponent({
         },
       })
       this.docs = response?.data || []
+
       // After we load the basic data (id and name) we can async load the full data
       this.cancelSource.cancel(`Operation cancelled and restarted for a new document type ${doctype}`)
       this.cancelSource = axios.CancelToken.source()
-      RequestsUtils.sendRequest({
+      requestFunction({
         methodName: 'GET',
-        url: `configs/${branch}/d/${doctype}/`,
+        url,
         config: {cancelToken: this.cancelSource.token},
+        onFail: () => {
+          console.log('Error while attempting to load documents')
+          this.docs = []
+          this.isDownloadLoading = false
+        },
       }).then((response: AxiosResponse) => {
         this.docs = response?.data || []
         this.isDownloadLoading = false
       })
+
       this.updateDocIdNames()
       if (this.docIdNames && this.docIdNames.length && this.docIdNames[0].length) {
         if (!skipDocSelection || !_.find(this.docIdNames, (idName: [Document['id'], Document['name']]) => {
@@ -469,9 +505,13 @@ export default defineComponent({
         this.addMissingDefaultsToDoc()
       }
       this.loadGitLog()
+      this.isDownloadLoading = false
     },
 
     loadGitLog(interaction?: boolean) {
+      if (this.selectedDocType == 'cloudfunctions') {
+        return
+      }
       this.loadingGitlog = true
       const config = this.selectedBranch
       const document = this.selectedDocType
@@ -557,6 +597,7 @@ export default defineComponent({
       this.resetGitLog()
       this.docs.unshift(docToAdd)
       this.selectedDocID = docToAdd.id
+      this.newDocName = docToAdd.name
       const docTypeText = this.titles[this.selectedDocType + '-singular']
       if (!successMessage) {
         successMessage = `New ${docTypeText} was created.`
@@ -572,14 +613,6 @@ export default defineComponent({
 
     async saveChanges(methodName?: HttpRequestMethods, successMessage?: string, failureMessage?: string) {
       this.isSaveLoading = true
-      if (!methodName) {
-        methodName = 'PUT'
-      }
-      let url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/`
-      if (methodName !== 'POST') {
-        url += `${this.selectedDocID}/`
-      }
-      const data = this.selectedDoc
 
       const docTypeText = this.titles[this.selectedDocType + '-singular']
       if (!successMessage) {
@@ -588,7 +621,25 @@ export default defineComponent({
       if (!failureMessage) {
         failureMessage = `Failed while attempting to save the changes to the ${docTypeText}.`
       }
-      await RequestsUtils.sendRequest({methodName, url, data, successMessage, failureMessage}).then(() => {
+
+      if (!methodName) {
+        methodName = 'PUT'
+      }
+
+      const data = this.selectedDoc
+      let requestFunction
+      let url = ''
+      if (this.selectedDocType == 'cloudfunctions') {
+        requestFunction = RequestsUtils.sendReblazeRequest
+        url = `config/d/cloud-functions/e/${this.selectedDocID}/`
+      } else {
+        requestFunction = RequestsUtils.sendRequest
+        url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/`
+        if (methodName !== 'POST') {
+          url += `${this.selectedDocID}/`
+        }
+      }
+      await requestFunction({methodName, url, data, successMessage, failureMessage}).then(() => {
         this.updateDocIdNames()
         this.loadGitLog(true)
         // If the saved doc was a security policy, refresh the referenced IDs lists
@@ -596,6 +647,7 @@ export default defineComponent({
           this.loadReferencedDocsIDs()
         }
       })
+
       this.isSaveLoading = false
     },
 
@@ -606,15 +658,22 @@ export default defineComponent({
       const docTypeText = this.titles[this.selectedDocType + '-singular']
       const successMessage = `The ${docTypeText} was deleted.`
       const failureMessage = `Failed while attempting to delete the ${docTypeText}.`
-      await RequestsUtils.sendRequest({
-        methodName: 'DELETE',
-        url: `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`,
-        successMessage,
-        failureMessage,
-      }).then(() => {
-        this.updateDocIdNames()
-        this.loadGitLog(true)
-      })
+      let requestFunction
+      let url = ''
+      const methodName = 'DELETE'
+      if (this.selectedDocType == 'cloudfunctions') {
+        requestFunction = RequestsUtils.sendReblazeRequest
+        url = `config/d/cloud-functions/e/${this.selectedDocID}/`
+      } else {
+        requestFunction = RequestsUtils.sendRequest
+        url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`
+      }
+      await requestFunction({methodName, url, successMessage, failureMessage})
+        .then(() => {
+          this.updateDocIdNames()
+          this.loadGitLog(true)
+        })
+
       this.selectedDocID = this.docs[0].id
       await this.loadSelectedDocData()
       this.addMissingDefaultsToDoc()
@@ -633,6 +692,7 @@ export default defineComponent({
       const referencedACL: string[] = []
       const referencedContentFilter: string[] = []
       const referencedLimit: string[] = []
+      const referencedCloudFunctions: string[] = []
       _.forEach(docs, (doc) => {
         _.forEach(doc.map, (mapEntry) => {
           referencedACL.push(mapEntry['acl_profile'])
@@ -643,6 +703,7 @@ export default defineComponent({
       this.referencedIDsACL = _.uniq(referencedACL)
       this.referencedIDsContentFilter = _.uniq(referencedContentFilter)
       this.referencedIDsLimits = _.uniq(_.flatten(referencedLimit))
+      this.referencedIDsCloudFunctions = _.uniq(_.flatten(referencedCloudFunctions))
     },
 
     async restoreGitVersion(gitVersion: Commit) {

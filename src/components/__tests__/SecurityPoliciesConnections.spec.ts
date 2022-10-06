@@ -87,10 +87,14 @@ describe('SecurityPoliciesConnections.vue', () => {
       if (path === `/conf/api/v3/configs/${selectedBranch}/d/securitypolicies/`) {
         return Promise.resolve({data: securityPoliciesDocs})
       }
-      return Promise.resolve({data: [{aylon: 'rich'}]})
+      return Promise.resolve({data: []})
     })
     mockRouter = {
       push: jest.fn(),
+    }
+
+    const onUpdate = async (selectedDocId: RateLimit) => {
+      await wrapper.setProps({selectedDocId})
     }
 
     wrapper = mount(SecurityPoliciesConnections, {
@@ -98,6 +102,7 @@ describe('SecurityPoliciesConnections.vue', () => {
         'selectedDocId': 'f971e92459e2',
         'selectedDocType': 'ratelimits',
         'selectedBranch': selectedBranch,
+        'onUpdate:selectedDoc': onUpdate,
       },
       global: {
         mocks: {

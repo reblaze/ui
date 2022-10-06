@@ -1471,6 +1471,12 @@ describe('DocumentList.vue', () => {
         // allow all requests to finish
         setImmediate(() => {
           expect(wrapper.vm.columns).toEqual(COLUMN_OPTIONS_MAP[docType])
+          const defaultDoc = DatasetsUtils.newDocEntryFactory[docType]()
+          COLUMN_OPTIONS_MAP[docType].forEach((columnOptions) => {
+            if (typeof columnOptions.displayFunction === 'function') {
+              expect(typeof columnOptions.displayFunction(defaultDoc) === 'string')
+            }
+          })
           done()
         })
       })
@@ -1481,9 +1487,9 @@ describe('DocumentList.vue', () => {
       'flowcontrol',
       'globalfilters',
       'ratelimits',
-      'securitypolicies',
       'contentfilterprofiles',
       'contentfilterrules',
+      'cloudfunctions',
       'actions',
     ]
     documentTypes.forEach((docType) => {

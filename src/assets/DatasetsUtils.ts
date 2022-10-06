@@ -7,6 +7,7 @@ import {
   HttpRequestMethods,
   RateLimit,
   SecurityPolicy,
+  CloudFunction,
 } from '@/types'
 
 const titles: { [key: string]: string } = {
@@ -50,6 +51,8 @@ const titles: { [key: string]: string } = {
   'contentfilterprofiles-singular': 'Content Filter Profile',
   'contentfilterrules': 'Content Filter Rules',
   'contentfilterrules-singular': 'Content Filter Rule',
+  'cloudfunctions': 'Cloud Functions',
+  'cloudfunctions-singular': 'Cloud Function',
   'globalfilters': 'Global Filters',
   'globalfilters-singular': 'Global Filter',
   'flowcontrol': 'Flow Control Policies',
@@ -59,6 +62,10 @@ const titles: { [key: string]: string } = {
   'active': 'Active',
   'report': 'Report',
   'ignore': 'Ignore',
+  'request0': 'Request Pre Reblaze',
+  'request1': 'Request Post Reblaze',
+  'response0': 'Response Pre Reblaze',
+  'response1': 'Response Post Reblaze',
 }
 
 const limitOptionsTypes = {
@@ -247,6 +254,18 @@ const newDocEntryFactory: { [key: string]: Function } = {
           method: 'POST' as HttpRequestMethods,
         },
       ],
+    }
+  },
+
+  cloudfunctions(): CloudFunction {
+    return {
+      'id': generateUUID2(),
+      'name': 'New Cloud Function',
+      'description': 'New Cloud Function Description and Remarks',
+      'phase': 'request1',
+      'code': `-- begin custom code
+        --custom response header
+        ngx.header['foo'] = 'bar'`,
     }
   },
 
