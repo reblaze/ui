@@ -76,6 +76,8 @@
       <div class="column is-4">
         <rbz-table :columns="topTableColumns"
                    :data="topTargetApps"
+                   :default-sort-column-index="1"
+                   default-sort-column-direction="desc"
                    table-title="TOP TARGETED SERVICES/APPS"
                    :rowsPerPage="5">
         </rbz-table>
@@ -83,13 +85,17 @@
       <div class="column is-4">
         <rbz-table :columns="topTableColumns"
                    :data="topTargetUris"
+                   :default-sort-column-index="1"
+                   default-sort-column-direction="desc"
                    table-title="TOP TARGETED URLs"
                    :rowsPerPage="5">
         </rbz-table>
       </div>
       <div class="column is-4">
-        <rbz-table :columns="topTableColumns"
+        <rbz-table :columns="topTableColumnsTagPrefixRemoved"
                    :data="topTargetRTCs"
+                   :default-sort-column-index="1"
+                   default-sort-column-direction="desc"
                    table-title="TOP TARGETED RTCs"
                    :rowsPerPage="5">
         </rbz-table>
@@ -98,15 +104,19 @@
     <!--Second tables row-->
     <div class="columns">
       <div class="column is-4">
-        <rbz-table :columns="topTableColumns"
+        <rbz-table :columns="topTableColumnsTagPrefixRemoved"
                    :data="topCountries"
+                   :default-sort-column-index="1"
+                   default-sort-column-direction="desc"
                    table-title="TOP COUNTRIES"
                    :rowsPerPage="5">
         </rbz-table>
       </div>
       <div class="column is-4">
-        <rbz-table :columns="topTableColumns"
+        <rbz-table :columns="topTableColumnsTagPrefixRemoved"
                    :data="topASNumbers"
+                   :default-sort-column-index="1"
+                   default-sort-column-direction="desc"
                    table-title="TOP AS NUMBERS"
                    :rowsPerPage="5">
         </rbz-table>
@@ -114,6 +124,8 @@
       <div class="column is-4">
         <rbz-table :columns="topTableColumns"
                    :data="topIPAddresses"
+                   :default-sort-column-index="1"
+                   default-sort-column-direction="desc"
                    table-title="TOP IP ADDRESSES"
                    :rowsPerPage="5">
         </rbz-table>
@@ -122,22 +134,28 @@
     <!--Third tables row-->
     <div class="columns">
       <div class="column is-4">
-        <rbz-table :columns="topTableColumns"
+        <rbz-table :columns="topTableColumnsTagPrefixRemoved"
                    :data="topRateLimits"
+                   :default-sort-column-index="1"
+                   default-sort-column-direction="desc"
                    table-title="TOP RATE LIMITS"
                    :rowsPerPage="5">
         </rbz-table>
       </div>
       <div class="column is-4">
-        <rbz-table :columns="topTableColumns"
+        <rbz-table :columns="topTableColumnsTagPrefixRemoved"
                    :data="topACLs"
+                   :default-sort-column-index="1"
+                   default-sort-column-direction="desc"
                    table-title="TOP ACLs"
                    :rowsPerPage="5">
         </rbz-table>
       </div>
       <div class="column is-4">
-        <rbz-table :columns="topTableColumns"
+        <rbz-table :columns="topTableColumnsTagPrefixRemoved"
                    :data="topContentFilters"
+                   :default-sort-column-index="1"
+                   default-sort-column-direction="desc"
                    table-title="TOP CONTENT FILTERS"
                    :rowsPerPage="5">
         </rbz-table>
@@ -148,6 +166,8 @@
       <div class="column is-4">
         <rbz-table :columns="topTableColumns"
                    :data="topUserAgents"
+                   :default-sort-column-index="1"
+                   default-sort-column-direction="desc"
                    table-title="TOP USER AGENT"
                    :rowsPerPage="5">
         </rbz-table>
@@ -155,6 +175,8 @@
       <div class="column is-4">
         <rbz-table :columns="topTableColumns"
                    :data="topTags"
+                   :default-sort-column-index="1"
+                   default-sort-column-direction="desc"
                    table-title="TOP TAGS"
                    :rowsPerPage="5">
         </rbz-table>
@@ -191,35 +213,43 @@ export default defineComponent({
     data: Array as PropType<GenericObject[]>,
   },
   data() {
+    const topTableColumns: ColumnOptions[] = [
+      {
+        title: '',
+        fieldNames: ['rowIdentification'],
+        classes: 'width-100px ellipsis',
+      },
+      {
+        title: 'Passed',
+        fieldNames: ['passed'],
+        isSortable: true,
+        isNumber: true,
+        classes: 'width-60px',
+      },
+      {
+        title: 'blocked',
+        fieldNames: ['blocked'],
+        isSortable: true,
+        isNumber: true,
+        classes: 'width-60px',
+      },
+      {
+        title: 'Report',
+        fieldNames: ['report'],
+        isSortable: true,
+        isNumber: true,
+        classes: 'width-60px',
+      },
+    ]
+    const topTableColumnsTagPrefixRemoved = _.cloneDeep(topTableColumns)
+    topTableColumnsTagPrefixRemoved[0].displayFunction = (item: topTableData) => {
+      const splitFilter = item.rowIdentification.split(/:/)
+      splitFilter.shift()
+      return splitFilter.join(':')
+    }
     return {
-      topTableColumns: [
-        {
-          title: '',
-          fieldNames: ['rowIdentification'],
-          classes: 'width-100px ellipsis',
-        },
-        {
-          title: 'Passed',
-          fieldNames: ['passed'],
-          isSortable: true,
-          isNumber: true,
-          classes: 'width-60px',
-        },
-        {
-          title: 'blocked',
-          fieldNames: ['blocked'],
-          isSortable: true,
-          isNumber: true,
-          classes: 'width-60px',
-        },
-        {
-          title: 'Report',
-          fieldNames: ['report'],
-          isSortable: true,
-          isNumber: true,
-          classes: 'width-60px',
-        },
-      ] as ColumnOptions[],
+      topTableColumns: topTableColumns,
+      topTableColumnsTagPrefixRemoved: topTableColumnsTagPrefixRemoved,
       trafficChartSeriesOptions: [
         {
           title: 'Passed',
@@ -282,10 +312,10 @@ export default defineComponent({
         return {}
       }
       const hits = _.sumBy(this.data, (value) => {
-        return value?.['Counters'].hits
+        return value?.counters.hits
       })
-      const startDate = new Date(_.minBy(this.data, 'Timestamp')['Timestamp'])
-      const endDate = new Date(_.maxBy(this.data, 'Timestamp')['Timestamp'])
+      const startDate = new Date(_.minBy(this.data, 'timestamp')['timestamp'])
+      const endDate = new Date(_.maxBy(this.data, 'timestamp')['timestamp'])
       const totalTimeInHours = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60)
       return {
         amount: hits,
@@ -295,16 +325,16 @@ export default defineComponent({
 
     trafficInfo() {
       const hits = _.sumBy(this.data, (value) => {
-        return value?.['Counters'].hits
+        return value?.counters.hits
       })
       const blocked = _.sumBy(this.data, (value) => {
-        return value?.['Counters'].blocks
+        return value?.counters.blocks
       })
       const humans = _.sumBy(this.data, (value) => {
-        return value?.['Counters'].human
+        return value?.counters.human
       })
       const bots = _.sumBy(this.data, (value) => {
-        return value?.['Counters'].bot
+        return value?.counters.bot
       })
       return {
         'passed': {
@@ -332,14 +362,14 @@ export default defineComponent({
       const returnArray = []
       // Group by minutes
       const groupedObject = _.groupBy(this.data, (dataItem) => {
-        return Math.floor(new Date(dataItem['Timestamp']).getTime() / 1000)
+        return Math.floor(new Date(dataItem['timestamp']).getTime() / 1000)
       })
       for (const minute of Object.keys(groupedObject)) {
-        const passed = _.sumBy(groupedObject[minute], (item) => item['Counters'].hits - item['Counters'].blocks)
-        const blocked = _.sumBy(groupedObject[minute], (item) => item['Counters'].blocks)
-        const report = _.sumBy(groupedObject[minute], (item) => item['Counters'].report)
-        const humans = _.sumBy(groupedObject[minute], (item) => item['Counters'].human)
-        const bots = _.sumBy(groupedObject[minute], (item) => item['Counters'].bot)
+        const passed = _.sumBy(groupedObject[minute], (item) => item.counters.hits - item.counters.blocks)
+        const blocked = _.sumBy(groupedObject[minute], (item) => item.counters.blocks)
+        const report = _.sumBy(groupedObject[minute], (item) => item.counters.report)
+        const humans = _.sumBy(groupedObject[minute], (item) => item.counters.human)
+        const bots = _.sumBy(groupedObject[minute], (item) => item.counters.bot)
         returnArray.push({
           timeframe: Number(minute),
           passed: passed > 0 ? passed : 0,
@@ -356,12 +386,12 @@ export default defineComponent({
       const returnArray = []
       // Group by minutes
       const groupedObject = _.groupBy(this.data, (dataItem) => {
-        return Math.floor(new Date(dataItem['Timestamp']).getTime() / 1000)
+        return Math.floor(new Date(dataItem['timestamp']).getTime() / 1000)
       })
       for (const minute of Object.keys(groupedObject)) {
-        const counter3xx = _.sumBy(groupedObject[minute], (item) => item['Counters']['3xx'])
-        const counter4xx = _.sumBy(groupedObject[minute], (item) => item['Counters']['4xx'])
-        const counter5xx = _.sumBy(groupedObject[minute], (item) => item['Counters']['5XX'])
+        const counter3xx = _.sumBy(groupedObject[minute], (item) => item.counters['3xx'])
+        const counter4xx = _.sumBy(groupedObject[minute], (item) => item.counters['4xx'])
+        const counter5xx = _.sumBy(groupedObject[minute], (item) => item.counters['5xx'])
         returnArray.push({
           'timeframe': Number(minute),
           '3xx': counter3xx > 0 ? counter3xx : 0,
@@ -374,11 +404,11 @@ export default defineComponent({
 
     topTargetApps(): topTableData[] {
       const returnArray = []
-      const groupedObject = _.groupBy(this.data, 'Appid')
+      const groupedObject = _.groupBy(this.data, 'appid')
       for (const appId of Object.keys(groupedObject)) {
-        const passed = _.sumBy(groupedObject[appId], (item) => item['Counters'].hits - item['Counters'].blocks)
-        const blocked = _.sumBy(groupedObject[appId], (item) => item['Counters'].blocks)
-        const report = _.sumBy(groupedObject[appId], (item) => item['Counters'].report)
+        const passed = _.sumBy(groupedObject[appId], (item) => item.counters.hits - item.counters.blocks)
+        const blocked = _.sumBy(groupedObject[appId], (item) => item.counters.blocks)
+        const report = _.sumBy(groupedObject[appId], (item) => item.counters.report)
         returnArray.push({
           rowIdentification: appId,
           passed: passed > 0 ? passed : 0,
@@ -390,48 +420,51 @@ export default defineComponent({
     },
 
     topTargetUris(): topTableData[] {
-      return this.buildTopDataFromCounters('top-blocked-uri', 'top-passed-uri', 'top-reported-uri')
+      return this.buildTopDataFromCounters('top_blocked_uri', 'top_passed_uri', 'top_reported_uri')
     },
 
-    // TODO
     topTargetRTCs(): topTableData[] {
-      return []
+      return this.topTags.filter((tag: topTableData) => {
+        return tag.rowIdentification.startsWith('rtc:')
+      })
     },
 
     topCountries(): topTableData[] {
-      return this.buildTopDataFromCounters('top-blocked-countries', 'top-passed-countries', 'top-reported-countries')
+      return this.buildTopDataFromCounters('top_blocked_countries', 'top_passed_countries', 'top_reported_countries')
     },
 
     topASNumbers(): topTableData[] {
-      return this.buildTopDataFromCounters('top-blocked-asn', 'top-passed-asn', 'top-reported-asn')
+      return this.buildTopDataFromCounters('top_blocked_asn', 'top_passed_asn', 'top_reported_asn')
     },
 
     topIPAddresses(): topTableData[] {
-      return this.buildTopDataFromCounters('top-blocked-ip', 'top-passed-ip', 'top-reported-ip')
+      return this.buildTopDataFromCounters('top_blocked_ip', 'top_passed_ip', 'top_reported_ip')
     },
 
-    // TODO
     topRateLimits(): topTableData[] {
-      return []
+      return this.topTags.filter((tag: topTableData) => {
+        return tag.rowIdentification.startsWith('rate-limit:')
+      })
     },
 
-    // TODO
     topACLs(): topTableData[] {
-      return []
+      return this.topTags.filter((tag: topTableData) => {
+        return tag.rowIdentification.startsWith('acl:')
+      })
     },
 
-    // TODO
     topContentFilters(): topTableData[] {
-      return []
+      return this.topTags.filter((tag: topTableData) => {
+        return tag.rowIdentification.startsWith('content-filter:')
+      })
     },
 
     topUserAgents(): topTableData[] {
-      return this.buildTopDataFromCounters('top-blocked-user-agent', 'top-passed-user-agent', 'top-reported-user-agent')
+      return this.buildTopDataFromCounters('top_blocked_user_agent', 'top_passed_user_agent', 'top_reported_user_agent')
     },
 
-    // TODO
     topTags(): topTableData[] {
-      return []
+      return this.buildTopDataFromCounters('top_blocked_tags', 'top_passed_tags', 'top_reported_tags')
     },
   },
   methods: {
@@ -439,22 +472,22 @@ export default defineComponent({
       const returnArray = []
       const groupedObject: { [key: string]: topTableData } = {}
       this.data.forEach((item) => {
-        if (item['Counters'][blocksFieldName]) {
-          for (const key of Object.keys(item['Counters'][blocksFieldName])) {
+        if (item.counters[blocksFieldName]) {
+          for (const key of Object.keys(item.counters[blocksFieldName])) {
             (groupedObject[key] || (groupedObject[key] = {})).blocked = groupedObject[key].blocked || 0
-            groupedObject[key].blocked += item['Counters'][blocksFieldName][key] || 0
+            groupedObject[key].blocked += item.counters[blocksFieldName][key] || 0
           }
         }
-        if (item['Counters'][passedFieldName]) {
-          for (const key of Object.keys(item['Counters'][passedFieldName])) {
+        if (item.counters[passedFieldName]) {
+          for (const key of Object.keys(item.counters[passedFieldName])) {
             (groupedObject[key] || (groupedObject[key] = {})).passed = groupedObject[key].passed || 0
-            groupedObject[key].passed += item['Counters'][passedFieldName][key] || 0
+            groupedObject[key].passed += item.counters[passedFieldName][key] || 0
           }
         }
-        if (item['Counters'][reportFieldName]) {
-          for (const key of Object.keys(item['Counters'][reportFieldName])) {
+        if (item.counters[reportFieldName]) {
+          for (const key of Object.keys(item.counters[reportFieldName])) {
             (groupedObject[key] || (groupedObject[key] = {})).report = groupedObject[key].report || 0
-            groupedObject[key].report += item['Counters'][reportFieldName][key] || 0
+            groupedObject[key].report += item.counters[reportFieldName][key] || 0
           }
         }
       })

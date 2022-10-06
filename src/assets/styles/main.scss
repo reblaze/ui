@@ -243,6 +243,20 @@ $color-light: hsl(0, 0%, 96%);
   border-color: #3273dc;
 }
 
+/* Vue3Datepicker */
+
+.dp__preset_ranges { /* stylelint-disable-line */
+  width: 150px;
+}
+
+.dp__action_row { /* stylelint-disable-line */
+  min-width: 100%;
+}
+
+.dp__input_icon { /* stylelint-disable-line */
+  color: #000;
+}
+
 /* Other */
 
 .is-clickable {

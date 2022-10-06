@@ -33,8 +33,9 @@ html {
   background: hsl(206, 23%, 94%);
 }
 
-.navbar {
+.navbar.is-fixed-top {
   margin-bottom: 1rem;
+  z-index: 100000;
 }
 
 .columns {

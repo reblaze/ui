@@ -16,11 +16,11 @@
         <div v-if="col.isSortable">
           <div class="arrow-wrapper">
                         <span class="arrow arrow-asc"
-                              :class="{'is-active': sortColumnTitle === col.title && sortDir === 'asc'}"/>
+                              :class="{'is-active': sortColumnTitle === col.title && sortDirection === 'asc'}"/>
           </div>
           <div class="arrow-wrapper">
                         <span class="arrow arrow-desc"
-                              :class="{'is-active': sortColumnTitle === col.title && sortDir === 'desc'}"/>
+                              :class="{'is-active': sortColumnTitle === col.title && sortDirection === 'desc'}"/>
           </div>
         </div>
         <span>
@@ -133,6 +133,8 @@ export default defineComponent({
   props: {
     columns: Array as PropType<ColumnOptions[]>,
     data: Array as PropType<GenericObject[]>,
+    defaultSortColumnIndex: Number,
+    defaultSortColumnDirection: String as PropType<'asc' | 'desc'>,
     showMenuColumn: Boolean,
     showFilterButton: Boolean,
     showNewButton: Boolean,
@@ -147,12 +149,20 @@ export default defineComponent({
     columns: {
       handler: function(val) {
         if (val?.length) {
-          const firstSortableColumn = _.find(val, (columnOptions) => {
-            return columnOptions.isSortable
-          })
-          this.sortColumnTitle = firstSortableColumn?.title || null
-          this.sortColumnDisplayFunction = firstSortableColumn?.displayFunction || null
-          this.sortColumnIsNumber = firstSortableColumn?.isNumber || false
+          let column
+          if (this.defaultSortColumnIndex) {
+            column = val[this.defaultSortColumnIndex]
+          } else {
+            column = _.find(val, (columnOptions) => {
+              return columnOptions.isSortable
+            })
+          }
+          this.sortColumnTitle = column?.title || null
+          this.sortColumnDisplayFunction = column?.displayFunction || null
+          this.sortColumnIsNumber = column?.isNumber || false
+          if (this.defaultSortColumnDirection) {
+            this.sortDirection = this.defaultSortColumnDirection
+          }
         }
       },
       immediate: true,
@@ -166,7 +176,7 @@ export default defineComponent({
       filtersVisible: false,
 
       // Sorting
-      sortDir: 'asc',
+      sortDirection: 'asc',
       sortColumnTitle: null as ColumnOptions['title'],
       sortColumnDisplayFunction: null as ColumnOptions['displayFunction'],
       sortColumnIsNumber: false as ColumnOptions['isNumber'],
@@ -184,7 +194,7 @@ export default defineComponent({
       if (!this.data?.length) {
         return []
       }
-      const sortModifier = this.sortDir === 'asc' ? 1 : -1
+      const sortModifier = this.sortDirection === 'asc' ? 1 : -1
       return this.data.filter((item: GenericObject) => {
         const keys = Object.keys(this.filter)
         return _.reduce(
@@ -262,9 +272,9 @@ export default defineComponent({
         return
       }
       if (column.title === this.sortColumnTitle) {
-        this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc'
+        this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc'
       } else {
-        this.sortDir = 'asc'
+        this.sortDirection = 'asc'
       }
       this.sortColumnTitle = column.title
       this.sortColumnDisplayFunction = column.displayFunction

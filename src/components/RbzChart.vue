@@ -106,7 +106,7 @@ export default defineComponent({
           this.chart = new uPlot(this.chartOptions, datasets, this.$refs.chart)
         } else {
           this.chart.opts = this.chartOptions
-          this.chart.data = this.datasets
+          this.chart.data = datasets
           this.chart.targ = this.$refs.chart
         }
         this.setChartSize()
@@ -121,7 +121,7 @@ export default defineComponent({
   },
   methods: {
     // converts the legend into a simple tooltip
-    legendAsTooltipPlugin({classList, style} = {}) {
+    legendAsTooltipPlugin({classList = [], style = {}} = {}) {
       let legendElement: HTMLElement
 
       const init = (uPlotChart: uPlot) => {
