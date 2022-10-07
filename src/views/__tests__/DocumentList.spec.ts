@@ -1489,7 +1489,7 @@ describe('DocumentList.vue', () => {
       'ratelimits',
       'contentfilterprofiles',
       'contentfilterrules',
-      'cloudfunctions',
+      'cloud-functions',
       'actions',
     ]
     documentTypes.forEach((docType) => {

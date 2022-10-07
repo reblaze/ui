@@ -93,7 +93,7 @@ declare module CuriefenseClient {
     | 'securitypolicies'
     | 'contentfilterprofiles'
     | 'contentfilterrules'
-    | 'cloudfunctions'
+    | 'cloud-functions'
     | 'actions'
     | 'dynamicrules'
 
@@ -184,10 +184,8 @@ declare module CuriefenseClient {
     description: string
     timeframe: number
     thresholds: number
-    action: string
     exclude: string[]
     include: string[]
-    tags: string[]
   }
   
   type RateLimit = {

@@ -82,21 +82,22 @@
                              title="Action"
                              data-qa="action-input"
                              placeholder="Action"
-                             @change="emitDocUpdate"
-                             v-model="localDoc.action"/>
+                             @change="saveToGlobalFilters"
+                             v-model="matchingGlobalFilterDoc.action"/>
                     </div>
                 </div>
               <div class="field">
                 <label class="label is-small">Tags</label>
                 <div class="control"
                      data-qa="tag-input">
-                  <tag-autocomplete-input :initial-tag="selectedDocTags"
+                  <tag-autocomplete-input :initial-tag="matchingDocTags"
                                           :selection-type="'multiple'"
-                                          @tag-changed="selectedDocTags = $event">
+                                          @tag-changed="matchingDocTags = $event">
                   </tag-autocomplete-input>
                 </div>
               </div>
             </div>
+
             <div class="column is-7">
               <div class="columns">
                 <div class="column is-6 filter-column"
@@ -175,6 +176,14 @@ import {
   IncludeExcludeType,
 } from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
+// import RequestsUtils from '@/assets/RequestsUtils'
+
+
+type MatchingGlobalFilterDoc = {
+  id: string,
+  action: string,
+  tags: string[],
+}
 
 
 export default defineComponent({
@@ -193,8 +202,22 @@ export default defineComponent({
       titles: DatasetsUtils.titles,
       addNewTagColName: null,
       removable: false,
+      matchingGlobalFilterDoc: null as MatchingGlobalFilterDoc,
     }
   },
+  // watch: {
+  //   selectedDoc: {
+  //     handler: function(val, oldVal) {
+  //       if (!val || !oldVal || val.id !== oldVal.id) {
+  //        RequestsUtils.sendRequest({
+
+  //        })
+  //       }
+  //     },
+  //     immediate: true,
+  //     deep: true,
+  //   },
+  // },
   computed: {
     localDoc(): DynamicRule {
       return _.cloneDeep(this.selectedDoc as DynamicRule)
@@ -205,18 +228,18 @@ export default defineComponent({
       const dupTags = _.filter(allTags, (val, i, iteratee) => _.includes(iteratee, val, i + 1))
       return _.fromPairs(_.zip(dupTags, dupTags))
     },
-    selectedDocTags: {
+    matchingDocTags: {
       get: function(): string {
-        if (this.localDoc.tags && this.localDoc.tags.length > 0) {
-          return this.localDoc.tags.join(' ')
+        if (this.matchingGlobalFilterDoc.tags && this.matchingGlobalFilterDoc.tags.length > 0) {
+          return this.matchingGlobalFilterDoc.tags.join(' ')
         }
         return ''
       },
       set: function(tags: string): void {
-        this.localDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
+        this.matchingGlobalFilterDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
           return tag.trim()
         }) : []
-        this.emitDocUpdate()
+        this.saveToGlobalFilters()
       },
     },
   },
@@ -229,6 +252,42 @@ export default defineComponent({
       this.$emit('go-to-route', url)
     },
 
+    getGlobalFilterData() {
+      // const methodName = 'GET'
+      // const url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${this.selectedDoc.id}/`
+      // const successMessage = `Get GlobalFilters Data Successfuly.`
+      // const failureMessage = `Failed to get GlobalFilters data.`
+
+      // const response = RequestsUtils.sendRequest({methodName, url, config: {headers: {'x-fields': 'id, action, tags'}},
+      //  successMessage, failureMessage})
+
+      // console.log('getGlobalFilterData response: ', response)
+      this.matchingGlobalFilterDoc = {
+        id: `dr_${this.selectedDoc.id}`,
+        action: 'monitor', // response.data.action ||
+        tags: ['trusted'], // response.data.tags ||
+      }
+
+      if (!this.matchingGlobalFilterDoc) {
+        this.matchingGlobalFilterDoc = {
+          id: `dr_${this.selectedDoc.id}`,
+          action: 'monitor',
+          tags: ['trusted'],
+        }
+      }
+      console.log('this.matchingGlobalFilterDoc', this.matchingGlobalFilterDoc)
+    },
+
+
+    saveToGlobalFilters() {
+      // const successMessage = `Changes to GlobalFilters were saved.`
+      // const failureMessage = `Failed to save changes to GlobalFilters.`
+      // const data = this.matchingGlobalFilterDoc
+      console.log('saveToGlobalFilters TODO later')
+      // const url = `configs/${this.selectedBranch}/d/globalfilters/e/${data.id}/`
+      // RequestsUtils.sendRequest({methodName: 'POST', url, data, successMessage, failureMessage})
+      // .then(() => {}
+    },
     // addThreshold() {
     //   this.localDoc.thresholds.push({limit: 0, action: 'default'} as ThresholdActionPair)
     //   this.emitDocUpdate()
@@ -239,7 +298,7 @@ export default defineComponent({
     //     this.localDoc.thresholds.splice(index, 1)
     //   }
     //   this.emitDocUpdate()
-    // },
+
 
     addNewTag(section: IncludeExcludeType, entry: string) {
       if (entry && entry.length > 2) {
@@ -261,6 +320,10 @@ export default defineComponent({
       this.addNewTagColName = null
       this.emitDocUpdate()
     },
+  },
+
+  created() {
+    this.getGlobalFilterData()
   },
 })
 </script>

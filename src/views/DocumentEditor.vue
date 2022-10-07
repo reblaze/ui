@@ -121,7 +121,7 @@
 
                 <p class="control">
                   <button class="button is-small save-document-button"
-                          :class="{'is-loading': isSaveLoading}"
+                          :class="isSaveLoading?'is-loading': 'isSaveLoading'"
                           @click="saveChanges()"
                           title="Save changes"
                           :disabled="isDocumentInvalid || !selectedDoc"
@@ -167,7 +167,7 @@
             ref="currentComponent">
         </component>
         <hr/>
-        <git-history v-if="selectedDocID && selectedDocType !== 'cloudfunctions'"
+        <git-history v-if="selectedDocID && selectedDocType !== 'cloud-functions'"
                      :gitLog="gitLog"
                      :apiPath="gitAPIPath"
                      :loading="loadingGitlog"
@@ -284,7 +284,7 @@ export default defineComponent({
         'aclprofiles': shallowRef({component: ACLEditor}),
         'contentfilterprofiles': shallowRef({component: ContentFilterEditor}),
         'contentfilterrules': shallowRef({component: ContentFilterRulesEditor}),
-        'cloudfunctions': shallowRef({component: CloudFunctionsEditor}),
+        'cloud-functions': shallowRef({component: CloudFunctionsEditor}),
         'actions': shallowRef({component: CustomResponseEditor}),
         'dynamicrules': shallowRef({component: DynamicRulesEditor}),
       },
@@ -296,7 +296,7 @@ export default defineComponent({
 
     documentAPIPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
-      if (this.selectedDocType === 'cloudfunctions') {
+      if (this.selectedDocType === 'cloud-functions') {
         return `/config/d/cloud-functions/e/${this.selectedDocID}`
       }
       return `${apiPrefix}/configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`
@@ -346,7 +346,7 @@ export default defineComponent({
       if (this.selectedDocType === 'ratelimits') {
         return this.referencedIDsLimits.includes(this.selectedDocID)
       }
-      if (this.selectedDocType === 'cloudfunctions') {
+      if (this.selectedDocType === 'cloud-functions') {
         return this.referencedIDsCloudFunctions.includes(this.selectedDocID)
       }
       if (this.selectedDocType === 'dynamicrules') {
@@ -440,34 +440,32 @@ export default defineComponent({
       // check if the selected doc only has id and name, if it does, attempt to load the rest of the document data
       if (this.selectedDoc && Object.keys(this.selectedDoc).length === 2) {
         let response
-        if (this.selectedDocType == 'cloudfunctions') {
+        const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`
+        if (this.selectedDocType == 'cloud-functions') {
           response = await RequestsUtils.sendReblazeRequest({
             methodName: 'GET',
-            url: `config/d/cloud-functions/e/${this.selectedDocID}/`,
+            url,
           })
         } else {
           response = await RequestsUtils.sendRequest({
             methodName: 'GET',
-            url: `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`,
+            url,
           })
         }
         this.selectedDoc = response?.data || this.selectedDoc
-        console.log('selectedDoc:', this.selectedDoc)
-        let globalResponse
-        if (this.selectedDocType == 'dynamicrules') {
-          // get action to reblaze
-          // get doc to conf server
-          // this.docs.map(doc => {
-          globalResponse = RequestsUtils.sendRequest({
-            methodName: 'GET',
-            config: {headers: {'x-fields': 'id, active, action'}},
-            url: `configs/${this.selectedBranch}/d/globalfilters/e/dr_${this.selectedDocID}/`,
-          })
-          const globalDoc = globalResponse?.data
-          console.log('globalDoc', globalDoc)
-          // this.selectedDoc = {...this.selectedDoc, active: globalDoc.active, action: globalDoc.action}
-          // this.selectedDoc.action = globalDoc.action
-        }
+        // let globalResponse
+        // if (this.selectedDocType == 'dynamicrules') {
+        //   // get action to reblaze
+        //   // get doc to conf server
+        //   globalResponse = RequestsUtils.sendRequest({
+        //     methodName: 'GET',
+        //     config: {headers: {'x-fields': 'id, tags, action'}},
+        //     url: `configs/${this.selectedBranch}/d/globalfilters/e/dr_${this.selectedDocID}/`,
+        //   })
+        //   const globalDoc = globalResponse?.data
+        //   this.selectedDoc = {...this.selectedDoc, active: globalDoc.tags, action: globalDoc.action}
+        //   // this.selectedDoc.action = globalDoc.action
+        // }
       }
       this.setLoadingDocStatus(false)
     },
@@ -476,15 +474,13 @@ export default defineComponent({
       this.isDownloadLoading = true
       const branch = this.selectedBranch
 
-      let requestFunction
-      let url = ''
-      if (doctype == 'cloudfunctions') {
-        requestFunction = RequestsUtils.sendReblazeRequest
-        url = `config/d/cloud-functions/`
-      } else {
-        requestFunction = RequestsUtils.sendRequest
-        url = `configs/${branch}/d/${doctype}/`
-      }
+
+      const url = `configs/${branch}/d/${doctype}/`
+
+      const requestFunction = (doctype == 'cloud-functions') ?
+        RequestsUtils.sendReblazeRequest :
+        RequestsUtils.sendRequest
+
       const response = await requestFunction({
         methodName: 'GET',
         url,
@@ -513,25 +509,6 @@ export default defineComponent({
         this.docs = response?.data || []
         this.isDownloadLoading = false
       })
-      console.log('this.docs', this.docs)
-      let globalDocs
-      if (this.selectedDocType == 'dynamicrules') {
-        // get action to reblaze
-        // get doc to conf server
-        RequestsUtils.sendRequest({
-          methodName: 'GET',
-          config: {headers: {'x-fields': 'id, active, action'}},
-          url: `configs/${branch}/d/globalfilters/`,
-        }).then(
-          globalDocs = response?.data,
-          console.log('globalDocs', globalDocs),
-          // this.docs = {...this.docs[0], active: globalDoc.active, action: globalDoc.action}
-        )
-        // this.docs = globalDocs.map(doc => {
-        //   this.selectedDoc.active = globalResponse.active
-        //   this.selectedDoc.action = globalResponse.action
-        // })
-      }
       this.updateDocIdNames()
       if (this.docIdNames && this.docIdNames.length && this.docIdNames[0].length) {
         if (!skipDocSelection || !_.find(this.docIdNames, (idName: [Document['id'], Document['name']]) => {
@@ -547,7 +524,7 @@ export default defineComponent({
     },
 
     loadGitLog(interaction?: boolean) {
-      if (this.selectedDocType == 'cloudfunctions') {
+      if (this.selectedDocType == 'cloud-functions') {
         return
       }
       this.loadingGitlog = true
@@ -667,7 +644,7 @@ export default defineComponent({
       const data = this.selectedDoc
       let requestFunction
       let url = ''
-      if (this.selectedDocType == 'cloudfunctions') {
+      if (this.selectedDocType == 'cloud-functions') {
         requestFunction = RequestsUtils.sendReblazeRequest
         url = `config/d/cloud-functions/e/${this.selectedDocID}/`
       } else {
@@ -687,27 +664,16 @@ export default defineComponent({
         }
       })
 
-      if (this.selectedDocType == 'dynamicrules') {
-        // save action to reblaze
-        // save doc to conf server
-        url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${this.selectedDocID}/`
-        console.log('this.selectedDocID', this.selectedDocID, 'this.selectedDoc.id', this.selectedDoc.id)
-        // globalData
-        // const data = {
-        //   'id': `dr_${this.selectedDoc.id}`,
-        //   'active': this.selectedDoc.active,
-        //   'action': this.selectedDoc.action,
-        // }
-        // const data = {...this.selectedDoc,
-        //   id: `dr_${this.selectedDoc.id}`,
-        //   active: this.selectedDoc.active,
-        //   action: this.selectedDoc.action
-        // }
-        // await requestFunction({methodName, url, data, successMessage, failureMessage}).then(() => {
-        //  // this.updateDocIdNames()
-        //  // this.loadGitLog(true)
-        // })
-      }
+      // if (this.selectedDocType == 'dynamicrules') {
+      //   url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${this.selectedDocID}/`
+      //   console.log('this.selectedDocID', this.selectedDocID, 'this.selectedDoc.id', this.selectedDoc.id)
+      //   // globalData
+      //   // const data = {
+      //   //   'id': `dr_${this.selectedDoc.id}`,
+      //   //   'active': this.selectedDoc.active,
+      //   //   'action': this.selectedDoc.action,
+      //   // }
+      // }
 
       this.isSaveLoading = false
     },
@@ -722,7 +688,7 @@ export default defineComponent({
       let requestFunction
       let url = ''
       const methodName = 'DELETE'
-      if (this.selectedDocType == 'cloudfunctions') {
+      if (this.selectedDocType == 'cloud-functions') {
         requestFunction = RequestsUtils.sendReblazeRequest
         url = `config/d/cloud-functions/e/${this.selectedDocID}/`
       } else {

@@ -19,7 +19,7 @@
                        placeholder="List name"
                        @change="emitDocUpdate"
                        v-model="localDoc.name"
-                       :readonly="readonly"/>
+                       :readonly="readonly || (localDoc.id).substr(0, 3)=='dr_'" />
               </div>
               <p class="subtitle is-7 has-text-grey entries-entries-display">
                 {{ sectionsEntriesDisplay }}
@@ -30,7 +30,7 @@
                 <input type="checkbox"
                        data-qa="active-checkbox"
                        class="document-active"
-                       :readonly="readonly"
+                       :readonly="readonly || (localDoc.id).substr(0, 3)=='dr_'"
                        :disabled="readonly"
                        @change="emitDocUpdate"
                        v-model="localDoc.active">
@@ -39,7 +39,7 @@
             </div>
             <div class="field">
               <div class="control"
-                   v-if="editable">
+                   v-if="editable && (localDoc.id).substr(0, 3)!=='dr_'">
                 <label class="label is-small">entries Relation</label>
                 <div class="tags has-addons mb-0 document-entries-relation"
                      tabindex="0"
@@ -63,7 +63,8 @@
             <div class="field">
               <label class="label is-small">Tags</label>
               <div class="control"
-                   data-qa="tag-input">
+                   data-qa="tag-input"
+                   v-if="(localDoc.id).substr(0,3)!=='dr_'">
                 <tag-autocomplete-input :initial-tag="selectedDocTags"
                                         :selection-type="'multiple'"
                                         @tag-changed="selectedDocTags = $event">
@@ -71,7 +72,7 @@
               </div>
             </div>
             <div class="field">
-              <a v-if="externalSource"
+              <a v-if="externalSource && (localDoc.id).substr(0, 3)!=='dr_'"
                  class="is-small has-text-grey is-size-7 is-pulled-right update-now-button"
                  data-qa="update-now-btn"
                  tabindex="0"
@@ -89,10 +90,10 @@
                        placeholder="List source"
                        @change="emitDocUpdate"
                        v-model="localDoc.source"
-                       :readonly="readonly"/>
+                       :readonly="readonly || (localDoc.id).substr(0, 3)=='dr_'"/>
               </div>
               <p class="help"
-                 v-if="externalSource"
+                 v-if="externalSource && (localDoc.id).substr(0, 3)!=='dr_'"
                  :title="fullFormattedModifiedDate">
                 updated @ {{ formattedModifiedDate }}
               </p>
@@ -108,6 +109,7 @@
                          data-qa="action-input"
                          placeholder="Action"
                          @change="emitDocUpdate"
+                         :readonly="(localDoc.id).substr(0, 3)=='dr_'"
                          v-model="localDoc.action"/>
                 </div>
               </div>
@@ -120,12 +122,13 @@
                           title="Document description"
                           v-model="localDoc.description"
                           @input="emitDocUpdate"
+                          :readonly="(localDoc.id).substr(0, 3)=='dr_'"
                           rows="5">
                 </textarea>
               </div>
             </div>
             <div class="pt-6">
-              <div class="field" v-if="editable">
+              <div class="field" v-if="editable && (localDoc.id).substr(0, 3)!=='dr_'">
                 <div class="control is-expanded">
                   <button class="button is-small has-text-danger-dark remove-all-entries-button"
                           data-qa="remove-all-entries-btn"
@@ -138,7 +141,7 @@
             </div>
 
           </div>
-          <div class="column is-9">
+          <div class="column is-9" v-if="(localDoc.id).substr(0, 3)!='dr_'">
             <entries-relation-list v-model:rule="localDoc.rule"
                                    :editable="editable"
                                    ref="entriesRelationList"
@@ -217,6 +220,9 @@ export default defineComponent({
         return ''
       },
       set: function(tags: string): void {
+        if ((this.localDoc.id).substr(0, 3)=='dr_') {
+          return
+        }
         this.localDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
           return tag.trim()
         }) : []

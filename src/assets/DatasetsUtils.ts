@@ -53,7 +53,7 @@ const titles: { [key: string]: string } = {
   'contentfilterprofiles-singular': 'Content Filter Profile',
   'contentfilterrules': 'Content Filter Rules',
   'contentfilterrules-singular': 'Content Filter Rule',
-  'cloudfunctions': 'Cloud Functions',
+  'cloud-functions': 'Cloud Functions',
   'cloudfunctions-singular': 'Cloud Function',
   'globalfilters': 'Global Filters',
   'globalfilters-singular': 'Global Filter',
@@ -101,7 +101,7 @@ const defaultFlowControlSequenceItem = {
 }
 
 const newDocEntryFactory: { [key: string]: Function } = {
-  aclprofiles(): ACLProfile {
+  'aclprofiles'(): ACLProfile {
     return {
       'id': generateUUID2(),
       'name': 'New ACL Profile',
@@ -117,7 +117,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  contentfilterprofiles(): ContentFilterProfile {
+  'contentfilterprofiles'(): ContentFilterProfile {
     return {
       'id': generateUUID2(),
       'name': 'New Content Filter Profile',
@@ -164,7 +164,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  globalfilters(): GlobalFilter {
+  'globalfilters'(): GlobalFilter {
     return {
       'id': generateUUID2(),
       'name': 'New Global Filter',
@@ -181,7 +181,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  securitypolicies(): SecurityPolicy {
+  'securitypolicies'(): SecurityPolicy {
     const id = generateUUID2()
     return {
       'id': id,
@@ -202,7 +202,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  ratelimits(): RateLimit {
+  'ratelimits'(): RateLimit {
     return {
       'id': generateUUID2(),
       'name': 'New Rate Limit Rule',
@@ -234,7 +234,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  flowcontrol(): FlowControlPolicy {
+  'flowcontrol'(): FlowControlPolicy {
     return {
       'id': generateUUID2(),
       'name': 'New Flow Control Policy',
@@ -259,7 +259,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  cloudfunctions(): CloudFunction {
+  'cloud-functions'(): CloudFunction {
     return {
       'id': generateUUID2(),
       'name': 'New Cloud Function',
@@ -271,22 +271,20 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  dynamicrules(): DynamicRule {
+  'dynamicrules'(): DynamicRule {
     return {
       'id': generateUUID2(),
       'name': 'New Dynamic Rules',
       'description': 'New Dynamic Rules Description and Remarks',
-      'timeframe': 30,
-      'thresholds': 250,
-      'action': 'dynamic',
+      'timeframe': 120,
+      'thresholds': 9999,
       'active': false,
-      'tags': ['default dynamic rule'],
       'include': ['all'],
       'exclude': [],
     }
   },
 
-  contentfilterrules(): ContentFilterRule {
+  'contentfilterrules'(): ContentFilterRule {
     return {
       'id': generateUUID2(),
       'name': 'New Content Filter Rule',
@@ -300,7 +298,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  actions(): CustomResponse {
+  'actions'(): CustomResponse {
     return {
       'id': generateUUID2(),
       'name': 'New Custom Response',

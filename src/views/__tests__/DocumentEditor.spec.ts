@@ -2044,8 +2044,9 @@ describe('DocumentEditor.vue', () => {
       jest.spyOn(axios, 'put').mockImplementation(() => new Promise(() => {
       }))
       const saveDocumentButton = wrapper.find('.save-document-button')
-      await saveDocumentButton.trigger('click')
-      expect(saveDocumentButton.element.classList).toContain('is-loading')
+      saveDocumentButton.trigger('click')
+      // wrapper.vm.$forceUpdate()
+      expect(Object.values(saveDocumentButton.element.classList)).toContain('is-loading')
     })
 
     test('should display loading indicator when forking document', async () => {

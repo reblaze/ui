@@ -57,7 +57,7 @@
           </div>
         </div>
         <hr/>
-        <git-history v-if="selectedDocType !=='cloudfunctions'"
+        <git-history v-if="selectedDocType !=='cloud-functions'"
                     :gitLog="gitLog"
                     :apiPath="gitAPIPath"
                     :loading="isGitLogLoading"
@@ -168,7 +168,7 @@ export default defineComponent({
         'aclprofiles': shallowRef({component: ACLEditor}),
         'contentfilterprofiles': shallowRef({component: ContentFilterEditor}),
         'contentfilterrules': shallowRef({component: ContentFilterRulesEditor}),
-        'cloudfunctions': shallowRef({component: CloudFunctionsEditor}),
+        'cloud-functions': shallowRef({component: CloudFunctionsEditor}),
         'actions': shallowRef({component: CustomResponseEditor}),
         'dynamicrules': shallowRef({component: DynamicRulesEditor}),
       },
@@ -176,7 +176,7 @@ export default defineComponent({
   },
   computed: {
     documentListAPIPath(): string {
-      if (this.selectedDocType == 'cloudfunctions') {
+      if (this.selectedDocType == 'cloud-functions') {
         return `${this.reblazeAPIRoot}/${this.reblazeAPIVersion}/config/d/cloud-functions/`
       }
       return `${this.apiRoot}/${this.apiVersion}/configs/${this.selectedBranch}/d/${this.selectedDocType}/`
@@ -246,7 +246,7 @@ export default defineComponent({
 
       let requestFunction
       let url = ''
-      if (doctype == 'cloudfunctions') {
+      if (doctype == 'cloud-functions') {
         requestFunction = RequestsUtils.sendReblazeRequest
         url = `config/d/cloud-functions/`
       } else {
@@ -265,6 +265,7 @@ export default defineComponent({
       })
 
       this.docs = response?.data || []
+      console.log('list docs: ', this.docs)
       this.isDownloadLoading = false
       this.loadGitLog()
     },
@@ -301,7 +302,7 @@ export default defineComponent({
       const successMessage = `New ${docTypeText} was created.`
       const failureMessage = `Failed while attempting to create the new ${docTypeText}.`
       const data = docToAdd
-      if (this.selectedDocType === 'cloudfunctions') {
+      if (this.selectedDocType === 'cloud-functions') {
         const url = `config/d/cloud-functions/e/${docToAdd.id}`
         console.log('add new doc function', url, data, successMessage)
         await RequestsUtils.sendReblazeRequest({methodName: 'POST', url, data, successMessage, failureMessage})
@@ -334,7 +335,7 @@ export default defineComponent({
     },
 
     loadGitLog() {
-      if (this.selectedDocType == 'cloudfunctions') {
+      if (this.selectedDocType == 'cloud-functions') {
         return
       }
       this.isGitLogLoading = true

@@ -254,7 +254,7 @@ describe('SecurityPoliciesConnections.vue', () => {
         wrapper = mount(SecurityPoliciesConnections, {
           props: {
             selectedDocId: 'f123456789',
-            selectedDocType: 'cloudfunctions',
+            selectedDocType: 'cloud-functions',
             selectedBranch: 'master',
           },
         })

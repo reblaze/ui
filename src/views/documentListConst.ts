@@ -7,7 +7,6 @@ import {
   FlowControlPolicy,
   GlobalFilter,
   RateLimit,
-  DynamicRule,
 } from '@/types'
 import _ from 'lodash'
 import DatasetsUtils from '@/assets/DatasetsUtils'
@@ -304,7 +303,7 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       classes: 'width-80px',
     },
   ],
-  'cloudfunctions': [
+  'cloud-functions': [
     {
       title: 'Name',
       fieldNames: ['name'],
@@ -360,14 +359,21 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       isSearchable: true,
       classes: 'width-100px',
     },
-    {
-      title: 'Tags',
-      fieldNames: ['tags'],
-      displayFunction: (item: DynamicRule) => {
-        return item?.tags?.join('\n')
-      },
-      isSearchable: true,
-      classes: 'width-100px white-space-pre ellipsis',
-    },
+    // {
+    //   title: 'Tags',
+    //   fieldNames: ['tags'],
+    //   displayFunction: (item: GlobalFilter) => {
+    //     return item?.tags?.join('\n')
+    //   },
+    //   isSearchable: true,
+    //   classes: 'width-100px white-space-pre ellipsis',
+    // },
+    // {
+    //   title: 'Action',
+    //   fieldNames: ['action'],
+    //   isSortable: true,
+    //   isSearchable: true,
+    //   classes: 'width-80px',
+    // },
   ],
 }
