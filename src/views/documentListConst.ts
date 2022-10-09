@@ -6,7 +6,7 @@ import {
   ContentFilterRule, CustomResponse,
   FlowControlPolicy,
   GlobalFilter,
-  RateLimit,
+  RateLimit, SecurityPolicy, SecurityPolicyEntryMatch,
 } from '@/types'
 import _ from 'lodash'
 import DatasetsUtils from '@/assets/DatasetsUtils'
@@ -92,6 +92,57 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       isSortable: true,
       isSearchable: true,
       classes: 'width-80px',
+    },
+  ],
+  'securitypolicies': [
+    {
+      title: 'Name',
+      fieldNames: ['name'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-120px',
+    },
+    {
+      title: 'Matching Names',
+      fieldNames: ['match'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'ellipsis',
+    },
+    {
+      title: 'Rate Limit Rules',
+      fieldNames: ['map'],
+      displayFunction: (item: SecurityPolicy) => {
+        const amount = _.sumBy(item?.map, (mapEntry: SecurityPolicyEntryMatch) => {
+          return mapEntry.limit_ids.length
+        })
+        return amount.toString()
+      },
+      classes: 'width-120px',
+    },
+    {
+      title: 'Active ACL Profiles',
+      fieldNames: ['map'],
+      displayFunction: (item: SecurityPolicy) => {
+        const active = item?.map?.filter((mapEntry: SecurityPolicyEntryMatch) => {
+          return mapEntry.acl_active
+        }).length
+        const total = item?.map?.length
+        return `${active} out of ${total}`
+      },
+      classes: 'width-120px',
+    },
+    {
+      title: 'Active Content Filter Profiles',
+      fieldNames: ['map'],
+      displayFunction: (item: SecurityPolicy) => {
+        const active = item?.map?.filter((mapEntry: SecurityPolicyEntryMatch) => {
+          return mapEntry.acl_active
+        }).length
+        const total = item?.map?.length
+        return `${active} out of ${total}`
+      },
+      classes: 'width-180px',
     },
   ],
   'ratelimits': [

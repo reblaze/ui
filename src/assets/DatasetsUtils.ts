@@ -217,10 +217,10 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'exclude': [],
       'key': [
         {
-          'attrs': 'securitypolicy',
+          'attrs': 'securitypolicyid',
         },
         {
-          'attrs': 'securitypolicyentry',
+          'attrs': 'securitypolicyentryid',
         },
         {
           'headers': 'rbzsessionid',

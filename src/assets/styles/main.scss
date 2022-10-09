@@ -16,6 +16,12 @@
   width: 20px;
 }
 
+.width-30px {
+  max-width: 30px;
+  min-width: 30px;
+  width: 30px;
+}
+
 .width-50px {
   max-width: 50px;
   min-width: 50px;
@@ -62,6 +68,12 @@
   max-width: 150px;
   min-width: 150px;
   width: 150px;
+}
+
+.width-180px {
+  max-width: 180px;
+  min-width: 180px;
+  width: 180px;
 }
 
 .width-200px {
@@ -253,7 +265,6 @@ $color-light: hsl(0, 0%, 96%);
 
 .document-description {
   line-height: 1rem;
-  text-size-adjust: none;
 }
 
 .white-space-pre {

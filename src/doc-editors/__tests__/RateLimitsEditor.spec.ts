@@ -29,7 +29,7 @@ describe('RateLimitsEditor.vue', () => {
       'timeframe': '60',
       'include': ['blocklist'],
       'exclude': ['allowlist'],
-      'key': [{'attrs': 'securitypolicy'}, {'attrs': 'securitypolicyentry'}, {'headers': 'rbzsessionid'}],
+      'key': [{'attrs': 'securitypolicyid'}, {'attrs': 'securitypolicyentryid'}, {'headers': 'rbzsessionid'}],
       'pairwith': {'self': 'self'},
     }]
     securityPoliciesDocs = [
@@ -207,7 +207,7 @@ describe('RateLimitsEditor.vue', () => {
       const addKeyButton = wrapper.find('.add-key-button')
       await addKeyButton.trigger('click')
       const wantedType = 'attrs'
-      const wantedValue = 'securitypolicyentry'
+      const wantedValue = 'securitypolicyentryid'
       const actualType = Object.keys(wrapper.vm.localDoc.key[1])[0]
       const actualValue = Object.values(wrapper.vm.localDoc.key[1])[0]
       expect(wrapper.vm.localDoc.key.length).toEqual(4)
