@@ -252,6 +252,29 @@ declare module CuriefenseClient {
     cloud_functions: string[]
   }
 
+  type MobileSDK = {
+      id: string
+      name: string
+      secret: string
+      var_name: string
+      uid_header: string
+      grace: string
+      grace_var_name: string
+      description: string
+      validator_type: string
+      active_config: [{
+        active: boolean
+        json: string
+        name: string
+      }],
+      signatures: [{
+        name: string
+        hash: string
+        active: boolean
+      }],
+      support_legacy_sdk: boolean
+  }
+
   // Document other - END
 
   // Git - START

@@ -2,9 +2,53 @@
   <div class="card">
     <div class="card-content">
       <div class="media">
-          <div class="media-content">
-            <rbz-table :columns="columns"
-                        :data="mobilesdks"
+        <div class="media-content">
+          <div class="field is-grouped">
+            <div class="control"
+                 v-if="branchNames.length">
+              <div class="select is-small">
+                <select v-model="selectedBranch"
+                        title="Switch branch"
+                        class="branch-selection"
+                        @change="switchBranch()">
+                  <option v-for="name in branchNames"
+                          :key="name"
+                          :value="name">
+                    {{ name }}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <p class="control">
+              <button class="button is-small download-doc-button"
+                      :class="{'is-loading':isDownloadLoading}"
+                      @click="downloadDoc()"
+                      title="Download document"
+                      data-qa="download-document">
+                <span class="icon is-small">
+                    <i class="fas fa-download"></i>
+                </span>
+              </button>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <hr/>
+
+      <div class="content no-data-wrapper"
+           v-if="loadingDocCounter || !selectedBranch">
+          <button class="button is-outlined is-text is-small is-loading document-loading">
+            Loading
+          </button>
+      </div>
+      <div class="content document-list-wrapper"
+           v-show="!loadingDocCounter">
+        <div class="card">
+          <div class="card-content">
+            <div class="content">
+              <rbz-table :columns="columns"
+                        :data="selectedMobileSDK"
                         :show-menu-column="true"
                         :show-filter-button="true"
                         :show-new-button="true"
@@ -12,18 +56,22 @@
                         :show-edit-button="true"
                         @edit-button-clicked="editMobileSDK">
             </rbz-table>
+            </div>
           </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 <script lang="ts">
-import _ from 'lodash'
+// import _ from 'lodash'
 import {defineComponent} from 'vue'
 import RbzTable from '@/components/RbzTable.vue'
-import {ColumnOptions, RoutingProfile} from '@/types'
+import {ColumnOptions, MobileSDK} from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
+import _ from 'lodash'
+import Utils from '@/assets/Utils'
 
 export default defineComponent({
   components: {
@@ -47,49 +95,81 @@ export default defineComponent({
           classes: 'ellipsis',
         },
         {
-          title: 'Path',
-          fieldNames: ['locations'],
-          displayFunction: (item: RoutingProfile) => {
-            return _.map(item.locations, 'path')?.join('\n')
-          },
+          title: 'Grace',
+          fieldNames: ['grace'],
           isSortable: true,
           isSearchable: true,
           classes: 'width-120px white-space-pre',
         },
         {
-          title: 'BE Service',
-          fieldNames: ['beservice'],
-          displayFunction: (item: RoutingProfile) => {
-            return _.map(item.locations, 'backend_id')?.join('\n')
-          },
+          title: 'ID',
+          fieldNames: ['id'],
           isSortable: true,
           isSearchable: true,
           classes: 'width-120px white-space-pre',
-        },
-        {
-          title: 'Cloud Functions',
-          fieldNames: ['locations'],
-          displayFunction: (item: RoutingProfile) => {
-            return item.id
-          },
-          isSortable: true,
-          isSearchable: true,
-          classes: 'width-120px',
         },
       ] as ColumnOptions[],
       isNewLoading: false,
-      loadingDocCounter: 0,
       titles: DatasetsUtils.titles,
-      mobilesdks: [],
+      selectedMobileSDK: [],
+      loadingDocCounter: 0,
+      configs: [],
+      selectedBranch: null,
+      branches: 0,
+      isDownloadLoading: false,
     }
   },
 
+  computed: {
+    branchNames(): string[] {
+      return this.configs?.length ? _.sortBy(_.map(this.configs, 'id')) : []
+    },
+  },
+
   methods: {
-    // TODO: Needs to changes all names to MobileSDK
-    newMobileSDK(): RoutingProfile {
-      // TODO: Needs to add mobile sdk as new entity type
-      const factory = DatasetsUtils.newOperationEntryFactory['routingprofiles']
+    setLoadingDocStatus(isLoading: boolean) {
+      if (isLoading) {
+        this.loadingDocCounter++
+      } else {
+        this.loadingDocCounter--
+      }
+    },
+
+    downloadDoc() {
+      if (!this.isDownloadLoading) {
+        Utils.downloadFile('mobile-sdk', 'json', this.selectedMobileSDK)
+      }
+    },
+
+    async switchBranch() {
+      this.setLoadingDocStatus(true)
+      Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
+      await this.loadMobileSDKs()
+      this.setLoadingDocStatus(false)
+    },
+
+    newMobileSDK(): MobileSDK {
+      const factory = DatasetsUtils.newOperationEntryFactory['mobilesdks']
       return factory && factory()
+    },
+
+    async loadConfigs(counterOnly?: boolean) {
+      // store configs
+      let configs
+      try {
+        const response = await RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'})
+        configs = response.data
+      } catch (err) {
+        console.log('Error while attempting to get configs')
+        console.log(err)
+      }
+      if (!counterOnly) {
+        console.log('loaded configs: ', configs)
+        this.configs = configs
+      }
+      this.branches = _.size(configs)
+      console.log('config counters', this.branches)
+      this.selectedBranch = this.branchNames[0]
     },
 
     editMobileSDK(id: string) {
@@ -97,32 +177,29 @@ export default defineComponent({
       this.$router.push(routeToDoc)
     },
     async addNewSDK() {
-      // TODO: Needs to modify
       this.isNewLoading = true
       const mobileSDKToAdd = this.newMobileSDK()
-      const mobileSDKText = this.titles['routingprofiles-singular']
+      const mobileSDKText = this.titles['mobilesdks-singular']
       const successMessage = `New ${mobileSDKText} was created.`
       const failureMessage = `Failed while attempting to create the new ${mobileSDKText}.`
-      const url = `config/routing-profiles/${mobileSDKToAdd.name}/`
+      const url = `configs/${this.selectedBranch}/d/mobile-sdks/e/${mobileSDKToAdd.id}/`
       const data = mobileSDKToAdd
       const response = await RequestsUtils.sendReblazeRequest({methodName: 'POST', url, data, successMessage, failureMessage})
-      this.editMobileSDK(response?.data?.id)
+      this.editMobileSDK(response?.data)
       this.isNewLoading = false
     },
 
     async loadMobileSDKs() {
-      const url = 'config/mobile-sdks/'
+      const url = `configs/${this.selectedBranch}/d/mobile-sdks/`
       const response = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
-      this.mobilesdks = _.values(response?.data)
-      console.log(this.mobilesdks)
+      this.selectedMobileSDK = response?.data
+      console.log(this.selectedMobileSDK)
+      this.selectedBranch = this.branchNames[0]
     },
   },
-  created() {
+  async created() {
+    await this.loadConfigs()
     this.loadMobileSDKs()
   },
 })
 </script>
-
-<style scoped lang="scss">
-
-</style>

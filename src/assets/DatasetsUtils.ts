@@ -5,6 +5,7 @@ import {
   FlowControlPolicy,
   GlobalFilter,
   HttpRequestMethods,
+  MobileSDK,
   RateLimit,
   RoutingProfile,
   SecurityPolicy,
@@ -60,6 +61,8 @@ const titles: { [key: string]: string } = {
   'active': 'Active',
   'routingprofiles': 'Routing Profiles',
   'routingprofiles-singular': 'Routing Profiles',
+  'mobilesdks': 'MobileSDKs',
+  'mobilesdks-singular': 'MobileSDKs',
   'report': 'Report',
   'ignore': 'Ignore',
 }
@@ -275,13 +278,38 @@ const newOperationEntryFactory: { [key: string]: Function } = {
   routingprofiles(): RoutingProfile {
     return {
       'id': generateUUID2(),
-      'name': 'New Routing Profile1' + generateUUID2(),
+      'name': 'New Routing Profile ' + generateUUID2(),
       'server_names': [],
       'locations': [{
         'path': '/',
         'backend_id': '',
       }],
       'cloud_functions': [],
+    }
+  },
+
+  mobilesdks(): MobileSDK /* TODO: Needs to add this entity */{
+    return {
+      'id': generateUUID2(),
+      'name': 'New MobileSDK ' + generateUUID2(),
+      'secret': '',
+      'var_name': '',
+      'uid_header': '',
+      'grace': '',
+      'grace_var_name': '',
+      'description': '',
+      'validator_type': '',
+      'active_config': [{
+        'active': false,
+        'json': '',
+        'name': '',
+      }],
+      'signatures': [{
+        'name': '',
+        'hash': '',
+        'active': false,
+      }],
+      'support_legacy_sdk': false,
     }
   },
 }

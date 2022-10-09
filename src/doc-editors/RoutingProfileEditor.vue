@@ -5,19 +5,39 @@
           <div class="media-content">
             <div class="columns">
               <div class="column">
+                <div class="column">
+                  <div class="field is-grouped">
+                    <div class="control"
+                         v-if="branchNames.length">
+                      <div class="select is-small">
+                        <select v-model="selectedBranch"
+                                title="Switch branch"
+                                class="branch-selection"
+                                @change="switchBranch()">
+                          <option v-for="name in branchNames"
+                                  :key="name"
+                                  :value="name">
+                            {{name}}
+                          </option>
+                        </select>
+                      </div>
+                    </div>
+                    <p class="control">
+                      <button class="button is-small download-doc-button"
+                              :class="{'is-loading':isDownloadLoading}"
+                              @click="downloadDoc()"
+                              title="Download document"
+                              data-qa="download-document">
+                        <span class="icon is-small">
+                          <i class="fas fa-download"></i>
+                        </span>
+                      </button>
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="column">
                 <div class="field is-grouped is-pulled-right">
-                  <p class="control">
-                    <button class="button is-small download-doc-button"
-                            :disabled="!selectedRoutingProfile"
-                            :class="{'is-loading': isDownloadLoading}"
-                            title="Download document"
-                            data-qa="download-document"
-                            @click="downloadDoc()">
-                      <span class="icon is-small">
-                        <i class="fas fa-download"></i>
-                      </span>
-                    </button>
-                  </p>
                   <p class="control">
                     <button class="button is-small save-document-button"
                             :class="{'is-loading': isSaveLoading}"
@@ -161,9 +181,8 @@ export default defineComponent({
     apiPath: String,
   },
   data() {
+    // TODO: need to clean unuse vars, styles and functions
     return {
-      selectedType: ['a', 'b', 'c', 'd', 'e', 'f'],
-      headersArray: ['a', 'b'],
       loadingDocCounter: 0,
       idFromRoute: '',
       isDownloadLoading: false,
@@ -171,6 +190,9 @@ export default defineComponent({
       isSaveLoading: false,
       isDeleteLoading: false,
       titles: DatasetsUtils.titles,
+      configs: [],
+      selectedBranch: null,
+      branches: 0,
     }
   },
   computed: {
@@ -185,6 +207,11 @@ export default defineComponent({
         }
       },
     },
+
+    branchNames() {
+      return this.configs?.length ? _.sortBy(_.map(this.configs, 'id')) : []
+    },
+
     serverNameIds: {
       get() {
         return this.selectedRoutingProfile.server_names?.join('\n')
@@ -198,6 +225,13 @@ export default defineComponent({
     },
   },
   methods: {
+    async switchBranch() {
+      this.setLoadingDocStatus(true)
+      Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
+      await this.loadProfile()
+      this.setLoadingDocStatus(false)
+    },
+
     displayCloudFunctions() {
       console.log(_.map(this.selectedRoutingProfile, 'cloud_functions')?.join(', '))
       return _.map(this.selectedRoutingProfile, 'cloud_functions')?.join(', ')
@@ -296,8 +330,27 @@ export default defineComponent({
     removeLocationElement(index: number): void {
       this.selectedRoutingProfile.locations.splice(index, 1)
     },
+
+    async loadConfigs(counterOnly?:boolean) {
+      // store configs
+      let configs
+      try {
+        const response = await RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'})
+        configs = response.data
+      } catch (err) {
+        console.log('Error while attempting to get configs')
+        console.log(err)
+      }
+      if (!counterOnly) {
+        console.log('loaded configs: ', configs)
+        this.configs = configs
+      }
+      this.branches = _.size(configs)
+      this.selectedBranch = this.branchNames[0]
+    },
   },
-  created() {
+  async created() {
+    await this.loadConfigs()
     this.setSelectedDataFromRouteParams()
   },
 })
