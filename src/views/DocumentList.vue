@@ -57,7 +57,7 @@
           </div>
         </div>
         <hr/>
-        <git-history v-if="selectedDocType !=='cloud-functions'"
+        <git-history v-if="!isReblazeDocument"
                     :gitLog="gitLog"
                     :apiPath="gitAPIPath"
                     :loading="isGitLogLoading"
@@ -134,6 +134,10 @@ export default defineComponent({
     GitHistory,
   },
   data() {
+    const reblazeComponentsMap = {
+      'cloud-functions': shallowRef({component: CloudFunctionsEditor}),
+      'dynamic-rules': shallowRef({component: DynamicRulesEditor}),
+    }
     return {
       columns: [] as ColumnOptions[],
       configs: [],
@@ -156,8 +160,8 @@ export default defineComponent({
       isGitLogLoading: false,
       loadingDocCounter: 0,
 
-      apiRoot: RequestsUtils.confAPIRoot,
-      apiVersion: RequestsUtils.confAPIVersion,
+      confAPIRoot: RequestsUtils.confAPIRoot,
+      confAPIVersion: RequestsUtils.confAPIVersion,
       reblazeAPIRoot: RequestsUtils.reblazeAPIRoot,
       reblazeAPIVersion: RequestsUtils.reblazeAPIVersion,
       componentsMap: {
@@ -168,22 +172,29 @@ export default defineComponent({
         'aclprofiles': shallowRef({component: ACLEditor}),
         'contentfilterprofiles': shallowRef({component: ContentFilterEditor}),
         'contentfilterrules': shallowRef({component: ContentFilterRulesEditor}),
-        'cloud-functions': shallowRef({component: CloudFunctionsEditor}),
         'actions': shallowRef({component: CustomResponseEditor}),
-        'dynamicrules': shallowRef({component: DynamicRulesEditor}),
+        ...reblazeComponentsMap,
       },
+      reblazeComponentsMap: reblazeComponentsMap,
     }
   },
   computed: {
+    isReblazeDocument(): boolean {
+      return Object.keys(this.reblazeComponentsMap).includes(this.selectedDocType)
+    },
+
     documentListAPIPath(): string {
-      if (this.selectedDocType == 'cloud-functions') {
-        return `${this.reblazeAPIRoot}/${this.reblazeAPIVersion}/config/d/cloud-functions/`
+      let apiPrefix
+      if (this.isReblazeDocument) {
+        apiPrefix = `${this.reblazeAPIRoot}/${this.reblazeAPIVersion}`
+      } else {
+        apiPrefix = `${this.confAPIRoot}/${this.confAPIVersion}`
       }
-      return `${this.apiRoot}/${this.apiVersion}/configs/${this.selectedBranch}/d/${this.selectedDocType}/`
+      return `${apiPrefix}/configs/${this.selectedBranch}/d/${this.selectedDocType}/`
     },
 
     gitAPIPath(): string {
-      const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
+      const apiPrefix = `${this.confAPIRoot}/${this.confAPIVersion}`
       return `${apiPrefix}/configs/${this.selectedBranch}/d/${this.selectedDocType}/v/`
     },
 
@@ -218,7 +229,7 @@ export default defineComponent({
       }
       this.columns = COLUMN_OPTIONS_MAP[this.selectedDocType]
       if (!prevDocType || prevDocType !== this.selectedDocType) {
-        await this.loadDocs(this.selectedDocType)
+        await this.loadDocs()
       }
       this.setLoadingDocStatus(false)
       this.loadGitLog()
@@ -239,19 +250,16 @@ export default defineComponent({
       this.configs = configs
     },
 
-    async loadDocs(doctype: DocumentType) {
+    async loadDocs() {
       this.isDownloadLoading = true
-      const branch = this.selectedBranch
       const fieldNames = _.flatMap(this.columns, 'fieldNames')
 
       let requestFunction
-      let url = ''
-      if (doctype == 'cloud-functions') {
+      const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/`
+      if (this.isReblazeDocument) {
         requestFunction = RequestsUtils.sendReblazeRequest
-        url = `config/d/cloud-functions/`
       } else {
         requestFunction = RequestsUtils.sendRequest
-        url = `configs/${branch}/d/${doctype}/`
       }
       const response = await requestFunction({
         methodName: 'GET',
@@ -273,7 +281,7 @@ export default defineComponent({
     async switchBranch() {
       this.setLoadingDocStatus(true)
       Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
-      await this.loadDocs(this.selectedDocType)
+      await this.loadDocs()
       this.goToRoute()
       this.setLoadingDocStatus(false)
     },
@@ -302,8 +310,8 @@ export default defineComponent({
       const successMessage = `New ${docTypeText} was created.`
       const failureMessage = `Failed while attempting to create the new ${docTypeText}.`
       const data = docToAdd
-      if (this.selectedDocType === 'cloud-functions') {
-        const url = `config/d/cloud-functions/e/${docToAdd.id}`
+      if (this.isReblazeDocument) {
+        const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${docToAdd.id}`
         console.log('add new doc function', url, data, successMessage)
         await RequestsUtils.sendReblazeRequest({methodName: 'POST', url, data, successMessage, failureMessage})
           .then(() => {
@@ -335,7 +343,7 @@ export default defineComponent({
     },
 
     loadGitLog() {
-      if (this.selectedDocType == 'cloud-functions') {
+      if (this.isReblazeDocument) {
         return
       }
       this.isGitLogLoading = true
@@ -363,7 +371,7 @@ export default defineComponent({
         successMessage: `Document [${docTitle}] restored to version [${versionId}]!`,
         failureMessage: `Failed restoring document [${docTitle}] to version [${versionId}]!`,
       })
-      await this.loadDocs(this.selectedDocType)
+      await this.loadDocs()
     },
   },
 

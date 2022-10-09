@@ -6,7 +6,8 @@
           <div class="columns">
             <div class="column">
               <div class="field is-grouped">
-                <div class="control" v-if="branchNames.length">
+                <div class="control"
+                     v-if="branchNames.length">
                   <div class="select is-small">
                     <select v-model="selectedBranch"
                             data-qa="policies-switch-branch"
@@ -77,7 +78,8 @@
 
             <div class="column">
               <div class="field is-grouped is-pulled-right">
-                <div class="control" v-if="docIdNames.length">
+                <div class="control"
+                     v-if="docIdNames.length">
                   <div class="select is-small">
                     <select v-model="selectedDocID"
                             title="Switch document ID"
@@ -167,7 +169,7 @@
             ref="currentComponent">
         </component>
         <hr/>
-        <git-history v-if="selectedDocID && selectedDocType !== 'cloud-functions'"
+        <git-history v-if="selectedDocID && !isReblazeDocument"
                      :gitLog="gitLog"
                      :apiPath="gitAPIPath"
                      :loading="loadingGitlog"
@@ -175,7 +177,7 @@
       </div>
 
       <div class="content no-data-wrapper"
-        v-if="loadingDocCounter || !selectedBranch || !selectedDocType || !selectedDoc">
+           v-if="loadingDocCounter || !selectedBranch || !selectedDocType || !selectedDoc">
         <div v-if="loadingDocCounter > 0">
           <button class="button is-outlined is-text is-small is-loading document-loading">
             Loading
@@ -232,7 +234,6 @@ import {defineComponent, shallowRef} from 'vue'
 import {Commit, Document, DocumentType, HttpRequestMethods, SecurityPolicy} from '@/types'
 import axios, {AxiosResponse} from 'axios'
 
-
 export default defineComponent({
   name: 'DocumentEditor',
   props: {},
@@ -240,6 +241,10 @@ export default defineComponent({
     GitHistory,
   },
   data() {
+    const reblazeComponentsMap = {
+      'cloud-functions': shallowRef({component: CloudFunctionsEditor}),
+      'dynamic-rules': shallowRef({component: DynamicRulesEditor}),
+    }
     return {
       configs: [],
       mdiSourceBranchPath: mdiSourceBranch,
@@ -283,26 +288,33 @@ export default defineComponent({
         'aclprofiles': shallowRef({component: ACLEditor}),
         'contentfilterprofiles': shallowRef({component: ContentFilterEditor}),
         'contentfilterrules': shallowRef({component: ContentFilterRulesEditor}),
-        'cloud-functions': shallowRef({component: CloudFunctionsEditor}),
         'actions': shallowRef({component: CustomResponseEditor}),
-        'dynamicrules': shallowRef({component: DynamicRulesEditor}),
+        ...reblazeComponentsMap,
       },
-      apiRoot: RequestsUtils.confAPIRoot,
-      apiVersion: RequestsUtils.confAPIVersion,
+      reblazeComponentsMap: reblazeComponentsMap,
+      confAPIRoot: RequestsUtils.confAPIRoot,
+      confAPIVersion: RequestsUtils.confAPIVersion,
+      reblazeAPIRoot: RequestsUtils.confAPIRoot,
+      reblazeAPIVersion: RequestsUtils.confAPIVersion,
     }
   },
   computed: {
+    isReblazeDocument(): boolean {
+      return Object.keys(this.reblazeComponentsMap).includes(this.selectedDocType)
+    },
 
     documentAPIPath(): string {
-      const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
-      if (this.selectedDocType === 'cloud-functions') {
-        return `/config/d/cloud-functions/e/${this.selectedDocID}`
+      let apiPrefix
+      if (this.isReblazeDocument) {
+        apiPrefix = `${this.reblazeAPIRoot}/${this.reblazeAPIVersion}`
+      } else {
+        apiPrefix = `${this.confAPIRoot}/${this.confAPIVersion}`
       }
       return `${apiPrefix}/configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`
     },
 
     gitAPIPath(): string {
-      const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
+      const apiPrefix = `${this.confAPIRoot}/${this.confAPIVersion}`
       return `${apiPrefix}/configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/v/`
     },
 
@@ -348,7 +360,7 @@ export default defineComponent({
       if (this.selectedDocType === 'cloud-functions') {
         return this.referencedIDsCloudFunctions.includes(this.selectedDocID)
       }
-      if (this.selectedDocType === 'dynamicrules') {
+      if (this.selectedDocType === 'dynamic-rules') {
         return this.referencedIDsDynamicRules.includes(this.selectedDocID)
       }
       return false
@@ -383,7 +395,7 @@ export default defineComponent({
         this.selectedDocType = Object.keys(this.componentsMap)[0] as DocumentType
       }
       if (!prevDocType || prevDocType !== this.selectedDocType) {
-        await this.loadDocs(this.selectedDocType)
+        await this.loadDocs()
       }
       const docIdFromRoute = this.$route.params?.doc_id?.toString()
       if (docIdFromRoute && this.docIdNames.findIndex((idName) => idName[0] === docIdFromRoute)) {
@@ -440,7 +452,7 @@ export default defineComponent({
       if (this.selectedDoc && Object.keys(this.selectedDoc).length === 2) {
         let response
         const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`
-        if (this.selectedDocType == 'cloud-functions') {
+        if (this.isReblazeDocument) {
           response = await RequestsUtils.sendReblazeRequest({
             methodName: 'GET',
             url,
@@ -453,7 +465,7 @@ export default defineComponent({
         }
         this.selectedDoc = response?.data || this.selectedDoc
         // let globalResponse
-        // if (this.selectedDocType == 'dynamicrules') {
+        // if (this.selectedDocType == 'dynamic-rules') {
         //   // get action to reblaze
         //   // get doc to conf server
         //   globalResponse = RequestsUtils.sendRequest({
@@ -469,16 +481,16 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
-    async loadDocs(doctype: DocumentType, skipDocSelection?: boolean) {
+    async loadDocs(skipDocSelection?: boolean) {
       this.isDownloadLoading = true
       const branch = this.selectedBranch
-
-
-      const url = `configs/${branch}/d/${doctype}/`
-
-      const requestFunction = (doctype == 'cloud-functions') ?
-        RequestsUtils.sendReblazeRequest :
-        RequestsUtils.sendRequest
+      const url = `configs/${branch}/d/${this.selectedDocType}/`
+      let requestFunction
+      if (this.isReblazeDocument) {
+        requestFunction = RequestsUtils.sendReblazeRequest
+      } else {
+        requestFunction = RequestsUtils.sendRequest
+      }
 
       const response = await requestFunction({
         methodName: 'GET',
@@ -493,7 +505,7 @@ export default defineComponent({
       this.docs = response?.data || []
 
       // After we load the basic data (id and name) we can async load the full data
-      this.cancelSource.cancel(`Operation cancelled and restarted for a new document type ${doctype}`)
+      this.cancelSource.cancel(`Operation cancelled and restarted for a new document type ${this.selectedDocType}`)
       this.cancelSource = axios.CancelToken.source()
       requestFunction({
         methodName: 'GET',
@@ -523,7 +535,7 @@ export default defineComponent({
     },
 
     loadGitLog(interaction?: boolean) {
-      if (this.selectedDocType == 'cloud-functions') {
+      if (this.isReblazeDocument) {
         return
       }
       this.loadingGitlog = true
@@ -546,7 +558,7 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       this.resetGitLog()
       Utils.toast(`Switched to branch "${this.selectedBranch}".`, 'is-info')
-      await this.loadDocs(this.selectedDocType, true)
+      await this.loadDocs(true)
       await this.loadReferencedDocsIDs()
       this.goToRoute()
       this.setLoadingDocStatus(false)
@@ -558,7 +570,7 @@ export default defineComponent({
       this.selectedDocID = null
       this.resetGitLog()
       Utils.toast(`Switched to document type ${this.titles[this.selectedDocType]}.`, 'is-info')
-      await this.loadDocs(this.selectedDocType, true)
+      await this.loadDocs(true)
       this.goToRoute()
       this.setLoadingDocStatus(false)
     },
@@ -642,9 +654,9 @@ export default defineComponent({
       const data = this.selectedDoc
       let requestFunction
       let url = ''
-      if (this.selectedDocType == 'cloud-functions') {
+      if (this.isReblazeDocument) {
         requestFunction = RequestsUtils.sendReblazeRequest
-        url = `config/d/cloud-functions/e/${this.selectedDocID}/`
+        url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`
       } else {
         requestFunction = RequestsUtils.sendRequest
         url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/`
@@ -662,7 +674,7 @@ export default defineComponent({
         }
       })
 
-      // if (this.selectedDocType == 'dynamicrules') {
+      // if (this.selectedDocType == 'dynamic-rules') {
       //   url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${this.selectedDocID}/`
       //   console.log('this.selectedDocID', this.selectedDocID, 'this.selectedDoc.id', this.selectedDoc.id)
       //   // globalData
@@ -683,21 +695,18 @@ export default defineComponent({
       const docTypeText = this.titles[this.selectedDocType + '-singular']
       const successMessage = `The ${docTypeText} was deleted.`
       const failureMessage = `Failed while attempting to delete the ${docTypeText}.`
+      const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`
       let requestFunction
-      let url = ''
       const methodName = 'DELETE'
-      if (this.selectedDocType == 'cloud-functions') {
+      if (this.isReblazeDocument) {
         requestFunction = RequestsUtils.sendReblazeRequest
-        url = `config/d/cloud-functions/e/${this.selectedDocID}/`
       } else {
         requestFunction = RequestsUtils.sendRequest
-        url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`
       }
-      await requestFunction({methodName, url, successMessage, failureMessage})
-        .then(() => {
-          this.updateDocIdNames()
-          this.loadGitLog(true)
-        })
+      await requestFunction({methodName, url, successMessage, failureMessage}).then(() => {
+        this.updateDocIdNames()
+        this.loadGitLog(true)
+      })
 
       this.selectedDocID = this.docs[0].id
       await this.loadSelectedDocData()
@@ -744,7 +753,7 @@ export default defineComponent({
         successMessage: `Document [${docTitle}] restored to version [${versionId}]!`,
         failureMessage: `Failed restoring document [${docTitle}] to version [${versionId}]!`,
       })
-      await this.loadDocs(this.selectedDocType, true)
+      await this.loadDocs(true)
     },
 
     addMissingDefaultsToDoc() {
@@ -778,7 +787,8 @@ export default defineComponent({
   },
 })
 </script>
-<style scoped lang="scss">
+<style scoped
+       lang="scss">
 
 .no-data-wrapper {
   /* Magic number! Delayed the display of loading indicator as to not display it in short loads */

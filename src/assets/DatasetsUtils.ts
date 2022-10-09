@@ -44,7 +44,7 @@ const titles: { [key: string]: string } = {
   'attrs-entry': 'Attribute',
   'aclprofiles': 'ACL Profiles',
   'aclprofiles-singular': 'ACL Profile',
-  'dynamicrules': 'Dynamic Rules',
+  'dynamic-rules': 'Dynamic Rules',
   'ratelimits': 'Rate Limits',
   'ratelimits-singular': 'Rate Limit',
   'securitypolicies': 'Security Policies',
@@ -271,7 +271,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  'dynamicrules'(): DynamicRule {
+  'dynamic-rules'(): DynamicRule {
     return {
       'id': generateUUID2(),
       'name': 'New Dynamic Rules',

@@ -330,7 +330,7 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       classes: 'width-150px',
     },
   ],
-  'dynamicrules': [
+  'dynamic-rules': [
     {
       title: 'Name',
       fieldNames: ['name'],

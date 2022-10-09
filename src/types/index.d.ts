@@ -79,7 +79,7 @@ declare module CuriefenseClient {
   type NamesRegexType = 'names' | 'regex'
 
   type CloudFunctionsPhaseType = 'request0' | 'request1' | 'response0' | 'response1'
- 
+
   type Document =
     BasicDocument
     & (ACLProfile | CloudFunction | ContentFilterProfile | ContentFilterRule | CustomResponse |
@@ -93,9 +93,12 @@ declare module CuriefenseClient {
     | 'securitypolicies'
     | 'contentfilterprofiles'
     | 'contentfilterrules'
-    | 'cloud-functions'
     | 'actions'
-    | 'dynamicrules'
+    | ReblazeDocumentType
+
+  type ReblazeDocumentType =
+    'cloud-functions'
+    | 'dynamic-rules'
 
   // Document types helpers - END
 
@@ -187,7 +190,7 @@ declare module CuriefenseClient {
     exclude: string[]
     include: string[]
   }
-  
+
   type RateLimit = {
     id: string
     name: string

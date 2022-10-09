@@ -29,7 +29,7 @@ describe('DynamicRulesEditor.vue', () => {
     }]
     const selectedBranch = 'master'
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      // if (path === `/conf/api/v3/configs/${selectedBranch}/d/dynamicrules/abc123`) {
+      // if (path === `/conf/api/v3/configs/${selectedBranch}/d/dynamic-rules/abc123`) {
       //   return Promise.resolve({data: dynamicRulesDocs})
       // }
       return Promise.resolve({data: []})

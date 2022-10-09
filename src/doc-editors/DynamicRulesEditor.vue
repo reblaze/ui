@@ -15,7 +15,7 @@
                 </label>
                 <div class="control">
                   <input class="input is-small document-name"
-                         data-qa="dynamicrules-name-input"
+                         data-qa="dynamic-rules-name-input"
                          title="Document name"
                          placeholder="Document name"
                          @change="emitDocUpdate"
@@ -50,7 +50,7 @@
                 </label>
                 <div class="control suffix seconds-suffix">
                   <input class="input is-small document-timeframe"
-                         data-qa="dynamicrules-timeframe-input"
+                         data-qa="dynamic-rules-timeframe-input"
                          type="text"
                          title="Dynamic Rules limit duration"
                          placeholder="Rate limit duration"
@@ -64,7 +64,7 @@
                 </label>
                 <div class="control">
                   <input class="input is-small document-threshold"
-                         data-qa="dynamicrules-threshold-input"
+                         data-qa="dynamic-rules-threshold-input"
                          type="text"
                          title="Dynamic Rules threshold"
                          placeholder="Dynamic Rules Threshold"
