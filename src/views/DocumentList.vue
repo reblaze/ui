@@ -79,8 +79,8 @@
             <span v-if="!branchNames.includes(selectedBranch)">
               Missing branch. To be redirected to Version Control page where you will be able to create a new one, click
               <a title="Add new"
-                 class="version-control-referral-button"
-                 @click="referToVersionControl()">
+                 class="redirect-version-control-button"
+                 @click="redirectToVersionControl()">
                 here
               </a>
             </span>
@@ -255,7 +255,7 @@ export default defineComponent({
       const response = await requestFunction({
         methodName: 'GET',
         url: url,
-        config: {headers: {'x-fields': `id, ${fieldNames.join(', ')}`}},
+        config: {headers: {'x-fields': `id, ${_.uniq(fieldNames).join(', ')}`}},
         onFail: () => {
           console.log('Error while attempting to load documents')
           this.docs = []
@@ -328,7 +328,7 @@ export default defineComponent({
       }
     },
 
-    referToVersionControl() {
+    redirectToVersionControl() {
       this.$router.push('/versioncontrol')
     },
 

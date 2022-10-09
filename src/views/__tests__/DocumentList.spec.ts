@@ -1093,7 +1093,7 @@ describe('DocumentList.vue', () => {
           expect(path).toEqual('/versioncontrol')
           done()
         })
-        const button = wrapper.find('.version-control-referral-button')
+        const button = wrapper.find('.redirect-version-control-button')
         await button.trigger('click')
       })
     })
@@ -1487,6 +1487,7 @@ describe('DocumentList.vue', () => {
       'flowcontrol',
       'globalfilters',
       'ratelimits',
+      'securitypolicies',
       'contentfilterprofiles',
       'contentfilterrules',
       'cloudfunctions',
