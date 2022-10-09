@@ -26,10 +26,10 @@
         <div class="dropdown is-block"
              :class="{'is-active': menuVisible}">
           <div class="dropdown-trigger">
-            <button class="button is-size-7 menu-toggle-button"
-                    title="Open menu"
+            <button class="button is-size-7 menu-toggle-button is-block"
                     aria-haspopup="true"
                     aria-controls="dropdown-menu"
+                    :title="`${menuVisible ? 'Close' : 'Open'} menu`"
                     v-if="showFilterButton || showNewButton"
                     @click.stop="menuVisible = !menuVisible">
             <span class="icon is-small">
