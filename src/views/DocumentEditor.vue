@@ -266,7 +266,6 @@ export default defineComponent({
       docs: [] as Document[],
       docIdNames: [] as [Document['id'], Document['name']][],
       selectedDocID: null,
-      newDocName: null as string,
       cancelSource: axios.CancelToken.source(),
       isDownloadLoading: false,
       isDocumentInvalid: false,
@@ -612,7 +611,6 @@ export default defineComponent({
       this.resetGitLog()
       this.docs.unshift(docToAdd)
       this.selectedDocID = docToAdd.id
-      this.newDocName = docToAdd.name
       const docTypeText = this.titles[this.selectedDocType + '-singular']
       if (!successMessage) {
         successMessage = `New ${docTypeText} was created.`
