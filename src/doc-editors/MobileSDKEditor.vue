@@ -285,7 +285,7 @@
             </div>
           </div>
         </div>
-        
+
       </div>
       <div class="content">
         <fieldset class="fieldset challenge mx-0 my-0" :class="{'collapsed-old-params' : !isOldParamsEnabled}">
