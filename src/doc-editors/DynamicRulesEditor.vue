@@ -60,7 +60,7 @@
               </div>
               <div class="field">
                 <label class="label is-small">
-                  Thresholds
+                  Threshold
                 </label>
                 <div class="control">
                   <input class="input is-small document-threshold"
@@ -69,7 +69,7 @@
                          title="Dynamic Rules threshold"
                          placeholder="Dynamic Rules Threshold"
                          @change="emitDocUpdate"
-                         v-model="localDoc.thresholds">
+                         v-model="localDoc.threshold">
                 </div>
               </div>
 
@@ -83,16 +83,16 @@
                              data-qa="action-input"
                              placeholder="Action"
                              @change="saveToGlobalFilters"
-                             v-model="matchingGlobalFilterDoc.action"/>
+                             v-model="localMatchedDoc.action"/>
                     </div>
                 </div>
               <div class="field">
                 <label class="label is-small">Tags</label>
                 <div class="control"
                      data-qa="tag-input">
-                  <tag-autocomplete-input :initial-tag="matchingDocTags"
+                  <tag-autocomplete-input :initial-tag="localMatchedDoc.tags[0]"
                                           :selection-type="'multiple'"
-                                          @tag-changed="matchingDocTags = $event">
+              @tag-changed="localMatchedDoc.tags[localMatchedDoc.tags.length] = $event">
                   </tag-autocomplete-input>
                 </div>
               </div>
@@ -173,23 +173,17 @@ import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import {
   Dictionary,
   DynamicRule,
+  GlobalFilter,
   IncludeExcludeType,
 } from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 // import RequestsUtils from '@/assets/RequestsUtils'
 
-
-type MatchingGlobalFilterDoc = {
-  id: string,
-  action: string,
-  tags: string[],
-}
-
-
 export default defineComponent({
   name: 'DynamicRulesEditor',
   props: {
     selectedDoc: Object,
+    selectedDocMatchingGlobalFilter: Object,
     selectedBranch: String,
     apiPath: String,
   },
@@ -202,7 +196,6 @@ export default defineComponent({
       titles: DatasetsUtils.titles,
       addNewTagColName: null,
       removable: false,
-      matchingGlobalFilterDoc: null as MatchingGlobalFilterDoc,
     }
   },
   // watch: {
@@ -222,62 +215,33 @@ export default defineComponent({
     localDoc(): DynamicRule {
       return _.cloneDeep(this.selectedDoc as DynamicRule)
     },
+    localMatchedDoc(): GlobalFilter {
+      if (!this.selectedDocMatchingGlobalFilter) {
+        const matchDocTemp = DatasetsUtils.newDocEntryFactory['globalfilters']() as GlobalFilter
+        console.log('matchDocTemp', matchDocTemp)
+        matchDocTemp.id = `dr_${this.selectedDoc.id}}`
+        return _.cloneDeep(matchDocTemp as GlobalFilter)
+      }
+      return _.cloneDeep(this.selectedDocMatchingGlobalFilter as GlobalFilter)
+    },
     duplicateTags(): Dictionary<string> {
       const doc = this.localDoc
       const allTags = _.concat(doc['include'], doc['exclude'])
       const dupTags = _.filter(allTags, (val, i, iteratee) => _.includes(iteratee, val, i + 1))
       return _.fromPairs(_.zip(dupTags, dupTags))
     },
-    matchingDocTags: {
-      get: function(): string {
-        if (this.matchingGlobalFilterDoc.tags && this.matchingGlobalFilterDoc.tags.length > 0) {
-          return this.matchingGlobalFilterDoc.tags.join(' ')
-        }
-        return ''
-      },
-      set: function(tags: string): void {
-        this.matchingGlobalFilterDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
-          return tag.trim()
-        }) : []
-        this.saveToGlobalFilters()
-      },
-    },
   },
-  emits: ['update:selectedDoc', 'go-to-route'],
+  emits: ['update:selectedDoc', 'go-to-route', 'update:selectedDocMatchingGlobalFilter'],
   methods: {
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
     },
+    emitMatchDoc() {
+      this.$emit('update:selectedDocMatchingGlobalFilter', this.selectedDocMatchingGlobalFilter)
+    },
     emitGoToRoute(url: string) {
       this.$emit('go-to-route', url)
     },
-
-    getGlobalFilterData() {
-      // const methodName = 'GET'
-      // const url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${this.selectedDoc.id}/`
-      // const successMessage = `Get GlobalFilters Data Successfuly.`
-      // const failureMessage = `Failed to get GlobalFilters data.`
-
-      // const response = RequestsUtils.sendRequest({methodName, url, config: {headers: {'x-fields': 'id, action, tags'}},
-      //  successMessage, failureMessage})
-
-      // console.log('getGlobalFilterData response: ', response)
-      this.matchingGlobalFilterDoc = {
-        id: `dr_${this.selectedDoc.id}`,
-        action: 'monitor', // response.data.action ||
-        tags: ['trusted'], // response.data.tags ||
-      }
-
-      if (!this.matchingGlobalFilterDoc) {
-        this.matchingGlobalFilterDoc = {
-          id: `dr_${this.selectedDoc.id}`,
-          action: 'monitor',
-          tags: ['trusted'],
-        }
-      }
-      console.log('this.matchingGlobalFilterDoc', this.matchingGlobalFilterDoc)
-    },
-
 
     saveToGlobalFilters() {
       // const successMessage = `Changes to GlobalFilters were saved.`
@@ -288,16 +252,6 @@ export default defineComponent({
       // RequestsUtils.sendRequest({methodName: 'POST', url, data, successMessage, failureMessage})
       // .then(() => {}
     },
-    // addThreshold() {
-    //   this.localDoc.thresholds.push({limit: 0, action: 'default'} as ThresholdActionPair)
-    //   this.emitDocUpdate()
-    // },
-
-    // removeThreshold(index: number) {
-    //   if (this.localDoc.thresholds.length > 1) {
-    //     this.localDoc.thresholds.splice(index, 1)
-    //   }
-    //   this.emitDocUpdate()
 
 
     addNewTag(section: IncludeExcludeType, entry: string) {
@@ -320,10 +274,6 @@ export default defineComponent({
       this.addNewTagColName = null
       this.emitDocUpdate()
     },
-  },
-
-  created() {
-    this.getGlobalFilterData()
   },
 })
 </script>

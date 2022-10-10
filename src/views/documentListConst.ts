@@ -354,7 +354,7 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
     },
     {
       title: 'Threshold',
-      fieldNames: ['thresholds'],
+      fieldNames: ['threshold'],
       isSortable: true,
       isSearchable: true,
       classes: 'width-100px',

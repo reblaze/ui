@@ -162,6 +162,7 @@
             :is="componentsMap[selectedDocType].component"
             v-model:selectedBranch="selectedBranch"
             v-model:selectedDoc="selectedDoc"
+            v-model:selectedDocMatchingGlobalFilter="selectedDocMatchingGlobalFilter"
             v-model:docs="docs"
             :apiPath="documentAPIPath"
             @form-invalid="isDocumentInvalid = $event"
@@ -231,7 +232,7 @@ import CustomResponseEditor from '@/doc-editors/CustomResponseEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
 import {defineComponent, shallowRef} from 'vue'
-import {Commit, Document, DocumentType, HttpRequestMethods, SecurityPolicy} from '@/types'
+import {Commit, Document, DocumentType, HttpRequestMethods, SecurityPolicy, GlobalFilter} from '@/types'
 import axios, {AxiosResponse} from 'axios'
 
 export default defineComponent({
@@ -274,6 +275,7 @@ export default defineComponent({
       cancelSource: axios.CancelToken.source(),
       isDownloadLoading: false,
       isDocumentInvalid: false,
+      selectedDocMatchingGlobalFilter: null as GlobalFilter,
 
       gitLog: [],
       loadingGitlog: false,
@@ -297,6 +299,18 @@ export default defineComponent({
       reblazeAPIRoot: RequestsUtils.confAPIRoot,
       reblazeAPIVersion: RequestsUtils.confAPIVersion,
     }
+  },
+  watch: {
+    selectedDocID: {
+      handler: async function(val, oldVal) {
+        if (val && val !== oldVal && this.selectedDocType === 'dynamic-rules' && !this.isNewLoading) {
+          const url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${val}/`
+          const response = await RequestsUtils.sendRequest({methodName: 'GET', url})
+
+          this.selectedDocMatchingGlobalFilter = response.data
+        }
+      },
+    },
   },
   computed: {
     isReblazeDocument(): boolean {
@@ -464,19 +478,19 @@ export default defineComponent({
           })
         }
         this.selectedDoc = response?.data || this.selectedDoc
+
         // let globalResponse
-        // if (this.selectedDocType == 'dynamic-rules') {
-        //   // get action to reblaze
-        //   // get doc to conf server
-        //   globalResponse = RequestsUtils.sendRequest({
-        //     methodName: 'GET',
-        //     config: {headers: {'x-fields': 'id, tags, action'}},
-        //     url: `configs/${this.selectedBranch}/d/globalfilters/e/dr_${this.selectedDocID}/`,
-        //   })
-        //   const globalDoc = globalResponse?.data
-        //   this.selectedDoc = {...this.selectedDoc, active: globalDoc.tags, action: globalDoc.action}
-        //   // this.selectedDoc.action = globalDoc.action
-        // }
+        console.log('this.selectedDocType', this.selectedDocType,
+        'selectedDocMatchingGlobalFilter', this.selectedDocMatchingGlobalFilter)
+        if (this.selectedDocType == 'dynamic-rules') {
+          // get globalFilters from conf server
+          const globalResponse = RequestsUtils.sendRequest({
+            methodName: 'GET',
+            url: `configs/${this.selectedBranch}/d/globalfilters/e/dr_${this.selectedDocID}/`,
+          })
+          console.log('globalResponse', globalResponse)
+          this.selectedDocMatchingGlobalFilter = globalResponse?.data
+        }
       }
       this.setLoadingDocStatus(false)
     },
@@ -522,6 +536,7 @@ export default defineComponent({
       })
       this.updateDocIdNames()
       if (this.docIdNames && this.docIdNames.length && this.docIdNames[0].length) {
+        // did we move to use id only
         if (!skipDocSelection || !_.find(this.docIdNames, (idName: [Document['id'], Document['name']]) => {
           return idName[0] === this.selectedDocID
         })) {
@@ -630,7 +645,16 @@ export default defineComponent({
       if (!failureMessage) {
         failureMessage = `Failed while attempting to create the new ${docTypeText}.`
       }
+
+      if (this.selectedDocType === 'dynamic-rules') {
+        const matchDocTemp = DatasetsUtils.newDocEntryFactory['globalfilters']() as GlobalFilter
+        console.log('matchDocTemp', matchDocTemp)
+        matchDocTemp.id = `dr_${this.selectedDocID}`
+        this.selectedDocMatchingGlobalFilter = matchDocTemp
+      }
+
       await this.saveChanges('POST', successMessage, failureMessage)
+
       this.goToRoute()
       this.isNewLoading = false
       this.setLoadingDocStatus(false)
@@ -651,7 +675,7 @@ export default defineComponent({
         methodName = 'PUT'
       }
 
-      const data = this.selectedDoc
+      let data = this.selectedDoc
       let requestFunction
       let url = ''
       if (this.isReblazeDocument) {
@@ -672,18 +696,15 @@ export default defineComponent({
         if (this.selectedDocType === 'securitypolicies') {
           this.loadReferencedDocsIDs()
         }
+        // If the saved doc was a dynamic rule, also save the matching global filter
+        if (this.selectedDocType === 'dynamic-rules') {
+          const url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${this.selectedDocID}/`
+          data = this.selectedDocMatchingGlobalFilter
+          const response = RequestsUtils.sendRequest({methodName, url, data: data})
+          console.log('sAVE RESPONS ', response)
+          // if (response)
+        }
       })
-
-      // if (this.selectedDocType == 'dynamic-rules') {
-      //   url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${this.selectedDocID}/`
-      //   console.log('this.selectedDocID', this.selectedDocID, 'this.selectedDoc.id', this.selectedDoc.id)
-      //   // globalData
-      //   // const data = {
-      //   //   'id': `dr_${this.selectedDoc.id}`,
-      //   //   'active': this.selectedDoc.active,
-      //   //   'action': this.selectedDoc.action,
-      //   // }
-      // }
 
       this.isSaveLoading = false
     },
@@ -707,6 +728,13 @@ export default defineComponent({
         this.updateDocIdNames()
         this.loadGitLog(true)
       })
+      // If the deleted doc is a dynamic rule, also delete the matching global filter
+      if (this.selectedDocType === 'dynamic-rules') {
+        const url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${this.selectedDocID}/`
+        RequestsUtils.sendRequest({methodName, url}).then(() => {
+          console.log(`globalfilterd deleted successfully dr_${this.selectedDocID}`)
+        })
+      }
 
       this.selectedDocID = this.docs[0].id
       await this.loadSelectedDocData()
@@ -727,6 +755,7 @@ export default defineComponent({
       const referencedContentFilter: string[] = []
       const referencedLimit: string[] = []
       const referencedCloudFunctions: string[] = []
+      const referencedDynamicRules: string[] = []
       _.forEach(docs, (doc) => {
         _.forEach(doc.map, (mapEntry) => {
           referencedACL.push(mapEntry['acl_profile'])
@@ -738,6 +767,7 @@ export default defineComponent({
       this.referencedIDsContentFilter = _.uniq(referencedContentFilter)
       this.referencedIDsLimits = _.uniq(_.flatten(referencedLimit))
       this.referencedIDsCloudFunctions = _.uniq(_.flatten(referencedCloudFunctions))
+      this.referencedIDsDynamicRules = _.uniq(_.flatten(referencedDynamicRules))
     },
 
     async restoreGitVersion(gitVersion: Commit) {

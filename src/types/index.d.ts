@@ -186,9 +186,11 @@ declare module CuriefenseClient {
     active: boolean
     description: string
     timeframe: number
-    thresholds: number
+    threshold: number
     exclude: string[]
     include: string[]
+    ttl: number,
+    target: string,
   }
 
   type RateLimit = {

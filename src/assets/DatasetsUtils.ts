@@ -45,6 +45,7 @@ const titles: { [key: string]: string } = {
   'aclprofiles': 'ACL Profiles',
   'aclprofiles-singular': 'ACL Profile',
   'dynamic-rules': 'Dynamic Rules',
+  'dynamic-rules-singular': 'Dynamic Rule',
   'ratelimits': 'Rate Limits',
   'ratelimits-singular': 'Rate Limit',
   'securitypolicies': 'Security Policies',
@@ -276,11 +277,13 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'id': generateUUID2(),
       'name': 'New Dynamic Rules',
       'description': 'New Dynamic Rules Description and Remarks',
-      'timeframe': 120,
-      'thresholds': 9999,
+      'timeframe': 60,
+      'threshold': 9999,
       'active': false,
       'include': ['all'],
       'exclude': [],
+      'ttl': 7200,
+      'target': '1.1.1.1',
     }
   },
 
