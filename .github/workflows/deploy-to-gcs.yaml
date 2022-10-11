@@ -49,4 +49,4 @@ jobs:
         run: |-
           echo "using bucket rbz${{ github.event.inputs.GH_ENV }}uiv5"
           ls -alh
-          gsutil -m -h "Cache-Control:no-cache,max-age=0" rsync -d -r dist "gs://rbz${{ github.event.inputs.GH_ENV }}uiv5"
+          gsutil -m -h "Cache-Control:no-cache,max-age=0" rsync -d -a public-read -r dist "gs://rbz${{ github.event.inputs.GH_ENV }}uiv5"
