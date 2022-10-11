@@ -303,7 +303,12 @@ export default defineComponent({
   watch: {
     selectedDocID: {
       handler: async function(val, oldVal) {
-        if (val && val !== oldVal && this.selectedDocType === 'dynamic-rules' && !this.isNewLoading) {
+        if (val && val !== oldVal && this.selectedDocType === 'dynamic-rules' && this.isNewLoading) {
+          const matchDocTemp = DatasetsUtils.newDocEntryFactory['globalfilters']() as GlobalFilter
+          matchDocTemp.id = `dr_${this.selectedDocID}`
+
+          this.selectedDocMatchingGlobalFilter = matchDocTemp
+        } else if (val && val !== oldVal && this.selectedDocType === 'dynamic-rules' && !this.isNewLoading) {
           const url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${val}/`
           const response = await RequestsUtils.sendRequest({methodName: 'GET', url})
 
@@ -701,7 +706,7 @@ export default defineComponent({
           const url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${this.selectedDocID}/`
           data = this.selectedDocMatchingGlobalFilter
           const response = RequestsUtils.sendRequest({methodName, url, data: data})
-          console.log('sAVE RESPONS ', response)
+          console.log('sAVE RESPONS ', methodName, response)
           // if (response)
         }
       })

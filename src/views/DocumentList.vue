@@ -41,14 +41,16 @@
         <div class="card">
           <div class="card-content">
             <div class="content">
-              <rbz-table :columns="columns"
-                         :data="docs"
-                         :show-menu-column="true"
-                         :show-filter-button="true"
-                         :show-new-button="true"
-                         @new-button-clicked="addNewDoc"
-                         :show-edit-button="true"
-                         @edit-button-clicked="editDoc">
+              <rbz-table  :columns="columns"
+                          :data="docs"
+                          :show-menu-column="true"
+                          :show-filter-button="true"
+                          :show-new-button="true"
+                          @new-button-clicked="addNewDoc"
+                          :show-row-button="true"
+                          :row-button-title="rowButtonTitle"
+                          :row-button-icon="rowButtonIcon"
+                          @edit-button-clicked="editDoc">
               </rbz-table>
               <span class="is-family-monospace has-text-grey-lighter">
                 {{ documentListAPIPath }}
@@ -153,6 +155,10 @@ export default defineComponent({
       referencedIDsACL: [],
       referencedIDsContentFilter: [],
       referencedIDsLimits: [],
+
+      // table button icon and tooltip
+      rowButtonIcon: 'fa-edit',
+      rowButtonTitle: 'Edit',
 
       // Loading indicators
       isNewLoading: false,

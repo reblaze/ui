@@ -81,16 +81,14 @@
           </span>
         </div>
       </td>
-      <td class="is-size-7"
-          v-if="showMenuColumn">
+      <td class="is-size-7" v-if="showMenuColumn">
         <div class="field is-grouped is-grouped-centered">
-          <p class="control"
-             v-if="showEditButton">
-            <button title="Edit"
+          <p class="control" v-if="showRowButton">
+            <button :title="rowButtonTitle"
                     class="button is-small edit-entity-button"
                     @click="editButtonClicked(row.id)">
               <span class="icon is-small">
-                <i class="fas fa-edit"></i>
+                <i :class="`fas ${rowButtonIcon ? rowButtonIcon : 'fa-edit'}`"></i>
               </span>
             </button>
           </p>
@@ -130,7 +128,9 @@ export default defineComponent({
     showMenuColumn: Boolean,
     showFilterButton: Boolean,
     showNewButton: Boolean,
-    showEditButton: Boolean,
+    showRowButton: Boolean,
+    rowButtonTitle: String,
+    rowButtonIcon: String,
     rowsPerPage: {
       type: Number,
       default: 10,
