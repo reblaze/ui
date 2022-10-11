@@ -424,7 +424,6 @@ export default defineComponent({
     },
 
     async loadConfigs(counterOnly?: boolean) {
-      // store configs
       let configs
       try {
         const response = await RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'})

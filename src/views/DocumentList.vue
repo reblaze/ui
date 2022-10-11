@@ -37,7 +37,7 @@
       <hr/>
 
       <div class="content document-list-wrapper"
-           v-show="!loadingDocCounter">
+           v-show="!loadingDocCounter && selectedBranch && selectedDocType">
         <div class="card">
           <div class="card-content">
             <div class="content">
@@ -225,7 +225,6 @@ export default defineComponent({
     },
 
     async loadConfigs() {
-      // store configs
       let configs
       try {
         const response = await RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'})

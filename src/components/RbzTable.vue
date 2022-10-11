@@ -21,7 +21,7 @@
           {{ col.title }}
         </span>
       </th>
-      <th class="column-header width-30px is-relative has-text-centered"
+      <th class="column-header width-45px is-relative has-text-centered"
           v-if="showMenuColumn">
         <div class="dropdown is-block"
              :class="{'is-active': menuVisible}">

@@ -8,8 +8,8 @@
               <label class="label is-small">
                 Name
                 <span class="has-text-grey is-pulled-right document-id" title="Flow control policy id">
-                    {{ localDoc.id }}
-                  </span>
+                  {{ localDoc.id }}
+                </span>
               </label>
               <div class="control">
                 <input class="input is-small document-name"
@@ -617,12 +617,6 @@ export default defineComponent({
 
 .filter-columns {
   margin-top: 20px;
-}
-
-.seconds-suffix {
-  input {
-    padding-right: 60px;
-  }
 }
 
 :deep(.tag-input) {

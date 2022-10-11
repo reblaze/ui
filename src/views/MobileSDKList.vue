@@ -36,35 +36,38 @@
 
       <hr/>
 
-      <div class="content no-data-wrapper"
-           v-if="loadingDocCounter || !selectedBranch">
-          <button class="button is-outlined is-text is-small is-loading document-loading">
-            Loading
-          </button>
-      </div>
       <div class="content document-list-wrapper"
-           v-show="!loadingDocCounter">
+           v-show="!loadingDocCounter && selectedBranch">
         <div class="card">
           <div class="card-content">
             <div class="content">
               <rbz-table :columns="columns"
-                        :data="selectedMobileSDK"
-                        :show-menu-column="true"
-                        :show-filter-button="true"
-                        :show-new-button="true"
-                        @new-button-clicked="addNewSDK"
-                        :show-edit-button="true"
-                        @edit-button-clicked="editMobileSDK">
-            </rbz-table>
+                         :data="mobileSDKs"
+                         :show-menu-column="true"
+                         :show-filter-button="true"
+                         :show-new-button="true"
+                         @new-button-clicked="addNewSDK"
+                         :show-edit-button="true"
+                         @edit-button-clicked="editMobileSDK">
+              </rbz-table>
+              <span class="is-family-monospace has-text-grey-lighter">
+                {{ documentListAPIPath }}
+              </span>
             </div>
           </div>
         </div>
+      </div>
+
+      <div class="content no-data-wrapper"
+           v-if="loadingDocCounter || !selectedBranch">
+        <button class="button is-outlined is-text is-small is-loading document-loading">
+          Loading
+        </button>
       </div>
     </div>
   </div>
 </template>
 <script lang="ts">
-// import _ from 'lodash'
 import {defineComponent} from 'vue'
 import RbzTable from '@/components/RbzTable.vue'
 import {ColumnOptions, MobileSDK} from '@/types'
@@ -74,6 +77,7 @@ import _ from 'lodash'
 import Utils from '@/assets/Utils'
 
 export default defineComponent({
+  name: 'MobileSDKList',
   components: {
     RbzTable,
   },
@@ -95,32 +99,41 @@ export default defineComponent({
           classes: 'ellipsis',
         },
         {
-          title: 'Grace',
+          title: 'Grace Period',
           fieldNames: ['grace'],
+          displayFunction: (item: MobileSDK) => {
+            return `${item.grace} seconds`
+          },
           isSortable: true,
           isSearchable: true,
-          classes: 'width-120px white-space-pre',
+          classes: 'width-100px',
         },
         {
-          title: 'ID',
-          fieldNames: ['id'],
+          title: 'Token Header Name',
+          fieldNames: ['uid_header'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-120px white-space-pre',
+          classes: 'width-150px',
         },
       ] as ColumnOptions[],
       isNewLoading: false,
       titles: DatasetsUtils.titles,
-      selectedMobileSDK: [],
+      mobileSDKs: [],
       loadingDocCounter: 0,
       configs: [],
       selectedBranch: null,
-      branches: 0,
       isDownloadLoading: false,
+      apiRoot: RequestsUtils.reblazeAPIRoot,
+      apiVersion: RequestsUtils.reblazeAPIVersion,
     }
   },
 
   computed: {
+    documentListAPIPath(): string {
+      const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
+      return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/mobile-sdks/`
+    },
+
     branchNames(): string[] {
       return this.configs?.length ? _.sortBy(_.map(this.configs, 'id')) : []
     },
@@ -135,26 +148,49 @@ export default defineComponent({
       }
     },
 
-    downloadDoc() {
-      if (!this.isDownloadLoading) {
-        Utils.downloadFile('mobile-sdk', 'json', this.selectedMobileSDK)
-      }
-    },
-
-    async switchBranch() {
-      this.setLoadingDocStatus(true)
-      Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
-      await this.loadMobileSDKs()
-      this.setLoadingDocStatus(false)
-    },
-
     newMobileSDK(): MobileSDK {
-      const factory = DatasetsUtils.newOperationEntryFactory['mobilesdks']
+      const factory = DatasetsUtils.newOperationEntryFactory['mobile-sdks']
       return factory && factory()
     },
 
-    async loadConfigs(counterOnly?: boolean) {
-      // store configs
+    editMobileSDK(id: string) {
+      const routeToDoc = `/mobile-sdks/config/${id}`
+      this.$router.push(routeToDoc)
+    },
+
+    async addNewSDK() {
+      this.isNewLoading = true
+      const mobileSDKToAdd = this.newMobileSDK()
+      const mobileSDKText = this.titles['mobile-sdks-singular']
+      const successMessage = `New ${mobileSDKText} was created.`
+      const failureMessage = `Failed while attempting to create the new ${mobileSDKText}.`
+      const url = `configs/${this.selectedBranch}/d/mobile-sdks/e/${mobileSDKToAdd.id}/`
+      const data = mobileSDKToAdd
+      await RequestsUtils.sendReblazeRequest({
+        methodName: 'POST',
+        url,
+        data,
+        successMessage,
+        failureMessage,
+      })
+      this.editMobileSDK(mobileSDKToAdd.id)
+      this.isNewLoading = false
+    },
+
+    downloadDoc() {
+      if (!this.isDownloadLoading) {
+        Utils.downloadFile('mobile-sdks', 'json', this.mobileSDKs)
+      }
+    },
+
+    async loadMobileSDKs() {
+      const url = `configs/${this.selectedBranch}/d/mobile-sdks/`
+      const response = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
+      this.mobileSDKs = response?.data
+      this.selectedBranch = this.branchNames[0]
+    },
+
+    async loadConfigs() {
       let configs
       try {
         const response = await RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'})
@@ -163,38 +199,16 @@ export default defineComponent({
         console.log('Error while attempting to get configs')
         console.log(err)
       }
-      if (!counterOnly) {
-        console.log('loaded configs: ', configs)
-        this.configs = configs
-      }
-      this.branches = _.size(configs)
-      console.log('config counters', this.branches)
+      console.log('loaded configs: ', configs)
+      this.configs = configs
       this.selectedBranch = this.branchNames[0]
     },
 
-    editMobileSDK(id: string) {
-      const routeToDoc = `/mobilesdk/config/${id}`
-      this.$router.push(routeToDoc)
-    },
-    async addNewSDK() {
-      this.isNewLoading = true
-      const mobileSDKToAdd = this.newMobileSDK()
-      const mobileSDKText = this.titles['mobilesdks-singular']
-      const successMessage = `New ${mobileSDKText} was created.`
-      const failureMessage = `Failed while attempting to create the new ${mobileSDKText}.`
-      const url = `configs/${this.selectedBranch}/d/mobile-sdks/e/${mobileSDKToAdd.id}/`
-      const data = mobileSDKToAdd
-      const response = await RequestsUtils.sendReblazeRequest({methodName: 'POST', url, data, successMessage, failureMessage})
-      this.editMobileSDK(response?.data)
-      this.isNewLoading = false
-    },
-
-    async loadMobileSDKs() {
-      const url = `configs/${this.selectedBranch}/d/mobile-sdks/`
-      const response = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
-      this.selectedMobileSDK = response?.data
-      console.log(this.selectedMobileSDK)
-      this.selectedBranch = this.branchNames[0]
+    async switchBranch() {
+      this.setLoadingDocStatus(true)
+      Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
+      await this.loadMobileSDKs()
+      this.setLoadingDocStatus(false)
     },
   },
   async created() {

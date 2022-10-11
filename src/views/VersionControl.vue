@@ -258,7 +258,6 @@ export default defineComponent({
     },
 
     async loadConfigs(activeBranch?: string) {
-      // store configs
       const response = await RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'})
       this.configs = response?.data || []
       if (!activeBranch) {

@@ -410,12 +410,6 @@ export default defineComponent({
   margin: 1rem 0 0.5rem;
 }
 
-.seconds-suffix {
-  input {
-    padding-right: 60px;
-  }
-}
-
 .remove-threshold-option-button {
   margin-left: auto;
   margin-top: auto;

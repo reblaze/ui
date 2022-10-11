@@ -42,13 +42,13 @@
           <div class="card-content">
             <div class="content">
               <rbz-table :columns="columns"
-                         :data="routingProfiles"
+                         :data="proxyTemplates"
                          :show-menu-column="true"
                          :show-filter-button="true"
                          :show-new-button="true"
-                         @new-button-clicked="addNewProfile"
+                         @new-button-clicked="addNewProxyTemplate"
                          :show-edit-button="true"
-                         @edit-button-clicked="editProfile">
+                         @edit-button-clicked="editProxyTemplate">
               </rbz-table>
               <span class="is-family-monospace has-text-grey-lighter">
                 {{ documentListAPIPath }}
@@ -71,13 +71,13 @@
 import _ from 'lodash'
 import {defineComponent} from 'vue'
 import RbzTable from '@/components/RbzTable.vue'
-import {ColumnOptions, RoutingProfile} from '@/types'
+import {ColumnOptions, ProxyTemplate} from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import Utils from '@/assets/Utils'
 
 export default defineComponent({
-  name: 'RoutingProfileList',
+  name: 'ProxyTemplateList',
   components: {
     RbzTable,
   },
@@ -99,39 +99,32 @@ export default defineComponent({
           classes: 'ellipsis',
         },
         {
-          title: 'Path',
-          fieldNames: ['locations'],
-          displayFunction: (item: RoutingProfile) => {
-            return _.map(item.locations, 'path')?.join('\n')
+          title: 'Static IP Rate Limit',
+          fieldNames: ['limit_req_rate', 'limit_req_burst'],
+          displayFunction: (item: ProxyTemplate) => {
+            return [
+              `<span class="width-50px is-inline-block">Rate:</span> ${item['limit_req_rate']} / second`,
+              `<span class="width-50px is-inline-block">Burst:</span> ${item['limit_req_burst']} / second`,
+            ].join('\n')
           },
-          isSortable: true,
-          isSearchable: true,
-          classes: 'width-120px white-space-pre',
+          classes: 'width-150px white-space-pre',
         },
         {
-          title: 'BE Service',
-          fieldNames: ['beservice'],
-          displayFunction: (item: RoutingProfile) => {
-            return _.map(item.locations, 'backend_id')?.join('\n')
+          title: 'Proxy Timeout',
+          fieldNames: ['proxy_connect_timeout', 'proxy_send_timeout', 'proxy_read_timeout'],
+          displayFunction: (item: ProxyTemplate) => {
+            return [
+              `<span class="width-60px is-inline-block">Connect:</span> ${item['proxy_connect_timeout']}`,
+              `<span class="width-60px is-inline-block">Send:</span> ${item['proxy_send_timeout']}`,
+              `<span class="width-60px is-inline-block">Read:</span> ${item['proxy_read_timeout']}`,
+            ].join('\n')
           },
-          isSortable: true,
-          isSearchable: true,
-          classes: 'width-120px white-space-pre',
-        },
-        {
-          title: 'Cloud Functions',
-          fieldNames: ['locations'],
-          displayFunction: (item: RoutingProfile) => {
-            return _.map(item.cloud_functions)?.join('\n')
-          },
-          isSortable: true,
-          isSearchable: true,
-          classes: 'width-120px',
+          classes: 'width-100px white-space-pre',
         },
       ] as ColumnOptions[],
       isNewLoading: false,
       titles: DatasetsUtils.titles,
-      routingProfiles: [],
+      proxyTemplates: [],
       selectedBranch: null,
       configs: [],
       branches: 0,
@@ -145,7 +138,7 @@ export default defineComponent({
   computed: {
     documentListAPIPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
-      return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/routing-profiles/`
+      return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/proxy-templates/`
     },
 
     branchNames(): string[] {
@@ -162,39 +155,39 @@ export default defineComponent({
       }
     },
 
-    newProfile(): RoutingProfile {
-      const factory = DatasetsUtils.newOperationEntryFactory['routing-profiles']
+    newProxyTemplate(): ProxyTemplate {
+      const factory = DatasetsUtils.newOperationEntryFactory['proxy-templates']
       return factory && factory()
     },
 
-    editProfile(id: string) {
-      const routeToEditProfile = `/routing-profiles/config/${id}`
-      this.$router.push(routeToEditProfile)
+    editProxyTemplate(id: string) {
+      const routeToEditProxyTemplate = `/proxy-templates/config/${id}`
+      this.$router.push(routeToEditProxyTemplate)
     },
 
-    async addNewProfile() {
+    async addNewProxyTemplate() {
       this.isNewLoading = true
-      const profileToAdd = this.newProfile()
-      const routingProfileText = this.titles['routing-profiles-singular']
-      const successMessage = `New ${routingProfileText} was created.`
-      const failureMessage = `Failed while attempting to create the new ${routingProfileText}.`
-      const url = `configs/${this.selectedBranch}/d/routing-profiles/e/${profileToAdd.id}`
-      const data = profileToAdd
+      const proxyTemplateToAdd = this.newProxyTemplate()
+      const proxyTemplateText = this.titles['proxy-templates-singular']
+      const successMessage = `New ${proxyTemplateText} was created.`
+      const failureMessage = `Failed while attempting to create the new ${proxyTemplateText}.`
+      const url = `configs/${this.selectedBranch}/d/proxy-templates/e/${proxyTemplateToAdd.id}`
+      const data = proxyTemplateToAdd
       await RequestsUtils.sendReblazeRequest({methodName: 'POST', url, data, successMessage, failureMessage})
-      this.editProfile(profileToAdd.id)
+      this.editProxyTemplate(proxyTemplateToAdd.id)
       this.isNewLoading = false
     },
 
     downloadDoc() {
       if (!this.isDownloadLoading) {
-        Utils.downloadFile('routing-profiles', 'json', this.routingProfiles)
+        Utils.downloadFile('proxy-templates', 'json', this.proxyTemplates)
       }
     },
 
-    async loadProfiles() {
-      const url = `configs/${this.selectedBranch}/d/routing-profiles/`
+    async loadProxyTemplates() {
+      const url = `configs/${this.selectedBranch}/d/proxy-templates/`
       const response = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
-      this.routingProfiles = _.values(response?.data)
+      this.proxyTemplates = _.values(response?.data)
     },
 
     async loadConfigs() {
@@ -215,13 +208,13 @@ export default defineComponent({
     async switchBranch() {
       this.setLoadingDocStatus(true)
       Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
-      await this.loadProfiles()
+      await this.loadProxyTemplates()
       this.setLoadingDocStatus(false)
     },
   },
   async created() {
     await this.loadConfigs()
-    this.loadProfiles()
+    this.loadProxyTemplates()
   },
 })
 </script>

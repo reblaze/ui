@@ -90,17 +90,14 @@ export default defineComponent({
           '/CurieDB': {
             title: 'CurieDB',
           },
-          '/WebProxy': {
-            title: 'Web Proxy',
+          '/routing-profiles': {
+            title: 'Routing Profiles',
           },
-          '/routing-profile/list': {
-            title: 'Routing Profile',
+          '/mobile-sdks': {
+            title: 'Mobile SDKs',
           },
-          '/mobilesdk/list': {
-            title: 'MobileSDK',
-          },
-          '/ProxyTemplate': {
-            title: 'Proxy Template',
+          '/proxy-templates': {
+            title: 'Proxy Templates',
           },
           '/publish': {
             title: 'Publish Changes',
