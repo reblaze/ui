@@ -1514,6 +1514,17 @@ describe('DocumentEditor.vue', () => {
   })
 
   describe('buttons', () => {
+    test('should redirect to list on button click', (done) => {
+      const branch = wrapper.vm.selectedBranch
+      const docType = wrapper.vm.selectedDocType
+      jest.spyOn(mockRouter, 'push').mockImplementation((path) => {
+        expect(path).toEqual(`/list/${branch}/${docType}`)
+        done()
+      })
+      const button = wrapper.find('.redirect-list-button')
+      button.trigger('click')
+    })
+
     test('should refresh referenced IDs lists after saving security policy entity', (done) => {
       // switch to security policy entity type
       const docTypeSelection = wrapper.find('.doc-type-selection')
@@ -1795,7 +1806,7 @@ describe('DocumentEditor.vue', () => {
           expect(path).toEqual('/versioncontrol')
           done()
         })
-        const button = wrapper.find('.version-control-referral-button')
+        const button = wrapper.find('.redirect-version-control-button')
         await button.trigger('click')
       })
     })
