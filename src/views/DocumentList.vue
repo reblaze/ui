@@ -57,10 +57,11 @@
           </div>
         </div>
         <hr/>
-        <git-history :gitLog="gitLog"
-                     :apiPath="gitAPIPath"
-                     :loading="isGitLogLoading"
-                     @restore-version="restoreGitVersion"></git-history>
+        <git-history v-if="selectedDocType !=='cloudfunctions'"
+                    :gitLog="gitLog"
+                    :apiPath="gitAPIPath"
+                    :loading="isGitLogLoading"
+                    @restore-version="restoreGitVersion"></git-history>
       </div>
 
       <div class="content no-data-wrapper"
@@ -78,8 +79,8 @@
             <span v-if="!branchNames.includes(selectedBranch)">
               Missing branch. To be redirected to Version Control page where you will be able to create a new one, click
               <a title="Add new"
-                 class="version-control-referral-button"
-                 @click="referToVersionControl()">
+                 class="redirect-version-control-button"
+                 @click="redirectToVersionControl()">
                 here
               </a>
             </span>
@@ -105,6 +106,7 @@ import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
 import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
 import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
 import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
+import CloudFunctionsEditor from '@/doc-editors/CloudFunctionsEditor.vue'
 import CustomResponseEditor from '@/doc-editors/CustomResponseEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {defineComponent, shallowRef} from 'vue'
@@ -142,7 +144,6 @@ export default defineComponent({
       // Documents
       docs: [] as GenericObject[],
       docIdNames: [] as [Document['id'], Document['name']][],
-
       // To prevent deletion of docs referenced by Security Policies
       referencedIDsACL: [],
       referencedIDsContentFilter: [],
@@ -156,6 +157,8 @@ export default defineComponent({
 
       apiRoot: RequestsUtils.confAPIRoot,
       apiVersion: RequestsUtils.confAPIVersion,
+      reblazeAPIRoot: RequestsUtils.reblazeAPIRoot,
+      reblazeAPIVersion: RequestsUtils.reblazeAPIVersion,
       componentsMap: {
         'globalfilters': shallowRef({component: GlobalFilterListEditor}),
         'flowcontrol': shallowRef({component: FlowControlPolicyEditor}),
@@ -164,14 +167,18 @@ export default defineComponent({
         'aclprofiles': shallowRef({component: ACLEditor}),
         'contentfilterprofiles': shallowRef({component: ContentFilterEditor}),
         'contentfilterrules': shallowRef({component: ContentFilterRulesEditor}),
+        'cloudfunctions': shallowRef({component: CloudFunctionsEditor}),
         'actions': shallowRef({component: CustomResponseEditor}),
       },
+
     }
   },
   computed: {
     documentListAPIPath(): string {
-      const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
-      return `${apiPrefix}/configs/${this.selectedBranch}/d/${this.selectedDocType}/`
+      if (this.selectedDocType == 'cloudfunctions') {
+        return `${this.reblazeAPIRoot}/${this.reblazeAPIVersion}/config/d/cloud-functions/`
+      }
+      return `${this.apiRoot}/${this.apiVersion}/configs/${this.selectedBranch}/d/${this.selectedDocType}/`
     },
 
     gitAPIPath(): string {
@@ -235,16 +242,27 @@ export default defineComponent({
       this.isDownloadLoading = true
       const branch = this.selectedBranch
       const fieldNames = _.flatMap(this.columns, 'fieldNames')
-      const response = await RequestsUtils.sendRequest({
+
+      let requestFunction
+      let url = ''
+      if (doctype == 'cloudfunctions') {
+        requestFunction = RequestsUtils.sendReblazeRequest
+        url = `config/d/cloud-functions/`
+      } else {
+        requestFunction = RequestsUtils.sendRequest
+        url = `configs/${branch}/d/${doctype}/`
+      }
+      const response = await requestFunction({
         methodName: 'GET',
-        url: `configs/${branch}/d/${doctype}/`,
-        data: {headers: {'x-fields': `id, ${fieldNames.join(', ')}`}},
+        url: url,
+        config: {headers: {'x-fields': `id, ${_.uniq(fieldNames).join(', ')}`}},
         onFail: () => {
           console.log('Error while attempting to load documents')
           this.docs = []
           this.isDownloadLoading = false
         },
       })
+
       this.docs = response?.data || []
       this.isDownloadLoading = false
       this.loadGitLog()
@@ -281,11 +299,21 @@ export default defineComponent({
       const docTypeText = this.titles[this.selectedDocType + '-singular']
       const successMessage = `New ${docTypeText} was created.`
       const failureMessage = `Failed while attempting to create the new ${docTypeText}.`
-      const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/`
       const data = docToAdd
-      await RequestsUtils.sendRequest({methodName: 'POST', url, data, successMessage, failureMessage}).then(() => {
-        this.editDoc(docToAdd.id)
-      })
+      if (this.selectedDocType === 'cloudfunctions') {
+        const url = `config/d/cloud-functions/e/${docToAdd.id}`
+        console.log('add new doc function', url, data, successMessage)
+        await RequestsUtils.sendReblazeRequest({methodName: 'POST', url, data, successMessage, failureMessage})
+          .then(() => {
+            this.editDoc(docToAdd.id)
+          })
+      } else {
+        const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/`
+        await RequestsUtils.sendRequest({methodName: 'POST', url, data, successMessage, failureMessage})
+          .then(() => {
+            this.editDoc(docToAdd.id)
+          })
+      }
       this.isNewLoading = false
       this.setLoadingDocStatus(false)
     },
@@ -300,11 +328,14 @@ export default defineComponent({
       }
     },
 
-    referToVersionControl() {
+    redirectToVersionControl() {
       this.$router.push('/versioncontrol')
     },
 
     loadGitLog() {
+      if (this.selectedDocType == 'cloudfunctions') {
+        return
+      }
       this.isGitLogLoading = true
       const config = this.selectedBranch
       const document = this.selectedDocType
@@ -333,6 +364,7 @@ export default defineComponent({
       await this.loadDocs(this.selectedDocType)
     },
   },
+
   async created() {
     this.setLoadingDocStatus(true)
     await this.loadConfigs()

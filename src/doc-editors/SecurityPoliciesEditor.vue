@@ -70,7 +70,7 @@
                     :title="mapEntry.name">
                   {{ mapEntry.name }}
                 </td>
-                <td class="is-size-7 width-360px ellipsis entry-match"
+                <td class="is-size-7 width-400px ellipsis entry-match"
                     colspan="2"
                     :title="mapEntry.match">
                   {{ mapEntry.match }}
@@ -85,11 +85,11 @@
                     :title="mapEntry.acl_active ? 'Active mode' : 'Learning mode'">
                   {{ aclProfileName(mapEntry.acl_profile) }}
                 </td>
-                <td class="is-size-7 entry-rate-limits-count"
+                <td class="is-size-7 width-50px entry-rate-limits-count"
                     v-if="existingRateLimitIDs(mapEntry)">
                   {{ existingRateLimitIDs(mapEntry).length }}
                 </td>
-                <td class="is-size-7"
+                <td class="is-size-7 width-70px"
                     :rowspan="mapEntryIndex === mapIndex ? '2' : '1'">
                   <a class="has-text-grey"
                      title="more details"
@@ -110,6 +110,10 @@
                             <div class="field">
                               <label class="label is-small">
                                 Name
+                                <span class="has-text-grey is-pulled-right map-entry-id"
+                                      title="Map entry id">
+                                  {{ mapEntry.id }}
+                                </span>
                               </label>
                               <div class="control">
                                 <input class="input is-small current-entry-name"
@@ -506,11 +510,12 @@ export default defineComponent({
       })
     },
 
-    addNewProfile(map: SecurityPolicyEntryMatch, idx: number) {
-      const mapEntry = _.cloneDeep(map)
-      const randomUniqueString = DatasetsUtils.generateUUID2()
-      mapEntry.name = 'New Security Profile'
-      mapEntry.match = `/new/path/to/match/profile/${randomUniqueString}`
+    addNewProfile(mapEntry: SecurityPolicyEntryMatch, idx: number) {
+      const newMapEntry = _.cloneDeep(mapEntry)
+      const newMapEntryId = DatasetsUtils.generateUUID2()
+      newMapEntry.id = newMapEntryId
+      newMapEntry.name = 'New Security Profile'
+      newMapEntry.match = `/new/path/to/match/profile/${newMapEntryId}`
 
       // reverting the entry match to a stable and valid state if invalid
       if (!this.isSelectedMapEntryMatchValid(idx)) {
@@ -518,10 +523,10 @@ export default defineComponent({
         Utils.clearInputValidationClasses(this.$refs.mapEntryMatch[0])
         this.emitCurrentDocInvalidity()
       }
-      this.localDoc.map.splice(idx, 0, mapEntry)
+      this.localDoc.map.splice(idx, 0, newMapEntry)
       this.emitDocUpdate()
       const element = this.$refs.profileName[0] as HTMLInputElement
-      this.initialMapEntryMatch = mapEntry.match
+      this.initialMapEntryMatch = newMapEntry.match
       this.entriesMatchNames = _.map(this.localDoc.map, 'match')
       // Pushing the select action to the end of queue in order for the new profile to be rendered beforehand
       setImmediate(() => {

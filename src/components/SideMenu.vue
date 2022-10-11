@@ -65,6 +65,23 @@ export default defineComponent({
       defaultGrafanaURL: grafanaURL,
       defaultPrometheusURL: prometheusURL,
       menuItems: {
+        analytics: {
+          'kibana': {
+            title: 'Kibana',
+            url: kibanaURL,
+            external: true,
+          },
+          'grafana': {
+            title: 'Grafana',
+            url: grafanaURL,
+            external: true,
+          },
+          'prometheus': {
+            title: 'Prometheus',
+            url: prometheusURL,
+            external: true,
+          },
+        },
         settings: {
           '/list': {
             title: 'Policies & Rules',
@@ -88,28 +105,6 @@ export default defineComponent({
           '/publish': {
             title: 'Publish Changes',
           },
-          'swagger': {
-            title: 'API',
-            url: swaggerURL,
-            external: true,
-          },
-        },
-        analytics: {
-          'kibana': {
-            title: 'Kibana',
-            url: kibanaURL,
-            external: true,
-          },
-          'grafana': {
-            title: 'Grafana',
-            url: grafanaURL,
-            external: true,
-          },
-          'prometheus': {
-            title: 'Prometheus',
-            url: prometheusURL,
-            external: true,
-          },
         },
         git: {
           '/versioncontrol': {
@@ -120,6 +115,11 @@ export default defineComponent({
           'curiebook': {
             title: 'Curiebook',
             url: 'https://docs.curiefense.io/',
+            external: true,
+          },
+          'swagger': {
+            title: 'API',
+            url: swaggerURL,
             external: true,
           },
         },
@@ -146,7 +146,7 @@ export default defineComponent({
       const kibanaURL = systemDBData?.links?.kibana_url || this.defaultKibanaURL
       const grafanaURL = systemDBData?.links?.grafana_url || this.defaultGrafanaURL
       const prometheusURL = systemDBData?.links?.prometheus_url || this.defaultPrometheusURL
-      this.menuItems.settings.swagger = {
+      this.menuItems.docs.swagger = {
         title: 'API',
         url: swaggerURL,
         external: true,
@@ -174,10 +174,12 @@ export default defineComponent({
       const items = this.menuItems.settings['/list'].items // reference
       items[`/${branchId}/globalfilters`] = {title: 'Global Filters'} as menuItem
       items[`/${branchId}/flowcontrol`] = {title: 'Flow Control Policies'} as menuItem
-      items[`/${branchId}/ratelimits`] = {title: 'Rate limits'} as menuItem
+      items[`/${branchId}/securitypolicies`] = {title: 'Security Policies'} as menuItem
+      items[`/${branchId}/ratelimits`] = {title: 'Rate Limits'} as menuItem
       items[`/${branchId}/aclprofiles`] = {title: 'ACL Profiles'} as menuItem
       items[`/${branchId}/contentfilterprofiles`] = {title: 'Content Filter Profiles'} as menuItem
       items[`/${branchId}/contentfilterrules`] = {title: 'Content Filter Rules'} as menuItem
+      items[`/${branchId}/cloudfunctions`] = {title: 'Cloud Functions'} as menuItem
       items[`/${branchId}/actions`] = {title: 'Custom Responses'} as menuItem
       // items[`/${branchId}/search`] = {title: 'Search'} as menuItem
     },

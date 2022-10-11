@@ -29,7 +29,7 @@ describe('RateLimitsEditor.vue', () => {
       'timeframe': '60',
       'include': ['blocklist'],
       'exclude': ['allowlist'],
-      'key': [{'attrs': 'ip'}],
+      'key': [{'attrs': 'securitypolicyid'}, {'attrs': 'securitypolicyentryid'}, {'headers': 'rbzsessionid'}],
       'pairwith': {'self': 'self'},
     }]
     securityPoliciesDocs = [
@@ -88,6 +88,9 @@ describe('RateLimitsEditor.vue', () => {
     jest.spyOn(axios, 'get').mockImplementation((path) => {
       if (path === `/conf/api/v3/configs/${selectedBranch}/d/securitypolicies/`) {
         return Promise.resolve({data: securityPoliciesDocs})
+      }
+      if (path === `/conf/api/v3/configs/${selectedBranch}/ratelimits/f971e92459e2`) {
+        return Promise.resolve({data: rateLimitsDocs[0]})
       }
       return Promise.resolve({data: []})
     })
@@ -149,7 +152,16 @@ describe('RateLimitsEditor.vue', () => {
     test('should have event limit option component with correct data', () => {
       const wantedType = Object.keys(rateLimitsDocs[0].pairwith)[0]
       const wantedValue = Object.values(rateLimitsDocs[0].pairwith)[0]
-      const limitOptionComponent = wrapper.findAllComponents(LimitOption).at(1)
+      const actualType = wrapper.vm.eventOption.type
+      const actualValue = wrapper.vm.eventOption.key
+      expect(actualValue).toEqual(wantedValue)
+      expect(actualType).toEqual(wantedType)
+    })
+
+    test('should have limit option keys with correct data', () => {
+      const wantedType = Object.keys(rateLimitsDocs[0].key[0])[0]
+      const wantedValue = Object.values(rateLimitsDocs[0].key[0])[0]
+      const limitOptionComponent = wrapper.findAllComponents(LimitOption).at(0)
       const actualType = limitOptionComponent.vm.option.type
       const actualValue = limitOptionComponent.vm.option.key
       expect(actualType).toEqual(wantedType)
@@ -195,10 +207,10 @@ describe('RateLimitsEditor.vue', () => {
       const addKeyButton = wrapper.find('.add-key-button')
       await addKeyButton.trigger('click')
       const wantedType = 'attrs'
-      const wantedValue = 'ip'
+      const wantedValue = 'securitypolicyentryid'
       const actualType = Object.keys(wrapper.vm.localDoc.key[1])[0]
       const actualValue = Object.values(wrapper.vm.localDoc.key[1])[0]
-      expect(wrapper.vm.localDoc.key.length).toEqual(2)
+      expect(wrapper.vm.localDoc.key.length).toEqual(4)
       expect(actualType).toEqual(wantedType)
       expect(actualValue).toEqual(wantedValue)
     })
@@ -226,17 +238,23 @@ describe('RateLimitsEditor.vue', () => {
     })
 
     test('should remove key when remove event occurs', async () => {
+      expect(wrapper.vm.localDoc.key.length).toEqual(3) // default has 3 atributes keys
       const addKeyButton = wrapper.find('.add-key-button')
       await addKeyButton.trigger('click')
+      expect(wrapper.vm.localDoc.key.length).toEqual(4) // plus 1 = 4
       const limitOptionsComponent = wrapper.findComponent(LimitOption)
       limitOptionsComponent.vm.$emit('remove', 1)
-      expect(wrapper.vm.localDoc.key.length).toEqual(1)
+      expect(wrapper.vm.localDoc.key.length).toEqual(3) // minus 1 = 3
     })
 
-    test('should not be able to remove key when only one key exists', async () => {
+    test('should not be able to remove key when only one key exists', () => {
+      expect(wrapper.vm.localDoc.key.length).toEqual(3) // default has 3 atributes keys
       const limitOptionsComponent = wrapper.findComponent(LimitOption)
       limitOptionsComponent.vm.$emit('remove', 1)
-      expect(wrapper.vm.localDoc.key.length).toEqual(1)
+      limitOptionsComponent.vm.$emit('remove', 1)
+      expect(wrapper.vm.localDoc.key.length).toEqual(1) // remove 2 remain 1
+      limitOptionsComponent.vm.$emit('remove', 1)
+      expect(wrapper.vm.localDoc.key.length).toEqual(1) // trying to remove 1 more failes, cannot be 0
     })
 
     test('should update key when change event occurs', async () => {
@@ -450,10 +468,60 @@ describe('RateLimitsEditor.vue', () => {
     })
 
     test('should show an appropriate message when there are no available new connections', async () => {
-      const wantedMessage = `All Security Policies entries are currently connected to this Rate Limit`
-      securityPoliciesDocs[0].map[1].limit_ids.push(rateLimitsDocs[0].id)
-      securityPoliciesDocs[1].map[1].limit_ids.push(rateLimitsDocs[0].id)
-      wrapper = shallowMount(RateLimitsEditor, {
+      const wantedMessage = `All Security Policies entries are currently connected to this entity`
+      securityPoliciesDocs = [
+        {
+          'id': '__default__',
+          'name': 'default entry',
+          'match': '__default__',
+          'map': [
+            {
+              'name': 'default',
+              'match': '/',
+              'acl_profile': '__default__',
+              'acl_active': false,
+              'content_filter_profile': '__default__',
+              'content_filter_active': false,
+              'limit_ids': ['f971e92459e2', '365757ec0689'],
+            },
+            {
+              'name': 'entry name',
+              'match': '/login',
+              'acl_profile': '5828321c37e0',
+              'acl_active': false,
+              'content_filter_profile': '009e846e819e',
+              'content_filter_active': false,
+              'limit_ids': ['f971e92459e2', '365757ec0689'],
+            },
+          ],
+        },
+        {
+          'id': '3086b9c5b518',
+          'name': 'copy of default entry',
+          'match': 'www.example.com',
+          'map': [
+            {
+              'name': 'default',
+              'match': '/',
+              'acl_profile': '__default__',
+              'acl_active': false,
+              'content_filter_profile': '__default__',
+              'content_filter_active': false,
+              'limit_ids': ['f971e92459e2', '365757ec0689'],
+            },
+            {
+              'name': 'entry name',
+              'match': '/login',
+              'acl_profile': '5828321c37e0',
+              'acl_active': false,
+              'content_filter_profile': '009e846e819e',
+              'content_filter_active': false,
+              'limit_ids': ['f971e92459e2', '365757ec0689'],
+            },
+          ],
+        },
+      ]
+      wrapper = mount(RateLimitsEditor, {
         props: {
           selectedDoc: rateLimitsDocs[0],
           selectedBranch: 'master',

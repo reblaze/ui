@@ -100,6 +100,8 @@ export const limitAttributes = {
   'company': 'Company',
   'country': 'Country',
   'authority': 'Authority',
+  'securitypolicyid': 'Security Policy ID',
+  'securitypolicyentryid': 'Path Matching ID',
 }
 
 export default defineComponent({
