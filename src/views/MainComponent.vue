@@ -21,6 +21,7 @@
 import HeaderMain from '@/components/HeaderMain.vue'
 import SideMenu from '@/components/SideMenu.vue'
 import {defineComponent} from 'vue'
+import 'core-js'
 
 export default defineComponent({
   name: 'MainComponent',

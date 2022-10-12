@@ -216,6 +216,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'global': false,
       'description': 'New Rate Limit Rule Description and Remarks',
       'timeframe': 60,
+      'tags': [],
       'thresholds': [
         {
           'limit': 5,
@@ -308,14 +309,13 @@ const newOperationEntryFactory: { [key: string]: Function } = {
       'id': generateUUID2(),
       'name': 'New Routing Profile ' + generateUUID2(), // TODO: Remove this random uuid once names are no longer unique
       'description': 'New Routing Profile Description and Remarks',
-      'server_names': [],
       'locations': [
         {
           'path': '/',
-          'backend_id': '',
+          'backend_id': '__default__',
+          'cloud_functions': [],
         },
       ],
-      'cloud_functions': [],
     }
   },
 

@@ -58,6 +58,16 @@
                          v-model.number="localDoc.timeframe">
                 </div>
               </div>
+              <div class="field">
+                <label class="label is-small">Tags</label>
+                <div class="control"
+                     data-qa="tag-input">
+                  <tag-autocomplete-input :initial-tag="selectedDocTags"
+                                          :selection-type="'multiple'"
+                                          @tag-changed="selectedDocTags = $event">
+                  </tag-autocomplete-input>
+                </div>
+              </div>
               <div class="group-key mb-3">
                 <limit-option v-for="(option, index) in localDoc.key"
                               label-separated-line
@@ -133,13 +143,20 @@
                     <label class="label is-small">
                       Action
                     </label>
-                    <div class="control">
-                      <input class="input is-small document-action"
-                             title="Action"
-                             data-qa="action-input"
-                             placeholder="Action"
-                             @change="emitDocUpdate"
-                             v-model="threshold.action"/>
+                    <div class="control is-expanded">
+                      <div class="select is-fullwidth is-small">
+                        <select v-model="threshold.action"
+                                @change="emitDocUpdate"
+                                data-qa="action-dropdown"
+                                class="threshold-action-selection"
+                                title="Action">
+                          <option v-for="customResponse in customResponseNames"
+                                  :value="customResponse[0]"
+                                  :key="customResponse[0]">
+                            {{ customResponse[1] }}
+                          </option>
+                        </select>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -236,6 +253,7 @@ import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import SecurityPoliciesConnections from '@/components/SecurityPoliciesConnections.vue'
 import {defineComponent} from 'vue'
 import {
+  CustomResponse,
   Dictionary,
   IncludeExcludeType,
   LimitOptionType,
@@ -244,12 +262,14 @@ import {
   ThresholdActionPair,
 } from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
+import RequestsUtils from '@/assets/RequestsUtils'
+import {AxiosResponse} from 'axios'
 
 export default defineComponent({
   name: 'RateLimits',
   props: {
-    selectedDoc: Object,
     selectedBranch: String,
+    selectedDoc: Object,
     apiPath: String,
   },
   components: {
@@ -264,11 +284,27 @@ export default defineComponent({
       titles: DatasetsUtils.titles,
       keysAreValid: true,
       removable: false,
+      customResponseNames: [] as [CustomResponse['id'], CustomResponse['name']][],
     }
   },
   computed: {
     localDoc(): RateLimit {
       return _.cloneDeep(this.selectedDoc as RateLimit)
+    },
+
+    selectedDocTags: {
+      get: function(): string {
+        if (this.localDoc.tags && this.localDoc.tags.length > 0) {
+          return this.localDoc.tags.join(' ')
+        }
+        return ''
+      },
+      set: function(tags: string): void {
+        this.localDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
+          return tag.trim()
+        }) : []
+        this.emitDocUpdate()
+      },
     },
 
     duplicateTags(): Dictionary<string> {
@@ -392,10 +428,27 @@ export default defineComponent({
       this.emitDocUpdate()
     },
 
+    loadCustomResponses() {
+      RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/actions/`,
+        config: {headers: {'x-fields': 'id, name'}},
+      }).then((response: AxiosResponse<CustomResponse[]>) => {
+        this.customResponseNames = _.sortBy(_.map(response.data, (entity) => {
+          return [entity.id, entity.name]
+        }), (e) => {
+          return e[1]
+        })
+      })
+    },
   },
 
   mounted() {
     this.checkKeysValidity()
+  },
+
+  created() {
+    this.loadCustomResponses()
   },
 })
 </script>

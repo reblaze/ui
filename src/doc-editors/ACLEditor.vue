@@ -37,13 +37,20 @@
                 <label class="label is-small">
                   Action
                 </label>
-                <div class="control">
-                  <input class="input is-small document-action"
-                         title="Action"
-                         data-qa="action-input"
-                         placeholder="Action"
-                         @change="emitDocUpdate"
-                         v-model="localDoc.action"/>
+                <div class="control is-expanded">
+                  <div class="select is-fullwidth is-small">
+                    <select v-model="localDoc.action"
+                            @change="emitDocUpdate"
+                            data-qa="action-dropdown"
+                            class="document-action-selection"
+                            title="Action">
+                      <option v-for="customResponse in customResponseNames"
+                              :value="customResponse[0]"
+                              :key="customResponse[0]">
+                        {{ customResponse[1] }}
+                      </option>
+                    </select>
+                  </div>
                 </div>
               </div>
               <div class="field">
@@ -127,7 +134,9 @@ import _ from 'lodash'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import {defineComponent} from 'vue'
-import {ACLProfile, ACLProfileFilter, Dictionary} from '@/types'
+import {ACLProfile, ACLProfileFilter, CustomResponse, Dictionary} from '@/types'
+import RequestsUtils from '@/assets/RequestsUtils'
+import {AxiosResponse} from 'axios'
 
 export default defineComponent({
   name: 'ACLEditor',
@@ -137,6 +146,7 @@ export default defineComponent({
   },
 
   props: {
+    selectedBranch: String,
     selectedDoc: Object,
     apiPath: String,
   },
@@ -146,6 +156,7 @@ export default defineComponent({
       operations: ['force_deny', 'passthrough', 'allow_bot', 'deny_bot', 'allow', 'deny'] as ACLProfileFilter[],
       titles: DatasetsUtils.titles,
       addNewColName: null,
+      customResponseNames: [] as [CustomResponse['id'], CustomResponse['name']][],
     }
   },
   computed: {
@@ -240,8 +251,24 @@ export default defineComponent({
       return message
     },
 
+    loadCustomResponses() {
+      RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/actions/`,
+        config: {headers: {'x-fields': 'id, name'}},
+      }).then((response: AxiosResponse<CustomResponse[]>) => {
+        this.customResponseNames = _.sortBy(_.map(response.data, (entity) => {
+          return [entity.id, entity.name]
+        }), (e) => {
+          return e[1]
+        })
+      })
+    },
   },
 
+  created() {
+    this.loadCustomResponses()
+  },
 })
 </script>
 

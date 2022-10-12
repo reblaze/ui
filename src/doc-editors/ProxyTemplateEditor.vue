@@ -147,6 +147,24 @@
                       </div>
                       <div class="field height-120px">
                         <label class="label is-small">
+                          Requests per second per IP address
+                        </label>
+                        <div class="control">
+                          <input class="input is-small document-limit-req-rate"
+                                 title="Requests per second per IP address"
+                                 placeholder="Requests per second per IP address"
+                                 v-model="selectedProxyTemplate.limit_req_rate">
+                        </div>
+                        <div class="help">
+                          Static rate limiting for each IP address: the requests per second per IP address for this
+                          application
+                          <a href="https://www.nginx.com/blog/rate-limiting-nginx/"
+                             target="_blank">(more info)</a>.
+                          Use the <strong>Rate Limits</strong> section for granular, dynamic rate limiting
+                        </div>
+                      </div>
+                      <div class="field height-120px">
+                        <label class="label is-small">
                           Client Body Timeout
                         </label>
                         <div class="control suffix seconds-suffix">
@@ -184,7 +202,49 @@
                           </a>
                         </div>
                       </div>
+                    </div>
+                    <div class="column is-6">
                       <div class="field height-100px">
+                        <label class="label is-small">
+                          Client Max Body Size
+                        </label>
+                        <div class="control suffix mb-suffix">
+                          <input class="input is-small document-client-max-body-size"
+                                 title="Client max body size"
+                                 placeholder="Client max body size"
+                                 v-model="selectedProxyTemplate.client_max_body_size">
+                        </div>
+                        <div class="help">
+                          Sets the maximum allowed size of the client request body, based on “Content-Length” request
+                          header
+                          field in MB
+                          <a href="https://nginx.org/en/docs/http/ngx_http_core_module.html#client_max_body_size"
+                             target="_blank">
+                            (more info)
+                          </a>
+                        </div>
+                      </div>
+                      <div class="field height-120px">
+                        <label class="label is-small">
+                          Burst of requests per second per IP address
+                        </label>
+                        <div class="control">
+                          <input class="input is-small document-limit-req-burst"
+                                 title="Burst of requests per second per IP address"
+                                 placeholder="Burst of requests per second per IP address"
+                                 v-model="selectedProxyTemplate.limit_req_burst">
+                        </div>
+                        <div class="help">
+                          The burst parameter defines how many requests a client can make in excess of the rate
+                          specified
+                          above that will be put in a queue
+                          <a href="https://www.nginx.com/blog/rate-limiting-nginx/"
+                             target="_blank">
+                            (more info)
+                          </a>
+                        </div>
+                      </div>
+                      <div class="field height-120px">
                         <label class="label is-small">
                           Keepalive Timeout
                         </label>
@@ -222,97 +282,6 @@
                              target="_blank">
                             (more info)
                           </a>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="column is-6">
-                      <div class="field height-100px">
-                        <label class="label is-small">
-                          Masking Values
-                        </label>
-                        <div class="control">
-                          <input class="input is-small document-masking-values"
-                                 title="Masking values"
-                                 placeholder="Masking values"
-                                 v-model="selectedProxyTemplate.post_private_args">
-                        </div>
-                        <div class="help">
-                          A PCRE expression that matches argument/header/cookie names which will not be saved in log
-                          files
-                        </div>
-                      </div>
-                      <div class="field height-120px">
-                        <label class="label is-small">
-                          Client Max Body Size
-                        </label>
-                        <div class="control suffix mb-suffix">
-                          <input class="input is-small document-client-max-body-size"
-                                 title="Client max body size"
-                                 placeholder="Client max body size"
-                                 v-model="selectedProxyTemplate.client_max_body_size">
-                        </div>
-                        <div class="help">
-                          Sets the maximum allowed size of the client request body, based on “Content-Length” request
-                          header
-                          field in MB
-                          <a href="https://nginx.org/en/docs/http/ngx_http_core_module.html#client_max_body_size"
-                             target="_blank">
-                            (more info)
-                          </a>
-                        </div>
-                      </div>
-                      <div class="field height-120px">
-                        <label class="label is-small">
-                          Requests per second per IP address
-                        </label>
-                        <div class="control">
-                          <input class="input is-small document-limit-req-rate"
-                                 title="Requests per second per IP address"
-                                 placeholder="Requests per second per IP address"
-                                 v-model="selectedProxyTemplate.limit_req_rate">
-                        </div>
-                        <div class="help">
-                          Static rate limiting for each IP address: the requests per second per IP address for this
-                          application
-                          <a href="https://www.nginx.com/blog/rate-limiting-nginx/"
-                             target="_blank">(more info)</a>.
-                          Use the <strong>Rate Limits</strong> section for granular, dynamic rate limiting
-                        </div>
-                      </div>
-                      <div class="field height-100px">
-                        <label class="label is-small">
-                          Burst of requests per second per IP address
-                        </label>
-                        <div class="control">
-                          <input class="input is-small document-limit-req-burst"
-                                 title="Burst of requests per second per IP address"
-                                 placeholder="Burst of requests per second per IP address"
-                                 v-model="selectedProxyTemplate.limit_req_burst">
-                        </div>
-                        <div class="help">
-                          The burst parameter defines how many requests a client can make in excess of the rate
-                          specified
-                          above that will be put in a queue
-                          <a href="https://www.nginx.com/blog/rate-limiting-nginx/"
-                             target="_blank">
-                            (more info)
-                          </a>
-                        </div>
-                      </div>
-                      <div class="field height-120px">
-                        <label class="label is-small">
-                          Session Key
-                        </label>
-                        <div class="control">
-                          <input class="input is-small document-session-key"
-                                 title="Session key"
-                                 placeholder="Session key"
-                                 v-model="selectedProxyTemplate.session_key">
-                        </div>
-                        <div class="help">
-                          Reblaze will use this parameter as session key (e.g. header 'sessionid'). Use header_X
-                          cookie_X and
-                          arg_X convention
                         </div>
                       </div>
                     </div>
