@@ -62,7 +62,8 @@
               </div>
             </div>
           </div>
-          <div v-if="localDoc.type === 'custom'" class="column is-9">
+          <div v-if="localDoc.type === 'custom'"
+               class="column is-9">
             <div class="custom-panel">
               <div class="field">
                 <label class="label is-small status-code-label">
@@ -71,12 +72,12 @@
                 <div class="columns mb-0 status-code">
                   <div class="column is-5 pb-0">
                     <input class="input is-small document-status-code"
-                          data-qa="status-input"
-                          type="number"
-                          title="Status code"
-                          placeholder="Status code"
-                          @change="emitDocUpdate"
-                          v-model.number="localDoc.params.status"/>
+                           data-qa="status-input"
+                           type="number"
+                           title="Status code"
+                           placeholder="Status code"
+                           @change="emitDocUpdate"
+                           v-model.number="localDoc.params.status"/>
                   </div>
                 </div>
               </div>
@@ -84,19 +85,20 @@
                 <label class="label is-small is-size-7 has-text-left form-label">
                   Headers
                 </label>
-                <div v-for="(header, index) in headersArray" :key="index"
-                    class="columns mb-0 headers-columns">
+                <div v-for="(header, index) in headersArray"
+                     :key="index"
+                     class="columns mb-0 headers-columns">
                   <div class="column is-5">
                     <input class="input is-small document-header-key"
-                          title="Header key"
-                          placeholder="Header key"
-                          v-model="header.key"/>
+                           title="Header key"
+                           placeholder="Header key"
+                           v-model="header.key"/>
                   </div>
                   <div class="column is-5">
                     <input class="input is-small document-header-value"
-                          title="Header value"
-                          placeholder="Header value"
-                          v-model="header.value"/>
+                           title="Header value"
+                           placeholder="Header value"
+                           v-model="header.value"/>
                   </div>
                   <div class="column is-narrow">
                     <button class="button is-light is-small remove-icon is-small has-text-grey"
@@ -107,11 +109,11 @@
                   </div>
                 </div>
                 <a title="Add new header"
-                  class="is-text is-small is-size-7 ml-3 add-key-button"
-                  data-qa="add-new-key-btn"
-                  tabindex="0"
-                  @keypress.space.prevent
-                  @click="addHeaderElement()">
+                   class="is-text is-small is-size-7 ml-3 add-key-button"
+                   data-qa="add-new-key-btn"
+                   tabindex="0"
+                   @keypress.space.prevent
+                   @click="addHeaderElement()">
                   New entry
                 </a>
               </div>
@@ -139,6 +141,7 @@ import _ from 'lodash'
 import {CustomResponse} from '@/types'
 import {defineComponent} from 'vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
+
 type HeaderObject = {
   key: string
   value: string
@@ -252,7 +255,8 @@ export default defineComponent({
   },
 })
 </script>
-<style scoped lang="scss">
+<style scoped
+       lang="scss">
 .headers-columns,
 .status-code {
   width: 50%;

@@ -103,8 +103,8 @@
                      data-qa="restrict-content-type-label">
                 Restrict Content Type
                 <span class="icon is-small info-icon">
-                      <i class="fas fa-info-circle"></i>
-                    </span>
+                  <i class="fas fa-info-circle"></i>
+                </span>
               </label>
               <div class="control">
                 <div v-for="contentTypeOption in contentTypeOptions"
@@ -112,8 +112,7 @@
                      class="content-type-option-wrapper mb-3">
                   <label class="checkbox is-size-7">
                     <input type="checkbox"
-                           @change="updateContentType(contentTypeOption.value,
-                           ($event.target as HTMLInputElement).checked)"
+                           @change="updateContentType(contentTypeOption.value, $event)"
                            class="checkbox-input"
                            :data-qa="`content-type-${contentTypeOption.value}-checkbox`"
                            :class="`content-type-${contentTypeOption.value}-input`"
@@ -883,7 +882,8 @@ export default defineComponent({
       return this.localDoc.content_type?.includes(value)
     },
 
-    updateContentType(value: string, state: boolean): void {
+    updateContentType(value: string, event: InputEvent): void {
+      const state = (event.target as HTMLInputElement).checked
       if (state) {
         this.localDoc.content_type.push(value)
         this.emitDocUpdate()

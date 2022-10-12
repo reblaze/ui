@@ -22,6 +22,12 @@
   width: 30px;
 }
 
+.width-45px {
+  max-width: 45px;
+  min-width: 45px;
+  width: 45px;
+}
+
 .width-50px {
   max-width: 50px;
   min-width: 50px;
@@ -148,6 +154,24 @@
   min-height: 50px;
 }
 
+.height-100px {
+  height: 100px;
+  max-height: 100px;
+  min-height: 100px;
+}
+
+.height-120px {
+  height: 120px;
+  max-height: 120px;
+  min-height: 120px;
+}
+
+.height-130px {
+  height: 130px;
+  max-height: 130px;
+  min-height: 130px;
+}
+
 /* Text */
 
 .ellipsis {
@@ -210,6 +234,23 @@
 .seconds-suffix::after {
   @extend .is-size-7;
   content: 'seconds';
+}
+
+.seconds-suffix {
+  input {
+    padding-right: 60px;
+  }
+}
+
+.mb-suffix::after {
+  @extend .is-size-7;
+  content: 'MB';
+}
+
+.mb-suffix {
+  input {
+    padding-right: 30px;
+  }
 }
 
 /* Bulma enhancement */

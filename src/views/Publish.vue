@@ -259,7 +259,6 @@ export default defineComponent({
     },
 
     loadConfigs() {
-      // store configs
       RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'}).then((response: AxiosResponse<Branch[]>) => {
         this.configs = response?.data || []
         if (!this.configs.length) {
