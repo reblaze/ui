@@ -26,7 +26,7 @@
                 <input type="checkbox"
                        data-qa="active-checkbox"
                        class="document-active"
-                       @change="emitDocUpdate"
+                       @change="emitToBoth"
                        v-model="localDoc.active">
                 Active
               </label>
@@ -51,11 +51,11 @@
                 <div class="control suffix seconds-suffix">
                   <input class="input is-small document-timeframe"
                          data-qa="dynamic-rules-timeframe-input"
-                         type="text"
+                         type="number"
                          title="Dynamic Rules limit duration"
                          placeholder="Rate limit duration"
                          @change="emitDocUpdate"
-                         v-model="localDoc.timeframe">
+                         v-model="(localDoc.timeframe)">
                 </div>
               </div>
               <div class="field">
@@ -65,7 +65,7 @@
                 <div class="control">
                   <input class="input is-small document-threshold"
                          data-qa="dynamic-rules-threshold-input"
-                         type="text"
+                         type="number"
                          title="Dynamic Rules threshold"
                          placeholder="Dynamic Rules Threshold"
                          @change="emitDocUpdate"
@@ -82,18 +82,46 @@
                              title="Action"
                              data-qa="action-input"
                              placeholder="Action"
-                             @change="saveToGlobalFilters"
-                             v-model="localMatchedDoc.action"/>
+                             @change="emitMatchDoc"
+                             v-model="localGlobalFilterDoc.action"/>
                     </div>
                 </div>
               <div class="field">
                 <label class="label is-small">Tags</label>
                 <div class="control"
                      data-qa="tag-input">
-                  <tag-autocomplete-input :initial-tag="localMatchedDoc.tags[0]"
+                  <tag-autocomplete-input :initial-tag="selectedDocTags"
                                           :selection-type="'multiple'"
-              @tag-changed="localMatchedDoc.tags[localMatchedDoc.tags.length] = $event">
+                                          @tag-changed="selectedDocTags = $event">
                   </tag-autocomplete-input>
+                </div>
+              </div>
+              <div class="field">
+                <label class="label is-small">
+                  Time Span
+                </label>
+                <div class="control">
+                  <input class="input is-small document-threshold"
+                         data-qa="dynamic-rules-threshold-input"
+                         type="number"
+                         title="Dynamic Rules threshold"
+                         placeholder="Dynamic Rules Threshold"
+                         @change="emitDocUpdate"
+                         v-model="localDoc.ttl">
+                </div>
+              </div>
+              <div class="field">
+                <label class="label is-small">
+                  Target
+                </label>
+                <div class="control">
+                  <input class="input is-small document-threshold"
+                         data-qa="dynamic-rules-threshold-input"
+                         type="text"
+                         title="Dynamic Rules threshold"
+                         placeholder="Dynamic Rules Threshold"
+                         @change="emitDocUpdate"
+                         v-model="localDoc.target">
                 </div>
               </div>
             </div>
@@ -198,29 +226,19 @@ export default defineComponent({
       removable: false,
     }
   },
-  // watch: {
-  //   selectedDoc: {
-  //     handler: function(val, oldVal) {
-  //       if (!val || !oldVal || val.id !== oldVal.id) {
-  //        RequestsUtils.sendRequest({
-
-  //        })
-  //       }
-  //     },
-  //     immediate: true,
-  //     deep: true,
-  //   },
-  // },
   computed: {
     localDoc(): DynamicRule {
+      if (!this.selectedDoc) {
+        console.log('selectedDoc is Empty')
+      }
       return _.cloneDeep(this.selectedDoc as DynamicRule)
     },
-    localMatchedDoc(): GlobalFilter {
+    localGlobalFilterDoc(): GlobalFilter {
       if (!this.selectedDocMatchingGlobalFilter) {
-        const matchDocTemp = DatasetsUtils.newDocEntryFactory['globalfilters']() as GlobalFilter
-        console.log('matchDocTemp', matchDocTemp)
-        matchDocTemp.id = `dr_${this.selectedDoc.id}}`
-        return _.cloneDeep(matchDocTemp as GlobalFilter)
+        // const matchDocTemp = DatasetsUtils.newDocEntryFactory['globalfilters']() as GlobalFilter
+        console.log('selectedDocMatchingGlobalFilter is Empty')
+        // matchDocTemp.id = `dr_${this.selectedDoc.id}}`
+        // return _.cloneDeep(matchDocTemp as GlobalFilter)
       }
       return _.cloneDeep(this.selectedDocMatchingGlobalFilter as GlobalFilter)
     },
@@ -230,6 +248,20 @@ export default defineComponent({
       const dupTags = _.filter(allTags, (val, i, iteratee) => _.includes(iteratee, val, i + 1))
       return _.fromPairs(_.zip(dupTags, dupTags))
     },
+    selectedDocTags: {
+      get: function(): string {
+        if (this.localGlobalFilterDoc.tags && this.localGlobalFilterDoc.tags.length > 0) {
+          return this.localGlobalFilterDoc.tags.join(' ')
+        }
+        return ''
+      },
+      set: function(tags: string): void {
+        this.localGlobalFilterDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
+          return tag.trim()
+        }) : []
+        this.emitMatchDoc()
+      },
+    },
   },
   emits: ['update:selectedDoc', 'go-to-route', 'update:selectedDocMatchingGlobalFilter'],
   methods: {
@@ -237,22 +269,16 @@ export default defineComponent({
       this.$emit('update:selectedDoc', this.localDoc)
     },
     emitMatchDoc() {
-      this.$emit('update:selectedDocMatchingGlobalFilter', this.selectedDocMatchingGlobalFilter)
+      this.$emit('update:selectedDocMatchingGlobalFilter', this.localGlobalFilterDoc)
     },
     emitGoToRoute(url: string) {
       this.$emit('go-to-route', url)
     },
-
-    saveToGlobalFilters() {
-      // const successMessage = `Changes to GlobalFilters were saved.`
-      // const failureMessage = `Failed to save changes to GlobalFilters.`
-      // const data = this.matchingGlobalFilterDoc
-      console.log('saveToGlobalFilters TODO later')
-      // const url = `configs/${this.selectedBranch}/d/globalfilters/e/${data.id}/`
-      // RequestsUtils.sendRequest({methodName: 'POST', url, data, successMessage, failureMessage})
-      // .then(() => {}
+    emitToBoth() {
+      this.$emit('update:selectedDoc', this.localDoc)
+      this.localGlobalFilterDoc.active=this.localDoc.active
+      this.$emit('update:selectedDocMatchingGlobalFilter', this.localGlobalFilterDoc)
     },
-
 
     addNewTag(section: IncludeExcludeType, entry: string) {
       if (entry && entry.length > 2) {

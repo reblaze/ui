@@ -9,6 +9,7 @@ import {
   SecurityPolicy,
   CloudFunction,
   DynamicRule,
+  QuarantinedIps,
 } from '@/types'
 
 const titles: { [key: string]: string } = {
@@ -58,6 +59,8 @@ const titles: { [key: string]: string } = {
   'cloudfunctions-singular': 'Cloud Function',
   'globalfilters': 'Global Filters',
   'globalfilters-singular': 'Global Filter',
+  'quarantinedips-singular': 'Quarantined IPs',
+  'quarantinedips': 'Quarantined IPs',
   'flowcontrol': 'Flow Control Policies',
   'flowcontrol-singular': 'Flow Control Policy',
   'actions': 'Custom Responses',
@@ -275,8 +278,8 @@ const newDocEntryFactory: { [key: string]: Function } = {
   'dynamic-rules'(): DynamicRule {
     return {
       'id': generateUUID2(),
-      'name': 'New Dynamic Rules',
-      'description': 'New Dynamic Rules Description and Remarks',
+      'name': 'New Dynamic Rule',
+      'description': 'New Dynamic Rule Description and Remarks',
       'timeframe': 60,
       'threshold': 9999,
       'active': false,
@@ -285,6 +288,19 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'ttl': 7200,
       'target': '1.1.1.1',
     }
+  },
+
+  quarantinedips() {
+    return {
+      'ip': '9.9.9.9',
+      'geo': 'israel',
+      'asn': '',
+      'violations': 'First',
+      'limit': '5',
+      'added': false,
+      'last_seen': '01/09/2022',
+      'expires': '15/11/22',
+    } as QuarantinedIps
   },
 
   'contentfilterrules'(): ContentFilterRule {

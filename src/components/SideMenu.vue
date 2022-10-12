@@ -70,6 +70,9 @@ export default defineComponent({
             title: 'Policies & Rules',
             items: {},
           },
+          '/quarantined': {
+            title: 'Quarantined IPs',
+          },
           '/CurieDB': {
             title: 'CurieDB',
           },

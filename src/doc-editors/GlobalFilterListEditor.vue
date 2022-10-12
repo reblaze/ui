@@ -62,9 +62,8 @@
             </div>
             <div class="field">
               <label class="label is-small">Tags</label>
-              <div class="control"
-                   data-qa="tag-input"
-                   v-if="(localDoc.id).substr(0,3)!=='dr_'">
+              <div :class="(localDoc.id).substr(0,3)!=='dr_' ? 'control disabled' : 'control' "
+                   data-qa="tag-input" >
                 <tag-autocomplete-input :initial-tag="selectedDocTags"
                                         :selection-type="'multiple'"
                                         @tag-changed="selectedDocTags = $event">

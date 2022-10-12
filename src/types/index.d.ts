@@ -293,5 +293,15 @@ declare module CuriefenseClient {
 
   // Git - END
 
+  type QuarantinedIps = {
+    ip: string,
+    geo: string,
+    asn: string,
+    violations : 'First' | 'Last' | 'Top-Count' | 'Top-Ratio',
+    limit: string,
+    added: boolean,
+    last_seen: string,
+    expires: string,
+  }
 }
 export = CuriefenseClient

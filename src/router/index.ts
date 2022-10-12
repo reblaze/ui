@@ -7,6 +7,7 @@ import PublishChanges from '@/views/Publish.vue'
 import VersionControl from '@/views/VersionControl.vue'
 import DocumentSearch from '@/views/DocumentSearch.vue'
 import DocumentList from '@/views/DocumentList.vue'
+import QuarantinedList from '@/components/QuarantinedList.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -60,6 +61,7 @@ const routes: Array<RouteRecordRaw> = [
           },
         ],
       },
+      {path: 'quarantined', name: 'Quarantined', component: QuarantinedList},
       {path: 'CurieDB', name: 'CurieDBEditor', component: CurieDBEditor},
       {path: 'publish', name: 'PublishChanges', component: PublishChanges},
       {path: 'versioncontrol', name: 'VersionControl', component: VersionControl},
