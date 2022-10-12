@@ -27,9 +27,9 @@ declare module CuriefenseClient {
   }
 
   type ContentFilterProfileSection = {
-    names: ContentFilterEntryMatch[],
-    regex: ContentFilterEntryMatch[],
-    max_count: number,
+    names: ContentFilterEntryMatch[]
+    regex: ContentFilterEntryMatch[]
+    max_count: number
     max_length: number
   }
 
@@ -126,20 +126,20 @@ declare module CuriefenseClient {
     tags: string[]
     ignore_body: boolean
     ignore_alphanum: boolean
-    headers: ContentFilterProfileSection,
-    cookies: ContentFilterProfileSection,
-    args: ContentFilterProfileSection,
-    path: ContentFilterProfileSection,
+    headers: ContentFilterProfileSection
+    cookies: ContentFilterProfileSection
+    args: ContentFilterProfileSection
+    path: ContentFilterProfileSection
     decoding: {
-      base64: boolean,
-      dual: boolean,
-      html: boolean,
+      base64: boolean
+      dual: boolean
+      html: boolean
       unicode: boolean
-    },
-    masking_seed: string,
-    content_type: string[],
-    active: string[],
-    report: string[],
+    }
+    masking_seed: string
+    content_type: string[]
+    active: string[]
+    report: string[]
     ignore: string[]
   }
 
@@ -166,13 +166,13 @@ declare module CuriefenseClient {
   }
 
   type CloudFunction = {
-    id: string,
-    name: string,
-    key?: string,
-    description?: string,
-    code?: string,
-    phase?: CloudFunctionsPhaseType,
-    match?: string,
+    id: string
+    name: string
+    key?: string
+    description?: string
+    code?: string
+    phase?: CloudFunctionsPhaseType
+    match?: string
   }
 
   type RateLimit = {
@@ -183,6 +183,7 @@ declare module CuriefenseClient {
     thresholds: ThresholdActionPair[]
     key: LimitOptionType[]
     timeframe: number
+    tags: string[]
     exclude: string[]
     include: string[]
     pairwith: LimitOptionType
@@ -255,16 +256,38 @@ declare module CuriefenseClient {
 
   // Operation documents - START
 
+  type BackendService = {
+    name: string
+    id: string
+    description: string
+    least_conn: boolean
+    http11: boolean
+    transport_mode: string
+    sticky: string
+    back_hosts: {
+      http_port: number
+      https_port: number
+      weight: number
+      fail_timeout: string
+      monitor_state: string
+      down: boolean
+      host: string
+      max_fails: number
+      backup: boolean
+    }[]
+  }
+
+  type RoutingProfileEntryLocation = {
+    path: string
+    backend_id: string
+    cloud_functions: string[]
+  }
+
   type RoutingProfile = {
     name: string
     id: string
     description: string
-    server_names: string[]
-    locations: {
-      path: string
-      backend_id: string
-    }[]
-    cloud_functions: string[]
+    locations: RoutingProfileEntryLocation[]
   }
 
   type MobileSDKConfig = {
@@ -289,8 +312,8 @@ declare module CuriefenseClient {
     grace: string
     grace_var_name: string
     validator_type: string
-    active_config: MobileSDKConfig[],
-    signatures: MobileSDKSignature[],
+    active_config: MobileSDKConfig[]
+    signatures: MobileSDKSignature[]
     support_legacy_sdk: boolean
   }
 

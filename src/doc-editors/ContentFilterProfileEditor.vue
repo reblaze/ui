@@ -52,13 +52,20 @@
               <label class="label is-small">
                 Action
               </label>
-              <div class="control">
-                <input class="input is-small document-action"
-                       title="Action"
-                       data-qa="action-input"
-                       placeholder="Action"
-                       @change="emitDocUpdate"
-                       v-model="localDoc.action"/>
+              <div class="control is-expanded">
+                <div class="select is-fullwidth is-small">
+                  <select v-model="localDoc.action"
+                          @change="emitDocUpdate"
+                          data-qa="action-dropdown"
+                          class="document-action-selection"
+                          title="Action">
+                    <option v-for="customResponse in customResponseNames"
+                            :value="customResponse[0]"
+                            :key="customResponse[0]">
+                      {{ customResponse[1] }}
+                    </option>
+                  </select>
+                </div>
               </div>
             </div>
             <div class="field">
@@ -640,11 +647,13 @@ import {
   ContentFilterProfileSectionType,
   ContentFilterProfileTagLists,
   NamesRegexType,
-  Dictionary,
+  Dictionary, CustomResponse,
 } from '@/types'
 import AutocompleteInput, {AutocompleteSuggestion} from '@/components/AutocompleteInput.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import Utils from '@/assets/Utils'
+import RequestsUtils from '@/assets/RequestsUtils'
+import {AxiosResponse} from 'axios'
 
 type ContentFilterProfileType = {
   value: keyof ContentFilterProfile['decoding'],
@@ -658,8 +667,8 @@ export default defineComponent({
     TagAutocompleteInput,
   },
   props: {
-    selectedDoc: Object,
     selectedBranch: String,
+    selectedDoc: Object,
     apiPath: String,
   },
 
@@ -738,6 +747,7 @@ export default defineComponent({
           displayName: 'XML',
         },
       ],
+      customResponseNames: [] as [CustomResponse['id'], CustomResponse['name']][],
     }
   },
 
@@ -905,6 +915,20 @@ export default defineComponent({
       const exclusionTagsIsEmpty = !entry.exclusions.length
       return (!maskChecked && exclusionTagsIsEmpty)
     },
+
+    loadCustomResponses() {
+      RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/actions/`,
+        config: {headers: {'x-fields': 'id, name'}},
+      }).then((response: AxiosResponse<CustomResponse[]>) => {
+        this.customResponseNames = _.sortBy(_.map(response.data, (entity) => {
+          return [entity.id, entity.name]
+        }), (e) => {
+          return e[1]
+        })
+      })
+    },
   },
 
   watch: {
@@ -924,6 +948,10 @@ export default defineComponent({
       immediate: true,
       deep: true,
     },
+  },
+
+  created() {
+    this.loadCustomResponses()
   },
 })
 </script>

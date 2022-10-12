@@ -8,7 +8,7 @@ import {
   ContentFilterEntryMatch,
   ContentFilterProfile,
   ContentFilterProfileSection,
-  ContentFilterRule,
+  ContentFilterRule, CustomResponse,
   NamesRegexType,
 } from '@/types'
 import AutocompleteInput from '@/components/AutocompleteInput.vue'
@@ -22,6 +22,7 @@ describe('ContentFilterProfileEditor.vue', () => {
   let docs: ContentFilterProfile[]
   let wrapper: any
   let contentFilterRulesDocs: ContentFilterRule[]
+  let customResponsesDocs: CustomResponse[]
   beforeEach(async () => {
     docs = [{
       'id': '__default__',
@@ -103,6 +104,16 @@ describe('ContentFilterProfileEditor.vue', () => {
         'tags': [],
       },
     ]
+    customResponsesDocs = [
+      {
+        'id': 'default',
+        'name': 'default blocking action',
+      },
+      {
+        'id': 'monitor',
+        'name': 'default monitoring action',
+      },
+    ]
     jest.spyOn(axios, 'get').mockImplementation((path, config) => {
       if (!wrapper) {
         return Promise.resolve({data: []})
@@ -113,6 +124,9 @@ describe('ContentFilterProfileEditor.vue', () => {
           return Promise.resolve({data: _.map(contentFilterRulesDocs, (i: any) => _.pick(i, 'id', 'name'))})
         }
         return Promise.resolve({data: contentFilterRulesDocs})
+      }
+      if (path === `/conf/api/v3/configs/${branch}/d/actions/`) {
+        return Promise.resolve({data: customResponsesDocs})
       }
       return Promise.resolve({data: []})
     })

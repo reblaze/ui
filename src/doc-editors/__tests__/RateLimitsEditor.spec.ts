@@ -3,7 +3,7 @@ import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
 import LimitOption from '@/components/LimitOption.vue'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {mount, shallowMount, VueWrapper} from '@vue/test-utils'
-import {RateLimit, SecurityPolicy} from '@/types'
+import {CustomResponse, RateLimit, SecurityPolicy} from '@/types'
 import axios from 'axios'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import {nextTick} from 'vue'
@@ -13,6 +13,7 @@ jest.mock('axios')
 describe('RateLimitsEditor.vue', () => {
   let rateLimitsDocs: RateLimit[]
   let securityPoliciesDocs: SecurityPolicy[]
+  let customResponsesDocs: CustomResponse[]
   let mockRouter: any
   let wrapper: VueWrapper
   beforeEach(() => {
@@ -84,10 +85,23 @@ describe('RateLimitsEditor.vue', () => {
         ],
       },
     ]
+    customResponsesDocs = [
+      {
+        'id': 'default',
+        'name': 'default blocking action',
+      },
+      {
+        'id': 'monitor',
+        'name': 'default monitoring action',
+      },
+    ]
     const selectedBranch = 'master'
     jest.spyOn(axios, 'get').mockImplementation((path) => {
       if (path === `/conf/api/v3/configs/${selectedBranch}/d/securitypolicies/`) {
         return Promise.resolve({data: securityPoliciesDocs})
+      }
+      if (path === `/conf/api/v3/configs/${selectedBranch}/d/actions/`) {
+        return Promise.resolve({data: customResponsesDocs})
       }
       if (path === `/conf/api/v3/configs/${selectedBranch}/ratelimits/f971e92459e2`) {
         return Promise.resolve({data: rateLimitsDocs[0]})
@@ -182,9 +196,11 @@ describe('RateLimitsEditor.vue', () => {
       expect(wantedIgnoredAttributes).toEqual(actualIgnoredAttributes)
     })
 
-    test('should have response action component with correct data', () => {
-      const element = wrapper.find('.document-action').element as HTMLTextAreaElement
-      expect(element.value).toEqual(rateLimitsDocs[0].thresholds[0].action.toString())
+    test('should have response action selection with correct data', () => {
+      const wantedAction = rateLimitsDocs[0].thresholds[0].action.toString()
+      const thresholdActionSelection = wrapper.find('.threshold-action-selection')
+      const selectedAction = (thresholdActionSelection.find('option:checked').element as HTMLOptionElement).value
+      expect(selectedAction).toEqual(wantedAction)
     })
 
     test('should have correct include data in table', () => {
@@ -361,6 +377,7 @@ describe('RateLimitsEditor.vue', () => {
   })
 
   describe('tags', () => {
+    let filterColumn
     beforeEach(() => {
       const tagsData = {
         data: {
@@ -380,10 +397,11 @@ describe('RateLimitsEditor.vue', () => {
         }
         return Promise.resolve()
       })
+      filterColumn = wrapper.find('.filter-column')
     })
 
     test('should not have any warning in the tags table when there are no duplicate tags', () => {
-      const tagsWithWarning = wrapper.findAll('.has-text-danger')
+      const tagsWithWarning = filterColumn.findAll('.has-text-danger')
       expect(tagsWithWarning.length).toEqual(0)
     })
 
@@ -391,10 +409,10 @@ describe('RateLimitsEditor.vue', () => {
       const newTag = 'test-tag'
       const wantedEmit = JSON.parse(JSON.stringify(rateLimitsDocs[0]))
       wantedEmit.include.push(newTag)
-      const newIncludeEntryButton = wrapper.findAll('.add-new-filter-entry-button').at(0)
+      const newIncludeEntryButton = filterColumn.findAll('.add-new-filter-entry-button').at(0)
       // add first
       await newIncludeEntryButton.trigger('click')
-      const firstTagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+      const firstTagAutocompleteInput = filterColumn.findComponent(TagAutocompleteInput)
       firstTagAutocompleteInput.vm.$emit('tag-submitted', newTag)
       // check
       expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
@@ -406,7 +424,7 @@ describe('RateLimitsEditor.vue', () => {
       duplicatedTagsDoc.include = ['test-tag', 'test-tag']
       await wrapper.setProps({selectedDoc: duplicatedTagsDoc})
       // check
-      const tagsWithWarning = wrapper.findAll('.has-text-danger')
+      const tagsWithWarning = filterColumn.findAll('.has-text-danger')
       expect(tagsWithWarning.length).toEqual(2)
     })
 
@@ -414,26 +432,26 @@ describe('RateLimitsEditor.vue', () => {
       const newTag = 't'
       const wantedEmit = JSON.parse(JSON.stringify(rateLimitsDocs[0]))
       wantedEmit.include.push(newTag)
-      const newIncludeEntryButton = wrapper.findAll('.add-new-filter-entry-button').at(0)
+      const newIncludeEntryButton = filterColumn.findAll('.add-new-filter-entry-button').at(0)
       // add first
       await newIncludeEntryButton.trigger('click')
-      const firstTagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+      const firstTagAutocompleteInput = filterColumn.findComponent(TagAutocompleteInput)
       firstTagAutocompleteInput.vm.$emit('tag-submitted', newTag)
       // check
       expect(wrapper.emitted('update:selectedDoc')).toBeFalsy()
     })
 
     test('should remove tag from correct filter when tag removed', async () => {
-      const removeIncludeEntryButton = wrapper.find('.remove-filter-entry-button')
+      const removeIncludeEntryButton = filterColumn.find('.remove-filter-entry-button')
       await removeIncludeEntryButton.trigger('click')
       expect(wrapper.vm.localDoc.include.length).toEqual(0)
     })
 
     test('should hide tag input when tag selection cancelled', async () => {
-      const newIncludeEntryButton = wrapper.find('.add-new-filter-entry-button')
+      const newIncludeEntryButton = filterColumn.find('.add-new-filter-entry-button')
       await newIncludeEntryButton.trigger('click')
       wrapper.vm.cancelAddNewTag()
-      const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+      const tagAutocompleteInput = filterColumn.findComponent(TagAutocompleteInput)
       await nextTick()
       expect(tagAutocompleteInput.exists()).toBeFalsy()
     })

@@ -42,6 +42,7 @@
 <script lang="ts">
 import Utils from '@/assets/Utils'
 import {PropType, defineComponent} from 'vue'
+import {setImmediate} from 'timers'
 
 export type AutocompleteSuggestion = {
   prefix?: string

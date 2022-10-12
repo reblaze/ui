@@ -51,8 +51,11 @@
               <tr>
                 <th class="is-size-7 width-50px"></th>
                 <th class="is-size-7">Name</th>
-                <th class="is-size-7" colspan="2"><span>Match</span>&nbsp;<span><i
-                    class="fas fa-sort-alpha-down"></i></span></th>
+                <th class="is-size-7" colspan="2">
+                  <span>Match</span>
+                  &nbsp;
+                  <span><i class="fas fa-sort-alpha-down"></i></span>
+                </th>
                 <th class="is-size-7">Content Filter</th>
                 <th class="is-size-7">ACL</th>
                 <th class="is-size-7" title="Rate limit">RL</th>
@@ -136,7 +139,7 @@
                                        @input="emitDocUpdate();
                                                validateInput($event, isSelectedMapEntryMatchValid(mapIndex))"
                                        data-qa="expanded-path-input"
-                                       title="matchingDomainTitle"
+                                       :title="matchingDomainTitle"
                                        placeholder="Matching domain(s) regex"
                                        required
                                        :disabled="localDoc.id === '__default__' && initialMapEntryMatch === '/'"
@@ -361,7 +364,6 @@ import {ACLProfile, ContentFilterProfile, RateLimit, SecurityPolicy, SecurityPol
 import {AxiosResponse} from 'axios'
 import Utils from '@/assets/Utils'
 
-
 export default defineComponent({
   name: 'SecurityPoliciesEditor',
 
@@ -450,18 +452,14 @@ export default defineComponent({
 
     isSelectedMapEntryMatchValid(index: number): boolean {
       const newMapEntryMatch = this.localDoc.map[index].match.trim() || ''
-      let isValid = newMapEntryMatch.startsWith('/')
-      if (isValid) {
-        const isMapEntryMatchEmpty = newMapEntryMatch === ''
-        const isMapEntryMatchDuplicate = this.entriesMatchNames.includes(
-            newMapEntryMatch,
-        ) ? this.initialMapEntryMatch !== newMapEntryMatch : false
-        // TODO: Fix regex test for rust standards and re-apply this
-        // const mapEntryMatchContainsInvalidCharacters = !this.isURLValid(newMapEntryMatch.substring(1))
-        // isValid = !isMapEntryMatchEmpty && !isMapEntryMatchDuplicate && !mapEntryMatchContainsInvalidCharacters
-        isValid = !isMapEntryMatchEmpty && !isMapEntryMatchDuplicate
-      }
-      return isValid
+      const isMapEntryMatchEmpty = newMapEntryMatch === ''
+      const isMapEntryMatchDuplicate = this.entriesMatchNames.includes(
+          newMapEntryMatch,
+      ) ? this.initialMapEntryMatch !== newMapEntryMatch : false
+      // TODO: Fix regex test for rust standards and re-apply this
+      // const mapEntryMatchContainsInvalidCharacters = !this.isURLValid(newMapEntryMatch.substring(1))
+      // isValid = !isMapEntryMatchEmpty && !isMapEntryMatchDuplicate && !mapEntryMatchContainsInvalidCharacters
+      return !isMapEntryMatchEmpty && !isMapEntryMatchDuplicate
     },
 
     aclProfileName(id: string): string {
