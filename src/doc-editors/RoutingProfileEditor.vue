@@ -353,7 +353,7 @@
 <script lang="ts">
 import _ from 'lodash'
 import RequestsUtils from '@/assets/RequestsUtils'
-import {BackendService, CloudFunction, ContentFilterProfile, RoutingProfile, RoutingProfileEntryLocation} from '@/types'
+import {BackendService, CloudFunction, RoutingProfile, RoutingProfileEntryLocation} from '@/types'
 import Utils from '@/assets/Utils'
 import {defineComponent} from 'vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
@@ -378,7 +378,7 @@ export default defineComponent({
       mapEntryIndex: -1,
       initialMapEntryPath: '',
       entriesLocationNames: [] as RoutingProfileEntryLocation['path'][],
-      backendServiceNames: [] as BackendService[], // TODO
+      backendServiceNames: [] as [BackendService['id'], BackendService['name']][],
       cloudFunctionsNames: [] as CloudFunction[],
       cloudFunctionNewEntryModeMapEntryId: null,
       cloudFunctionMapEntryId: null,
@@ -595,7 +595,7 @@ export default defineComponent({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/backends/`,
         config: {headers: {'x-fields': 'id, name'}},
-      }).then((response: AxiosResponse<ContentFilterProfile[]>) => {
+      }).then((response: AxiosResponse<BackendService[]>) => {
         this.backendServiceNames = _.sortBy(_.map(response.data, (entity) => {
           return [entity.id, entity.name]
         }), (e) => {
@@ -608,7 +608,7 @@ export default defineComponent({
       RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/cloud-functions/`,
-      }).then((response: AxiosResponse<ContentFilterProfile[]>) => {
+      }).then((response: AxiosResponse<CloudFunction[]>) => {
         this.cloudFunctionsNames = response.data
       })
     },
