@@ -6,8 +6,17 @@
           <div class="columns">
             <div class="column">
               <div class="field is-grouped">
-                <div class="control"
-                     v-if="branchNames.length">
+                <p class="control">
+                  <button class="button is-small redirect-list-button"
+                          @click="redirectToList()"
+                          title="Return to list"
+                          data-qa="redirect-to-list">
+                    <span class="icon is-small">
+                      <i class="fas fa-arrow-left"></i>
+                    </span>
+                  </button>
+                </p>
+                <div class="control" v-if="branchNames.length">
                   <div class="select is-small">
                     <select v-model="selectedBranch"
                             data-qa="policies-switch-branch"
@@ -192,8 +201,8 @@
             <span v-if="!branchNames.includes(selectedBranch)">
               Missing branch. To be redirected to Version Control page where you will be able to create a new one, click
               <a title="Add new"
-                 class="version-control-referral-button"
-                 @click="referToVersionControl()">
+                 class="redirect-version-control-button"
+                 @click="redirectToVersionControl()">
                 here
               </a>
             </span>
@@ -443,6 +452,14 @@ export default defineComponent({
       this.loadGitLog()
     },
 
+    redirectToVersionControl() {
+      this.$router.push('/versioncontrol')
+    },
+
+    redirectToList() {
+      this.$router.push(`/list/${this.selectedBranch}/${this.selectedDocType}`)
+    },
+
     resetGitLog() {
       this.gitLog = []
     },
@@ -453,7 +470,6 @@ export default defineComponent({
     },
 
     async loadConfigs(counterOnly?: boolean) {
-      // store configs
       let configs
       try {
         const response = await RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'})
@@ -813,10 +829,6 @@ export default defineComponent({
         return
       }
       this.selectedDoc = {...this.newDoc(), ...this.selectedDoc as {}}
-    },
-
-    referToVersionControl() {
-      this.$router.push('/versioncontrol')
     },
 
     // Collect every request to display a loading indicator

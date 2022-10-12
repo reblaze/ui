@@ -27,14 +27,14 @@ declare module CuriefenseClient {
   }
 
   type ContentFilterProfileSection = {
-    names: ContentFilterEntryMatch[],
-    regex: ContentFilterEntryMatch[],
-    max_count: number,
+    names: ContentFilterEntryMatch[]
+    regex: ContentFilterEntryMatch[]
+    max_count: number
     max_length: number
   }
 
   type SecurityPolicyEntryMatch = {
-    id: string,
+    id: string
     match: string
     name: string
     acl_profile: string
@@ -271,6 +271,72 @@ declare module CuriefenseClient {
 
   // Document other - END
 
+  // Operation documents - START
+
+  type RoutingProfile = {
+    name: string
+    id: string
+    description: string
+    server_names: string[]
+    locations: {
+      path: string
+      backend_id: string
+    }[]
+    cloud_functions: string[]
+  }
+
+  type MobileSDKConfig = {
+    active: boolean
+    json: string
+    name: string
+  }
+
+  type MobileSDKSignature = {
+    name: string
+    hash: string
+    active: boolean
+  }
+
+  type MobileSDK = {
+    id: string
+    name: string
+    description: string
+    secret: string
+    var_name: string
+    uid_header: string
+    grace: string
+    grace_var_name: string
+    validator_type: string
+    active_config: MobileSDKConfig[],
+    signatures: MobileSDKSignature[],
+    support_legacy_sdk: boolean
+  }
+
+  type ProxyTemplate = {
+    name: string
+    id: string
+    description: string
+    acao_header: boolean
+    xff_header_name: string
+    post_private_args: string
+    proxy_connect_timeout: string
+    proxy_send_timeout: string
+    proxy_read_timeout: string
+    upstream_host: string
+    client_body_timeout: string
+    client_header_timeout: string
+    keepalive_timeout: string
+    send_timeout: string
+    client_max_body_size: string
+    limit_req_rate: string
+    limit_req_burst: string
+    session_key: string
+    mask_headers: string
+    xrealip_header_name: string
+    custom_listener: boolean
+  }
+
+  // Operation documents - END
 
   // Git - START
 

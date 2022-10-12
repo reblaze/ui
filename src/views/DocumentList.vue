@@ -37,7 +37,7 @@
       <hr/>
 
       <div class="content document-list-wrapper"
-           v-show="!loadingDocCounter">
+           v-show="!loadingDocCounter && selectedBranch && selectedDocType">
         <div class="card">
           <div class="card-content">
             <div class="content">
@@ -81,8 +81,8 @@
             <span v-if="!branchNames.includes(selectedBranch)">
               Missing branch. To be redirected to Version Control page where you will be able to create a new one, click
               <a title="Add new"
-                 class="version-control-referral-button"
-                 @click="referToVersionControl()">
+                 class="redirect-version-control-button"
+                 @click="redirectToVersionControl()">
                 here
               </a>
             </span>
@@ -244,7 +244,6 @@ export default defineComponent({
     },
 
     async loadConfigs() {
-      // store configs
       let configs
       try {
         const response = await RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'})
@@ -271,7 +270,7 @@ export default defineComponent({
       const response = await requestFunction({
         methodName: 'GET',
         url: url,
-        config: {headers: {'x-fields': `id, ${fieldNames.join(', ')}`}},
+        config: {headers: {'x-fields': `id, ${_.uniq(fieldNames).join(', ')}`}},
         onFail: () => {
           console.log('Error while attempting to load documents')
           this.docs = []
@@ -360,7 +359,7 @@ export default defineComponent({
       }
     },
 
-    referToVersionControl() {
+    redirectToVersionControl() {
       this.$router.push('/versioncontrol')
     },
 

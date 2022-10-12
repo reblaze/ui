@@ -319,7 +319,6 @@ export default defineComponent({
   methods: {
 
     async loadConfigs() {
-      // store configs
       let configs
       try {
         const response = await RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'})

@@ -101,9 +101,8 @@ describe('RequestsUtils.ts', () => {
       expect(document['description']).toEqual('New Rate Limit Rule Description and Remarks')
       expect(document['thresholds'][0]['limit']).toEqual(5)
       expect(document['timeframe']).toEqual(60)
-      // expect(document['key']).toEqual([{'attrs': 'ip'}])
       expect(document['key']).toEqual([{'attrs': 'securitypolicyid'},
-        {'attrs': 'pathmatchingid'}, {'headers': 'rbzsessionid'}])
+        {'attrs': 'securitypolicyentryid'}, {'headers': 'rbzsessionid'}])
       expect(document['thresholds'][0]['action']).toEqual('default')
       expect(document['pairwith']).toEqual({'self': 'self'})
       expect(document['exclude']).toEqual([])

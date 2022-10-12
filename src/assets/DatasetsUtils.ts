@@ -1,14 +1,17 @@
 import {
   ACLProfile,
+  CloudFunction,
   ContentFilterProfile,
-  ContentFilterRule, CustomResponse,
+  ContentFilterRule,
+  CustomResponse,
+  DynamicRule,
   FlowControlPolicy,
   GlobalFilter,
   HttpRequestMethods,
+  MobileSDK, ProxyTemplate,
   RateLimit,
+  RoutingProfile,
   SecurityPolicy,
-  CloudFunction,
-  DynamicRule,
 } from '@/types'
 
 const titles: { [key: string]: string } = {
@@ -65,6 +68,12 @@ const titles: { [key: string]: string } = {
   'actions': 'Custom Responses',
   'actions-singular': 'Custom Response',
   'active': 'Active',
+  'routing-profiles': 'Routing Profiles',
+  'routing-profiles-singular': 'Routing Profile',
+  'mobile-sdks': 'MobileSDKs',
+  'mobile-sdks-singular': 'MobileSDK',
+  'proxy-templates': 'Proxy Templates',
+  'proxy-templates-singular': 'Proxy Template',
   'report': 'Report',
   'ignore': 'Ignore',
   'request0': 'Request Pre Reblaze',
@@ -225,7 +234,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
           'attrs': 'securitypolicyid',
         },
         {
-          'attrs': 'pathmatchingid',
+          'attrs': 'securitypolicyentryid',
         },
         {
           'headers': 'rbzsessionid',
@@ -314,6 +323,72 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 }
+const newOperationEntryFactory: { [key: string]: Function } = {
+  'routing-profiles'(): RoutingProfile {
+    return {
+      'id': generateUUID2(),
+      'name': 'New Routing Profile ' + generateUUID2(), // TODO: Remove this random uuid once names are no longer unique
+      'description': 'New Routing Profile Description and Remarks',
+      'server_names': [],
+      'locations': [
+        {
+          'path': '/',
+          'backend_id': '',
+        },
+      ],
+      'cloud_functions': [],
+    }
+  },
+
+  'mobile-sdks'(): MobileSDK {
+    return {
+      'id': generateUUID2(),
+      'name': 'New Mobile SDK ' + generateUUID2(), // TODO: Remove this random uuid once names are no longer unique
+      'description': 'New Mobile SDK Description and Remarks',
+      'secret': '',
+      'var_name': 'authorization',
+      'uid_header': 'authorization',
+      'grace': '5',
+      'grace_var_name': 'timestamp',
+      'validator_type': '',
+      'active_config': [
+        {
+          'active': true,
+          'json': '{}',
+          'name': 'Default',
+        },
+      ],
+      'signatures': [],
+      'support_legacy_sdk': false,
+    }
+  },
+
+  'proxy-templates'(): ProxyTemplate {
+    return {
+      'id': generateUUID2(),
+      'name': 'New Proxy Template ' + generateUUID2(), // TODO: Remove this random uuid once names are no longer unique
+      'description': 'New Proxy Template Description and Remarks',
+      'acao_header': false,
+      'xff_header_name': 'X-Forwarded-For',
+      'post_private_args': '(cc_number|password)',
+      'proxy_connect_timeout': '5',
+      'proxy_send_timeout': '30',
+      'proxy_read_timeout': '60',
+      'upstream_host': '$host',
+      'client_body_timeout': '5',
+      'client_header_timeout': '5',
+      'keepalive_timeout': '660',
+      'send_timeout': '5',
+      'client_max_body_size': '150',
+      'limit_req_rate': '1200',
+      'limit_req_burst': '400',
+      'session_key': 'cookie_jsessionid',
+      'mask_headers': '',
+      'xrealip_header_name': 'X-Real-IP',
+      'custom_listener': false,
+    }
+  },
+}
 
 export default {
   name: 'DatasetsUtils',
@@ -322,5 +397,6 @@ export default {
   generateUUID,
   generateUUID2,
   newDocEntryFactory,
+  newOperationEntryFactory,
   defaultFlowControlSequenceItem,
 }

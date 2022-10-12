@@ -16,6 +16,18 @@
   width: 20px;
 }
 
+.width-30px {
+  max-width: 30px;
+  min-width: 30px;
+  width: 30px;
+}
+
+.width-45px {
+  max-width: 45px;
+  min-width: 45px;
+  width: 45px;
+}
+
 .width-50px {
   max-width: 50px;
   min-width: 50px;
@@ -62,6 +74,12 @@
   max-width: 150px;
   min-width: 150px;
   width: 150px;
+}
+
+.width-180px {
+  max-width: 180px;
+  min-width: 180px;
+  width: 180px;
 }
 
 .width-200px {
@@ -136,6 +154,24 @@
   min-height: 50px;
 }
 
+.height-100px {
+  height: 100px;
+  max-height: 100px;
+  min-height: 100px;
+}
+
+.height-120px {
+  height: 120px;
+  max-height: 120px;
+  min-height: 120px;
+}
+
+.height-130px {
+  height: 130px;
+  max-height: 130px;
+  min-height: 130px;
+}
+
 /* Text */
 
 .ellipsis {
@@ -200,6 +236,23 @@
   content: 'seconds';
 }
 
+.seconds-suffix {
+  input {
+    padding-right: 60px;
+  }
+}
+
+.mb-suffix::after {
+  @extend .is-size-7;
+  content: 'MB';
+}
+
+.mb-suffix {
+  input {
+    padding-right: 30px;
+  }
+}
+
 /* Bulma enhancement */
 
 // Equivalent to 'has-text-light'
@@ -253,7 +306,6 @@ $color-light: hsl(0, 0%, 96%);
 
 .document-description {
   line-height: 1rem;
-  text-size-adjust: none;
 }
 
 .white-space-pre {

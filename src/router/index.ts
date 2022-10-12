@@ -1,5 +1,4 @@
-import {createRouter, createWebHistory} from 'vue-router'
-import {RouteRecordRaw} from 'vue-router'
+import {createRouter, createWebHistory, RouteRecordRaw} from 'vue-router'
 import MainComponent from '@/views/MainComponent.vue'
 import DocumentEditor from '@/views/DocumentEditor.vue'
 import CurieDBEditor from '@/views/CurieDBEditor.vue'
@@ -8,6 +7,13 @@ import VersionControl from '@/views/VersionControl.vue'
 import DocumentSearch from '@/views/DocumentSearch.vue'
 import DocumentList from '@/views/DocumentList.vue'
 import QuarantinedList from '@/components/QuarantinedList.vue'
+import RoutingProfileList from '@/views/RoutingProfileList.vue'
+import RoutingProfileEditor from '@/doc-editors/RoutingProfileEditor.vue'
+import MobileSDKList from '@/views/MobileSDKList.vue'
+import MobileSDKEditor from '@/doc-editors/MobileSDKEditor.vue'
+import ProxyTemplateList from '@/views/ProxyTemplateList.vue'
+import ProxyTemplateEditor from '@/doc-editors/ProxyTemplateEditor.vue'
+
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -63,6 +69,57 @@ const routes: Array<RouteRecordRaw> = [
       },
       {path: 'quarantined', name: 'Quarantined', component: QuarantinedList},
       {path: 'CurieDB', name: 'CurieDBEditor', component: CurieDBEditor},
+      {
+        path: 'routing-profiles',
+        name: 'RoutingProfiles',
+        redirect: '/routing-profiles/list',
+        children: [
+          {
+            path: 'list',
+            name: 'RoutingProfiles/list',
+            component: RoutingProfileList,
+          },
+          {
+            path: 'config/:doc_id',
+            name: 'RoutingProfiles/config',
+            component: RoutingProfileEditor,
+          },
+        ],
+      },
+      {
+        path: 'mobile-sdks',
+        name: 'MobileSDKs',
+        redirect: '/mobile-sdks/list',
+        children: [
+          {
+            path: 'list',
+            name: 'MobileSDKs/list',
+            component: MobileSDKList,
+          },
+          {
+            path: 'config/:doc_id',
+            name: 'MobileSDKs/config',
+            component: MobileSDKEditor,
+          },
+        ],
+      },
+      {
+        path: 'proxy-templates',
+        name: 'ProxyTemplates',
+        redirect: '/proxy-templates/list',
+        children: [
+          {
+            path: 'list',
+            name: 'ProxyTemplates/list',
+            component: ProxyTemplateList,
+          },
+          {
+            path: 'config/:doc_id',
+            name: 'ProxyTemplates/config',
+            component: ProxyTemplateEditor,
+          },
+        ],
+      },
       {path: 'publish', name: 'PublishChanges', component: PublishChanges},
       {path: 'versioncontrol', name: 'VersionControl', component: VersionControl},
       {path: 'search', name: 'DocumentSearch', component: DocumentSearch},
