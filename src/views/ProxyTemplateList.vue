@@ -127,7 +127,6 @@ export default defineComponent({
       proxyTemplates: [],
       selectedBranch: null,
       configs: [],
-      branches: 0,
       loadingDocCounter: 0,
       isDownloadLoading: false,
       apiRoot: RequestsUtils.reblazeAPIRoot,
@@ -201,7 +200,6 @@ export default defineComponent({
       }
       console.log('loaded configs: ', configs)
       this.configs = configs
-      this.branches = _.size(configs)
       this.selectedBranch = this.branchNames[0]
     },
 

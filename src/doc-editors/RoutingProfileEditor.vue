@@ -60,9 +60,9 @@
                 <p class="control">
                   <button class="button is-small has-text-danger delete-document-button"
                           title="Delete document"
-                          :disabled="selectedRoutingProfile?.id === '__default__'"
                           data-qa="delete-document"
                           :class="{'is-loading': isDeleteLoading}"
+                          :disabled="selectedRoutingProfile?.id === '__default__'"
                           @click="deleteDoc()">
                       <span class="icon is-small">
                         <i class="fas fa-trash"></i>
@@ -90,7 +90,7 @@
                     </span>
                   </label>
                   <div class="control">
-                    <input class="input is-small routing-name"
+                    <input class="input is-small document-name"
                            title="Document name"
                            placeholder="Document name"
                            v-model="selectedRoutingProfile.name"/>
@@ -100,9 +100,9 @@
                   <div class="field textarea-field">
                     <label class="label is-small">Description</label>
                     <div class="control">
-                            <textarea class="is-small textarea routing-description"
-                                      data-qa="routing-input"
-                                      title="selectedRoutingProfile.description"
+                            <textarea class="is-small textarea document-description"
+                                      data-qa="description-input"
+                                      title="Document description"
                                       v-model="selectedRoutingProfile.description"
                                       rows="5">
                             </textarea>
@@ -201,8 +201,8 @@
                                       Phase
                                     </th>
                                     <th class="has-text-centered is-size-7 width-60px">
-                                      <a v-if="cloudFunctionsNames && mapEntry.cloud_functions &&
-                                             cloudFunctionsNames.length > existingCloudFunctionIDs(mapEntry).length"
+                                      <a v-if="cloudFunctions && mapEntry.cloud_functions &&
+                                             cloudFunctions.length > existingCloudFunctionIDs(mapEntry).length"
                                          class="has-text-grey-dark is-small cloud-function-add-button"
                                          data-qa="add-existing-cloud-function"
                                          title="Add new"
@@ -379,7 +379,7 @@ export default defineComponent({
       initialMapEntryPath: '',
       entriesLocationNames: [] as RoutingProfileEntryLocation['path'][],
       backendServiceNames: [] as [BackendService['id'], BackendService['name']][],
-      cloudFunctionsNames: [] as CloudFunction[],
+      cloudFunctions: [] as CloudFunction[],
       cloudFunctionNewEntryModeMapEntryId: null,
       cloudFunctionMapEntryId: null,
       matchingPathTitle: 'A unique matching regex value, not overlapping other path mapping definitions',
@@ -450,7 +450,7 @@ export default defineComponent({
     async deleteDoc() {
       this.setLoadingDocStatus(true)
       this.isDeleteLoading = true
-      const routingProfileText = this.titles['routing-singular']
+      const routingProfileText = this.titles['routing-profiles-singular']
       const url = `configs/${this.selectedBranch}/d/routing-profiles/e/${this.selectedRoutingProfile.id}/`
       const successMessage = `The ${routingProfileText} was deleted.`
       const failureMessage = `Failed while attempting to delete the ${routingProfileText}.`
@@ -470,7 +470,7 @@ export default defineComponent({
       const methodName = 'PUT'
       const url = `configs/${this.selectedBranch}/d/routing-profiles/e/${this.selectedRoutingProfile.id}/`
       const data = this.selectedRoutingProfile
-      const routingProfileText = this.titles['routing-singular']
+      const routingProfileText = this.titles['routing-profiles-singular']
       const successMessage = `Changes to the ${routingProfileText} were saved.`
       const failureMessage = `Failed while attempting to save the changes to the ${routingProfileText}.`
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
@@ -483,7 +483,7 @@ export default defineComponent({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/routing-profiles/e/${this.docIdFromRoute}`,
         onFail: () => {
-          console.log('Error while attempting to load routing profiles')
+          console.log('Error while attempting to load the Routing Profile')
           this.selectedRoutingProfile = null
           this.isDownloadLoading = false
         },
@@ -511,7 +511,7 @@ export default defineComponent({
     },
 
     newCloudFunctions(currentCloudFunctionIDs: string[]): CloudFunction[] {
-      return _.filter(this.cloudFunctionsNames, (cloudFunction) => {
+      return _.filter(this.cloudFunctions, (cloudFunction) => {
         return _.indexOf(currentCloudFunctionIDs, cloudFunction.id) === -1
       })
     },
@@ -529,7 +529,7 @@ export default defineComponent({
     },
 
     cloudFunctionsDetails(cloudFunctionId: CloudFunction['id']): CloudFunction {
-      return _.find(this.cloudFunctionsNames, (cloudFunction) => {
+      return _.find(this.cloudFunctions, (cloudFunction) => {
         return cloudFunction.id === cloudFunctionId
       })
     },
@@ -609,7 +609,7 @@ export default defineComponent({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/cloud-functions/`,
       }).then((response: AxiosResponse<CloudFunction[]>) => {
-        this.cloudFunctionsNames = response.data
+        this.cloudFunctions = response.data
       })
     },
   },

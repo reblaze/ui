@@ -168,11 +168,9 @@ declare module CuriefenseClient {
   type CloudFunction = {
     id: string
     name: string
-    key?: string
-    description?: string
-    code?: string
-    phase?: CloudFunctionsPhaseType
-    match?: string
+    description: string
+    code: string
+    phase: CloudFunctionsPhaseType
   }
 
   type RateLimit = {
@@ -339,6 +337,19 @@ declare module CuriefenseClient {
     mask_headers: string
     xrealip_header_name: string
     custom_listener: boolean
+  }
+
+  type Site = {
+    name: string
+    id: string
+    description: string
+    canonical_name: string
+    server_names: string[]
+    security_policy: SecurityPolicy['id']
+    routing_profile: RoutingProfile['id']
+    proxy_template: ProxyTemplate['id']
+    mobile_sdk: MobileSDK['id']
+    ssl_certificate?: string
   }
 
   // Operation documents - END

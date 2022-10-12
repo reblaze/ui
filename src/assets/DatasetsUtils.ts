@@ -11,6 +11,7 @@ import {
   RateLimit,
   RoutingProfile,
   SecurityPolicy,
+  Site,
 } from '@/types'
 
 const titles: { [key: string]: string } = {
@@ -69,6 +70,8 @@ const titles: { [key: string]: string } = {
   'mobile-sdks-singular': 'MobileSDK',
   'proxy-templates': 'Proxy Templates',
   'proxy-templates-singular': 'Proxy Template',
+  'sites': 'Sites',
+  'sites-singular': 'Site',
   'report': 'Report',
   'ignore': 'Ignore',
   'request0': 'Request Pre Reblaze',
@@ -304,6 +307,21 @@ const newDocEntryFactory: { [key: string]: Function } = {
   },
 }
 const newOperationEntryFactory: { [key: string]: Function } = {
+  'sites'(): Site {
+    const id = generateUUID2()
+    return {
+      'id': id,
+      'name': 'New Site ' + id, // TODO: Remove this random uuid once names are no longer unique
+      'description': 'New Site Description and Remarks',
+      'canonical_name': 'New.Site.' + id,
+      'server_names': [],
+      'security_policy': '__default__',
+      'routing_profile': '__default__',
+      'proxy_template': '__default__',
+      'mobile_sdk': '__default__',
+    }
+  },
+
   'routing-profiles'(): RoutingProfile {
     return {
       'id': generateUUID2(),
