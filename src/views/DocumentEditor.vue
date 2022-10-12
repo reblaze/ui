@@ -158,7 +158,7 @@
       <div class="content document-editor-wrapper"
            v-show="!loadingDocCounter">
         <component
-            v-if="selectedBranch && selectedDocType && selectedDoc"
+            v-if="selectedBranch && selectedDocType && selectedDoc && !loadingDocCounter"
             :is="componentsMap[selectedDocType].component"
             v-model:selectedBranch="selectedBranch"
             v-model:selectedDoc="selectedDoc"
@@ -232,7 +232,7 @@ import CustomResponseEditor from '@/doc-editors/CustomResponseEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
 import {defineComponent, shallowRef} from 'vue'
-import {Commit, Document, DocumentType, HttpRequestMethods, SecurityPolicy, GlobalFilter, DynamicRule} from '@/types'
+import {Commit, Document, DocumentType, DynamicRule, GlobalFilter, HttpRequestMethods, SecurityPolicy} from '@/types'
 import axios, {AxiosResponse} from 'axios'
 
 export default defineComponent({
@@ -275,6 +275,7 @@ export default defineComponent({
       cancelSource: axios.CancelToken.source(),
       isDownloadLoading: false,
       isDocumentInvalid: false,
+      selectedDocMatchingGlobalFilter: null as GlobalFilter,
 
       gitLog: [],
       loadingGitlog: false,
@@ -304,20 +305,20 @@ export default defineComponent({
       handler: async function(val, oldVal) {
         if (val && val !== oldVal && this.selectedDocType === 'dynamic-rules' && !this.isNewLoading) {
           console.log('selectedDocID changed')
-          // if (this.isNewLoading) {
-          //   const docMatchingGlobalFilter = DatasetsUtils.newDocEntryFactory['globalfilters']() as GlobalFilter
-          //   docMatchingGlobalFilter.id = `dr_${this.selectedDocID}`
-          //   docMatchingGlobalFilter.active = (this.selectedDoc as DynamicRule).active
-          //   docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule' + this.selectedDocID
-          //   this.selectedDocMatchingGlobalFilter = docMatchingGlobalFilter
-          // } else {
-          // this.setLoadingDocStatus(true)
-          // const url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${val}/`
-          // const response = await RequestsUtils.sendRequest({methodName: 'GET', url})
+          if (this.isNewLoading) {
+            const docMatchingGlobalFilter = DatasetsUtils.newDocEntryFactory['globalfilters']() as GlobalFilter
+            docMatchingGlobalFilter.id = `dr_${this.selectedDocID}`
+            docMatchingGlobalFilter.active = (this.selectedDoc as DynamicRule).active
+            docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule' + this.selectedDocID
+            this.selectedDocMatchingGlobalFilter = docMatchingGlobalFilter
+          } else {
+            this.setLoadingDocStatus(true)
+            const url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${val}/`
+            const response = await RequestsUtils.sendRequest({methodName: 'GET', url})
 
-          // this.selectedDocMatchingGlobalFilter = response.data
-          // this.setLoadingDocStatus(false)
-          //  }
+            this.selectedDocMatchingGlobalFilter = response.data
+            this.setLoadingDocStatus(false)
+          }
         }
       },
     },
@@ -344,19 +345,6 @@ export default defineComponent({
 
     branchNames(): string[] {
       return this.configs?.length ? _.sortBy(_.map(this.configs, 'id')) : []
-    },
-
-    selectedDocMatchingGlobalFilter: {
-      get(): GlobalFilter {
-        const url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${this.selectedDocID}/`
-        const response = RequestsUtils.sendRequest({methodName: 'GET', url})
-        console.log('get selectedDocMatchingGlobalFilter', response)
-        return response?.data
-      },
-      set(newValue: Document): void {
-        // newValue
-        console.log('set selectedDocMatchingGlobalFilter newValue', newValue)
-      },
     },
 
     selectedDoc: {

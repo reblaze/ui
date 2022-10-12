@@ -337,7 +337,7 @@ export default defineComponent({
 
       if (this.selectedDocType === 'dynamic-rules') {
         const docMatchingGlobalFilter = DatasetsUtils.newDocEntryFactory['globalfilters']() as GlobalFilter
-        docMatchingGlobalFilter.id = `dr_${docToAdd.id}}`
+        docMatchingGlobalFilter.id = `dr_${docToAdd.id}`
         docMatchingGlobalFilter.active = (docToAdd as DynamicRule).active
         docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule' + docToAdd.id
         data = docMatchingGlobalFilter
