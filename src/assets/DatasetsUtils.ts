@@ -9,7 +9,6 @@ import {
   SecurityPolicy,
   CloudFunction,
   DynamicRule,
-  QuarantinedIps,
 } from '@/types'
 
 const titles: { [key: string]: string } = {
@@ -59,8 +58,8 @@ const titles: { [key: string]: string } = {
   'cloudfunctions-singular': 'Cloud Function',
   'globalfilters': 'Global Filters',
   'globalfilters-singular': 'Global Filter',
-  'quarantinedips-singular': 'Quarantined IPs',
-  'quarantinedips': 'Quarantined IPs',
+  'quarantined-singular': 'Quarantined List',
+  'quarantined': 'Quarantined List',
   'flowcontrol': 'Flow Control Policies',
   'flowcontrol-singular': 'Flow Control Policy',
   'actions': 'Custom Responses',
@@ -290,18 +289,6 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  quarantinedips() {
-    return {
-      'ip': '9.9.9.9',
-      'geo': 'israel',
-      'asn': '',
-      'violations': 'First',
-      'limit': '5',
-      'added': false,
-      'last_seen': '01/09/2022',
-      'expires': '15/11/22',
-    } as QuarantinedIps
-  },
 
   'contentfilterrules'(): ContentFilterRule {
     return {

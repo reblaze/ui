@@ -158,7 +158,7 @@
       <div class="content document-editor-wrapper"
            v-show="!loadingDocCounter">
         <component
-            v-if="selectedBranch && selectedDocType && selectedDoc"
+            v-if="selectedBranch && selectedDocType && selectedDoc && selectedDocMatchingGlobalFilter"
             :is="componentsMap[selectedDocType].component"
             v-model:selectedBranch="selectedBranch"
             v-model:selectedDoc="selectedDoc"
