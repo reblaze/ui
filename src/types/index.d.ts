@@ -294,7 +294,7 @@ declare module CuriefenseClient {
   // Git - END
 
   type Quarantined = {
-    _id: string
+    id: string
     count: number
     first_added: number
     last_seen: number

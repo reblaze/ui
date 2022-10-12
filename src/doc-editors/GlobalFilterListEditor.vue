@@ -19,7 +19,7 @@
                        placeholder="List name"
                        @change="emitDocUpdate"
                        v-model="localDoc.name"
-                       :readonly="readonly || (localDoc.id).substr(0, 3)=='dr_'" />
+                       :disabled="reblazeManaged || dynamicRuleManaged" />
               </div>
               <p class="subtitle is-7 has-text-grey entries-entries-display">
                 {{ sectionsEntriesDisplay }}
@@ -30,8 +30,7 @@
                 <input type="checkbox"
                        data-qa="active-checkbox"
                        class="document-active"
-                       :readonly="readonly || (localDoc.id).substr(0, 3)=='dr_'"
-                       :disabled="readonly"
+                       :disabled="reblazeManaged || dynamicRuleManaged"
                        @change="emitDocUpdate"
                        v-model="localDoc.active">
                 Active
@@ -39,7 +38,7 @@
             </div>
             <div class="field">
               <div class="control"
-                   v-if="editable && (localDoc.id).substr(0, 3)!=='dr_'">
+                   v-if="selfManaged">
                 <label class="label is-small">entries Relation</label>
                 <div class="tags has-addons mb-0 document-entries-relation"
                      tabindex="0"
@@ -62,19 +61,21 @@
             </div>
             <div class="field">
               <label class="label is-small">Tags</label>
-              <div :class="(localDoc.id).substr(0,3)!=='dr_' ? 'control disabled' : 'control' "
+              <div class="control"
                    data-qa="tag-input" >
                 <tag-autocomplete-input :initial-tag="selectedDocTags"
                                         :selection-type="'multiple'"
+                                        :editable="editable"
                                         @tag-changed="selectedDocTags = $event">
                 </tag-autocomplete-input>
               </div>
-            </div>
+            </div>selfManaged
             <div class="field">
-              <a v-if="externalSource && (localDoc.id).substr(0, 3)!=='dr_'"
+              <a v-if="externalSource"
                  class="is-small has-text-grey is-size-7 is-pulled-right update-now-button"
                  data-qa="update-now-btn"
                  tabindex="0"
+                 disabled="dynamicRuleManaged"
                  @click="fetchList"
                  @keypress.space.prevent
                  @keypress.space="fetchList"
@@ -89,10 +90,10 @@
                        placeholder="List source"
                        @change="emitDocUpdate"
                        v-model="localDoc.source"
-                       :readonly="readonly || (localDoc.id).substr(0, 3)=='dr_'"/>
+                       :disabled="reblazeManaged || dynamicRuleManaged"/>
               </div>
               <p class="help"
-                 v-if="externalSource && (localDoc.id).substr(0, 3)!=='dr_'"
+                 v-if="externalSource && !dynamicRuleManaged"
                  :title="fullFormattedModifiedDate">
                 updated @ {{ formattedModifiedDate }}
               </p>
@@ -108,7 +109,7 @@
                          data-qa="action-input"
                          placeholder="Action"
                          @change="emitDocUpdate"
-                         :readonly="(localDoc.id).substr(0, 3)=='dr_'"
+                         :disabled="dynamicRuleManaged"
                          v-model="localDoc.action"/>
                 </div>
               </div>
@@ -121,16 +122,17 @@
                           title="Document description"
                           v-model="localDoc.description"
                           @input="emitDocUpdate"
-                          :readonly="(localDoc.id).substr(0, 3)=='dr_'"
+                          :disabled="dynamicRuleManaged"
                           rows="5">
                 </textarea>
               </div>
             </div>
             <div class="pt-6">
-              <div class="field" v-if="editable && (localDoc.id).substr(0, 3)!=='dr_'">
+              <div class="field" v-if="selfManaged">
                 <div class="control is-expanded">
                   <button class="button is-small has-text-danger-dark remove-all-entries-button"
                           data-qa="remove-all-entries-btn"
+                          :disabled="dynamicRuleManaged"
                           title="Remove all entries"
                           @click="removeAllentries">
                     Clear all entries
@@ -140,7 +142,7 @@
             </div>
 
           </div>
-          <div class="column is-9" v-if="(localDoc.id).substr(0, 3)!='dr_'">
+          <div class="column is-9">
             <entries-relation-list v-model:rule="localDoc.rule"
                                    :editable="editable"
                                    ref="entriesRelationList"
@@ -199,11 +201,18 @@ export default defineComponent({
       return `${sectionsLength} ${sectionsCounter}\t|\t${this.localDocTotalEntries} ${entriesCounter}`
     },
 
-    readonly(): boolean {
+    reblazeManaged(): boolean {
       return this.localDoc.source === 'reblaze-managed'
+    },
+    dynamicRuleManaged(): boolean {
+      return this.localDoc.id.startsWith('dr_')
     },
 
     editable(): boolean {
+      return this.selfManaged && !this.dynamicRuleManaged
+    },
+
+    selfManaged(): boolean {
       return this.localDoc.source === 'self-managed'
     },
 
@@ -265,8 +274,10 @@ export default defineComponent({
     },
 
     setRuleRelation(relation: Relation) {
-      this.localDoc.rule.relation = relation
-      this.emitDocUpdate()
+      if (!this.dynamicRuleManaged) {
+        this.localDoc.rule.relation = relation
+        this.emitDocUpdate()
+      }
     },
 
     toggleRuleRelation(): void {

@@ -50,7 +50,7 @@
                           :show-row-button="true"
                           :row-button-title="rowButtonTitle"
                           :row-button-icon="rowButtonIcon"
-                          @edit-button-clicked="editDoc">
+                          @row-button-clicked="editDoc">
               </rbz-table>
               <span class="is-family-monospace has-text-grey-lighter">
                 {{ documentListAPIPath }}
@@ -305,6 +305,7 @@ export default defineComponent({
     },
 
     editDoc(id: string) {
+      console.log('id:', id)
       const routeToDoc = `/config/${this.selectedBranch}/${this.selectedDocType}/${id}`
       this.$router.push(routeToDoc)
     },
@@ -339,7 +340,7 @@ export default defineComponent({
         const docMatchingGlobalFilter = DatasetsUtils.newDocEntryFactory['globalfilters']() as GlobalFilter
         docMatchingGlobalFilter.id = `dr_${docToAdd.id}`
         docMatchingGlobalFilter.active = (docToAdd as DynamicRule).active
-        docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule' + docToAdd.id
+        docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule ' + docToAdd.id
         data = docMatchingGlobalFilter
         const url = `configs/${this.selectedBranch}/d/globalfilters/e/`
         await RequestsUtils.sendRequest({methodName: 'POST', url, data})

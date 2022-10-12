@@ -100,7 +100,7 @@
                           :class="{'is-loading': isForkLoading}"
                           @click="forkDoc()"
                           title="Duplicate document"
-                          :disabled="!selectedDoc"
+                          :disabled="!selectedDoc || dynamicRuleManaged"
                           data-qa="duplicate-document">
                     <span class="icon is-small">
                       <i class="fas fa-clone"></i>
@@ -328,6 +328,11 @@ export default defineComponent({
       return Object.keys(this.reblazeComponentsMap).includes(this.selectedDocType)
     },
 
+    dynamicRuleManaged(): boolean {
+      // if (this.selectedDocType === 'globalfilters') {
+      return this.selectedDocID.startsWith('dr_')
+    },
+
     documentAPIPath(): string {
       let apiPrefix
       if (this.isReblazeDocument) {
@@ -360,7 +365,8 @@ export default defineComponent({
       return !this.selectedDoc ||
           this.selectedDoc.id === '__default__' ||
           this.isDocReferenced ||
-          this.docs.length <= 1
+          this.docs.length <= 1 ||
+          this.selectedDoc.id.startsWith('dr_')
     },
 
     selectedDocIndex(): number {
@@ -664,7 +670,7 @@ export default defineComponent({
         const docMatchingGlobalFilter = DatasetsUtils.newDocEntryFactory['globalfilters']() as GlobalFilter
         docMatchingGlobalFilter.id = `dr_${this.selectedDocID}`
         docMatchingGlobalFilter.active = (this.selectedDoc as DynamicRule).active
-        docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule' + this.selectedDocID
+        docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule ' + this.selectedDocID
         this.selectedDocMatchingGlobalFilter = docMatchingGlobalFilter
       }
 

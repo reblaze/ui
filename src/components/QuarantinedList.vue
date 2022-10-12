@@ -8,6 +8,7 @@
                                 :data="quarantinedData"
                                 :row-button-icon="'fa-trash'"
                                 :row-button-title="'Delete'"
+                                :show-new-button="false"
                                 :show-menu-column="true"
                                 :show-filter-button="true"
                                 :show-row-button="true"
@@ -24,8 +25,8 @@
 // import _ from 'lodash'
 import {defineComponent} from 'vue'
 import RbzTable from '@/components/RbzTable.vue'
-import {Quarantined} from '@/types'
-
+import {Quarantined, ColumnOptions} from '@/types'
+// import DateTimeUtils from '@/assets/DateTimeUtils'
 
 export default defineComponent({
   name: 'QuarantinedList',
@@ -53,46 +54,42 @@ export default defineComponent({
         {
           title: 'First Added',
           fieldNames: ['first_added'],
+          displayFunction: (item: any) => {
+            return item
+          },
           isSortable: true,
           isSearchable: true,
           classes: 'ellipsis',
         },
         {
           title: 'Last Seen',
-          fieldNames: ['violations'],
+          fieldNames: ['last_seen'],
           isSortable: true,
           isSearchable: true,
           classes: 'ellipsis',
         },
         {
-          title: 'CNT/limit',
-          fieldNames: ['limit'],
+          title: 'Rules',
+          fieldNames: ['rule_id'],
           isSortable: true,
           isSearchable: true,
           classes: 'ellipsis',
         },
         {
-          title: 'Added',
-          fieldNames: ['added'],
+          title: 'Tags',
+          fieldNames: ['tags'],
           isSortable: true,
           isSearchable: true,
           classes: 'ellipsis',
         },
         {
-          title: 'Last Seen',
-          fieldNames: ['last'],
+          title: 'Target',
+          fieldNames: ['target'],
           isSortable: true,
           isSearchable: true,
           classes: 'ellipsis',
         },
-        {
-          title: 'Expires',
-          fieldNames: ['expires'],
-          isSortable: true,
-          isSearchable: true,
-          classes: 'ellipsis',
-        },
-      ],
+      ] as ColumnOptions[],
       quarantinedData: null as Quarantined[],
     }
   },
@@ -100,6 +97,7 @@ export default defineComponent({
 
   },
   computed: {
+
   },
   methods: {
     loadQuarantinedData(): Quarantined[] {
@@ -118,7 +116,7 @@ export default defineComponent({
       // }
       // const response = await RequestsUtils.sendRequest({methodName: 'GET', url})
       const quarantinedData = [{
-        '_id': '633ec6b737f44e76740d8f5e',
+        'id': '633ec6b737f44e76740d8f5e',
         'count': 5,
         'first_added': 1262296800,
         'last_seen': 1262296800,
@@ -128,7 +126,7 @@ export default defineComponent({
         'value': '1.1.1.1',
       },
       {
-        '_id': '633ec6b737f44e76740d8f5f',
+        'id': '633ec6b737f44e76740d8f5f',
         'count': 5,
         'first_added': 1262296800,
         'last_seen': 1262296800,
@@ -138,7 +136,7 @@ export default defineComponent({
         'value': '1.1.1.1',
       },
       {
-        '_id': '633ec6b737f44e76740d8f60',
+        'id': '633ec6b737f44e76740d8f60',
         'count': 5,
         'first_added': 1262296800,
         'last_seen': 1262296800,
@@ -148,7 +146,7 @@ export default defineComponent({
         'value': '2.2.2.2',
       },
       {
-        '_id': '633ec6b737f44e76740d8f61',
+        'id': '633ec6b737f44e76740d8f61',
         'count': 5,
         'first_added': 1262296800,
         'last_seen': 1262296800,
@@ -158,7 +156,7 @@ export default defineComponent({
         'value': '2.2.2.2',
       },
       {
-        '_id': '633ec6b737f44e76740d8f62',
+        'id': '633ec6b737f44e76740d8f62',
         'count': 5,
         'first_added': 1262296800,
         'last_seen': 1262296800,
@@ -168,7 +166,7 @@ export default defineComponent({
         'value': '3.3.3.3',
       },
       {
-        '_id': '633ec6b737f44e76740d8f63',
+        'id': '633ec6b737f44e76740d8f63',
         'count': 5,
         'first_added': 1262296800,
         'last_seen': 1262296800,
@@ -178,7 +176,7 @@ export default defineComponent({
         'value': '4.4.4.4',
       },
       {
-        '_id': '633ec6b737f44e76740d8f64',
+        'id': '633ec6b737f44e76740d8f64',
         'count': 5,
         'first_added': 1262296800,
         'last_seen': 1262296800,
@@ -188,7 +186,7 @@ export default defineComponent({
         'value': 'json',
       },
       {
-        '_id': '633ec6b737f44e76740d8f65',
+        'id': '633ec6b737f44e76740d8f65',
         'count': 5,
         'first_added': 1262296800,
         'last_seen': 1262296800,
@@ -201,12 +199,8 @@ export default defineComponent({
       return quarantinedData
     },
 
-    deleteQuarantinedElement(_id: string) {
-      console.log('_id', _id)
-      // const id = quarantinedElement._id
-      const quarantinedDataArray = [...this.quarantinedData]
-      quarantinedDataArray.filter((quarantinedLine) => quarantinedLine._id !== _id)
-      console.log('quarantinedDataArray', quarantinedDataArray)
+    deleteQuarantinedElement(id: string) {
+      const quarantinedDataArray = this.quarantinedData.filter((quarantinedLine) => quarantinedLine.id !== id)
       // POST {DATA_LAYER_URL}/query
       // {"query":
       //     {
@@ -223,7 +217,6 @@ export default defineComponent({
     },
 
   },
-  // emits(): [],
   created() {
     this.quarantinedData = this.loadQuarantinedData()
   },

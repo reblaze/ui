@@ -85,8 +85,8 @@
         <div class="field is-grouped is-grouped-centered">
           <p class="control" v-if="showRowButton">
             <button :title="rowButtonTitle"
-                    class="button is-small edit-entity-button"
-                    @click="editButtonClicked(row.id)">
+                    class="button is-small row-entity-button"
+                    @click="rowButtonClicked(row.id)">
               <span class="icon is-small">
                 <i :class="`fas ${rowButtonIcon ? rowButtonIcon : 'fa-edit'}`"></i>
               </span>
@@ -168,7 +168,7 @@ export default defineComponent({
       loadingCounter: 0,
     }
   },
-  emits: ['new-button-clicked', 'edit-button-clicked'],
+  emits: ['new-button-clicked', 'row-button-clicked'],
   computed: {
     dataArrayDisplay() {
       if (!this.data?.length) {
@@ -236,8 +236,8 @@ export default defineComponent({
       this.$emit('new-button-clicked')
     },
 
-    editButtonClicked(id: string) {
-      this.$emit('edit-button-clicked', id)
+    rowButtonClicked(id: string) {
+      this.$emit('row-button-clicked', id)
     },
 
     sortColumn(column: ColumnOptions) {
