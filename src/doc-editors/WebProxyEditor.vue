@@ -128,7 +128,7 @@
                     <textarea
                         class="textarea is-small additional-domain-names"
                         placeholder="Additional domain names"
-                        v-model="selectedWebProxy.server_names">
+                        v-model="serverNames">
                     </textarea>
                   </div>
                 </div>
@@ -373,6 +373,16 @@ export default defineComponent({
       return this.routingProfiles.find((routingProfile) => {
         return routingProfile.id === this.selectedWebProxy.routing_profile
       })
+    },
+
+    serverNames: {
+      get() {
+        return Array.from(this.selectedWebProxy.server_names || '').join('\n')
+      },
+      set(newValue: string) {
+        const value = newValue.replaceAll(' ', '')
+        this.selectedWebProxy.server_names = value.split('\n')
+      },
     },
   },
   methods: {
