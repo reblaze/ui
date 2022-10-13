@@ -93,6 +93,9 @@ export default defineComponent({
           '/CurieDB': {
             title: 'CurieDB',
           },
+          '/web-proxy': {
+            title: 'Web Proxy',
+          },
           '/routing-profiles': {
             title: 'Routing Profiles',
           },

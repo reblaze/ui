@@ -13,6 +13,8 @@ import MobileSDKList from '@/views/MobileSDKList.vue'
 import MobileSDKEditor from '@/doc-editors/MobileSDKEditor.vue'
 import ProxyTemplateList from '@/views/ProxyTemplateList.vue'
 import ProxyTemplateEditor from '@/doc-editors/ProxyTemplateEditor.vue'
+import WebProxyList from '@/views/WebProxyList.vue'
+import WebProxyEditor from '@/doc-editors/WebProxyEditor.vue'
 
 
 const routes: Array<RouteRecordRaw> = [
@@ -69,6 +71,23 @@ const routes: Array<RouteRecordRaw> = [
       },
       {path: 'quarantined', name: 'Quarantined', component: QuarantinedList},
       {path: 'CurieDB', name: 'CurieDBEditor', component: CurieDBEditor},
+      {
+        path: 'web-proxy',
+        name: 'WebProxy',
+        redirect: '/web-proxy/list',
+        children: [
+          {
+            path: 'list',
+            name: 'WebProxy/list',
+            component: WebProxyList,
+          },
+          {
+            path: 'config/:doc_id',
+            name: 'WebProxy/config',
+            component: WebProxyEditor,
+          },
+        ],
+      },
       {
         path: 'routing-profiles',
         name: 'RoutingProfiles',

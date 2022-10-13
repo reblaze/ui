@@ -99,34 +99,26 @@ export default defineComponent({
           classes: 'ellipsis',
         },
         {
-          title: 'Path',
+          title: 'Paths',
           fieldNames: ['locations'],
           displayFunction: (item: RoutingProfile) => {
-            return _.map(item.locations, 'path')?.join('\n')
+            return item.locations.length
           },
           isSortable: true,
           isSearchable: true,
-          classes: 'width-120px white-space-pre',
-        },
-        {
-          title: 'BE Service',
-          fieldNames: ['beservice'],
-          displayFunction: (item: RoutingProfile) => {
-            return _.map(item.locations, 'backend_id')?.join('\n')
-          },
-          isSortable: true,
-          isSearchable: true,
-          classes: 'width-120px white-space-pre',
+          classes: 'width-60px white-space-pre',
         },
         {
           title: 'Cloud Functions',
           fieldNames: ['locations'],
           displayFunction: (item: RoutingProfile) => {
-            return _.map(item.cloud_functions)?.join('\n')
+            return _.sumBy(item.locations, (mapEntry) => {
+              return mapEntry['cloud_functions']?.length || 0
+            })
           },
           isSortable: true,
           isSearchable: true,
-          classes: 'width-120px',
+          classes: 'width-120px white-space-pre',
         },
       ] as ColumnOptions[],
       isNewLoading: false,
@@ -134,7 +126,6 @@ export default defineComponent({
       routingProfiles: [],
       selectedBranch: null,
       configs: [],
-      branches: 0,
       loadingDocCounter: 0,
       isDownloadLoading: false,
       apiRoot: RequestsUtils.reblazeAPIRoot,
@@ -208,7 +199,6 @@ export default defineComponent({
       }
       console.log('loaded configs: ', configs)
       this.configs = configs
-      this.branches = _.size(configs)
       this.selectedBranch = this.branchNames[0]
     },
 

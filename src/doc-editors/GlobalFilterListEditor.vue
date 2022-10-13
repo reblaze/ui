@@ -39,8 +39,8 @@
             </div>
             <div class="field">
               <div class="control"
-                   v-if="selfManaged">
-                <label class="label is-small">entries Relation</label>
+                   v-if="editable">
+                <label class="label is-small">Sections Relation</label>
                 <div class="tags has-addons mb-0 document-entries-relation"
                      tabindex="0"
                      @keypress.space.prevent
@@ -106,14 +106,20 @@
                 <label class="label is-small">
                   Action
                 </label>
-                <div class="control">
-                  <input class="input is-small document-action"
-                         title="Action"
-                         data-qa="action-input"
-                         placeholder="Action"
-                         @change="emitDocUpdate"
-                         :disabled="dynamicRuleManaged"
-                         v-model="localDoc.action"/>
+                <div class="control is-expanded">
+                  <div class="select is-fullwidth is-small">
+                    <select v-model="localDoc.action"
+                            @change="emitDocUpdate"
+                            data-qa="action-dropdown"
+                            class="document-action-selection"
+                            title="Action">
+                      <option v-for="customResponse in customResponseNames"
+                              :value="customResponse[0]"
+                              :key="customResponse[0]">
+                        {{ customResponse[1] }}
+                      </option>
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>
@@ -166,7 +172,14 @@ import RequestsUtils from '@/assets/RequestsUtils'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import EntriesRelationList from '@/components/EntriesRelationList.vue'
 import {defineComponent} from 'vue'
-import {Category, GlobalFilter, GlobalFilterSection, GlobalFilterSectionEntry, Relation} from '@/types'
+import {
+  Category,
+  CustomResponse,
+  GlobalFilter,
+  GlobalFilterSection,
+  GlobalFilterSectionEntry,
+  Relation,
+} from '@/types'
 import {AxiosResponse} from 'axios'
 import DateTimeUtils from '@/assets/DateTimeUtils'
 
@@ -179,9 +192,16 @@ export default defineComponent({
   },
 
   props: {
+    selectedBranch: String,
     selectedDoc: Object,
     apiPath: String,
     docs: Array,
+  },
+
+  data() {
+    return {
+      customResponseNames: [] as [CustomResponse['id'], CustomResponse['name']][],
+    }
   },
 
   watch: {
@@ -373,11 +393,30 @@ export default defineComponent({
         }
       })
     },
+
+    loadCustomResponses() {
+      RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/actions/`,
+        config: {headers: {'x-fields': 'id, name'}},
+      }).then((response: AxiosResponse<CustomResponse[]>) => {
+        this.customResponseNames = _.sortBy(_.map(response.data, (entity) => {
+          return [entity.id, entity.name]
+        }), (e) => {
+          return e[1]
+        })
+      })
+    },
+  },
+
+  created() {
+    this.loadCustomResponses()
   },
 })
 </script>
 
-<style scoped lang="scss">
+<style scoped
+       lang="scss">
 .pointer {
   cursor: pointer;
 }
