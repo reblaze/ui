@@ -60,9 +60,9 @@
                 <p class="control">
                   <button class="button is-small has-text-danger delete-document-button"
                           title="Delete document"
-                          :disabled="selectedProxyTemplate?.id === '__default__'"
                           data-qa="delete-document"
                           :class="{'is-loading': isDeleteLoading}"
+                          :disabled="selectedProxyTemplate?.id === '__default__'"
                           @click="deleteDoc()">
                       <span class="icon is-small">
                         <i class="fas fa-trash"></i>
@@ -80,7 +80,7 @@
           <div class="content"
                v-if="selectedProxyTemplate">
             <div class="columns">
-              <div class="column is-5">
+              <div class="column is-4">
                 <div class="field">
                   <label class="label is-small">
                     Name
@@ -90,7 +90,7 @@
                     </span>
                   </label>
                   <div class="control">
-                    <input class="input is-small routing-name"
+                    <input class="input is-small document-name"
                            title="Document name"
                            placeholder="Document name"
                            v-model="selectedProxyTemplate.name"/>
@@ -100,9 +100,9 @@
                   <div class="field textarea-field">
                     <label class="label is-small">Description</label>
                     <div class="control">
-                      <textarea class="is-small textarea routing-description"
-                                data-qa="routing-input"
-                                title="selectedProxyTemplate.description"
+                      <textarea class="is-small textarea document-description"
+                                data-qa="description-input"
+                                title="Document description"
                                 v-model="selectedProxyTemplate.description"
                                 rows="5">
                       </textarea>
@@ -505,7 +505,7 @@ export default defineComponent({
     async deleteDoc() {
       this.setLoadingDocStatus(true)
       this.isDeleteLoading = true
-      const proxyTemplateText = this.titles['routing-singular']
+      const proxyTemplateText = this.titles['proxy-templates-singular']
       const url = `configs/${this.selectedBranch}/d/proxy-templates/e/${this.selectedProxyTemplate.id}/`
       const successMessage = `The ${proxyTemplateText} was deleted.`
       const failureMessage = `Failed while attempting to delete the ${proxyTemplateText}.`
@@ -525,7 +525,7 @@ export default defineComponent({
       const methodName = 'PUT'
       const url = `configs/${this.selectedBranch}/d/proxy-templates/e/${this.selectedProxyTemplate.id}/`
       const data = this.selectedProxyTemplate
-      const proxyTemplateText = this.titles['routing-singular']
+      const proxyTemplateText = this.titles['proxy-templates-singular']
       const successMessage = `Changes to the ${proxyTemplateText} were saved.`
       const failureMessage = `Failed while attempting to save the changes to the ${proxyTemplateText}.`
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
@@ -538,7 +538,7 @@ export default defineComponent({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/proxy-templates/e/${this.docIdFromRoute}`,
         onFail: () => {
-          console.log('Error while attempting to load the proxy template')
+          console.log('Error while attempting to load the Proxy Template')
           this.selectedProxyTemplate = null
           this.isDownloadLoading = false
         },

@@ -145,7 +145,7 @@
                 <p class="control">
                   <button class="button is-small has-text-danger delete-document-button"
                           :class="{'is-loading': isDeleteLoading}"
-                          @click="deleteDoc"
+                          @click="deleteDoc()"
                           title="Delete document"
                           :disabled="selectedDocNotDeletable"
                           data-qa="delete-document">

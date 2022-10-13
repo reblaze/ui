@@ -63,7 +63,8 @@
                           title="Delete document"
                           data-qa="delete-document"
                           :class="{'is-loading': isDeleteLoading}"
-                          @click="deleteDoc">
+                          :disabled="selectedMobileSDK?.id === '__default__'"
+                          @click="deleteDoc()">
                     <span class="icon is-small">
                       <i class="fas fa-trash"></i>
                     </span>
@@ -79,7 +80,7 @@
         <div class="card-content">
           <div class="content">
             <div class="columns columns-divided">
-              <div class="column is-3">
+              <div class="column is-4">
                 <div class="field">
                   <label class="label is-small">
                     Name
@@ -89,7 +90,7 @@
                         </span>
                   </label>
                   <div class="control">
-                    <input class="input is-small routing-name"
+                    <input class="input is-small document-name"
                            title="Document name"
                            :placeholder="selectedMobileSDK.name"
                            v-model="selectedMobileSDK.name"/>
@@ -99,9 +100,9 @@
                   <div class="field textarea-field">
                     <label class="label is-small">Description</label>
                     <div class="control">
-                          <textarea class="is-small textarea routing-description"
-                                    data-qa="routing-input"
-                                    title="selectedMobileSDK.description"
+                          <textarea class="is-small textarea document-description"
+                                    data-qa="description-input"
+                                    title="Document description"
                                     rows="8"
                                     v-model="selectedMobileSDK.description">
                           </textarea>
@@ -109,7 +110,7 @@
                   </div>
                 </div>
               </div>
-              <div class="column is-9">
+              <div class="column is-8">
                 <div class="field">
                   <label class="label is-small">Grace Period</label>
                   <div class="control suffix seconds-suffix mb-0">
@@ -483,7 +484,7 @@ export default defineComponent({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/mobile-sdks/e/${this.docIdFromRoute}`,
         onFail: () => {
-          console.log('Error while attempting to load mobile sdk')
+          console.log('Error while attempting to load the Mobile SDK')
           this.selectedMobileSDK = null
           this.isDownloadLoading = false
         },
