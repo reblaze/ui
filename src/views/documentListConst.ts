@@ -381,64 +381,6 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       classes: 'width-150px',
     },
   ],
-  'quarantined': [
-    {
-      title: 'IP',
-      fieldNames: ['ip'],
-      isSortable: true,
-      isSearchable: true,
-      classes: 'width-120px',
-    },
-    {
-      title: 'Geo',
-      fieldNames: ['geo'],
-      isSortable: true,
-      isSearchable: true,
-      classes: 'ellipsis',
-    },
-    {
-      title: 'ASN',
-      fieldNames: ['asn'],
-      isSortable: true,
-      isSearchable: true,
-      classes: 'ellipsis',
-    },
-    {
-      title: 'Violations',
-      fieldNames: ['violations'],
-      isSortable: true,
-      isSearchable: true,
-      classes: 'ellipsis',
-    },
-    {
-      title: 'CNT/limit',
-      fieldNames: ['limit'],
-      isSortable: true,
-      isSearchable: true,
-      classes: 'ellipsis',
-    },
-    {
-      title: 'Added',
-      fieldNames: ['added'],
-      isSortable: true,
-      isSearchable: true,
-      classes: 'ellipsis',
-    },
-    {
-      title: 'Last Seen',
-      fieldNames: ['last'],
-      isSortable: true,
-      isSearchable: true,
-      classes: 'ellipsis',
-    },
-    {
-      title: 'Expires',
-      fieldNames: ['expires'],
-      isSortable: true,
-      isSearchable: true,
-      classes: 'ellipsis',
-    },
-  ],
   'dynamic-rules': [
     {
       title: 'Name',
@@ -468,21 +410,5 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       isSearchable: true,
       classes: 'width-100px',
     },
-    // {
-    //   title: 'Tags',
-    //   fieldNames: ['tags'],
-    //   displayFunction: (item: GlobalFilter) => {
-    //     return item?.tags?.join('\n')
-    //   },
-    //   isSearchable: true,
-    //   classes: 'width-100px white-space-pre ellipsis',
-    // },
-    // {
-    //   title: 'Action',
-    //   fieldNames: ['action'],
-    //   isSortable: true,
-    //   isSearchable: true,
-    //   classes: 'width-80px',
-    // },
   ],
 }

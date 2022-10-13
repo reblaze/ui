@@ -22,11 +22,11 @@
 </template>
 
 <script lang="ts">
-// import _ from 'lodash'
 import {defineComponent} from 'vue'
 import RbzTable from '@/components/RbzTable.vue'
 import {Quarantined, ColumnOptions} from '@/types'
-// import DateTimeUtils from '@/assets/DateTimeUtils'
+import DateTimeUtils from '@/assets/DateTimeUtils'
+import RequestsUtils from '@/assets/RequestsUtils'
 
 export default defineComponent({
   name: 'QuarantinedList',
@@ -38,7 +38,14 @@ export default defineComponent({
     return {
       columns: [
         {
-          title: 'IP',
+          title: 'Key Parameter',
+          fieldNames: ['target'],
+          isSortable: true,
+          isSearchable: true,
+          classes: 'ellipsis',
+        },
+        {
+          title: 'Value',
           fieldNames: ['value'],
           isSortable: true,
           isSearchable: true,
@@ -55,7 +62,8 @@ export default defineComponent({
           title: 'First Added',
           fieldNames: ['first_added'],
           displayFunction: (item: any) => {
-            return item
+            const newDate = new Date(item['first_added'] * 1000)
+            return DateTimeUtils.isoToNowCuriefenseFormat(newDate) // (new Date(item * 1000)).toLocaleDateString()
           },
           isSortable: true,
           isSearchable: true,
@@ -64,6 +72,10 @@ export default defineComponent({
         {
           title: 'Last Seen',
           fieldNames: ['last_seen'],
+          displayFunction: (item: any) => {
+            const newDate = new Date(item['last_seen'] * 1000)
+            return DateTimeUtils.isoToNowCuriefenseFormat(newDate)
+          },
           isSortable: true,
           isSearchable: true,
           classes: 'ellipsis',
@@ -79,146 +91,63 @@ export default defineComponent({
           title: 'Tags',
           fieldNames: ['tags'],
           isSortable: true,
+          displayFunction: (item: Quarantined) => {
+            return item.tags?.join('\n')
+          },
           isSearchable: true,
-          classes: 'ellipsis',
-        },
-        {
-          title: 'Target',
-          fieldNames: ['target'],
-          isSortable: true,
-          isSearchable: true,
-          classes: 'ellipsis',
+          classes: 'ellipsis white-space-pre',
         },
       ] as ColumnOptions[],
       quarantinedData: null as Quarantined[],
     }
   },
-  watch: {
-
-  },
-  computed: {
-
-  },
   methods: {
-    loadQuarantinedData(): Quarantined[] {
-      // const url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${val}/`
+    async loadQuarantinedData() {
+      const url = '/query'
       // POST {DATA_LAYER_URL}/query
-      // {"query":
-      //     {
-      //         "collection": "dynamic_rules_violations_active",
-      //         "execute": [
-      //             {
-      //                 "func": "find",
-      //                 "options": {}
-      //             }
-      //         ]
-      //     }
-      // }
-      // const response = await RequestsUtils.sendRequest({methodName: 'GET', url})
-      const quarantinedData = [{
-        'id': '633ec6b737f44e76740d8f5e',
-        'count': 5,
-        'first_added': 1262296800,
-        'last_seen': 1262296800,
-        'rule_id': '1',
-        'tags': ['include1'],
-        'target': 'ip',
-        'value': '1.1.1.1',
-      },
-      {
-        'id': '633ec6b737f44e76740d8f5f',
-        'count': 5,
-        'first_added': 1262296800,
-        'last_seen': 1262296800,
-        'rule_id': '3',
-        'tags': ['include1'],
-        'target': 'ip',
-        'value': '1.1.1.1',
-      },
-      {
-        'id': '633ec6b737f44e76740d8f60',
-        'count': 5,
-        'first_added': 1262296800,
-        'last_seen': 1262296800,
-        'rule_id': '1',
-        'tags': ['include1'],
-        'target': 'ip',
-        'value': '2.2.2.2',
-      },
-      {
-        'id': '633ec6b737f44e76740d8f61',
-        'count': 5,
-        'first_added': 1262296800,
-        'last_seen': 1262296800,
-        'rule_id': '3',
-        'tags': ['include1'],
-        'target': 'ip',
-        'value': '2.2.2.2',
-      },
-      {
-        'id': '633ec6b737f44e76740d8f62',
-        'count': 5,
-        'first_added': 1262296800,
-        'last_seen': 1262296800,
-        'rule_id': '3',
-        'tags': ['include1', 'exclude1'],
-        'target': 'ip',
-        'value': '3.3.3.3',
-      },
-      {
-        'id': '633ec6b737f44e76740d8f63',
-        'count': 5,
-        'first_added': 1262296800,
-        'last_seen': 1262296800,
-        'rule_id': '3',
-        'tags': ['include1'],
-        'target': 'ip',
-        'value': '4.4.4.4',
-      },
-      {
-        'id': '633ec6b737f44e76740d8f64',
-        'count': 5,
-        'first_added': 1262296800,
-        'last_seen': 1262296800,
-        'rule_id': '2',
-        'tags': ['include2', 'include3'],
-        'target': 'headers_content-type',
-        'value': 'json',
-      },
-      {
-        'id': '633ec6b737f44e76740d8f65',
-        'count': 5,
-        'first_added': 1262296800,
-        'last_seen': 1262296800,
-        'rule_id': '4',
-        'tags': ['geo-country:Israel'],
-        'target': 'country',
-        'value': 'israel',
-      },
-      ]
-      return quarantinedData
+      const config = {headers: {'provider': 'mongodb'}}
+      const data = {
+        'query':
+          {
+            'collection': 'dynamic_rules_violations_active',
+            'execute': [
+              {
+                'func': 'find',
+                'options': {},
+              },
+            ],
+          },
+      }
+      const response = await RequestsUtils.sendDataLayerRequest({methodName: 'POST', url, data, config})
+
+      this.quarantinedData = response.data.data.results.map((result: any) => {
+        return {...result, id: result._id}
+      })
     },
 
-    deleteQuarantinedElement(id: string) {
-      const quarantinedDataArray = this.quarantinedData.filter((quarantinedLine) => quarantinedLine.id !== id)
+    async deleteQuarantinedElement(id: string) {
+      const url = '/query'
       // POST {DATA_LAYER_URL}/query
-      // {"query":
-      //     {
-      //         "collection": "dynamic_rules_violations_active",
-      //         "execute": [
-      //             {
-      //                 "func": "delete_many",
-      //                 "options": {"filter": {"_id": {"$in": [{"$oid": "ID_STRING"}]}}
-      //             }
-      //         ]
-      //     }
-      // }
-      this.quarantinedData = quarantinedDataArray
+      const config = {headers: {'provider': 'mongodb'}}
+      const data = {
+        'query':
+          {
+            'collection': 'dynamic_rules_violations_active',
+            'execute': [
+              {
+                'func': 'delete_many',
+                'options': {'filter': {'_id': {'$oid': id}}},
+              },
+            ],
+          },
+      }
+      await RequestsUtils.sendDataLayerRequest({methodName: 'POST', url, data, config})
+      this.loadQuarantinedData()
     },
 
   },
   created() {
-    this.quarantinedData = this.loadQuarantinedData()
+    this.loadQuarantinedData()
   },
 })
 

@@ -135,7 +135,7 @@
                           :class="isSaveLoading?'is-loading': 'isSaveLoading'"
                           @click="saveChanges()"
                           title="Save changes"
-                          :disabled="isDocumentInvalid || !selectedDoc"
+                          :disabled="isDocumentInvalid || !selectedDoc || dynamicRuleManaged"
                           data-qa="save-changes">
                     <span class="icon is-small">
                       <i class="fas fa-save"></i>
@@ -313,7 +313,6 @@ export default defineComponent({
     selectedDocID: {
       handler: async function(val, oldVal) {
         if (val && val !== oldVal && this.selectedDocType === 'dynamic-rules' && !this.isNewLoading) {
-          console.log('selectedDocID changed')
           if (this.isNewLoading) {
             const docMatchingGlobalFilter = DatasetsUtils.newDocEntryFactory['globalfilters']() as GlobalFilter
             docMatchingGlobalFilter.id = `dr_${this.selectedDocID}`
@@ -444,7 +443,6 @@ export default defineComponent({
         this.selectedDocID = this.docIdNames?.[0]?.[0]
       }
       this.isDocumentInvalid = false
-      console.log('setSelectedDataFromRouteParams', this.selectedDocID)
       await this.loadSelectedDocData()
       this.addMissingDefaultsToDoc()
       // await this.goToRoute()
@@ -496,7 +494,6 @@ export default defineComponent({
 
     async loadSelectedDocData() {
       this.setLoadingDocStatus(true)
-      console.log('loadSelectedDocData', this.selectedDocID)
       // check if the selected doc only has id and name, if it does, attempt to load the rest of the document data
       if (this.selectedDoc && Object.keys(this.selectedDoc).length === 2) {
         let response
@@ -514,15 +511,12 @@ export default defineComponent({
         }
         this.selectedDoc = response?.data || this.selectedDoc
 
-
-        console.log('loadSelectedDocData selectedDocMatchingGlobalFilter', this.selectedDocMatchingGlobalFilter)
         if (this.selectedDocType == 'dynamic-rules') {
           // get globalFilters from conf server
           const globalResponse = RequestsUtils.sendRequest({
             methodName: 'GET',
             url: `configs/${this.selectedBranch}/d/globalfilters/e/dr_${this.selectedDocID}/`,
           })
-          console.log('loadSelectedDocData globalResponse', globalResponse)
           this.selectedDocMatchingGlobalFilter = globalResponse.data
         }
       }
@@ -770,7 +764,7 @@ export default defineComponent({
       if (this.selectedDocType === 'dynamic-rules') {
         const url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${this.selectedDocID}/`
         RequestsUtils.sendRequest({methodName, url}).then(() => {
-          console.log(`globalfilterd deleted successfully dr_${this.selectedDocID}`)
+          console.log(`globalfilters deleted successfully dr_${this.selectedDocID}`)
         })
       }
 

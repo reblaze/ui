@@ -28,6 +28,7 @@
             <div class="field">
               <label class="checkbox is-size-7">
                 <input type="checkbox"
+                       :style="(reblazeManaged || dynamicRuleManaged) ? {cursor: 'not-allowed'} : {cursor: 'pointer'}"
                        data-qa="active-checkbox"
                        class="document-active"
                        :disabled="reblazeManaged || dynamicRuleManaged"
@@ -47,11 +48,13 @@
                      @keypress.enter="toggleRuleRelation()">
                   <span class="tag pointer mb-0"
                         data-qa="relation-toggle"
+                        :style="(reblazeManaged || dynamicRuleManaged) ? {cursor: 'not-allowed'} : {cursor: 'pointer'}"
                         :class="localDoc.rule.relation === 'AND' ? 'is-info xis-light is-selected' : ''"
                         @click="setRuleRelation('AND')">
                     AND
                   </span>
                   <span class="tag pointer mb-0"
+                        :style="(reblazeManaged || dynamicRuleManaged) ? {cursor: 'not-allowed'} : {cursor: 'pointer'}"
                         :class="localDoc.rule.relation === 'OR' ? 'is-info xis-light is-selected' : ''"
                         @click="setRuleRelation('OR')">
                     OR

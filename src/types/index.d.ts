@@ -76,6 +76,8 @@ declare module CuriefenseClient {
 
   type LimitRuleType = 'headers' | 'args' | 'cookies' | 'attrs' | 'self'
 
+  type DynamicRuleTargetOptionType = 'remote_addr' | 'organization' | 'cookie' | 'geoip_city_country_name' | 'planet' | 'request_headers' | 'request_body'
+
   type NamesRegexType = 'names' | 'regex'
 
   type CloudFunctionsPhaseType = 'request0' | 'request1' | 'response0' | 'response1'
@@ -179,7 +181,7 @@ declare module CuriefenseClient {
     phase?: CloudFunctionsPhaseType,
     match?: string,
   }
-
+  
   type DynamicRule = {
     id: string
     name: string
@@ -190,7 +192,7 @@ declare module CuriefenseClient {
     exclude: string[]
     include: string[]
     ttl: number,
-    target: string,
+    target: 'remote_addr' | 'organization' | 'cookie' | 'geoip_city_country_name' | 'planet' | 'request_headers' | 'request_body'
   }
 
   type RateLimit = {
@@ -360,7 +362,7 @@ declare module CuriefenseClient {
   // Git - END
 
   type Quarantined = {
-    id: string
+    _id: string
     count: number
     first_added: number
     last_seen: number

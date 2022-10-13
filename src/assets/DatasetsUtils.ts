@@ -89,6 +89,26 @@ const limitOptionsTypes = {
   'attrs': 'Attribute',
 }
 
+const dynamicRuleTargets = {
+  'organization': 'ASN',
+  'remote_addr': 'IP',
+  'cookie': 'Cookie',
+  'geoip_city_country_name': 'Country',
+  'planet': 'Planet',
+  'request_headers': 'Request Header',
+  'request_body': 'Request Body',
+}
+
+// const dynamicRuleTargets = [
+//   {'key': 'organization', 'value': 'ASN'},
+//   {'key': 'remote_addr', 'value': 'IP'},
+//   {'key': 'cookie', 'value': 'Cookie'},
+//   {'key': 'geoip_city_country_name', 'value': 'Country'},
+//   {'key': 'planet', 'value': 'Planet'},
+//   {'key': 'request_headers', 'value': 'Request Header'},
+//   {'key': 'request_body', 'value': 'Request Body'},
+// ]
+
 function generateUUID(): string {
   let dt = new Date().getTime()
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -294,7 +314,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'include': ['all'],
       'exclude': [],
       'ttl': 7200,
-      'target': '1.1.1.1',
+      'target': 'remote_addr',
     }
   },
 
@@ -394,6 +414,7 @@ export default {
   name: 'DatasetsUtils',
   titles,
   limitOptionsTypes,
+  dynamicRuleTargets,
   generateUUID,
   generateUUID2,
   newDocEntryFactory,

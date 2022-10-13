@@ -304,7 +304,6 @@ export default defineComponent({
     },
 
     editDoc(id: string) {
-      console.log('id:', id)
       const routeToDoc = `/config/${this.selectedBranch}/${this.selectedDocType}/${id}`
       this.$router.push(routeToDoc)
     },
