@@ -167,7 +167,7 @@
                         <th class="width-250px">
                           Backend Service
                         </th>
-                        <th class="width-100px">
+                        <th class="width-120px">
                           Cloud Functions
                         </th>
                       </tr>
@@ -225,7 +225,7 @@
                         <th class="width-400px">Path</th>
                         <th class="width-150px">Content Filter</th>
                         <th class="width-150px">ACL</th>
-                        <th class="width-100px">Rate Limit</th>
+                        <th class="width-120px">Rate Limit</th>
                       </tr>
                       </thead>
                       <tbody v-for="(mapEntry, mapIndex) in selectedSecurityPolicy.map"
@@ -310,11 +310,9 @@ import RequestsUtils from '@/assets/RequestsUtils'
 import {
   ACLProfile,
   BackendService,
-  CloudFunction,
   ContentFilterProfile,
   MobileSDK,
   ProxyTemplate,
-  RateLimit,
   RoutingProfile,
   SecurityPolicy,
   Site,
@@ -348,10 +346,8 @@ export default defineComponent({
       proxyTemplatesNames: [] as [ProxyTemplate['id'], ProxyTemplate['name']][],
       mobileSDKsNames: [] as [MobileSDK['id'], MobileSDK['name']][],
       backendServicesNames: [] as [BackendService['id'], BackendService['name']][],
-      cloudFunctionsNames: [] as [CloudFunction['id'], CloudFunction['name']][],
       contentFilterProfilesNames: [] as [ContentFilterProfile['id'], ContentFilterProfile['name']][],
       aclProfilesNames: [] as [ACLProfile['id'], ACLProfile['name']][],
-      rateLimitRulesNames: [] as [RateLimit['id'], RateLimit['name']][],
 
       apiRoot: RequestsUtils.reblazeAPIRoot,
       apiVersion: RequestsUtils.reblazeAPIVersion,
@@ -542,19 +538,6 @@ export default defineComponent({
       })
     },
 
-    loadCloudFunctions() {
-      RequestsUtils.sendReblazeRequest({
-        methodName: 'GET',
-        url: `configs/${this.selectedBranch}/d/cloud-functions/`,
-      }).then((response: AxiosResponse<CloudFunction[]>) => {
-        this.cloudFunctionsNames = _.sortBy(_.map(response.data, (entity) => {
-          return [entity.id, entity.name]
-        }), (e) => {
-          return e[1]
-        })
-      })
-    },
-
     loadContentFilterProfiles() {
       RequestsUtils.sendRequest({
         methodName: 'GET',
@@ -583,19 +566,6 @@ export default defineComponent({
       })
     },
 
-    loadRateLimitRulesProfiles() {
-      RequestsUtils.sendRequest({
-        methodName: 'GET',
-        url: `configs/${this.selectedBranch}/d/ratelimits/`,
-      }).then((response: AxiosResponse<RateLimit[]>) => {
-        this.rateLimitRulesNames = _.sortBy(_.map(response.data, (entity) => {
-          return [entity.id, entity.name]
-        }), (e) => {
-          return e[1]
-        })
-      })
-    },
-
     referencedDocName(list: [string, string][], id: string): string {
       const matchedItem = _.find(list, (listItem) => listItem[0] === id)
       return matchedItem?.[1] || ''
@@ -609,10 +579,8 @@ export default defineComponent({
     this.loadProxyTemplates()
     this.loadMobileSDKs()
     this.loadBackendServices()
-    this.loadCloudFunctions()
     this.loadContentFilterProfiles()
     this.loadACLProfiles()
-    this.loadRateLimitRulesProfiles()
   },
 })
 </script>
