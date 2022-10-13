@@ -156,38 +156,42 @@
               </div>
               <div v-if="selectedRoutingProfile"
                    class="column is-12">
-                <table class="table is-size-7">
-                  <thead>
-                  <tr>
-                    <th class="width-500px">
-                      Path
-                    </th>
-                    <th class="width-250px">
-                      Backend Service
-                    </th>
-                    <th class="width-250px">
-                      Cloud Functions
-                    </th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr v-for="location in selectedRoutingProfile.locations"
-                      :key="location.path">
-                    <td>
-                      {{ location.path }}
-                    </td>
-                    <td>
-                      {{ referencedDocName(this.backendServicesNames, location.backend_id) }}
-                    </td>
-                    <td>
-                      <span v-for="cloudFunction in location.cloud_functions"
-                            :key="cloudFunction">
-                        {{ referencedDocName(this.cloudFunctionsNames, cloudFunction) }}
-                      </span>
-                    </td>
-                  </tr>
-                  </tbody>
-                </table>
+                <div class="card mb-0">
+                  <div class="card-content">
+                    <table class="table is-size-7">
+                      <thead>
+                      <tr>
+                        <th class="width-500px">
+                          Path
+                        </th>
+                        <th class="width-250px">
+                          Backend Service
+                        </th>
+                        <th class="width-100px">
+                          Cloud Functions
+                        </th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr v-for="location in selectedRoutingProfile.locations"
+                          :key="location.path">
+                        <td class="ellipsis">
+                          {{ location.path }}
+                        </td>
+                        <td class="ellipsis">
+                          {{ referencedDocName(this.backendServicesNames, location.backend_id) }}
+                        </td>
+                        <td>
+                          <span v-for="cloudFunction in location.cloud_functions"
+                                :key="cloudFunction">
+                            {{ location.cloud_functions.length }}
+                          </span>
+                        </td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="columns is-multiline">
@@ -210,8 +214,49 @@
                   </div>
                 </div>
               </div>
-              <div class="column is-12">
-                <!--TODO: Security Policy Info-->
+              <div v-if="selectedSecurityPolicy"
+                   class="column is-12">
+                <div class="card mb-0">
+                  <div class="card-content">
+                    <table class="table is-size-7">
+                      <thead>
+                      <tr>
+                        <th class="width-100px">Name</th>
+                        <th class="width-400px">Path</th>
+                        <th class="width-150px">Content Filter</th>
+                        <th class="width-150px">ACL</th>
+                        <th class="width-100px">Rate Limit</th>
+                      </tr>
+                      </thead>
+                      <tbody v-for="(mapEntry, mapIndex) in selectedSecurityPolicy.map"
+                             :key="mapIndex">
+                      <tr>
+                        <td class="ellipsis"
+                            :title="mapEntry.name">
+                          {{ mapEntry.name }}
+                        </td>
+                        <td class="ellipsis"
+                            :title="mapEntry.match">
+                          {{ mapEntry.match }}
+                        </td>
+                        <td class="ellipsis"
+                            :class="mapEntry.content_filter_active ? 'has-text-success' : 'has-text-danger'"
+                            :title="mapEntry.content_filter_active ? 'Active mode' : 'Learning mode'">
+                          {{ referencedDocName(contentFilterProfilesNames, mapEntry.content_filter_profile) }}
+                        </td>
+                        <td class="ellipsis"
+                            :class="mapEntry.acl_active ? 'has-text-success' : 'has-text-danger'"
+                            :title="mapEntry.acl_active ? 'Active mode' : 'Learning mode'">
+                          {{ referencedDocName(aclProfilesNames, mapEntry.acl_profile) }}
+                        </td>
+                        <td class="ellipsis">
+                          {{ mapEntry.limit_ids.length }}
+                        </td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="columns">
@@ -262,7 +307,18 @@
 <script lang="ts">
 import _ from 'lodash'
 import RequestsUtils from '@/assets/RequestsUtils'
-import {BackendService, CloudFunction, MobileSDK, ProxyTemplate, RoutingProfile, SecurityPolicy, Site} from '@/types'
+import {
+  ACLProfile,
+  BackendService,
+  CloudFunction,
+  ContentFilterProfile,
+  MobileSDK,
+  ProxyTemplate,
+  RateLimit,
+  RoutingProfile,
+  SecurityPolicy,
+  Site,
+} from '@/types'
 import Utils from '@/assets/Utils'
 import {defineComponent} from 'vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
@@ -293,6 +349,9 @@ export default defineComponent({
       mobileSDKsNames: [] as [MobileSDK['id'], MobileSDK['name']][],
       backendServicesNames: [] as [BackendService['id'], BackendService['name']][],
       cloudFunctionsNames: [] as [CloudFunction['id'], CloudFunction['name']][],
+      contentFilterProfilesNames: [] as [ContentFilterProfile['id'], ContentFilterProfile['name']][],
+      aclProfilesNames: [] as [ACLProfile['id'], ACLProfile['name']][],
+      rateLimitRulesNames: [] as [RateLimit['id'], RateLimit['name']][],
 
       apiRoot: RequestsUtils.reblazeAPIRoot,
       apiVersion: RequestsUtils.reblazeAPIVersion,
@@ -308,13 +367,13 @@ export default defineComponent({
       return this.configs?.length ? _.sortBy(_.map(this.configs, 'id')) : []
     },
 
-    selectedSecurityPolicy() {
+    selectedSecurityPolicy(): SecurityPolicy {
       return this.securityPolicies.find((securityPolicy) => {
         return securityPolicy.id === this.selectedWebProxy.security_policy
       })
     },
 
-    selectedRoutingProfile() {
+    selectedRoutingProfile(): RoutingProfile {
       return this.routingProfiles.find((routingProfile) => {
         return routingProfile.id === this.selectedWebProxy.routing_profile
       })
@@ -496,6 +555,47 @@ export default defineComponent({
       })
     },
 
+    loadContentFilterProfiles() {
+      RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/contentfilterprofiles/`,
+        config: {headers: {'x-fields': 'id, name'}},
+      }).then((response: AxiosResponse<ContentFilterProfile[]>) => {
+        this.contentFilterProfilesNames = _.sortBy(_.map(response.data, (entity) => {
+          return [entity.id, entity.name]
+        }), (e) => {
+          return e[1]
+        })
+      })
+    },
+
+    loadACLProfiles() {
+      RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/aclprofiles/`,
+        config: {headers: {'x-fields': 'id, name'}},
+      }).then((response: AxiosResponse<ACLProfile[]>) => {
+        this.aclProfilesNames = _.sortBy(_.map(response.data, (entity) => {
+          return [entity.id, entity.name]
+        }), (e) => {
+          return e[1]
+        })
+      })
+    },
+
+    loadRateLimitRulesProfiles() {
+      RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/ratelimits/`,
+      }).then((response: AxiosResponse<RateLimit[]>) => {
+        this.rateLimitRulesNames = _.sortBy(_.map(response.data, (entity) => {
+          return [entity.id, entity.name]
+        }), (e) => {
+          return e[1]
+        })
+      })
+    },
+
     referencedDocName(list: [string, string][], id: string): string {
       const matchedItem = _.find(list, (listItem) => listItem[0] === id)
       return matchedItem?.[1] || ''
@@ -510,6 +610,9 @@ export default defineComponent({
     this.loadMobileSDKs()
     this.loadBackendServices()
     this.loadCloudFunctions()
+    this.loadContentFilterProfiles()
+    this.loadACLProfiles()
+    this.loadRateLimitRulesProfiles()
   },
 })
 </script>
