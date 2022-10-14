@@ -2056,7 +2056,8 @@ describe('DocumentEditor.vue', () => {
       }))
       const saveDocumentButton = wrapper.find('.save-document-button')
       saveDocumentButton.trigger('click')
-      // wrapper.vm.$forceUpdate()
+      await nextTick()
+      expect(wrapper.vm.isSaveLoading).toBeTruthy()
       expect(Object.values(saveDocumentButton.element.classList)).toContain('is-loading')
     })
 

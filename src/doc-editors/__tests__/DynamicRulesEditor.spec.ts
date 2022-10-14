@@ -1,8 +1,8 @@
 // @ts-nocheck
 import DynamicRulesEditor from '@/doc-editors/DynamicRulesEditor.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
-import {mount, VueWrapper} from '@vue/test-utils'
-import {DynamicRules} from '@/types'
+import {shallowMount, VueWrapper} from '@vue/test-utils'
+import {DynamicRule, GlobalFilter, CustomResponse} from '@/types'
 // Dictionary,
 // IncludeExcludeType,
 // ThresholdActionPair
@@ -13,39 +13,81 @@ import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 jest.mock('axios')
 
 describe('DynamicRulesEditor.vue', () => {
-  let dynamicRulesDocs: DynamicRules[]
+  let dynamicRulesDocs: DynamicRule[]
+  let globalFilterMatchingDoc: GlobalFilter[]
+  let customResponsesDocs: CustomResponse[]
   let mockRouter: any
   let wrapper: VueWrapper
+  let selectedBranch: string
   beforeEach(() => {
     dynamicRulesDocs = [{
       'id': 'abc123',
       'name': 'New Dynamic Rules',
       'description': 'New Dynamic Rules Description and Remarks',
       'timeframe': 180,
-      'thresholds': 9999,
-      'tags': ['default', 'dynamic', 'rule'],
+      'threshold': 9999,
       'include': ['all'],
       'exclude': [],
+      'ttl': 7200,
+      'target': 'remote_addr',
     }]
-    const selectedBranch = 'master'
-    jest.spyOn(axios, 'get').mockImplementation((path) => {
-      // if (path === `/conf/api/v3/configs/${selectedBranch}/d/dynamic-rules/abc123`) {
-      //   return Promise.resolve({data: dynamicRulesDocs})
-      // }
-      return Promise.resolve({data: []})
-    })
+    globalFilterMatchingDoc = [
+      {
+        'id': 'dr_abc123',
+        'name': 'New Dynamic Rule abc123',
+        'source': 'self-managed',
+        'mdate': '2020-05-23T00:04:41',
+        'description': 'Tag API Requests',
+        'active': true,
+        'tags': ['api', 'okay'],
+        'action': 'monitor',
+        'rule': {
+          'relation': 'OR',
+          'entries': [
+            {'relation': 'OR', 'entries': [['ip', '1.1.1.1', null]]},
+            {'relation': 'OR', 'entries': [['ip', '2.2.2.2', null]]},
+            {'relation': 'OR', 'entries': [['headers', ['headerrr', 'valueeee'], 'anooo']]},
+          ],
+        },
+      },
+    ]
+    // actions = [['default', 'default blocking action'],
+    //   ['monitor', 'default monitoring action']]
+    customResponsesDocs = [
+      {
+        'id': 'default',
+        'name': 'default blocking action',
+      },
+      {
+        'id': 'monitor',
+        'name': 'default monitoring action',
+      },
+    ]
+    selectedBranch = 'master',
 
     mockRouter = {
       push: jest.fn(),
     }
-    const onUpdate = async (selectedDoc: DynamicRules) => {
-      await wrapper.setProps({selectedDoc})
-    }
-    wrapper = mount(DynamicRulesEditor, {
+    // const onUpdate = async (selectedDoc: DynamicRules) => {
+    //   await wrapper.setProps({selectedDoc})
+    // }
+    jest.spyOn(axios, 'get').mockImplementation((path) => {
+      console.log('path', path)
+      if (path.includes('dynamic-rules')) {
+        return Promise.resolve({data: dynamicRulesDocs})
+      } else if (path.includes('globalfilters')) {
+        return Promise.resolve({data: globalFilterMatchingDoc})
+      } else if (path.includes('actions')) {
+        return Promise.resolve({data: customResponsesDocs})
+      }
+      return Promise.resolve({data: {}})
+    })
+    wrapper = shallowMount(DynamicRulesEditor, {
       props: {
         'selectedDoc': dynamicRulesDocs[0],
         'selectedBranch': selectedBranch,
-        'onUpdate:selectedDoc': onUpdate,
+        'selectedDocMatchingGlobalFilter': globalFilterMatchingDoc[0],
+      // 'onUpdate:selectedDoc': onUpdate,
       //  'docs': selectedDocs[0],
       },
       global: {
@@ -62,6 +104,9 @@ describe('DynamicRulesEditor.vue', () => {
       jest.clearAllTimers()
     })
 
+    test('should have correct action list', () => {
+      expect(wrapper.vm.customResponseNames.length).toBeGreaterThan(0)
+    })
     test('should have correct ID displayed', () => {
       expect(wrapper.find('.document-id').text()).toEqual(dynamicRulesDocs[0].id)
     })
@@ -83,12 +128,12 @@ describe('DynamicRulesEditor.vue', () => {
 
     test('should have correct Threshold in input', () => {
       const element = wrapper.find('.document-threshold').element as HTMLInputElement
-      expect(element.value).toEqual(dynamicRulesDocs[0].thresholds.toString())
+      expect(element.value).toEqual(dynamicRulesDocs[0].threshold.toString())
     })
 
-    test.skip('should have tags input component with correct data', () => {
-      const tagAutocompleteInputComponent = wrapper.findComponent(TagAutocompleteInput)
-      expect(tagAutocompleteInputComponent.props('initialTag')).toEqual(dynamicRulesDocs[0].tags.join(' '))
+    test('should have correct time-span in input', () => {
+      const element = wrapper.find('.document-time-span').element as HTMLInputElement
+      expect(element.value).toEqual(dynamicRulesDocs[0].ttl.toString())
     })
 
     test('should not have any warning in the tags table when there are no duplicate tags', () => {
@@ -130,27 +175,21 @@ describe('DynamicRulesEditor.vue', () => {
       })
     })
 
-    test.skip('should emit doc update when adding tags', async () => {
-      const newTag = 'test-tag'
-      const newTagInputValue = `${dynamicRulesDocs[0].tags.join(' ')} ${newTag}`
-      console.log('newTagInputValue', newTagInputValue)
-      const wantedEmit = JSON.parse(JSON.stringify(dynamicRulesDocs[0]))
-      wantedEmit.tags.concat(' newTag')
-      console.log('wantedEmit.tags', wantedEmit.tags)
-      // add first
-      // const newIncludeEntryButton = wrapper.findAll('.add-new-filter-entry-button').at(0)
-      // await newIncludeEntryButton.trigger('click')
-      const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
 
-      // const inputTag = firstTagAutocompleteInput.find('.autocomplete-input')
-      // await inputTag.setValue(inputTag.value + newTag)
+    test('should have tags input component with correct data', () => {
+      const tagAutocompleteInputComponent = wrapper.findAllComponents(TagAutocompleteInput).at(0)
+      expect(tagAutocompleteInputComponent.props('initialTag')).toEqual(globalFilterMatchingDoc[0].tags.join(' '))
+    })
+
+    test('should emit doc update when adding tags', async () => {
+      const newTag = 'test-tag'
+      const newTagInputValue = `${globalFilterMatchingDoc[0].tags.join(' ')} ${newTag}`
+      const wantedEmit = JSON.parse(JSON.stringify(globalFilterMatchingDoc[0]))
+      wantedEmit.tags.push(newTag)
+      // add first
+      const tagAutocompleteInput = wrapper.findAllComponents(TagAutocompleteInput).at(0)
       tagAutocompleteInput.vm.$emit('tag-changed', newTagInputValue)
-      // check
-      console.log('emitted1', wrapper.vm.selectedDoc)
-      console.log('emitted2', wrapper.emitted('update:selectedDoc').tags)
-      expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
-      expect(firstTagAutocompleteInput.vm.selectedDoc[0].tags).toEqual([wantedEmit])
-      expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
+      expect(wrapper.emitted('update:selectedDocMatchingGlobalFilter')[0]).toEqual([wantedEmit])
     })
   })
 })

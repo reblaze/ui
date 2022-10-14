@@ -74,21 +74,28 @@
                   </div>
 
                   <div class="field">
-                        <label class="label is-small">
-                          Action
-                        </label>
-                        <div class="control">
-                          <input class="input is-small document-action"
-                                title="Action"
-                                data-qa="action-input"
-                                placeholder="Action"
-                                @change="emitMatchDoc"
-                                v-model="localGlobalFilterDoc.action"/>
-                        </div>
+                    <label class="label is-small">
+                      Action
+                    </label>
+                    <div class="control is-expanded">
+                      <div class="select is-fullwidth is-small">
+                        <select v-model="localGlobalFilterDoc.action"
+                              @change="emitDocUpdate"
+                              data-qa="action-dropdown"
+                              class="document-action-selection"
+                              title="Action">
+                          <option v-for="customResponse in customResponseNames"
+                                  :value="customResponse[0]"
+                                  :key="customResponse[0]">
+                            {{ customResponse[1] }}
+                          </option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
                   <div class="field">
                     <label class="label is-small">Tags</label>
-                    <div class="control"
+                    <div class="control document-tags"
                         data-qa="tag-input">
                       <tag-autocomplete-input :initial-tag="selectedDocTags"
                                               :selection-type="'multiple'"
@@ -100,8 +107,8 @@
                     <label class="label is-small">
                       Time Span
                     </label>
-                    <div class="control">
-                      <input class="input is-small document-threshold"
+                    <div class="control suffix seconds-suffix">
+                      <input class="input is-small document-time-span"
                             data-qa="dynamic-rules-threshold-input"
                             type="number"
                             title="Dynamic Rules threshold"
@@ -114,14 +121,15 @@
                     <label class="label is-small">
                       Target
                     </label>
-                    <div class="control is-fullwidth">
+                    <div class="control is-expanded">
+                      <div class="select is-fullwidth is-small">
                       <select v-model="localDoc.target"
                                 data-qa="target-dropdown"
                                 title="Target"
                                 :value="localDoc.target"
                                 defaultValue="remote_addr"
                                 @change="emitDocUpdate"
-                                class="target-dropdown  is-fullwidth">
+                                class="target-dropdown">
                           <option v-for="key in options"
                                   :key="key"
                                   :value="key">
@@ -131,7 +139,7 @@
                     </div>
                   </div>
                 </div>
-
+            </div>
             <div class="column is-7">
               <div class="columns">
                 <div class="column is-6 filter-column"
@@ -205,14 +213,16 @@ import _ from 'lodash'
 import {defineComponent} from 'vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import {
+  CustomResponse,
   Dictionary,
   DynamicRule,
+  DynamicRuleTargetOptionType,
   GlobalFilter,
   IncludeExcludeType,
-  DynamicRuleTargetOptionType,
 } from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
-// import RequestsUtils from '@/assets/RequestsUtils'
+import RequestsUtils from '@/assets/RequestsUtils'
+import {AxiosResponse} from 'axios'
 
 
 export default defineComponent({
@@ -236,6 +246,7 @@ export default defineComponent({
       removable: false,
       options: ['remote_addr', 'organization', 'cookie', 'geoip_city_country_name', 'planet', 'request_headers',
         'request_body'] as DynamicRuleTargetOptionType[],
+      customResponseNames: [] as [CustomResponse['id'], CustomResponse['name']][],
     }
   },
   computed: {
@@ -309,6 +320,24 @@ export default defineComponent({
       this.addNewTagColName = null
       this.emitDocUpdate()
     },
+
+    loadCustomResponses() {
+      RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/actions/`,
+        config: {headers: {'x-fields': 'id, name'}},
+      }).then((response: AxiosResponse<CustomResponse[]>) => {
+        this.customResponseNames = _.sortBy(_.map(response.data, (entity) => {
+          return [entity.id, entity.name]
+        }), (e) => {
+          return e[1]
+        })
+        console.log('this.customResponseNames', this.customResponseNames)
+      })
+    },
+  },
+  created() {
+    this.loadCustomResponses()
   },
 })
 </script>

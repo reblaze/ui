@@ -112,6 +112,8 @@
                             @change="emitDocUpdate"
                             data-qa="action-dropdown"
                             class="document-action-selection"
+                            :defaultValue="localDoc.action"
+                            :disabled="dynamicRuleManaged"
                             title="Action">
                       <option v-for="customResponse in customResponseNames"
                               :value="customResponse[0]"
@@ -228,7 +230,8 @@ export default defineComponent({
       return this.localDoc.source === 'reblaze-managed'
     },
     dynamicRuleManaged(): boolean {
-      return this.localDoc.id.startsWith('dr_')
+      return this.selectedDoc.id ? this.selectedDoc.id.startsWith('dr_') : false
+      // return this.localDoc.id.startsWith('dr_')
     },
 
     editable(): boolean {

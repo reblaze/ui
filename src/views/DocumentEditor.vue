@@ -132,7 +132,7 @@
 
                 <p class="control">
                   <button class="button is-small save-document-button"
-                          :class="isSaveLoading?'is-loading': 'isSaveLoading'"
+                          :class="isSaveLoading ? 'is-loading' : 'isSaveLoading'"
                           @click="saveChanges()"
                           title="Save changes"
                           :disabled="isDocumentInvalid || !selectedDoc || dynamicRuleManaged"
@@ -285,6 +285,7 @@ export default defineComponent({
       isDownloadLoading: false,
       isDocumentInvalid: false,
       selectedDocMatchingGlobalFilter: null as GlobalFilter,
+      duplicatedDocMatchingGlobalFilter: null as GlobalFilter,
 
       gitLog: [],
       loadingGitlog: false,
@@ -511,7 +512,7 @@ export default defineComponent({
         }
         this.selectedDoc = response?.data || this.selectedDoc
 
-        if (this.selectedDocType == 'dynamic-rules') {
+        if (this.selectedDocType === 'dynamic-rules') {
           // get globalFilters from conf server
           const globalResponse = RequestsUtils.sendRequest({
             methodName: 'GET',
@@ -649,6 +650,9 @@ export default defineComponent({
         docToAdd = docToAdd as SecurityPolicy
         docToAdd.match = `${docToAdd.id}.${docToAdd.match}`
       }
+      if (this.selectedDocType === 'dynamic-rules') {
+        this.duplicatedDocMatchingGlobalFilter = this.selectedDocMatchingGlobalFilter
+      }
       const docTypeText = this.titles[this.selectedDocType + '-singular']
       const successMessage = `The ${docTypeText} was duplicated.`
       const failureMessage = `Failed while attempting to duplicate the ${docTypeText}.`
@@ -677,13 +681,20 @@ export default defineComponent({
         failureMessage = `Failed while attempting to create the new ${docTypeText}.`
       }
       if (this.selectedDocType === 'dynamic-rules') {
-        const docMatchingGlobalFilter = DatasetsUtils.newDocEntryFactory['globalfilters']() as GlobalFilter
-        docMatchingGlobalFilter.id = `dr_${this.selectedDocID}`
-        docMatchingGlobalFilter.active = (this.selectedDoc as DynamicRule).active
-        docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule ' + this.selectedDocID
-        this.selectedDocMatchingGlobalFilter = docMatchingGlobalFilter
+        if (this.isForkLoading) {
+          const docMatchingGlobalFilter = this.duplicatedDocMatchingGlobalFilter
+          docMatchingGlobalFilter.id = `dr_${this.selectedDocID}`
+          docMatchingGlobalFilter.active = (this.selectedDoc as DynamicRule).active
+          docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule ' + this.selectedDocID
+          this.selectedDocMatchingGlobalFilter = docMatchingGlobalFilter
+        } else {
+          const docMatchingGlobalFilter = DatasetsUtils.newDocEntryFactory['globalfilters']() as GlobalFilter
+          docMatchingGlobalFilter.id = `dr_${this.selectedDocID}`
+          docMatchingGlobalFilter.active = (this.selectedDoc as DynamicRule).active
+          docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule ' + this.selectedDocID
+          this.selectedDocMatchingGlobalFilter = docMatchingGlobalFilter
+        }
       }
-
       await this.saveChanges('POST', successMessage, failureMessage)
 
       this.goToRoute()
@@ -693,7 +704,7 @@ export default defineComponent({
 
     async saveChanges(methodName?: HttpRequestMethods, successMessage?: string, failureMessage?: string) {
       this.isSaveLoading = true
-
+      console.log('isSaveLoading', this.isSaveLoading)
       const docTypeText = this.titles[this.selectedDocType + '-singular']
       if (!successMessage) {
         successMessage = `Changes to the ${docTypeText} were saved.`
@@ -720,7 +731,7 @@ export default defineComponent({
         }
       }
 
-      requestFunction({methodName, url, data, successMessage, failureMessage}).then(() => {
+      await requestFunction({methodName, url, data, successMessage, failureMessage}).then(() => {
         this.updateDocIdNames()
         this.loadGitLog(true)
         // If the saved doc was a security policy, refresh the referenced IDs lists
@@ -783,6 +794,7 @@ export default defineComponent({
         url: `configs/${this.selectedBranch}/d/securitypolicies/`,
       })
       const docs = response?.data || []
+      console.log('response?.data', response?.data)
       const referencedACL: string[] = []
       const referencedContentFilter: string[] = []
       const referencedLimit: string[] = []
