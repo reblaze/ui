@@ -418,7 +418,7 @@ export default defineComponent({
 
     addNewTag(section: IncludeExcludeType, entry: string) {
       if (entry && entry.length > 2) {
-        // this.localDoc[section].push(entry)
+        this.localDoc[section].push(entry)
         this.emitDocUpdate()
       }
     },
@@ -432,7 +432,7 @@ export default defineComponent({
     },
 
     removeTag(section: IncludeExcludeType, index: number) {
-      // this.localDoc[section].splice(index, 1)
+      this.localDoc[section].splice(index, 1)
       this.addNewTagColName = null
       this.emitDocUpdate()
     },

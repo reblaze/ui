@@ -313,7 +313,7 @@ export default defineComponent({
   watch: {
     selectedDocID: {
       handler: async function(val, oldVal) {
-        if (val && val !== oldVal && this.selectedDocType === 'dynamic-rules' && !this.isNewLoading) {
+        if (val && val !== oldVal && this.selectedDocType === 'dynamic-rules') {
           if (this.isNewLoading) {
             const docMatchingGlobalFilter = DatasetsUtils.newDocEntryFactory['globalfilters']() as GlobalFilter
             docMatchingGlobalFilter.id = `dr_${this.selectedDocID}`
@@ -444,6 +444,7 @@ export default defineComponent({
         this.selectedDocID = this.docIdNames?.[0]?.[0]
       }
       this.isDocumentInvalid = false
+
       await this.loadSelectedDocData()
       this.addMissingDefaultsToDoc()
       // await this.goToRoute()
@@ -511,7 +512,6 @@ export default defineComponent({
           })
         }
         this.selectedDoc = response?.data || this.selectedDoc
-
         if (this.selectedDocType === 'dynamic-rules') {
           // get globalFilters from conf server
           const globalResponse = RequestsUtils.sendRequest({
@@ -526,6 +526,7 @@ export default defineComponent({
 
     async loadDocs(skipDocSelection?: boolean) {
       this.isDownloadLoading = true
+      this.setLoadingDocStatus(true)
       const branch = this.selectedBranch
       const url = `configs/${branch}/d/${this.selectedDocType}/`
       let requestFunction
@@ -546,7 +547,6 @@ export default defineComponent({
         },
       })
       this.docs = response?.data || []
-
       // After we load the basic data (id and name) we can async load the full data
       this.cancelSource.cancel(`Operation cancelled and restarted for a new document type ${this.selectedDocType}`)
       this.cancelSource = axios.CancelToken.source()
@@ -575,6 +575,7 @@ export default defineComponent({
         this.addMissingDefaultsToDoc()
       }
       this.loadGitLog()
+      this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
     },
 
@@ -704,7 +705,6 @@ export default defineComponent({
 
     async saveChanges(methodName?: HttpRequestMethods, successMessage?: string, failureMessage?: string) {
       this.isSaveLoading = true
-      console.log('isSaveLoading', this.isSaveLoading)
       const docTypeText = this.titles[this.selectedDocType + '-singular']
       if (!successMessage) {
         successMessage = `Changes to the ${docTypeText} were saved.`
@@ -794,7 +794,6 @@ export default defineComponent({
         url: `configs/${this.selectedBranch}/d/securitypolicies/`,
       })
       const docs = response?.data || []
-      console.log('response?.data', response?.data)
       const referencedACL: string[] = []
       const referencedContentFilter: string[] = []
       const referencedLimit: string[] = []

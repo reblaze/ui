@@ -397,7 +397,7 @@ describe('RateLimitsEditor.vue', () => {
         }
         return Promise.resolve()
       })
-      filterColumn = wrapper.find('.filter-column')
+      filterColumn = wrapper.find('.include-filter-column')
     })
 
     test('should not have any warning in the tags table when there are no duplicate tags', () => {
@@ -412,11 +412,11 @@ describe('RateLimitsEditor.vue', () => {
       const newIncludeEntryButton = filterColumn.findAll('.add-new-filter-entry-button').at(0)
       // add first
       await newIncludeEntryButton.trigger('click')
-      const firstTagAutocompleteInput = filterColumn.findComponent(TagAutocompleteInput)
-      firstTagAutocompleteInput.vm.$emit('tag-submitted', newTag)
+      const includeTagAutocompleteInput = filterColumn.findAllComponents(TagAutocompleteInput).at(0)
+      includeTagAutocompleteInput.vm.$emit('tag-submitted', newTag)
       // check
       expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
-      expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
+      expect(wrapper.emitted('update:selectedDoc')[0][0].include).toEqual(wantedEmit.include)
     })
 
     test('should show a warning when there are duplicate tags', async () => {
@@ -442,11 +442,12 @@ describe('RateLimitsEditor.vue', () => {
     })
 
     test('should remove tag from correct filter when tag removed', async () => {
-      const removeIncludeEntryButton = filterColumn.find('.remove-filter-entry-button')
+      const wantedSize = wrapper.vm.localDoc.include.length - 1
+      const removeIncludeEntryButton = filterColumn.findAll('.remove-filter-entry-button').at(0)
       await removeIncludeEntryButton.trigger('click')
       wrapper.vm.$forceUpdate()
       await nextTick()
-      expect(wrapper.vm.localDoc.include.length).toEqual(0)
+      expect(wrapper.vm.localDoc.include.length).toEqual(wantedSize)
     })
 
     test('should hide tag input when tag selection cancelled', async () => {
