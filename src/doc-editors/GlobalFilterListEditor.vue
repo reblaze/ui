@@ -72,7 +72,7 @@
                                         @tag-changed="selectedDocTags = $event">
                 </tag-autocomplete-input>
               </div>
-            </div>selfManaged
+            </div>
             <div class="field">
               <a v-if="externalSource"
                  class="is-small has-text-grey is-size-7 is-pulled-right update-now-button"

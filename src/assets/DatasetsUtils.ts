@@ -102,16 +102,6 @@ const dynamicRuleTargets = {
   'request_body': 'Request Body',
 }
 
-// const dynamicRuleTargets = [
-//   {'key': 'organization', 'value': 'ASN'},
-//   {'key': 'remote_addr', 'value': 'IP'},
-//   {'key': 'cookie', 'value': 'Cookie'},
-//   {'key': 'geoip_city_country_name', 'value': 'Country'},
-//   {'key': 'planet', 'value': 'Planet'},
-//   {'key': 'request_headers', 'value': 'Request Header'},
-//   {'key': 'request_body', 'value': 'Request Body'},
-// ]
-
 function generateUUID(): string {
   let dt = new Date().getTime()
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {

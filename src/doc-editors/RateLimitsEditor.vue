@@ -234,15 +234,6 @@
               </div>
             </div>
           </div>
-          <!--// div class="container" >
-            <button type="button" class="collapsible" @click="toggleRecommendation">Rate Limit Recommendations</button>
-            <div class="content" v-if="accordion">
-              <div v-for="c of recommendations" :key="c.title">
-                  <p>{{ c.title }}</p>
-                  <p>{{ c.description }}</p>
-              </div>
-            </div>
-          <///-->
           <security-policies-connections
             selectedDocType="ratelimits"
             :selectedDocId="localDoc.id"

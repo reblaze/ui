@@ -3,12 +3,9 @@ import DynamicRulesEditor from '@/doc-editors/DynamicRulesEditor.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {shallowMount, VueWrapper} from '@vue/test-utils'
 import {DynamicRule, GlobalFilter, CustomResponse} from '@/types'
-// Dictionary,
-// IncludeExcludeType,
-// ThresholdActionPair
 import axios from 'axios'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
-// import {nextTick} from 'vue'
+
 
 jest.mock('axios')
 
@@ -51,8 +48,6 @@ describe('DynamicRulesEditor.vue', () => {
         },
       },
     ]
-    // actions = [['default', 'default blocking action'],
-    //   ['monitor', 'default monitoring action']]
     customResponsesDocs = [
       {
         'id': 'default',
@@ -68,9 +63,7 @@ describe('DynamicRulesEditor.vue', () => {
     mockRouter = {
       push: jest.fn(),
     }
-    // const onUpdate = async (selectedDoc: DynamicRules) => {
-    //   await wrapper.setProps({selectedDoc})
-    // }
+
     jest.spyOn(axios, 'get').mockImplementation((path) => {
       console.log('path', path)
       if (path.includes('dynamic-rules')) {
@@ -87,8 +80,6 @@ describe('DynamicRulesEditor.vue', () => {
         'selectedDoc': dynamicRulesDocs[0],
         'selectedBranch': selectedBranch,
         'selectedDocMatchingGlobalFilter': globalFilterMatchingDoc[0],
-      // 'onUpdate:selectedDoc': onUpdate,
-      //  'docs': selectedDocs[0],
       },
       global: {
         mocks: {
