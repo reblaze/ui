@@ -455,31 +455,6 @@ export default defineComponent({
 
 <style scoped lang="scss">
 
-/* Style the collapsible content. Note: hidden by default */
-.content {
-  background-color: #f1f1f1;
-  display: none;
-  overflow: hidden;
-  padding: 0 18px;
-}
-
-.collapsible {
-  background-color: #eee;
-  border: 'none';
-  color: #444;
-  cursor: pointer;
-  font-size: 15px;
-  outline: 'none';
-  padding: 18px;
-  text-align: left;
-  width: 100%;
-}
-
-.active,
-.collapsible:hover {
-  background-color: #ccc;
-}
-
 .form-label {
   padding-top: 0.25rem;
 }
