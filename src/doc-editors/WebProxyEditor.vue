@@ -179,7 +179,7 @@
                           {{ location.path }}
                         </td>
                         <td class="ellipsis">
-                          {{ referencedDocName(this.backendServicesNames, location.backend_id) }}
+                          {{ referencedDocName(backendServicesNames, location.backend_id) }}
                         </td>
                         <td>
                           <span v-for="cloudFunction in location.cloud_functions"

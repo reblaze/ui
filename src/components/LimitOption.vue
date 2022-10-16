@@ -78,7 +78,6 @@
 
 <script lang="ts">
 import _ from 'lodash'
-import DatasetsUtils from '@/assets/DatasetsUtils'
 import {defineComponent, PropType} from 'vue'
 import {LimitRuleType} from '@/types'
 
@@ -148,7 +147,12 @@ export default defineComponent({
     },
   },
   data() {
-    const limitOptionsTypes = DatasetsUtils.limitOptionsTypes
+    const limitOptionsTypes = {
+      'headers': 'Header',
+      'cookies': 'Cookie',
+      'args': 'Argument',
+      'attrs': 'Attribute',
+    }
     const optionsData: { [key: string]: OptionObject } = {
       self: {
         type: 'self',

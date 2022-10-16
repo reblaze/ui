@@ -216,10 +216,10 @@ export default defineComponent({
         title: titles['contentfilterprofiles'],
         fields: 'id, name',
       },
-      'cloudfunctions': {
+      'cloud-functions': {
         component: CloudFunctionsEditor,
-        title: titles['cloudfunctions'],
-        fields: 'id, name, description, phaze',
+        title: titles['cloud-functions'],
+        fields: 'id, name, description, phase',
       },
     }
 

@@ -41,14 +41,16 @@
         <div class="card">
           <div class="card-content">
             <div class="content">
-              <rbz-table :columns="columns"
-                         :data="docs"
-                         :show-menu-column="true"
-                         :show-filter-button="true"
-                         :show-new-button="true"
-                         @new-button-clicked="addNewDoc"
-                         :show-edit-button="true"
-                         @edit-button-clicked="editDoc">
+              <rbz-table  :columns="columns"
+                          :data="docs"
+                          :show-menu-column="true"
+                          :show-filter-button="true"
+                          :show-new-button="true"
+                          @new-button-clicked="addNewDoc"
+                          :show-row-button="true"
+                          :row-button-title="rowButtonTitle"
+                          :row-button-icon="rowButtonIcon"
+                          @row-button-clicked="editDoc">
               </rbz-table>
               <span class="is-family-monospace has-text-grey-lighter">
                 {{ documentListAPIPath }}
@@ -57,7 +59,7 @@
           </div>
         </div>
         <hr/>
-        <git-history v-if="selectedDocType !=='cloudfunctions'"
+        <git-history v-if="!isReblazeDocument"
                     :gitLog="gitLog"
                     :apiPath="gitAPIPath"
                     :loading="isGitLogLoading"
@@ -108,12 +110,14 @@ import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
 import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
 import CloudFunctionsEditor from '@/doc-editors/CloudFunctionsEditor.vue'
 import CustomResponseEditor from '@/doc-editors/CustomResponseEditor.vue'
+import DynamicRulesEditor from '@/doc-editors/DynamicRulesEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {defineComponent, shallowRef} from 'vue'
-import {ColumnOptions, Commit, Document, DocumentType, GenericObject} from '@/types'
+import {ColumnOptions, Commit, Document, DocumentType, GlobalFilter, GenericObject, DynamicRule} from '@/types'
 import {COLUMN_OPTIONS_MAP} from './documentListConst'
 import {AxiosResponse} from 'axios'
 import RbzTable from '@/components/RbzTable.vue'
+
 
 export default defineComponent({
   watch: {
@@ -133,6 +137,10 @@ export default defineComponent({
     GitHistory,
   },
   data() {
+    const reblazeComponentsMap = {
+      'cloud-functions': shallowRef({component: CloudFunctionsEditor}),
+      'dynamic-rules': shallowRef({component: DynamicRulesEditor}),
+    }
     return {
       columns: [] as ColumnOptions[],
       configs: [],
@@ -149,14 +157,18 @@ export default defineComponent({
       referencedIDsContentFilter: [],
       referencedIDsLimits: [],
 
+      // table button icon and tooltip
+      rowButtonIcon: 'fa-edit',
+      rowButtonTitle: 'Edit',
+
       // Loading indicators
       isNewLoading: false,
       isDownloadLoading: false,
       isGitLogLoading: false,
       loadingDocCounter: 0,
 
-      apiRoot: RequestsUtils.confAPIRoot,
-      apiVersion: RequestsUtils.confAPIVersion,
+      confAPIRoot: RequestsUtils.confAPIRoot,
+      confAPIVersion: RequestsUtils.confAPIVersion,
       reblazeAPIRoot: RequestsUtils.reblazeAPIRoot,
       reblazeAPIVersion: RequestsUtils.reblazeAPIVersion,
       componentsMap: {
@@ -167,22 +179,29 @@ export default defineComponent({
         'aclprofiles': shallowRef({component: ACLEditor}),
         'contentfilterprofiles': shallowRef({component: ContentFilterEditor}),
         'contentfilterrules': shallowRef({component: ContentFilterRulesEditor}),
-        'cloudfunctions': shallowRef({component: CloudFunctionsEditor}),
         'actions': shallowRef({component: CustomResponseEditor}),
+        ...reblazeComponentsMap,
       },
-
+      reblazeComponentsMap: reblazeComponentsMap,
     }
   },
   computed: {
+    isReblazeDocument(): boolean {
+      return Object.keys(this.reblazeComponentsMap).includes(this.selectedDocType)
+    },
+
     documentListAPIPath(): string {
-      if (this.selectedDocType == 'cloudfunctions') {
-        return `${this.reblazeAPIRoot}/${this.reblazeAPIVersion}/config/d/cloud-functions/`
+      let apiPrefix
+      if (this.isReblazeDocument) {
+        apiPrefix = `${this.reblazeAPIRoot}/${this.reblazeAPIVersion}`
+      } else {
+        apiPrefix = `${this.confAPIRoot}/${this.confAPIVersion}`
       }
-      return `${this.apiRoot}/${this.apiVersion}/configs/${this.selectedBranch}/d/${this.selectedDocType}/`
+      return `${apiPrefix}/configs/${this.selectedBranch}/d/${this.selectedDocType}/`
     },
 
     gitAPIPath(): string {
-      const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
+      const apiPrefix = `${this.confAPIRoot}/${this.confAPIVersion}`
       return `${apiPrefix}/configs/${this.selectedBranch}/d/${this.selectedDocType}/v/`
     },
 
@@ -217,7 +236,7 @@ export default defineComponent({
       }
       this.columns = COLUMN_OPTIONS_MAP[this.selectedDocType]
       if (!prevDocType || prevDocType !== this.selectedDocType) {
-        await this.loadDocs(this.selectedDocType)
+        await this.loadDocs()
       }
       this.setLoadingDocStatus(false)
       this.loadGitLog()
@@ -237,19 +256,16 @@ export default defineComponent({
       this.configs = configs
     },
 
-    async loadDocs(doctype: DocumentType) {
+    async loadDocs() {
       this.isDownloadLoading = true
-      const branch = this.selectedBranch
       const fieldNames = _.flatMap(this.columns, 'fieldNames')
 
       let requestFunction
-      let url = ''
-      if (doctype == 'cloudfunctions') {
+      const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/`
+      if (this.isReblazeDocument) {
         requestFunction = RequestsUtils.sendReblazeRequest
-        url = `config/d/cloud-functions/`
       } else {
         requestFunction = RequestsUtils.sendRequest
-        url = `configs/${branch}/d/${doctype}/`
       }
       const response = await requestFunction({
         methodName: 'GET',
@@ -263,6 +279,7 @@ export default defineComponent({
       })
 
       this.docs = response?.data || []
+      console.log('list docs: ', this.docs)
       this.isDownloadLoading = false
       this.loadGitLog()
     },
@@ -270,7 +287,7 @@ export default defineComponent({
     async switchBranch() {
       this.setLoadingDocStatus(true)
       Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
-      await this.loadDocs(this.selectedDocType)
+      await this.loadDocs()
       this.goToRoute()
       this.setLoadingDocStatus(false)
     },
@@ -295,12 +312,15 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       this.isNewLoading = true
       const docToAdd = this.newDoc()
+      if (this.selectedDocType === 'dynamic-rules') {
+        docToAdd.name = docToAdd.name + ' ' + docToAdd.id
+      }
       const docTypeText = this.titles[this.selectedDocType + '-singular']
       const successMessage = `New ${docTypeText} was created.`
       const failureMessage = `Failed while attempting to create the new ${docTypeText}.`
-      const data = docToAdd
-      if (this.selectedDocType === 'cloudfunctions') {
-        const url = `config/d/cloud-functions/e/${docToAdd.id}`
+      let data = docToAdd
+      if (this.isReblazeDocument) {
+        const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${docToAdd.id}`
         console.log('add new doc function', url, data, successMessage)
         await RequestsUtils.sendReblazeRequest({methodName: 'POST', url, data, successMessage, failureMessage})
           .then(() => {
@@ -313,6 +333,17 @@ export default defineComponent({
             this.editDoc(docToAdd.id)
           })
       }
+
+      if (this.selectedDocType === 'dynamic-rules') {
+        const docMatchingGlobalFilter = DatasetsUtils.newDocEntryFactory['globalfilters']() as GlobalFilter
+        docMatchingGlobalFilter.id = `dr_${docToAdd.id}`
+        docMatchingGlobalFilter.active = (docToAdd as DynamicRule).active
+        docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule ' + docToAdd.id
+        data = docMatchingGlobalFilter
+        const url = `configs/${this.selectedBranch}/d/globalfilters/e/`
+        await RequestsUtils.sendRequest({methodName: 'POST', url, data})
+      }
+
       this.isNewLoading = false
       this.setLoadingDocStatus(false)
     },
@@ -332,7 +363,7 @@ export default defineComponent({
     },
 
     loadGitLog() {
-      if (this.selectedDocType == 'cloudfunctions') {
+      if (this.isReblazeDocument) {
         return
       }
       this.isGitLogLoading = true
@@ -360,7 +391,7 @@ export default defineComponent({
         successMessage: `Document [${docTitle}] restored to version [${versionId}]!`,
         failureMessage: `Failed restoring document [${docTitle}] to version [${versionId}]!`,
       })
-      await this.loadDocs(this.selectedDocType)
+      await this.loadDocs()
     },
   },
 

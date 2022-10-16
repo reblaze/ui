@@ -6,6 +6,7 @@ import PublishChanges from '@/views/Publish.vue'
 import VersionControl from '@/views/VersionControl.vue'
 import DocumentSearch from '@/views/DocumentSearch.vue'
 import DocumentList from '@/views/DocumentList.vue'
+import QuarantinedList from '@/components/QuarantinedList.vue'
 import RoutingProfileList from '@/views/RoutingProfileList.vue'
 import RoutingProfileEditor from '@/doc-editors/RoutingProfileEditor.vue'
 import MobileSDKList from '@/views/MobileSDKList.vue'
@@ -14,6 +15,7 @@ import ProxyTemplateList from '@/views/ProxyTemplateList.vue'
 import ProxyTemplateEditor from '@/doc-editors/ProxyTemplateEditor.vue'
 import WebProxyList from '@/views/WebProxyList.vue'
 import WebProxyEditor from '@/doc-editors/WebProxyEditor.vue'
+
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -67,6 +69,7 @@ const routes: Array<RouteRecordRaw> = [
           },
         ],
       },
+      {path: 'quarantined', name: 'Quarantined', component: QuarantinedList},
       {path: 'CurieDB', name: 'CurieDBEditor', component: CurieDBEditor},
       {
         path: 'web-proxy',
