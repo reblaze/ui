@@ -7,7 +7,8 @@
             <div class="field">
               <label class="label is-small">
                 Name
-                <span class="has-text-grey is-pulled-right document-id" title="Flow control policy id">
+                <span class="has-text-grey is-pulled-right document-id"
+                      title="Flow control policy id">
                   {{ localDoc.id }}
                 </span>
               </label>
@@ -51,6 +52,7 @@
                             show-remove
                             @remove="removeKey(index)"
                             @change="updateKeyOption($event, index)"
+                            :ignore-attributes="['securitypolicyid', 'securitypolicyentryid']"
                             :removable="localDoc.key.length > 1"
                             :index="index"
                             :option="generateOption(option)"
@@ -171,7 +173,9 @@
                                   title="Method"
                                   class="select method-entry-input"
                                   @change="emitDocUpdate">
-                            <option v-for="method in httpRequestMethods" :key="method" :value="method">
+                            <option v-for="method in httpRequestMethods"
+                                    :key="method"
+                                    :value="method">
                               {{ method }}
                             </option>
                           </select>
@@ -273,13 +277,17 @@
                       <td colspan="4">
                       </td>
                     </tr>
-                    <tr v-if="newEntrySectionIndex === sequenceIndex" class="new-entry-row">
-                      <td class="is-size-7" colspan="2">
+                    <tr v-if="newEntrySectionIndex === sequenceIndex"
+                        class="new-entry-row">
+                      <td class="is-size-7"
+                          colspan="2">
                         <div class="select is-small is-fullwidth">
                           <select v-model="newEntryType"
                                   title="New entry type"
                                   class="select new-entry-type-selection">
-                            <option v-for="(entryType, category) in listEntryTypes" :key="category" :value="category">
+                            <option v-for="(entryType, category) in listEntryTypes"
+                                    :key="category"
+                                    :value="category">
                               {{ entryType.title }}
                             </option>
                           </select>
@@ -580,7 +588,8 @@ export default defineComponent({
 })
 </script>
 
-<style scoped lang="scss">
+<style scoped
+       lang="scss">
 
 .bar {
   margin: 1rem 0 0.5rem;

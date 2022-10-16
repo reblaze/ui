@@ -102,6 +102,9 @@ export default defineComponent({
           '/proxy-templates': {
             title: 'Proxy Templates',
           },
+          '/backend-services': {
+            title: 'Backend Services',
+          },
           '/publish': {
             title: 'Publish Changes',
           },

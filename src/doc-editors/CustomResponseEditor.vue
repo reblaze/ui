@@ -42,7 +42,7 @@
                         class="type-selection"
                         title="Switch type"
                         @change="emitDocUpdate()">
-                  <option v-for="name in selectedType"
+                  <option v-for="name in customResponseTypes"
                           :key="name"
                           :value="name">
                     {{ capitalize(name) }}
@@ -62,25 +62,9 @@
               </div>
             </div>
           </div>
-          <div v-if="localDoc.type === 'custom'"
+          <div v-if="['monitor', 'custom'].includes(localDoc.type)"
                class="column is-9">
             <div class="custom-panel">
-              <div class="field">
-                <label class="label is-small status-code-label">
-                  Status code
-                </label>
-                <div class="columns mb-0 status-code">
-                  <div class="column is-5 pb-0">
-                    <input class="input is-small document-status-code"
-                           data-qa="status-input"
-                           type="number"
-                           title="Status code"
-                           placeholder="Status code"
-                           @change="emitDocUpdate"
-                           v-model.number="localDoc.params.status"/>
-                  </div>
-                </div>
-              </div>
               <div class="field">
                 <label class="label is-small is-size-7 has-text-left form-label">
                   Headers
@@ -117,7 +101,25 @@
                   New entry
                 </a>
               </div>
-              <div class="field">
+              <div v-if="localDoc.type === 'custom'"
+                   class="field">
+                <label class="label is-small status-code-label">
+                  Status code
+                </label>
+                <div class="columns mb-0 status-code">
+                  <div class="column is-5 pb-0">
+                    <input class="input is-small document-status-code"
+                           data-qa="status-input"
+                           type="number"
+                           title="Status code"
+                           placeholder="Status code"
+                           @change="emitDocUpdate"
+                           v-model.number="localDoc.params.status"/>
+                  </div>
+                </div>
+              </div>
+              <div v-if="localDoc.type === 'custom'"
+                   class="field">
                 <label class="label is-small content">
                   Content
                 </label>
@@ -191,9 +193,9 @@ export default defineComponent({
     apiPath: String,
   },
   data() {
-    const selectedType = ['skip', 'custom', 'challenge', 'monitor']
+    const customResponseTypes = ['skip', 'custom', 'challenge', 'monitor']
     return {
-      selectedType: selectedType,
+      customResponseTypes: customResponseTypes,
       headersArray: [] as HeaderObject[],
     }
   },

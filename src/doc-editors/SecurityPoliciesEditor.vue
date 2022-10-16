@@ -194,7 +194,7 @@
                                         :title="limitDetails(limitId).name">
                                       {{ limitDetails(limitId).name }}
                                     </td>
-                                    <td class="width-220px ellipsis rate-limit-description"
+                                    <td class="is-size-7 width-200px ellipsis rate-limit-description"
                                         v-if="limitDetails(limitId)"
                                         :title="limitDetails(limitId).description">
                                       {{ limitDetails(limitId).description }}

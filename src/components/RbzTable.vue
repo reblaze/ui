@@ -79,7 +79,7 @@
           <input class="input is-small filter-input"
                  :title="col.title"
                  :placeholder="col.title"
-                 v-model="filter[col.fieldNames.join(', ')]"
+                 v-model="filter[col.title]"
                  @change="currentPage = 1"/>
           <span class="icon is-small is-right">
             <i class="fa fa-filter"
@@ -213,14 +213,14 @@ export default defineComponent({
             keys,
             (match: boolean, key: string) => {
               let getFilterValue: (item: any) => string
-              const columnOption = this.columns.find((column) => {
-                return column.fieldNames.join(', ') === key
+              const filterColumn = this.columns.find((column) => {
+                return column.title === key
               })
-              if (columnOption.displayFunction) {
-                getFilterValue = columnOption.displayFunction
+              if (filterColumn.displayFunction) {
+                getFilterValue = filterColumn.displayFunction
               } else {
-                getFilterValue = (item: any) => {
-                  return item[key]?.toString() || ''
+                getFilterValue = (item: GenericObject) => {
+                  return item[filterColumn?.fieldNames[0]]?.toString() || ''
                 }
               }
               return (match && getFilterValue(item).toLowerCase().includes(this.filter[key].toLowerCase()))

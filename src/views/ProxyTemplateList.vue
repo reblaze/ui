@@ -186,7 +186,7 @@ export default defineComponent({
     async loadProxyTemplates() {
       const url = `configs/${this.selectedBranch}/d/proxy-templates/`
       const response = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
-      this.proxyTemplates = _.values(response?.data)
+      this.proxyTemplates = response?.data
     },
 
     async loadConfigs() {
