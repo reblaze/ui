@@ -1,5 +1,6 @@
 import {
-  ACLProfile, BackendService,
+  ACLProfile,
+  BackendService,
   CloudFunction,
   ContentFilterProfile,
   ContentFilterRule,
@@ -7,7 +8,8 @@ import {
   FlowControlPolicy,
   GlobalFilter,
   HttpRequestMethods,
-  MobileSDK, ProxyTemplate,
+  MobileSDK,
+  ProxyTemplate,
   RateLimit,
   RoutingProfile,
   SecurityPolicy,
