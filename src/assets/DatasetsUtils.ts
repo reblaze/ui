@@ -4,6 +4,7 @@ import {
   ContentFilterProfile,
   ContentFilterRule,
   CustomResponse,
+  DynamicRule,
   FlowControlPolicy,
   GlobalFilter,
   HttpRequestMethods,
@@ -47,6 +48,8 @@ const titles: { [key: string]: string } = {
   'attrs-entry': 'Attribute',
   'aclprofiles': 'ACL Profiles',
   'aclprofiles-singular': 'ACL Profile',
+  'dynamic-rules': 'Dynamic Rules',
+  'dynamic-rules-singular': 'Dynamic Rule',
   'ratelimits': 'Rate Limits',
   'ratelimits-singular': 'Rate Limit',
   'securitypolicies': 'Security Policies',
@@ -55,10 +58,11 @@ const titles: { [key: string]: string } = {
   'contentfilterprofiles-singular': 'Content Filter Profile',
   'contentfilterrules': 'Content Filter Rules',
   'contentfilterrules-singular': 'Content Filter Rule',
-  'cloudfunctions': 'Cloud Functions',
-  'cloudfunctions-singular': 'Cloud Function',
+  'cloud-functions': 'Cloud Functions',
+  'cloud-functions-singular': 'Cloud Function',
   'globalfilters': 'Global Filters',
   'globalfilters-singular': 'Global Filter',
+  'quarantined': 'Quarantined List',
   'flowcontrol': 'Flow Control Policies',
   'flowcontrol-singular': 'Flow Control Policy',
   'actions': 'Custom Responses',
@@ -80,11 +84,14 @@ const titles: { [key: string]: string } = {
   'response1': 'Response Post Reblaze',
 }
 
-const limitOptionsTypes = {
-  'headers': 'Header',
-  'cookies': 'Cookie',
-  'args': 'Argument',
-  'attrs': 'Attribute',
+const dynamicRuleTargets = {
+  'organization': 'ASN',
+  'remote_addr': 'IP',
+  'cookie': 'Cookie',
+  'geoip_city_country_name': 'Country',
+  'planet': 'Planet',
+  'request_headers': 'Request Header',
+  'request_body': 'Request Body',
 }
 
 function generateUUID(): string {
@@ -111,7 +118,7 @@ const defaultFlowControlSequenceItem = {
 }
 
 const newDocEntryFactory: { [key: string]: Function } = {
-  aclprofiles(): ACLProfile {
+  'aclprofiles'(): ACLProfile {
     return {
       'id': generateUUID2(),
       'name': 'New ACL Profile',
@@ -127,7 +134,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  contentfilterprofiles(): ContentFilterProfile {
+  'contentfilterprofiles'(): ContentFilterProfile {
     return {
       'id': generateUUID2(),
       'name': 'New Content Filter Profile',
@@ -174,7 +181,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  globalfilters(): GlobalFilter {
+  'globalfilters'(): GlobalFilter {
     return {
       'id': generateUUID2(),
       'name': 'New Global Filter',
@@ -191,7 +198,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  securitypolicies(): SecurityPolicy {
+  'securitypolicies'(): SecurityPolicy {
     const id = generateUUID2()
     return {
       'id': id,
@@ -199,7 +206,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'match': `${id}.example.com`,
       'map': [
         {
-          'id': id,
+          'id': generateUUID2(),
           'match': '/',
           'name': 'default',
           'acl_profile': '__default__',
@@ -212,7 +219,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  ratelimits(): RateLimit {
+  'ratelimits'(): RateLimit {
     return {
       'id': generateUUID2(),
       'name': 'New Rate Limit Rule',
@@ -245,7 +252,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  flowcontrol(): FlowControlPolicy {
+  'flowcontrol'(): FlowControlPolicy {
     return {
       'id': generateUUID2(),
       'name': 'New Flow Control Policy',
@@ -270,7 +277,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  cloudfunctions(): CloudFunction {
+  'cloud-functions'(): CloudFunction {
     return {
       'id': generateUUID2(),
       'name': 'New Cloud Function',
@@ -282,7 +289,24 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  contentfilterrules(): ContentFilterRule {
+  'dynamic-rules'(): DynamicRule {
+    const id = generateUUID2()
+    return {
+      'id': id,
+      'name': 'New Dynamic Rule ' + id,
+      'description': 'New Dynamic Rule Description and Remarks',
+      'timeframe': 60,
+      'threshold': 9999,
+      'active': false,
+      'include': ['all'],
+      'exclude': [],
+      'ttl': 7200,
+      'target': 'remote_addr',
+    }
+  },
+
+
+  'contentfilterrules'(): ContentFilterRule {
     return {
       'id': generateUUID2(),
       'name': 'New Content Filter Rule',
@@ -296,7 +320,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  actions(): CustomResponse {
+  'actions'(): CustomResponse {
     return {
       'id': generateUUID2(),
       'name': 'New Custom Response',
@@ -390,7 +414,7 @@ const newOperationEntryFactory: { [key: string]: Function } = {
 export default {
   name: 'DatasetsUtils',
   titles,
-  limitOptionsTypes,
+  dynamicRuleTargets,
   generateUUID,
   generateUUID2,
   newDocEntryFactory,

@@ -6,6 +6,8 @@ const confAPIRoot = '/conf/api'
 const confAPIVersion = 'v3'
 const reblazeAPIRoot = '/reblaze/api'
 const reblazeAPIVersion = 'v1.0'
+const dataLayerAPIRoot = '/datalayer/api'
+const dataLayerAPIVersion = 'v1.0'
 
 // eslint-disable-next-line no-unused-vars
 const axiosMethodsMap: Partial<{ [key in HttpRequestMethods]: Function }> = {
@@ -87,6 +89,12 @@ const sendReblazeRequest = (requestParams: IRequestParams) => {
   return processRequest(methodName, apiUrl, data, config, successMessage, failureMessage, undoFunction, onFail)
 }
 
+const sendDataLayerRequest = (requestParams: IRequestParams) => {
+  const {methodName, url, data, config, successMessage, failureMessage, undoFunction, onFail} = requestParams
+  const apiUrl = `${dataLayerAPIRoot}/${dataLayerAPIVersion}/${url}`
+  return processRequest(methodName, apiUrl, data, config, successMessage, failureMessage, undoFunction, onFail)
+}
+
 export default {
   name: 'RequestsUtils',
   sendRequest,
@@ -95,4 +103,8 @@ export default {
   sendReblazeRequest,
   reblazeAPIRoot,
   reblazeAPIVersion,
+  sendDataLayerRequest,
+  dataLayerAPIRoot,
+  dataLayerAPIVersion,
+
 }

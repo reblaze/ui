@@ -7,6 +7,7 @@
       :clear-input-after-selection="clearInputAfterSelection"
       :auto-focus="autoFocus"
       :selection-type="selectionType"
+      :editable="editable"
       :minimum-value-length="minimumTagLength"
       :title="inputTitle"
       :data-qa="inputTitle"
@@ -59,6 +60,10 @@ export default defineComponent({
         return ['single', 'multiple'].includes(val.toLowerCase())
       },
       default: 'single',
+    },
+    editable: {
+      type: Boolean,
+      default: true,
     },
   },
 

@@ -7,6 +7,7 @@
              :title="title"
              :placeholder="title"
              :data-qa="title"
+             :disabled="!editable"
              type="text"
              class="autocomplete-input input is-small"
              aria-haspopup="true"
@@ -76,6 +77,10 @@ export default defineComponent({
         return ['single', 'multiple'].includes(val.toLowerCase())
       },
       default: 'single',
+    },
+    editable: {
+      type: Boolean,
+      default: true,
     },
     // Minimum characters length allowed for the value
     minimumValueLength: {
