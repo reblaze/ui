@@ -156,7 +156,7 @@ describe('RateLimitsEditor.vue', () => {
     test('should have count-by limit option component with correct data', () => {
       const wantedType = Object.keys(rateLimitsDocs[0].key[0])[0]
       const wantedValue = Object.values(rateLimitsDocs[0].key[0])[0]
-      const limitOptionComponent = wrapper.findAllComponents(LimitOption).at(0)
+      const limitOptionComponent = wrapper.findComponent(LimitOption)
       const actualType = limitOptionComponent.vm.option.type
       const actualValue = limitOptionComponent.vm.option.key
       expect(actualType).toEqual(wantedType)
@@ -175,7 +175,7 @@ describe('RateLimitsEditor.vue', () => {
     test('should have limit option keys with correct data', () => {
       const wantedType = Object.keys(rateLimitsDocs[0].key[0])[0]
       const wantedValue = Object.values(rateLimitsDocs[0].key[0])[0]
-      const limitOptionComponent = wrapper.findAllComponents(LimitOption).at(0)
+      const limitOptionComponent = wrapper.findComponent(LimitOption)
       const actualType = limitOptionComponent.vm.option.type
       const actualValue = limitOptionComponent.vm.option.key
       expect(actualType).toEqual(wantedType)
@@ -184,14 +184,14 @@ describe('RateLimitsEditor.vue', () => {
 
     test('should have count-by limit option component with correct ignored attributes', () => {
       const wantedIgnoredAttributes = ['tags']
-      const limitOptionComponent = wrapper.findAllComponents(LimitOption).at(0)
+      const limitOptionComponent = wrapper.findComponent(LimitOption)
       const actualIgnoredAttributes = limitOptionComponent.vm.ignoreAttributes
       expect(wantedIgnoredAttributes).toEqual(actualIgnoredAttributes)
     })
 
     test('should have event limit option component with correct ignored attributes', () => {
       const wantedIgnoredAttributes = ['tags']
-      const limitOptionComponent = wrapper.findAllComponents(LimitOption).at(0)
+      const limitOptionComponent = wrapper.findComponent(LimitOption)
       const actualIgnoredAttributes = limitOptionComponent.vm.ignoreAttributes
       expect(wantedIgnoredAttributes).toEqual(actualIgnoredAttributes)
     })
@@ -397,7 +397,7 @@ describe('RateLimitsEditor.vue', () => {
         }
         return Promise.resolve()
       })
-      filterColumn = wrapper.find('.include-filter-column')
+      filterColumn = wrapper.find('.filter-column')
     })
 
     test('should not have any warning in the tags table when there are no duplicate tags', () => {
@@ -412,7 +412,7 @@ describe('RateLimitsEditor.vue', () => {
       const newIncludeEntryButton = filterColumn.findAll('.add-new-filter-entry-button').at(0)
       // add first
       await newIncludeEntryButton.trigger('click')
-      const includeTagAutocompleteInput = filterColumn.findAllComponents(TagAutocompleteInput).at(0)
+      const includeTagAutocompleteInput = filterColumn.findComponent(TagAutocompleteInput)
       includeTagAutocompleteInput.vm.$emit('tag-submitted', newTag)
       // check
       expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()

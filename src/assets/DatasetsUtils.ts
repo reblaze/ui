@@ -59,10 +59,9 @@ const titles: { [key: string]: string } = {
   'contentfilterrules': 'Content Filter Rules',
   'contentfilterrules-singular': 'Content Filter Rule',
   'cloud-functions': 'Cloud Functions',
-  'cloudfunctions-singular': 'Cloud Function',
+  'cloud-functions-singular': 'Cloud Function',
   'globalfilters': 'Global Filters',
   'globalfilters-singular': 'Global Filter',
-  'quarantined-singular': 'Quarantined List',
   'quarantined': 'Quarantined List',
   'flowcontrol': 'Flow Control Policies',
   'flowcontrol-singular': 'Flow Control Policy',
@@ -83,13 +82,6 @@ const titles: { [key: string]: string } = {
   'request1': 'Request Post Reblaze',
   'response0': 'Response Pre Reblaze',
   'response1': 'Response Post Reblaze',
-}
-
-const limitOptionsTypes = {
-  'headers': 'Header',
-  'cookies': 'Cookie',
-  'args': 'Argument',
-  'attrs': 'Attribute',
 }
 
 const dynamicRuleTargets = {
@@ -113,6 +105,10 @@ function generateUUID(): string {
 
 function generateUUID2(): string {
   return generateUUID().split('-')[4]
+}
+
+function addIdtoDocName(name: string, id: string) {
+  return name + ' ' + id
 }
 
 const defaultFlowControlSequenceItem = {
@@ -421,10 +417,10 @@ const newOperationEntryFactory: { [key: string]: Function } = {
 export default {
   name: 'DatasetsUtils',
   titles,
-  limitOptionsTypes,
   dynamicRuleTargets,
   generateUUID,
   generateUUID2,
+  addIdtoDocName,
   newDocEntryFactory,
   newOperationEntryFactory,
   defaultFlowControlSequenceItem,

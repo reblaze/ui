@@ -26,7 +26,7 @@
                     <input type="checkbox"
                           data-qa="active-checkbox"
                           class="document-active"
-                          @change="emitToBoth"
+                          @change="emitToDocAndDocMatchUpdate"
                           v-model="localDoc.active">
                     Active
                   </label>
@@ -203,12 +203,12 @@
             </div>
           </div>
         </div>
+        <span class="is-family-monospace has-text-grey-lighter">{{ apiPath }}</span>
       </div>
     </div>
   </section>
 </template>
 <script lang="ts">
-// @go-to-route="emitGoToRoute"
 import _ from 'lodash'
 import {defineComponent} from 'vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
@@ -251,15 +251,9 @@ export default defineComponent({
   },
   computed: {
     localDoc(): DynamicRule {
-      if (!this.selectedDoc) {
-        console.log('selectedDoc is Empty')
-      }
       return _.cloneDeep(this.selectedDoc as DynamicRule)
     },
     localGlobalFilterDoc(): GlobalFilter {
-      if (!this.selectedDocMatchingGlobalFilter) {
-        console.log('selectedDocMatchingGlobalFilter is Empty')
-      }
       return _.cloneDeep(this.selectedDocMatchingGlobalFilter as GlobalFilter)
     },
     duplicateTags(): Dictionary<string> {
@@ -279,7 +273,7 @@ export default defineComponent({
         this.localGlobalFilterDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
           return tag.trim()
         }) : []
-        this.emitMatchDoc()
+        this.emitMatchDocUpdate()
       },
     },
   },
@@ -288,13 +282,10 @@ export default defineComponent({
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
     },
-    emitMatchDoc() {
+    emitMatchDocUpdate() {
       this.$emit('update:selectedDocMatchingGlobalFilter', this.localGlobalFilterDoc)
     },
-    // emitGoToRoute(url: string) {
-    //   this.$emit('go-to-route', url)
-    // },
-    emitToBoth() {
+    emitToDocAndDocMatchUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
       this.localGlobalFilterDoc.active=this.localDoc.active
       this.$emit('update:selectedDocMatchingGlobalFilter', this.localGlobalFilterDoc)
@@ -332,7 +323,6 @@ export default defineComponent({
         }), (e) => {
           return e[1]
         })
-        console.log('this.customResponseNames', this.customResponseNames)
       })
     },
   },

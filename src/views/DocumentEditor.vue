@@ -132,7 +132,7 @@
 
                 <p class="control">
                   <button class="button is-small save-document-button"
-                          :class="isSaveLoading ? 'is-loading' : 'isSaveLoading'"
+                          :class="{'is-loading': isSaveLoading}"
                           @click="saveChanges()"
                           title="Save changes"
                           :disabled="isDocumentInvalid || !selectedDoc || dynamicRuleManaged"
@@ -338,7 +338,6 @@ export default defineComponent({
     },
 
     dynamicRuleManaged(): boolean {
-      // if (this.selectedDocType === 'globalfilters') {
       return this.selectedDocID.startsWith('dr_')
     },
 
@@ -565,7 +564,6 @@ export default defineComponent({
       })
       this.updateDocIdNames()
       if (this.docIdNames && this.docIdNames.length && this.docIdNames[0].length) {
-        // did we move to use id only
         if (!skipDocSelection || !_.find(this.docIdNames, (idName: [Document['id'], Document['name']]) => {
           return idName[0] === this.selectedDocID
         })) {
@@ -668,7 +666,7 @@ export default defineComponent({
       if (!docToAdd) {
         docToAdd = this.newDoc()
         if (this.selectedDocType === 'dynamic-rules') {
-          docToAdd.name = docToAdd.name + ' ' + docToAdd.id
+          docToAdd.name = DatasetsUtils.addIdtoDocName(docToAdd.name, docToAdd.id)
         }
       }
       this.resetGitLog()
@@ -798,7 +796,6 @@ export default defineComponent({
       const referencedContentFilter: string[] = []
       const referencedLimit: string[] = []
       const referencedCloudFunctions: string[] = []
-      const referencedDynamicRules: string[] = []
       _.forEach(docs, (doc) => {
         _.forEach(doc.map, (mapEntry) => {
           referencedACL.push(mapEntry['acl_profile'])
@@ -810,7 +807,6 @@ export default defineComponent({
       this.referencedIDsContentFilter = _.uniq(referencedContentFilter)
       this.referencedIDsLimits = _.uniq(_.flatten(referencedLimit))
       this.referencedIDsCloudFunctions = _.uniq(_.flatten(referencedCloudFunctions))
-      this.referencedIDsDynamicRules = _.uniq(_.flatten(referencedDynamicRules))
     },
 
     async restoreGitVersion(gitVersion: Commit) {

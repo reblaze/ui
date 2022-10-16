@@ -281,7 +281,7 @@
                                 </div>
                               </div>
                             </div>
-                            <div class="column is-4">
+                            <div class="column">
                               <div class="field">
                                 <label class="label is-small">Content Filter Profile</label>
                                 <div class="control is-expanded">

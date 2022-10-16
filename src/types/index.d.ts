@@ -190,7 +190,7 @@ declare module CuriefenseClient {
     exclude: string[]
     include: string[]
     ttl: number,
-    target: 'remote_addr' | 'organization' | 'cookie' | 'geoip_city_country_name' | 'planet' | 'request_headers' | 'request_body'
+    target: DynamicRuleTargetOptionType
   }
 
   type RateLimit = {
@@ -396,7 +396,7 @@ declare module CuriefenseClient {
   // Git - END
 
   type Quarantined = {
-    _id: string
+    id: string
     count: number
     first_added: number
     last_seen: number

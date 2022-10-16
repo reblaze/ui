@@ -327,8 +327,5 @@ export default defineComponent({
   created() {
     this.loadSecurityPolicies()
   },
-  mounted() {
-    this.getConnectedSecurityPoliciesEntries()
-  },
 })
 </script>

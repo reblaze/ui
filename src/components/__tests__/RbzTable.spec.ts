@@ -851,7 +851,7 @@ describe('RbzTable.vue', () => {
         expect(rowButton.exists()).toBeTruthy()
       })
 
-      test('should emit `new-button-clicked` when clicked', async () => {
+      test('should emit `row-button-clicked` when clicked', async () => {
         await wrapper.setProps({showRowButton: true})
         const rowButton = wrapper.find('.row-entity-button')
         await rowButton.trigger('click')

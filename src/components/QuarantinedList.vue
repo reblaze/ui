@@ -1,6 +1,4 @@
 <template >
-  <div class="quarantine">
-    <section>
         <div class="card">
           <div class="card-content">
                 <div class="content">
@@ -8,7 +6,6 @@
                                 :data="quarantinedData"
                                 :row-button-icon="'fa-trash'"
                                 :row-button-title="'Delete'"
-                                :show-new-button="false"
                                 :show-menu-column="true"
                                 :show-filter-button="true"
                                 :show-row-button="true"
@@ -17,8 +14,6 @@
                 </div>
           </div>
         </div>
-    </section>
-  </div>
 </template>
 
 <script lang="ts">
@@ -30,7 +25,6 @@ import RequestsUtils from '@/assets/RequestsUtils'
 
 export default defineComponent({
   name: 'QuarantinedList',
-  props: {},
   components: {
     RbzTable,
   },
@@ -63,7 +57,7 @@ export default defineComponent({
           fieldNames: ['first_added'],
           displayFunction: (item: any) => {
             const newDate = new Date(item['first_added'] * 1000)
-            return DateTimeUtils.isoToNowCuriefenseFormat(newDate) // (new Date(item * 1000)).toLocaleDateString()
+            return DateTimeUtils.isoToNowCuriefenseFormat(newDate)
           },
           isSortable: true,
           isSearchable: true,
@@ -104,7 +98,6 @@ export default defineComponent({
   methods: {
     async loadQuarantinedData() {
       const url = '/query'
-      // POST {DATA_LAYER_URL}/query
       const config = {headers: {'provider': 'mongodb'}}
       const data = {
         'query':
@@ -127,7 +120,6 @@ export default defineComponent({
 
     async deleteQuarantinedElement(id: string) {
       const url = '/query'
-      // POST {DATA_LAYER_URL}/query
       const config = {headers: {'provider': 'mongodb'}}
       const data = {
         'query':

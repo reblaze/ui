@@ -231,7 +231,6 @@ export default defineComponent({
     },
     dynamicRuleManaged(): boolean {
       return this.selectedDoc.id ? this.selectedDoc.id.startsWith('dr_') : false
-      // return this.localDoc.id.startsWith('dr_')
     },
 
     editable(): boolean {
@@ -254,7 +253,7 @@ export default defineComponent({
         return ''
       },
       set: function(tags: string): void {
-        if ((this.localDoc.id).substr(0, 3)=='dr_') {
+        if (this.localDoc.id.startsWith('dr_')) {
           return
         }
         this.localDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
