@@ -78,6 +78,10 @@
                 </tag-autocomplete-input>
               </div>
             </div>
+            <div class="is-size-7 document-automatic-tags">
+                Automatic Tags:
+                <div v-html="automaticTags"></div>
+            </div>
             <div class="field ignore-alphanumeric-input-field"
                  :title="additionalInfoIgnoreAlphanumericInput">
               <label class="checkbox is-size-7">
@@ -796,6 +800,19 @@ export default defineComponent({
         this.emitDocUpdate()
       },
     },
+
+    automaticTags(): string {
+      const rule = this.localDoc
+      const ruleTag = `cf-rule-id:${rule.id?.replace(/ /g, '-') || ''}`
+      const ruleTagElement = this.createTagElement(ruleTag)
+      // const riskTag = `cf-rule-risk:${rule.risk}`
+      // const riskTagElement = this.createTagElement(riskTag)
+      // const categoryTag = `cf-rule-category:${rule.category?.replace(/ /g, '-') || ''}`
+      // const categoryTagElement = this.createTagElement(categoryTag)
+      // const subcategoryTag = `cf-rule-subcategory:${rule.subcategory?.replace(/ /g, '-') || ''}`
+      // const subcategoryTagElement = this.createTagElement(subcategoryTag)
+      return `${ruleTagElement}`
+    },
   },
 
   emits: ['update:selectedDoc', 'form-invalid'],
@@ -892,7 +909,7 @@ export default defineComponent({
       return this.localDoc.content_type?.includes(value)
     },
 
-    updateContentType(value: string, event: InputEvent): void {
+    updateContentType(value: string, event: any): void {
       const state = (event.target as HTMLInputElement).checked
       if (state) {
         this.localDoc.content_type.push(value)
@@ -928,6 +945,15 @@ export default defineComponent({
           return e[1]
         })
       })
+    },
+
+    createTagElement(tag: string): string {
+      return `
+            <div
+                class="automatic-tag ellipsis"
+                title="${tag}">
+                    ${tag}
+            </div>`
     },
   },
 
