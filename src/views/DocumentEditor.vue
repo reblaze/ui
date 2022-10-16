@@ -446,7 +446,7 @@ export default defineComponent({
 
       await this.loadSelectedDocData()
       this.addMissingDefaultsToDoc()
-      // await this.goToRoute()
+      await this.goToRoute()
       this.setLoadingDocStatus(false)
       this.loadGitLog()
     },
@@ -665,9 +665,6 @@ export default defineComponent({
       this.isNewLoading = true
       if (!docToAdd) {
         docToAdd = this.newDoc()
-        if (this.selectedDocType === 'dynamic-rules') {
-          docToAdd.name = DatasetsUtils.addIdtoDocName(docToAdd.name, docToAdd.id)
-        }
       }
       this.resetGitLog()
       this.docs.unshift(docToAdd)

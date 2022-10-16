@@ -107,10 +107,6 @@ function generateUUID2(): string {
   return generateUUID().split('-')[4]
 }
 
-function addIdtoDocName(name: string, id: string) {
-  return name + ' ' + id
-}
-
 const defaultFlowControlSequenceItem = {
   'method': 'GET' as HttpRequestMethods,
   'uri': '/',
@@ -294,9 +290,10 @@ const newDocEntryFactory: { [key: string]: Function } = {
   },
 
   'dynamic-rules'(): DynamicRule {
+    const id = generateUUID2()
     return {
-      'id': generateUUID2(),
-      'name': 'New Dynamic Rule',
+      'id': id,
+      'name': 'New Dynamic Rule ' + id,
       'description': 'New Dynamic Rule Description and Remarks',
       'timeframe': 60,
       'threshold': 9999,
@@ -420,7 +417,6 @@ export default {
   dynamicRuleTargets,
   generateUUID,
   generateUUID2,
-  addIdtoDocName,
   newDocEntryFactory,
   newOperationEntryFactory,
   defaultFlowControlSequenceItem,
