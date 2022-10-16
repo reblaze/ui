@@ -24,7 +24,7 @@ describe('RateLimitsEditor.vue', () => {
       'thresholds': [
         {
           'limit': '5',
-          'action': 'default',
+          'action': 'monitor',
         },
       ],
       'timeframe': '60',

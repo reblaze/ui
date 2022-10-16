@@ -1,5 +1,6 @@
 import {
   ACLProfile,
+  BackendService,
   CloudFunction,
   ContentFilterProfile,
   ContentFilterRule,
@@ -8,7 +9,8 @@ import {
   FlowControlPolicy,
   GlobalFilter,
   HttpRequestMethods,
-  MobileSDK, ProxyTemplate,
+  MobileSDK,
+  ProxyTemplate,
   RateLimit,
   RoutingProfile,
   SecurityPolicy,
@@ -76,6 +78,8 @@ const titles: { [key: string]: string } = {
   'proxy-templates-singular': 'Proxy Template',
   'sites': 'Sites',
   'sites-singular': 'Site',
+  'backends': 'Backends Services',
+  'backends-singular': 'Backend Service',
   'report': 'Report',
   'ignore': 'Ignore',
   'request0': 'Request Pre Reblaze',
@@ -123,7 +127,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'id': generateUUID2(),
       'name': 'New ACL Profile',
       'description': 'New ACL Profile Description and Remarks',
-      'action': 'default',
+      'action': 'monitor',
       'tags': [],
       'allow': [],
       'allow_bot': [],
@@ -139,7 +143,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'id': generateUUID2(),
       'name': 'New Content Filter Profile',
       'description': 'New Content Filter Profile Description and Remarks',
-      'action': 'default',
+      'action': 'monitor',
       'tags': [],
       'ignore_body': true,
       'ignore_alphanum': true,
@@ -230,7 +234,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'thresholds': [
         {
           'limit': 5,
-          'action': 'default',
+          'action': 'monitor',
         },
       ],
       'include': ['all'],
@@ -407,6 +411,29 @@ const newOperationEntryFactory: { [key: string]: Function } = {
       'mask_headers': '',
       'xrealip_header_name': 'X-Real-IP',
       'custom_listener': false,
+    }
+  },
+
+  'backends'(): BackendService {
+    return {
+      'id': generateUUID2(),
+      'name': 'New Backend Service ' + generateUUID2(), // TODO: Remove this random uuid once names are no longer unique
+      'description': 'New Backend Service Description and Remarks',
+      'least_conn': false,
+      'http11': true,
+      'transport_mode': 'default',
+      'sticky': 'none',
+      'back_hosts': [{
+        'http_port': 80,
+        'https_port': 443,
+        'weight': 1,
+        'fail_timeout': '10s',
+        'monitor_state': '',
+        'down': false,
+        'host': '127.0.0.1',
+        'max_fails': 0,
+        'backup': false,
+      }],
     }
   },
 }

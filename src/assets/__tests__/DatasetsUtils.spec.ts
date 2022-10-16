@@ -103,7 +103,7 @@ describe('RequestsUtils.ts', () => {
       expect(document['timeframe']).toEqual(60)
       expect(document['key']).toEqual([{'attrs': 'securitypolicyid'},
         {'attrs': 'securitypolicyentryid'}, {'headers': 'rbzsessionid'}])
-      expect(document['thresholds'][0]['action']).toEqual('default')
+      expect(document['thresholds'][0]['action']).toEqual('monitor')
       expect(document['pairwith']).toEqual({'self': 'self'})
       expect(document['exclude']).toEqual([])
       expect(document['include']).toEqual(['all'])

@@ -42,13 +42,13 @@
           <div class="card-content">
             <div class="content">
               <rbz-table :columns="columns"
-                         :data="routingProfiles"
+                         :data="backendServices"
                          :show-menu-column="true"
                          :show-filter-button="true"
                          :show-new-button="true"
-                         @new-button-clicked="addNewProfile"
+                         @new-button-clicked="addNewBackendService"
                          :show-edit-button="true"
-                         @edit-button-clicked="editProfile">
+                         @edit-button-clicked="editBackendService">
               </rbz-table>
               <span class="is-family-monospace has-text-grey-lighter">
                 {{ documentListAPIPath }}
@@ -71,13 +71,14 @@
 import _ from 'lodash'
 import {defineComponent} from 'vue'
 import RbzTable from '@/components/RbzTable.vue'
-import {ColumnOptions, RoutingProfile} from '@/types'
+import {BackendService, ColumnOptions} from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import Utils from '@/assets/Utils'
+import backendServicesConsts from '@/assets/backendServicesConsts'
 
 export default defineComponent({
-  name: 'RoutingProfileList',
+  name: 'BackendServiceList',
   components: {
     RbzTable,
   },
@@ -99,35 +100,49 @@ export default defineComponent({
           classes: 'ellipsis',
         },
         {
-          title: 'Paths',
-          fieldNames: ['locations'],
-          displayFunction: (item: RoutingProfile) => {
-            return item.locations.length
+          title: 'Hosts',
+          fieldNames: ['back_hosts'],
+          displayFunction: (item: BackendService) => {
+            return _.map(item.back_hosts, 'host')
           },
           isSortable: true,
           isSearchable: true,
-          classes: 'width-60px white-space-pre',
+          classes: 'width-150px',
         },
         {
-          title: 'Cloud Functions',
-          fieldNames: ['locations'],
-          displayFunction: (item: RoutingProfile) => {
-            return _.sumBy(item.locations, (mapEntry) => {
-              return mapEntry['cloud_functions']?.length || 0
-            })
+          title: 'Transport Protocol',
+          fieldNames: ['transport_mode'],
+          displayFunction: (item: BackendService) => {
+            return backendServicesConsts.transportProtocols.find((protocol) => {
+              return item.transport_mode === protocol.value
+            }).name
           },
           isSortable: true,
           isSearchable: true,
-          classes: 'width-120px white-space-pre',
+          classes: 'width-150px',
+        },
+        {
+          title: 'Stickiness Model',
+          fieldNames: ['sticky'],
+          displayFunction: (item: BackendService) => {
+            return backendServicesConsts.stickinessModels.find((protocol) => {
+              return item.sticky === protocol.value
+            }).name
+          },
+          isSortable: true,
+          isSearchable: true,
+          classes: 'width-120px',
         },
       ] as ColumnOptions[],
       isNewLoading: false,
       titles: DatasetsUtils.titles,
-      routingProfiles: [] as RoutingProfile[],
+      backendServices: [],
       selectedBranch: null,
       configs: [],
+
       loadingDocCounter: 0,
       isDownloadLoading: false,
+
       apiRoot: RequestsUtils.reblazeAPIRoot,
       apiVersion: RequestsUtils.reblazeAPIVersion,
     }
@@ -136,7 +151,7 @@ export default defineComponent({
   computed: {
     documentListAPIPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
-      return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/routing-profiles/`
+      return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/backends/`
     },
 
     branchNames(): string[] {
@@ -153,39 +168,39 @@ export default defineComponent({
       }
     },
 
-    newProfile(): RoutingProfile {
-      const factory = DatasetsUtils.newOperationEntryFactory['routing-profiles']
+    newBackendService(): BackendService {
+      const factory = DatasetsUtils.newOperationEntryFactory['backends']
       return factory && factory()
     },
 
-    editProfile(id: string) {
-      const routeToEditProfile = `/routing-profiles/config/${id}`
-      this.$router.push(routeToEditProfile)
+    editBackendService(id: string) {
+      const routeToEditBackendService = `/backend-services/config/${id}`
+      this.$router.push(routeToEditBackendService)
     },
 
-    async addNewProfile() {
+    async addNewBackendService() {
       this.isNewLoading = true
-      const profileToAdd = this.newProfile()
-      const routingProfileText = this.titles['routing-profiles-singular']
-      const successMessage = `New ${routingProfileText} was created.`
-      const failureMessage = `Failed while attempting to create the new ${routingProfileText}.`
-      const url = `configs/${this.selectedBranch}/d/routing-profiles/e/${profileToAdd.id}`
-      const data = profileToAdd
+      const backendServiceToAdd = this.newBackendService()
+      const backendServiceText = this.titles['backends-singular']
+      const successMessage = `New ${backendServiceText} was created.`
+      const failureMessage = `Failed while attempting to create the new ${backendServiceText}.`
+      const url = `configs/${this.selectedBranch}/d/backends/e/${backendServiceToAdd.id}`
+      const data = backendServiceToAdd
       await RequestsUtils.sendReblazeRequest({methodName: 'POST', url, data, successMessage, failureMessage})
-      this.editProfile(profileToAdd.id)
+      this.editBackendService(backendServiceToAdd.id)
       this.isNewLoading = false
     },
 
     downloadDoc() {
       if (!this.isDownloadLoading) {
-        Utils.downloadFile('routing-profiles', 'json', this.routingProfiles)
+        Utils.downloadFile('backends', 'json', this.backendServices)
       }
     },
 
-    async loadProfiles() {
-      const url = `configs/${this.selectedBranch}/d/routing-profiles/`
+    async loadBackendServices() {
+      const url = `configs/${this.selectedBranch}/d/backends/`
       const response = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
-      this.routingProfiles = response?.data
+      this.backendServices = response?.data
     },
 
     async loadConfigs() {
@@ -205,13 +220,13 @@ export default defineComponent({
     async switchBranch() {
       this.setLoadingDocStatus(true)
       Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
-      await this.loadProfiles()
+      await this.loadBackendServices()
       this.setLoadingDocStatus(false)
     },
   },
   async created() {
     await this.loadConfigs()
-    this.loadProfiles()
+    this.loadBackendServices()
   },
 })
 </script>

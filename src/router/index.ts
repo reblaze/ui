@@ -15,6 +15,8 @@ import ProxyTemplateList from '@/views/ProxyTemplateList.vue'
 import ProxyTemplateEditor from '@/doc-editors/ProxyTemplateEditor.vue'
 import WebProxyList from '@/views/WebProxyList.vue'
 import WebProxyEditor from '@/doc-editors/WebProxyEditor.vue'
+import BackendServiceList from '@/views/BackendServiceList.vue'
+import BackendServiceEditor from '@/doc-editors/BackendServiceEditor.vue'
 
 
 const routes: Array<RouteRecordRaw> = [
@@ -136,6 +138,23 @@ const routes: Array<RouteRecordRaw> = [
             path: 'config/:doc_id',
             name: 'ProxyTemplates/config',
             component: ProxyTemplateEditor,
+          },
+        ],
+      },
+      {
+        path: 'backend-services',
+        name: 'BackendServices',
+        redirect: '/backend-services/list',
+        children: [
+          {
+            path: 'list',
+            name: 'BackendServices/list',
+            component: BackendServiceList,
+          },
+          {
+            path: 'config/:doc_id',
+            name: 'BackendServices/config',
+            component: BackendServiceEditor,
           },
         ],
       },

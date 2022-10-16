@@ -86,13 +86,6 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       isSearchable: true,
       classes: 'width-100px',
     },
-    {
-      title: 'Action',
-      fieldNames: ['action'],
-      isSortable: true,
-      isSearchable: true,
-      classes: 'width-80px',
-    },
   ],
   'securitypolicies': [
     {

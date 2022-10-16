@@ -207,7 +207,7 @@ describe('SecurityPoliciesEditor.vue', () => {
         'thresholds': [
           {
             'limit': '5',
-            'action': 'default',
+            'action': 'monitor',
           },
         ],
         'include': ['badpeople'],
@@ -223,7 +223,7 @@ describe('SecurityPoliciesEditor.vue', () => {
         'thresholds': [
           {
             'limit': '5',
-            'action': 'default',
+            'action': 'monitor',
           },
         ],
         'include': ['badpeople'],

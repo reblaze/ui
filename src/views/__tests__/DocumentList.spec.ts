@@ -625,7 +625,7 @@ describe('DocumentList.vue', () => {
             'args': {},
           },
         ],
-        'action': 'default',
+        'action': 'monitor',
         'timeframe': 60,
         'id': 'c03dabe4b9ca',
       },
@@ -660,7 +660,7 @@ describe('DocumentList.vue', () => {
             'args': {},
           },
         ],
-        'action': 'default',
+        'action': 'monitor',
         'timeframe': 60,
         'id': '4435d797ab0c',
       },
@@ -724,7 +724,7 @@ describe('DocumentList.vue', () => {
       'thresholds': [
         {
           'limit': '5',
-          'action': 'default',
+          'action': 'monitor',
         },
       ],
       'include': ['badpeople'],
@@ -739,7 +739,7 @@ describe('DocumentList.vue', () => {
       'thresholds': [
         {
           'limit': '5',
-          'action': 'default',
+          'action': 'monitor',
         },
       ],
       'include': ['all'],
@@ -754,7 +754,7 @@ describe('DocumentList.vue', () => {
       'thresholds': [
         {
           'limit': '10',
-          'action': 'default',
+          'action': 'monitor',
         },
       ],
       'include': ['blocklist'],

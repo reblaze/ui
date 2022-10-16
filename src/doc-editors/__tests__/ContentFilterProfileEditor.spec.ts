@@ -28,7 +28,7 @@ describe('ContentFilterProfileEditor.vue', () => {
       'id': '__default__',
       'name': 'default contentfilter',
       'description': 'New Content Filter Profile Description and Remarks',
-      'action': 'default',
+      'action': 'monitor',
       'tags': [],
       'ignore_body': true,
       'ignore_alphanum': true,

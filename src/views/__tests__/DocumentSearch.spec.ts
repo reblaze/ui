@@ -319,7 +319,7 @@ describe('DocumentSearch.vue', () => {
             'args': {},
           },
         ],
-        'action': 'default',
+        'action': 'monitor',
         'timeframe': 60,
         'id': 'c03dabe4b9ca',
       },
@@ -333,7 +333,7 @@ describe('DocumentSearch.vue', () => {
         'thresholds': [
           {
             'limit': '5',
-            'action': 'default',
+            'action': 'monitor',
           },
         ],
         'include': ['badpeople'],

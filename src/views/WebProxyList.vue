@@ -220,7 +220,7 @@ export default defineComponent({
     async loadSites() {
       const url = `configs/${this.selectedBranch}/d/sites/`
       const response = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
-      this.sites = _.values(response?.data)
+      this.sites = response?.data
     },
 
     async loadConfigs() {

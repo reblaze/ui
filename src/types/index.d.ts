@@ -259,7 +259,7 @@ declare module CuriefenseClient {
 
   type ColumnOptions = {
     title: string
-    fieldNames: string[]
+    fieldNames?: string[]
     displayFunction?: (item: any) => string // Will be rendered as HTML
     isSortable?: boolean
     isSearchable?: boolean
@@ -281,7 +281,8 @@ declare module CuriefenseClient {
     least_conn: boolean
     http11: boolean
     transport_mode: string
-    sticky: string
+    sticky: 'none' | 'autocookie' | 'customcookie' | 'iphash' | 'least_conn'
+    sticky_cookie_name?: string
     back_hosts: {
       http_port: number
       https_port: number

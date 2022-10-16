@@ -52,7 +52,7 @@ describe('FlowControlPolicyEditor.vue', () => {
         ],
         'active': true,
         'description': 'New Flow Control Policy Description and Remarks',
-        'action': 'default',
+        'action': 'monitor',
         'timeframe': 60,
         'id': 'c03dabe4b9ca',
         'tags': ['test-tag'],
