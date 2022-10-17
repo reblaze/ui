@@ -117,7 +117,10 @@ export default defineComponent({
             title: 'Version Control',
           },
         },
-        docs: {
+        help: {
+          '/support': {
+            title: 'Support',
+          },
           'curiebook': {
             title: 'Curiebook',
             url: 'https://docs.curiefense.io/',
