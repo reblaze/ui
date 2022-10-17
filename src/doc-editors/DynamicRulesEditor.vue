@@ -102,6 +102,10 @@
                                               @tag-changed="selectedDocTags = $event">
                       </tag-autocomplete-input>
                     </div>
+                    <div class="is-size-7 document-automatic-tags">
+                      Automatic Tags:
+                      <div v-html="automaticTags"></div>
+                    </div>
                   </div>
                   <div class="field">
                     <label class="label is-small">
@@ -276,6 +280,12 @@ export default defineComponent({
         this.emitMatchDocUpdate()
       },
     },
+    automaticTags(): string {
+      const rule = this.localDoc
+      const ruleTag = `cf-rule-id:${rule.id?.replace(/ /g, '-') || ''}`
+      const ruleTagElement = this.createTagElement(ruleTag)
+      return `${ruleTagElement}`
+    },
   },
   emits: ['update:selectedDoc', 'update:selectedDocMatchingGlobalFilter'],
   methods: {
@@ -324,6 +334,15 @@ export default defineComponent({
           return e[1]
         })
       })
+    },
+
+    createTagElement(tag: string): string {
+      return `
+            <div
+                class="automatic-tag ellipsis"
+                title="${tag}">
+                    ${tag}
+            </div>`
     },
   },
   created() {
