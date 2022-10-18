@@ -16,7 +16,7 @@ import ProxyTemplateEditor from '@/doc-editors/ProxyTemplateEditor.vue'
 import WebProxyList from '@/views/WebProxyList.vue'
 import WebProxyEditor from '@/doc-editors/WebProxyEditor.vue'
 import SslList from '@/views/SslList.vue'
-import SslEditor from '@/doc-editors/SslEditor.vue'
+import CertificateEditor from '@/doc-editors/CertificateEditor.vue'
 import BackendServiceList from '@/views/BackendServiceList.vue'
 import BackendServiceEditor from '@/doc-editors/BackendServiceEditor.vue'
 
@@ -155,9 +155,9 @@ const routes: Array<RouteRecordRaw> = [
           {
             path: 'config/:doc_id',
             name: 'SSL/config',
-            component: SslEditor,
-          }
-        ]
+            component: CertificateEditor,
+          },
+        ],
       },
       {
         path: 'backend-services',

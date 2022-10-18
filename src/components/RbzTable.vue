@@ -111,12 +111,22 @@
       </td>
       <td class="is-size-7" v-if="showMenuColumn">
         <div class="field is-grouped is-grouped-centered">
+          <!-- TODO: return here -->
           <p class="control" v-if="showRowButton">
             <button :title="rowButtonTitle"
                     class="button is-small row-entity-button"
                     @click="rowButtonClicked(row.id)">
               <span class="icon is-small">
                 <i :class="`fas ${rowButtonIcon ? rowButtonIcon : 'fa-edit'}`"></i>
+              </span>
+            </button>
+          </p>
+          <p class="control" v-if="showSecondRowButton">
+            <button :title="secondRowButtonTitle"
+                    class="button is-small second-row-entity-button"
+                    @click="secondRowButtonClicked(row.id)">
+              <span class="icon is-small">
+                <i :class="`fas ${secondRowButtonIcon ? secondRowButtonIcon : 'fa-edit'}`"></i>
               </span>
             </button>
           </p>
@@ -158,8 +168,11 @@ export default defineComponent({
     showFilterButton: Boolean,
     showNewButton: Boolean,
     showRowButton: Boolean,
+    showSecondRowButton: Boolean,
     rowButtonTitle: String,
     rowButtonIcon: String,
+    secondRowButtonTitle: String,
+    secondRowButtonIcon: String,
     rowsPerPage: {
       type: Number,
       default: 10,
@@ -200,7 +213,7 @@ export default defineComponent({
       loadingCounter: 0,
     }
   },
-  emits: ['new-button-clicked', 'row-button-clicked'],
+  emits: ['new-button-clicked', 'row-button-clicked', 'second-row-button-clicked'],
   computed: {
     dataArrayDisplay() {
       if (!this.data?.length) {
@@ -270,6 +283,10 @@ export default defineComponent({
 
     rowButtonClicked(id: string) {
       this.$emit('row-button-clicked', id)
+    },
+
+    secondRowButtonClicked(id: string) {
+      this.$emit('second-row-button-clicked', id)
     },
 
     sortColumn(column: ColumnOptions) {
@@ -380,7 +397,7 @@ export default defineComponent({
 
 .rbz-table .filter-toggle,
 .rbz-table .new-entity-button,
-.rbz-table .row-entity-button {
+.rbz-table .row-entity-button .second-row-entity-button {
   background: transparent;
   border-color: transparent;
   color: initial;

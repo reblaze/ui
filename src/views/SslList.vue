@@ -71,7 +71,11 @@
                     :show-new-button="true"
                     @new-button-clicked="addNewProfile"
                     :show-edit-button="true"
-                    @edit-button-clicked="editProfile">
+                    :show-row-button="true"
+                    :row-button-title="rowButtonTitle"
+                    :row-button-icon="rowButtonIcon"
+                    :second-row-button-title="secondRowButtonTitle"
+                    :second-row-button-icon="secondRowButtonIcon">
                   </rbz-table>
                 </div>
                 <div v-show="tab === 'Certificates'">
@@ -118,6 +122,10 @@ export default defineComponent({
   },
   data() {
     return {
+      rowButtonIcon: 'fa-edit',
+      rowButtonTitle: 'Edit',
+      secondRowButtonIcon: 'fa-delete',
+      secondRowButtonTitle: 'Delete',
       loadBalancerColumns: [
         {
           title: 'Name',
@@ -165,21 +173,21 @@ export default defineComponent({
       certificationColumns: [
         {
           title: 'Name',
-          fieldNames: ['name'],
+          fieldNames: ['issuer'],
           isSortable: true,
           isSearchable: true,
           classes: 'width-100px',
         },
         {
           title: 'Expiration Date',
-          fieldNames: ['experation'],
+          fieldNames: ['expires'],
           isSortable: true,
           isSearchable: true,
           classes: 'width-100px ellipsis',
         },
         {
           title: 'Linked To',
-          fieldNames: ['link'],
+          fieldNames: ['subject'],
           isSortable: true,
           isSearchable: true,
           classes: 'width-100px white-space-pre',
@@ -200,7 +208,10 @@ export default defineComponent({
         },
         {
           title: 'Load Balancers',
-          fieldNames: ['loadbalancers'],
+          fieldNames: ['provider_links'],
+          displayFunction: (item) => {
+            return item.provider_links.link
+          },
           isSortable: true,
           isSearchable: true,
           classes: 'width-100px white-space-pre',
@@ -208,9 +219,12 @@ export default defineComponent({
         {
           title: 'SAN',
           fieldNames: ['san'],
+          displayFunction: (item) => {
+            return item?.san?.join('\n')
+          },
           isSortable: true,
           isSearchable: true,
-          classes: 'width-100px white-space-pre',
+          classes: 'width-120px white-space-pre',
         },
       ] as ColumnOptions[],
       isNewLoading: false,
@@ -221,7 +235,7 @@ export default defineComponent({
       configs: [],
       loadingDocCounter: 0,
       isDownloadLoading: false,
-      tab: 'Load balancers',
+      tab: 'Certificates',
       apiRoot: RequestsUtils.reblazeAPIRoot,
       apiVersion: RequestsUtils.reblazeAPIVersion,
     }
@@ -283,9 +297,30 @@ export default defineComponent({
     },
 
     async loadCertificates() {
-      const url = `configs/${this.selectedBranch}/d/certificates/`
-      const response = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
-      this.certificates = response?.data || []
+      // const url = `configs/${this.selectedBranch}/d/certificates/`
+      // const response = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
+      // TODO: add this.certificates = response?.data || []
+      const certificatesMock =
+        [
+          {
+            'cert_body': 'Cert body test',
+            'expires': '2022-10-18',
+            'id': 'planet-www-example.com-4a5b',
+            'issuer': 'Lets Encrypt',
+            'le_auto_renew': true,
+            'le_auto_replace': true,
+            'le_hash': '344ACF178F22A6CD086300EE37E4C0E21C5668E1',
+            'provider_links': {
+              'link': 'www.test.com',
+              'provider': 'test provider',
+              'region': 'test region',
+            },
+            'san': ['www.example.com', 'www.csccjhj.com'],
+            'subject': 'www.example.com',
+            'uploaded': '2017-07-21T17:32:28Z',
+          },
+        ]
+      this.certificates = certificatesMock
     },
 
     async loadConfigs() {
