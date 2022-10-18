@@ -179,7 +179,7 @@ declare module CuriefenseClient {
     code: string
     phase: CloudFunctionsPhaseType
   }
-  
+
   type DynamicRule = {
     id: string
     name: string
@@ -214,9 +214,9 @@ declare module CuriefenseClient {
     tags: string[]
     type: 'skip' | 'custom' | 'challenge' | 'monitor'
     params?: {
-      status: number
-      headers: GenericObject
-      content: string
+      status?: number
+      headers?: GenericObject
+      content?: string
     }
   }
 
