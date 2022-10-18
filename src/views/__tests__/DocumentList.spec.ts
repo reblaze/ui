@@ -625,7 +625,7 @@ describe('DocumentList.vue', () => {
             'args': {},
           },
         ],
-        'action': 'default',
+        'action': 'monitor',
         'timeframe': 60,
         'id': 'c03dabe4b9ca',
       },
@@ -660,7 +660,7 @@ describe('DocumentList.vue', () => {
             'args': {},
           },
         ],
-        'action': 'default',
+        'action': 'monitor',
         'timeframe': 60,
         'id': '4435d797ab0c',
       },
@@ -724,7 +724,7 @@ describe('DocumentList.vue', () => {
       'thresholds': [
         {
           'limit': '5',
-          'action': 'default',
+          'action': 'monitor',
         },
       ],
       'include': ['badpeople'],
@@ -739,7 +739,7 @@ describe('DocumentList.vue', () => {
       'thresholds': [
         {
           'limit': '5',
-          'action': 'default',
+          'action': 'monitor',
         },
       ],
       'include': ['all'],
@@ -754,7 +754,7 @@ describe('DocumentList.vue', () => {
       'thresholds': [
         {
           'limit': '10',
-          'action': 'default',
+          'action': 'monitor',
         },
       ],
       'include': ['blocklist'],
@@ -1444,9 +1444,9 @@ describe('DocumentList.vue', () => {
     describe('edit document button', () => {
       test('should redirect to correct document when clicking on edit document button', async () => {
         const rbzTable = wrapper.findComponent(RbzTable)
-        rbzTable.vm.$emit('edit-button-clicked', aclDocs[1]['id'])
+        rbzTable.vm.$emit('row-button-clicked', aclDocs[1]['id'])
         expect(mockRouter.push).toHaveBeenCalledWith(`/config/master/aclprofiles/${aclDocs[1]['id']}`)
-        rbzTable.vm.$emit('edit-button-clicked', aclDocs[0]['id'])
+        rbzTable.vm.$emit('row-button-clicked', aclDocs[0]['id'])
         expect(mockRouter.push).toHaveBeenCalledWith(`/config/master/aclprofiles/${aclDocs[0]['id']}`)
       })
     })
@@ -1490,7 +1490,8 @@ describe('DocumentList.vue', () => {
       'securitypolicies',
       'contentfilterprofiles',
       'contentfilterrules',
-      'cloudfunctions',
+      'cloud-functions',
+      'dynamic-rules',
       'actions',
     ]
     documentTypes.forEach((docType) => {

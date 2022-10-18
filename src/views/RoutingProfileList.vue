@@ -47,8 +47,8 @@
                          :show-filter-button="true"
                          :show-new-button="true"
                          @new-button-clicked="addNewProfile"
-                         :show-edit-button="true"
-                         @edit-button-clicked="editProfile">
+                         :show-row-button="true"
+                         @row-button-clicked="editProfile">
               </rbz-table>
               <span class="is-family-monospace has-text-grey-lighter">
                 {{ documentListAPIPath }}
@@ -123,7 +123,7 @@ export default defineComponent({
       ] as ColumnOptions[],
       isNewLoading: false,
       titles: DatasetsUtils.titles,
-      routingProfiles: [],
+      routingProfiles: [] as RoutingProfile[],
       selectedBranch: null,
       configs: [],
       loadingDocCounter: 0,
@@ -185,7 +185,7 @@ export default defineComponent({
     async loadProfiles() {
       const url = `configs/${this.selectedBranch}/d/routing-profiles/`
       const response = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
-      this.routingProfiles = _.values(response?.data)
+      this.routingProfiles = response?.data
     },
 
     async loadConfigs() {

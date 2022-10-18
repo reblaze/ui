@@ -19,7 +19,7 @@
                        placeholder="List name"
                        @change="emitDocUpdate"
                        v-model="localDoc.name"
-                       :readonly="readonly"/>
+                       :disabled="reblazeManaged || dynamicRuleManaged" />
               </div>
               <p class="subtitle is-7 has-text-grey entries-entries-display">
                 {{ sectionsEntriesDisplay }}
@@ -28,10 +28,10 @@
             <div class="field">
               <label class="checkbox is-size-7">
                 <input type="checkbox"
+                       :style="(reblazeManaged || dynamicRuleManaged) ? {cursor: 'not-allowed'} : {cursor: 'pointer'}"
                        data-qa="active-checkbox"
                        class="document-active"
-                       :readonly="readonly"
-                       :disabled="readonly"
+                       :disabled="reblazeManaged || dynamicRuleManaged"
                        @change="emitDocUpdate"
                        v-model="localDoc.active">
                 Active
@@ -48,11 +48,13 @@
                      @keypress.enter="toggleRuleRelation()">
                   <span class="tag pointer mb-0"
                         data-qa="relation-toggle"
+                        :style="(reblazeManaged || dynamicRuleManaged) ? {cursor: 'not-allowed'} : {cursor: 'pointer'}"
                         :class="localDoc.rule.relation === 'AND' ? 'is-info xis-light is-selected' : ''"
                         @click="setRuleRelation('AND')">
                     AND
                   </span>
                   <span class="tag pointer mb-0"
+                        :style="(reblazeManaged || dynamicRuleManaged) ? {cursor: 'not-allowed'} : {cursor: 'pointer'}"
                         :class="localDoc.rule.relation === 'OR' ? 'is-info xis-light is-selected' : ''"
                         @click="setRuleRelation('OR')">
                     OR
@@ -63,9 +65,10 @@
             <div class="field">
               <label class="label is-small">Tags</label>
               <div class="control"
-                   data-qa="tag-input">
+                   data-qa="tag-input" >
                 <tag-autocomplete-input :initial-tag="selectedDocTags"
                                         :selection-type="'multiple'"
+                                        :editable="editable"
                                         @tag-changed="selectedDocTags = $event">
                 </tag-autocomplete-input>
               </div>
@@ -75,6 +78,7 @@
                  class="is-small has-text-grey is-size-7 is-pulled-right update-now-button"
                  data-qa="update-now-btn"
                  tabindex="0"
+                 disabled="dynamicRuleManaged"
                  @click="fetchList"
                  @keypress.space.prevent
                  @keypress.space="fetchList"
@@ -89,10 +93,10 @@
                        placeholder="List source"
                        @change="emitDocUpdate"
                        v-model="localDoc.source"
-                       :readonly="readonly"/>
+                       :disabled="reblazeManaged || dynamicRuleManaged"/>
               </div>
               <p class="help"
-                 v-if="externalSource"
+                 v-if="externalSource && !dynamicRuleManaged"
                  :title="fullFormattedModifiedDate">
                 updated @ {{ formattedModifiedDate }}
               </p>
@@ -108,6 +112,8 @@
                             @change="emitDocUpdate"
                             data-qa="action-dropdown"
                             class="document-action-selection"
+                            :defaultValue="localDoc.action"
+                            :disabled="dynamicRuleManaged"
                             title="Action">
                       <option v-for="customResponse in customResponseNames"
                               :value="customResponse[0]"
@@ -127,16 +133,17 @@
                           title="Document description"
                           v-model="localDoc.description"
                           @input="emitDocUpdate"
+                          :disabled="dynamicRuleManaged"
                           rows="5">
                 </textarea>
               </div>
             </div>
             <div class="pt-6">
-              <div class="field"
-                   v-if="editable">
+              <div class="field" v-if="selfManaged">
                 <div class="control is-expanded">
                   <button class="button is-small has-text-danger-dark remove-all-entries-button"
                           data-qa="remove-all-entries-btn"
+                          :disabled="dynamicRuleManaged"
                           title="Remove all entries"
                           @click="removeAllentries">
                     Clear all entries
@@ -219,11 +226,18 @@ export default defineComponent({
       return `${sectionsLength} ${sectionsCounter}\t|\t${this.localDocTotalEntries} ${entriesCounter}`
     },
 
-    readonly(): boolean {
+    reblazeManaged(): boolean {
       return this.localDoc.source === 'reblaze-managed'
+    },
+    dynamicRuleManaged(): boolean {
+      return this.selectedDoc.id ? this.selectedDoc.id.startsWith('dr_') : false
     },
 
     editable(): boolean {
+      return this.selfManaged && !this.dynamicRuleManaged
+    },
+
+    selfManaged(): boolean {
       return this.localDoc.source === 'self-managed'
     },
 
@@ -239,6 +253,9 @@ export default defineComponent({
         return ''
       },
       set: function(tags: string): void {
+        if (this.localDoc.id.startsWith('dr_')) {
+          return
+        }
         this.localDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
           return tag.trim()
         }) : []
@@ -282,8 +299,10 @@ export default defineComponent({
     },
 
     setRuleRelation(relation: Relation) {
-      this.localDoc.rule.relation = relation
-      this.emitDocUpdate()
+      if (!this.dynamicRuleManaged) {
+        this.localDoc.rule.relation = relation
+        this.emitDocUpdate()
+      }
     },
 
     toggleRuleRelation(): void {

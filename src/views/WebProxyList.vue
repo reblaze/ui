@@ -47,8 +47,8 @@
                          :show-filter-button="true"
                          :show-new-button="true"
                          @new-button-clicked="addNewSite"
-                         :show-edit-button="true"
-                         @edit-button-clicked="editSite">
+                         :show-row-button="true"
+                         @row-button-clicked="editSite">
               </rbz-table>
               <span class="is-family-monospace has-text-grey-lighter">
                 {{ documentListAPIPath }}
@@ -220,7 +220,7 @@ export default defineComponent({
     async loadSites() {
       const url = `configs/${this.selectedBranch}/d/sites/`
       const response = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
-      this.sites = _.values(response?.data)
+      this.sites = response?.data
     },
 
     async loadConfigs() {

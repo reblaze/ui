@@ -76,13 +76,16 @@ declare module CuriefenseClient {
 
   type LimitRuleType = 'headers' | 'args' | 'cookies' | 'attrs' | 'self'
 
+  type DynamicRuleTargetOptionType = 'remote_addr' | 'organization' | 'cookie' | 'geoip_city_country_name' | 'planet' | 'request_headers' | 'request_body'
+
   type NamesRegexType = 'names' | 'regex'
 
   type CloudFunctionsPhaseType = 'request0' | 'request1' | 'response0' | 'response1'
 
   type Document =
     BasicDocument
-    & (ACLProfile | CloudFunction | ContentFilterProfile | ContentFilterRule | CustomResponse | FlowControlPolicy | GlobalFilter | RateLimit | SecurityPolicy)
+    & (ACLProfile | CloudFunction | ContentFilterProfile | ContentFilterRule | CustomResponse |
+      DynamicRule | FlowControlPolicy | GlobalFilter | RateLimit | SecurityPolicy)
 
   type DocumentType =
     'aclprofiles'
@@ -92,8 +95,12 @@ declare module CuriefenseClient {
     | 'securitypolicies'
     | 'contentfilterprofiles'
     | 'contentfilterrules'
-    | 'cloudfunctions'
     | 'actions'
+    | ReblazeDocumentType
+
+  type ReblazeDocumentType =
+    'cloud-functions'
+    | 'dynamic-rules'
 
   // Document types helpers - END
 
@@ -172,6 +179,19 @@ declare module CuriefenseClient {
     code: string
     phase: CloudFunctionsPhaseType
   }
+  
+  type DynamicRule = {
+    id: string
+    name: string
+    active: boolean
+    description: string
+    timeframe: number
+    threshold: number
+    exclude: string[]
+    include: string[]
+    ttl: number,
+    target: DynamicRuleTargetOptionType
+  }
 
   type RateLimit = {
     id: string
@@ -239,7 +259,7 @@ declare module CuriefenseClient {
 
   type ColumnOptions = {
     title: string
-    fieldNames: string[]
+    fieldNames?: string[]
     displayFunction?: (item: any) => string // Will be rendered as HTML
     isSortable?: boolean
     isSearchable?: boolean
@@ -261,7 +281,8 @@ declare module CuriefenseClient {
     least_conn: boolean
     http11: boolean
     transport_mode: string
-    sticky: string
+    sticky: 'none' | 'autocookie' | 'customcookie' | 'iphash' | 'least_conn'
+    sticky_cookie_name?: string
     back_hosts: {
       http_port: number
       https_port: number
@@ -375,5 +396,15 @@ declare module CuriefenseClient {
 
   // Git - END
 
+  type Quarantined = {
+    id: string
+    count: number
+    first_added: number
+    last_seen: number
+    rule_id : string
+    tags: string[]
+    target: string
+    value: string
+  }
 }
 export = CuriefenseClient

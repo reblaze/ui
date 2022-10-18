@@ -94,7 +94,7 @@ describe('RbzTable.vue', () => {
         showMenuColumn: true,
         showFilterButton: true,
         showNewButton: true,
-        showEditButton: true,
+        showrowButton: true,
       },
     })
   })
@@ -770,7 +770,7 @@ describe('RbzTable.vue', () => {
             showMenuColumn: true,
             showFilterButton: true,
             showNewButton: true,
-            showEditButton: true,
+            showrowButton: true,
           },
           attachTo: document.body,
         })
@@ -839,24 +839,24 @@ describe('RbzTable.vue', () => {
     })
 
     describe('edit button', () => {
-      test('should not display if showEditButton prop is false', async () => {
-        await wrapper.setProps({showEditButton: false})
-        const editButton = wrapper.find('.edit-entity-button')
-        expect(editButton.exists()).toBeFalsy()
+      test('should not display if showrowButton prop is false', async () => {
+        await wrapper.setProps({showrowButton: false})
+        const rowButton = wrapper.find('.row-entity-button')
+        expect(rowButton.exists()).toBeFalsy()
       })
 
-      test('should display if showEditButton prop is true', async () => {
-        await wrapper.setProps({showEditButton: true})
-        const editButton = wrapper.find('.edit-entity-button')
-        expect(editButton.exists()).toBeTruthy()
+      test('should display if showrowButton prop is true', async () => {
+        await wrapper.setProps({showRowButton: true})
+        const rowButton = wrapper.find('.row-entity-button')
+        expect(rowButton.exists()).toBeTruthy()
       })
 
-      test('should emit `new-button-clicked` when clicked', async () => {
-        await wrapper.setProps({showEditButton: true})
-        const editButton = wrapper.find('.edit-entity-button')
-        await editButton.trigger('click')
-        expect(wrapper.emitted('edit-button-clicked')).toBeTruthy()
-        expect(wrapper.emitted('edit-button-clicked')[0]).toEqual([sortedDataByNameAsc[0].id])
+      test('should emit `row-button-clicked` when clicked', async () => {
+        await wrapper.setProps({showRowButton: true})
+        const rowButton = wrapper.find('.row-entity-button')
+        await rowButton.trigger('click')
+        expect(wrapper.emitted('row-button-clicked')).toBeTruthy()
+        expect(wrapper.emitted('row-button-clicked')[0]).toEqual([sortedDataByNameAsc[0].id])
       })
     })
   })

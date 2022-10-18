@@ -6,6 +6,7 @@ import PublishChanges from '@/views/Publish.vue'
 import VersionControl from '@/views/VersionControl.vue'
 import DocumentSearch from '@/views/DocumentSearch.vue'
 import DocumentList from '@/views/DocumentList.vue'
+import QuarantinedList from '@/components/QuarantinedList.vue'
 import RoutingProfileList from '@/views/RoutingProfileList.vue'
 import RoutingProfileEditor from '@/doc-editors/RoutingProfileEditor.vue'
 import MobileSDKList from '@/views/MobileSDKList.vue'
@@ -16,6 +17,8 @@ import WebProxyList from '@/views/WebProxyList.vue'
 import WebProxyEditor from '@/doc-editors/WebProxyEditor.vue'
 import SslList from '@/views/SslList.vue'
 import SslEditor from '@/doc-editors/SslEditor.vue'
+import BackendServiceList from '@/views/BackendServiceList.vue'
+import BackendServiceEditor from '@/doc-editors/BackendServiceEditor.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -69,6 +72,7 @@ const routes: Array<RouteRecordRaw> = [
           },
         ],
       },
+      {path: 'quarantined', name: 'Quarantined', component: QuarantinedList},
       {path: 'CurieDB', name: 'CurieDBEditor', component: CurieDBEditor},
       {
         path: 'web-proxy',
@@ -152,6 +156,23 @@ const routes: Array<RouteRecordRaw> = [
             path: 'config/:doc_id',
             name: 'SSL/config',
             component: SslEditor,
+          }
+        ]
+      },
+      {
+        path: 'backend-services',
+        name: 'BackendServices',
+        redirect: '/backend-services/list',
+        children: [
+          {
+            path: 'list',
+            name: 'BackendServices/list',
+            component: BackendServiceList,
+          },
+          {
+            path: 'config/:doc_id',
+            name: 'BackendServices/config',
+            component: BackendServiceEditor,
           },
         ],
       },

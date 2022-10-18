@@ -179,7 +179,7 @@
                           {{ location.path }}
                         </td>
                         <td class="ellipsis">
-                          {{ referencedDocName(this.backendServicesNames, location.backend_id) }}
+                          {{ referencedDocName(backendServicesNames, location.backend_id) }}
                         </td>
                         <td>
                           <span v-for="cloudFunction in location.cloud_functions"
@@ -594,32 +594,3 @@ export default defineComponent({
   },
 })
 </script>
-<style scoped
-       lang="scss">
-.collapsible {
-  cursor: pointer;
-  display: flex;
-  flex-direction: row;
-  justify-items: center;
-}
-
-.collapsible-card {
-  border: 1px solid #fff;
-}
-
-.collapsible-card:hover {
-  border: 1px solid #b5b5b5;
-}
-
-.card.collapsed .collapsible-content {
-  display: none;
-}
-
-.rbz-content .collapsed .media {
-  margin: 0;
-}
-
-.collapsible .fa-angle-down {
-  align-self: center;
-}
-</style>

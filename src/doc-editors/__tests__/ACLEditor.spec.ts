@@ -19,7 +19,7 @@ describe('ACLEditor.vue', () => {
         'id': '__default__',
         'name': 'default-acl',
         'description': 'New ACL Profile Description and Remarks',
-        'action': 'default',
+        'action': 'monitor',
         'tags': ['test', 'tag'],
         'allow': [],
         'allow_bot': [

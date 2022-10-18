@@ -194,7 +194,7 @@
                                         :title="limitDetails(limitId).name">
                                       {{ limitDetails(limitId).name }}
                                     </td>
-                                    <td class="width-220px ellipsis rate-limit-description"
+                                    <td class="is-size-7 width-200px ellipsis rate-limit-description"
                                         v-if="limitDetails(limitId)"
                                         :title="limitDetails(limitId).description">
                                       {{ limitDetails(limitId).description }}
@@ -263,89 +263,89 @@
                             </div>
                           </div>
                           <div class="column is-4">
-                            <div class="field">
-                              <label class="label is-small">Content Filter Profile</label>
-                              <div class="control is-expanded">
-                                <div class="select is-fullwidth is-small">
-                                  <select v-model="mapEntry.content_filter_profile"
-                                          @change="emitDocUpdate"
-                                          data-qa="content-filter-dropdown"
-                                          class="current-entry-content-filter-selection"
-                                          title="Content Filter profile">
-                                    <option v-for="contentfilter in contentFilterProfileNames"
-                                            :value="contentfilter[0]"
-                                            :key="contentfilter[0]">
-                                      {{ contentfilter[1] }}
-                                    </option>
-                                  </select>
+                              <div class="field">
+                                <label class="label is-small">Content Filter Profile</label>
+                                <div class="control is-expanded">
+                                  <div class="select is-fullwidth is-small">
+                                    <select v-model="mapEntry.content_filter_profile"
+                                            @change="emitDocUpdate"
+                                            data-qa="content-filter-dropdown"
+                                            class="current-entry-content-filter-selection"
+                                            title="Content Filter profile">
+                                      <option v-for="contentfilter in contentFilterProfileNames"
+                                              :value="contentfilter[0]"
+                                              :key="contentfilter[0]">
+                                        {{ contentfilter[1] }}
+                                      </option>
+                                    </select>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                            <div class="field">
-                              <label class="checkbox is-size-7">
-                                <input type="checkbox"
-                                       @change="emitDocUpdate"
-                                       data-qa="content-filter-active-checkbox"
-                                       class="current-entry-content-filter-active"
-                                       v-model="mapEntry.content_filter_active">
-                                Active Mode
-                              </label>
-                            </div>
-                            <hr/>
-                            <div class="field">
-                              <label class="label is-small">
-                                ACL Profile
-                              </label>
-                              <div class="control is-expanded">
-                                <div class="select is-fullwidth is-small">
-                                  <select v-model="mapEntry.acl_profile"
-                                          @change="emitDocUpdate"
-                                          data-qa="acl-dropdown"
-                                          class="current-entry-acl-selection"
-                                          title="ACL profile">
-                                    <option v-for="acl in aclProfileNames" :value="acl[0]" :key="acl[0]">
-                                      {{ acl[1] }}
-                                    </option>
-                                  </select>
+                              <div class="field">
+                                <label class="checkbox is-size-7">
+                                  <input type="checkbox"
+                                        @change="emitDocUpdate"
+                                        data-qa="content-filter-active-checkbox"
+                                        class="current-entry-content-filter-active"
+                                        v-model="mapEntry.content_filter_active">
+                                  Active Mode
+                                </label>
+                              </div>
+                              <hr/>
+                              <div class="field">
+                                <label class="label is-small">
+                                  ACL Profile
+                                </label>
+                                <div class="control is-expanded">
+                                  <div class="select is-fullwidth is-small">
+                                    <select v-model="mapEntry.acl_profile"
+                                            @change="emitDocUpdate"
+                                            data-qa="acl-dropdown"
+                                            class="current-entry-acl-selection"
+                                            title="ACL profile">
+                                      <option v-for="acl in aclProfileNames" :value="acl[0]" :key="acl[0]">
+                                        {{ acl[1] }}
+                                      </option>
+                                    </select>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                            <div class="field">
-                              <label class="checkbox is-size-7">
-                                <input type="checkbox"
-                                       @change="emitDocUpdate"
-                                       data-qa="acl-active-checkbox"
-                                       class="current-entry-acl-active"
-                                       v-model="mapEntry.acl_active">
-                                Active Mode
-                              </label>
-                            </div>
-                            <hr/>
-                            <div class="field">
-                              <button title="Create a new profile based on this one"
-                                      data-qa="fork-btn"
-                                      class="button is-small is-pulled-left is-light fork-entry-button"
-                                      @click="addNewProfile(mapEntry, mapIndex)">
-                                <span class="icon"><i class="fas fa-code-branch"></i></span>
-                                <span>
-                                Fork profile
-                              </span>
-                              </button>
-                              <button title="Delete this profile"
-                                      data-qa="delete-location-btn"
-                                      class="button is-small is-pulled-right is-danger is-light remove-entry-button"
-                                      @click="removeMapEntry(mapIndex)"
-                                      v-if="isRemoveEntryEnabled">
-                                Delete
-                              </button>
+                              <div class="field">
+                                <label class="checkbox is-size-7">
+                                  <input type="checkbox"
+                                        @change="emitDocUpdate"
+                                        data-qa="acl-active-checkbox"
+                                        class="current-entry-acl-active"
+                                        v-model="mapEntry.acl_active">
+                                  Active Mode
+                                </label>
+                              </div>
+                              <hr/>
+                              <div class="field">
+                                <button title="Create a new profile based on this one"
+                                        data-qa="fork-btn"
+                                        class="button is-small is-pulled-left is-light fork-entry-button"
+                                        @click="addNewProfile(mapEntry, mapIndex)">
+                                  <span class="icon"><i class="fas fa-code-branch"></i></span>
+                                  <span>
+                                  Fork profile
+                                </span>
+                                </button>
+                                <button title="Delete this profile"
+                                        data-qa="delete-location-btn"
+                                        class="button is-small is-pulled-right is-danger is-light remove-entry-button"
+                                        @click="removeMapEntry(mapIndex)"
+                                        v-if="isRemoveEntryEnabled">
+                                  Delete
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </td>
-              </tr>
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>

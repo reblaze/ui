@@ -14,6 +14,10 @@ module.exports = {
         pathRewrite: {'^/reblaze/api': '/api'},
         target: 'http://localhost:8911',
       },
+      '^/datalayer/api': {
+        pathRewrite: {'^/datalayer/api': '/api'},
+        target: 'http://localhost:8911',
+      },
     },
   },
   transpileDependencies: true,

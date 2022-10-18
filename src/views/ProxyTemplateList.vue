@@ -47,8 +47,8 @@
                          :show-filter-button="true"
                          :show-new-button="true"
                          @new-button-clicked="addNewProxyTemplate"
-                         :show-edit-button="true"
-                         @edit-button-clicked="editProxyTemplate">
+                         :show-row-button="true"
+                         @row-button-clicked="editProxyTemplate">
               </rbz-table>
               <span class="is-family-monospace has-text-grey-lighter">
                 {{ documentListAPIPath }}
@@ -186,7 +186,7 @@ export default defineComponent({
     async loadProxyTemplates() {
       const url = `configs/${this.selectedBranch}/d/proxy-templates/`
       const response = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
-      this.proxyTemplates = _.values(response?.data)
+      this.proxyTemplates = response?.data
     },
 
     async loadConfigs() {

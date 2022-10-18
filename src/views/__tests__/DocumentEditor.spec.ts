@@ -160,7 +160,7 @@ describe('DocumentEditor.vue', () => {
       {
         'id': '__default__',
         'name': 'default-acl',
-        'action': 'default',
+        'action': 'monitor',
         'allow': [],
         'allow_bot': [
           'google',
@@ -179,7 +179,7 @@ describe('DocumentEditor.vue', () => {
       {
         'id': '5828321c37e0',
         'name': 'an ACL',
-        'action': 'default',
+        'action': 'monitor',
         'allow': [],
         'allow_bot': [
           'google',
@@ -655,7 +655,7 @@ describe('DocumentEditor.vue', () => {
             'args': {},
           },
         ],
-        'action': 'default',
+        'action': 'monitor',
         'timeframe': 60,
         'id': 'c03dabe4b9ca',
       },
@@ -690,7 +690,7 @@ describe('DocumentEditor.vue', () => {
             'args': {},
           },
         ],
-        'action': 'default',
+        'action': 'monitor',
         'timeframe': 60,
         'id': '4435d797ab0c',
       },
@@ -751,7 +751,7 @@ describe('DocumentEditor.vue', () => {
       'thresholds': [
         {
           'limit': '5',
-          'action': 'default',
+          'action': 'monitor',
         },
       ],
       'include': ['badpeople'],
@@ -2055,8 +2055,10 @@ describe('DocumentEditor.vue', () => {
       jest.spyOn(axios, 'put').mockImplementation(() => new Promise(() => {
       }))
       const saveDocumentButton = wrapper.find('.save-document-button')
-      await saveDocumentButton.trigger('click')
-      expect(saveDocumentButton.element.classList).toContain('is-loading')
+      saveDocumentButton.trigger('click')
+      await nextTick()
+      expect(wrapper.vm.isSaveLoading).toBeTruthy()
+      expect(Object.values(saveDocumentButton.element.classList)).toContain('is-loading')
     })
 
     test('should display loading indicator when forking document', async () => {

@@ -79,7 +79,7 @@
           <input class="input is-small filter-input"
                  :title="col.title"
                  :placeholder="col.title"
-                 v-model="filter[col.fieldNames.join(', ')]"
+                 v-model="filter[col.title]"
                  @change="currentPage = 1"/>
           <span class="icon is-small is-right">
             <i class="fa fa-filter"
@@ -109,16 +109,14 @@
           </span>
         </div>
       </td>
-      <td class="is-size-7"
-          v-if="showMenuColumn">
+      <td class="is-size-7" v-if="showMenuColumn">
         <div class="field is-grouped is-grouped-centered">
-          <p class="control"
-             v-if="showEditButton">
-            <button title="Edit"
-                    class="button is-small edit-entity-button"
-                    @click="editButtonClicked(row.id)">
+          <p class="control" v-if="showRowButton">
+            <button :title="rowButtonTitle"
+                    class="button is-small row-entity-button"
+                    @click="rowButtonClicked(row.id)">
               <span class="icon is-small">
-                <i class="fas fa-edit"></i>
+                <i :class="`fas ${rowButtonIcon ? rowButtonIcon : 'fa-edit'}`"></i>
               </span>
             </button>
           </p>
@@ -159,7 +157,9 @@ export default defineComponent({
     showMenuColumn: Boolean,
     showFilterButton: Boolean,
     showNewButton: Boolean,
-    showEditButton: Boolean,
+    showRowButton: Boolean,
+    rowButtonTitle: String,
+    rowButtonIcon: String,
     rowsPerPage: {
       type: Number,
       default: 10,
@@ -200,7 +200,7 @@ export default defineComponent({
       loadingCounter: 0,
     }
   },
-  emits: ['new-button-clicked', 'edit-button-clicked'],
+  emits: ['new-button-clicked', 'row-button-clicked'],
   computed: {
     dataArrayDisplay() {
       if (!this.data?.length) {
@@ -213,14 +213,14 @@ export default defineComponent({
             keys,
             (match: boolean, key: string) => {
               let getFilterValue: (item: any) => string
-              const columnOption = this.columns.find((column) => {
-                return column.fieldNames.join(', ') === key
+              const filterColumn = this.columns.find((column) => {
+                return column.title === key
               })
-              if (columnOption.displayFunction) {
-                getFilterValue = columnOption.displayFunction
+              if (filterColumn.displayFunction) {
+                getFilterValue = filterColumn.displayFunction
               } else {
-                getFilterValue = (item: any) => {
-                  return item[key]?.toString() || ''
+                getFilterValue = (item: GenericObject) => {
+                  return item[filterColumn?.fieldNames[0]]?.toString() || ''
                 }
               }
               return (match && getFilterValue(item).toLowerCase().includes(this.filter[key].toLowerCase()))
@@ -268,8 +268,8 @@ export default defineComponent({
       this.$emit('new-button-clicked')
     },
 
-    editButtonClicked(id: string) {
-      this.$emit('edit-button-clicked', id)
+    rowButtonClicked(id: string) {
+      this.$emit('row-button-clicked', id)
     },
 
     sortColumn(column: ColumnOptions) {
@@ -380,7 +380,7 @@ export default defineComponent({
 
 .rbz-table .filter-toggle,
 .rbz-table .new-entity-button,
-.rbz-table .edit-entity-button {
+.rbz-table .row-entity-button {
   background: transparent;
   border-color: transparent;
   color: initial;
