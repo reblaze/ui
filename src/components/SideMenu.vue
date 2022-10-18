@@ -90,6 +90,9 @@ export default defineComponent({
           '/CurieDB': {
             title: 'CurieDB',
           },
+          '/ssl': {
+            title: 'SSL',
+          },
           '/web-proxy': {
             title: 'Web Proxy',
           },

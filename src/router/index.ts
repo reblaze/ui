@@ -14,6 +14,8 @@ import ProxyTemplateList from '@/views/ProxyTemplateList.vue'
 import ProxyTemplateEditor from '@/doc-editors/ProxyTemplateEditor.vue'
 import WebProxyList from '@/views/WebProxyList.vue'
 import WebProxyEditor from '@/doc-editors/WebProxyEditor.vue'
+import SslList from '@/views/SslList.vue'
+import SslEditor from '@/doc-editors/SslEditor.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -133,6 +135,23 @@ const routes: Array<RouteRecordRaw> = [
             path: 'config/:doc_id',
             name: 'ProxyTemplates/config',
             component: ProxyTemplateEditor,
+          },
+        ],
+      },
+      {
+        path: 'ssl',
+        name: 'SSL',
+        redirect: '/ssl/list',
+        children: [
+          {
+            path: 'list',
+            name: 'SSL/list',
+            component: SslList,
+          },
+          {
+            path: 'config/:doc_id',
+            name: 'SSL/config',
+            component: SslEditor,
           },
         ],
       },
