@@ -267,7 +267,6 @@ export default defineComponent({
       const response = await RequestsUtils.sendRequest({
         methodName: 'GET',
         url: 'configs/',
-        config: {headers: {'x-fields': 'id'}},
       })
       this.configs = response?.data || []
       if (!activeBranch) {
