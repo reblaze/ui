@@ -254,7 +254,7 @@
                       </td>
                     </tr>
                     <tr v-if="newEntrySectionIndex !== sequenceIndex">
-                      <td>
+                      <td colspan="5">
                         <a class="is-size-7 has-text-grey-lighter add-button add-entry-button"
                            data-qa="add-new-row-btn"
                            title="add new row"
@@ -273,8 +273,6 @@
                            @keypress.space="removeSequenceItem(sequenceIndex)"
                            @keypress.enter="removeSequenceItem(sequenceIndex)">
                           <i class="fas fa-trash"></i></a>
-                      </td>
-                      <td colspan="4">
                       </td>
                     </tr>
                     <tr v-if="newEntrySectionIndex === sequenceIndex"

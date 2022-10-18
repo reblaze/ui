@@ -1,12 +1,16 @@
 <template>
 
   <aside class="menu mt-3">
-    <div v-for="(sectionItems, sectionTitle) in menuItems" :key="sectionTitle" class="menu-item">
+    <div v-for="(sectionItems, sectionTitle) in menuItems"
+         :key="sectionTitle"
+         class="menu-item">
       <p class="menu-label">
         {{ sectionTitle }}
       </p>
       <ul class="menu-list">
-        <li v-for="(menuItemDetails, menuItemKey) in sectionItems" :key="menuItemKey" class="section-item">
+        <li v-for="(menuItemDetails, menuItemKey) in sectionItems"
+            :key="menuItemKey"
+            class="section-item">
           <a v-if="menuItemDetails.external"
              :data-qa="menuItemDetails.title"
              :data-curie="menuItemKey"
@@ -23,7 +27,8 @@
           </router-link>
           <ul v-if="menuItemDetails.items"
               class="my-0">
-            <li v-for="(menuSubItemDetails, menuSubItemKey) in menuItemDetails.items" :key="menuSubItemKey">
+            <li v-for="(menuSubItemDetails, menuSubItemKey) in menuItemDetails.items"
+                :key="menuSubItemKey">
               <router-link :data-curie="menuSubItemKey"
                            :to="menuItemKey + menuSubItemKey.toString()"
                            :class="{ 'is-active': currentRoutePath.includes(menuSubItemKey.toString()) }">
@@ -175,7 +180,11 @@ export default defineComponent({
     },
 
     async loadBranches() {
-      const response = await RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'})
+      const response = await RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: 'configs/',
+        config: {headers: {'x-fields': 'id'}},
+      })
       const branchId = response?.data?.[0]?.id || 'undefined'
       const items = this.menuItems.settings['/list'].items // reference
       items[`/${branchId}/globalfilters`] = {title: 'Global Filters'} as menuItem
@@ -197,7 +206,8 @@ export default defineComponent({
   },
 })
 </script>
-<style scoped lang="scss">
+<style scoped
+       lang="scss">
 .menu-item {
   margin-top: 1.5rem;
 
