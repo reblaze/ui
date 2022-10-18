@@ -13,22 +13,6 @@
         <div class="col-md-12">
           <div class="panel panel-default leading">
             <div class="panel-heading">
-              <h4 class="panel-title">User Manual</h4>
-            </div>
-            <div class="panel-body">
-              <a href="https://gb.docs.reblaze.com/v/v2.20.1/" target="_blank">User Manual (external)</a>
-            </div>
-          </div>
-          <div class="panel panel-default leading">
-            <div class="panel-heading">
-              <h4 class="panel-title">Access Log Structure</h4>
-            </div>
-            <div class="panel-body">
-              <a target="_blank" href="https://docs.google.com/document/d/107n75EVxcbwI87E2CaLL-UPu6IlpPlD2wJ-8fjCBpKI/edit?usp=sharing">Log file structure / description.</a>
-            </div>
-          </div>
-          <div class="panel panel-default leading">
-            <div class="panel-heading">
               <h4 class="panel-title title">Contact Your Support Team</h4>
             </div>
             <div class="panel-body">
