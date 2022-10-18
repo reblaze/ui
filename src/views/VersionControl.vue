@@ -6,9 +6,10 @@
           <div class="columns">
             <div class="column">
               <div class="field is-grouped">
-                <div class="control" v-if="branchNames.length">
+                <div class="control"
+                     v-if="branchNames.length">
                   <div class="select is-small"
-                          data-qa="branch-selection">
+                       data-qa="branch-selection">
                     <select v-model="selectedBranch"
                             title="Switch Branch"
                             @change="switchBranch()"
@@ -48,14 +49,15 @@
               </div>
             </div>
 
-            <div class="column" v-if="branches">
+            <div class="column"
+                 v-if="branches">
               <div class="field is-grouped is-pulled-right">
 
                 <p class="control">
                   <span class="field has-addons">
                     <span class="control">
                       <button class="button is-small fork-branch-toggle"
-                                    data-qa="fork-branch-btn"
+                              data-qa="fork-branch-btn"
                               @click="toggleBranchFork()">
                         <span class="icon is-small">
                           <i class="fas fa-code-branch"></i>
@@ -72,7 +74,8 @@
                              v-model="forkBranchName"
                              type="text">
                     </span>
-                    <span class="control" v-if="forkBranchInputOpen">
+                    <span class="control"
+                          v-if="forkBranchInputOpen">
                       <button class="button is-danger is-small fork-branch-cancel"
                               data-qa="cancel-branch-fork-btn"
                               @click="toggleBranchFork">
@@ -81,7 +84,8 @@
                         </span>
                       </button>
                     </span>
-                    <span class="control" v-if="forkBranchInputOpen">
+                    <span class="control"
+                          v-if="forkBranchInputOpen">
                       <button class="button is-primary is-small fork-branch-confirm"
                               data-qa="confirm-branch-fork-btn"
                               @click="forkBranch"
@@ -126,16 +130,18 @@
                              v-model="deleteBranchName"
                              type="text">
                     </span>
-                    <span class="control" v-if="deleteBranchInputOpen">
+                    <span class="control"
+                          v-if="deleteBranchInputOpen">
                       <button class="button is-danger is-small delete-branch-cancel"
-                                     data-qa="cancel-delete-branch-btn"
+                              data-qa="cancel-delete-branch-btn"
                               @click="toggleBranchDelete">
                         <span class="icon is-small">
                           <i class="fas fa-times"></i>
                         </span>
                       </button>
                     </span>
-                    <span class="control" v-if="deleteBranchInputOpen">
+                    <span class="control"
+                          v-if="deleteBranchInputOpen">
                       <button class="button is-primary is-small delete-branch-confirm"
                               data-qa="confirm-delete-branch-btn"
                               @click="deleteBranch"
@@ -258,7 +264,11 @@ export default defineComponent({
     },
 
     async loadConfigs(activeBranch?: string) {
-      const response = await RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'})
+      const response = await RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: 'configs/',
+        config: {headers: {'x-fields': 'id'}},
+      })
       this.configs = response?.data || []
       if (!activeBranch) {
         // pick first branch name as selected if not given active branch
@@ -373,5 +383,6 @@ export default defineComponent({
 
 })
 </script>
-<style scoped lang="scss">
+<style scoped
+       lang="scss">
 </style>

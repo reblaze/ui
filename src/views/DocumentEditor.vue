@@ -16,7 +16,8 @@
                     </span>
                   </button>
                 </p>
-                <div class="control" v-if="branchNames.length">
+                <div class="control"
+                     v-if="branchNames.length">
                   <div class="select is-small">
                     <select v-model="selectedBranch"
                             data-qa="policies-switch-branch"
@@ -471,7 +472,11 @@ export default defineComponent({
     async loadConfigs(counterOnly?: boolean) {
       let configs
       try {
-        const response = await RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'})
+        const response = await RequestsUtils.sendRequest({
+          methodName: 'GET',
+          url: 'configs/',
+          config: {headers: {'x-fields': 'id'}},
+        })
         configs = response.data
       } catch (err) {
         console.log('Error while attempting to get configs')

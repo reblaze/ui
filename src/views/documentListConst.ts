@@ -3,10 +3,13 @@ import {
   CloudFunction,
   ColumnOptionsMap,
   ContentFilterProfile,
-  ContentFilterRule, CustomResponse,
+  ContentFilterRule,
+  CustomResponse,
   FlowControlPolicy,
   GlobalFilter,
-  RateLimit, SecurityPolicy, SecurityPolicyEntryMatch,
+  RateLimit,
+  SecurityPolicy,
+  SecurityPolicyEntryMatch,
 } from '@/types'
 import _ from 'lodash'
 import DatasetsUtils from '@/assets/DatasetsUtils'
@@ -68,6 +71,16 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       isSortable: true,
       isSearchable: true,
       classes: 'ellipsis',
+    },
+    {
+      title: 'Tags',
+      fieldNames: ['tags'],
+      displayFunction: (item: FlowControlPolicy) => {
+        return item?.tags?.join('\n')
+      },
+      isSortable: false,
+      isSearchable: true,
+      classes: 'width-100px white-space-pre ellipsis',
     },
     {
       title: 'Sequences',
@@ -154,6 +167,16 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       classes: 'ellipsis',
     },
     {
+      title: 'Tags',
+      fieldNames: ['tags'],
+      displayFunction: (item: RateLimit) => {
+        return item?.tags?.join('\n')
+      },
+      isSortable: false,
+      isSearchable: true,
+      classes: 'width-100px white-space-pre ellipsis',
+    },
+    {
       title: 'Timeframe',
       fieldNames: ['timeframe'],
       isSortable: true,
@@ -161,10 +184,10 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       classes: 'width-100px',
     },
     {
-      title: 'Limits',
+      title: 'Thresholds',
       fieldNames: ['thresholds'],
       displayFunction: (item: RateLimit) => {
-        return _.map(item.thresholds, 'limit').join('\n')
+        return _.map(item.thresholds, 'limit').join(', ')
       },
       isSortable: true,
       isSearchable: true,
@@ -202,18 +225,11 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
     },
     {
       title: 'Tags',
-      fieldNames: ['force_deny', 'passthrough', 'allow_bot', 'deny_bot', 'allow', 'deny'],
+      fieldNames: ['tags'],
       displayFunction: (item: ACLProfile) => {
-        return _.concat(
-          item['force_deny'],
-          item['passthrough'],
-          item['allow_bot'],
-          item['deny_bot'],
-          item['allow'],
-          item['deny'],
-        )?.join('\n')
+        return item?.tags?.join('\n')
       },
-      isSortable: true,
+      isSortable: false,
       isSearchable: true,
       classes: 'width-100px white-space-pre ellipsis',
     },
@@ -268,6 +284,16 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       isSortable: true,
       isSearchable: true,
       classes: 'ellipsis',
+    },
+    {
+      title: 'Tags',
+      fieldNames: ['tags'],
+      displayFunction: (item: ContentFilterProfile) => {
+        return item?.tags?.join('\n')
+      },
+      isSortable: false,
+      isSearchable: true,
+      classes: 'width-100px white-space-pre ellipsis',
     },
     {
       title: 'Restrict Content Type',

@@ -161,39 +161,12 @@ describe('DocumentList.vue', () => {
       {
         'id': '__default__',
         'name': 'default-acl',
-        'allow': [],
-        'allow_bot': [
-          'google',
-        ],
-        'deny_bot': [],
-        'passthrough': [
-          'internal',
-        ],
-        'deny': [
-          'tor',
-        ],
-        'force_deny': [
-          'china',
-        ],
+        'tags': ['google', 'china'],
       },
       {
         'id': '5828321c37e0',
         'name': 'an ACL',
-        'allow': [],
-        'allow_bot': [
-          'google',
-          'yahoo',
-        ],
-        'deny_bot': [],
-        'passthrough': [
-          'devops',
-        ],
-        'deny': [
-          'tor',
-        ],
-        'force_deny': [
-          'iran',
-        ],
+        'tags': ['google', 'yahoo', 'devops'],
       },
     ]
     aclDocsLogs = [
@@ -506,38 +479,12 @@ describe('DocumentList.vue', () => {
       {
         'id': '__default__',
         'name': 'default-acl',
-        'allow': [],
-        'allow_bot': [
-          'google',
-        ],
-        'deny_bot': [],
-        'passthrough': [
-          'internal',
-        ],
-        'deny': [
-          'tor',
-        ],
-        'force_deny': [
-          'china',
-        ],
+        'tags': ['google', 'china'],
       },
       {
         'id': '5828321c37e0',
         'name': 'copy of default-acl',
-        'allow': [],
-        'allow_bot': [
-          'google',
-        ],
-        'deny_bot': [],
-        'passthrough': [
-          'internal',
-        ],
-        'deny': [
-          'tor',
-        ],
-        'force_deny': [
-          'china',
-        ],
+        'tags': ['google', 'china', 'devops'],
       },
     ]
     globalFilterDocs = [
