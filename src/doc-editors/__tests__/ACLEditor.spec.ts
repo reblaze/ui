@@ -209,5 +209,12 @@ describe('ACLEditor.vue', () => {
       const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
       expect(tagAutocompleteInput.props('initialTag')).toEqual('')
     })
+
+    test('should have an automatic tags with id number', () => {
+      const selectedDocID = wrapper.vm.selectedDoc.id
+      const wantedTag = `acl-id:${selectedDocID}`
+      const automaticTag = wrapper.find('.automatic-tag')
+      expect(automaticTag.element.title).toEqual(wantedTag)
+    })
   })
 })

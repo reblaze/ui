@@ -85,6 +85,7 @@
                               class="document-action-selection"
                               title="Action">
                           <option v-for="customResponse in customResponseNames"
+                                  class="action-option"
                                   :value="customResponse[0]"
                                   :key="customResponse[0]">
                             {{ customResponse[1] }}

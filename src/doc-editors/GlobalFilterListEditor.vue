@@ -291,9 +291,11 @@ export default defineComponent({
 
     automaticTags(): string {
       const rule = this.localDoc
-      const ruleTag = `cf-rule-id:${rule.id?.replace(/ /g, '-') || ''}`
+      const ruleTag = `gf-rule-id:${rule.id?.replace(/ /g, '-') || ''}`
       const ruleTagElement = this.createTagElement(ruleTag)
-      return `${ruleTagElement}`
+      const ruleTagName = `gf-rule-name:${rule.name}`
+      const ruleTagNameElement = this.createTagElement(ruleTagName)
+      return `${ruleTagElement}${ruleTagNameElement}`
     },
   },
 

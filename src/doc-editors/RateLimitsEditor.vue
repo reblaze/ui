@@ -330,9 +330,11 @@ export default defineComponent({
 
     automaticTags(): string {
       const rule = this.localDoc
-      const ruleTag = `cf-rule-id:${rule.id?.replace(/ /g, '-') || ''}`
-      const ruleTagElement = this.createTagElement(ruleTag)
-      return `${ruleTagElement}`
+      const ruleTagId = `rl-rule-id:${rule.id?.replace(/ /g, '-') || ''}`
+      const ruleTagIdElement = this.createTagElement(ruleTagId)
+      const ruleTagName = `rl-rule-name:${rule.name}`
+      const ruleTagNameElement = this.createTagElement(ruleTagName)
+      return `${ruleTagIdElement}${ruleTagNameElement}`
     },
   },
   emits: ['update:selectedDoc', 'go-to-route'],

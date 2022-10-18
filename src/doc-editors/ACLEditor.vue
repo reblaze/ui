@@ -193,16 +193,12 @@ export default defineComponent({
       },
     },
     automaticTags(): string {
-      const rule = this.localDoc
-      const ruleTag = `cf-rule-id:${rule.id?.replace(/ /g, '-') || ''}`
-      const ruleTagElement = this.createTagElement(ruleTag)
-      // const riskTag = `cf-rule-risk:${rule.risk}`
-      // const riskTagElement = this.createTagElement(riskTag)
-      // const categoryTag = `cf-rule-category:${rule.category?.replace(/ /g, '-') || ''}`
-      // const categoryTagElement = this.createTagElement(categoryTag)
-      // const subcategoryTag = `cf-rule-subcategory:${rule.subcategory?.replace(/ /g, '-') || ''}`
-      // const subcategoryTagElement = this.createTagElement(subcategoryTag)
-      return `${ruleTagElement}` // ${riskTagElement}${categoryTagElement}${subcategoryTagElement}`
+      const tag = this.localDoc
+      const aclTag = `acl-id:${tag.id?.replace(/ /g, '-') || ''}`
+      const aclTagElement = this.createTagElement(aclTag)
+      const aclName = `acl-name:${tag.name}`
+      const aclNameElement = this.createTagElement(aclName)
+      return `${aclTagElement}${aclNameElement}`
     },
   },
   methods: {

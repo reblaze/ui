@@ -5,7 +5,7 @@ import {shallowMount, VueWrapper} from '@vue/test-utils'
 import {DynamicRule, GlobalFilter, CustomResponse} from '@/types'
 import axios from 'axios'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
-
+import {nextTick} from 'vue'
 
 jest.mock('axios')
 
@@ -21,6 +21,7 @@ describe('DynamicRulesEditor.vue', () => {
       'id': 'abc123',
       'name': 'New Dynamic Rules',
       'description': 'New Dynamic Rules Description and Remarks',
+      'active': true,
       'timeframe': 180,
       'threshold': 9999,
       'include': ['all'],
@@ -142,6 +143,24 @@ describe('DynamicRulesEditor.vue', () => {
       expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
       expect(wrapper.emitted('update:selectedDoc')[0][0].description).toContain(newDesciption)
     })
+
+    test('should load the right select action options', () => {
+      const selectActionDropdown = wrapper.find('.document-action-selection')
+      selectActionDropdown.trigger('click')
+      const firstActionOption = wrapper.find('.action-option')
+      expect(firstActionOption.element.value).toEqual('default')
+    })
+
+    test('should emit active to localDoc and localGlobalFilterDoc', async () => {
+      const activeCheckbox = wrapper.find('.document-active')
+      await activeCheckbox.trigger('click')
+      wrapper.vm.$forceUpdate()
+      await nextTick()
+      console.log('wrapper.vm.localGlobalFilterDoc.active', wrapper.vm.localGlobalFilterDoc.active)
+      console.log('wrapper.vm.localDoc.active', wrapper.vm.localDoc.active)
+      expect(wrapper.vm.localGlobalFilterDoc.active).toEqual(wrapper.vm.localDoc.active)
+      expect(wrapper.emitted('update:selectedDocMatchingGlobalFilter')).toBeTruthy()
+    })
   })
 
   describe('tags', () => {
@@ -180,6 +199,22 @@ describe('DynamicRulesEditor.vue', () => {
       // add first
       const tagAutocompleteInput = wrapper.findAllComponents(TagAutocompleteInput).at(0)
       tagAutocompleteInput.vm.$emit('tag-changed', newTagInputValue)
+      expect(wrapper.emitted('update:selectedDocMatchingGlobalFilter')[0]).toEqual([wantedEmit])
+    })
+
+    test('should have an automatic tags with id number', () => {
+      const selectedDocID = wrapper.vm.selectedDoc.id
+      const wantedTag = `cf-rule-id:${selectedDocID}`
+      const automaticTag = wrapper.find('.automatic-tag')
+      expect(automaticTag.element.title).toEqual(wantedTag)
+    })
+
+    test('should have an empty string when tags array is empty', () => {
+      const wantedEmit = JSON.parse(JSON.stringify(globalFilterMatchingDoc[0]))
+      wantedEmit.tags = []
+      const wantedTag = ''
+      const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+      tagAutocompleteInput.vm.$emit('tag-changed', wantedTag)
       expect(wrapper.emitted('update:selectedDocMatchingGlobalFilter')[0]).toEqual([wantedEmit])
     })
   })

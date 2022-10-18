@@ -432,10 +432,13 @@ export default defineComponent({
       },
     },
     automaticTags(): string {
-      const rule = this.localDoc
-      const ruleTag = `cf-rule-id:${rule.id?.replace(/ /g, '-') || ''}`
-      const ruleTagElement = this.createTagElement(ruleTag)
-      return `${ruleTagElement}`
+      const tag = this.localDoc
+      // TODO
+      const flowControlTagId = `fc-id:${tag.id?.replace(/ /g, '-') || ''}`
+      const flowControlTagIdElement = this.createTagElement(flowControlTagId)
+      const flowControlTagName = `fc-name:${tag.name}`
+      const flowControlTagNameElement = this.createTagElement(flowControlTagName)
+      return `${flowControlTagIdElement}${flowControlTagNameElement}`
     },
   },
 

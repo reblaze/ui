@@ -802,16 +802,12 @@ export default defineComponent({
     },
 
     automaticTags(): string {
-      const rule = this.localDoc
-      const ruleTag = `cf-rule-id:${rule.id?.replace(/ /g, '-') || ''}`
-      const ruleTagElement = this.createTagElement(ruleTag)
-      // const riskTag = `cf-rule-risk:${rule.risk}`
-      // const riskTagElement = this.createTagElement(riskTag)
-      // const categoryTag = `cf-rule-category:${rule.category?.replace(/ /g, '-') || ''}`
-      // const categoryTagElement = this.createTagElement(categoryTag)
-      // const subcategoryTag = `cf-rule-subcategory:${rule.subcategory?.replace(/ /g, '-') || ''}`
-      // const subcategoryTagElement = this.createTagElement(subcategoryTag)
-      return `${ruleTagElement}`
+      const tag = this.localDoc
+      const profileTagId = `cf-profile-id:${tag.id?.replace(/ /g, '-') || ''}`
+      const profileTagIdElement = this.createTagElement(profileTagId)
+      const profileTagName = `cf-profile-name:${tag.name}`
+      const profileTagNameElement = this.createTagElement(profileTagName)
+      return `${profileTagIdElement}${profileTagNameElement}`
     },
   },
 
