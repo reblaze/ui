@@ -6,7 +6,8 @@
           <div class="columns">
             <div class="column is-4">
               <div class="field is-grouped">
-                <div class="control" v-if="branchNames.length">
+                <div class="control"
+                     v-if="branchNames.length">
                   <div class="select is-small">
                     <select v-model="selectedBranchName"
                             class="branch-selection"
@@ -57,7 +58,8 @@
         <div class="columns">
           <div class="column">
             <p class="title is-6 is-expanded">Version History</p>
-            <table class="table" v-if="gitLog && gitLog.length > 0">
+            <table class="table"
+                   v-if="gitLog && gitLog.length > 0">
               <tbody>
               <tr @click="selectCommit(commit)"
                   class="commit-row"
@@ -94,7 +96,8 @@
           </div>
           <div class="column">
             <p class="title is-6 is-expanded">Target Buckets</p>
-            <table class="table" v-if="gitLog && gitLog.length > 0">
+            <table class="table"
+                   v-if="gitLog && gitLog.length > 0">
               <tbody>
               <tr
                   v-for="bucket in buckets"
@@ -116,10 +119,12 @@
                 </td>
                 <td class="is-size-7">
                   {{ bucket.url }}
-                  <p class="has-text-danger" v-if="bucket.publishStatus && !bucket.publishStatus.ok">
+                  <p class="has-text-danger"
+                     v-if="bucket.publishStatus && !bucket.publishStatus.ok">
                     Error publishing to this bucket: {{ bucket.publishStatus.message }}!
                   </p>
-                  <p class="has-text-success" v-if="bucket.publishStatus && bucket.publishStatus.ok">
+                  <p class="has-text-success"
+                     v-if="bucket.publishStatus && bucket.publishStatus.ok">
                     Publish to this bucket has been done successfully!
                   </p>
                 </td>
@@ -259,8 +264,11 @@ export default defineComponent({
     },
 
     loadConfigs() {
-      // store configs
-      RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'}).then((response: AxiosResponse<Branch[]>) => {
+      RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: 'configs/',
+        config: {headers: {'x-fields': 'id'}},
+      }).then((response: AxiosResponse<Branch[]>) => {
         this.configs = response?.data || []
         if (!this.configs.length) {
           return
@@ -328,7 +336,8 @@ export default defineComponent({
 })
 </script>
 
-<style scoped lang="scss">
+<style scoped
+       lang="scss">
 .marked {
   font-weight: 400;
 }

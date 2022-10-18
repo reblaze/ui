@@ -58,6 +58,16 @@
                          v-model.number="localDoc.timeframe">
                 </div>
               </div>
+              <div class="field">
+                <label class="label is-small">Tags</label>
+                <div class="control"
+                     data-qa="tag-input">
+                  <tag-autocomplete-input :initial-tag="selectedDocTags"
+                                          :selection-type="'multiple'"
+                                          @tag-changed="selectedDocTags = $event">
+                  </tag-autocomplete-input>
+                </div>
+              </div>
               <div class="group-key mb-3">
                 <limit-option v-for="(option, index) in localDoc.key"
                               label-separated-line
@@ -133,13 +143,20 @@
                     <label class="label is-small">
                       Action
                     </label>
-                    <div class="control">
-                      <input class="input is-small document-action"
-                             title="Action"
-                             data-qa="action-input"
-                             placeholder="Action"
-                             @change="emitDocUpdate"
-                             v-model="threshold.action"/>
+                    <div class="control is-expanded">
+                      <div class="select is-fullwidth is-small">
+                        <select v-model="threshold.action"
+                                @change="emitDocUpdate"
+                                data-qa="action-dropdown"
+                                class="threshold-action-selection"
+                                title="Action">
+                          <option v-for="customResponse in customResponseNames"
+                                  :value="customResponse[0]"
+                                  :key="customResponse[0]">
+                            {{ customResponse[1] }}
+                          </option>
+                        </select>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -217,155 +234,12 @@
               </div>
             </div>
           </div>
-          <div>
-            <div class="has-text-left has-text-weight-bold pb-3">Connections to Security Policies</div>
-            <table class="table connected-security-policies-table">
-              <thead>
-              <tr>
-                <th class="is-size-7 width-200px">Name</th>
-                <th class="is-size-7 width-120px">ID</th>
-                <th class="is-size-7 width-300px">Domain Match</th>
-                <th class="is-size-7 width-300px">Entry Match</th>
-                <th class="is-size-7 width-80px has-text-centered">
-                  <a v-if="!newSecurityPolicyConnectionOpened"
-                     class="has-text-grey-dark is-small new-connection-button"
-                     data-qa="attach-to-site-btn"
-                     title="Add new connection"
-                     tabindex="0"
-                     @click="openNewSecurityPolicyConnection"
-                     @keypress.space.prevent
-                     @keypress.space="openNewSecurityPolicyConnection"
-                     @keypress.enter="openNewSecurityPolicyConnection">
-                    <span class="icon is-small"><i class="fas fa-plus"></i></span>
-                  </a>
-                  <a v-else
-                     class="has-text-grey-dark is-small new-connection-button"
-                     data-qa="cancel-attaching-to-site"
-                     title="Cancel adding new connection"
-                     tabindex="0"
-                     @click="closeNewSecurityPolicyConnection"
-                     @keypress.space.prevent
-                     @keypress.space="closeNewSecurityPolicyConnection"
-                     @keypress.enter="closeNewSecurityPolicyConnection">
-                    <span class="icon is-small"><i class="fas fa-minus"></i></span>
-                  </a>
-                </th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr v-if="newSecurityPolicyConnectionOpened"
-                  class="has-background-warning-light new-connection-row">
-                <template v-if="newSecurityPolicyConnections.length > 0">
-                  <td>
-                    <div class="select is-small">
-                      <select v-model="newSecurityPolicyConnectionDataMapId"
-                              @change="newSecurityPolicyConnectionDataChanged()"
-                              class="new-connection-map"
-                              data-qa="site-name-dropdown"
-                              title="Type">
-                        <option v-for="map in newSecurityPolicyConnections" :key="map.id" :value="map.id">
-                          {{ map.name }}
-                        </option>
-                      </select>
-                    </div>
-                  </td>
-                  <td>
-                    {{ newSecurityPolicyConnectionData.map.id }}
-                  </td>
-                  <td>
-                    {{ newSecurityPolicyConnectionData.map.match }}
-                  </td>
-                  <td>
-                    <div class="select is-small">
-                      <select v-model="newSecurityPolicyConnectionData.entryIndex"
-                              class="new-connection-entry-index"
-                              data-qa="site-path-dropdown"
-                              title="Type">
-                        <option v-for="(mapEntry, index) in newSecurityPolicyConnectionEntries"
-                                :key="mapEntry.match"
-                                :value="index">
-                          {{ mapEntry.match }}
-                        </option>
-                      </select>
-                    </div>
-                  </td>
-                  <td class="has-text-centered">
-                    <button title="Add new connection"
-                            data-qa="add-new-connection-btn"
-                            class="button is-light is-small add-new-connection"
-                            @click="addNewSecurityPolicyConnection">
-                      <span class="icon is-small"><i class="fas fa-plus fa-xs"></i></span>
-                    </button>
-                  </td>
-                </template>
-                <template v-else>
-                  <td colspan="5">
-                    All Security Policies entries are currently connected to this Rate Limit
-                  </td>
-                </template>
-              </tr>
-              <tr v-for="(connection, index) in connectedSecurityPoliciesEntries" :key="index">
-                <td class="is-size-7 is-vcentered py-3 width-200px connected-entry-row"
-                    :title="connection[0]">
-                  <a title="Add new"
-                     class="security-policy-referral-button"
-                     @click="referToSecurityPolicy(connection.id)">
-                    {{ connection.name }}
-                  </a>
-                </td>
-                <td class="is-size-7 is-vcentered py-3 width-120px"
-                    :title="connection.id">
-                  {{ connection.id }}
-                </td>
-                <td class="is-size-7 is-vcentered py-3 width-300px"
-                    :title="connection.domainMatch">
-                  {{ connection.domainMatch }}
-                </td>
-                <td class="is-size-7 is-vcentered py-3 width-300px"
-                    :title="connection.entryMatch">
-                  {{ connection.entryMatch }}
-                </td>
-                <td class="is-size-7 is-vcentered width-80px height-50px">
-                    <span v-show="currentEntryDeleteIndex !== index">
-                    <a tabindex="0"
-                       title="Remove connection to the Security Policy"
-                       data-qa="remove-attached-site-btn"
-                       class="is-small has-text-grey remove-connection-button"
-                       @click="setEntryDeleteIndex(index)"
-                       @keypress.space.prevent
-                       @keypress.space="setEntryDeleteIndex(index)"
-                       @keypress.enter="setEntryDeleteIndex(index)">
-                      Remove
-                    </a>
-                    </span>
-                  <span v-show="currentEntryDeleteIndex === index">
-                      <a class="is-size-7 has-text-grey add-button confirm-remove-connection-button"
-                         data-qa="confirm-remove-btn"
-                         title="Confirm"
-                         tabindex="0"
-                         @click="removeSecurityPolicyConnection(connection.id, connection.entryMatch)"
-                         @keypress.space.prevent
-                         @keypress.space="removeSecurityPolicyConnection(connection.id, connection.entryMatch)"
-                         @keypress.enter="removeSecurityPolicyConnection(connection.id, connection.entryMatch)">
-                      <i class="fas fa-check"></i> Confirm
-                    </a>
-                    <br/>
-                    <a class="is-size-7 has-text-grey cancel-remove-connection-button"
-                       data-qa="cancel-remove-btn"
-                       title="Cancel"
-                       tabindex="0"
-                       @click="setEntryDeleteIndex(-1)"
-                       @keypress.space.prevent
-                       @keypress.space="setEntryDeleteIndex(-1)"
-                       @keypress.enter="setEntryDeleteIndex(-1)">
-                      <i class="fas fa-times"></i> Cancel
-                    </a>
-                    </span>
-                </td>
-              </tr>
-              </tbody>
-            </table>
-          </div>
+          <security-policies-connections
+            selectedDocType="ratelimits"
+            :selectedDocId="localDoc.id"
+            @go-to-route="emitGoToRoute"
+            :selectedBranch="selectedBranch">
+          </security-policies-connections>
         </div>
       </div>
     </div>
@@ -376,15 +250,15 @@
 import _ from 'lodash'
 import LimitOption, {OptionObject} from '@/components/LimitOption.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
+import SecurityPoliciesConnections from '@/components/SecurityPoliciesConnections.vue'
 import {defineComponent} from 'vue'
 import {
+  CustomResponse,
   Dictionary,
   IncludeExcludeType,
   LimitOptionType,
   LimitRuleType,
   RateLimit,
-  SecurityPolicy,
-  SecurityPolicyEntryMatch,
   ThresholdActionPair,
 } from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
@@ -394,38 +268,43 @@ import {AxiosResponse} from 'axios'
 export default defineComponent({
   name: 'RateLimits',
   props: {
-    selectedDoc: Object,
     selectedBranch: String,
+    selectedDoc: Object,
     apiPath: String,
   },
   components: {
     LimitOption,
     TagAutocompleteInput,
+    SecurityPoliciesConnections,
   },
   data() {
     return {
       filters: ['include', 'exclude'] as IncludeExcludeType[],
       addNewTagColName: null,
       titles: DatasetsUtils.titles,
-      securityPolicies: [] as SecurityPolicy[],
-      currentEntryDeleteIndex: -1,
-      newSecurityPolicyConnectionData: {
-        map: null,
-        entryIndex: 0,
-      } as {
-        map: SecurityPolicy,
-        entryIndex: number,
-      },
-      newSecurityPolicyConnectionDataMapId: null,
-      newSecurityPolicyConnectionOpened: false,
-      connectedSecurityPoliciesEntries: [],
       keysAreValid: true,
       removable: false,
+      customResponseNames: [] as [CustomResponse['id'], CustomResponse['name']][],
     }
   },
   computed: {
     localDoc(): RateLimit {
       return _.cloneDeep(this.selectedDoc as RateLimit)
+    },
+
+    selectedDocTags: {
+      get: function(): string {
+        if (this.localDoc.tags && this.localDoc.tags.length > 0) {
+          return this.localDoc.tags.join(' ')
+        }
+        return ''
+      },
+      set: function(tags: string): void {
+        this.localDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
+          return tag.trim()
+        }) : []
+        this.emitDocUpdate()
+      },
     },
 
     duplicateTags(): Dictionary<string> {
@@ -444,28 +323,14 @@ export default defineComponent({
         this.emitDocUpdate()
       },
     },
-
-    newSecurityPolicyConnections(): SecurityPolicy[] {
-      return this.securityPolicies.filter((securityPolicy) => {
-        return !securityPolicy.map.every((securityPolicyEntry) => {
-          return securityPolicyEntry.limit_ids.includes(this.localDoc.id)
-        })
-      })
-    },
-
-    newSecurityPolicyConnectionEntries(): SecurityPolicyEntryMatch[] {
-      const securityPolicy = this.newSecurityPolicyConnections.find((securityPolicy) => {
-        return securityPolicy.id === this.newSecurityPolicyConnectionData.map.id
-      })
-      return securityPolicy.map.filter((securityPolicyEntry) => {
-        return !securityPolicyEntry.limit_ids.includes(this.localDoc.id)
-      })
-    },
   },
   emits: ['update:selectedDoc', 'go-to-route'],
   methods: {
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
+    },
+    emitGoToRoute(url: string) {
+      this.$emit('go-to-route', url)
     },
 
     getOptionTextKey(option: LimitOptionType, index: number) {
@@ -542,109 +407,6 @@ export default defineComponent({
       this.eventOption = {[option.type]: option.key}
     },
 
-    getConnectedSecurityPoliciesEntries() {
-      this.connectedSecurityPoliciesEntries = _.sortBy(_.flatMap(_.filter(this.securityPolicies, (securityPolicy) => {
-        return _.some(securityPolicy.map, (mapEntry: SecurityPolicyEntryMatch) => {
-          return mapEntry.limit_ids.includes(this.localDoc.id)
-        })
-      }), (securityPolicy) => {
-        return _.compact(_.map(securityPolicy.map, (mapEntry) => {
-          if (mapEntry.limit_ids.includes(this.localDoc.id)) {
-            return {
-              name: securityPolicy.name,
-              id: securityPolicy.id,
-              domainMatch: securityPolicy.match,
-              entryMatch: mapEntry.match,
-            }
-          } else {
-            return null
-          }
-        }))
-      }))
-    },
-
-    openNewSecurityPolicyConnection() {
-      this.newSecurityPolicyConnectionOpened = true
-      this.newSecurityPolicyConnectionData.map =
-          this.newSecurityPolicyConnections.length > 0 ? this.newSecurityPolicyConnections[0] : null
-      this.newSecurityPolicyConnectionDataMapId = this.newSecurityPolicyConnectionData.map?.id
-      this.newSecurityPolicyConnectionData.entryIndex = 0
-    },
-
-    closeNewSecurityPolicyConnection() {
-      this.newSecurityPolicyConnectionOpened = false
-    },
-
-    newSecurityPolicyConnectionDataChanged() {
-      this.newSecurityPolicyConnectionData.entryIndex = 0
-      this.newSecurityPolicyConnectionData.map = this.newSecurityPolicyConnections.find((connection) => {
-        return connection.id === this.newSecurityPolicyConnectionDataMapId
-      })
-    },
-
-    addNewSecurityPolicyConnection() {
-      const id = this.newSecurityPolicyConnectionData.map.id
-      const entryMatch = this.newSecurityPolicyConnectionEntries[this.newSecurityPolicyConnectionData.entryIndex].match
-      const methodName = 'PUT'
-      const selectedDocType = 'securitypolicies'
-      const urlTrail = `configs/${this.selectedBranch}/d/${selectedDocType}/e/${id}/`
-      const doc = _.find(this.securityPolicies, (securityPolicy) => {
-        return securityPolicy.id === id
-      })
-      const mapEntry = _.find(doc.map, (mapEntry) => {
-        return mapEntry.match === entryMatch
-      })
-      mapEntry.limit_ids.push(this.localDoc.id)
-      this.closeNewSecurityPolicyConnection()
-      const docTypeText = this.titles[selectedDocType + '-singular']
-      const successMessage = `The connection to the ${docTypeText} was added.`
-      const failureMessage = `Failed while attempting to add the connection to the ${docTypeText}.`
-      RequestsUtils.sendRequest({methodName, url: urlTrail, data: doc, successMessage, failureMessage}).then(() => {
-        this.getConnectedSecurityPoliciesEntries()
-      })
-    },
-
-    removeSecurityPolicyConnection(id: SecurityPolicy['id'], entryMatch: SecurityPolicyEntryMatch['match']) {
-      const methodName = 'PUT'
-      const selectedDocType = 'securitypolicies'
-      const urlTrail = `configs/${this.selectedBranch}/d/${selectedDocType}/e/${id}/`
-      const doc = _.find(this.securityPolicies, (securityPolicy) => {
-        return securityPolicy.id === id
-      })
-      const mapEntry = _.find(doc.map, (mapEntry) => {
-        return mapEntry.match === entryMatch
-      })
-      const limitIdIndex = _.findIndex(mapEntry.limit_ids, (rateLimitID) => {
-        return rateLimitID === this.localDoc.id
-      })
-      mapEntry.limit_ids.splice(limitIdIndex, 1)
-      const docTypeText = this.titles[selectedDocType + '-singular']
-      const successMessage = `The connection to the ${docTypeText} was removed.`
-      const failureMessage = `Failed while attempting to remove the connection to the ${docTypeText}.`
-      RequestsUtils.sendRequest({methodName, url: urlTrail, data: doc, successMessage, failureMessage}).then(() => {
-        this.setEntryDeleteIndex(-1)
-        this.getConnectedSecurityPoliciesEntries()
-      })
-    },
-
-    setEntryDeleteIndex(index: number) {
-      this.closeNewSecurityPolicyConnection()
-      this.currentEntryDeleteIndex = index
-    },
-
-    loadSecurityPolicies() {
-      RequestsUtils.sendRequest({
-        methodName: 'GET',
-        url: `configs/${this.selectedBranch}/d/securitypolicies/`,
-      }).then((response: AxiosResponse<SecurityPolicy[]>) => {
-        this.securityPolicies = _.sortBy(response.data)
-        this.getConnectedSecurityPoliciesEntries()
-        this.newSecurityPolicyConnectionData.map =
-            this.newSecurityPolicyConnections.length > 0 ? this.newSecurityPolicyConnections[0] : null
-        this.newSecurityPolicyConnectionDataMapId = this.newSecurityPolicyConnectionData.map?.id
-      })
-    },
-
     addNewTag(section: IncludeExcludeType, entry: string) {
       if (entry && entry.length > 2) {
         this.localDoc[section].push(entry)
@@ -666,24 +428,27 @@ export default defineComponent({
       this.emitDocUpdate()
     },
 
-    referToSecurityPolicy(id: string) {
-      this.$emit('go-to-route', `/config/${this.selectedBranch}/securitypolicies/${id}`)
+    loadCustomResponses() {
+      RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/actions/`,
+        config: {headers: {'x-fields': 'id, name'}},
+      }).then((response: AxiosResponse<CustomResponse[]>) => {
+        this.customResponseNames = _.sortBy(_.map(response.data, (entity) => {
+          return [entity.id, entity.name]
+        }), (e) => {
+          return e[1]
+        })
+      })
     },
   },
-  created() {
-    this.loadSecurityPolicies()
-  },
+
   mounted() {
     this.checkKeysValidity()
   },
-  watch: {
-    selectedDoc: {
-      handler: function() {
-        this.getConnectedSecurityPoliciesEntries()
-      },
-      immediate: true,
-      deep: true,
-    },
+
+  created() {
+    this.loadCustomResponses()
   },
 })
 </script>
@@ -696,12 +461,6 @@ export default defineComponent({
 
 .bar {
   margin: 1rem 0 0.5rem;
-}
-
-.seconds-suffix {
-  input {
-    padding-right: 60px;
-  }
 }
 
 .remove-threshold-option-button {

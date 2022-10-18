@@ -3,7 +3,7 @@ import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
 import LimitOption from '@/components/LimitOption.vue'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {mount, shallowMount, VueWrapper} from '@vue/test-utils'
-import {RateLimit, SecurityPolicy} from '@/types'
+import {CustomResponse, RateLimit, SecurityPolicy} from '@/types'
 import axios from 'axios'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import {nextTick} from 'vue'
@@ -13,6 +13,7 @@ jest.mock('axios')
 describe('RateLimitsEditor.vue', () => {
   let rateLimitsDocs: RateLimit[]
   let securityPoliciesDocs: SecurityPolicy[]
+  let customResponsesDocs: CustomResponse[]
   let mockRouter: any
   let wrapper: VueWrapper
   beforeEach(() => {
@@ -23,13 +24,13 @@ describe('RateLimitsEditor.vue', () => {
       'thresholds': [
         {
           'limit': '5',
-          'action': 'default',
+          'action': 'monitor',
         },
       ],
       'timeframe': '60',
       'include': ['blocklist'],
       'exclude': ['allowlist'],
-      'key': [{'attrs': 'ip'}],
+      'key': [{'attrs': 'securitypolicyid'}, {'attrs': 'securitypolicyentryid'}, {'headers': 'rbzsessionid'}],
       'pairwith': {'self': 'self'},
     }]
     securityPoliciesDocs = [
@@ -84,10 +85,26 @@ describe('RateLimitsEditor.vue', () => {
         ],
       },
     ]
+    customResponsesDocs = [
+      {
+        'id': 'default',
+        'name': 'default blocking action',
+      },
+      {
+        'id': 'monitor',
+        'name': 'default monitoring action',
+      },
+    ]
     const selectedBranch = 'master'
     jest.spyOn(axios, 'get').mockImplementation((path) => {
       if (path === `/conf/api/v3/configs/${selectedBranch}/d/securitypolicies/`) {
         return Promise.resolve({data: securityPoliciesDocs})
+      }
+      if (path === `/conf/api/v3/configs/${selectedBranch}/d/actions/`) {
+        return Promise.resolve({data: customResponsesDocs})
+      }
+      if (path === `/conf/api/v3/configs/${selectedBranch}/ratelimits/f971e92459e2`) {
+        return Promise.resolve({data: rateLimitsDocs[0]})
       }
       return Promise.resolve({data: []})
     })
@@ -139,7 +156,7 @@ describe('RateLimitsEditor.vue', () => {
     test('should have count-by limit option component with correct data', () => {
       const wantedType = Object.keys(rateLimitsDocs[0].key[0])[0]
       const wantedValue = Object.values(rateLimitsDocs[0].key[0])[0]
-      const limitOptionComponent = wrapper.findAllComponents(LimitOption).at(0)
+      const limitOptionComponent = wrapper.findComponent(LimitOption)
       const actualType = limitOptionComponent.vm.option.type
       const actualValue = limitOptionComponent.vm.option.key
       expect(actualType).toEqual(wantedType)
@@ -149,7 +166,16 @@ describe('RateLimitsEditor.vue', () => {
     test('should have event limit option component with correct data', () => {
       const wantedType = Object.keys(rateLimitsDocs[0].pairwith)[0]
       const wantedValue = Object.values(rateLimitsDocs[0].pairwith)[0]
-      const limitOptionComponent = wrapper.findAllComponents(LimitOption).at(1)
+      const actualType = wrapper.vm.eventOption.type
+      const actualValue = wrapper.vm.eventOption.key
+      expect(actualValue).toEqual(wantedValue)
+      expect(actualType).toEqual(wantedType)
+    })
+
+    test('should have limit option keys with correct data', () => {
+      const wantedType = Object.keys(rateLimitsDocs[0].key[0])[0]
+      const wantedValue = Object.values(rateLimitsDocs[0].key[0])[0]
+      const limitOptionComponent = wrapper.findComponent(LimitOption)
       const actualType = limitOptionComponent.vm.option.type
       const actualValue = limitOptionComponent.vm.option.key
       expect(actualType).toEqual(wantedType)
@@ -158,21 +184,23 @@ describe('RateLimitsEditor.vue', () => {
 
     test('should have count-by limit option component with correct ignored attributes', () => {
       const wantedIgnoredAttributes = ['tags']
-      const limitOptionComponent = wrapper.findAllComponents(LimitOption).at(0)
+      const limitOptionComponent = wrapper.findComponent(LimitOption)
       const actualIgnoredAttributes = limitOptionComponent.vm.ignoreAttributes
       expect(wantedIgnoredAttributes).toEqual(actualIgnoredAttributes)
     })
 
     test('should have event limit option component with correct ignored attributes', () => {
       const wantedIgnoredAttributes = ['tags']
-      const limitOptionComponent = wrapper.findAllComponents(LimitOption).at(0)
+      const limitOptionComponent = wrapper.findComponent(LimitOption)
       const actualIgnoredAttributes = limitOptionComponent.vm.ignoreAttributes
       expect(wantedIgnoredAttributes).toEqual(actualIgnoredAttributes)
     })
 
-    test('should have response action component with correct data', () => {
-      const element = wrapper.find('.document-action').element as HTMLTextAreaElement
-      expect(element.value).toEqual(rateLimitsDocs[0].thresholds[0].action.toString())
+    test('should have response action selection with correct data', () => {
+      const wantedAction = rateLimitsDocs[0].thresholds[0].action.toString()
+      const thresholdActionSelection = wrapper.find('.threshold-action-selection')
+      const selectedAction = (thresholdActionSelection.find('option:checked').element as HTMLOptionElement).value
+      expect(selectedAction).toEqual(wantedAction)
     })
 
     test('should have correct include data in table', () => {
@@ -195,10 +223,10 @@ describe('RateLimitsEditor.vue', () => {
       const addKeyButton = wrapper.find('.add-key-button')
       await addKeyButton.trigger('click')
       const wantedType = 'attrs'
-      const wantedValue = 'ip'
+      const wantedValue = 'securitypolicyentryid'
       const actualType = Object.keys(wrapper.vm.localDoc.key[1])[0]
       const actualValue = Object.values(wrapper.vm.localDoc.key[1])[0]
-      expect(wrapper.vm.localDoc.key.length).toEqual(2)
+      expect(wrapper.vm.localDoc.key.length).toEqual(4)
       expect(actualType).toEqual(wantedType)
       expect(actualValue).toEqual(wantedValue)
     })
@@ -226,17 +254,23 @@ describe('RateLimitsEditor.vue', () => {
     })
 
     test('should remove key when remove event occurs', async () => {
+      expect(wrapper.vm.localDoc.key.length).toEqual(3) // default has 3 atributes keys
       const addKeyButton = wrapper.find('.add-key-button')
       await addKeyButton.trigger('click')
+      expect(wrapper.vm.localDoc.key.length).toEqual(4) // plus 1 = 4
       const limitOptionsComponent = wrapper.findComponent(LimitOption)
       limitOptionsComponent.vm.$emit('remove', 1)
-      expect(wrapper.vm.localDoc.key.length).toEqual(1)
+      expect(wrapper.vm.localDoc.key.length).toEqual(3) // minus 1 = 3
     })
 
-    test('should not be able to remove key when only one key exists', async () => {
+    test('should not be able to remove key when only one key exists', () => {
+      expect(wrapper.vm.localDoc.key.length).toEqual(3) // default has 3 atributes keys
       const limitOptionsComponent = wrapper.findComponent(LimitOption)
       limitOptionsComponent.vm.$emit('remove', 1)
-      expect(wrapper.vm.localDoc.key.length).toEqual(1)
+      limitOptionsComponent.vm.$emit('remove', 1)
+      expect(wrapper.vm.localDoc.key.length).toEqual(1) // remove 2 remain 1
+      limitOptionsComponent.vm.$emit('remove', 1)
+      expect(wrapper.vm.localDoc.key.length).toEqual(1) // trying to remove 1 more failes, cannot be 0
     })
 
     test('should update key when change event occurs', async () => {
@@ -343,6 +377,7 @@ describe('RateLimitsEditor.vue', () => {
   })
 
   describe('tags', () => {
+    let filterColumn
     beforeEach(() => {
       const tagsData = {
         data: {
@@ -362,10 +397,11 @@ describe('RateLimitsEditor.vue', () => {
         }
         return Promise.resolve()
       })
+      filterColumn = wrapper.find('.filter-column')
     })
 
     test('should not have any warning in the tags table when there are no duplicate tags', () => {
-      const tagsWithWarning = wrapper.findAll('.has-text-danger')
+      const tagsWithWarning = filterColumn.findAll('.has-text-danger')
       expect(tagsWithWarning.length).toEqual(0)
     })
 
@@ -373,14 +409,14 @@ describe('RateLimitsEditor.vue', () => {
       const newTag = 'test-tag'
       const wantedEmit = JSON.parse(JSON.stringify(rateLimitsDocs[0]))
       wantedEmit.include.push(newTag)
-      const newIncludeEntryButton = wrapper.findAll('.add-new-filter-entry-button').at(0)
+      const newIncludeEntryButton = filterColumn.findAll('.add-new-filter-entry-button').at(0)
       // add first
       await newIncludeEntryButton.trigger('click')
-      const firstTagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
-      firstTagAutocompleteInput.vm.$emit('tag-submitted', newTag)
+      const includeTagAutocompleteInput = filterColumn.findComponent(TagAutocompleteInput)
+      includeTagAutocompleteInput.vm.$emit('tag-submitted', newTag)
       // check
       expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
-      expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
+      expect(wrapper.emitted('update:selectedDoc')[0][0].include).toEqual(wantedEmit.include)
     })
 
     test('should show a warning when there are duplicate tags', async () => {
@@ -388,7 +424,7 @@ describe('RateLimitsEditor.vue', () => {
       duplicatedTagsDoc.include = ['test-tag', 'test-tag']
       await wrapper.setProps({selectedDoc: duplicatedTagsDoc})
       // check
-      const tagsWithWarning = wrapper.findAll('.has-text-danger')
+      const tagsWithWarning = filterColumn.findAll('.has-text-danger')
       expect(tagsWithWarning.length).toEqual(2)
     })
 
@@ -396,26 +432,29 @@ describe('RateLimitsEditor.vue', () => {
       const newTag = 't'
       const wantedEmit = JSON.parse(JSON.stringify(rateLimitsDocs[0]))
       wantedEmit.include.push(newTag)
-      const newIncludeEntryButton = wrapper.findAll('.add-new-filter-entry-button').at(0)
+      const newIncludeEntryButton = filterColumn.findAll('.add-new-filter-entry-button').at(0)
       // add first
       await newIncludeEntryButton.trigger('click')
-      const firstTagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+      const firstTagAutocompleteInput = filterColumn.findComponent(TagAutocompleteInput)
       firstTagAutocompleteInput.vm.$emit('tag-submitted', newTag)
       // check
       expect(wrapper.emitted('update:selectedDoc')).toBeFalsy()
     })
 
     test('should remove tag from correct filter when tag removed', async () => {
-      const removeIncludeEntryButton = wrapper.find('.remove-filter-entry-button')
+      const wantedSize = wrapper.vm.localDoc.include.length - 1
+      const removeIncludeEntryButton = filterColumn.findAll('.remove-filter-entry-button').at(0)
       await removeIncludeEntryButton.trigger('click')
-      expect(wrapper.vm.localDoc.include.length).toEqual(0)
+      wrapper.vm.$forceUpdate()
+      await nextTick()
+      expect(wrapper.vm.localDoc.include.length).toEqual(wantedSize)
     })
 
     test('should hide tag input when tag selection cancelled', async () => {
-      const newIncludeEntryButton = wrapper.find('.add-new-filter-entry-button')
+      const newIncludeEntryButton = filterColumn.find('.add-new-filter-entry-button')
       await newIncludeEntryButton.trigger('click')
       wrapper.vm.cancelAddNewTag()
-      const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+      const tagAutocompleteInput = filterColumn.findComponent(TagAutocompleteInput)
       await nextTick()
       expect(tagAutocompleteInput.exists()).toBeFalsy()
     })
@@ -450,10 +489,60 @@ describe('RateLimitsEditor.vue', () => {
     })
 
     test('should show an appropriate message when there are no available new connections', async () => {
-      const wantedMessage = `All Security Policies entries are currently connected to this Rate Limit`
-      securityPoliciesDocs[0].map[1].limit_ids.push(rateLimitsDocs[0].id)
-      securityPoliciesDocs[1].map[1].limit_ids.push(rateLimitsDocs[0].id)
-      wrapper = shallowMount(RateLimitsEditor, {
+      const wantedMessage = `All Security Policies entries are currently connected to this entity`
+      securityPoliciesDocs = [
+        {
+          'id': '__default__',
+          'name': 'default entry',
+          'match': '__default__',
+          'map': [
+            {
+              'name': 'default',
+              'match': '/',
+              'acl_profile': '__default__',
+              'acl_active': false,
+              'content_filter_profile': '__default__',
+              'content_filter_active': false,
+              'limit_ids': ['f971e92459e2', '365757ec0689'],
+            },
+            {
+              'name': 'entry name',
+              'match': '/login',
+              'acl_profile': '5828321c37e0',
+              'acl_active': false,
+              'content_filter_profile': '009e846e819e',
+              'content_filter_active': false,
+              'limit_ids': ['f971e92459e2', '365757ec0689'],
+            },
+          ],
+        },
+        {
+          'id': '3086b9c5b518',
+          'name': 'copy of default entry',
+          'match': 'www.example.com',
+          'map': [
+            {
+              'name': 'default',
+              'match': '/',
+              'acl_profile': '__default__',
+              'acl_active': false,
+              'content_filter_profile': '__default__',
+              'content_filter_active': false,
+              'limit_ids': ['f971e92459e2', '365757ec0689'],
+            },
+            {
+              'name': 'entry name',
+              'match': '/login',
+              'acl_profile': '5828321c37e0',
+              'acl_active': false,
+              'content_filter_profile': '009e846e819e',
+              'content_filter_active': false,
+              'limit_ids': ['f971e92459e2', '365757ec0689'],
+            },
+          ],
+        },
+      ]
+      wrapper = mount(RateLimitsEditor, {
         props: {
           selectedDoc: rateLimitsDocs[0],
           selectedBranch: 'master',

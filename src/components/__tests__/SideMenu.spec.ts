@@ -1,3 +1,4 @@
+// @ts-nocheck
 import SideMenu from '@/components/SideMenu.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {DOMWrapper, mount} from '@vue/test-utils'
@@ -87,7 +88,7 @@ describe('SideMenu.vue', () => {
   })
 
   test('should render all menu labels', () => {
-    const wantedMenuLabels = ['settings', 'analytics', 'git', 'docs']
+    const wantedMenuLabels = ['analytics', 'settings', 'git', 'help']
 
     const actualMenuLabels = wrapper.findAll('.menu-label')
     for (let i = 0; i < wantedMenuLabels.length; i++) {
@@ -130,12 +131,20 @@ describe('SideMenu.vue', () => {
     menuItemShouldContainWantedSectionItems('git', wantedMenuItems)
   })
 
+  test('should render support page', () => {
+    const wantedMenuItems = [
+      {path: '/support', title: 'Support'},
+    ]
+
+    menuItemShouldContainWantedSectionItems('help', wantedMenuItems)
+  })
+
   test('should render all static Docs menu items', () => {
     const wantedMenuItems = [
       {path: 'https://docs.curiefense.io/', title: 'Curiebook', external: true},
     ]
 
-    menuItemShouldContainWantedSectionItems('docs', wantedMenuItems)
+    menuItemShouldContainWantedSectionItems('help', wantedMenuItems)
   })
 
   test('should render all dynamic menu items when system db exists with links and URLs data', (done) => {
@@ -153,7 +162,7 @@ describe('SideMenu.vue', () => {
       },
       stubs: ['router-link', 'router-view'],
     })
-    const wantedSettingsMenuItems = [
+    const wantedDocsMenuItems = [
       {
         path: swaggerURL,
         title: 'API',
@@ -179,7 +188,7 @@ describe('SideMenu.vue', () => {
     ]
     // allow all requests to finish
     setImmediate(() => {
-      menuItemShouldContainWantedSectionItems('settings', wantedSettingsMenuItems)
+      menuItemShouldContainWantedSectionItems('help', wantedDocsMenuItems)
       menuItemShouldContainWantedSectionItems('analytics', wantedAnalyticsMenuItems)
       done()
     })
@@ -204,7 +213,7 @@ describe('SideMenu.vue', () => {
       },
       stubs: ['router-link', 'router-view'],
     })
-    const wantedSettingsMenuItems = [
+    const wantedDocsMenuItems = [
       {
         path: `${location.protocol}//${location.hostname}:30000/api/v3/`,
         title: 'API',
@@ -230,7 +239,7 @@ describe('SideMenu.vue', () => {
     ]
     // allow all requests to finish
     setImmediate(() => {
-      menuItemShouldContainWantedSectionItems('settings', wantedSettingsMenuItems)
+      menuItemShouldContainWantedSectionItems('help', wantedDocsMenuItems)
       menuItemShouldContainWantedSectionItems('analytics', wantedAnalyticsMenuItems)
       done()
     })
@@ -252,7 +261,7 @@ describe('SideMenu.vue', () => {
       },
       stubs: ['router-link', 'router-view'],
     })
-    const wantedSettingsMenuItems = [
+    const wantedDocsMenuItems = [
       {
         path: `${location.protocol}//${location.hostname}:30000/api/v3/`,
         title: 'API',
@@ -278,7 +287,7 @@ describe('SideMenu.vue', () => {
     ]
     // allow all requests to finish
     setImmediate(() => {
-      menuItemShouldContainWantedSectionItems('settings', wantedSettingsMenuItems)
+      menuItemShouldContainWantedSectionItems('help', wantedDocsMenuItems)
       menuItemShouldContainWantedSectionItems('analytics', wantedAnalyticsMenuItems)
       done()
     })
@@ -299,7 +308,7 @@ describe('SideMenu.vue', () => {
       },
       stubs: ['router-link', 'router-view'],
     })
-    const wantedSettingsMenuItems = [
+    const wantedDocsMenuItems = [
       {
         path: `${location.protocol}//${location.hostname}:30000/api/v3/`,
         title: 'API',
@@ -325,7 +334,7 @@ describe('SideMenu.vue', () => {
     ]
     // allow all requests to finish
     setImmediate(() => {
-      menuItemShouldContainWantedSectionItems('settings', wantedSettingsMenuItems)
+      menuItemShouldContainWantedSectionItems('help', wantedDocsMenuItems)
       menuItemShouldContainWantedSectionItems('analytics', wantedAnalyticsMenuItems)
       done()
     })
@@ -357,6 +366,6 @@ describe('SideMenu.vue', () => {
     await nextTick()
     await nextTick()
     await nextTick()
-    expect(wrapper.vm.menuItems.settings.swagger.url).toEqual(wrapper.vm.defaultSwaggerURL)
+    expect(wrapper.vm.menuItems.help.swagger.url).toEqual(wrapper.vm.defaultSwaggerURL)
   })
 })

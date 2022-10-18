@@ -1,13 +1,20 @@
 import {
   ACLProfile,
+  BackendService,
+  CloudFunction,
   ContentFilterProfile,
   ContentFilterRule,
   CustomResponse,
+  DynamicRule,
   FlowControlPolicy,
   GlobalFilter,
   HttpRequestMethods,
+  MobileSDK,
+  ProxyTemplate,
   RateLimit,
+  RoutingProfile,
   SecurityPolicy,
+  Site,
 } from '@/types'
 
 const titles: { [key: string]: string } = {
@@ -43,6 +50,8 @@ const titles: { [key: string]: string } = {
   'attrs-entry': 'Attribute',
   'aclprofiles': 'ACL Profiles',
   'aclprofiles-singular': 'ACL Profile',
+  'dynamic-rules': 'Dynamic Rules',
+  'dynamic-rules-singular': 'Dynamic Rule',
   'ratelimits': 'Rate Limits',
   'ratelimits-singular': 'Rate Limit',
   'securitypolicies': 'Security Policies',
@@ -51,22 +60,42 @@ const titles: { [key: string]: string } = {
   'contentfilterprofiles-singular': 'Content Filter Profile',
   'contentfilterrules': 'Content Filter Rules',
   'contentfilterrules-singular': 'Content Filter Rule',
+  'cloud-functions': 'Cloud Functions',
+  'cloud-functions-singular': 'Cloud Function',
   'globalfilters': 'Global Filters',
   'globalfilters-singular': 'Global Filter',
+  'quarantined': 'Quarantined List',
   'flowcontrol': 'Flow Control Policies',
   'flowcontrol-singular': 'Flow Control Policy',
   'actions': 'Custom Responses',
   'actions-singular': 'Custom Response',
   'active': 'Active',
+  'routing-profiles': 'Routing Profiles',
+  'routing-profiles-singular': 'Routing Profile',
+  'mobile-sdks': 'MobileSDKs',
+  'mobile-sdks-singular': 'MobileSDK',
+  'proxy-templates': 'Proxy Templates',
+  'proxy-templates-singular': 'Proxy Template',
+  'sites': 'Sites',
+  'sites-singular': 'Site',
+  'backends': 'Backends Services',
+  'backends-singular': 'Backend Service',
   'report': 'Report',
   'ignore': 'Ignore',
+  'request0': 'Request Pre Reblaze',
+  'request1': 'Request Post Reblaze',
+  'response0': 'Response Pre Reblaze',
+  'response1': 'Response Post Reblaze',
 }
 
-const limitOptionsTypes = {
-  'headers': 'Header',
-  'cookies': 'Cookie',
-  'args': 'Argument',
-  'attrs': 'Attribute',
+const dynamicRuleTargets = {
+  'organization': 'ASN',
+  'remote_addr': 'IP',
+  'cookie': 'Cookie',
+  'geoip_city_country_name': 'Country',
+  'planet': 'Planet',
+  'request_headers': 'Request Header',
+  'request_body': 'Request Body',
 }
 
 function generateUUID(): string {
@@ -93,12 +122,12 @@ const defaultFlowControlSequenceItem = {
 }
 
 const newDocEntryFactory: { [key: string]: Function } = {
-  aclprofiles(): ACLProfile {
+  'aclprofiles'(): ACLProfile {
     return {
       'id': generateUUID2(),
       'name': 'New ACL Profile',
       'description': 'New ACL Profile Description and Remarks',
-      'action': 'default',
+      'action': 'monitor',
       'tags': [],
       'allow': [],
       'allow_bot': [],
@@ -109,12 +138,12 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  contentfilterprofiles(): ContentFilterProfile {
+  'contentfilterprofiles'(): ContentFilterProfile {
     return {
       'id': generateUUID2(),
       'name': 'New Content Filter Profile',
       'description': 'New Content Filter Profile Description and Remarks',
-      'action': 'default',
+      'action': 'monitor',
       'tags': [],
       'ignore_body': true,
       'ignore_alphanum': true,
@@ -156,7 +185,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  globalfilters(): GlobalFilter {
+  'globalfilters'(): GlobalFilter {
     return {
       'id': generateUUID2(),
       'name': 'New Global Filter',
@@ -173,7 +202,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  securitypolicies(): SecurityPolicy {
+  'securitypolicies'(): SecurityPolicy {
     const id = generateUUID2()
     return {
       'id': id,
@@ -181,6 +210,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'match': `${id}.example.com`,
       'map': [
         {
+          'id': generateUUID2(),
           'match': '/',
           'name': 'default',
           'acl_profile': '__default__',
@@ -193,24 +223,31 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  ratelimits(): RateLimit {
+  'ratelimits'(): RateLimit {
     return {
       'id': generateUUID2(),
       'name': 'New Rate Limit Rule',
       'global': false,
       'description': 'New Rate Limit Rule Description and Remarks',
       'timeframe': 60,
+      'tags': [],
       'thresholds': [
         {
           'limit': 5,
-          'action': 'default',
+          'action': 'monitor',
         },
       ],
       'include': ['all'],
       'exclude': [],
       'key': [
         {
-          'attrs': 'ip',
+          'attrs': 'securitypolicyid',
+        },
+        {
+          'attrs': 'securitypolicyentryid',
+        },
+        {
+          'headers': 'rbzsessionid',
         },
       ],
       'pairwith': {
@@ -219,7 +256,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  flowcontrol(): FlowControlPolicy {
+  'flowcontrol'(): FlowControlPolicy {
     return {
       'id': generateUUID2(),
       'name': 'New Flow Control Policy',
@@ -244,7 +281,36 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  contentfilterrules(): ContentFilterRule {
+  'cloud-functions'(): CloudFunction {
+    return {
+      'id': generateUUID2(),
+      'name': 'New Cloud Function',
+      'description': 'New Cloud Function Description and Remarks',
+      'phase': 'request1',
+      'code': `-- begin custom code
+        --custom response header
+        ngx.header['foo'] = 'bar'`,
+    }
+  },
+
+  'dynamic-rules'(): DynamicRule {
+    const id = generateUUID2()
+    return {
+      'id': id,
+      'name': 'New Dynamic Rule ' + id,
+      'description': 'New Dynamic Rule Description and Remarks',
+      'timeframe': 60,
+      'threshold': 9999,
+      'active': false,
+      'include': ['all'],
+      'exclude': [],
+      'ttl': 7200,
+      'target': 'remote_addr',
+    }
+  },
+
+
+  'contentfilterrules'(): ContentFilterRule {
     return {
       'id': generateUUID2(),
       'name': 'New Content Filter Rule',
@@ -258,13 +324,116 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  actions(): CustomResponse {
+  'actions'(): CustomResponse {
     return {
       'id': generateUUID2(),
       'name': 'New Custom Response',
       'description': 'New Custom Response Rule Description and Remarks',
       'tags': [],
       'type': 'monitor',
+    }
+  },
+}
+const newOperationEntryFactory: { [key: string]: Function } = {
+  'sites'(): Site {
+    const id = generateUUID2()
+    return {
+      'id': id,
+      'name': 'New Site ' + id, // TODO: Remove this random uuid once names are no longer unique
+      'description': 'New Site Description and Remarks',
+      'canonical_name': 'New.Site.' + id,
+      'server_names': [],
+      'security_policy': '__default__',
+      'routing_profile': '__default__',
+      'proxy_template': '__default__',
+      'mobile_sdk': '__default__',
+    }
+  },
+
+  'routing-profiles'(): RoutingProfile {
+    return {
+      'id': generateUUID2(),
+      'name': 'New Routing Profile ' + generateUUID2(), // TODO: Remove this random uuid once names are no longer unique
+      'description': 'New Routing Profile Description and Remarks',
+      'locations': [
+        {
+          'path': '/',
+          'backend_id': '__default__',
+          'cloud_functions': [],
+        },
+      ],
+    }
+  },
+
+  'mobile-sdks'(): MobileSDK {
+    return {
+      'id': generateUUID2(),
+      'name': 'New Mobile SDK ' + generateUUID2(), // TODO: Remove this random uuid once names are no longer unique
+      'description': 'New Mobile SDK Description and Remarks',
+      'secret': '',
+      'var_name': 'authorization',
+      'uid_header': 'authorization',
+      'grace': '5',
+      'grace_var_name': 'timestamp',
+      'validator_type': '',
+      'active_config': [
+        {
+          'active': true,
+          'json': '{}',
+          'name': 'Default',
+        },
+      ],
+      'signatures': [],
+      'support_legacy_sdk': false,
+    }
+  },
+
+  'proxy-templates'(): ProxyTemplate {
+    return {
+      'id': generateUUID2(),
+      'name': 'New Proxy Template ' + generateUUID2(), // TODO: Remove this random uuid once names are no longer unique
+      'description': 'New Proxy Template Description and Remarks',
+      'acao_header': false,
+      'xff_header_name': 'X-Forwarded-For',
+      'post_private_args': '(cc_number|password)',
+      'proxy_connect_timeout': '5',
+      'proxy_send_timeout': '30',
+      'proxy_read_timeout': '60',
+      'upstream_host': '$host',
+      'client_body_timeout': '5',
+      'client_header_timeout': '5',
+      'keepalive_timeout': '660',
+      'send_timeout': '5',
+      'client_max_body_size': '150',
+      'limit_req_rate': '1200',
+      'limit_req_burst': '400',
+      'session_key': 'cookie_jsessionid',
+      'mask_headers': '',
+      'xrealip_header_name': 'X-Real-IP',
+      'custom_listener': false,
+    }
+  },
+
+  'backends'(): BackendService {
+    return {
+      'id': generateUUID2(),
+      'name': 'New Backend Service ' + generateUUID2(), // TODO: Remove this random uuid once names are no longer unique
+      'description': 'New Backend Service Description and Remarks',
+      'least_conn': false,
+      'http11': true,
+      'transport_mode': 'default',
+      'sticky': 'none',
+      'back_hosts': [{
+        'http_port': 80,
+        'https_port': 443,
+        'weight': 1,
+        'fail_timeout': '10s',
+        'monitor_state': '',
+        'down': false,
+        'host': '127.0.0.1',
+        'max_fails': 0,
+        'backup': false,
+      }],
     }
   },
 }
@@ -531,10 +700,11 @@ const geoCountryTagToCode = (geoTag: string): string => {
 export default {
   name: 'DatasetsUtils',
   titles,
-  limitOptionsTypes,
+  dynamicRuleTargets,
   generateUUID,
   generateUUID2,
   newDocEntryFactory,
+  newOperationEntryFactory,
   defaultFlowControlSequenceItem,
   countriesNamesCodeMap,
   geoCountryTagToCode,

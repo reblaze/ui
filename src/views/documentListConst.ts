@@ -1,13 +1,18 @@
 import {
   ACLProfile,
+  CloudFunction,
   ColumnOptionsMap,
   ContentFilterProfile,
-  ContentFilterRule, CustomResponse,
+  ContentFilterRule,
+  CustomResponse,
   FlowControlPolicy,
   GlobalFilter,
   RateLimit,
+  SecurityPolicy,
+  SecurityPolicyEntryMatch,
 } from '@/types'
 import _ from 'lodash'
+import DatasetsUtils from '@/assets/DatasetsUtils'
 
 export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
   'globalfilters': [
@@ -68,6 +73,16 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       classes: 'ellipsis',
     },
     {
+      title: 'Tags',
+      fieldNames: ['tags'],
+      displayFunction: (item: FlowControlPolicy) => {
+        return item?.tags?.join('\n')
+      },
+      isSortable: false,
+      isSearchable: true,
+      classes: 'width-100px white-space-pre ellipsis',
+    },
+    {
       title: 'Sequences',
       fieldNames: ['sequence'],
       displayFunction: (item: FlowControlPolicy) => {
@@ -84,12 +99,56 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       isSearchable: true,
       classes: 'width-100px',
     },
+  ],
+  'securitypolicies': [
     {
-      title: 'Action',
-      fieldNames: ['action'],
+      title: 'Name',
+      fieldNames: ['name'],
       isSortable: true,
       isSearchable: true,
-      classes: 'width-80px',
+      classes: 'width-120px',
+    },
+    {
+      title: 'Matching Names',
+      fieldNames: ['match'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'ellipsis',
+    },
+    {
+      title: 'Rate Limit Rules',
+      fieldNames: ['map'],
+      displayFunction: (item: SecurityPolicy) => {
+        const amount = _.sumBy(item?.map, (mapEntry: SecurityPolicyEntryMatch) => {
+          return mapEntry.limit_ids.length
+        })
+        return amount.toString()
+      },
+      classes: 'width-120px',
+    },
+    {
+      title: 'Active ACL Profiles',
+      fieldNames: ['map'],
+      displayFunction: (item: SecurityPolicy) => {
+        const active = item?.map?.filter((mapEntry: SecurityPolicyEntryMatch) => {
+          return mapEntry.acl_active
+        }).length
+        const total = item?.map?.length
+        return `${active} out of ${total}`
+      },
+      classes: 'width-120px',
+    },
+    {
+      title: 'Active Content Filter Profiles',
+      fieldNames: ['map'],
+      displayFunction: (item: SecurityPolicy) => {
+        const active = item?.map?.filter((mapEntry: SecurityPolicyEntryMatch) => {
+          return mapEntry.acl_active
+        }).length
+        const total = item?.map?.length
+        return `${active} out of ${total}`
+      },
+      classes: 'width-180px',
     },
   ],
   'ratelimits': [
@@ -108,6 +167,16 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       classes: 'ellipsis',
     },
     {
+      title: 'Tags',
+      fieldNames: ['tags'],
+      displayFunction: (item: RateLimit) => {
+        return item?.tags?.join('\n')
+      },
+      isSortable: false,
+      isSearchable: true,
+      classes: 'width-100px white-space-pre ellipsis',
+    },
+    {
       title: 'Timeframe',
       fieldNames: ['timeframe'],
       isSortable: true,
@@ -115,10 +184,10 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       classes: 'width-100px',
     },
     {
-      title: 'Limits',
+      title: 'Thresholds',
       fieldNames: ['thresholds'],
       displayFunction: (item: RateLimit) => {
-        return _.map(item.thresholds, 'limit').join('\n')
+        return _.map(item.thresholds, 'limit').join(', ')
       },
       isSortable: true,
       isSearchable: true,
@@ -156,20 +225,49 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
     },
     {
       title: 'Tags',
-      fieldNames: ['force_deny', 'passthrough', 'allow_bot', 'deny_bot', 'allow', 'deny'],
+      fieldNames: ['tags'],
       displayFunction: (item: ACLProfile) => {
-        return _.concat(
-          item['force_deny'],
-          item['passthrough'],
-          item['allow_bot'],
-          item['deny_bot'],
-          item['allow'],
-          item['deny'],
-        )?.join('\n')
+        return item?.tags?.join('\n')
+      },
+      isSortable: false,
+      isSearchable: true,
+      classes: 'width-100px white-space-pre ellipsis',
+    },
+  ],
+  'actions': [
+    {
+      title: 'Name',
+      fieldNames: ['name'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-120px',
+    },
+    {
+      title: 'Description',
+      fieldNames: ['description'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'ellipsis',
+    },
+    {
+      title: 'Tags',
+      fieldNames: ['tags'],
+      displayFunction: (item: CustomResponse) => {
+        return item?.tags?.join('\n')
+      },
+      isSortable: false,
+      isSearchable: true,
+      classes: 'width-100px white-space-pre ellipsis',
+    },
+    {
+      title: 'Type',
+      fieldNames: ['type'],
+      displayFunction: (item: CustomResponse) => {
+        return _.capitalize(item?.type)
       },
       isSortable: true,
       isSearchable: true,
-      classes: 'width-100px white-space-pre ellipsis',
+      classes: 'width-120px',
     },
   ],
   'contentfilterprofiles': [
@@ -186,6 +284,16 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       isSortable: true,
       isSearchable: true,
       classes: 'ellipsis',
+    },
+    {
+      title: 'Tags',
+      fieldNames: ['tags'],
+      displayFunction: (item: ContentFilterProfile) => {
+        return item?.tags?.join('\n')
+      },
+      isSortable: false,
+      isSearchable: true,
+      classes: 'width-100px white-space-pre ellipsis',
     },
     {
       title: 'Restrict Content Type',
@@ -265,13 +373,13 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       classes: 'width-80px',
     },
   ],
-  'actions': [
+  'cloud-functions': [
     {
       title: 'Name',
       fieldNames: ['name'],
       isSortable: true,
       isSearchable: true,
-      classes: 'width-120px',
+      classes: 'width-150px',
     },
     {
       title: 'Description',
@@ -281,24 +389,45 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       classes: 'ellipsis',
     },
     {
-      title: 'Tags',
-      fieldNames: ['tags'],
-      displayFunction: (item: CustomResponse) => {
-        return item?.tags?.join('\n')
-      },
-      isSortable: false,
-      isSearchable: true,
-      classes: 'width-100px white-space-pre ellipsis',
-    },
-    {
-      title: 'Type',
-      fieldNames: ['type'],
-      displayFunction: (item: CustomResponse) => {
-        return _.capitalize(item?.type)
+      title: 'Phase',
+      fieldNames: ['phase'],
+      displayFunction: (item: CloudFunction) => {
+        const titles = DatasetsUtils.titles
+        return titles[item.phase]
       },
       isSortable: true,
       isSearchable: true,
-      classes: 'width-120px',
+      classes: 'width-150px',
+    },
+  ],
+  'dynamic-rules': [
+    {
+      title: 'Name',
+      fieldNames: ['name'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-150px',
+    },
+    {
+      title: 'Description',
+      fieldNames: ['description'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'ellipsis',
+    },
+    {
+      title: 'Timeframe',
+      fieldNames: ['timeframe'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-100px',
+    },
+    {
+      title: 'Threshold',
+      fieldNames: ['threshold'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-100px',
     },
   ],
 }

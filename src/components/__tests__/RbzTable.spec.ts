@@ -3,6 +3,7 @@ import RbzTable from '@/components/RbzTable.vue'
 import {beforeEach, describe, expect, test} from '@jest/globals'
 import {shallowMount, VueWrapper} from '@vue/test-utils'
 import {ColumnOptions, FlowControlPolicy, GenericObject, GlobalFilter} from '@/types'
+import {nextTick} from 'vue'
 
 describe('RbzTable.vue', () => {
   let wrapper: VueWrapper
@@ -93,7 +94,7 @@ describe('RbzTable.vue', () => {
         showMenuColumn: true,
         showFilterButton: true,
         showNewButton: true,
-        showEditButton: true,
+        showrowButton: true,
       },
     })
   })
@@ -753,6 +754,69 @@ describe('RbzTable.vue', () => {
   })
 
   describe('buttons', () => {
+    describe('menu-button', () => {
+      let addEventListenerSpy
+      let removeEventListenerSpy
+      let anotherDiv
+      beforeEach(() => {
+        addEventListenerSpy = jest.spyOn(document, 'addEventListener')
+        removeEventListenerSpy = jest.spyOn(document, 'removeEventListener')
+        anotherDiv = document.createElement('div')
+        document.body.appendChild(anotherDiv)
+        wrapper = shallowMount(RbzTable, {
+          props: {
+            columns: columns,
+            data: data,
+            showMenuColumn: true,
+            showFilterButton: true,
+            showNewButton: true,
+            showrowButton: true,
+          },
+          attachTo: document.body,
+        })
+      })
+
+      test('should not display dropdown menu on initial load', async () => {
+        const dropdown = wrapper.find('.dropdown')
+        expect(dropdown.element.classList).not.toContain('is-active')
+      })
+
+      test('should display dropdown menu on menu button click', async () => {
+        const menuToggleButton = wrapper.find('.menu-toggle-button')
+        await menuToggleButton.trigger('click')
+        const dropdown = wrapper.find('.dropdown')
+        expect(dropdown.element.classList).toContain('is-active')
+      })
+
+      test('should not display dropdown menu on menu button second click', async () => {
+        const menuToggleButton = wrapper.find('.menu-toggle-button')
+        await menuToggleButton.trigger('click')
+        await menuToggleButton.trigger('click')
+        const dropdown = wrapper.find('.dropdown')
+        expect(dropdown.element.classList).not.toContain('is-active')
+      })
+
+      test('should not display dropdown menu on click outside the menu', async () => {
+        const menuToggleButton = wrapper.find('.menu-toggle-button')
+        await menuToggleButton.trigger('click')
+        anotherDiv.click()
+        await nextTick()
+        const dropdown = wrapper.find('.dropdown')
+        expect(dropdown.element.classList).not.toContain('is-active')
+      })
+
+      test('should add new event listener on component creation', async () => {
+        expect(addEventListenerSpy).toHaveBeenCalled()
+        expect(addEventListenerSpy).toHaveBeenCalledWith('click', wrapper.vm.closeMenu)
+      })
+
+      test('should remove the added event listener on component destroy', async () => {
+        wrapper.unmount()
+        expect(removeEventListenerSpy).toHaveBeenCalled()
+        expect(removeEventListenerSpy).toHaveBeenCalledWith('click', wrapper.vm.closeMenu)
+      })
+    })
+
     describe('new button', () => {
       test('should not display if showNewButton prop is false', async () => {
         await wrapper.setProps({showNewButton: false})
@@ -775,24 +839,24 @@ describe('RbzTable.vue', () => {
     })
 
     describe('edit button', () => {
-      test('should not display if showEditButton prop is false', async () => {
-        await wrapper.setProps({showEditButton: false})
-        const editButton = wrapper.find('.edit-entity-button')
-        expect(editButton.exists()).toBeFalsy()
+      test('should not display if showrowButton prop is false', async () => {
+        await wrapper.setProps({showrowButton: false})
+        const rowButton = wrapper.find('.row-entity-button')
+        expect(rowButton.exists()).toBeFalsy()
       })
 
-      test('should display if showEditButton prop is true', async () => {
-        await wrapper.setProps({showEditButton: true})
-        const editButton = wrapper.find('.edit-entity-button')
-        expect(editButton.exists()).toBeTruthy()
+      test('should display if showrowButton prop is true', async () => {
+        await wrapper.setProps({showRowButton: true})
+        const rowButton = wrapper.find('.row-entity-button')
+        expect(rowButton.exists()).toBeTruthy()
       })
 
-      test('should emit `new-button-clicked` when clicked', async () => {
-        await wrapper.setProps({showEditButton: true})
-        const editButton = wrapper.find('.edit-entity-button')
-        await editButton.trigger('click')
-        expect(wrapper.emitted('edit-button-clicked')).toBeTruthy()
-        expect(wrapper.emitted('edit-button-clicked')[0]).toEqual([sortedDataByNameAsc[0].id])
+      test('should emit `row-button-clicked` when clicked', async () => {
+        await wrapper.setProps({showRowButton: true})
+        const rowButton = wrapper.find('.row-entity-button')
+        await rowButton.trigger('click')
+        expect(wrapper.emitted('row-button-clicked')).toBeTruthy()
+        expect(wrapper.emitted('row-button-clicked')[0]).toEqual([sortedDataByNameAsc[0].id])
       })
     })
   })

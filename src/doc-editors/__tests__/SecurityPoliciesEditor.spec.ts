@@ -28,6 +28,7 @@ describe('SecurityPoliciesEditor.vue', () => {
         'match': '__default__',
         'map': [
           {
+            'id': '__default__',
             'name': 'default',
             'match': '/',
             'acl_profile': '__default__',
@@ -37,6 +38,7 @@ describe('SecurityPoliciesEditor.vue', () => {
             'limit_ids': ['f971e92459e2'],
           },
           {
+            'id': '__defaultentry__',
             'name': 'entry name',
             'match': '/login',
             'acl_profile': '5828321c37e0',
@@ -53,6 +55,7 @@ describe('SecurityPoliciesEditor.vue', () => {
         'match': 'www.example.com',
         'map': [
           {
+            'id': '__default2__',
             'name': 'default',
             'match': '/',
             'acl_profile': '__default__',
@@ -62,6 +65,7 @@ describe('SecurityPoliciesEditor.vue', () => {
             'limit_ids': ['f971e92459e2', '365757ec0689'],
           },
           {
+            'id': '__default entry__',
             'name': 'entry name',
             'match': '/login',
             'acl_profile': '5828321c37e0',
@@ -203,7 +207,7 @@ describe('SecurityPoliciesEditor.vue', () => {
         'thresholds': [
           {
             'limit': '5',
-            'action': 'default',
+            'action': 'monitor',
           },
         ],
         'include': ['badpeople'],
@@ -219,7 +223,7 @@ describe('SecurityPoliciesEditor.vue', () => {
         'thresholds': [
           {
             'limit': '5',
-            'action': 'default',
+            'action': 'monitor',
           },
         ],
         'include': ['badpeople'],

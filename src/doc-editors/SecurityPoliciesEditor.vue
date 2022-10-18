@@ -46,16 +46,19 @@
             <label class="label is-small">
               Path Mapping
             </label>
-            <table class="table entries-table">
+            <table class="table entries-table is-size-7">
               <thead>
               <tr>
-                <th class="is-size-7 width-50px"></th>
-                <th class="is-size-7">Name</th>
-                <th class="is-size-7" colspan="2"><span>Match</span>&nbsp;<span><i
-                    class="fas fa-sort-alpha-down"></i></span></th>
-                <th class="is-size-7">Content Filter</th>
-                <th class="is-size-7">ACL</th>
-                <th class="is-size-7" title="Rate limit">RL</th>
+                <th></th>
+                <th>Name</th>
+                <th>
+                  <span>Match</span>
+                  &nbsp;
+                  <span><i class="fas fa-sort-alpha-down"></i></span>
+                </th>
+                <th>Content Filter</th>
+                <th>ACL</th>
+                <th>Rate Limits</th>
                 <th></th>
               </tr>
               </thead>
@@ -63,33 +66,32 @@
               <tr @click="changeSelectedMapEntry(mapIndex)"
                   class="has-row-clickable entry-row"
                   :class=" mapEntryIndex === mapIndex ? 'has-background-light borderless' : ''">
-                <td class="is-size-7 width-50px has-text-right has-text-grey-light entry-index">
+                <td class="width-20px has-text-right has-text-grey-light entry-index">
                   {{ mapIndex + 1 }}
                 </td>
-                <td class="is-size-7 width-100px ellipsis entry-name"
+                <td class="width-100px ellipsis entry-name"
                     :title="mapEntry.name">
                   {{ mapEntry.name }}
                 </td>
-                <td class="is-size-7 width-360px ellipsis entry-match"
-                    colspan="2"
+                <td class="width-360px ellipsis entry-match"
                     :title="mapEntry.match">
                   {{ mapEntry.match }}
                 </td>
-                <td class="is-size-7 width-150px ellipsis entry-content-filter"
+                <td class="width-150px ellipsis entry-content-filter"
                     :class="mapEntry.content_filter_active ? 'has-text-success' : 'has-text-danger'"
                     :title="mapEntry.content_filter_active ? 'Active mode' : 'Learning mode'">
                   {{ contentFilterProfileName(mapEntry.content_filter_profile) }}
                 </td>
-                <td class="is-size-7 width-150px ellipsis entry-acl"
+                <td class="width-150px ellipsis entry-acl"
                     :class="mapEntry.acl_active ? 'has-text-success' : 'has-text-danger'"
                     :title="mapEntry.acl_active ? 'Active mode' : 'Learning mode'">
                   {{ aclProfileName(mapEntry.acl_profile) }}
                 </td>
-                <td class="is-size-7 entry-rate-limits-count"
+                <td class="width-100px entry-rate-limits-count"
                     v-if="existingRateLimitIDs(mapEntry)">
                   {{ existingRateLimitIDs(mapEntry).length }}
                 </td>
-                <td class="is-size-7"
+                <td class="width-70px"
                     :rowspan="mapEntryIndex === mapIndex ? '2' : '1'">
                   <a class="has-text-grey"
                      title="more details"
@@ -110,6 +112,10 @@
                             <div class="field">
                               <label class="label is-small">
                                 Name
+                                <span class="has-text-grey is-pulled-right map-entry-id"
+                                      title="Map entry id">
+                                  {{ mapEntry.id }}
+                                </span>
                               </label>
                               <div class="control">
                                 <input class="input is-small current-entry-name"
@@ -132,7 +138,7 @@
                                        @input="emitDocUpdate();
                                                validateInput($event, isSelectedMapEntryMatchValid(mapIndex))"
                                        data-qa="expanded-path-input"
-                                       title="matchingDomainTitle"
+                                       :title="matchingDomainTitle"
                                        placeholder="Matching domain(s) regex"
                                        required
                                        :disabled="localDoc.id === '__default__' && initialMapEntryMatch === '/'"
@@ -149,19 +155,20 @@
                               Rate Limit Rules
                             </p>
                             <div class="content">
-                              <table class="table is-hoverable is-narrow is-fullwidth current-entry-rate-limits-table">
+                              <table class="table is-hoverable is-narrow is-fullwidth
+                                            current-entry-rate-limits-table is-size-7">
                                 <thead>
                                 <tr>
-                                  <th class="is-size-7 width-250px">
+                                  <th class="width-250px">
                                     Rule Name
                                   </th>
-                                  <th class="is-size-7 width-200px">
+                                  <th class="width-200px">
                                     Description
                                   </th>
-                                  <th class="is-size-7 width-80px">
+                                  <th class="width-80px">
                                     Timeframe
                                   </th>
-                                  <th class="has-text-centered is-size-7 width-60px">
+                                  <th class="has-text-centered width-60px">
                                     <a v-if="limitRuleNames && mapEntry.limit_ids &&
                                              limitRuleNames.length > existingRateLimitIDs(mapEntry).length"
                                        class="has-text-grey-dark is-small rate-limit-add-button"
@@ -182,21 +189,21 @@
                                   <tr v-if="limitDetails(limitId)"
                                       :key="limitId"
                                       class="rate-limit-row">
-                                    <td class="is-size-7 width-250px ellipsis rate-limit-name"
+                                    <td class="width-250px ellipsis rate-limit-name"
                                         v-if="limitDetails(limitId)"
                                         :title="limitDetails(limitId).name">
                                       {{ limitDetails(limitId).name }}
                                     </td>
-                                    <td class="is-size-7 width-220px ellipsis rate-limit-description"
+                                    <td class="is-size-7 width-200px ellipsis rate-limit-description"
                                         v-if="limitDetails(limitId)"
                                         :title="limitDetails(limitId).description">
                                       {{ limitDetails(limitId).description }}
                                     </td>
-                                    <td class="is-size-7 width-80px ellipsis rate-limit-timeframe"
+                                    <td class="width-80px ellipsis rate-limit-timeframe"
                                         v-if="limitDetails(limitId)">
                                       {{ limitDetails(limitId).timeframe }}
                                     </td>
-                                    <td class="has-text-centered is-size-7 width-60px">
+                                    <td class="has-text-centered width-60px">
                                       <a class="is-small has-text-grey rate-limit-remove-button"
                                          data-qa="remove-ratelimit-btn"
                                          title="Remove entry"
@@ -214,7 +221,7 @@
                                     class="new-rate-limit-row">
                                   <td colspan="3">
                                     <div class="control is-expanded">
-                                      <div class="select is-small is-size-7 is-fullwidth">
+                                      <div class="select is-small is-fullwidth">
                                         <select class="select is-small new-rate-limit-selection"
                                                 title="Rate limit ID"
                                                 v-model="limitMapEntryId">
@@ -225,7 +232,7 @@
                                       </div>
                                     </div>
                                   </td>
-                                  <td class="has-text-centered is-size-7 width-60px">
+                                  <td class="has-text-centered width-60px">
                                     <a class="is-small has-text-grey rate-limit-confirm-add-button"
                                        title="Add this entry"
                                        tabindex="0"
@@ -239,7 +246,7 @@
                                 </tr>
                                 <tr v-if="mapEntry.limit_ids && !existingRateLimitIDs(mapEntry).length">
                                   <td colspan="5">
-                                    <p class="is-size-7 has-text-grey has-text-centered">
+                                    <p class="has-text-grey has-text-centered">
                                       To attach an existing rule, click
                                       <a class="rate-limit-text-add-button"
                                          title="Add New"
@@ -256,89 +263,89 @@
                             </div>
                           </div>
                           <div class="column is-4">
-                            <div class="field">
-                              <label class="label is-small">Content Filter Profile</label>
-                              <div class="control is-expanded">
-                                <div class="select is-fullwidth is-small">
-                                  <select v-model="mapEntry.content_filter_profile"
-                                          @change="emitDocUpdate"
-                                          data-qa="content-filter-dropdown"
-                                          class="current-entry-content-filter-selection"
-                                          title="Content Filter profile">
-                                    <option v-for="contentfilter in contentFilterProfileNames"
-                                            :value="contentfilter[0]"
-                                            :key="contentfilter[0]">
-                                      {{ contentfilter[1] }}
-                                    </option>
-                                  </select>
+                              <div class="field">
+                                <label class="label is-small">Content Filter Profile</label>
+                                <div class="control is-expanded">
+                                  <div class="select is-fullwidth is-small">
+                                    <select v-model="mapEntry.content_filter_profile"
+                                            @change="emitDocUpdate"
+                                            data-qa="content-filter-dropdown"
+                                            class="current-entry-content-filter-selection"
+                                            title="Content Filter profile">
+                                      <option v-for="contentfilter in contentFilterProfileNames"
+                                              :value="contentfilter[0]"
+                                              :key="contentfilter[0]">
+                                        {{ contentfilter[1] }}
+                                      </option>
+                                    </select>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                            <div class="field">
-                              <label class="checkbox is-size-7">
-                                <input type="checkbox"
-                                       @change="emitDocUpdate"
-                                       data-qa="content-filter-active-checkbox"
-                                       class="current-entry-content-filter-active"
-                                       v-model="mapEntry.content_filter_active">
-                                Active Mode
-                              </label>
-                            </div>
-                            <hr/>
-                            <div class="field">
-                              <label class="label is-small">
-                                ACL Profile
-                              </label>
-                              <div class="control is-expanded">
-                                <div class="select is-fullwidth is-small">
-                                  <select v-model="mapEntry.acl_profile"
-                                          @change="emitDocUpdate"
-                                          data-qa="acl-dropdown"
-                                          class="current-entry-acl-selection"
-                                          title="ACL profile">
-                                    <option v-for="acl in aclProfileNames" :value="acl[0]" :key="acl[0]">
-                                      {{ acl[1] }}
-                                    </option>
-                                  </select>
+                              <div class="field">
+                                <label class="checkbox is-size-7">
+                                  <input type="checkbox"
+                                        @change="emitDocUpdate"
+                                        data-qa="content-filter-active-checkbox"
+                                        class="current-entry-content-filter-active"
+                                        v-model="mapEntry.content_filter_active">
+                                  Active Mode
+                                </label>
+                              </div>
+                              <hr/>
+                              <div class="field">
+                                <label class="label is-small">
+                                  ACL Profile
+                                </label>
+                                <div class="control is-expanded">
+                                  <div class="select is-fullwidth is-small">
+                                    <select v-model="mapEntry.acl_profile"
+                                            @change="emitDocUpdate"
+                                            data-qa="acl-dropdown"
+                                            class="current-entry-acl-selection"
+                                            title="ACL profile">
+                                      <option v-for="acl in aclProfileNames" :value="acl[0]" :key="acl[0]">
+                                        {{ acl[1] }}
+                                      </option>
+                                    </select>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                            <div class="field">
-                              <label class="checkbox is-size-7">
-                                <input type="checkbox"
-                                       @change="emitDocUpdate"
-                                       data-qa="acl-active-checkbox"
-                                       class="current-entry-acl-active"
-                                       v-model="mapEntry.acl_active">
-                                Active Mode
-                              </label>
-                            </div>
-                            <hr/>
-                            <div class="field">
-                              <button title="Create a new profile based on this one"
-                                      data-qa="fork-btn"
-                                      class="button is-small is-pulled-left is-light fork-entry-button"
-                                      @click="addNewProfile(mapEntry, mapIndex)">
-                                <span class="icon"><i class="fas fa-code-branch"></i></span>
-                                <span>
-                                Fork profile
-                              </span>
-                              </button>
-                              <button title="Delete this profile"
-                                      data-qa="delete-location-btn"
-                                      class="button is-small is-pulled-right is-danger is-light remove-entry-button"
-                                      @click="removeMapEntry(mapIndex)"
-                                      v-if="isRemoveEntryEnabled">
-                                Delete
-                              </button>
+                              <div class="field">
+                                <label class="checkbox is-size-7">
+                                  <input type="checkbox"
+                                        @change="emitDocUpdate"
+                                        data-qa="acl-active-checkbox"
+                                        class="current-entry-acl-active"
+                                        v-model="mapEntry.acl_active">
+                                  Active Mode
+                                </label>
+                              </div>
+                              <hr/>
+                              <div class="field">
+                                <button title="Create a new profile based on this one"
+                                        data-qa="fork-btn"
+                                        class="button is-small is-pulled-left is-light fork-entry-button"
+                                        @click="addNewProfile(mapEntry, mapIndex)">
+                                  <span class="icon"><i class="fas fa-code-branch"></i></span>
+                                  <span>
+                                  Fork profile
+                                </span>
+                                </button>
+                                <button title="Delete this profile"
+                                        data-qa="delete-location-btn"
+                                        class="button is-small is-pulled-right is-danger is-light remove-entry-button"
+                                        @click="removeMapEntry(mapIndex)"
+                                        v-if="isRemoveEntryEnabled">
+                                  Delete
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </td>
-              </tr>
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -356,7 +363,6 @@ import {defineComponent} from 'vue'
 import {ACLProfile, ContentFilterProfile, RateLimit, SecurityPolicy, SecurityPolicyEntryMatch} from '@/types'
 import {AxiosResponse} from 'axios'
 import Utils from '@/assets/Utils'
-
 
 export default defineComponent({
   name: 'SecurityPoliciesEditor',
@@ -446,18 +452,14 @@ export default defineComponent({
 
     isSelectedMapEntryMatchValid(index: number): boolean {
       const newMapEntryMatch = this.localDoc.map[index].match.trim() || ''
-      let isValid = newMapEntryMatch.startsWith('/')
-      if (isValid) {
-        const isMapEntryMatchEmpty = newMapEntryMatch === ''
-        const isMapEntryMatchDuplicate = this.entriesMatchNames.includes(
-            newMapEntryMatch,
-        ) ? this.initialMapEntryMatch !== newMapEntryMatch : false
-        // TODO: Fix regex test for rust standards and re-apply this
-        // const mapEntryMatchContainsInvalidCharacters = !this.isURLValid(newMapEntryMatch.substring(1))
-        // isValid = !isMapEntryMatchEmpty && !isMapEntryMatchDuplicate && !mapEntryMatchContainsInvalidCharacters
-        isValid = !isMapEntryMatchEmpty && !isMapEntryMatchDuplicate
-      }
-      return isValid
+      const isMapEntryMatchEmpty = newMapEntryMatch === ''
+      const isMapEntryMatchDuplicate = this.entriesMatchNames.includes(
+          newMapEntryMatch,
+      ) ? this.initialMapEntryMatch !== newMapEntryMatch : false
+      // TODO: Fix regex test for rust standards and re-apply this
+      // const mapEntryMatchContainsInvalidCharacters = !this.isURLValid(newMapEntryMatch.substring(1))
+      // isValid = !isMapEntryMatchEmpty && !isMapEntryMatchDuplicate && !mapEntryMatchContainsInvalidCharacters
+      return !isMapEntryMatchEmpty && !isMapEntryMatchDuplicate
     },
 
     aclProfileName(id: string): string {
@@ -506,11 +508,12 @@ export default defineComponent({
       })
     },
 
-    addNewProfile(map: SecurityPolicyEntryMatch, idx: number) {
-      const mapEntry = _.cloneDeep(map)
-      const randomUniqueString = DatasetsUtils.generateUUID2()
-      mapEntry.name = 'New Security Profile'
-      mapEntry.match = `/new/path/to/match/profile/${randomUniqueString}`
+    addNewProfile(mapEntry: SecurityPolicyEntryMatch, idx: number) {
+      const newMapEntry = _.cloneDeep(mapEntry)
+      const newMapEntryId = DatasetsUtils.generateUUID2()
+      newMapEntry.id = newMapEntryId
+      newMapEntry.name = 'New Security Profile'
+      newMapEntry.match = `/new/path/to/match/profile/${newMapEntryId}`
 
       // reverting the entry match to a stable and valid state if invalid
       if (!this.isSelectedMapEntryMatchValid(idx)) {
@@ -518,10 +521,10 @@ export default defineComponent({
         Utils.clearInputValidationClasses(this.$refs.mapEntryMatch[0])
         this.emitCurrentDocInvalidity()
       }
-      this.localDoc.map.splice(idx, 0, mapEntry)
+      this.localDoc.map.splice(idx, 0, newMapEntry)
       this.emitDocUpdate()
       const element = this.$refs.profileName[0] as HTMLInputElement
-      this.initialMapEntryMatch = mapEntry.match
+      this.initialMapEntryMatch = newMapEntry.match
       this.entriesMatchNames = _.map(this.localDoc.map, 'match')
       // Pushing the select action to the end of queue in order for the new profile to be rendered beforehand
       setImmediate(() => {

@@ -1,13 +1,14 @@
 <template>
   <div class="card">
     <div class="card-content"
-            data-qa="search-page">
+         data-qa="search-page">
       <div class="media">
         <div class="media-content">
           <div class="columns">
             <div class="column">
               <div class="field is-grouped">
-                <div class="control" v-if="branchNames.length">
+                <div class="control"
+                     v-if="branchNames.length">
                   <div class="select is-small">
                     <select v-model="selectedBranch"
                             title="Switch branch"
@@ -106,7 +107,8 @@
               </div>
             </td>
             <td class="is-size-7 width-50px">
-              <p class="control has-text-centered" v-if="rowOverIndex === index">
+              <p class="control has-text-centered"
+                 v-if="rowOverIndex === index">
                 <button class="button is-small go-to-link-button"
                         @click="goToDocument(doc)"
                         title="Go to document">
@@ -141,6 +143,7 @@
 import _ from 'lodash'
 import ACLEditor from '@/doc-editors/ACLEditor.vue'
 import ContentFilterEditor from '@/doc-editors/ContentFilterProfileEditor.vue'
+import CloudFunctionsEditor from '@/doc-editors/CloudFunctionsEditor.vue'
 import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
 import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
 import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
@@ -168,7 +171,7 @@ type ReferencesMap = {
 }
 
 type ComponentTypes = typeof SecurityPoliciesEditor | typeof ACLEditor | typeof FlowControlPolicyEditor |
-typeof GlobalFilterListEditor | typeof RateLimitsEditor | typeof ContentFilterEditor
+    typeof GlobalFilterListEditor | typeof RateLimitsEditor | typeof ContentFilterEditor | typeof CloudFunctionsEditor
 export default defineComponent({
 
   name: 'DocumentSearch',
@@ -214,6 +217,11 @@ export default defineComponent({
         component: ContentFilterEditor,
         title: titles['contentfilterprofiles'],
         fields: 'id, name',
+      },
+      'cloud-functions': {
+        component: CloudFunctionsEditor,
+        title: titles['cloud-functions'],
+        fields: 'id, name, description, phase',
       },
     }
 
@@ -313,10 +321,13 @@ export default defineComponent({
   methods: {
 
     async loadConfigs() {
-      // store configs
       let configs
       try {
-        const response = await RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'})
+        const response = await RequestsUtils.sendRequest({
+          methodName: 'GET',
+          url: 'configs/',
+          config: {headers: {'x-fields': 'id'}},
+        })
         configs = response.data
       } catch (err) {
         console.log('Error while attempting to get configs')
@@ -522,7 +533,8 @@ export default defineComponent({
 
 })
 </script>
-<style scoped lang="scss">
+<style scoped
+       lang="scss">
 .vertical-scroll {
   max-height: 4.5rem;
 }

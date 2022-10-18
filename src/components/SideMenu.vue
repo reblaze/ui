@@ -1,12 +1,16 @@
 <template>
 
   <aside class="menu mt-3">
-    <div v-for="(sectionItems, sectionTitle) in menuItems" :key="sectionTitle" class="menu-item">
+    <div v-for="(sectionItems, sectionTitle) in menuItems"
+         :key="sectionTitle"
+         class="menu-item">
       <p class="menu-label">
         {{ sectionTitle }}
       </p>
       <ul class="menu-list">
-        <li v-for="(menuItemDetails, menuItemKey) in sectionItems" :key="menuItemKey" class="section-item">
+        <li v-for="(menuItemDetails, menuItemKey) in sectionItems"
+            :key="menuItemKey"
+            class="section-item">
           <a v-if="menuItemDetails.external"
              :data-qa="menuItemDetails.title"
              :data-curie="menuItemKey"
@@ -23,7 +27,8 @@
           </router-link>
           <ul v-if="menuItemDetails.items"
               class="my-0">
-            <li v-for="(menuSubItemDetails, menuSubItemKey) in menuItemDetails.items" :key="menuSubItemKey">
+            <li v-for="(menuSubItemDetails, menuSubItemKey) in menuItemDetails.items"
+                :key="menuSubItemKey">
               <router-link :data-curie="menuSubItemKey"
                            :to="menuItemKey + menuSubItemKey.toString()"
                            :class="{ 'is-active': currentRoutePath.includes(menuSubItemKey.toString()) }">
@@ -65,23 +70,6 @@ export default defineComponent({
       defaultGrafanaURL: grafanaURL,
       // defaultPrometheusURL: prometheusURL,
       menuItems: {
-        settings: {
-          '/list': {
-            title: 'Policies & Rules',
-            items: {},
-          },
-          '/CurieDB': {
-            title: 'CurieDB',
-          },
-          '/publish': {
-            title: 'Publish Changes',
-          },
-          'swagger': {
-            title: 'API',
-            url: swaggerURL,
-            external: true,
-          },
-        },
         analytics: {
           '/dashboard': {
             title: 'Dashboard',
@@ -102,15 +90,53 @@ export default defineComponent({
           //   external: true,
           // },
         },
+        settings: {
+          '/list': {
+            title: 'Policies & Rules',
+            items: {},
+          },
+          '/quarantined': {
+            title: 'Quarantined',
+          },
+          '/CurieDB': {
+            title: 'CurieDB',
+          },
+          '/web-proxy': {
+            title: 'Web Proxy',
+          },
+          '/routing-profiles': {
+            title: 'Routing Profiles',
+          },
+          '/mobile-sdks': {
+            title: 'Mobile SDKs',
+          },
+          '/proxy-templates': {
+            title: 'Proxy Templates',
+          },
+          '/backend-services': {
+            title: 'Backend Services',
+          },
+          '/publish': {
+            title: 'Publish Changes',
+          },
+        },
         git: {
           '/versioncontrol': {
             title: 'Version Control',
           },
         },
-        docs: {
+        help: {
+          '/support': {
+            title: 'Support',
+          },
           'curiebook': {
             title: 'Curiebook',
             url: 'https://docs.curiefense.io/',
+            external: true,
+          },
+          'swagger': {
+            title: 'API',
+            url: swaggerURL,
             external: true,
           },
         },
@@ -137,7 +163,7 @@ export default defineComponent({
       // const kibanaURL = systemDBData?.links?.kibana_url || this.defaultKibanaURL
       const grafanaURL = systemDBData?.links?.grafana_url || this.defaultGrafanaURL
       // const prometheusURL = systemDBData?.links?.prometheus_url || this.defaultPrometheusURL
-      this.menuItems.settings.swagger = {
+      this.menuItems.help.swagger = {
         title: 'API',
         url: swaggerURL,
         external: true,
@@ -160,16 +186,23 @@ export default defineComponent({
     },
 
     async loadBranches() {
-      const response = await RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'})
+      const response = await RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: 'configs/',
+        config: {headers: {'x-fields': 'id'}},
+      })
       const branchId = response?.data?.[0]?.id || 'undefined'
       const items = this.menuItems.settings['/list'].items // reference
       items[`/${branchId}/globalfilters`] = {title: 'Global Filters'} as menuItem
       items[`/${branchId}/flowcontrol`] = {title: 'Flow Control Policies'} as menuItem
-      items[`/${branchId}/ratelimits`] = {title: 'Rate limits'} as menuItem
+      items[`/${branchId}/securitypolicies`] = {title: 'Security Policies'} as menuItem
+      items[`/${branchId}/ratelimits`] = {title: 'Rate Limits'} as menuItem
       items[`/${branchId}/aclprofiles`] = {title: 'ACL Profiles'} as menuItem
       items[`/${branchId}/contentfilterprofiles`] = {title: 'Content Filter Profiles'} as menuItem
       items[`/${branchId}/contentfilterrules`] = {title: 'Content Filter Rules'} as menuItem
       items[`/${branchId}/actions`] = {title: 'Custom Responses'} as menuItem
+      items[`/${branchId}/cloud-functions`] = {title: 'Cloud Functions'} as menuItem
+      items[`/${branchId}/dynamic-rules`] = {title: 'Dynamic Rules'} as menuItem
       // items[`/${branchId}/search`] = {title: 'Search'} as menuItem
     },
   },
@@ -179,7 +212,8 @@ export default defineComponent({
   },
 })
 </script>
-<style scoped lang="scss">
+<style scoped
+       lang="scss">
 .menu-item {
   margin-top: 1.5rem;
 

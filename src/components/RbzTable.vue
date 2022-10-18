@@ -27,30 +27,57 @@
           {{ col.title }}
         </span>
       </th>
-      <th class="column-header width-70px"
+      <th class="column-header width-45px is-relative has-text-centered"
           v-if="showMenuColumn">
-        <div class="field is-grouped">
-          <button class="button is-size-7 filter-toggle"
-                  :class="{'is-active': filtersVisible }"
-                  title="Filter table data"
-                  v-if="showFilterButton"
-                  @click="filtersVisible = !filtersVisible">
+        <div class="dropdown is-block"
+             :class="{'is-active': menuVisible}">
+          <div class="dropdown-trigger">
+            <button class="button is-size-7 menu-toggle-button is-block"
+                    aria-haspopup="true"
+                    aria-controls="dropdown-menu"
+                    :title="`${menuVisible ? 'Close' : 'Open'} menu`"
+                    v-if="showFilterButton || showNewButton"
+                    @click.stop="menuVisible = !menuVisible">
             <span class="icon is-small">
-              <i class="fas fa-filter"></i>
+              <i class="fas fa-ellipsis-v"></i>
             </span>
-          </button>
-          <button class="button is-size-7 new-entity-button"
-                  title="Add new"
-                  v-if="showNewButton"
-                  @click="newButtonClicked()">
-            <span class="icon is-small">
-              <i class="fas fa-plus"></i>
-            </span>
-          </button>
+            </button>
+          </div>
+          <div class="dropdown-menu"
+               id="dropdown-menu"
+               role="menubar">
+            <div class="dropdown-content width-100px">
+              <button class="button is-size-7 filter-toggle dropdown-item"
+                      :class="{'is-active': filtersVisible }"
+                      title="Filter table data"
+                      v-if="showFilterButton"
+                      @click.stop="filtersVisible = !filtersVisible">
+                <span class="icon is-small">
+                  <i class="fas fa-filter"></i>
+                </span>
+                <span>
+                  Filter
+                </span>
+              </button>
+              <hr class="dropdown-divider">
+              <button class="button is-size-7 new-entity-button dropdown-item"
+                      title="Add new"
+                      v-if="showNewButton"
+                      @click.stop="newButtonClicked()">
+                <span class="icon is-small">
+                  <i class="fas fa-plus"></i>
+                </span>
+                <span>
+                  Add
+                </span>
+              </button>
+            </div>
+          </div>
         </div>
       </th>
     </tr>
-    <tr class="search-row header-row" v-if="filtersVisible">
+    <tr class="search-row header-row"
+        v-if="filtersVisible">
       <th class="control has-icons-right"
           v-for="(col, index) in columns"
           :key="index">
@@ -58,10 +85,11 @@
           <input class="input is-small filter-input"
                  :title="col.title"
                  :placeholder="col.title"
-                 v-model="filter[col.fieldNames.join(', ')]"
+                 v-model="filter[col.title]"
                  @change="currentPage = 1"/>
           <span class="icon is-small is-right">
-            <i class="fa fa-filter" aria-hidden="true"></i>
+            <i class="fa fa-filter"
+               aria-hidden="true"></i>
           </span>
         </div>
       </th>
@@ -87,23 +115,22 @@
           </span>
         </div>
       </td>
-      <td class="is-size-7"
-          v-if="showMenuColumn">
+      <td class="is-size-7" v-if="showMenuColumn">
         <div class="field is-grouped is-grouped-centered">
-          <p class="control"
-             v-if="showEditButton">
-            <button title="Edit"
-                    class="button is-small edit-entity-button"
-                    @click="editButtonClicked(row.id)">
+          <p class="control" v-if="showRowButton">
+            <button :title="rowButtonTitle"
+                    class="button is-small row-entity-button"
+                    @click="rowButtonClicked(row.id)">
               <span class="icon is-small">
-                <i class="fas fa-edit"></i>
+                <i :class="`fas ${rowButtonIcon ? rowButtonIcon : 'fa-edit'}`"></i>
               </span>
             </button>
           </p>
         </div>
       </td>
     </tr>
-    <tr v-if="totalPages > 1" class="pagination-row">
+    <tr v-if="totalPages > 1"
+        class="pagination-row">
       <td :colspan="columns.length + 1">
         <div class="pagination is-small">
           <button class="pagination-previous"
@@ -138,7 +165,9 @@ export default defineComponent({
     showMenuColumn: Boolean,
     showFilterButton: Boolean,
     showNewButton: Boolean,
-    showEditButton: Boolean,
+    showRowButton: Boolean,
+    rowButtonTitle: String,
+    rowButtonIcon: String,
     tableTitle: String,
     rowsPerPage: {
       type: Number,
@@ -171,6 +200,9 @@ export default defineComponent({
   },
   data() {
     return {
+      // Menu
+      menuVisible: false,
+
       // Filtering
       filter: {} as GenericObject,
       filtersVisible: false,
@@ -188,7 +220,7 @@ export default defineComponent({
       loadingCounter: 0,
     }
   },
-  emits: ['new-button-clicked', 'edit-button-clicked'],
+  emits: ['new-button-clicked', 'row-button-clicked'],
   computed: {
     dataArrayDisplay() {
       if (!this.data?.length) {
@@ -201,14 +233,14 @@ export default defineComponent({
             keys,
             (match: boolean, key: string) => {
               let getFilterValue: (item: any) => string
-              const columnOption = this.columns.find((column) => {
-                return column.fieldNames.join(', ') === key
+              const filterColumn = this.columns.find((column) => {
+                return column.title === key
               })
-              if (columnOption.displayFunction) {
-                getFilterValue = columnOption.displayFunction
+              if (filterColumn.displayFunction) {
+                getFilterValue = filterColumn.displayFunction
               } else {
-                getFilterValue = (item: any) => {
-                  return item[key]?.toString() || ''
+                getFilterValue = (item: GenericObject) => {
+                  return item[filterColumn?.fieldNames[0]]?.toString() || ''
                 }
               }
               return (match && getFilterValue(item).toLowerCase().includes(this.filter[key].toLowerCase()))
@@ -263,8 +295,8 @@ export default defineComponent({
       this.$emit('new-button-clicked')
     },
 
-    editButtonClicked(id: string) {
-      this.$emit('edit-button-clicked', id)
+    rowButtonClicked(id: string) {
+      this.$emit('row-button-clicked', id)
     },
 
     sortColumn(column: ColumnOptions) {
@@ -292,17 +324,28 @@ export default defineComponent({
         this.currentPage++
       }
     },
+
+    closeMenu() {
+      this.menuVisible = false
+    },
+  },
+  beforeMount() {
+    document.addEventListener('click', this.closeMenu)
+  },
+  beforeUnmount() {
+    document.removeEventListener('click', this.closeMenu)
   },
 })
 </script>
 
-<style scoped lang="scss">
-.arrow-wrapper {
+<style scoped
+       lang="scss">
+.rbz-table .arrow-wrapper {
   float: right;
   height: 0;
 }
 
-.arrow {
+.rbz-table .arrow {
   border-left: 4px solid transparent;
   border-right: 4px solid transparent;
   display: inline-block;
@@ -311,17 +354,17 @@ export default defineComponent({
   width: 0;
 }
 
-.arrow.is-active {
+.rbz-table .arrow.is-active {
   opacity: 1;
 }
 
-.arrow-asc {
+.rbz-table .arrow-asc {
   border-bottom: 6px solid #000;
   border-top: 0;
   vertical-align: top;
 }
 
-.arrow-desc {
+.rbz-table .arrow-desc {
   border-bottom: 0;
   border-top: 6px solid #000;
   vertical-align: bottom;
@@ -354,26 +397,36 @@ export default defineComponent({
   padding: 0.5em;
 }
 
-.filter-toggle,
-.new-entity-button {
+.rbz-table .menu-toggle-button {
   background: transparent;
   border-color: transparent;
-  cursor: pointer;
 }
 
-.filter-toggle {
-  opacity: 0.3;
-}
-
-.filter-toggle.is-active {
-  opacity: 1;
-}
-
-.filter-toggle:focus {
+.rbz-table .menu-toggle-button:focus {
   box-shadow: none;
 }
 
-.data-cell {
+.rbz-table .filter-toggle,
+.rbz-table .new-entity-button,
+.rbz-table .row-entity-button {
+  background: transparent;
+  border-color: transparent;
+  color: initial;
+}
+
+.rbz-table .filter-toggle {
+  opacity: 0.3;
+}
+
+.rbz-table .filter-toggle.is-active {
+  opacity: 1;
+}
+
+.rbz-table .filter-toggle:focus {
+  box-shadow: none;
+}
+
+.rbz-table .data-cell {
   max-height: 4.5rem;
 }
 </style>

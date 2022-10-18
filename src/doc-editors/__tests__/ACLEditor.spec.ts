@@ -1,13 +1,17 @@
 // @ts-nocheck
 import ACLEditor from '@/doc-editors/ACLEditor.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
-import {describe, test, expect, beforeEach} from '@jest/globals'
+import {describe, test, expect, beforeEach, jest} from '@jest/globals'
 import {shallowMount} from '@vue/test-utils'
-import {ACLProfile} from '@/types'
+import {ACLProfile, CustomResponse} from '@/types'
 import {nextTick} from 'vue'
+import axios from 'axios'
+
+jest.mock('axios')
 
 describe('ACLEditor.vue', () => {
   let docs: ACLProfile[]
+  let customResponsesDocs: CustomResponse[]
   let wrapper: any
   beforeEach(() => {
     docs = [
@@ -15,7 +19,7 @@ describe('ACLEditor.vue', () => {
         'id': '__default__',
         'name': 'default-acl',
         'description': 'New ACL Profile Description and Remarks',
-        'action': 'default',
+        'action': 'monitor',
         'tags': ['test', 'tag'],
         'allow': [],
         'allow_bot': [
@@ -37,9 +41,27 @@ describe('ACLEditor.vue', () => {
         ],
       },
     ]
+    customResponsesDocs = [
+      {
+        'id': 'default',
+        'name': 'default blocking action',
+      },
+      {
+        'id': 'monitor',
+        'name': 'default monitoring action',
+      },
+    ]
+    const selectedBranch = 'master'
+    jest.spyOn(axios, 'get').mockImplementation((path) => {
+      if (path === `/conf/api/v3/configs/${selectedBranch}/d/actions/`) {
+        return Promise.resolve({data: customResponsesDocs})
+      }
+      return Promise.resolve({data: {}})
+    })
     wrapper = shallowMount(ACLEditor, {
       props: {
         selectedDoc: docs[0],
+        selectedBranch: selectedBranch,
       },
     })
   })

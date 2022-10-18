@@ -42,7 +42,7 @@
                         class="type-selection"
                         title="Switch type"
                         @change="emitDocUpdate()">
-                  <option v-for="name in selectedType"
+                  <option v-for="name in customResponseTypes"
                           :key="name"
                           :value="name">
                     {{ capitalize(name) }}
@@ -62,44 +62,30 @@
               </div>
             </div>
           </div>
-          <div v-if="localDoc.type === 'custom'" class="column is-9">
+          <div v-if="['monitor', 'custom'].includes(localDoc.type)"
+               class="column is-9">
             <div class="custom-panel">
               <div class="field">
-                <label class="label is-small status-code-label">
-                  Status code
-                </label>
-                <div class="columns mb-0 status-code">
-                  <div class="column is-5 pb-0">
-                    <input class="input is-small document-status-code"
-                          data-qa="status-input"
-                          type="number"
-                          title="Status code"
-                          placeholder="Status code"
-                          @change="emitDocUpdate"
-                          v-model.number="localDoc.params.status"/>
-                  </div>
-                </div>
-              </div>
-              <div class="field">
                 <label class="label is-small is-size-7 has-text-left form-label">
-                  Headers
+                  {{ localDoc.type === 'custom' ? 'Response' : 'Request' }} Headers
                 </label>
-                <div v-for="(header, index) in headersArray" :key="index"
-                    class="columns mb-0 headers-columns">
+                <div v-for="(header, index) in headersArray"
+                     :key="index"
+                     class="columns mb-0 headers-columns">
                   <div class="column is-5">
                     <input class="input is-small document-header-key"
-                          title="Header key"
-                          placeholder="Header key"
-                          v-model="header.key"/>
+                           title="Header key"
+                           placeholder="Header key"
+                           v-model="header.key"/>
                   </div>
                   <div class="column is-5">
                     <input class="input is-small document-header-value"
-                          title="Header value"
-                          placeholder="Header value"
-                          v-model="header.value"/>
+                           title="Header value"
+                           placeholder="Header value"
+                           v-model="header.value"/>
                   </div>
                   <div class="column is-narrow">
-                    <button class="button is-light is-small remove-icon has-text-grey"
+                    <button class="button is-light is-small remove-icon is-small has-text-grey"
                             title="Click to remove header"
                             @click="removeHeaderElement(index)">
                       <span class="icon is-small"><i class="fas fa-trash fa-xs"></i></span>
@@ -107,15 +93,33 @@
                   </div>
                 </div>
                 <a title="Add new header"
-                  class="is-text is-small is-size-7 ml-3 add-key-button"
-                  data-qa="add-new-key-btn"
-                  tabindex="0"
-                  @keypress.space.prevent
-                  @click="addHeaderElement()">
+                   class="is-text is-small is-size-7 ml-3 add-key-button"
+                   data-qa="add-new-key-btn"
+                   tabindex="0"
+                   @keypress.space.prevent
+                   @click="addHeaderElement()">
                   New entry
                 </a>
               </div>
-              <div class="field">
+              <div v-if="localDoc.type === 'custom'"
+                   class="field">
+                <label class="label is-small status-code-label">
+                  Status code
+                </label>
+                <div class="columns mb-0 status-code">
+                  <div class="column is-5 pb-0">
+                    <input class="input is-small document-status-code"
+                           data-qa="status-input"
+                           type="number"
+                           title="Status code"
+                           placeholder="Status code"
+                           @change="emitDocUpdate"
+                           v-model.number="localDoc.params.status"/>
+                  </div>
+                </div>
+              </div>
+              <div v-if="localDoc.type === 'custom'"
+                   class="field">
                 <label class="label is-small content">
                   Content
                 </label>
@@ -139,6 +143,7 @@ import _ from 'lodash'
 import {CustomResponse} from '@/types'
 import {defineComponent} from 'vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
+
 type HeaderObject = {
   key: string
   value: string
@@ -156,7 +161,7 @@ export default defineComponent({
           this.headersArray = newHeadersArray
         }
         // adding necessary fields to all local doc sections if missing
-        if (!value['params'] && value['type'] === 'custom') {
+        if (!value['params'] && ['monitor', 'custom'].includes(value['type'])) {
           this.normalizeParams()
         }
       },
@@ -188,9 +193,9 @@ export default defineComponent({
     apiPath: String,
   },
   data() {
-    const selectedType = ['skip', 'custom', 'challenge', 'monitor']
+    const customResponseTypes = ['skip', 'custom', 'challenge', 'monitor']
     return {
-      selectedType: selectedType,
+      customResponseTypes: customResponseTypes,
       headersArray: [] as HeaderObject[],
     }
   },
@@ -242,17 +247,14 @@ export default defineComponent({
     },
 
     normalizeParams() {
-      this.localDoc.params = {
-        status: null,
-        headers: {},
-        content: '',
-      }
+      this.localDoc.params = {}
       this.emitDocUpdate()
     },
   },
 })
 </script>
-<style scoped lang="scss">
+<style scoped
+       lang="scss">
 .headers-columns,
 .status-code {
   width: 50%;

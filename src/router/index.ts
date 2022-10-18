@@ -1,5 +1,4 @@
-import {createRouter, createWebHistory} from 'vue-router'
-import {RouteRecordRaw} from 'vue-router'
+import {createRouter, createWebHistory, RouteRecordRaw} from 'vue-router'
 import MainComponent from '@/views/MainComponent.vue'
 import DashboardDisplay from '@/views/Dashboard.vue'
 import DocumentEditor from '@/views/DocumentEditor.vue'
@@ -8,6 +7,18 @@ import PublishChanges from '@/views/Publish.vue'
 import VersionControl from '@/views/VersionControl.vue'
 import DocumentSearch from '@/views/DocumentSearch.vue'
 import DocumentList from '@/views/DocumentList.vue'
+import QuarantinedList from '@/components/QuarantinedList.vue'
+import RoutingProfileList from '@/views/RoutingProfileList.vue'
+import RoutingProfileEditor from '@/doc-editors/RoutingProfileEditor.vue'
+import MobileSDKList from '@/views/MobileSDKList.vue'
+import MobileSDKEditor from '@/doc-editors/MobileSDKEditor.vue'
+import ProxyTemplateList from '@/views/ProxyTemplateList.vue'
+import ProxyTemplateEditor from '@/doc-editors/ProxyTemplateEditor.vue'
+import WebProxyList from '@/views/WebProxyList.vue'
+import WebProxyEditor from '@/doc-editors/WebProxyEditor.vue'
+import BackendServiceList from '@/views/BackendServiceList.vue'
+import BackendServiceEditor from '@/doc-editors/BackendServiceEditor.vue'
+import HelpAndSupport from '@/views/HelpAndSupport.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -62,9 +73,96 @@ const routes: Array<RouteRecordRaw> = [
           },
         ],
       },
+      {path: 'quarantined', name: 'Quarantined', component: QuarantinedList},
       {path: 'CurieDB', name: 'CurieDBEditor', component: CurieDBEditor},
+      {
+        path: 'web-proxy',
+        name: 'WebProxy',
+        redirect: '/web-proxy/list',
+        children: [
+          {
+            path: 'list',
+            name: 'WebProxy/list',
+            component: WebProxyList,
+          },
+          {
+            path: 'config/:doc_id',
+            name: 'WebProxy/config',
+            component: WebProxyEditor,
+          },
+        ],
+      },
+      {
+        path: 'routing-profiles',
+        name: 'RoutingProfiles',
+        redirect: '/routing-profiles/list',
+        children: [
+          {
+            path: 'list',
+            name: 'RoutingProfiles/list',
+            component: RoutingProfileList,
+          },
+          {
+            path: 'config/:doc_id',
+            name: 'RoutingProfiles/config',
+            component: RoutingProfileEditor,
+          },
+        ],
+      },
+      {
+        path: 'mobile-sdks',
+        name: 'MobileSDKs',
+        redirect: '/mobile-sdks/list',
+        children: [
+          {
+            path: 'list',
+            name: 'MobileSDKs/list',
+            component: MobileSDKList,
+          },
+          {
+            path: 'config/:doc_id',
+            name: 'MobileSDKs/config',
+            component: MobileSDKEditor,
+          },
+        ],
+      },
+      {
+        path: 'proxy-templates',
+        name: 'ProxyTemplates',
+        redirect: '/proxy-templates/list',
+        children: [
+          {
+            path: 'list',
+            name: 'ProxyTemplates/list',
+            component: ProxyTemplateList,
+          },
+          {
+            path: 'config/:doc_id',
+            name: 'ProxyTemplates/config',
+            component: ProxyTemplateEditor,
+          },
+        ],
+      },
+      {
+        path: 'backend-services',
+        name: 'BackendServices',
+        redirect: '/backend-services/list',
+        children: [
+          {
+            path: 'list',
+            name: 'BackendServices/list',
+            component: BackendServiceList,
+          },
+          {
+            path: 'config/:doc_id',
+            name: 'BackendServices/config',
+            component: BackendServiceEditor,
+          },
+        ],
+      },
       {path: 'publish', name: 'PublishChanges', component: PublishChanges},
       {path: 'versioncontrol', name: 'VersionControl', component: VersionControl},
+      {path: 'support', name: 'Support', component: HelpAndSupport},
       {path: 'search', name: 'DocumentSearch', component: DocumentSearch},
     ],
   },

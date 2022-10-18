@@ -37,7 +37,7 @@
       <hr/>
 
       <div class="content document-list-wrapper"
-           v-show="!loadingDocCounter">
+           v-show="!loadingDocCounter && selectedBranch && selectedDocType">
         <div class="card">
           <div class="card-content">
             <div class="content">
@@ -47,8 +47,10 @@
                          :show-filter-button="true"
                          :show-new-button="true"
                          @new-button-clicked="addNewDoc"
-                         :show-edit-button="true"
-                         @edit-button-clicked="editDoc">
+                         :show-row-button="true"
+                         :row-button-title="rowButtonTitle"
+                         :row-button-icon="rowButtonIcon"
+                         @row-button-clicked="editDoc">
               </rbz-table>
               <span class="is-family-monospace has-text-grey-lighter">
                 {{ documentListAPIPath }}
@@ -57,7 +59,8 @@
           </div>
         </div>
         <hr/>
-        <git-history :gitLog="gitLog"
+        <git-history v-if="!isReblazeDocument"
+                     :gitLog="gitLog"
                      :apiPath="gitAPIPath"
                      :loading="isGitLogLoading"
                      @restore-version="restoreGitVersion"></git-history>
@@ -78,8 +81,8 @@
             <span v-if="!branchNames.includes(selectedBranch)">
               Missing branch. To be redirected to Version Control page where you will be able to create a new one, click
               <a title="Add new"
-                 class="version-control-referral-button"
-                 @click="referToVersionControl()">
+                 class="redirect-version-control-button"
+                 @click="redirectToVersionControl()">
                 here
               </a>
             </span>
@@ -105,13 +108,16 @@ import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
 import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
 import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
 import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
+import CloudFunctionsEditor from '@/doc-editors/CloudFunctionsEditor.vue'
 import CustomResponseEditor from '@/doc-editors/CustomResponseEditor.vue'
+import DynamicRulesEditor from '@/doc-editors/DynamicRulesEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {defineComponent, shallowRef} from 'vue'
-import {ColumnOptions, Commit, Document, DocumentType, GenericObject} from '@/types'
+import {ColumnOptions, Commit, Document, DocumentType, DynamicRule, GenericObject, GlobalFilter} from '@/types'
 import {COLUMN_OPTIONS_MAP} from './documentListConst'
 import {AxiosResponse} from 'axios'
 import RbzTable from '@/components/RbzTable.vue'
+
 
 export default defineComponent({
   watch: {
@@ -131,6 +137,10 @@ export default defineComponent({
     GitHistory,
   },
   data() {
+    const reblazeComponentsMap = {
+      'cloud-functions': shallowRef({component: CloudFunctionsEditor}),
+      'dynamic-rules': shallowRef({component: DynamicRulesEditor}),
+    }
     return {
       columns: [] as ColumnOptions[],
       configs: [],
@@ -142,11 +152,14 @@ export default defineComponent({
       // Documents
       docs: [] as GenericObject[],
       docIdNames: [] as [Document['id'], Document['name']][],
-
       // To prevent deletion of docs referenced by Security Policies
       referencedIDsACL: [],
       referencedIDsContentFilter: [],
       referencedIDsLimits: [],
+
+      // table button icon and tooltip
+      rowButtonIcon: 'fa-edit',
+      rowButtonTitle: 'Edit',
 
       // Loading indicators
       isNewLoading: false,
@@ -154,8 +167,10 @@ export default defineComponent({
       isGitLogLoading: false,
       loadingDocCounter: 0,
 
-      apiRoot: RequestsUtils.confAPIRoot,
-      apiVersion: RequestsUtils.confAPIVersion,
+      confAPIRoot: RequestsUtils.confAPIRoot,
+      confAPIVersion: RequestsUtils.confAPIVersion,
+      reblazeAPIRoot: RequestsUtils.reblazeAPIRoot,
+      reblazeAPIVersion: RequestsUtils.reblazeAPIVersion,
       componentsMap: {
         'globalfilters': shallowRef({component: GlobalFilterListEditor}),
         'flowcontrol': shallowRef({component: FlowControlPolicyEditor}),
@@ -165,17 +180,28 @@ export default defineComponent({
         'contentfilterprofiles': shallowRef({component: ContentFilterEditor}),
         'contentfilterrules': shallowRef({component: ContentFilterRulesEditor}),
         'actions': shallowRef({component: CustomResponseEditor}),
+        ...reblazeComponentsMap,
       },
+      reblazeComponentsMap: reblazeComponentsMap,
     }
   },
   computed: {
+    isReblazeDocument(): boolean {
+      return Object.keys(this.reblazeComponentsMap).includes(this.selectedDocType)
+    },
+
     documentListAPIPath(): string {
-      const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
+      let apiPrefix
+      if (this.isReblazeDocument) {
+        apiPrefix = `${this.reblazeAPIRoot}/${this.reblazeAPIVersion}`
+      } else {
+        apiPrefix = `${this.confAPIRoot}/${this.confAPIVersion}`
+      }
       return `${apiPrefix}/configs/${this.selectedBranch}/d/${this.selectedDocType}/`
     },
 
     gitAPIPath(): string {
-      const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
+      const apiPrefix = `${this.confAPIRoot}/${this.confAPIVersion}`
       return `${apiPrefix}/configs/${this.selectedBranch}/d/${this.selectedDocType}/v/`
     },
 
@@ -210,7 +236,7 @@ export default defineComponent({
       }
       this.columns = COLUMN_OPTIONS_MAP[this.selectedDocType]
       if (!prevDocType || prevDocType !== this.selectedDocType) {
-        await this.loadDocs(this.selectedDocType)
+        await this.loadDocs()
       }
       this.setLoadingDocStatus(false)
       this.loadGitLog()
@@ -218,10 +244,13 @@ export default defineComponent({
     },
 
     async loadConfigs() {
-      // store configs
       let configs
       try {
-        const response = await RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'})
+        const response = await RequestsUtils.sendRequest({
+          methodName: 'GET',
+          url: 'configs/',
+          config: {headers: {'x-fields': 'id'}},
+        })
         configs = response.data
       } catch (err) {
         console.log('Error while attempting to get configs')
@@ -231,21 +260,30 @@ export default defineComponent({
       this.configs = configs
     },
 
-    async loadDocs(doctype: DocumentType) {
+    async loadDocs() {
       this.isDownloadLoading = true
-      const branch = this.selectedBranch
       const fieldNames = _.flatMap(this.columns, 'fieldNames')
-      const response = await RequestsUtils.sendRequest({
+
+      let requestFunction
+      const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/`
+      if (this.isReblazeDocument) {
+        requestFunction = RequestsUtils.sendReblazeRequest
+      } else {
+        requestFunction = RequestsUtils.sendRequest
+      }
+      const response = await requestFunction({
         methodName: 'GET',
-        url: `configs/${branch}/d/${doctype}/`,
-        data: {headers: {'x-fields': `id, ${fieldNames.join(', ')}`}},
+        url: url,
+        config: {headers: {'x-fields': `id, ${_.uniq(fieldNames).join(', ')}`}},
         onFail: () => {
           console.log('Error while attempting to load documents')
           this.docs = []
           this.isDownloadLoading = false
         },
       })
+
       this.docs = response?.data || []
+      console.log('list docs: ', this.docs)
       this.isDownloadLoading = false
       this.loadGitLog()
     },
@@ -253,7 +291,7 @@ export default defineComponent({
     async switchBranch() {
       this.setLoadingDocStatus(true)
       Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
-      await this.loadDocs(this.selectedDocType)
+      await this.loadDocs()
       this.goToRoute()
       this.setLoadingDocStatus(false)
     },
@@ -278,14 +316,48 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       this.isNewLoading = true
       const docToAdd = this.newDoc()
+      if (this.selectedDocType === 'dynamic-rules') {
+        docToAdd.name = docToAdd.name + ' ' + docToAdd.id
+      }
       const docTypeText = this.titles[this.selectedDocType + '-singular']
       const successMessage = `New ${docTypeText} was created.`
       const failureMessage = `Failed while attempting to create the new ${docTypeText}.`
-      const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/`
-      const data = docToAdd
-      await RequestsUtils.sendRequest({methodName: 'POST', url, data, successMessage, failureMessage}).then(() => {
-        this.editDoc(docToAdd.id)
-      })
+      let data = docToAdd
+      if (this.isReblazeDocument) {
+        const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${docToAdd.id}`
+        console.log('add new doc function', url, data, successMessage)
+        await RequestsUtils.sendReblazeRequest({
+          methodName: 'POST',
+          url,
+          data,
+          successMessage,
+          failureMessage,
+        }).then(() => {
+          this.editDoc(docToAdd.id)
+        })
+      } else {
+        const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/`
+        await RequestsUtils.sendRequest({
+          methodName: 'POST',
+          url,
+          data,
+          successMessage,
+          failureMessage,
+        }).then(() => {
+          this.editDoc(docToAdd.id)
+        })
+      }
+
+      if (this.selectedDocType === 'dynamic-rules') {
+        const docMatchingGlobalFilter = DatasetsUtils.newDocEntryFactory['globalfilters']() as GlobalFilter
+        docMatchingGlobalFilter.id = `dr_${docToAdd.id}`
+        docMatchingGlobalFilter.active = (docToAdd as DynamicRule).active
+        docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule ' + docToAdd.id
+        data = docMatchingGlobalFilter
+        const url = `configs/${this.selectedBranch}/d/globalfilters/e/`
+        await RequestsUtils.sendRequest({methodName: 'POST', url, data})
+      }
+
       this.isNewLoading = false
       this.setLoadingDocStatus(false)
     },
@@ -300,11 +372,14 @@ export default defineComponent({
       }
     },
 
-    referToVersionControl() {
+    redirectToVersionControl() {
       this.$router.push('/versioncontrol')
     },
 
     loadGitLog() {
+      if (this.isReblazeDocument) {
+        return
+      }
       this.isGitLogLoading = true
       const config = this.selectedBranch
       const document = this.selectedDocType
@@ -330,9 +405,10 @@ export default defineComponent({
         successMessage: `Document [${docTitle}] restored to version [${versionId}]!`,
         failureMessage: `Failed restoring document [${docTitle}] to version [${versionId}]!`,
       })
-      await this.loadDocs(this.selectedDocType)
+      await this.loadDocs()
     },
   },
+
   async created() {
     this.setLoadingDocStatus(true)
     await this.loadConfigs()
@@ -342,7 +418,8 @@ export default defineComponent({
 })
 </script>
 
-<style scoped lang="scss">
+<style scoped
+       lang="scss">
 .no-data-wrapper {
   /* Magic number! Delayed the display of loading indicator as to not display it in short loads */
   animation: delayedDisplay 300ms;

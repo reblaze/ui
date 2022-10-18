@@ -2,7 +2,7 @@
 import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {mount, shallowMount, VueWrapper} from '@vue/test-utils'
-import {GlobalFilter, GlobalFilterSectionEntry} from '@/types'
+import {CustomResponse, GlobalFilter, GlobalFilterSectionEntry} from '@/types'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import EntriesRelationList from '@/components/EntriesRelationList.vue'
 import axios from 'axios'
@@ -12,63 +12,82 @@ jest.mock('axios')
 
 describe('GlobalFilterListEditor.vue', () => {
   let docs: GlobalFilter[]
+  let customResponsesDocs: CustomResponse[]
   let wrapper: VueWrapper
   beforeEach(() => {
-    docs = [{
-      'id': 'xlbp148c',
-      'name': 'API Discovery',
-      'source': 'self-managed',
-      'mdate': '2020-05-23T00:04:41',
-      'description': 'Tag API Requests',
-      'active': true,
-      'tags': ['api', 'okay'],
-      'action': 'monitor',
-      'rule': {
-        'relation': 'OR',
-        'entries': [
-          {'relation': 'OR', 'entries': [['ip', '1.1.1.1', null]]},
-          {'relation': 'OR', 'entries': [['ip', '2.2.2.2', null]]},
-          {'relation': 'OR', 'entries': [['headers', ['headerrr', 'valueeee'], 'anooo']]},
-        ],
+    docs = [
+      {
+        'id': 'xlbp148c',
+        'name': 'API Discovery',
+        'source': 'self-managed',
+        'mdate': '2020-05-23T00:04:41',
+        'description': 'Tag API Requests',
+        'active': true,
+        'tags': ['api', 'okay'],
+        'action': 'monitor',
+        'rule': {
+          'relation': 'OR',
+          'entries': [
+            {'relation': 'OR', 'entries': [['ip', '1.1.1.1', null]]},
+            {'relation': 'OR', 'entries': [['ip', '2.2.2.2', null]]},
+            {'relation': 'OR', 'entries': [['headers', ['headerrr', 'valueeee'], 'anooo']]},
+          ],
+        },
       },
-    }, {
-      'id': '07656fbe',
-      'name': 'devop internal demo',
-      'source': 'self-managed',
-      'mdate': '2020-05-23T00:04:41',
-      'description': 'this is my own list',
-      'active': false,
-      'tags': ['internal', 'devops'],
-      'action': 'monitor',
-      'rule': {
-        'relation': 'OR',
-        'entries': [
-          {
-            'relation': 'OR',
-            'entries': [
-              ['ip', '1.1.1.1', null],
-            ],
-          },
-          {
-            'relation': 'OR',
-            'entries': [
-              ['ip', '2.2.2.2', null],
-            ],
-          },
-          {
-            'relation': 'OR',
-            'entries': [
-              ['headers', ['headerrr', 'valueeee'], 'anooo'],
-            ],
-          }],
+      {
+        'id': '07656fbe',
+        'name': 'devop internal demo',
+        'source': 'self-managed',
+        'mdate': '2020-05-23T00:04:41',
+        'description': 'this is my own list',
+        'active': false,
+        'tags': ['internal', 'devops'],
+        'action': 'monitor',
+        'rule': {
+          'relation': 'OR',
+          'entries': [
+            {
+              'relation': 'OR',
+              'entries': [
+                ['ip', '1.1.1.1', null],
+              ],
+            },
+            {
+              'relation': 'OR',
+              'entries': [
+                ['ip', '2.2.2.2', null],
+              ],
+            },
+            {
+              'relation': 'OR',
+              'entries': [
+                ['headers', ['headerrr', 'valueeee'], 'anooo'],
+              ],
+            }],
+        },
       },
-    }]
-    jest.spyOn(axios, 'get').mockImplementation(() => {
+    ]
+    customResponsesDocs = [
+      {
+        'id': 'default',
+        'name': 'default blocking action',
+      },
+      {
+        'id': 'monitor',
+        'name': 'default monitoring action',
+      },
+    ]
+    const selectedBranch = 'master'
+    jest.spyOn(axios, 'get').mockImplementation((path) => {
+      if (path === `/conf/api/v3/configs/${selectedBranch}/d/actions/`) {
+        return Promise.resolve({data: customResponsesDocs})
+      }
       return Promise.resolve({data: {}})
     })
     wrapper = shallowMount(GlobalFilterListEditor, {
       props: {
         selectedDoc: docs[0],
+        selectedBranch: selectedBranch,
       },
     })
   })
@@ -106,9 +125,11 @@ describe('GlobalFilterListEditor.vue', () => {
       expect(element.value).toEqual(docs[0].source)
     })
 
-    test('should have response action input with correct data', () => {
-      const element = wrapper.find('.document-action').element as HTMLTextAreaElement
-      expect(element.value).toEqual(docs[0].action.toString())
+    test('should have response action selection with correct data', () => {
+      const wantedAction = docs[0].action.toString()
+      const actionSelection = wrapper.find('.document-action-selection')
+      const selectedAction = (actionSelection.find('option:checked').element as HTMLOptionElement).value
+      expect(selectedAction).toEqual(wantedAction)
     })
 
     test('should have correct description in input', () => {

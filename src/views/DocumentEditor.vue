@@ -6,7 +6,18 @@
           <div class="columns">
             <div class="column">
               <div class="field is-grouped">
-                <div class="control" v-if="branchNames.length">
+                <p class="control">
+                  <button class="button is-small redirect-list-button"
+                          @click="redirectToList()"
+                          title="Return to list"
+                          data-qa="redirect-to-list">
+                    <span class="icon is-small">
+                      <i class="fas fa-arrow-left"></i>
+                    </span>
+                  </button>
+                </p>
+                <div class="control"
+                     v-if="branchNames.length">
                   <div class="select is-small">
                     <select v-model="selectedBranch"
                             data-qa="policies-switch-branch"
@@ -77,7 +88,8 @@
 
             <div class="column">
               <div class="field is-grouped is-pulled-right">
-                <div class="control" v-if="docIdNames.length">
+                <div class="control"
+                     v-if="docIdNames.length">
                   <div class="select is-small">
                     <select v-model="selectedDocID"
                             title="Switch document ID"
@@ -98,7 +110,7 @@
                           :class="{'is-loading': isForkLoading}"
                           @click="forkDoc()"
                           title="Duplicate document"
-                          :disabled="!selectedDoc"
+                          :disabled="!selectedDoc || dynamicRuleManaged"
                           data-qa="duplicate-document">
                     <span class="icon is-small">
                       <i class="fas fa-clone"></i>
@@ -124,7 +136,7 @@
                           :class="{'is-loading': isSaveLoading}"
                           @click="saveChanges()"
                           title="Save changes"
-                          :disabled="isDocumentInvalid || !selectedDoc"
+                          :disabled="isDocumentInvalid || !selectedDoc || dynamicRuleManaged"
                           data-qa="save-changes">
                     <span class="icon is-small">
                       <i class="fas fa-save"></i>
@@ -135,7 +147,7 @@
                 <p class="control">
                   <button class="button is-small has-text-danger delete-document-button"
                           :class="{'is-loading': isDeleteLoading}"
-                          @click="deleteDoc"
+                          @click="deleteDoc()"
                           title="Delete document"
                           :disabled="selectedDocNotDeletable"
                           data-qa="delete-document">
@@ -156,10 +168,11 @@
       <div class="content document-editor-wrapper"
            v-show="!loadingDocCounter">
         <component
-            v-if="selectedBranch && selectedDocType && selectedDoc"
+            v-if="selectedBranch && selectedDocType && selectedDoc && !loadingDocCounter"
             :is="componentsMap[selectedDocType].component"
             v-model:selectedBranch="selectedBranch"
             v-model:selectedDoc="selectedDoc"
+            v-model:selectedDocMatchingGlobalFilter="selectedDocMatchingGlobalFilter"
             v-model:docs="docs"
             :apiPath="documentAPIPath"
             @form-invalid="isDocumentInvalid = $event"
@@ -167,7 +180,7 @@
             ref="currentComponent">
         </component>
         <hr/>
-        <git-history v-if="selectedDocID"
+        <git-history v-if="selectedDocID && !isReblazeDocument"
                      :gitLog="gitLog"
                      :apiPath="gitAPIPath"
                      :loading="loadingGitlog"
@@ -175,7 +188,7 @@
       </div>
 
       <div class="content no-data-wrapper"
-        v-if="loadingDocCounter || !selectedBranch || !selectedDocType || !selectedDoc">
+           v-if="loadingDocCounter || !selectedBranch || !selectedDocType || !selectedDoc">
         <div v-if="loadingDocCounter > 0">
           <button class="button is-outlined is-text is-small is-loading document-loading">
             Loading
@@ -189,8 +202,8 @@
             <span v-if="!branchNames.includes(selectedBranch)">
               Missing branch. To be redirected to Version Control page where you will be able to create a new one, click
               <a title="Add new"
-                 class="version-control-referral-button"
-                 @click="referToVersionControl()">
+                 class="redirect-version-control-button"
+                 @click="redirectToVersionControl()">
                 here
               </a>
             </span>
@@ -221,13 +234,15 @@ import ContentFilterEditor from '@/doc-editors/ContentFilterProfileEditor.vue'
 import ContentFilterRulesEditor from '@/doc-editors/ContentFilterRulesEditor.vue'
 import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
 import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
+import CloudFunctionsEditor from '@/doc-editors/CloudFunctionsEditor.vue'
+import DynamicRulesEditor from '@/doc-editors/DynamicRulesEditor.vue'
 import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
 import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
 import CustomResponseEditor from '@/doc-editors/CustomResponseEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
 import {defineComponent, shallowRef} from 'vue'
-import {Commit, Document, DocumentType, HttpRequestMethods, SecurityPolicy} from '@/types'
+import {Commit, Document, DocumentType, DynamicRule, GlobalFilter, HttpRequestMethods, SecurityPolicy} from '@/types'
 import axios, {AxiosResponse} from 'axios'
 
 export default defineComponent({
@@ -237,6 +252,10 @@ export default defineComponent({
     GitHistory,
   },
   data() {
+    const reblazeComponentsMap = {
+      'cloud-functions': shallowRef({component: CloudFunctionsEditor}),
+      'dynamic-rules': shallowRef({component: DynamicRulesEditor}),
+    }
     return {
       configs: [],
       mdiSourceBranchPath: mdiSourceBranch,
@@ -254,6 +273,8 @@ export default defineComponent({
       referencedIDsACL: [],
       referencedIDsContentFilter: [],
       referencedIDsLimits: [],
+      referencedIDsCloudFunctions: [],
+      referencedIDsDynamicRules: [],
 
       selectedBranch: null,
       selectedDocType: null as DocumentType,
@@ -264,6 +285,8 @@ export default defineComponent({
       cancelSource: axios.CancelToken.source(),
       isDownloadLoading: false,
       isDocumentInvalid: false,
+      selectedDocMatchingGlobalFilter: null as GlobalFilter,
+      duplicatedDocMatchingGlobalFilter: null as GlobalFilter,
 
       gitLog: [],
       loadingGitlog: false,
@@ -279,20 +302,58 @@ export default defineComponent({
         'contentfilterprofiles': shallowRef({component: ContentFilterEditor}),
         'contentfilterrules': shallowRef({component: ContentFilterRulesEditor}),
         'actions': shallowRef({component: CustomResponseEditor}),
+        ...reblazeComponentsMap,
       },
-      apiRoot: RequestsUtils.confAPIRoot,
-      apiVersion: RequestsUtils.confAPIVersion,
+      reblazeComponentsMap: reblazeComponentsMap,
+      confAPIRoot: RequestsUtils.confAPIRoot,
+      confAPIVersion: RequestsUtils.confAPIVersion,
+      reblazeAPIRoot: RequestsUtils.confAPIRoot,
+      reblazeAPIVersion: RequestsUtils.confAPIVersion,
     }
   },
+  watch: {
+    selectedDocID: {
+      handler: async function(val, oldVal) {
+        if (val && val !== oldVal && this.selectedDocType === 'dynamic-rules') {
+          if (this.isNewLoading) {
+            const docMatchingGlobalFilter = DatasetsUtils.newDocEntryFactory['globalfilters']() as GlobalFilter
+            docMatchingGlobalFilter.id = `dr_${this.selectedDocID}`
+            docMatchingGlobalFilter.active = (this.selectedDoc as DynamicRule).active
+            docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule' + this.selectedDocID
+            this.selectedDocMatchingGlobalFilter = docMatchingGlobalFilter
+          } else {
+            this.setLoadingDocStatus(true)
+            const url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${val}/`
+            const response = await RequestsUtils.sendRequest({methodName: 'GET', url})
+
+            this.selectedDocMatchingGlobalFilter = response.data
+            this.setLoadingDocStatus(false)
+          }
+        }
+      },
+    },
+  },
   computed: {
+    isReblazeDocument(): boolean {
+      return Object.keys(this.reblazeComponentsMap).includes(this.selectedDocType)
+    },
+
+    dynamicRuleManaged(): boolean {
+      return this.selectedDocID.startsWith('dr_')
+    },
 
     documentAPIPath(): string {
-      const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
+      let apiPrefix
+      if (this.isReblazeDocument) {
+        apiPrefix = `${this.reblazeAPIRoot}/${this.reblazeAPIVersion}`
+      } else {
+        apiPrefix = `${this.confAPIRoot}/${this.confAPIVersion}`
+      }
       return `${apiPrefix}/configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`
     },
 
     gitAPIPath(): string {
-      const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
+      const apiPrefix = `${this.confAPIRoot}/${this.confAPIVersion}`
       return `${apiPrefix}/configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/v/`
     },
 
@@ -313,7 +374,8 @@ export default defineComponent({
       return !this.selectedDoc ||
           this.selectedDoc.id === '__default__' ||
           this.isDocReferenced ||
-          this.docs.length <= 1
+          this.docs.length <= 1 ||
+          this.selectedDoc.id.startsWith('dr_')
     },
 
     selectedDocIndex(): number {
@@ -335,11 +397,15 @@ export default defineComponent({
       if (this.selectedDocType === 'ratelimits') {
         return this.referencedIDsLimits.includes(this.selectedDocID)
       }
+      if (this.selectedDocType === 'cloud-functions') {
+        return this.referencedIDsCloudFunctions.includes(this.selectedDocID)
+      }
+      if (this.selectedDocType === 'dynamic-rules') {
+        return this.referencedIDsDynamicRules.includes(this.selectedDocID)
+      }
       return false
     },
-
   },
-
   methods: {
 
     async goToRoute(newRoute?: string) {
@@ -369,7 +435,7 @@ export default defineComponent({
         this.selectedDocType = Object.keys(this.componentsMap)[0] as DocumentType
       }
       if (!prevDocType || prevDocType !== this.selectedDocType) {
-        await this.loadDocs(this.selectedDocType)
+        await this.loadDocs()
       }
       const docIdFromRoute = this.$route.params?.doc_id?.toString()
       if (docIdFromRoute && this.docIdNames.findIndex((idName) => idName[0] === docIdFromRoute)) {
@@ -378,11 +444,20 @@ export default defineComponent({
         this.selectedDocID = this.docIdNames?.[0]?.[0]
       }
       this.isDocumentInvalid = false
+
       await this.loadSelectedDocData()
       this.addMissingDefaultsToDoc()
       await this.goToRoute()
       this.setLoadingDocStatus(false)
       this.loadGitLog()
+    },
+
+    redirectToVersionControl() {
+      this.$router.push('/versioncontrol')
+    },
+
+    redirectToList() {
+      this.$router.push(`/list/${this.selectedBranch}/${this.selectedDocType}`)
     },
 
     resetGitLog() {
@@ -395,10 +470,13 @@ export default defineComponent({
     },
 
     async loadConfigs(counterOnly?: boolean) {
-      // store configs
       let configs
       try {
-        const response = await RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'})
+        const response = await RequestsUtils.sendRequest({
+          methodName: 'GET',
+          url: 'configs/',
+          config: {headers: {'x-fields': 'id'}},
+        })
         configs = response.data
       } catch (err) {
         console.log('Error while attempting to get configs')
@@ -424,22 +502,48 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       // check if the selected doc only has id and name, if it does, attempt to load the rest of the document data
       if (this.selectedDoc && Object.keys(this.selectedDoc).length === 2) {
-        const response = await RequestsUtils.sendRequest({
-          methodName: 'GET',
-          url: `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`,
-        })
+        let response
+        const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`
+        if (this.isReblazeDocument) {
+          response = await RequestsUtils.sendReblazeRequest({
+            methodName: 'GET',
+            url,
+          })
+        } else {
+          response = await RequestsUtils.sendRequest({
+            methodName: 'GET',
+            url,
+          })
+        }
         this.selectedDoc = response?.data || this.selectedDoc
+        if (this.selectedDocType === 'dynamic-rules') {
+          // get globalFilters from conf server
+          const globalResponse = RequestsUtils.sendRequest({
+            methodName: 'GET',
+            url: `configs/${this.selectedBranch}/d/globalfilters/e/dr_${this.selectedDocID}/`,
+          })
+          this.selectedDocMatchingGlobalFilter = globalResponse.data
+        }
       }
       this.setLoadingDocStatus(false)
     },
 
-    async loadDocs(doctype: DocumentType, skipDocSelection?: boolean) {
+    async loadDocs(skipDocSelection?: boolean) {
       this.isDownloadLoading = true
+      this.setLoadingDocStatus(true)
       const branch = this.selectedBranch
-      const response = await RequestsUtils.sendRequest({
+      const url = `configs/${branch}/d/${this.selectedDocType}/`
+      let requestFunction
+      if (this.isReblazeDocument) {
+        requestFunction = RequestsUtils.sendReblazeRequest
+      } else {
+        requestFunction = RequestsUtils.sendRequest
+      }
+
+      const response = await requestFunction({
         methodName: 'GET',
-        url: `configs/${branch}/d/${doctype}/`,
-        data: {headers: {'x-fields': 'id, name'}},
+        url,
+        config: {headers: {'x-fields': 'id, name'}},
         onFail: () => {
           console.log('Error while attempting to load documents')
           this.docs = []
@@ -448,12 +552,17 @@ export default defineComponent({
       })
       this.docs = response?.data || []
       // After we load the basic data (id and name) we can async load the full data
-      this.cancelSource.cancel(`Operation cancelled and restarted for a new document type ${doctype}`)
+      this.cancelSource.cancel(`Operation cancelled and restarted for a new document type ${this.selectedDocType}`)
       this.cancelSource = axios.CancelToken.source()
-      RequestsUtils.sendRequest({
+      requestFunction({
         methodName: 'GET',
-        url: `configs/${branch}/d/${doctype}/`,
+        url,
         config: {cancelToken: this.cancelSource.token},
+        onFail: () => {
+          console.log('Error while attempting to load documents')
+          this.docs = []
+          this.isDownloadLoading = false
+        },
       }).then((response: AxiosResponse) => {
         this.docs = response?.data || []
         this.isDownloadLoading = false
@@ -469,9 +578,14 @@ export default defineComponent({
         this.addMissingDefaultsToDoc()
       }
       this.loadGitLog()
+      this.setLoadingDocStatus(false)
+      this.isDownloadLoading = false
     },
 
     loadGitLog(interaction?: boolean) {
+      if (this.isReblazeDocument) {
+        return
+      }
       this.loadingGitlog = true
       const config = this.selectedBranch
       const document = this.selectedDocType
@@ -492,7 +606,7 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       this.resetGitLog()
       Utils.toast(`Switched to branch "${this.selectedBranch}".`, 'is-info')
-      await this.loadDocs(this.selectedDocType, true)
+      await this.loadDocs(true)
       await this.loadReferencedDocsIDs()
       this.goToRoute()
       this.setLoadingDocStatus(false)
@@ -504,7 +618,7 @@ export default defineComponent({
       this.selectedDocID = null
       this.resetGitLog()
       Utils.toast(`Switched to document type ${this.titles[this.selectedDocType]}.`, 'is-info')
-      await this.loadDocs(this.selectedDocType, true)
+      await this.loadDocs(true)
       this.goToRoute()
       this.setLoadingDocStatus(false)
     },
@@ -540,6 +654,9 @@ export default defineComponent({
         docToAdd = docToAdd as SecurityPolicy
         docToAdd.match = `${docToAdd.id}.${docToAdd.match}`
       }
+      if (this.selectedDocType === 'dynamic-rules') {
+        this.duplicatedDocMatchingGlobalFilter = this.selectedDocMatchingGlobalFilter
+      }
       const docTypeText = this.titles[this.selectedDocType + '-singular']
       const successMessage = `The ${docTypeText} was duplicated.`
       const failureMessage = `Failed while attempting to duplicate the ${docTypeText}.`
@@ -564,7 +681,23 @@ export default defineComponent({
       if (!failureMessage) {
         failureMessage = `Failed while attempting to create the new ${docTypeText}.`
       }
+      if (this.selectedDocType === 'dynamic-rules') {
+        if (this.isForkLoading) {
+          const docMatchingGlobalFilter = this.duplicatedDocMatchingGlobalFilter
+          docMatchingGlobalFilter.id = `dr_${this.selectedDocID}`
+          docMatchingGlobalFilter.active = (this.selectedDoc as DynamicRule).active
+          docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule ' + this.selectedDocID
+          this.selectedDocMatchingGlobalFilter = docMatchingGlobalFilter
+        } else {
+          const docMatchingGlobalFilter = DatasetsUtils.newDocEntryFactory['globalfilters']() as GlobalFilter
+          docMatchingGlobalFilter.id = `dr_${this.selectedDocID}`
+          docMatchingGlobalFilter.active = (this.selectedDoc as DynamicRule).active
+          docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule ' + this.selectedDocID
+          this.selectedDocMatchingGlobalFilter = docMatchingGlobalFilter
+        }
+      }
       await this.saveChanges('POST', successMessage, failureMessage)
+
       this.goToRoute()
       this.isNewLoading = false
       this.setLoadingDocStatus(false)
@@ -572,15 +705,6 @@ export default defineComponent({
 
     async saveChanges(methodName?: HttpRequestMethods, successMessage?: string, failureMessage?: string) {
       this.isSaveLoading = true
-      if (!methodName) {
-        methodName = 'PUT'
-      }
-      let url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/`
-      if (methodName !== 'POST') {
-        url += `${this.selectedDocID}/`
-      }
-      const data = this.selectedDoc
-
       const docTypeText = this.titles[this.selectedDocType + '-singular']
       if (!successMessage) {
         successMessage = `Changes to the ${docTypeText} were saved.`
@@ -588,14 +712,43 @@ export default defineComponent({
       if (!failureMessage) {
         failureMessage = `Failed while attempting to save the changes to the ${docTypeText}.`
       }
-      await RequestsUtils.sendRequest({methodName, url, data, successMessage, failureMessage}).then(() => {
+
+      if (!methodName) {
+        methodName = 'PUT'
+      }
+
+      const data = this.selectedDoc
+      let requestFunction
+      let url = ''
+      if (this.isReblazeDocument) {
+        requestFunction = RequestsUtils.sendReblazeRequest
+        url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`
+      } else {
+        requestFunction = RequestsUtils.sendRequest
+        url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/`
+        if (methodName !== 'POST') {
+          url += `${this.selectedDocID}/`
+        }
+      }
+
+      await requestFunction({methodName, url, data, successMessage, failureMessage}).then(() => {
         this.updateDocIdNames()
         this.loadGitLog(true)
         // If the saved doc was a security policy, refresh the referenced IDs lists
         if (this.selectedDocType === 'securitypolicies') {
           this.loadReferencedDocsIDs()
         }
+        // If the saved doc was a dynamic rule, also save the matching global filter
+        if (this.selectedDocType === 'dynamic-rules') {
+          let url = `configs/${this.selectedBranch}/d/globalfilters/e/`
+          if (methodName !== 'POST') {
+            url += `dr_${this.selectedDocID}/`
+          }
+          const data = this.selectedDocMatchingGlobalFilter
+          RequestsUtils.sendRequest({methodName, url, data: data})
+        }
       })
+
       this.isSaveLoading = false
     },
 
@@ -606,15 +759,26 @@ export default defineComponent({
       const docTypeText = this.titles[this.selectedDocType + '-singular']
       const successMessage = `The ${docTypeText} was deleted.`
       const failureMessage = `Failed while attempting to delete the ${docTypeText}.`
-      await RequestsUtils.sendRequest({
-        methodName: 'DELETE',
-        url: `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`,
-        successMessage,
-        failureMessage,
-      }).then(() => {
+      const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`
+      let requestFunction
+      const methodName = 'DELETE'
+      if (this.isReblazeDocument) {
+        requestFunction = RequestsUtils.sendReblazeRequest
+      } else {
+        requestFunction = RequestsUtils.sendRequest
+      }
+      await requestFunction({methodName, url, successMessage, failureMessage}).then(() => {
         this.updateDocIdNames()
         this.loadGitLog(true)
       })
+      // If the deleted doc is a dynamic rule, also delete the matching global filter
+      if (this.selectedDocType === 'dynamic-rules') {
+        const url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${this.selectedDocID}/`
+        RequestsUtils.sendRequest({methodName, url}).then(() => {
+          console.log(`globalfilters deleted successfully dr_${this.selectedDocID}`)
+        })
+      }
+
       this.selectedDocID = this.docs[0].id
       await this.loadSelectedDocData()
       this.addMissingDefaultsToDoc()
@@ -633,6 +797,7 @@ export default defineComponent({
       const referencedACL: string[] = []
       const referencedContentFilter: string[] = []
       const referencedLimit: string[] = []
+      const referencedCloudFunctions: string[] = []
       _.forEach(docs, (doc) => {
         _.forEach(doc.map, (mapEntry) => {
           referencedACL.push(mapEntry['acl_profile'])
@@ -643,6 +808,7 @@ export default defineComponent({
       this.referencedIDsACL = _.uniq(referencedACL)
       this.referencedIDsContentFilter = _.uniq(referencedContentFilter)
       this.referencedIDsLimits = _.uniq(_.flatten(referencedLimit))
+      this.referencedIDsCloudFunctions = _.uniq(_.flatten(referencedCloudFunctions))
     },
 
     async restoreGitVersion(gitVersion: Commit) {
@@ -658,7 +824,7 @@ export default defineComponent({
         successMessage: `Document [${docTitle}] restored to version [${versionId}]!`,
         failureMessage: `Failed restoring document [${docTitle}] to version [${versionId}]!`,
       })
-      await this.loadDocs(this.selectedDocType, true)
+      await this.loadDocs(true)
     },
 
     addMissingDefaultsToDoc() {
@@ -666,10 +832,6 @@ export default defineComponent({
         return
       }
       this.selectedDoc = {...this.newDoc(), ...this.selectedDoc as {}}
-    },
-
-    referToVersionControl() {
-      this.$router.push('/versioncontrol')
     },
 
     // Collect every request to display a loading indicator
@@ -690,10 +852,10 @@ export default defineComponent({
     this.loadReferencedDocsIDs()
     this.setLoadingDocStatus(false)
   },
-
 })
 </script>
-<style scoped lang="scss">
+<style scoped
+       lang="scss">
 
 .no-data-wrapper {
   /* Magic number! Delayed the display of loading indicator as to not display it in short loads */
