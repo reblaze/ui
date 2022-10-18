@@ -2,37 +2,40 @@
   <div>
     <!--First graphs row-->
     <div class="columns">
-      <div class="column is-3">
+      <div class="column width-300px">
         <div class="field traffic-info">
-          <label class="label is-small">
+          <label class="label is-small has-text-grey-light">
             Total Calls
           </label>
-          <div class="control columns">
-            <span class="column is-4">
+          <div class="control columns is-variable is-1">
+            <span class="column is-3 has-text-weight-bold">
               {{ amountSuffixFormatter(totalCallsInfo.amount) }}
             </span>
             <span class="column is-3">
               <!--TODO: Trend-->
             </span>
-            <span class="column is-5">
-              {{ totalCallsInfo.callsPerHour }} Calls / Hr
+            <span class="column is-6">
+              <span class="has-text-weight-bold">
+                {{ amountSuffixFormatter(totalCallsInfo.callsPerHour) }}
+              </span>
+              Calls / Hr
             </span>
           </div>
         </div>
         <div v-for="(data, trafficCategory) in trafficInfo"
              :key="trafficCategory"
              class="field traffic-info">
-          <label class="label is-small">
+          <label class="label is-small has-text-grey-light">
             {{ capitalize(trafficCategory) }}
           </label>
-          <div class="control columns">
-            <span class="column is-4">
+          <div class="control columns is-variable is-1">
+            <span class="column is-3 has-text-weight-bold">
               {{ amountSuffixFormatter(data.amount) }}
             </span>
             <span class="column is-3">
               <!--TODO: Trend-->
             </span>
-            <span class="column is-5">
+            <span class="column is-6">
               <template v-if="data.topCountries && data.topCountries.length">
                 <country-flag v-for="topCountry in data.topCountries.slice(0, 3)"
                               :key="topCountry"
@@ -48,8 +51,8 @@
           </div>
         </div>
       </div>
-      <div class="column is-9">
-        <div class="chart-display">
+      <div class="column">
+        <div class="height-200px">
           <label class="label is-small">
             Traffic Info
           </label>
@@ -59,7 +62,7 @@
                      :chart-height="150">
           </rbz-chart>
         </div>
-        <div class="chart-display">
+        <div class="height-200px">
           <label class="label is-small">
             Response Status
           </label>
@@ -68,6 +71,14 @@
                      :legend-as-tooltip="true"
                      :chart-height="150">
           </rbz-chart>
+        </div>
+      </div>
+      <div class="column width-200px">
+        <div class="height-200px">
+          Bars
+        </div>
+        <div class="height-200px">
+          Pie
         </div>
       </div>
     </div>
@@ -256,25 +267,25 @@ export default defineComponent({
           fieldName: 'passed',
           show: true,
           drawStyle: 'line',
-          strokeColor: 'rgb(0, 255, 0)',
+          strokeColor: 'hsl(141, 53%, 53%)',
         }, {
           title: 'Blocked',
           fieldName: 'blocked',
           show: true,
           drawStyle: 'line',
-          strokeColor: 'rgb(255, 0, 0)',
+          strokeColor: 'hsl(348, 100%, 61%)',
         }, {
           title: 'Report',
           fieldName: 'report',
           show: true,
           drawStyle: 'line',
-          strokeColor: 'rgb(0, 0, 255)',
+          strokeColor: 'hsl(48, 100%, 67%)',
         }, {
           title: 'Humans',
           fieldName: 'humans',
           show: true,
           drawStyle: 'line',
-          strokeColor: 'rgb(0, 100, 100)',
+          strokeColor: 'hsl(217, 71%, 53%)',
         }, {
           title: 'Bots',
           fieldName: 'bots',
@@ -520,9 +531,5 @@ export default defineComponent({
 .flag {
   border: 1px solid #000;
   margin: -0.9em -1.1em;
-}
-
-.chart-display {
-  height: 200px;
 }
 </style>

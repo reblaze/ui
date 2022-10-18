@@ -4,12 +4,12 @@
       <header-main/>
     </nav>
     <br/>
-    <div class="container">
+    <div class="content-container">
       <div class="columns">
-        <div class="column is-2">
+        <div class="column width-250px">
           <side-menu></side-menu>
         </div>
-        <div class="column is-10">
+        <div class="column">
           <router-view></router-view>
         </div>
       </div>
