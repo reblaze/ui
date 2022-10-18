@@ -296,6 +296,10 @@ $color-light: hsl(0, 0%, 96%);
   border-color: #3273dc;
 }
 
+.is-justify-content-space-around {
+  justify-content: space-around;
+}
+
 /* Vue3Datepicker */
 
 .dp__preset_ranges { /* stylelint-disable-line */

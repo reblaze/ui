@@ -1,7 +1,8 @@
 <template>
   <table class="table is-bordered is-fullwidth is-size-7 rbz-table is-hoverable">
     <thead>
-    <tr class="header-row" v-if="tableTitle">
+    <tr class="header-row"
+        v-if="tableTitle">
       <th :colspan="columns.length"
           class="has-text-centered">
         {{ tableTitle }}
@@ -96,7 +97,8 @@
       <th v-if="showMenuColumn"></th>
     </tr>
     </thead>
-    <tbody>
+    <tbody :class="{'scrollable scrollbox-shadowed': useScroll}"
+           :style="useScroll ? `max-height: ${2 * rowsPerPage}rem` : ''">
     <tr v-for="row in slicedDataArrayDisplay"
         :key="row.id"
         class="data-row">
@@ -115,9 +117,11 @@
           </span>
         </div>
       </td>
-      <td class="is-size-7" v-if="showMenuColumn">
+      <td class="is-size-7"
+          v-if="showMenuColumn">
         <div class="field is-grouped is-grouped-centered">
-          <p class="control" v-if="showRowButton">
+          <p class="control"
+             v-if="showRowButton">
             <button :title="rowButtonTitle"
                     class="button is-small row-entity-button"
                     @click="rowButtonClicked(row.id)">
@@ -129,7 +133,7 @@
         </div>
       </td>
     </tr>
-    <tr v-if="totalPages > 1"
+    <tr v-if="totalPages > 1 && !useScroll"
         class="pagination-row">
       <td :colspan="columns.length + 1">
         <div class="pagination is-small">
@@ -173,6 +177,7 @@ export default defineComponent({
       type: Number,
       default: 10,
     },
+    useScroll: Boolean,
   },
   watch: {
     columns: {
@@ -281,6 +286,9 @@ export default defineComponent({
       if (!this.dataArrayDisplay.length) {
         return []
       }
+      if (this.useScroll) {
+        return this.dataArrayDisplay
+      }
       const sliceStart = this.rowsPerPage * (this.currentPage - 1)
       const sliceEnd = sliceStart + this.rowsPerPage
       return this.dataArrayDisplay.slice(sliceStart, sliceEnd)
@@ -340,6 +348,11 @@ export default defineComponent({
 
 <style scoped
        lang="scss">
+.rbz-table thead,
+.rbz-table tbody {
+  display: block;
+}
+
 .rbz-table .arrow-wrapper {
   float: right;
   height: 0;
@@ -428,5 +441,9 @@ export default defineComponent({
 
 .rbz-table .data-cell {
   max-height: 4.5rem;
+}
+
+.rbz-table .scrollable {
+  overflow-y: auto;
 }
 </style>

@@ -63,7 +63,8 @@
           </rbz-chart>
         </div>
         <div class="height-200px">
-          <label class="label is-small">
+          <label class="label is-small"
+                 @click="toggleStatusesClassDetails">
             Response Status
           </label>
           <rbz-chart :data="statusesChartData"
@@ -74,11 +75,39 @@
         </div>
       </div>
       <div class="column width-200px">
-        <div class="height-200px">
-          Bars
+        <div class="height-200px is-flex is-justify-content-space-around has-text-centered">
+          <span>
+            Humans
+            <div class="bar-wrapper height-130px">
+              <div class="humans-bar width-60px"
+                   :title="`${trafficInfo.humans.percentile}% humans`"
+                   :style="`height: ${trafficInfo.humans.percentile}%`">
+              </div>
+              <div class="bots-bar width-60px"
+                   :title="`${trafficInfo.bots.percentile}% bots`"
+                   :style="`height: ${trafficInfo.bots.percentile}%`">
+              </div>
+            </div>
+            Bots
+          </span>
+          <span>
+            Passed
+            <div class="bar-wrapper height-130px">
+              <div class="passed-bar width-60px"
+                   :title="`${trafficInfo.passed.percentile}% passed`"
+                   :style="`height: ${trafficInfo.passed.percentile}%`">
+              </div>
+              <div class="blocked-bar width-60px"
+                   :title="`${trafficInfo.blocked.percentile}% blocked`"
+                   :style="`height: ${trafficInfo.blocked.percentile}%`">
+              </div>
+            </div>
+            Blocked
+          </span>
         </div>
         <div class="height-200px">
           Pie
+          <!--TODO-->
         </div>
       </div>
     </div>
@@ -88,27 +117,30 @@
         <rbz-table :columns="topTableColumns"
                    :data="topTargetApps"
                    :default-sort-column-index="1"
+                   :use-scroll="true"
+                   :rows-per-page="5"
                    default-sort-column-direction="desc"
-                   table-title="TOP TARGETED SERVICES/APPS"
-                   :rowsPerPage="5">
+                   table-title="TOP TARGETED SERVICES/APPS">
         </rbz-table>
       </div>
       <div class="column is-4">
         <rbz-table :columns="topTableColumns"
                    :data="topTargetUris"
                    :default-sort-column-index="1"
+                   :use-scroll="true"
+                   :rows-per-page="5"
                    default-sort-column-direction="desc"
-                   table-title="TOP TARGETED URLs"
-                   :rowsPerPage="5">
+                   table-title="TOP TARGETED URLs">
         </rbz-table>
       </div>
       <div class="column is-4">
         <rbz-table :columns="topTableColumnsTagPrefixRemoved"
                    :data="topTargetRTCs"
                    :default-sort-column-index="1"
+                   :use-scroll="true"
+                   :rows-per-page="5"
                    default-sort-column-direction="desc"
-                   table-title="TOP TARGETED RTCs"
-                   :rowsPerPage="5">
+                   table-title="TOP TARGETED RTCs">
         </rbz-table>
       </div>
     </div>
@@ -118,27 +150,30 @@
         <rbz-table :columns="topTableColumnsTagPrefixRemoved"
                    :data="topCountries"
                    :default-sort-column-index="1"
+                   :use-scroll="true"
+                   :rows-per-page="5"
                    default-sort-column-direction="desc"
-                   table-title="TOP COUNTRIES"
-                   :rowsPerPage="5">
+                   table-title="TOP COUNTRIES">
         </rbz-table>
       </div>
       <div class="column is-4">
         <rbz-table :columns="topTableColumnsTagPrefixRemoved"
                    :data="topASNumbers"
                    :default-sort-column-index="1"
+                   :use-scroll="true"
+                   :rows-per-page="5"
                    default-sort-column-direction="desc"
-                   table-title="TOP AS NUMBERS"
-                   :rowsPerPage="5">
+                   table-title="TOP AS NUMBERS">
         </rbz-table>
       </div>
       <div class="column is-4">
         <rbz-table :columns="topTableColumns"
                    :data="topIPAddresses"
                    :default-sort-column-index="1"
+                   :use-scroll="true"
+                   :rows-per-page="5"
                    default-sort-column-direction="desc"
-                   table-title="TOP IP ADDRESSES"
-                   :rowsPerPage="5">
+                   table-title="TOP IP ADDRESSES">
         </rbz-table>
       </div>
     </div>
@@ -148,27 +183,30 @@
         <rbz-table :columns="topTableColumnsTagPrefixRemoved"
                    :data="topRateLimits"
                    :default-sort-column-index="1"
+                   :use-scroll="true"
+                   :rows-per-page="5"
                    default-sort-column-direction="desc"
-                   table-title="TOP RATE LIMITS"
-                   :rowsPerPage="5">
+                   table-title="TOP RATE LIMITS">
         </rbz-table>
       </div>
       <div class="column is-4">
         <rbz-table :columns="topTableColumnsTagPrefixRemoved"
                    :data="topACLs"
                    :default-sort-column-index="1"
+                   :use-scroll="true"
+                   :rows-per-page="5"
                    default-sort-column-direction="desc"
-                   table-title="TOP ACLs"
-                   :rowsPerPage="5">
+                   table-title="TOP ACLs">
         </rbz-table>
       </div>
       <div class="column is-4">
         <rbz-table :columns="topTableColumnsTagPrefixRemoved"
                    :data="topContentFilters"
                    :default-sort-column-index="1"
+                   :use-scroll="true"
+                   :rows-per-page="5"
                    default-sort-column-direction="desc"
-                   table-title="TOP CONTENT FILTERS"
-                   :rowsPerPage="5">
+                   table-title="TOP CONTENT FILTERS">
         </rbz-table>
       </div>
     </div>
@@ -178,18 +216,20 @@
         <rbz-table :columns="topTableColumns"
                    :data="topUserAgents"
                    :default-sort-column-index="1"
+                   :use-scroll="true"
+                   :rows-per-page="5"
                    default-sort-column-direction="desc"
-                   table-title="TOP USER AGENT"
-                   :rowsPerPage="5">
+                   table-title="TOP USER AGENT">
         </rbz-table>
       </div>
       <div class="column is-4">
         <rbz-table :columns="topTableColumns"
                    :data="topTags"
                    :default-sort-column-index="1"
+                   :use-scroll="true"
+                   :rows-per-page="5"
                    default-sort-column-direction="desc"
-                   table-title="TOP TAGS"
-                   :rowsPerPage="5">
+                   table-title="TOP TAGS">
         </rbz-table>
       </div>
     </div>
@@ -267,52 +307,73 @@ export default defineComponent({
           fieldName: 'passed',
           show: true,
           drawStyle: 'line',
-          strokeColor: 'hsl(141, 53%, 53%)',
-        }, {
+          strokeColor: '#50c878', // $color-emerald
+        },
+        {
           title: 'Blocked',
           fieldName: 'blocked',
           show: true,
           drawStyle: 'line',
-          strokeColor: 'hsl(348, 100%, 61%)',
-        }, {
+          strokeColor: '#ff355e', // $color-radical-red
+        },
+        {
           title: 'Report',
           fieldName: 'report',
           show: true,
           drawStyle: 'line',
-          strokeColor: 'hsl(48, 100%, 67%)',
-        }, {
+          strokeColor: '#ffdb58', // $color-mustard
+        },
+        {
           title: 'Humans',
           fieldName: 'humans',
           show: true,
           drawStyle: 'line',
-          strokeColor: 'hsl(217, 71%, 53%)',
-        }, {
+          strokeColor: '#4169e1', // $color-royal-blue
+        },
+        {
           title: 'Bots',
           fieldName: 'bots',
           show: true,
           drawStyle: 'line',
-          strokeColor: 'rgb(100, 100, 0)',
+          strokeColor: '#843179', // $color-plum
         },
       ] as SeriesOptions[],
+      statusesClassDetails: true,
       statusesChartSeriesOptions: [
+        {
+          title: '1xx',
+          fieldName: '1xx',
+          show: true,
+          drawStyle: 'line',
+          strokeColor: '#02a4d3', // $color-cerulean
+        },
+        {
+          title: '2xx',
+          fieldName: '2xx',
+          show: true,
+          drawStyle: 'line',
+          strokeColor: '#06c', // $color-science-blue
+        },
         {
           title: '3xx',
           fieldName: '3xx',
           show: true,
           drawStyle: 'line',
-          strokeColor: 'rgb(255, 0, 0)',
-        }, {
+          strokeColor: '#4169e1', // $color-royal-blue
+        },
+        {
           title: '4xx',
           fieldName: '4xx',
           show: true,
           drawStyle: 'line',
-          strokeColor: 'rgb(0, 255, 0)',
-        }, {
+          strokeColor: '#f34723', // $color-pomegranate
+        },
+        {
           title: '5xx',
           fieldName: '5xx',
           show: true,
           drawStyle: 'line',
-          strokeColor: 'rgb(0, 0, 255)',
+          strokeColor: '#ff355e', // $color-radical-red
         },
       ] as SeriesOptions[],
     }
@@ -341,30 +402,39 @@ export default defineComponent({
       const blocked = _.sumBy(this.data, (value) => {
         return value?.counters.blocks
       })
+      const passed = hits - blocked
+      const passedPercentile = Math.round((passed / hits) * 1e2) / 1e2
+      const blockedPercentile = 100 - passedPercentile
       const humans = _.sumBy(this.data, (value) => {
         return value?.counters.human
       })
       const bots = _.sumBy(this.data, (value) => {
         return value?.counters.bot
       })
+      const humansPercentile = Math.round((humans / hits) * 1e2) / 1e2
+      const botsPercentile = 100 - humansPercentile
       return {
         'passed': {
-          amount: hits - blocked,
+          amount: passed,
+          percentile: passedPercentile,
           topCountries: _.map(_.orderBy(this.topCountries, ['passed'], ['desc']), (topCountry) => {
             return DatasetsUtils.geoCountryTagToCode(topCountry.rowIdentification)
           }),
         },
         'blocked': {
           amount: blocked,
+          percentile: blockedPercentile,
           topCountries: _.map(_.orderBy(this.topCountries, ['blocked'], ['desc']), (topCountry) => {
             return DatasetsUtils.geoCountryTagToCode(topCountry.rowIdentification)
           }),
         },
         'humans': {
           amount: humans,
+          percentile: humansPercentile,
         },
         'bots': {
           amount: bots,
+          percentile: botsPercentile,
         },
       }
     },
@@ -399,16 +469,29 @@ export default defineComponent({
       const groupedObject = _.groupBy(this.data, (dataItem) => {
         return Math.floor(new Date(dataItem['timestamp']).getTime() / 1000)
       })
-      for (const minute of Object.keys(groupedObject)) {
-        const counter3xx = _.sumBy(groupedObject[minute], (item) => item.counters['3xx'])
-        const counter4xx = _.sumBy(groupedObject[minute], (item) => item.counters['4xx'])
-        const counter5xx = _.sumBy(groupedObject[minute], (item) => item.counters['5xx'])
-        returnArray.push({
-          'timeframe': Number(minute),
-          '3xx': counter3xx > 0 ? counter3xx : 0,
-          '4xx': counter4xx > 0 ? counter4xx : 0,
-          '5xx': counter5xx > 0 ? counter5xx : 0,
-        })
+      if (this.statusesClassDetails) {
+        for (const minute of Object.keys(groupedObject)) {
+          const counter1xx = _.sumBy(groupedObject[minute], (item) => item.counters['1xx'])
+          const counter2xx = _.sumBy(groupedObject[minute], (item) => item.counters['2xx'])
+          const counter3xx = _.sumBy(groupedObject[minute], (item) => item.counters['3xx'])
+          const counter4xx = _.sumBy(groupedObject[minute], (item) => item.counters['4xx'])
+          const counter5xx = _.sumBy(groupedObject[minute], (item) => item.counters['5xx'])
+          returnArray.push({
+            'timeframe': Number(minute),
+            '1xx': counter1xx > 0 ? counter1xx : 0,
+            '2xx': counter2xx > 0 ? counter2xx : 0,
+            '3xx': counter3xx > 0 ? counter3xx : 0,
+            '4xx': counter4xx > 0 ? counter4xx : 0,
+            '5xx': counter5xx > 0 ? counter5xx : 0,
+          })
+        }
+      } else {
+        for (const minute of Object.keys(groupedObject)) {
+          // TODO
+          returnArray.push({
+            'timeframe': Number(minute),
+          })
+        }
       }
       return returnArray
     },
@@ -479,6 +562,10 @@ export default defineComponent({
     },
   },
   methods: {
+    toggleStatusesClassDetails() {
+      this.statusesClassDetails = !this.statusesClassDetails
+    },
+
     buildTopDataFromCounters(blocksFieldName: string, passedFieldName: string, reportFieldName: string) {
       const returnArray = []
       const groupedObject: { [key: string]: topTableData } = {}
@@ -523,7 +610,10 @@ export default defineComponent({
   },
 })
 </script>
-<style scoped lang="scss">
+<style scoped
+       lang="scss">
+@import 'src/assets/styles/colors';
+
 .traffic-info:not(:last-child) {
   margin-bottom: 25px;
 }
@@ -531,5 +621,21 @@ export default defineComponent({
 .flag {
   border: 1px solid #000;
   margin: -0.9em -1.1em;
+}
+
+.humans-bar {
+  background-color: $color-royal-blue;
+}
+
+.bots-bar {
+  background-color: $color-plum;
+}
+
+.passed-bar {
+  background-color: $color-emerald;
+}
+
+.blocked-bar {
+  background-color: $color-radical-red;
 }
 </style>
