@@ -67,7 +67,7 @@
             <div class="custom-panel">
               <div class="field">
                 <label class="label is-small is-size-7 has-text-left form-label">
-                  Headers
+                  {{ localDoc.type === 'custom' ? 'Response' : 'Request' }} Headers
                 </label>
                 <div v-for="(header, index) in headersArray"
                      :key="index"
@@ -161,7 +161,7 @@ export default defineComponent({
           this.headersArray = newHeadersArray
         }
         // adding necessary fields to all local doc sections if missing
-        if (!value['params'] && value['type'] === 'custom') {
+        if (!value['params'] && ['monitor', 'custom'].includes(value['type'])) {
           this.normalizeParams()
         }
       },
@@ -247,11 +247,7 @@ export default defineComponent({
     },
 
     normalizeParams() {
-      this.localDoc.params = {
-        status: null,
-        headers: {},
-        content: '',
-      }
+      this.localDoc.params = {}
       this.emitDocUpdate()
     },
   },

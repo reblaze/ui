@@ -24,17 +24,19 @@
                 <div class="field">
                   <label class="checkbox is-size-7">
                     <input type="checkbox"
-                          data-qa="active-checkbox"
-                          class="document-active"
-                          @change="emitToDocAndDocMatchUpdate"
-                          v-model="localDoc.active">
+                           data-qa="active-checkbox"
+                           class="document-active"
+                           @change="emitToDocAndDocMatchUpdate"
+                           v-model="localDoc.active">
                     Active
                   </label>
                 </div>
-                  </div>
-                  <div class="field textarea-field">
-                    <label class="label is-small">Description</label>
-                    <div class="control">
+              </div>
+              <div class="field textarea-field">
+                <label class="label is-small">
+                  Description
+                </label>
+                <div class="control">
                       <textarea class="is-small textarea document-description"
                                 data-qa="description-input"
                                 title="Document description"
@@ -42,103 +44,103 @@
                                 @input="emitDocUpdate"
                                 rows="5">
                       </textarea>
-                    </div>
-                  </div>
-                  <div class="field">
-                    <label class="label is-small">
-                      Time Frame
-                    </label>
-                    <div class="control suffix seconds-suffix">
-                      <input class="input is-small document-timeframe"
-                            data-qa="dynamic-rules-timeframe-input"
-                            type="number"
-                            title="Dynamic Rules limit duration"
-                            placeholder="Rate limit duration"
+                </div>
+              </div>
+              <div class="field">
+                <label class="label is-small">
+                  Target
+                </label>
+                <div class="control is-expanded">
+                  <div class="select is-fullwidth is-small">
+                    <select v-model="localDoc.target"
+                            data-qa="target-dropdown"
+                            title="Target"
+                            :value="localDoc.target"
                             @change="emitDocUpdate"
-                            v-model="(localDoc.timeframe)">
-                    </div>
-                  </div>
-                  <div class="field">
-                    <label class="label is-small">
-                      Threshold
-                    </label>
-                    <div class="control">
-                      <input class="input is-small document-threshold"
-                            data-qa="dynamic-rules-threshold-input"
-                            type="number"
-                            title="Dynamic Rules threshold"
-                            placeholder="Dynamic Rules Threshold"
-                            @change="emitDocUpdate"
-                            v-model="localDoc.threshold">
-                    </div>
-                  </div>
-
-                  <div class="field">
-                    <label class="label is-small">
-                      Action
-                    </label>
-                    <div class="control is-expanded">
-                      <div class="select is-fullwidth is-small">
-                        <select v-model="localGlobalFilterDoc.action"
-                              @change="emitDocUpdate"
-                              data-qa="action-dropdown"
-                              class="document-action-selection"
-                              title="Action">
-                          <option v-for="customResponse in customResponseNames"
-                                  :value="customResponse[0]"
-                                  :key="customResponse[0]">
-                            {{ customResponse[1] }}
-                          </option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="field">
-                    <label class="label is-small">Tags</label>
-                    <div class="control document-tags"
-                        data-qa="tag-input">
-                      <tag-autocomplete-input :initial-tag="selectedDocTags"
-                                              :selection-type="'multiple'"
-                                              @tag-changed="selectedDocTags = $event">
-                      </tag-autocomplete-input>
-                    </div>
-                  </div>
-                  <div class="field">
-                    <label class="label is-small">
-                      Time Span
-                    </label>
-                    <div class="control suffix seconds-suffix">
-                      <input class="input is-small document-time-span"
-                            data-qa="dynamic-rules-threshold-input"
-                            type="number"
-                            title="Dynamic Rules threshold"
-                            placeholder="Dynamic Rules Threshold"
-                            @change="emitDocUpdate"
-                            v-model="localDoc.ttl">
-                    </div>
-                  </div>
-                  <div class="field">
-                    <label class="label is-small">
-                      Target
-                    </label>
-                    <div class="control is-expanded">
-                      <div class="select is-fullwidth is-small">
-                      <select v-model="localDoc.target"
-                                data-qa="target-dropdown"
-                                title="Target"
-                                :value="localDoc.target"
-                                defaultValue="remote_addr"
-                                @change="emitDocUpdate"
-                                class="target-dropdown">
-                          <option v-for="key in options"
-                                  :key="key"
-                                  :value="key">
-                            {{dynamicRuleTargets[key]}}
-                          </option>
-                        </select>
-                    </div>
+                            class="target-dropdown">
+                      <option v-for="key in options"
+                              :key="key"
+                              :value="key">
+                        {{ dynamicRuleTargets[key] }}
+                      </option>
+                    </select>
                   </div>
                 </div>
+              </div>
+              <div class="field">
+                <label class="label is-small">
+                  Threshold
+                </label>
+                <div class="control">
+                  <input class="input is-small document-threshold"
+                         data-qa="dynamic-rules-threshold-input"
+                         type="number"
+                         title="Dynamic Rules threshold"
+                         placeholder="Dynamic Rules Threshold"
+                         @change="emitDocUpdate"
+                         v-model="localDoc.threshold">
+                </div>
+              </div>
+              <div class="field">
+                <label class="label is-small">
+                  Time Frame
+                </label>
+                <div class="control suffix seconds-suffix">
+                  <input class="input is-small document-timeframe"
+                         data-qa="dynamic-rules-timeframe-input"
+                         type="number"
+                         title="Dynamic Rules limit duration"
+                         placeholder="Rate limit duration"
+                         @change="emitDocUpdate"
+                         v-model="(localDoc.timeframe)">
+                </div>
+              </div>
+              <div class="field">
+                <label class="label is-small">
+                  Action
+                </label>
+                <div class="control is-expanded">
+                  <div class="select is-fullwidth is-small">
+                    <select v-model="localGlobalFilterDoc.action"
+                            @change="emitDocUpdate"
+                            data-qa="action-dropdown"
+                            class="document-action-selection"
+                            title="Action">
+                      <option v-for="customResponse in customResponseNames"
+                              :value="customResponse[0]"
+                              :key="customResponse[0]">
+                        {{ customResponse[1] }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="field">
+                <label class="label is-small">
+                  Time Span
+                </label>
+                <div class="control suffix seconds-suffix">
+                  <input class="input is-small document-time-span"
+                         data-qa="dynamic-rules-threshold-input"
+                         type="number"
+                         title="Dynamic Rules threshold"
+                         placeholder="Dynamic Rules Threshold"
+                         @change="emitDocUpdate"
+                         v-model="localDoc.ttl">
+                </div>
+              </div>
+              <div class="field">
+                <label class="label is-small">
+                  Tags
+                </label>
+                <div class="control document-tags"
+                     data-qa="tag-input">
+                  <tag-autocomplete-input :initial-tag="selectedDocTags"
+                                          :selection-type="'multiple'"
+                                          @tag-changed="selectedDocTags = $event">
+                  </tag-autocomplete-input>
+                </div>
+              </div>
             </div>
             <div class="column is-7">
               <div class="columns">
@@ -287,7 +289,7 @@ export default defineComponent({
     },
     emitToDocAndDocMatchUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
-      this.localGlobalFilterDoc.active=this.localDoc.active
+      this.localGlobalFilterDoc.active = this.localDoc.active
       this.$emit('update:selectedDocMatchingGlobalFilter', this.localGlobalFilterDoc)
     },
 
@@ -332,37 +334,38 @@ export default defineComponent({
 })
 </script>
 
-<style scoped lang="scss">
+<style scoped
+       lang="scss">
 
-  .document-active {
-    margin-top: 15px;
+.document-active {
+  margin-top: 15px;
+}
+
+.form-label {
+  padding-top: 0.25rem;
+}
+
+.bar {
+  margin: 1rem 0 0.5rem;
+}
+
+.seconds-suffix {
+  input {
+    padding-right: 60px;
   }
+}
 
-  .form-label {
-    padding-top: 0.25rem;
-  }
+.remove-threshold-option-button {
+  margin-left: auto;
+  margin-top: auto;
+}
 
-  .bar {
-    margin: 1rem 0 0.5rem;
-  }
+.button-wrapper-column {
+  display: flex;
+}
 
-  .seconds-suffix {
-    input {
-      padding-right: 60px;
-    }
-  }
+.threshold-card {
+  padding: 20px;
+}
 
-  .remove-threshold-option-button {
-    margin-left: auto;
-    margin-top: auto;
-  }
-
-  .button-wrapper-column {
-    display: flex;
-  }
-
-  .threshold-card {
-    padding: 20px;
-  }
-
-  </style>
+</style>

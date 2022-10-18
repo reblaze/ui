@@ -19,6 +19,7 @@ import SslList from '@/views/SslList.vue'
 import CertificateEditor from '@/doc-editors/CertificateEditor.vue'
 import BackendServiceList from '@/views/BackendServiceList.vue'
 import BackendServiceEditor from '@/doc-editors/BackendServiceEditor.vue'
+import HelpAndSupport from '@/views/HelpAndSupport.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -178,6 +179,7 @@ const routes: Array<RouteRecordRaw> = [
       },
       {path: 'publish', name: 'PublishChanges', component: PublishChanges},
       {path: 'versioncontrol', name: 'VersionControl', component: VersionControl},
+      {path: 'support', name: 'Support', component: HelpAndSupport},
       {path: 'search', name: 'DocumentSearch', component: DocumentSearch},
     ],
   },

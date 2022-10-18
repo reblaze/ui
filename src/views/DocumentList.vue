@@ -41,16 +41,16 @@
         <div class="card">
           <div class="card-content">
             <div class="content">
-              <rbz-table  :columns="columns"
-                          :data="docs"
-                          :show-menu-column="true"
-                          :show-filter-button="true"
-                          :show-new-button="true"
-                          @new-button-clicked="addNewDoc"
-                          :show-row-button="true"
-                          :row-button-title="rowButtonTitle"
-                          :row-button-icon="rowButtonIcon"
-                          @row-button-clicked="editDoc">
+              <rbz-table :columns="columns"
+                         :data="docs"
+                         :show-menu-column="true"
+                         :show-filter-button="true"
+                         :show-new-button="true"
+                         @new-button-clicked="addNewDoc"
+                         :show-row-button="true"
+                         :row-button-title="rowButtonTitle"
+                         :row-button-icon="rowButtonIcon"
+                         @row-button-clicked="editDoc">
               </rbz-table>
               <span class="is-family-monospace has-text-grey-lighter">
                 {{ documentListAPIPath }}
@@ -60,10 +60,10 @@
         </div>
         <hr/>
         <git-history v-if="!isReblazeDocument"
-                    :gitLog="gitLog"
-                    :apiPath="gitAPIPath"
-                    :loading="isGitLogLoading"
-                    @restore-version="restoreGitVersion"></git-history>
+                     :gitLog="gitLog"
+                     :apiPath="gitAPIPath"
+                     :loading="isGitLogLoading"
+                     @restore-version="restoreGitVersion"></git-history>
       </div>
 
       <div class="content no-data-wrapper"
@@ -113,7 +113,7 @@ import CustomResponseEditor from '@/doc-editors/CustomResponseEditor.vue'
 import DynamicRulesEditor from '@/doc-editors/DynamicRulesEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {defineComponent, shallowRef} from 'vue'
-import {ColumnOptions, Commit, Document, DocumentType, GlobalFilter, GenericObject, DynamicRule} from '@/types'
+import {ColumnOptions, Commit, Document, DocumentType, DynamicRule, GenericObject, GlobalFilter} from '@/types'
 import {COLUMN_OPTIONS_MAP} from './documentListConst'
 import {AxiosResponse} from 'axios'
 import RbzTable from '@/components/RbzTable.vue'
@@ -246,7 +246,11 @@ export default defineComponent({
     async loadConfigs() {
       let configs
       try {
-        const response = await RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'})
+        const response = await RequestsUtils.sendRequest({
+          methodName: 'GET',
+          url: 'configs/',
+          config: {headers: {'x-fields': 'id'}},
+        })
         configs = response.data
       } catch (err) {
         console.log('Error while attempting to get configs')
@@ -322,16 +326,26 @@ export default defineComponent({
       if (this.isReblazeDocument) {
         const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${docToAdd.id}`
         console.log('add new doc function', url, data, successMessage)
-        await RequestsUtils.sendReblazeRequest({methodName: 'POST', url, data, successMessage, failureMessage})
-          .then(() => {
-            this.editDoc(docToAdd.id)
-          })
+        await RequestsUtils.sendReblazeRequest({
+          methodName: 'POST',
+          url,
+          data,
+          successMessage,
+          failureMessage,
+        }).then(() => {
+          this.editDoc(docToAdd.id)
+        })
       } else {
         const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/`
-        await RequestsUtils.sendRequest({methodName: 'POST', url, data, successMessage, failureMessage})
-          .then(() => {
-            this.editDoc(docToAdd.id)
-          })
+        await RequestsUtils.sendRequest({
+          methodName: 'POST',
+          url,
+          data,
+          successMessage,
+          failureMessage,
+        }).then(() => {
+          this.editDoc(docToAdd.id)
+        })
       }
 
       if (this.selectedDocType === 'dynamic-rules') {
@@ -404,7 +418,8 @@ export default defineComponent({
 })
 </script>
 
-<style scoped lang="scss">
+<style scoped
+       lang="scss">
 .no-data-wrapper {
   /* Magic number! Delayed the display of loading indicator as to not display it in short loads */
   animation: delayedDisplay 300ms;

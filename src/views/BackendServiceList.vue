@@ -206,7 +206,11 @@ export default defineComponent({
     async loadConfigs() {
       let configs
       try {
-        const response = await RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'})
+        const response = await RequestsUtils.sendRequest({
+          methodName: 'GET',
+          url: 'configs/',
+          config: {headers: {'x-fields': 'id'}},
+        })
         configs = response.data
       } catch (err) {
         console.log('Error while attempting to get configs')

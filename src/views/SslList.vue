@@ -70,7 +70,6 @@
                     :show-filter-button="true"
                     :show-new-button="true"
                     @new-button-clicked="addNewProfile"
-                    :show-edit-button="true"
                     :show-row-button="true"
                     :row-button-title="rowButtonTitle"
                     :row-button-icon="rowButtonIcon"
