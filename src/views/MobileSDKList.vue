@@ -47,8 +47,8 @@
                          :show-filter-button="true"
                          :show-new-button="true"
                          @new-button-clicked="addNewSDK"
-                         :show-edit-button="true"
-                         @edit-button-clicked="editMobileSDK">
+                         :show-row-button="true"
+                         @row-button-clicked="editMobileSDK">
               </rbz-table>
               <span class="is-family-monospace has-text-grey-lighter">
                 {{ documentListAPIPath }}

@@ -263,25 +263,6 @@
                             </div>
                           </div>
                           <div class="column is-4">
-                            <div class="field">
-                              <label class="label is-small">Content Filter Profile</label>
-                              <div class="control is-expanded">
-                                <div class="select is-fullwidth is-small">
-                                  <select v-model="mapEntry.content_filter_profile"
-                                          @change="emitDocUpdate"
-                                          data-qa="content-filter-dropdown"
-                                          class="current-entry-content-filter-selection"
-                                          title="Content Filter profile">
-                                    <option v-for="contentfilter in contentFilterProfileNames"
-                                            :value="contentfilter[0]"
-                                            :key="contentfilter[0]">
-                                      {{ contentfilter[1] }}
-                                    </option>
-                                  </select>
-                                </div>
-                              </div>
-                            </div>
-                            <div class="column">
                               <div class="field">
                                 <label class="label is-small">Content Filter Profile</label>
                                 <div class="control is-expanded">
@@ -363,7 +344,6 @@
                         </div>
                       </div>
                     </div>
-                 </div>
                   </td>
                 </tr>
               </tbody>

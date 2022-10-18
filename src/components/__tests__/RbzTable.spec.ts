@@ -94,7 +94,7 @@ describe('RbzTable.vue', () => {
         showMenuColumn: true,
         showFilterButton: true,
         showNewButton: true,
-        showEditButton: true,
+        showrowButton: true,
       },
     })
   })
@@ -770,7 +770,7 @@ describe('RbzTable.vue', () => {
             showMenuColumn: true,
             showFilterButton: true,
             showNewButton: true,
-            showEditButton: true,
+            showrowButton: true,
           },
           attachTo: document.body,
         })
@@ -839,10 +839,10 @@ describe('RbzTable.vue', () => {
     })
 
     describe('edit button', () => {
-      test('should not display if showEditButton prop is false', async () => {
-        await wrapper.setProps({showEditButton: false})
-        const editButton = wrapper.find('.edit-entity-button')
-        expect(editButton.exists()).toBeFalsy()
+      test('should not display if showrowButton prop is false', async () => {
+        await wrapper.setProps({showrowButton: false})
+        const rowButton = wrapper.find('.row-entity-button')
+        expect(rowButton.exists()).toBeFalsy()
       })
 
       test('should display if showrowButton prop is true', async () => {
