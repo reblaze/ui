@@ -47,8 +47,8 @@
                          :show-filter-button="true"
                          :show-new-button="true"
                          @new-button-clicked="addNewSite"
-                         :show-edit-button="true"
-                         @edit-button-clicked="editSite">
+                         :show-row-button="true"
+                         @row-button-clicked="editSite">
               </rbz-table>
               <span class="is-family-monospace has-text-grey-lighter">
                 {{ documentListAPIPath }}

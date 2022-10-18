@@ -380,7 +380,7 @@ export default defineComponent({
 
 .rbz-table .filter-toggle,
 .rbz-table .new-entity-button,
-.rbz-table .edit-entity-button {
+.rbz-table .row-entity-button {
   background: transparent;
   border-color: transparent;
   color: initial;

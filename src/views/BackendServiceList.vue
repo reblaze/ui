@@ -47,8 +47,8 @@
                          :show-filter-button="true"
                          :show-new-button="true"
                          @new-button-clicked="addNewBackendService"
-                         :show-edit-button="true"
-                         @edit-button-clicked="editBackendService">
+                         :show-row-button="true"
+                         @row-button-clicked="editBackendService">
               </rbz-table>
               <span class="is-family-monospace has-text-grey-lighter">
                 {{ documentListAPIPath }}

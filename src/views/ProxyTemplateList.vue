@@ -47,8 +47,8 @@
                          :show-filter-button="true"
                          :show-new-button="true"
                          @new-button-clicked="addNewProxyTemplate"
-                         :show-edit-button="true"
-                         @edit-button-clicked="editProxyTemplate">
+                         :show-row-button="true"
+                         @row-button-clicked="editProxyTemplate">
               </rbz-table>
               <span class="is-family-monospace has-text-grey-lighter">
                 {{ documentListAPIPath }}
