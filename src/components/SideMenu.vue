@@ -155,7 +155,7 @@ export default defineComponent({
       const kibanaURL = systemDBData?.links?.kibana_url || this.defaultKibanaURL
       const grafanaURL = systemDBData?.links?.grafana_url || this.defaultGrafanaURL
       const prometheusURL = systemDBData?.links?.prometheus_url || this.defaultPrometheusURL
-      this.menuItems.docs.swagger = {
+      this.menuItems.help.swagger = {
         title: 'API',
         url: swaggerURL,
         external: true,
