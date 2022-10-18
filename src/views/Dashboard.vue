@@ -140,16 +140,29 @@ export default defineComponent({
     buildQuery() {
       const startDate = this.date[0]
       const endDate = this.date[1]
-      let query = `start_date=${startDate}&end_date=${endDate}`
+      const queryJson = {
+        '$and': [
+          {
+            'timestamp': {
+              '$gt': startDate,
+              '$lt': endDate,
+            },
+          },
+        ],
+      }
       const filters = this.searchFilter ? this.searchFilter.split(',') : []
       filters.forEach((filter) => {
         filter = filter.trim()
         const splitFilter = filter.split(/:/)
         const operator = splitFilter.shift()
         const operand = splitFilter.join(':')
-        query += `&${operator}=${operand}`
+        const filterObject = {}
+        filterObject[operator] = {
+          '$regex': operand,
+        }
+        queryJson['$and'].push(filterObject)
       })
-      return query
+      return JSON.stringify(queryJson)
     },
 
     async loadData() {
@@ -157,7 +170,7 @@ export default defineComponent({
       const query = this.buildQuery()
       const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
-        url: `metrics?${query}`,
+        url: `metrics/1m?filters=${query}`,
         config: {
           headers: {
             'flavor': 'mongodb',
