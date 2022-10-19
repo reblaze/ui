@@ -68,10 +68,10 @@
                   </tag-autocomplete-input>
                 </div>
               </div>
-              <div class="is-size-7 document-automatic-tags">
-                    Automatic Tags:
-                    <div v-html="automaticTags"></div>
-            </div>
+              <automatic-tags
+                :selected-doc="localDoc"
+                :selectedDocType="selectedDocType" >
+              </automatic-tags>
               <div class="group-key mb-3">
                 <limit-option v-for="(option, index) in localDoc.key"
                               label-separated-line
@@ -268,15 +268,19 @@ import {
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import {AxiosResponse} from 'axios'
+import AutomaticTags from '@/components/AutomaticTags.vue'
+
 
 export default defineComponent({
   name: 'RateLimits',
   props: {
     selectedBranch: String,
     selectedDoc: Object,
+    selectedDocType: String,
     apiPath: String,
   },
   components: {
+    AutomaticTags,
     LimitOption,
     TagAutocompleteInput,
     SecurityPoliciesConnections,
@@ -326,15 +330,6 @@ export default defineComponent({
         this.localDoc.pairwith = value
         this.emitDocUpdate()
       },
-    },
-
-    automaticTags(): string {
-      const rule = this.localDoc
-      const ruleTagId = `limit-rule-id:${rule.id?.replace(/ /g, '-') || ''}`
-      const ruleTagIdElement = this.createTagElement(ruleTagId)
-      const ruleTagName = `limit-rule-name:${rule.name}`
-      const ruleTagNameElement = this.createTagElement(ruleTagName)
-      return `${ruleTagIdElement}${ruleTagNameElement}`
     },
   },
   emits: ['update:selectedDoc', 'go-to-route'],
@@ -453,15 +448,6 @@ export default defineComponent({
           return e[1]
         })
       })
-    },
-
-    createTagElement(tag: string): string {
-      return `
-            <div
-                class="automatic-tag ellipsis"
-                title="${tag}">
-                    ${tag}
-            </div>`
     },
   },
 

@@ -61,10 +61,10 @@
                 </tag-autocomplete-input>
               </div>
             </div>
-            <div class="is-size-7 document-automatic-tags">
-                    Automatic Tags:
-                    <div v-html="automaticTags"></div>
-            </div>
+            <automatic-tags
+              :selected-doc="localDoc"
+              :selectedDocType="selectedDocType" >
+            </automatic-tags>
           </div>
           <div v-if="localDoc.type === 'custom'"
                class="column is-9">
@@ -145,6 +145,8 @@ import _ from 'lodash'
 import {CustomResponse} from '@/types'
 import {defineComponent} from 'vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
+import AutomaticTags from '@/components/AutomaticTags.vue'
+
 
 type HeaderObject = {
   key: string
@@ -152,6 +154,7 @@ type HeaderObject = {
 }
 export default defineComponent({
   components: {
+    AutomaticTags,
     TagAutocompleteInput,
   },
   watch: {
@@ -192,6 +195,7 @@ export default defineComponent({
   },
   props: {
     selectedDoc: Object,
+    selectedDocType: String,
     apiPath: String,
   },
   data() {
@@ -219,13 +223,6 @@ export default defineComponent({
         }) : []
         this.emitDocUpdate()
       },
-    },
-
-    automaticTags(): string {
-      const rule = this.localDoc
-      const ruleTag = `cf-rule-id:${rule.id?.replace(/ /g, '-') || ''}`
-      const ruleTagElement = this.createTagElement(ruleTag)
-      return `${ruleTagElement}`
     },
   },
   emits: ['update:selectedDoc'],
@@ -262,15 +259,6 @@ export default defineComponent({
         content: '',
       }
       this.emitDocUpdate()
-    },
-
-    createTagElement(tag: string): string {
-      return `
-            <div
-                class="automatic-tag ellipsis"
-                title="${tag}">
-                    ${tag}
-            </div>`
     },
   },
 })

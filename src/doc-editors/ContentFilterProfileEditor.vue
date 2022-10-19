@@ -78,10 +78,10 @@
                 </tag-autocomplete-input>
               </div>
             </div>
-            <div class="is-size-7 document-automatic-tags">
-                Automatic Tags:
-                <div v-html="automaticTags"></div>
-            </div>
+            <automatic-tags
+              :selected-doc="localDoc"
+              :selectedDocType="selectedDocType" >
+            </automatic-tags>
             <div class="field ignore-alphanumeric-input-field"
                  :title="additionalInfoIgnoreAlphanumericInput">
               <label class="checkbox is-size-7">
@@ -658,6 +658,8 @@ import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import Utils from '@/assets/Utils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import {AxiosResponse} from 'axios'
+import AutomaticTags from '@/components/AutomaticTags.vue'
+
 
 type ContentFilterProfileType = {
   value: keyof ContentFilterProfile['decoding'],
@@ -667,12 +669,14 @@ type ContentFilterProfileType = {
 export default defineComponent({
   name: 'ContentFilterEditor',
   components: {
+    AutomaticTags,
     AutocompleteInput,
     TagAutocompleteInput,
   },
   props: {
     selectedBranch: String,
     selectedDoc: Object,
+    selectedDocType: String,
     apiPath: String,
   },
 
@@ -799,15 +803,6 @@ export default defineComponent({
         }) : []
         this.emitDocUpdate()
       },
-    },
-
-    automaticTags(): string {
-      const tag = this.localDoc
-      const profileTagId = `cf-profile-id:${tag.id?.replace(/ /g, '-') || ''}`
-      const profileTagIdElement = this.createTagElement(profileTagId)
-      const profileTagName = `cf-profile-name:${tag.name}`
-      const profileTagNameElement = this.createTagElement(profileTagName)
-      return `${profileTagIdElement}${profileTagNameElement}`
     },
   },
 
@@ -941,15 +936,6 @@ export default defineComponent({
           return e[1]
         })
       })
-    },
-
-    createTagElement(tag: string): string {
-      return `
-            <div
-                class="automatic-tag ellipsis"
-                title="${tag}">
-                    ${tag}
-            </div>`
     },
   },
 

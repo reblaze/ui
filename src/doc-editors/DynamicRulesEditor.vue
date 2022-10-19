@@ -103,10 +103,10 @@
                                               @tag-changed="selectedDocTags = $event">
                       </tag-autocomplete-input>
                     </div>
-                    <div class="is-size-7 document-automatic-tags">
-                      Automatic Tags:
-                      <div v-html="automaticTags"></div>
-                    </div>
+                    <automatic-tags
+                      :selected-doc="localDoc"
+                      :selectedDocType="selectedDocType" >
+                    </automatic-tags>
                   </div>
                   <div class="field">
                     <label class="label is-small">
@@ -228,6 +228,7 @@ import {
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import {AxiosResponse} from 'axios'
+import AutomaticTags from '@/components/AutomaticTags.vue'
 
 
 export default defineComponent({
@@ -236,9 +237,11 @@ export default defineComponent({
     selectedDoc: Object,
     selectedDocMatchingGlobalFilter: Object,
     selectedBranch: String,
+    selectedDocType: String,
     apiPath: String,
   },
   components: {
+    AutomaticTags,
     TagAutocompleteInput,
   },
   data() {
@@ -280,12 +283,6 @@ export default defineComponent({
         }) : []
         this.emitMatchDocUpdate()
       },
-    },
-    automaticTags(): string {
-      const rule = this.localDoc
-      const ruleTag = `cf-rule-id:${rule.id?.replace(/ /g, '-') || ''}`
-      const ruleTagElement = this.createTagElement(ruleTag)
-      return `${ruleTagElement}`
     },
   },
   emits: ['update:selectedDoc', 'update:selectedDocMatchingGlobalFilter'],
@@ -335,15 +332,6 @@ export default defineComponent({
           return e[1]
         })
       })
-    },
-
-    createTagElement(tag: string): string {
-      return `
-            <div
-                class="automatic-tag ellipsis"
-                title="${tag}">
-                    ${tag}
-            </div>`
     },
   },
   created() {

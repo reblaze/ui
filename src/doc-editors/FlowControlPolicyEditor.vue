@@ -80,10 +80,10 @@
                 </tag-autocomplete-input>
               </div>
             </div>
-            <div class="is-size-7 document-automatic-tags">
-                    Automatic Tags:
-                    <div v-html="automaticTags"></div>
-            </div>
+            <automatic-tags
+              :selected-doc="localDoc"
+              :selectedDocType="selectedDocType" >
+            </automatic-tags>
             <div class="field textarea-field">
               <label class="label is-small">Description</label>
               <div class="control">
@@ -368,6 +368,7 @@ import {
   LimitRuleType,
 } from '@/types'
 import {httpRequestMethods} from '@/types/const'
+import AutomaticTags from '@/components/AutomaticTags.vue'
 
 
 export default defineComponent({
@@ -375,10 +376,12 @@ export default defineComponent({
 
   props: {
     selectedDoc: Object,
+    selectedDocType: String,
     apiPath: String,
   },
 
   components: {
+    AutomaticTags,
     LimitOption,
     TagAutocompleteInput,
   },
@@ -430,15 +433,6 @@ export default defineComponent({
         }) : []
         this.emitDocUpdate()
       },
-    },
-    automaticTags(): string {
-      const tag = this.localDoc
-      // TODO
-      const flowControlTagId = `fc-id:${tag.id?.replace(/ /g, '-') || ''}`
-      const flowControlTagIdElement = this.createTagElement(flowControlTagId)
-      const flowControlTagName = `fc-name:${tag.name}`
-      const flowControlTagNameElement = this.createTagElement(flowControlTagName)
-      return `${flowControlTagIdElement}${flowControlTagNameElement}`
     },
   },
 
@@ -588,15 +582,6 @@ export default defineComponent({
       this.localDoc[section].splice(index, 1)
       this.addNewTagColName = null
       this.emitDocUpdate()
-    },
-
-    createTagElement(tag: string): string {
-      return `
-            <div
-                class="automatic-tag ellipsis"
-                title="${tag}">
-                    ${tag}
-            </div>`
     },
   },
 })

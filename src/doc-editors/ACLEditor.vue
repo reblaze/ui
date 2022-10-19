@@ -14,22 +14,22 @@
                 </label>
                 <div class="control">
                   <input class="input is-small document-name"
-                         title="Document name"
-                         placeholder="Document name"
-                         @change="emitDocUpdate"
-                         data-qa="acl-document-name"
-                         v-model="localDoc.name"/>
+                    title="Document name"
+                    placeholder="Document name"
+                    @change="emitDocUpdate"
+                    data-qa="acl-document-name"
+                    v-model="localDoc.name"/>
                 </div>
               </div>
               <div class="field textarea-field">
                 <label class="label is-small">Description</label>
                 <div class="control">
                   <textarea class="is-small textarea document-description"
-                            data-qa="description-input"
-                            title="Document description"
-                            v-model="localDoc.description"
-                            @input="emitDocUpdate"
-                            rows="5">
+                    data-qa="description-input"
+                    title="Document description"
+                    v-model="localDoc.description"
+                    @input="emitDocUpdate"
+                    rows="5">
                   </textarea>
                 </div>
               </div>
@@ -40,13 +40,13 @@
                 <div class="control is-expanded">
                   <div class="select is-fullwidth is-small">
                     <select v-model="localDoc.action"
-                            @change="emitDocUpdate"
-                            data-qa="action-dropdown"
-                            class="document-action-selection"
-                            title="Action">
+                      @change="emitDocUpdate"
+                      data-qa="action-dropdown"
+                      class="document-action-selection"
+                      title="Action">
                       <option v-for="customResponse in customResponseNames"
-                              :value="customResponse[0]"
-                              :key="customResponse[0]">
+                        :value="customResponse[0]"
+                        :key="customResponse[0]">
                         {{ customResponse[1] }}
                       </option>
                     </select>
@@ -57,16 +57,17 @@
                 <label class="label is-small">Tags</label>
                 <div class="control"
                      data-qa="tag-input">
-                  <tag-autocomplete-input :initial-tag="selectedDocTags"
-                                          :selection-type="'multiple'"
-                                          @tag-changed="selectedDocTags = $event">
+                  <tag-autocomplete-input
+                    :initial-tag="selectedDocTags"
+                    :selection-type="'multiple'"
+                    @tag-changed="selectedDocTags = $event">
                   </tag-autocomplete-input>
                 </div>
               </div>
-              <div class="is-size-7 document-automatic-tags">
-                    Automatic Tags:
-                    <div v-html="automaticTags"></div>
-                  </div>
+              <automatic-tags
+                :selected-doc="localDoc"
+                :selectedDocType="selectedDocType" >
+              </automatic-tags>
             </div>
           </div>
         </div>
@@ -137,6 +138,7 @@
 import _ from 'lodash'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
+import AutomaticTags from '@/components/AutomaticTags.vue'
 import {defineComponent} from 'vue'
 import {ACLProfile, ACLProfileFilter, CustomResponse, Dictionary} from '@/types'
 import RequestsUtils from '@/assets/RequestsUtils'
@@ -147,11 +149,13 @@ export default defineComponent({
 
   components: {
     TagAutocompleteInput,
+    AutomaticTags,
   },
 
   props: {
     selectedBranch: String,
     selectedDoc: Object,
+    selectedDocType: String,
     apiPath: String,
   },
   emits: ['update:selectedDoc', 'form-invalid'],
@@ -191,14 +195,6 @@ export default defineComponent({
         }) : []
         this.emitDocUpdate()
       },
-    },
-    automaticTags(): string {
-      const tag = this.localDoc
-      const aclTag = `acl-id:${tag.id?.replace(/ /g, '-') || ''}`
-      const aclTagElement = this.createTagElement(aclTag)
-      const aclName = `acl-name:${tag.name}`
-      const aclNameElement = this.createTagElement(aclName)
-      return `${aclTagElement}${aclNameElement}`
     },
   },
   methods: {
@@ -275,14 +271,6 @@ export default defineComponent({
           return e[1]
         })
       })
-    },
-    createTagElement(tag: string): string {
-      return `
-            <div
-                class="automatic-tag ellipsis"
-                title="${tag}">
-                    ${tag}
-            </div>`
     },
   },
 

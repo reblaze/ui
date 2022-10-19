@@ -85,11 +85,11 @@
                                             @tag-changed="selectedDocTags = $event">
                     </tag-autocomplete-input>
                   </div>
-                  <div class="is-size-7 document-automatic-tags">
-                    Automatic Tags:
-                    <div v-html="automaticTags"></div>
-                  </div>
                 </div>
+                <automatic-tags
+                  :selected-doc="localDoc"
+                  :selectedDocType="selectedDocType" >
+                </automatic-tags>
               </div>
             </div>
             <div class="field">
@@ -133,14 +133,19 @@ import {defineComponent} from 'vue'
 import {ContentFilterRule} from '@/types'
 import _ from 'lodash'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
+import AutomaticTags from '@/components/AutomaticTags.vue'
+
 
 export default defineComponent({
   name: 'ContentFilterRulesEditor',
+
   components: {
+    AutomaticTags,
     TagAutocompleteInput,
   },
   props: {
     selectedDoc: Object,
+    selectedDocType: String,
   },
   computed: {
     localDoc(): ContentFilterRule {
@@ -160,19 +165,6 @@ export default defineComponent({
         }) : []
         this.emitDocUpdate()
       },
-    },
-
-    automaticTags(): string {
-      const rule = this.localDoc
-      const ruleTag = `cf-rule-id:${rule.id?.replace(/ /g, '-') || ''}`
-      const ruleTagElement = this.createTagElement(ruleTag)
-      const riskTag = `cf-rule-risk:${rule.risk}`
-      const riskTagElement = this.createTagElement(riskTag)
-      const categoryTag = `cf-rule-category:${rule.category?.replace(/ /g, '-') || ''}`
-      const categoryTagElement = this.createTagElement(categoryTag)
-      const subcategoryTag = `cf-rule-subcategory:${rule.subcategory?.replace(/ /g, '-') || ''}`
-      const subcategoryTagElement = this.createTagElement(subcategoryTag)
-      return `${ruleTagElement}${riskTagElement}${categoryTagElement}${subcategoryTagElement}`
     },
   },
   data() {

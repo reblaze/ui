@@ -73,10 +73,10 @@
                 </tag-autocomplete-input>
               </div>
             </div>
-            <div class="is-size-7 document-automatic-tags">
-                    Automatic Tags:
-                    <div v-html="automaticTags"></div>
-            </div>
+            <automatic-tags
+              :selected-doc="localDoc"
+              :selectedDocType="selectedDocType" >
+            </automatic-tags>
             <div class="field">
               <a v-if="externalSource"
                  class="is-small has-text-grey is-size-7 is-pulled-right update-now-button"
@@ -188,11 +188,14 @@ import {
 } from '@/types'
 import {AxiosResponse} from 'axios'
 import DateTimeUtils from '@/assets/DateTimeUtils'
+import AutomaticTags from '@/components/AutomaticTags.vue'
+
 
 export default defineComponent({
   name: 'GlobalFilterListEditor',
 
   components: {
+    AutomaticTags,
     EntriesRelationList,
     TagAutocompleteInput,
   },
@@ -200,6 +203,7 @@ export default defineComponent({
   props: {
     selectedBranch: String,
     selectedDoc: Object,
+    selectedDocType: String,
     apiPath: String,
     docs: Array,
   },
@@ -287,15 +291,6 @@ export default defineComponent({
 
     fullFormattedModifiedDate(): string {
       return DateTimeUtils.isoToNowFullCuriefenseFormat(this.localDoc.mdate)
-    },
-
-    automaticTags(): string {
-      const rule = this.localDoc
-      const ruleTag = `gf-rule-id:${rule.id?.replace(/ /g, '-') || ''}`
-      const ruleTagElement = this.createTagElement(ruleTag)
-      const ruleTagName = `gf-rule-name:${rule.name}`
-      const ruleTagNameElement = this.createTagElement(ruleTagName)
-      return `${ruleTagElement}${ruleTagNameElement}`
     },
   },
 
@@ -421,15 +416,6 @@ export default defineComponent({
           return e[1]
         })
       })
-    },
-
-    createTagElement(tag: string): string {
-      return `
-            <div
-                class="automatic-tag ellipsis"
-                title="${tag}">
-                    ${tag}
-            </div>`
     },
   },
 
