@@ -267,7 +267,6 @@ export default defineComponent({
       RequestsUtils.sendRequest({
         methodName: 'GET',
         url: 'configs/',
-        config: {headers: {'x-fields': 'id'}},
       }).then((response: AxiosResponse<Branch[]>) => {
         this.configs = response?.data || []
         if (!this.configs.length) {
