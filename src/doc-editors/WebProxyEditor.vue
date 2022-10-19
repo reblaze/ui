@@ -57,7 +57,7 @@
                       </span>
                   </button>
                 </p>
-                <p class="control">
+                <!--p-- class="control">
                   <button class="button is-small has-text-danger delete-document-button"
                           title="Delete document"
                           data-qa="delete-document"
@@ -68,6 +68,48 @@
                         <i class="fas fa-trash"></i>
                       </span>
                   </button>
+                </-p-->
+                <p class="control">
+                  <span class="field has-addons">
+                    <span class="control">
+                      <button class="button is-small has-text-danger delete-branch-toggle"
+                              data-qa="delete-branch-btn"
+                              @click="toggleDeleteWebProxyDoc()">
+                        <span class="icon is-small">
+                          <i class="fas fa-trash"></i>
+                        </span>
+                      </button>
+                    </span>
+                    <span class="control is-expanded"
+                          v-if="deleteWebProxyDoc">
+                      <input class="input is-small delete-branch-input"
+                             data-qa="confirm-branch-name-input"
+                             title="Doc ID to Delete"
+                             placeholder="Write Doc ID to Delete"
+                             v-model="deleteWebProxyDocName"
+                             type="text">
+                    </span>
+                    <span class="control"
+                          v-if="deleteWebProxyDoc">
+                      <button class="button is-danger is-small delete-branch-cancel"
+                              data-qa="cancel-delete-branch-btn"
+                              @click="toggleDeleteWebProxyDoc">
+                        <span class="icon is-small">
+                          <i class="fas fa-times"></i>
+                        </span>
+                      </button>
+                    </span>
+                    <span class="control"
+                          v-if="deleteWebProxyDoc">
+                      <button class="button is-primary is-small delete-branch-confirm"
+                              data-qa="confirm-delete-branch-btn"
+                              @click="deleteWebProxyDocByID">
+                        <span class="icon is-small">
+                          <i class="fas fa-check"></i>
+                        </span>
+                      </button>
+                    </span>
+                  </span>
                 </p>
               </div>
             </div>
@@ -97,6 +139,42 @@
                   </div>
                 </div>
                 <div class="field">
+                  <label class="label is-small">
+                    Match Host/Authority Headers
+                  </label>
+                  <div class="control">
+                    <input class="input is-small domain-name"
+                           title="Domain name"
+                           placeholder="Domain name"
+                           v-model="selectedWebProxy.canonical_name"/>
+                  </div>
+                </div>
+                <div class="field">
+                    <label class="label is-small">
+                      Certificate
+                    </label>
+                    <div class="control is-expanded">
+                        <div class="select is-fullwidth is-small">
+                            <select v-model="selectedWebProxy.ssl_certificate" >
+                                <option value="" selected disabled>
+                                    Select Certificate
+                                </option>
+                                <option v-for="certificate in certificatesNames"
+                                    :value="certificate[0]"
+                                    :key="certificate[0]">
+                                    {{! certificate[0] }} ({{! certificate[1] }})
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <p class="help">
+                        (Optional) Choose a certificate for the site, or create a
+                        <safe-link url="/new-ssl-page/certificate-store">
+                            new one
+                        </safe-link>.
+                    </p>
+                </div>
+                <div class="field">
                   <div class="field textarea-field">
                     <label class="label is-small">Description</label>
                     <div class="control">
@@ -111,27 +189,7 @@
                 </div>
               </div>
               <div class="column is-4">
-                <div class="field">
-                  <label class="label is-small">
-                    Domain Name
-                  </label>
-                  <div class="control">
-                    <input class="input is-small domain-name"
-                           title="Domain name"
-                           placeholder="Domain name"
-                           v-model="selectedWebProxy.canonical_name"/>
-                  </div>
-                </div>
-                <div class="field">
-                  <label class="label is-small">Additional Domain Names</label>
-                  <div class="control">
-                    <textarea
-                        class="textarea is-small additional-domain-names"
-                        placeholder="Additional domain names"
-                        v-model="serverNames">
-                    </textarea>
-                  </div>
-                </div>
+
               </div>
             </div>
             <div class="columns is-multiline">
@@ -311,6 +369,7 @@ import {
   ACLProfile,
   BackendService,
   ContentFilterProfile,
+  Certificate,
   MobileSDK,
   ProxyTemplate,
   RoutingProfile,
@@ -345,9 +404,13 @@ export default defineComponent({
       routingProfilesNames: [] as [RoutingProfile['id'], RoutingProfile['name']][],
       proxyTemplatesNames: [] as [ProxyTemplate['id'], ProxyTemplate['name']][],
       mobileSDKsNames: [] as [MobileSDK['id'], MobileSDK['name']][],
+      certificatesNames: [] as [Certificate['id'], Certificate['san']][],
       backendServicesNames: [] as [BackendService['id'], BackendService['name']][],
       contentFilterProfilesNames: [] as [ContentFilterProfile['id'], ContentFilterProfile['name']][],
       aclProfilesNames: [] as [ACLProfile['id'], ACLProfile['name']][],
+
+      deleteWebProxyDocName: '' as string,
+      deleteWebProxyDoc: false as boolean,
 
       apiRoot: RequestsUtils.reblazeAPIRoot,
       apiVersion: RequestsUtils.reblazeAPIVersion,
@@ -374,6 +437,11 @@ export default defineComponent({
         return routingProfile.id === this.selectedWebProxy.routing_profile
       })
     },
+
+    // isSelectedWebProxyNameToDeleteValid(): boolean {
+    //   const newName = this.deleteWebProxyDocName.trim()
+    //   return newName === this.selectedBranch
+    // },
 
     serverNames: {
       get() {
@@ -437,7 +505,7 @@ export default defineComponent({
       }
     },
 
-    async deleteDoc() {
+    async deleteWebProxyDocByID() {
       this.setLoadingDocStatus(true)
       this.isDeleteLoading = true
       const webProxyText = this.titles['sites-singular']
@@ -479,6 +547,7 @@ export default defineComponent({
         },
       })
       this.selectedWebProxy = response?.data || {}
+      console.log('this.selectedWebProxy', this.selectedWebProxy)
       this.isDownloadLoading = false
     },
 
@@ -538,6 +607,24 @@ export default defineComponent({
       })
     },
 
+    loadCertificates() {
+      RequestsUtils.sendReblazeRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/certificates/`,
+        config: {headers: {'x-fields': 'id, san'}},
+      }).then((response: AxiosResponse<Certificate[]>) => {
+        if (response.data.length > 0) {
+          this.certificatesNames = _.sortBy(_.map(response.data, (entity) => {
+            return [entity.id, entity.san]
+          }), (e) => {
+            return e[1]
+          })
+        } else {
+          this.certificatesNames = [['planet-www-example.com-4a5b', ['www.example.com']]] as [string, string[]][]
+        }
+      })
+    },
+
     loadBackendServices() {
       RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
@@ -584,6 +671,13 @@ export default defineComponent({
       const matchedItem = _.find(list, (listItem) => listItem[0] === id)
       return matchedItem?.[1] || ''
     },
+
+    toggleDeleteWebProxyDoc() {
+      this.deleteWebProxyDoc = !this.deleteWebProxyDoc
+      if (!this.deleteWebProxyDoc) {
+        this.deleteWebProxyDocName = ''
+      }
+    },
   },
   async created() {
     await this.loadConfigs()
@@ -592,6 +686,7 @@ export default defineComponent({
     this.loadRoutingProfiles()
     this.loadProxyTemplates()
     this.loadMobileSDKs()
+    this.loadCertificates()
     this.loadBackendServices()
     this.loadContentFilterProfiles()
     this.loadACLProfiles()

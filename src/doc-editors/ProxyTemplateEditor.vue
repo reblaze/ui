@@ -405,6 +405,94 @@
                 </div>
               </div>
             </div>
+            <div class="card collapsible-card"
+                 :class="{ collapsed: isTrustedCollapsed }">
+              <div class="card-content px-0 py-0">
+                <div class="media collapsible px-5 py-5 mb-0"
+                     @click="isTrustedCollapsed = !isTrustedCollapsed">
+                  <div class="media-content">
+                    <p class="title is-5 is-uppercase">Trusted Sources</p>
+                  </div>
+                  <span v-show="isTrustedCollapsed">
+                    <i class="fas fa-angle-down"
+                       aria-hidden="true"></i>
+                  </span>
+                  <span v-show="!isTrustedCollapsed">
+                    <i class="fas fa-angle-up"
+                       aria-hidden="true"></i>
+                  </span>
+                </div>
+                <div class="content collapsible-content px-5 py-5">
+                      <div class="content">
+                        <rbz-table :columns="columns"
+                                    :data="trustedData"
+                                    :row-button-icon="'fa-trash'"
+                                    :row-button-title="'Delete'"
+                                    :show-menu-column="true"
+                                    :show-filter-button="true"
+                                    :show-row-button="true"
+                                    @row-button-clicked="deleteTrustedElement">
+                        </rbz-table>
+                    </div>
+                </div>
+              </div>
+            </div>
+            <div class="card collapsible-card"
+                 :class="{ collapsed: isAdvancedCollapsed }">
+              <div class="card-content px-0 py-0">
+                <div class="media collapsible px-5 py-5 mb-0"
+                     @click="isAdvancedCollapsed = !isAdvancedCollapsed">
+                  <div class="media-content">
+                    <p class="title is-5 is-uppercase">Further Advanced Settings</p>
+                  </div>
+                  <span v-show="isAdvancedCollapsed">
+                    <i class="fas fa-angle-down"
+                       aria-hidden="true"></i>
+                  </span>
+                  <span v-show="!isAdvancedCollapsed">
+                    <i class="fas fa-angle-up"
+                       aria-hidden="true"></i>
+                  </span>
+                </div>
+                <div class="content collapsible-content px-5 py-5">
+                  <div class="columns">
+                    <div class="column is-6">
+                      <div class="field ">
+                        <div class="field">
+                          <label class="label is-small">
+                            HTTP Listener Custom Configuration
+                          </label>
+                          <div class="control">
+                            <textarea
+                              rows="5"
+                              class="is-small textarea site-conf"
+                              v-model="selectedProxyTemplate.conf_specific">
+                            </textarea>
+                          </div>
+                          <p class="help has-text-danger">Unless instructed, don't touch!</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="column is-6">
+                      <div class="field ">
+                        <div class="field">
+                          <label class="label is-small">HTTPS Listener Custom Configuration</label>
+                          <div class="control">
+                            <textarea
+                              rows="5"
+                              class="is-small textarea site-ssl-conf"
+                              v-model="selectedProxyTemplate.ssl_conf_specific">
+                            </textarea>
+                          </div>
+                          <p class="help has-text-danger">Unless instructed, don't touch!</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <span class="is-family-monospace has-text-grey-lighter">{{ documentAPIPath }}</span>
           </div>
         </div>
@@ -419,9 +507,21 @@ import {ProxyTemplate} from '@/types'
 import Utils from '@/assets/Utils'
 import {defineComponent} from 'vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
+import RbzTable from '@/components/RbzTable.vue'
+import axios from 'axios'
+
+type TrustedSources = {
+  id: string
+  address: string
+  comment: string
+}
+
 
 export default defineComponent({
   name: 'ProxyTemplateEditor',
+  components: {
+    RbzTable,
+  },
   data() {
     return {
       titles: DatasetsUtils.titles,
@@ -431,8 +531,8 @@ export default defineComponent({
       docIdFromRoute: '',
 
       // Collapsible cards
-      isFrontendCollapsed: true,
-      isBackendCollapsed: true,
+      isFrontendCollapsed: false,
+      isBackendCollapsed: false,
 
       // Loading indicators
       loadingDocCounter: 0,
@@ -442,6 +542,33 @@ export default defineComponent({
 
       apiRoot: RequestsUtils.reblazeAPIRoot,
       apiVersion: RequestsUtils.reblazeAPIVersion,
+
+      sources: [],
+      tagRules: [],
+      isTrustedCollapsed: false,
+      trustedData: null as TrustedSources[],
+      columns: [
+        {
+          title: 'CIDR / IP / Tag Rule',
+          fieldNames: ['address'],
+          isSortable: true,
+          isSearchable: true,
+          classes: 'ellipsis',
+        },
+        {
+          title: 'comment',
+          fieldNames: ['comment'],
+          isSortable: true,
+          isSearchable: true,
+          classes: 'ellipsis',
+        },
+      ],
+
+      isAdvancedCollapsed: false,
+      advancedSettings: {
+        conf_specific: '1234',
+        ssl_conf_specific: '5678',
+      },
     }
   },
   computed: {
@@ -452,6 +579,25 @@ export default defineComponent({
 
     branchNames() {
       return this.configs?.length ? _.sortBy(_.map(this.configs, 'id')) : []
+    },
+    // from reblaze
+    getAddress(address: any) {
+      const tagRule = this.tagRules.find(({id}) => id === address)
+      return tagRule ? {
+        id: tagRule.id,
+        text: tagRule.name,
+        // link: this.pageModal
+      } : address
+    },
+    // from reblaze
+    gridOptions() {
+      return {
+        data: this.sources.map(({address, comment}) => ({
+          id: address,
+          address: this.getAddress(address),
+          comment,
+        })),
+      }
     },
   },
   methods: {
@@ -550,10 +696,45 @@ export default defineComponent({
       this.selectedProxyTemplate = response?.data || {}
       this.isDownloadLoading = false
     },
+
+    async loadTrustedSources() {
+      const url = '/planet/trusted_net'
+      const methodName = 'GET'
+      // const url = '/tag-rules-api/doc'
+      // const config = {}
+      // const response = await RequestsUtils.sendReblazeRequest({methodName, url})
+      // this.trustedData = response.data
+      console.log(url, methodName)
+      this.trustedData = [{
+        id: '1234',
+        address: '127.0.0.0/8',
+        comment: 'Private subnet',
+      }]
+    },
+    // from reblaze
+    async parseData({trustedNets}: {trustedNets: any}): Promise<void> {
+      try {
+        const {data} = await axios.get('/tag-rules-api/doc')
+        if (data.files) {
+          this.tagRules = _.sortBy(data.files, (f) => f.name.toLowerCase())
+        }
+      } catch {
+        console.log()
+      }
+      this.sources = trustedNets
+    },
+    // from reblaze
+    pathname() {
+      return window.top.location.pathname
+    },
+    deleteTrustedElement() {
+      // delete 1 line
+    },
   },
   async created() {
     await this.loadConfigs()
     this.setSelectedDataFromRouteParams()
+    await this.loadTrustedSources()
   },
 })
 </script>

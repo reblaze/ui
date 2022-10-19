@@ -296,6 +296,30 @@ declare module CuriefenseClient {
     }[]
   }
 
+  type Certificate = {
+    id:	string
+    cert_body:	string
+    expires:	string
+    issuer:	string
+    le_auto_renew:	boolean
+    le_auto_replace:	boolean
+    le_hash:	string
+    private_key:	string
+    provider_links:	[{
+      link: string
+      provider: string
+      region: string
+    }]
+    san:	string[]
+    subject:	string
+    uploaded:	string
+  }
+
+  type Certificates1 = {
+    certificate_id: string
+    name: string
+  }
+
   type RoutingProfileEntryLocation = {
     path: string
     backend_id: string
@@ -325,15 +349,10 @@ declare module CuriefenseClient {
     id: string
     name: string
     description: string
-    secret: string
-    var_name: string
     uid_header: string
     grace: string
-    grace_var_name: string
-    validator_type: string
     active_config: MobileSDKConfig[]
     signatures: MobileSDKSignature[]
-    support_legacy_sdk: boolean
   }
 
   type ProxyTemplate = {
@@ -341,23 +360,23 @@ declare module CuriefenseClient {
     id: string
     description: string
     acao_header: boolean
-    xff_header_name: string
-    post_private_args: string
-    proxy_connect_timeout: string
-    proxy_send_timeout: string
-    proxy_read_timeout: string
-    upstream_host: string
     client_body_timeout: string
     client_header_timeout: string
-    keepalive_timeout: string
-    send_timeout: string
     client_max_body_size: string
+    conf_specific: string
+    custom_listener: boolean
+    keepalive_timeout: string
     limit_req_rate: string
     limit_req_burst: string
-    session_key: string
     mask_headers: string
+    proxy_connect_timeout: string
+    proxy_read_timeout: string
+    proxy_send_timeout: string
+    send_timeout: string
+    ssl_conf_specific: string // {}
+    upstream_host: string
+    xff_header_name: string
     xrealip_header_name: string
-    custom_listener: boolean
   }
 
   type Site = {

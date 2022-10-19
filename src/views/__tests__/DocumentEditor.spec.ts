@@ -852,7 +852,7 @@ describe('DocumentEditor.vue', () => {
       if (path === `/conf/api/v3/configs/${branch}/d/ratelimits/e/f971e92459e2/`) {
         return Promise.resolve({data: rateLimitsDocs[0]})
       }
-      if (path === `/reblaze/api/v1.0/reblaze/config/d/cloud-functions/`) {
+      if (path === `/reblaze/api/v3/reblaze/config/d/cloud-functions/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve({data: _.map(cloudFunctionsDocs, (i) => _.pick(i, 'id', 'name'))})
         }
