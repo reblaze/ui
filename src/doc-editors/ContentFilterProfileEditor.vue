@@ -900,7 +900,7 @@ export default defineComponent({
       return this.localDoc.content_type?.includes(value)
     },
 
-    updateContentType(value: string, event: any): void {
+    updateContentType(value: string, event: Event): void {
       const state = (event.target as HTMLInputElement).checked
       if (state) {
         this.localDoc.content_type.push(value)
