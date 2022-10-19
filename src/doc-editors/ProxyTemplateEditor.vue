@@ -424,7 +424,7 @@
                 </div>
                 <div class="content collapsible-content px-5 py-5">
                       <div class="content">
-                        <rbz-table :columns="columns"
+                        <rbz-table :columns="trusted_sources_columns"
                                     :data="trustedData"
                                     :row-button-icon="'fa-trash'"
                                     :row-button-title="'Delete'"
@@ -443,7 +443,7 @@
                 <div class="media collapsible px-5 py-5 mb-0"
                      @click="isAdvancedCollapsed = !isAdvancedCollapsed">
                   <div class="media-content">
-                    <p class="title is-5 is-uppercase">Further Advanced Settings</p>
+                    <p class="title is-5 is-uppercase">Advanced Settings</p>
                   </div>
                   <span v-show="isAdvancedCollapsed">
                     <i class="fas fa-angle-down"
@@ -508,14 +508,12 @@ import Utils from '@/assets/Utils'
 import {defineComponent} from 'vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RbzTable from '@/components/RbzTable.vue'
-import axios from 'axios'
 
-type TrustedSources = {
-  id: string
-  address: string
-  comment: string
-}
-
+// type TrustedSources = {
+//   id: string
+//   address: string
+//   comment: string
+// }
 
 export default defineComponent({
   name: 'ProxyTemplateEditor',
@@ -533,6 +531,8 @@ export default defineComponent({
       // Collapsible cards
       isFrontendCollapsed: false,
       isBackendCollapsed: false,
+      isAdvancedCollapsed: false,
+      isTrustedCollapsed: false,
 
       // Loading indicators
       loadingDocCounter: 0,
@@ -543,32 +543,23 @@ export default defineComponent({
       apiRoot: RequestsUtils.reblazeAPIRoot,
       apiVersion: RequestsUtils.reblazeAPIVersion,
 
-      sources: [],
-      tagRules: [],
-      isTrustedCollapsed: false,
-      trustedData: null as TrustedSources[],
-      columns: [
+      trustedData: null as {name: string, 'trusted_net': string}[],
+      trusted_sources_columns: [
         {
           title: 'CIDR / IP / Tag Rule',
-          fieldNames: ['address'],
+          fieldNames: ['name'],
           isSortable: true,
           isSearchable: true,
           classes: 'ellipsis',
         },
         {
           title: 'comment',
-          fieldNames: ['comment'],
+          fieldNames: ['trusted_net'],
           isSortable: true,
           isSearchable: true,
           classes: 'ellipsis',
         },
       ],
-
-      isAdvancedCollapsed: false,
-      advancedSettings: {
-        conf_specific: '1234',
-        ssl_conf_specific: '5678',
-      },
     }
   },
   computed: {
@@ -579,25 +570,6 @@ export default defineComponent({
 
     branchNames() {
       return this.configs?.length ? _.sortBy(_.map(this.configs, 'id')) : []
-    },
-    // from reblaze
-    getAddress(address: any) {
-      const tagRule = this.tagRules.find(({id}) => id === address)
-      return tagRule ? {
-        id: tagRule.id,
-        text: tagRule.name,
-        // link: this.pageModal
-      } : address
-    },
-    // from reblaze
-    gridOptions() {
-      return {
-        data: this.sources.map(({address, comment}) => ({
-          id: address,
-          address: this.getAddress(address),
-          comment,
-        })),
-      }
     },
   },
   methods: {
@@ -698,37 +670,16 @@ export default defineComponent({
     },
 
     async loadTrustedSources() {
-      const url = '/planet/trusted_net'
+      const url = `configs/${this.selectedBranch}/d/planet/`
       const methodName = 'GET'
-      // const url = '/tag-rules-api/doc'
-      // const config = {}
-      // const response = await RequestsUtils.sendReblazeRequest({methodName, url})
-      // this.trustedData = response.data
-      console.log(url, methodName)
-      this.trustedData = [{
-        id: '1234',
-        address: '127.0.0.0/8',
-        comment: 'Private subnet',
-      }]
+      const response = await RequestsUtils.sendReblazeRequest({methodName, url})
+      this.trustedData = response.data.trusted_net.map((trusted: string)=> {
+        return {name: response.data.name, trusted_net: trusted}
+      })
     },
-    // from reblaze
-    async parseData({trustedNets}: {trustedNets: any}): Promise<void> {
-      try {
-        const {data} = await axios.get('/tag-rules-api/doc')
-        if (data.files) {
-          this.tagRules = _.sortBy(data.files, (f) => f.name.toLowerCase())
-        }
-      } catch {
-        console.log()
-      }
-      this.sources = trustedNets
-    },
-    // from reblaze
-    pathname() {
-      return window.top.location.pathname
-    },
-    deleteTrustedElement() {
+    deleteTrustedElement(id: string) {
       // delete 1 line
+      console.log('delete id', id)
     },
   },
   async created() {

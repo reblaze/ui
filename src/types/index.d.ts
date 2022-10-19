@@ -315,11 +315,6 @@ declare module CuriefenseClient {
     uploaded:	string
   }
 
-  type Certificates1 = {
-    certificate_id: string
-    name: string
-  }
-
   type RoutingProfileEntryLocation = {
     path: string
     backend_id: string

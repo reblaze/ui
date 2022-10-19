@@ -8,38 +8,38 @@
               <div class="field is-grouped">
                 <p class="control">
                   <button class="button is-small redirect-list-button"
-                          @click="redirectToList()"
-                          title="Return to list"
-                          data-qa="redirect-to-list">
-                        <span class="icon is-small">
-                          <i class="fas fa-arrow-left"></i>
-                        </span>
+                      @click="redirectToList()"
+                      title="Return to list"
+                      data-qa="redirect-to-list">
+                    <span class="icon is-small">
+                      <i class="fas fa-arrow-left"></i>
+                    </span>
                   </button>
                 </p>
                 <div class="control"
-                     v-if="branchNames.length">
+                   v-if="branchNames.length">
                   <div class="select is-small">
                     <select v-model="selectedBranch"
-                            title="Switch branch"
-                            class="branch-selection"
-                            @change="switchBranch()">
-                      <option v-for="name in branchNames"
-                              :key="name"
-                              :value="name">
-                        {{ name }}
-                      </option>
+                        title="Switch branch"
+                        class="branch-selection"
+                        @change="switchBranch()">
+                        <option v-for="name in branchNames"
+                                :key="name"
+                                :value="name">
+                          {{ name }}
+                        </option>
                     </select>
                   </div>
                 </div>
                 <p class="control">
                   <button class="button is-small download-doc-button"
-                          :class="{'is-loading':isDownloadLoading}"
-                          @click="downloadDoc()"
-                          title="Download document"
-                          data-qa="download-document">
-                        <span class="icon is-small">
-                          <i class="fas fa-download"></i>
-                        </span>
+                      :class="{'is-loading':isDownloadLoading}"
+                      @click="downloadDoc()"
+                      title="Download document"
+                      data-qa="download-document">
+                    <span class="icon is-small">
+                      <i class="fas fa-download"></i>
+                    </span>
                   </button>
                 </p>
               </div>
@@ -48,42 +48,30 @@
               <div class="field is-grouped is-pulled-right">
                 <p class="control">
                   <button class="button is-small save-document-button"
-                          :class="{'is-loading': isSaveLoading}"
-                          title="Save changes"
-                          data-qa="save-changes"
-                          @click="saveChanges()">
-                      <span class="icon is-small">
-                        <i class="fas fa-save"></i>
-                      </span>
+                        :class="{'is-loading': isSaveLoading}"
+                        title="Save changes"
+                        data-qa="save-changes"
+                        @click="saveChanges()">
+                    <span class="icon is-small">
+                      <i class="fas fa-save"></i>
+                    </span>
                   </button>
                 </p>
-                <!--p-- class="control">
-                  <button class="button is-small has-text-danger delete-document-button"
-                          title="Delete document"
-                          data-qa="delete-document"
-                          :class="{'is-loading': isDeleteLoading}"
-                          :disabled="selectedWebProxy?.id === '__default__'"
-                          @click="deleteDoc()">
-                      <span class="icon is-small">
-                        <i class="fas fa-trash"></i>
-                      </span>
-                  </button>
-                </-p-->
                 <p class="control">
                   <span class="field has-addons">
                     <span class="control">
-                      <button class="button is-small has-text-danger delete-branch-toggle"
-                              data-qa="delete-branch-btn"
+                      <button class="button is-small has-text-danger delete-web-proxy"
+                              data-qa="delete-web-proxy-btn"
                               @click="toggleDeleteWebProxyDoc()">
                         <span class="icon is-small">
-                          <i class="fas fa-trash"></i>
+                          <i  class="fas fa-trash"></i>
                         </span>
                       </button>
                     </span>
                     <span class="control is-expanded"
                           v-if="deleteWebProxyDoc">
-                      <input class="input is-small delete-branch-input"
-                             data-qa="confirm-branch-name-input"
+                      <input class="input is-small delete-web-proxy-input"
+                             data-qa="confirm-web-proxy-input"
                              title="Doc ID to Delete"
                              placeholder="Write Doc ID to Delete"
                              v-model="deleteWebProxyDocName"
@@ -91,8 +79,8 @@
                     </span>
                     <span class="control"
                           v-if="deleteWebProxyDoc">
-                      <button class="button is-danger is-small delete-branch-cancel"
-                              data-qa="cancel-delete-branch-btn"
+                      <button class="button is-danger is-small delete-web-proxy-cancel"
+                              data-qa="cancel-delete-web-proxy-btn"
                               @click="toggleDeleteWebProxyDoc">
                         <span class="icon is-small">
                           <i class="fas fa-times"></i>
@@ -101,9 +89,9 @@
                     </span>
                     <span class="control"
                           v-if="deleteWebProxyDoc">
-                      <button class="button is-primary is-small delete-branch-confirm"
-                              data-qa="confirm-delete-branch-btn"
-                              @click="deleteWebProxyDocByID">
+                      <button class="button is-primary is-small delete-web-proxy-confirm"
+                              data-qa="confirm-delete-web-proxy-btn"
+                              @click="deleteWebProxyDocByName">
                         <span class="icon is-small">
                           <i class="fas fa-check"></i>
                         </span>
@@ -143,40 +131,45 @@
                     Match Host/Authority Headers
                   </label>
                   <div class="control">
-                    <input class="input is-small domain-name"
-                           title="Domain name"
-                           placeholder="Domain name"
-                           v-model="selectedWebProxy.canonical_name"/>
+                    <textarea class="input is-small match-host"
+                        title="Match Host/Authority Headers"
+                        placeholder="Match Host/Authority Headers"
+                        data-qa="match-host-input"
+                        v-model="selectedWebProxy.canonical_name"
+                        rows="5">
+                    </textarea>
                   </div>
                 </div>
                 <div class="field">
-                    <label class="label is-small">
-                      Certificate
-                    </label>
-                    <div class="control is-expanded">
-                        <div class="select is-fullwidth is-small">
-                            <select v-model="selectedWebProxy.ssl_certificate" >
-                                <option value="" selected disabled>
-                                    Select Certificate
-                                </option>
-                                <option v-for="certificate in certificatesNames"
-                                    :value="certificate[0]"
-                                    :key="certificate[0]">
-                                    {{! certificate[0] }} ({{! certificate[1] }})
-                                </option>
-                            </select>
-                        </div>
+                  <label class="label is-small">
+                    Certificate
+                  </label>
+                  <div class="control is-expanded">
+                    <div class="select is-fullwidth is-small">
+                      <select v-model="selectedWebProxy.ssl_certificate" >
+                        <option value="" selected disabled>
+                            Select Certificate
+                        </option>
+                        <option v-for="certificate in certificatesNames"
+                            :value="certificate[0]"
+                            :key="certificate[0]">
+                            {{certificate[0] }} ({{certificate[1] }})
+                        </option>
+                      </select>
                     </div>
-                    <p class="help">
-                        (Optional) Choose a certificate for the site, or create a
-                        <safe-link url="/new-ssl-page/certificate-store">
-                            new one
-                        </safe-link>.
-                    </p>
+                  </div>
+                  <p class="help">
+                    (Optional) Choose a certificate for the site, or create a
+                    <safe-link url="/new-ssl-page/certificate-store">
+                        new one
+                    </safe-link>.
+                  </p>
                 </div>
                 <div class="field">
                   <div class="field textarea-field">
-                    <label class="label is-small">Description</label>
+                    <label class="label is-small">
+                      Description
+                    </label>
                     <div class="control">
                       <textarea class="is-small textarea document-description"
                                 data-qa="description-input"
@@ -189,7 +182,7 @@
                 </div>
               </div>
               <div class="column is-4">
-
+ghdfghdfhdfhdfh
               </div>
             </div>
             <div class="columns is-multiline">
@@ -231,21 +224,21 @@
                       </tr>
                       </thead>
                       <tbody>
-                      <tr v-for="location in selectedRoutingProfile.locations"
-                          :key="location.path">
-                        <td class="ellipsis">
-                          {{ location.path }}
-                        </td>
-                        <td class="ellipsis">
-                          {{ referencedDocName(backendServicesNames, location.backend_id) }}
-                        </td>
-                        <td>
-                          <span v-for="cloudFunction in location.cloud_functions"
-                                :key="cloudFunction">
-                            {{ location.cloud_functions.length }}
-                          </span>
-                        </td>
-                      </tr>
+                        <tr v-for="location in selectedRoutingProfile.locations"
+                            :key="location.path">
+                          <td class="ellipsis">
+                            {{ location.path }}
+                          </td>
+                          <td class="ellipsis">
+                            {{ referencedDocName(backendServicesNames, location.backend_id) }}
+                          </td>
+                          <td>
+                            <span v-for="cloudFunction in location.cloud_functions"
+                                  :key="cloudFunction">
+                              {{ location.cloud_functions.length }}
+                            </span>
+                          </td>
+                        </tr>
                       </tbody>
                     </table>
                   </div>
@@ -288,29 +281,29 @@
                       </thead>
                       <tbody v-for="(mapEntry, mapIndex) in selectedSecurityPolicy.map"
                              :key="mapIndex">
-                      <tr>
-                        <td class="ellipsis"
-                            :title="mapEntry.name">
-                          {{ mapEntry.name }}
-                        </td>
-                        <td class="ellipsis"
-                            :title="mapEntry.match">
-                          {{ mapEntry.match }}
-                        </td>
-                        <td class="ellipsis"
-                            :class="mapEntry.content_filter_active ? 'has-text-success' : 'has-text-danger'"
-                            :title="mapEntry.content_filter_active ? 'Active mode' : 'Learning mode'">
-                          {{ referencedDocName(contentFilterProfilesNames, mapEntry.content_filter_profile) }}
-                        </td>
-                        <td class="ellipsis"
-                            :class="mapEntry.acl_active ? 'has-text-success' : 'has-text-danger'"
-                            :title="mapEntry.acl_active ? 'Active mode' : 'Learning mode'">
-                          {{ referencedDocName(aclProfilesNames, mapEntry.acl_profile) }}
-                        </td>
-                        <td class="ellipsis">
-                          {{ mapEntry.limit_ids.length }}
-                        </td>
-                      </tr>
+                        <tr>
+                          <td class="ellipsis"
+                              :title="mapEntry.name">
+                            {{ mapEntry.name }}
+                          </td>
+                          <td class="ellipsis"
+                              :title="mapEntry.match">
+                            {{ mapEntry.match }}
+                          </td>
+                          <td class="ellipsis"
+                              :class="mapEntry.content_filter_active ? 'has-text-success' : 'has-text-danger'"
+                              :title="mapEntry.content_filter_active ? 'Active mode' : 'Learning mode'">
+                            {{ referencedDocName(contentFilterProfilesNames, mapEntry.content_filter_profile) }}
+                          </td>
+                          <td class="ellipsis"
+                              :class="mapEntry.acl_active ? 'has-text-success' : 'has-text-danger'"
+                              :title="mapEntry.acl_active ? 'Active mode' : 'Learning mode'">
+                            {{ referencedDocName(aclProfilesNames, mapEntry.acl_profile) }}
+                          </td>
+                          <td class="ellipsis">
+                            {{ mapEntry.limit_ids.length }}
+                          </td>
+                        </tr>
                       </tbody>
                     </table>
                   </div>
@@ -337,7 +330,9 @@
                   </div>
                 </div>
                 <div class="field">
-                  <label class="label is-small">Proxy Template</label>
+                  <label class="label is-small">
+                    Proxy Template
+                  </label>
                   <div class="control is-expanded">
                     <div class="select is-fullwidth is-small">
                       <select v-model="selectedWebProxy.proxy_template"
@@ -438,20 +433,6 @@ export default defineComponent({
       })
     },
 
-    // isSelectedWebProxyNameToDeleteValid(): boolean {
-    //   const newName = this.deleteWebProxyDocName.trim()
-    //   return newName === this.selectedBranch
-    // },
-
-    serverNames: {
-      get() {
-        return Array.from(this.selectedWebProxy.server_names || '').join('\n')
-      },
-      set(newValue: string) {
-        const value = newValue.replaceAll(' ', '')
-        this.selectedWebProxy.server_names = value.split('\n')
-      },
-    },
   },
   methods: {
     async setSelectedDataFromRouteParams() {
@@ -505,7 +486,7 @@ export default defineComponent({
       }
     },
 
-    async deleteWebProxyDocByID() {
+    async deleteWebProxyDocByName() {
       this.setLoadingDocStatus(true)
       this.isDeleteLoading = true
       const webProxyText = this.titles['sites-singular']
