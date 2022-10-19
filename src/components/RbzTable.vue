@@ -25,7 +25,7 @@
           v-if="showMenuColumn">
         <div class="dropdown is-block"
              :class="{'is-active': menuVisible}">
-          <div class="dropdown-trigger">
+          <div class="dropdown-trigger menu">
             <button class="button is-size-7 menu-toggle-button is-block"
                     aria-haspopup="true"
                     aria-controls="dropdown-menu"
@@ -111,7 +111,6 @@
       </td>
       <td class="is-size-7" v-if="showMenuColumn">
         <div class="field is-grouped is-grouped-centered">
-          <!-- TODO: return here -->
           <p class="control" v-if="showRowButton">
             <button :title="rowButtonTitle"
                     class="button is-small row-entity-button"
@@ -386,6 +385,10 @@ export default defineComponent({
   padding: 0.5em;
 }
 
+.menu {
+  float: right;
+}
+
 .rbz-table .menu-toggle-button {
   background: transparent;
   border-color: transparent;
@@ -397,7 +400,8 @@ export default defineComponent({
 
 .rbz-table .filter-toggle,
 .rbz-table .new-entity-button,
-.rbz-table .row-entity-button .second-row-entity-button {
+.rbz-table .row-entity-button,
+.rbz-table .second-row-entity-button {
   background: transparent;
   border-color: transparent;
   color: initial;

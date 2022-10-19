@@ -71,6 +71,7 @@
                     :show-new-button="true"
                     @new-button-clicked="addNewProfile"
                     :show-row-button="true"
+                    :show-second-row-button="true"
                     :row-button-title="rowButtonTitle"
                     :row-button-icon="rowButtonIcon"
                     :second-row-button-title="secondRowButtonTitle"
@@ -84,8 +85,10 @@
                       :show-filter-button="true"
                       :show-new-button="true"
                       @new-button-clicked="addNewProfile"
-                      :show-edit-button="true"
-                      @edit-button-clicked="editProfile">
+                      :show-row-button="true"
+                      :show-second-row-button="true"
+                      :second-row-button-title="secondRowButtonTitle"
+                      :second-row-button-icon="secondRowButtonIcon">
                     </rbz-table>
                   </div>
                 <span class="is-family-monospace has-text-grey-lighter">
@@ -103,8 +106,11 @@
           </button>
         </div>
       </div>
+      <generate-certificate :shown="shown"
+                            @shownChanged="shown = false"
+                            @callLoaders="callLoaders"/>
     </div>
-  </template>
+</template>
 <script lang="ts">
 import _ from 'lodash'
 import {defineComponent} from 'vue'
@@ -113,17 +119,19 @@ import {ColumnOptions, RoutingProfile} from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import Utils from '@/assets/Utils'
+import GenerateCertificate from '@/doc-editors/popups/GenerateCertificate.vue'
 
 export default defineComponent({
   name: 'RoutingProfileList',
   components: {
     RbzTable,
+    GenerateCertificate,
   },
   data() {
     return {
       rowButtonIcon: 'fa-edit',
       rowButtonTitle: 'Edit',
-      secondRowButtonIcon: 'fa-delete',
+      secondRowButtonIcon: 'fa-trash',
       secondRowButtonTitle: 'Delete',
       loadBalancerColumns: [
         {
@@ -235,6 +243,7 @@ export default defineComponent({
       loadingDocCounter: 0,
       isDownloadLoading: false,
       tab: 'Certificates',
+      shown: false,
       apiRoot: RequestsUtils.reblazeAPIRoot,
       apiVersion: RequestsUtils.reblazeAPIVersion,
     }
@@ -252,6 +261,10 @@ export default defineComponent({
   },
 
   methods: {
+    async callLoaders() {
+      // TODO: add await this.loadBalancers()
+      await this.loadCertificates()
+    },
     setLoadingDocStatus(isLoading: boolean) {
       if (isLoading) {
         this.loadingDocCounter++
@@ -272,14 +285,7 @@ export default defineComponent({
 
     async addNewProfile() {
       this.isNewLoading = true
-      const profileToAdd = this.newProfile()
-      const routingProfileText = this.titles['routing-profiles-singular']
-      const successMessage = `New ${routingProfileText} was created.`
-      const failureMessage = `Failed while attempting to create the new ${routingProfileText}.`
-      const url = `configs/${this.selectedBranch}/d/routing-profiles/e/${profileToAdd.id}`
-      const data = profileToAdd
-      await RequestsUtils.sendReblazeRequest({methodName: 'POST', url, data, successMessage, failureMessage})
-      this.editProfile(profileToAdd.id)
+      this.shown = true
       this.isNewLoading = false
     },
 
