@@ -330,9 +330,9 @@ export default defineComponent({
 
     automaticTags(): string {
       const rule = this.localDoc
-      const ruleTagId = `rl-rule-id:${rule.id?.replace(/ /g, '-') || ''}`
+      const ruleTagId = `limit-rule-id:${rule.id?.replace(/ /g, '-') || ''}`
       const ruleTagIdElement = this.createTagElement(ruleTagId)
-      const ruleTagName = `rl-rule-name:${rule.name}`
+      const ruleTagName = `limit-rule-name:${rule.name}`
       const ruleTagNameElement = this.createTagElement(ruleTagName)
       return `${ruleTagIdElement}${ruleTagNameElement}`
     },

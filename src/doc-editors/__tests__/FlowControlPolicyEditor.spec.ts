@@ -261,7 +261,7 @@ describe('FlowControlPolicyEditor.vue', () => {
 
     test('should have an automatic tags with id number', () => {
       const selectedDocID = wrapper.vm.selectedDoc.id
-      const wantedTag = `cf-rule-id:${selectedDocID}`
+      const wantedTag = `fc-id:${selectedDocID}`
       const automaticTag = wrapper.find('.automatic-tag')
       expect(automaticTag.element.title).toEqual(wantedTag)
     })
