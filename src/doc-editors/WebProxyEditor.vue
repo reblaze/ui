@@ -70,10 +70,10 @@
                     </span>
                     <span class="control is-expanded"
                           v-if="deleteWebProxyDoc">
-                      <input class="input is-small delete-web-proxy-input"
+                      <input class="input is-small width-200px delete-web-proxy-input"
                              data-qa="confirm-web-proxy-input"
                              title="Doc ID to Delete"
-                             placeholder="Write Doc ID to Delete"
+                             placeholder="Write The Doc Name to Delete"
                              v-model="deleteWebProxyDocName"
                              type="text">
                     </span>
@@ -182,7 +182,6 @@
                 </div>
               </div>
               <div class="column is-4">
-ghdfghdfhdfhdfh
               </div>
             </div>
             <div class="columns is-multiline">
