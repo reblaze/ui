@@ -509,11 +509,6 @@ import {defineComponent} from 'vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RbzTable from '@/components/RbzTable.vue'
 
-// type TrustedSources = {
-//   id: string
-//   address: string
-//   comment: string
-// }
 
 export default defineComponent({
   name: 'ProxyTemplateEditor',
@@ -673,7 +668,7 @@ export default defineComponent({
       const url = `configs/${this.selectedBranch}/d/planet/`
       const methodName = 'GET'
       const response = await RequestsUtils.sendReblazeRequest({methodName, url})
-      this.trustedData = response.data.trusted_net.map((trusted: string)=> {
+      this.trustedData = response?.data?.trusted_net?.map((trusted: string)=> {
         return {name: response.data.name, trusted_net: trusted}
       })
     },
