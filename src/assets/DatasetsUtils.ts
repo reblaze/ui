@@ -82,8 +82,8 @@ const titles: { [key: string]: string } = {
   'backends-singular': 'Backend Service',
   'report': 'Report',
   'ignore': 'Ignore',
-  'request1': 'Request Post',
-  'response0': 'Response Pre',
+  'request1': 'Request',
+  'response0': 'Response',
 }
 
 const dynamicRuleTargets = {

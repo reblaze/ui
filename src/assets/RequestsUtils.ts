@@ -7,7 +7,7 @@ const confAPIVersion = 'v3'
 const reblazeAPIRoot = '/reblaze/api'
 const reblazeAPIVersion = 'v3'
 const dataLayerAPIRoot = '/datalayer/api'
-const dataLayerAPIVersion = 'v3'
+const dataLayerAPIVersion = 'v1.0'
 
 // eslint-disable-next-line no-unused-vars
 const axiosMethodsMap: Partial<{ [key in HttpRequestMethods]: Function }> = {
