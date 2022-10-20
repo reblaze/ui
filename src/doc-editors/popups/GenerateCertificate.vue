@@ -1,5 +1,5 @@
 <template>
-<div class="modal is-active is-large" v-if="shown">
+<div class="modal is-active is-large" v-if="generateShown">
   <div class="modal-background">
     <div class="modal-card is-size-7">
           <header class="modal-card-head">
@@ -133,7 +133,7 @@
 
 export default {
   props: {
-    shown: Boolean,
+    generateShown: Boolean,
   },
   data() {
     return {
@@ -176,6 +176,41 @@ export default {
     },
   },
   methods: {
+    removeFile() {
+      this.certFile = null
+      this.password = ''
+    },
+
+    resetInputs() {
+      this.private_key = ''
+      this.certificate = ''
+      this.passwordMessage = ''
+    },
+
+    inputTypeChagned() {
+      this.resetInputs()
+      this.removeFile()
+    },
+
+    closeAndResetUploadModal() {
+      this.$emit('generateShownChanged', false)
+      this.isManualInput = true
+      this.resetInputs()
+      this.removeFile()
+    },
+
+    loadFile({target}:any) {
+      const file = target.files[0]
+      const extension = file.name.split('.').pop()
+      if (extension === 'pfx') {
+        this.certFile = file
+        this.resetInputs()
+        this.$nextTick(() => this.$refs.pfxPass.focus())
+      } else {
+        target.value = null
+      }
+    },
+
     async extractCertFile() {
       if (this.certFile != null) {
         this.isExtracting = true
@@ -215,40 +250,6 @@ export default {
         }
       }
     },
-    removeFile() {
-      this.certFile = null
-      this.password = ''
-    },
-
-    resetInputs() {
-      this.private_key = ''
-      this.certificate = ''
-      this.passwordMessage = ''
-    },
-
-    inputTypeChagned() {
-      this.resetInputs()
-      this.removeFile()
-    },
-
-    closeAndResetUploadModal() {
-      this.$emit('shownChanged', false)
-      this.isManualInput = true
-      this.resetInputs()
-      this.removeFile()
-    },
-
-    loadFile({target}:any) {
-      const file = target.files[0]
-      const extension = file.name.split('.').pop()
-      if (extension === 'pfx') {
-        this.certFile = file
-        this.resetInputs()
-        this.$nextTick(() => this.$refs.pfxPass.focus())
-      } else {
-        target.value = null
-      }
-    },
 
     async uploadManualInputCert() {
       this.is_loading = true
@@ -262,6 +263,7 @@ export default {
       formData.append('action', 'upload_certificate')
       formData.append('data', btoa(JSON.stringify(data)))
       try {
+        console.log('formData', formData)
         /* TODO: const {data} = await axios({
           method: 'post',
           url: '/ssl-gcp',

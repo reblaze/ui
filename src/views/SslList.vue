@@ -69,7 +69,7 @@
                     :show-menu-column="true"
                     :show-filter-button="true"
                     :show-new-button="true"
-                    @new-button-clicked="addNewProfile"
+                    @new-button-clicked="addNewCertificate"
                     :show-row-button="true"
                     :show-second-row-button="true"
                     :row-button-title="rowButtonTitle"
@@ -84,7 +84,9 @@
                       :show-menu-column="true"
                       :show-filter-button="true"
                       :show-new-button="true"
-                      @new-button-clicked="addNewProfile"
+                      @new-button-clicked="addNewCertificate"
+                      @row-button-clicked="editProfile"
+                      @second-row-button-clicked="deleteProfile"
                       :show-row-button="true"
                       :show-second-row-button="true"
                       :second-row-button-title="secondRowButtonTitle"
@@ -106,27 +108,43 @@
           </button>
         </div>
       </div>
-      <generate-certificate :shown="shown"
-                            @shownChanged="shown = false"
+      <generate-certificate :generateShown="generateShown"
+                            @generateShownChanged="generateShown = false"
                             @callLoaders="callLoaders"/>
+      <delete-certificate :deleteShown="deleteShown"
+                          @deleteShownChanged="deleteShown = false"
+                          :clickedRow="clickedRow"
+                          :selectedBranch="selectedBranch"
+                          @callLoaders="callLoaders"/>
+      <edit-certificate :editShown="editShown"
+                          @editShownChanged="editShown = false"
+                          :clickedRow="clickedRow"
+                          @callLoaders="callLoaders"/>
     </div>
 </template>
 <script lang="ts">
 import _ from 'lodash'
 import {defineComponent} from 'vue'
 import RbzTable from '@/components/RbzTable.vue'
-import {ColumnOptions, RoutingProfile} from '@/types'
+import {ColumnOptions} from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import Utils from '@/assets/Utils'
 import GenerateCertificate from '@/doc-editors/popups/GenerateCertificate.vue'
+import DeleteCertificate from '@/doc-editors/popups/DeleteCertificate.vue'
+import EditCertificate from '@/doc-editors/popups/EditCertificate.vue'
 
 export default defineComponent({
-  name: 'RoutingProfileList',
+  name: 'SslList',
   components: {
     RbzTable,
     GenerateCertificate,
+    DeleteCertificate,
+    EditCertificate,
   },
+
+  emits: ['generateShownChanged', 'callLoaders', 'deleteShownChanged', 'secondRowButtonClicked'],
+
   data() {
     return {
       rowButtonIcon: 'fa-edit',
@@ -180,7 +198,7 @@ export default defineComponent({
       certificationColumns: [
         {
           title: 'Name',
-          fieldNames: ['issuer'],
+          fieldNames: ['id'],
           isSortable: true,
           isSearchable: true,
           classes: 'width-100px',
@@ -243,16 +261,19 @@ export default defineComponent({
       loadingDocCounter: 0,
       isDownloadLoading: false,
       tab: 'Certificates',
-      shown: false,
+      generateShown: false,
+      deleteShown: false,
+      editShown: false,
       apiRoot: RequestsUtils.reblazeAPIRoot,
       apiVersion: RequestsUtils.reblazeAPIVersion,
+      clickedRow: null,
     }
   },
 
   computed: {
     documentListAPIPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
-      return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/routing-profiles/`
+      return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/ssl/`
     },
 
     branchNames(): string[] {
@@ -273,19 +294,28 @@ export default defineComponent({
       }
     },
 
-    newProfile(): RoutingProfile {
+    /* TODO: add this functionallity to addNewCertificate(): RoutingProfile {
       const factory = DatasetsUtils.newOperationEntryFactory['routing-profiles']
       return factory && factory()
-    },
+    }, */
 
     editProfile(id: string) {
-      const routeToEditProfile = `/routing-profiles/config/${id}`
-      this.$router.push(routeToEditProfile)
+      this.clickedRow = id
+      this.isNewLoading = true
+      this.editShown = true
+      this.isNewLoading = false
     },
 
-    async addNewProfile() {
+    async addNewCertificate() {
       this.isNewLoading = true
-      this.shown = true
+      this.generateShown = true
+      this.isNewLoading = false
+    },
+
+    async deleteProfile(id:string) {
+      this.clickedRow = id
+      this.isNewLoading = true
+      this.deleteShown = true
       this.isNewLoading = false
     },
 
