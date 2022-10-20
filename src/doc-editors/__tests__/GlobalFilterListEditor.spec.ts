@@ -416,6 +416,11 @@ describe('GlobalFilterListEditor.vue', () => {
   })
 
   test('should remove all entries relation data from component when clear button is clicked', () => {
+    wrapper = mount(GlobalFilterListEditor, {
+      props: {
+        selectedDoc: docs[0],
+      },
+    })
     const wantedRule: GlobalFilter['rule'] = {
       relation: docs[0].rule.relation,
       entries: [],

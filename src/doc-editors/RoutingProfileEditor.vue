@@ -1,350 +1,333 @@
 <template>
-  <div class="card">
-    <div class="card-content">
-      <div class="media">
-        <div class="media-content">
-          <div class="columns">
-            <div class="column">
-              <div class="field is-grouped">
-                <p class="control">
-                  <button class="button is-small redirect-list-button"
-                          @click="redirectToList()"
-                          title="Return to list"
-                          data-qa="redirect-to-list">
+  <div class="card-content">
+    <div class="media">
+      <div class="media-content">
+        <div class="columns">
+          <div class="column">
+            <div class="field is-grouped">
+              <p class="control">
+                <button class="button is-small redirect-list-button"
+                        @click="redirectToList()"
+                        title="Return to list"
+                        data-qa="redirect-to-list">
                         <span class="icon is-small">
                           <i class="fas fa-arrow-left"></i>
                         </span>
-                  </button>
-                </p>
-                <div class="control"
-                     v-if="branchNames.length">
-                  <div class="select is-small">
-                    <select v-model="selectedBranch"
-                            title="Switch branch"
-                            class="branch-selection"
-                            @change="switchBranch()">
-                      <option v-for="name in branchNames"
-                              :key="name"
-                              :value="name">
-                        {{ name }}
-                      </option>
-                    </select>
-                  </div>
-                </div>
-                <p class="control">
-                  <button class="button is-small download-doc-button"
-                          :class="{'is-loading':isDownloadLoading}"
-                          @click="downloadDoc()"
-                          title="Download document"
-                          data-qa="download-document">
+                </button>
+              </p>
+              <p class="control">
+                <button class="button is-small download-doc-button"
+                        :class="{'is-loading':isDownloadLoading}"
+                        @click="downloadDoc()"
+                        title="Download document"
+                        data-qa="download-document">
                         <span class="icon is-small">
                           <i class="fas fa-download"></i>
                         </span>
-                  </button>
-                </p>
-              </div>
+                </button>
+              </p>
             </div>
-            <div class="column">
-              <div class="field is-grouped is-pulled-right">
-                <p class="control">
-                  <button class="button is-small save-document-button"
-                          :class="{'is-loading': isSaveLoading}"
-                          title="Save changes"
-                          data-qa="save-changes"
-                          @click="saveChanges()">
+          </div>
+          <div class="column">
+            <div class="field is-grouped is-pulled-right">
+              <p class="control">
+                <button class="button is-small save-document-button"
+                        :class="{'is-loading': isSaveLoading}"
+                        title="Save changes"
+                        data-qa="save-changes"
+                        @click="saveChanges()">
                       <span class="icon is-small">
                         <i class="fas fa-save"></i>
                       </span>
-                  </button>
-                </p>
-                <p class="control">
-                  <button class="button is-small has-text-danger delete-document-button"
-                          title="Delete document"
-                          data-qa="delete-document"
-                          :class="{'is-loading': isDeleteLoading}"
-                          :disabled="selectedRoutingProfile?.id === '__default__'"
-                          @click="deleteDoc()">
+                </button>
+              </p>
+              <p class="control">
+                <button class="button is-small has-text-danger delete-document-button"
+                        title="Delete document"
+                        data-qa="delete-document"
+                        :class="{'is-loading': isDeleteLoading}"
+                        :disabled="selectedRoutingProfile?.id === '__default__'"
+                        @click="deleteDoc()">
                       <span class="icon is-small">
                         <i class="fas fa-trash"></i>
                       </span>
-                  </button>
-                </p>
-              </div>
+                </button>
+              </p>
             </div>
           </div>
         </div>
       </div>
-      <hr/>
-      <div class="card">
-        <div class="card-content">
-          <div class="content"
-               v-if="selectedRoutingProfile">
-            <div class="columns columns-divided">
-              <div class="column is-4">
-                <div class="field">
-                  <label class="label is-small">
-                    Name
-                    <span class="has-text-grey is-pulled-right document-id"
-                          title="Routing Profile id">
+    </div>
+    <hr/>
+    <div class="card">
+      <div class="card-content">
+        <div class="content"
+             v-if="selectedRoutingProfile">
+          <div class="columns columns-divided">
+            <div class="column is-4">
+              <div class="field">
+                <label class="label is-small">
+                  Name
+                  <span class="has-text-grey is-pulled-right document-id"
+                        title="Routing Profile id">
                       {{ selectedRoutingProfile.id }}
                     </span>
-                  </label>
-                  <div class="control">
-                    <input class="input is-small document-name"
-                           title="Document name"
-                           placeholder="Document name"
-                           v-model="selectedRoutingProfile.name"/>
-                  </div>
+                </label>
+                <div class="control">
+                  <input class="input is-small document-name"
+                         title="Document name"
+                         placeholder="Document name"
+                         v-model="selectedRoutingProfile.name"/>
                 </div>
-                <div class="field">
-                  <div class="field textarea-field">
-                    <label class="label is-small">Description</label>
-                    <div class="control">
+              </div>
+              <div class="field">
+                <div class="field textarea-field">
+                  <label class="label is-small">Description</label>
+                  <div class="control">
                             <textarea class="is-small textarea document-description"
                                       data-qa="description-input"
                                       title="Document description"
                                       v-model="selectedRoutingProfile.description"
                                       rows="5">
                             </textarea>
-                    </div>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="field px-3">
-              <label class="label is-small">
-                Path Mapping
-              </label>
-              <table class="table entries-table">
-                <thead>
-                <tr>
-                  <th class="is-size-7 width-50px"></th>
-                  <th class="is-size-7 width-400px">Path</th>
-                  <th class="is-size-7 width-150px">Backend Service</th>
-                  <th class="is-size-7 width-150px">Cloud Functions</th>
-                  <th></th>
-                </tr>
-                </thead>
-                <tbody v-for="(mapEntry, mapIndex) in selectedRoutingProfile.locations"
-                       :key="mapIndex">
-                <tr @click="changeSelectedMapEntry(mapIndex)"
-                    class="has-row-clickable entry-row"
-                    :class="mapEntryIndex === mapIndex ? 'has-background-light borderless' : ''">
-                  <td class="is-size-7 width-50px has-text-right has-text-grey-light entry-index">
-                    {{ mapIndex + 1 }}
-                  </td>
-                  <td class="is-size-7 width-400px ellipsis entry-match"
-                      :title="mapEntry.path">
-                    {{ mapEntry.path }}
-                  </td>
-                  <td class="is-size-7 width-150px ellipsis entry-content-filter">
-                    {{ backendServiceName(mapEntry.backend_id) }}
-                  </td>
-                  <td class="is-size-7 width-150px entry-cloud-functions-count"
-                      v-if="existingCloudFunctionIDs(mapEntry)">
-                    {{ existingCloudFunctionIDs(mapEntry).length }}
-                  </td>
-                  <td class="is-size-7 width-70px"
-                      :rowspan="mapEntryIndex === mapIndex ? '2' : '1'">
-                    <a class="has-text-grey"
-                       title="more details"
-                       data-qa="expand-path-btn">
-                      {{ mapEntryIndex === mapIndex ? 'close' : 'expand' }}
-                    </a>
-                  </td>
-                </tr>
-                <tr v-if="mapEntryIndex === mapIndex"
-                    :class=" mapEntryIndex === mapIndex ? 'has-background-light borderless' : ''"
-                    class="expanded current-entry-row">
-                  <td colspan="10">
-                    <div class="card">
-                      <div class="card-content">
-                        <div class="content">
-                          <div class="columns">
-                            <div class="column is-8">
-                              <div class="field">
-                                <label class="label is-small">
-                                  Path
-                                </label>
-                                <div class="control has-icons-left">
-                                  <input class="input is-small current-entry-path"
-                                         type="text"
-                                         @input="validateInput($event, isSelectedMapEntryPathValid(mapIndex))"
-                                         data-qa="expanded-path-input"
-                                         :title="matchingPathTitle"
-                                         placeholder="Matching path regex"
-                                         required
-                                         :disabled="initialMapEntryPath === '/'"
-                                         ref="mapEntryPath"
-                                         v-model="mapEntry.path">
-                                  <span class="icon is-small is-left has-text-grey">
+          </div>
+          <div class="field px-3">
+            <label class="label is-small">
+              Path Mapping
+            </label>
+            <table class="table entries-table">
+              <thead>
+              <tr>
+                <th class="is-size-7 width-50px"></th>
+                <th class="is-size-7 width-400px">Path</th>
+                <th class="is-size-7 width-150px">Backend Service</th>
+                <th class="is-size-7 width-150px">Cloud Functions</th>
+                <th></th>
+              </tr>
+              </thead>
+              <tbody v-for="(mapEntry, mapIndex) in selectedRoutingProfile.locations"
+                     :key="mapIndex">
+              <tr @click="changeSelectedMapEntry(mapIndex)"
+                  class="has-row-clickable entry-row"
+                  :class="mapEntryIndex === mapIndex ? 'has-background-light borderless' : ''">
+                <td class="is-size-7 width-50px has-text-right has-text-grey-light entry-index">
+                  {{ mapIndex + 1 }}
+                </td>
+                <td class="is-size-7 width-400px ellipsis entry-match"
+                    :title="mapEntry.path">
+                  {{ mapEntry.path }}
+                </td>
+                <td class="is-size-7 width-150px ellipsis entry-content-filter">
+                  {{ backendServiceName(mapEntry.backend_id) }}
+                </td>
+                <td class="is-size-7 width-150px entry-cloud-functions-count"
+                    v-if="existingCloudFunctionIDs(mapEntry)">
+                  {{ existingCloudFunctionIDs(mapEntry).length }}
+                </td>
+                <td class="is-size-7 width-70px"
+                    :rowspan="mapEntryIndex === mapIndex ? '2' : '1'">
+                  <a class="has-text-grey"
+                     title="more details"
+                     data-qa="expand-path-btn">
+                    {{ mapEntryIndex === mapIndex ? 'close' : 'expand' }}
+                  </a>
+                </td>
+              </tr>
+              <tr v-if="mapEntryIndex === mapIndex"
+                  :class=" mapEntryIndex === mapIndex ? 'has-background-light borderless' : ''"
+                  class="expanded current-entry-row">
+                <td colspan="10">
+                  <div class="card">
+                    <div class="card-content">
+                      <div class="content">
+                        <div class="columns">
+                          <div class="column is-8">
+                            <div class="field">
+                              <label class="label is-small">
+                                Path
+                              </label>
+                              <div class="control has-icons-left">
+                                <input class="input is-small current-entry-path"
+                                       type="text"
+                                       @input="validateInput($event, isSelectedMapEntryPathValid(mapIndex))"
+                                       data-qa="expanded-path-input"
+                                       :title="matchingPathTitle"
+                                       placeholder="Matching path regex"
+                                       required
+                                       :disabled="initialMapEntryPath === '/'"
+                                       ref="mapEntryPath"
+                                       v-model="mapEntry.path">
+                                <span class="icon is-small is-left has-text-grey">
                                   <i class="fas fa-code"></i>
                                 </span>
-                                </div>
-                              </div>
-                              <hr/>
-                              <p class="title is-6 has-text-grey">
-                                Cloud Functions
-                              </p>
-                              <div class="content">
-                                <table class="table is-hoverable is-narrow is-fullwidth
-                                              current-entry-cloud-functions-table">
-                                  <thead>
-                                  <tr>
-                                    <th class="is-size-7 width-250px">
-                                      Cloud Function Name
-                                    </th>
-                                    <th class="is-size-7 width-200px">
-                                      Description
-                                    </th>
-                                    <th class="is-size-7 width-80px">
-                                      Phase
-                                    </th>
-                                    <th class="has-text-centered is-size-7 width-60px">
-                                      <a v-if="cloudFunctions && mapEntry.cloud_functions &&
-                                             cloudFunctions.length > existingCloudFunctionIDs(mapEntry).length"
-                                         class="has-text-grey-dark is-small cloud-function-add-button"
-                                         data-qa="add-existing-cloud-function"
-                                         title="Add new"
-                                         tabindex="0"
-                                         @click="cloudFunctionNewEntryModeMapEntryId = mapIndex"
-                                         @keypress.space.prevent
-                                         @keypress.space="cloudFunctionNewEntryModeMapEntryId = mapIndex"
-                                         @keypress.enter="cloudFunctionNewEntryModeMapEntryId = mapIndex">
-                                        <span class="icon is-small"><i class="fas fa-plus"></i></span>
-                                      </a>
-                                    </th>
-                                  </tr>
-                                  </thead>
-                                  <tbody>
-                                  <template v-for="(cloudFunctionId, cloudFunctionIndex) in mapEntry.cloud_functions">
-                                    <tr v-if="cloudFunctionsDetails(cloudFunctionId)"
-                                        :key="cloudFunctionId"
-                                        class="cloud-function-row">
-                                      <td class="is-size-7 width-250px ellipsis cloud-function-name"
-                                          v-if="cloudFunctionsDetails(cloudFunctionId)"
-                                          :title="cloudFunctionsDetails(cloudFunctionId).name">
-                                        {{ cloudFunctionsDetails(cloudFunctionId).name }}
-                                      </td>
-                                      <td class="is-size-7 width-220px ellipsis cloud-function-description"
-                                          v-if="cloudFunctionsDetails(cloudFunctionId)"
-                                          :title="cloudFunctionsDetails(cloudFunctionId).description">
-                                        {{ cloudFunctionsDetails(cloudFunctionId).description }}
-                                      </td>
-                                      <td class="is-size-7 width-80px ellipsis cloud-function-timeframe"
-                                          v-if="cloudFunctionsDetails(cloudFunctionId)">
-                                        {{ cloudFunctionsDetails(cloudFunctionId).phase }}
-                                      </td>
-                                      <td class="has-text-centered is-size-7 width-60px">
-                                        <a class="is-small has-text-grey cloud-function-remove-button"
-                                           data-qa="remove-cloud-function-btn"
-                                           title="Remove entry"
-                                           tabindex="0"
-                                           @click="removeCloudFunctionFromEntry(mapEntry, cloudFunctionIndex)"
-                                           @keypress.space.prevent
-                                           @keypress.space="removeCloudFunctionFromEntry(mapEntry, cloudFunctionIndex)"
-                                           @keypress.enter="removeCloudFunctionFromEntry(mapEntry, cloudFunctionIndex)">
-                                          remove
-                                        </a>
-                                      </td>
-                                    </tr>
-                                  </template>
-                                  <tr v-if="cloudFunctionNewEntryMode(mapIndex)"
-                                      class="new-cloud-function-row">
-                                    <td colspan="3">
-                                      <div class="control is-expanded">
-                                        <div class="select is-small is-size-7 is-fullwidth">
-                                          <select class="select is-small new-cloud-function-selection"
-                                                  title="Cloud Function ID"
-                                                  v-model="cloudFunctionMapEntryId">
-                                            <option v-for="cloudFunction in newCloudFunctions(mapEntry.cloud_functions)"
-                                                    :key="cloudFunction.id"
-                                                    :value="cloudFunction.id">
-                                              {{ cloudFunction.name + ' ' + cloudFunction.description }}
-                                            </option>
-                                          </select>
-                                        </div>
-                                      </div>
-                                    </td>
-                                    <td class="has-text-centered is-size-7 width-60px">
-                                      <a class="is-small has-text-grey cloud-function-confirm-add-button"
-                                         title="Add this entry"
-                                         tabindex="0"
-                                         @click="addCloudFunctionToEntry(mapEntry, cloudFunctionMapEntryId)"
-                                         @keypress.space.prevent
-                                         @keypress.space="addCloudFunctionToEntry(mapEntry, cloudFunctionMapEntryId)"
-                                         @keypress.enter="addCloudFunctionToEntry(mapEntry, cloudFunctionMapEntryId)">
-                                        add
-                                      </a>
-                                    </td>
-                                  </tr>
-                                  <tr v-if="mapEntry.cloud_functions && !existingCloudFunctionIDs(mapEntry).length">
-                                    <td colspan="5">
-                                      <p class="is-size-7 has-text-grey has-text-centered">
-                                        To attach an existing Cloud Function, click
-                                        <a class="cloud-function-text-add-button"
-                                           title="Add New"
-                                           @click="cloudFunctionNewEntryModeMapEntryId = mapIndex">here</a>.
-                                        <br/>
-                                        To create a new Cloud Function, click
-                                        <a class="cloud-function-referral-button"
-                                           @click="referToCloudFunction">here</a>.
-                                      </p>
-                                    </td>
-                                  </tr>
-                                  </tbody>
-                                </table>
                               </div>
                             </div>
-                            <div class="column is-4">
-                              <div class="field">
-                                <label class="label is-small">Backend Service</label>
-                                <div class="control is-expanded">
-                                  <div class="select is-fullwidth is-small">
-                                    <select v-model="mapEntry.backend_id"
-                                            data-qa="backend-service-dropdown"
-                                            class="current-entry-backend-service-selection"
-                                            title="Backend service">
-                                      <option v-for="backendService in backendServiceNames"
-                                              :value="backendService[0]"
-                                              :key="backendService[0]">
-                                        {{ backendService[1] }}
-                                      </option>
-                                    </select>
-                                  </div>
+                            <hr/>
+                            <p class="title is-6 has-text-grey">
+                              Cloud Functions
+                            </p>
+                            <div class="content">
+                              <table class="table is-hoverable is-narrow is-fullwidth
+                                              current-entry-cloud-functions-table">
+                                <thead>
+                                <tr>
+                                  <th class="is-size-7 width-250px">
+                                    Cloud Function Name
+                                  </th>
+                                  <th class="is-size-7 width-200px">
+                                    Description
+                                  </th>
+                                  <th class="is-size-7 width-80px">
+                                    Phase
+                                  </th>
+                                  <th class="has-text-centered is-size-7 width-60px">
+                                    <a v-if="cloudFunctions && mapEntry.cloud_functions &&
+                                             cloudFunctions.length > existingCloudFunctionIDs(mapEntry).length"
+                                       class="has-text-grey-dark is-small cloud-function-add-button"
+                                       data-qa="add-existing-cloud-function"
+                                       title="Add new"
+                                       tabindex="0"
+                                       @click="cloudFunctionNewEntryModeMapEntryId = mapIndex"
+                                       @keypress.space.prevent
+                                       @keypress.space="cloudFunctionNewEntryModeMapEntryId = mapIndex"
+                                       @keypress.enter="cloudFunctionNewEntryModeMapEntryId = mapIndex">
+                                      <span class="icon is-small"><i class="fas fa-plus"></i></span>
+                                    </a>
+                                  </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <template v-for="(cloudFunctionId, cloudFunctionIndex) in mapEntry.cloud_functions">
+                                  <tr v-if="cloudFunctionsDetails(cloudFunctionId)"
+                                      :key="cloudFunctionId"
+                                      class="cloud-function-row">
+                                    <td class="is-size-7 width-250px ellipsis cloud-function-name"
+                                        v-if="cloudFunctionsDetails(cloudFunctionId)"
+                                        :title="cloudFunctionsDetails(cloudFunctionId).name">
+                                      {{ cloudFunctionsDetails(cloudFunctionId).name }}
+                                    </td>
+                                    <td class="is-size-7 width-220px ellipsis cloud-function-description"
+                                        v-if="cloudFunctionsDetails(cloudFunctionId)"
+                                        :title="cloudFunctionsDetails(cloudFunctionId).description">
+                                      {{ cloudFunctionsDetails(cloudFunctionId).description }}
+                                    </td>
+                                    <td class="is-size-7 width-80px ellipsis cloud-function-timeframe"
+                                        v-if="cloudFunctionsDetails(cloudFunctionId)">
+                                      {{ cloudFunctionsDetails(cloudFunctionId).phase }}
+                                    </td>
+                                    <td class="has-text-centered is-size-7 width-60px">
+                                      <a class="is-small has-text-grey cloud-function-remove-button"
+                                         data-qa="remove-cloud-function-btn"
+                                         title="Remove entry"
+                                         tabindex="0"
+                                         @click="removeCloudFunctionFromEntry(mapEntry, cloudFunctionIndex)"
+                                         @keypress.space.prevent
+                                         @keypress.space="removeCloudFunctionFromEntry(mapEntry, cloudFunctionIndex)"
+                                         @keypress.enter="removeCloudFunctionFromEntry(mapEntry, cloudFunctionIndex)">
+                                        remove
+                                      </a>
+                                    </td>
+                                  </tr>
+                                </template>
+                                <tr v-if="cloudFunctionNewEntryMode(mapIndex)"
+                                    class="new-cloud-function-row">
+                                  <td colspan="3">
+                                    <div class="control is-expanded">
+                                      <div class="select is-small is-size-7 is-fullwidth">
+                                        <select class="select is-small new-cloud-function-selection"
+                                                title="Cloud Function ID"
+                                                v-model="cloudFunctionMapEntryId">
+                                          <option v-for="cloudFunction in newCloudFunctions(mapEntry.cloud_functions)"
+                                                  :key="cloudFunction.id"
+                                                  :value="cloudFunction.id">
+                                            {{ cloudFunction.name + ' ' + cloudFunction.description }}
+                                          </option>
+                                        </select>
+                                      </div>
+                                    </div>
+                                  </td>
+                                  <td class="has-text-centered is-size-7 width-60px">
+                                    <a class="is-small has-text-grey cloud-function-confirm-add-button"
+                                       title="Add this entry"
+                                       tabindex="0"
+                                       @click="addCloudFunctionToEntry(mapEntry, cloudFunctionMapEntryId)"
+                                       @keypress.space.prevent
+                                       @keypress.space="addCloudFunctionToEntry(mapEntry, cloudFunctionMapEntryId)"
+                                       @keypress.enter="addCloudFunctionToEntry(mapEntry, cloudFunctionMapEntryId)">
+                                      add
+                                    </a>
+                                  </td>
+                                </tr>
+                                <tr v-if="mapEntry.cloud_functions && !existingCloudFunctionIDs(mapEntry).length">
+                                  <td colspan="5">
+                                    <p class="is-size-7 has-text-grey has-text-centered">
+                                      To attach an existing Cloud Function, click
+                                      <a class="cloud-function-text-add-button"
+                                         title="Add New"
+                                         @click="cloudFunctionNewEntryModeMapEntryId = mapIndex">here</a>.
+                                      <br/>
+                                      To create a new Cloud Function, click
+                                      <a class="cloud-function-referral-button"
+                                         @click="referToCloudFunction">here</a>.
+                                    </p>
+                                  </td>
+                                </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                          <div class="column is-4">
+                            <div class="field">
+                              <label class="label is-small">Backend Service</label>
+                              <div class="control is-expanded">
+                                <div class="select is-fullwidth is-small">
+                                  <select v-model="mapEntry.backend_id"
+                                          data-qa="backend-service-dropdown"
+                                          class="current-entry-backend-service-selection"
+                                          title="Backend service">
+                                    <option v-for="backendService in backendServiceNames"
+                                            :value="backendService[0]"
+                                            :key="backendService[0]">
+                                      {{ backendService[1] }}
+                                    </option>
+                                  </select>
                                 </div>
                               </div>
-                              <hr/>
-                              <div class="field">
-                                <button title="Create a new profile based on this one"
-                                        data-qa="fork-btn"
-                                        class="button is-small is-pulled-left is-light fork-entry-button"
-                                        @click="addNewProfile(mapEntry, mapIndex)">
-                                  <span class="icon"><i class="fas fa-code-branch"></i></span>
-                                  <span>
+                            </div>
+                            <hr/>
+                            <div class="field">
+                              <button title="Create a new profile based on this one"
+                                      data-qa="fork-btn"
+                                      class="button is-small is-pulled-left is-light fork-entry-button"
+                                      @click="addNewProfile(mapEntry, mapIndex)">
+                                <span class="icon"><i class="fas fa-code-branch"></i></span>
+                                <span>
                                 Fork profile
                               </span>
-                                </button>
-                                <button title="Delete this profile"
-                                        data-qa="delete-location-btn"
-                                        class="button is-small is-pulled-right is-danger is-light remove-entry-button"
-                                        @click="removeMapEntry(mapIndex)"
-                                        v-if="initialMapEntryPath !== '/'">
-                                  Delete
-                                </button>
-                              </div>
+                              </button>
+                              <button title="Delete this profile"
+                                      data-qa="delete-location-btn"
+                                      class="button is-small is-pulled-right is-danger is-light remove-entry-button"
+                                      @click="removeMapEntry(mapIndex)"
+                                      v-if="initialMapEntryPath !== '/'">
+                                Delete
+                              </button>
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </td>
-                </tr>
-                </tbody>
-              </table>
-            </div>
-            <span class="is-family-monospace has-text-grey-lighter">{{ documentAPIPath }}</span>
+                  </div>
+                </td>
+              </tr>
+              </tbody>
+            </table>
           </div>
+          <span class="is-family-monospace has-text-grey-lighter">{{ documentAPIPath }}</span>
         </div>
       </div>
     </div>
@@ -358,6 +341,8 @@ import Utils from '@/assets/Utils'
 import {defineComponent} from 'vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import {AxiosResponse} from 'axios'
+import {mapStores} from 'pinia'
+import {useBranchesStore} from '@/stores/BranchesStore'
 
 export default defineComponent({
   name: 'RoutingProfilesEditor',
@@ -370,8 +355,6 @@ export default defineComponent({
       isSaveLoading: false,
       isDeleteLoading: false,
       titles: DatasetsUtils.titles,
-      configs: [],
-      selectedBranch: null,
       formValid: true,
 
       // Map Entries
@@ -388,6 +371,18 @@ export default defineComponent({
       apiVersion: RequestsUtils.reblazeAPIVersion,
     }
   },
+  watch: {
+    selectedBranch: {
+      handler: function(val, oldVal) {
+        if ((this.$route.name as string).includes('RoutingProfiles/config') && val && val !== oldVal) {
+          this.loadBackendServices()
+          this.loadCloudFunctions()
+          this.setSelectedDataFromRouteParams()
+        }
+      },
+      immediate: true,
+    },
+  },
   computed: {
     documentAPIPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
@@ -395,39 +390,21 @@ export default defineComponent({
       return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/routing-profiles/e/${selectedId}/`
     },
 
-    branchNames() {
-      return this.configs?.length ? _.sortBy(_.map(this.configs, 'id')) : []
+    selectedBranch(): string {
+      return this.branchesStore.selectedBranchId
     },
+
+    ...mapStores(useBranchesStore),
   },
   methods: {
     async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
-      this.docIdFromRoute = this.$route.params.doc_id.toString()
+      this.docIdFromRoute = this.$route.params?.doc_id?.toString()
       await this.loadProfile()
     },
 
-    async loadConfigs(counterOnly?: boolean) {
-      let configs
-      try {
-        const response = await RequestsUtils.sendRequest({
-          methodName: 'GET',
-          url: 'configs/',
-          config: {headers: {'x-fields': 'id'}},
-        })
-        configs = response.data
-      } catch (err) {
-        console.log('Error while attempting to get configs')
-        console.log(err)
-      }
-      if (!counterOnly) {
-        console.log('loaded configs: ', configs)
-        this.configs = configs
-      }
-      this.selectedBranch = this.branchNames[0]
-    },
-
     redirectToList() {
-      this.$router.push(`/routing-profiles/list`)
+      this.$router.push(`/${this.selectedBranch}/routing-profiles/list`)
     },
 
     setLoadingDocStatus(isLoading: boolean) {
@@ -618,10 +595,7 @@ export default defineComponent({
     },
   },
   async created() {
-    await this.loadConfigs()
-    this.loadBackendServices()
-    this.loadCloudFunctions()
-    this.setSelectedDataFromRouteParams()
+    await this.branchesStore.list
   },
 })
 </script>

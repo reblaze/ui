@@ -1,5 +1,5 @@
 // @ts-nocheck
-import CurieDBEditor from '@/views/CurieDBEditor.vue'
+import SystemDBEditor from '../SystemDBEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import Utils from '@/assets/Utils'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
@@ -13,7 +13,7 @@ import {nextTick} from 'vue'
 jest.mock('axios')
 jest.mock('jsoneditor')
 
-describe('CurieDBEditor.vue', () => {
+describe('SystemDBEditor.vue', () => {
   let wrapper: VueWrapper
   let dbData: any
   let publishInfoData: any
@@ -98,7 +98,7 @@ describe('CurieDBEditor.vue', () => {
       }
       return Promise.resolve({data: {}})
     })
-    wrapper = mount(CurieDBEditor)
+    wrapper = mount(SystemDBEditor)
   })
   afterEach(() => {
     jest.clearAllMocks()
@@ -128,7 +128,7 @@ describe('CurieDBEditor.vue', () => {
       }
       return Promise.resolve({data: {}})
     })
-    wrapper = mount(CurieDBEditor)
+    wrapper = mount(SystemDBEditor)
     const gitHistory = wrapper.findComponent(GitHistory)
     expect(gitHistory).toBeTruthy()
   })
@@ -151,7 +151,7 @@ describe('CurieDBEditor.vue', () => {
       }
       return Promise.resolve({data: {}})
     })
-    wrapper = mount(CurieDBEditor)
+    wrapper = mount(SystemDBEditor)
     const gitHistory = wrapper.findComponent(GitHistory)
     expect(gitHistory).toBeTruthy()
   })
@@ -168,7 +168,7 @@ describe('CurieDBEditor.vue', () => {
       }
       return Promise.resolve({data: {}})
     })
-    wrapper = mount(CurieDBEditor)
+    wrapper = mount(SystemDBEditor)
     // allow all requests to finish
     setImmediate(() => {
       expect(consoleOutput).toContain(`failed loading namespace, none are present!`)
@@ -189,7 +189,7 @@ describe('CurieDBEditor.vue', () => {
       }
       return Promise.resolve({data: {}})
     })
-    wrapper = mount(CurieDBEditor)
+    wrapper = mount(SystemDBEditor)
     // allow all requests to finish
     setImmediate(() => {
       expect(consoleOutput).toContain(`failed loading namespace, none are present!`)
@@ -210,7 +210,7 @@ describe('CurieDBEditor.vue', () => {
       }
       return Promise.resolve({data: {}})
     })
-    wrapper = mount(CurieDBEditor)
+    wrapper = mount(SystemDBEditor)
     // allow all requests to finish
     setImmediate(() => {
       expect(consoleOutput).toContain(`failed loading namespace, none are present!`)
@@ -531,7 +531,7 @@ describe('CurieDBEditor.vue', () => {
     })
 
     test('should default to normal text area when json editor cannot be loaded after 2 seconds', async () => {
-      wrapper = mount(CurieDBEditor)
+      wrapper = mount(SystemDBEditor)
       JSONEditor.mockImplementation(() => {
         throw new Error('ouchie')
       })
@@ -597,7 +597,7 @@ describe('CurieDBEditor.vue', () => {
         }
         return Promise.resolve({data: {}})
       })
-      wrapper = mount(CurieDBEditor)
+      wrapper = mount(SystemDBEditor)
       // allow all requests to finish
       setImmediate(() => {
         const noDataMessage = wrapper.find('.no-data-message')
@@ -621,7 +621,7 @@ describe('CurieDBEditor.vue', () => {
           data: {},
         })
       })
-      wrapper = mount(CurieDBEditor)
+      wrapper = mount(SystemDBEditor)
       // allow all requests to finish
       setImmediate(() => {
         const noDataMessage = wrapper.find('.no-data-message')
@@ -645,7 +645,7 @@ describe('CurieDBEditor.vue', () => {
           data: {},
         })
       })
-      wrapper = mount(CurieDBEditor)
+      wrapper = mount(SystemDBEditor)
       // allow all requests to finish
       setImmediate(() => {
         const noDataMessage = wrapper.find('.no-data-message')
@@ -666,7 +666,7 @@ describe('CurieDBEditor.vue', () => {
         }
         return Promise.resolve({data: []})
       })
-      wrapper = mount(CurieDBEditor)
+      wrapper = mount(SystemDBEditor)
       const valueLoadingIndicator = wrapper.find('.value-loading')
       expect(valueLoadingIndicator.exists()).toBeTruthy()
     })
@@ -683,7 +683,7 @@ describe('CurieDBEditor.vue', () => {
         }
         return Promise.resolve({data: {}})
       })
-      wrapper = mount(CurieDBEditor)
+      wrapper = mount(SystemDBEditor)
       const valueLoadingIndicator = wrapper.find('.value-loading')
       expect(valueLoadingIndicator.exists()).toBeTruthy()
     })
