@@ -538,18 +538,20 @@ export default defineComponent({
       apiRoot: RequestsUtils.reblazeAPIRoot,
       apiVersion: RequestsUtils.reblazeAPIVersion,
 
-      trustedData: null as {name: string, 'trusted_net': string}[],
+      planetID: null,
+      planetName: null,
+      trustedData: null as {id: number, address: string, 'comment': string}[],
       trusted_sources_columns: [
         {
           title: 'CIDR / IP / Tag Rule',
-          fieldNames: ['name'],
+          fieldNames: ['address'],
           isSortable: true,
           isSearchable: true,
           classes: 'ellipsis',
         },
         {
           title: 'comment',
-          fieldNames: ['trusted_net'],
+          fieldNames: ['comment'],
           isSortable: true,
           isSearchable: true,
           classes: 'ellipsis',
@@ -669,14 +671,30 @@ export default defineComponent({
       const url = `configs/${this.selectedBranch}/d/planet/`
       const methodName = 'GET'
       const response = await RequestsUtils.sendReblazeRequest({methodName, url})
-      this.trustedData = response?.data?.trusted_net?.map((trusted: string)=> {
-        return {name: response.data.name, trusted_net: trusted}
-      })
+      console.log('trusted_nets', response?.data)
+      this.planetID = response.data.id
+      this.planetName = response.data.name
+      this.trustedData = response?.data?.trusted_nets?.map(
+        (trusted: {address: string, comment: string}, index: number)=> {
+          return {id: index, address: trusted.address, comment: trusted.comment}
+        })
     },
     // placeholder until to be implemented by backend
-    deleteTrustedElement(id: string) {
-      // delete 1 line
-      console.log('delete id', id)
+    async deleteTrustedElement(id: number) {
+      const trustedArr = [...this.trustedData]
+      this.trustedData = trustedArr.filter((trusted) => trusted.id !== id)
+      const dataTrusted = this.trustedData.map((trusted) => {
+        return {address: trusted.address, comment: trusted.comment}
+      })
+      const data = {
+        id: this.planetID,
+        name: this.planetName,
+        trusted_nets: dataTrusted,
+      }
+      console.log('delete id', id, 'data', data)
+      const url = `configs/${this.selectedBranch}/d/planet/`
+      const methodName = 'PUT'
+      await RequestsUtils.sendReblazeRequest({methodName, url, data})
     },
   },
   async created() {
