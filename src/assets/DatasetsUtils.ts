@@ -82,10 +82,8 @@ const titles: { [key: string]: string } = {
   'backends-singular': 'Backend Service',
   'report': 'Report',
   'ignore': 'Ignore',
-  'request0': 'Request Pre Reblaze',
-  'request1': 'Request Post Reblaze',
-  'response0': 'Response Pre Reblaze',
-  'response1': 'Response Post Reblaze',
+  'request1': 'Request',
+  'response0': 'Response',
 }
 
 const dynamicRuleTargets = {
@@ -247,7 +245,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
           'attrs': 'securitypolicyentryid',
         },
         {
-          'headers': 'rbzsessionid',
+          'attrs': 'curiesession',
         },
       ],
       'pairwith': {

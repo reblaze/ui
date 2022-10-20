@@ -35,11 +35,12 @@
             <label class="label is-small">
               Phase
             </label>
-            <div class="group-phase mb-3">
+                <div class="control is-expanded">
+                  <div class="select is-fullwidth is-small">
               <select v-model="localDoc.phase"
                       @change="emitDocUpdate"
                       class="phase-selection"
-                      data-qa="site-name-dropdown"
+                      data-qa="cloud-phase-dropdown"
                       title="Phase">
                 <option v-for="key in cloudPhases"
                         :key="key"
@@ -50,6 +51,7 @@
             </div>
           </div>
         </div>
+            </div>
         <div class="column is-8">
           <div class="field">
             <label class="label is-small">Code</label>
@@ -85,7 +87,7 @@ export default defineComponent({
   },
   data() {
     return {
-      cloudPhases: ['request0', 'request1', 'response0', 'response1'] as CloudFunctionsPhaseType[],
+      cloudPhases: ['request1', 'response0'] as CloudFunctionsPhaseType[],
       titles: DatasetsUtils.titles,
     }
   },
