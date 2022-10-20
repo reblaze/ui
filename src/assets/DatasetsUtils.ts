@@ -245,7 +245,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
           'attrs': 'securitypolicyentryid',
         },
         {
-          'headers': 'rbzsessionid',
+          'attrs': 'curiesession',
         },
       ],
       'pairwith': {
