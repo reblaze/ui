@@ -664,6 +664,7 @@ export default defineComponent({
       this.isDownloadLoading = false
     },
 
+    // placeholder until to be implemented by backend
     async loadTrustedSources() {
       const url = `configs/${this.selectedBranch}/d/planet/`
       const methodName = 'GET'
@@ -672,6 +673,7 @@ export default defineComponent({
         return {name: response.data.name, trusted_net: trusted}
       })
     },
+    // placeholder until to be implemented by backend
     deleteTrustedElement(id: string) {
       // delete 1 line
       console.log('delete id', id)
