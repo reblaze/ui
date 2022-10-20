@@ -104,7 +104,7 @@
                       </tag-autocomplete-input>
                     </div>
                     <automatic-tags
-                      :tagID = "`dr-rule-id:${localDoc.id?.replace(/ /g, '-') || ''}`">
+                      :tags = "localAutomaticTags" >
                     </automatic-tags>
                   </div>
                   <div class="field">
@@ -222,6 +222,7 @@ import {
   DynamicRuleTargetOptionType,
   GlobalFilter,
   IncludeExcludeType,
+  LocalAutomaticTags,
 } from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
@@ -280,6 +281,14 @@ export default defineComponent({
         }) : []
         this.emitMatchDocUpdate()
       },
+    },
+    localAutomaticTags(): LocalAutomaticTags {
+      return {
+        tagID: `dr-rule-id:${this.localDoc.id?.replace(/ /g, '-') || ''}`,
+        tagName: null,
+        tagCategory: null,
+        tagSubCategory: null,
+      }
     },
   },
   emits: ['update:selectedDoc', 'update:selectedDocMatchingGlobalFilter'],

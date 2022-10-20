@@ -82,6 +82,13 @@ declare module CuriefenseClient {
 
   type CloudFunctionsPhaseType = 'request0' | 'request1' | 'response0' | 'response1'
 
+  type LocalAutomaticTags = {
+    tagID: String,
+    tagName: String,
+    tagCategory: String,
+    tagSubCategory: String,
+  }
+  
   type Document =
     BasicDocument
     & (ACLProfile | CloudFunction | ContentFilterProfile | ContentFilterRule | CustomResponse |

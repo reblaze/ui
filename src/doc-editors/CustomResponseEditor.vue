@@ -62,7 +62,7 @@
               </div>
             </div>
             <automatic-tags
-              :tagID="`cf-rule-id:${localDoc.id?.replace(/ /g, '-') || ''}`">
+              :tags = "localAutomaticTags" >
             </automatic-tags>
           </div>
           <div v-if="localDoc.type === 'custom'"
@@ -141,7 +141,7 @@
 </template>
 <script lang="ts">
 import _ from 'lodash'
-import {CustomResponse} from '@/types'
+import {CustomResponse, LocalAutomaticTags} from '@/types'
 import {defineComponent} from 'vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import AutomaticTags from '@/components/AutomaticTags.vue'
@@ -221,6 +221,14 @@ export default defineComponent({
         }) : []
         this.emitDocUpdate()
       },
+    },
+    localAutomaticTags(): LocalAutomaticTags {
+      return {
+        tagID: `cf-rule-id:${this.localDoc.id?.replace(/ /g, '-') || ''}`,
+        tagName: null,
+        tagCategory: null,
+        tagSubCategory: null,
+      }
     },
   },
   emits: ['update:selectedDoc'],

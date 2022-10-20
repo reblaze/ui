@@ -79,8 +79,7 @@
               </div>
             </div>
             <automatic-tags
-              :tagName = "`cf-profile-name:${localDoc.name}`"
-              :tagID = "`cf-profile-id:${localDoc.id?.replace(/ /g, '-') || ''}`" >
+              :tags = "localAutomaticTags" >
             </automatic-tags>
             <div class="field ignore-alphanumeric-input-field"
                  :title="additionalInfoIgnoreAlphanumericInput">
@@ -652,6 +651,7 @@ import {
   ContentFilterProfileTagLists,
   NamesRegexType,
   Dictionary, CustomResponse,
+  LocalAutomaticTags,
 } from '@/types'
 import AutocompleteInput, {AutocompleteSuggestion} from '@/components/AutocompleteInput.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
@@ -802,6 +802,14 @@ export default defineComponent({
         }) : []
         this.emitDocUpdate()
       },
+    },
+    localAutomaticTags(): LocalAutomaticTags {
+      return {
+        tagID: `cf-profile-id:${this.localDoc.id?.replace(/ /g, '-') || ''}`,
+        tagName: `cf-profile-name:${this.localDoc.name}`,
+        tagCategory: null,
+        tagSubCategory: null,
+      }
     },
   },
 

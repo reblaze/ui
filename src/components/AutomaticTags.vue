@@ -10,23 +10,20 @@
 <script lang="ts">
 import {defineComponent} from 'vue'
 
-
 export default defineComponent({
   name: 'AutomaticTags',
 
   props: {
-    tagID: String,
-    tagName: String,
-    tagCategory: String,
-    tagSubCategory: String,
+    tags: Object,
   },
   computed: {
     automaticTags(): string {
-      const tagCategoryElement = this.tagCategory ? this.createTagElement(this.tagCategory) : this.tagCategory
-      const tagSubCategoryElement = this.tagSubCategory ? this.createTagElement(this.tagSubCategory):
-        this.tagSubCategory
-      const tagIdElement = this.createTagElement(this.tagID)
-      const tagNameElement = this.tagName ? this.createTagElement(this.tagName) : this.tagName
+      const tagCategoryElement = this.tags.tagCategory ? this.createTagElement(this.tags.tagCategory) :
+        this.tags.tagCategory
+      const tagSubCategoryElement = this.tags.tagSubCategory ? this.createTagElement(this.tags.tagSubCategory):
+        this.tags.tagSubCategory
+      const tagIdElement = this.createTagElement(this.tags.tagID)
+      const tagNameElement = this.tags.tagName ? this.createTagElement(this.tags.tagName) : this.tags.tagName
       return `${tagIdElement}${tagNameElement ? tagNameElement : ''}
       ${tagCategoryElement ? tagCategoryElement : ''}${tagSubCategoryElement ? tagSubCategoryElement : ''}`
     },

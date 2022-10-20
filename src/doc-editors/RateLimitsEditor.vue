@@ -69,8 +69,7 @@
                 </div>
               </div>
               <automatic-tags
-                :tagID = "`limit-rule-id:${localDoc.id?.replace(/ /g, '-') || ''}`"
-                :tagName = "`limit-rule-name:${localDoc.name}`" >
+              :tags = "localAutomaticTags" >
               </automatic-tags>
               <div class="group-key mb-3">
                 <limit-option v-for="(option, index) in localDoc.key"
@@ -262,6 +261,7 @@ import {
   IncludeExcludeType,
   LimitOptionType,
   LimitRuleType,
+  LocalAutomaticTags,
   RateLimit,
   ThresholdActionPair,
 } from '@/types'
@@ -329,6 +329,14 @@ export default defineComponent({
         this.localDoc.pairwith = value
         this.emitDocUpdate()
       },
+    },
+    localAutomaticTags(): LocalAutomaticTags {
+      return {
+        tagID: `limit-rule-id:${this.localDoc.id?.replace(/ /g, '-') || ''}`,
+        tagName: `limit-rule-name:${this.localDoc.name}`,
+        tagCategory: null,
+        tagSubCategory: null,
+      }
     },
   },
   emits: ['update:selectedDoc', 'go-to-route'],

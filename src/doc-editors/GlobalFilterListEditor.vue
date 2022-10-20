@@ -74,8 +74,7 @@
               </div>
             </div>
             <automatic-tags
-              :tagID = "`gf-rule-id:${localDoc.id?.replace(/ /g, '-') || ''}`"
-              :tagName = "`gf-rule-name:${localDoc.name}`">
+              :tags = "localAutomaticTags" >
             </automatic-tags>
             <div class="field">
               <a v-if="externalSource"
@@ -184,6 +183,7 @@ import {
   GlobalFilter,
   GlobalFilterSection,
   GlobalFilterSectionEntry,
+  LocalAutomaticTags,
   Relation,
 } from '@/types'
 import {AxiosResponse} from 'axios'
@@ -268,6 +268,14 @@ export default defineComponent({
         }) : []
         this.emitDocUpdate()
       },
+    },
+    localAutomaticTags(): LocalAutomaticTags {
+      return {
+        tagID: `gf-rule-id:${this.localDoc.id?.replace(/ /g, '-') || ''}`,
+        tagName: `gf-rule-name:${this.localDoc.name}`,
+        tagCategory: null,
+        tagSubCategory: null,
+      }
     },
 
     localDoc(): GlobalFilter {

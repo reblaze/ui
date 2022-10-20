@@ -87,11 +87,7 @@
                   </div>
                 </div>
                 <automatic-tags
-                  :selected-doc="localDoc"
-                  :tagID = "`cf-rule-id:${localDoc.id?.replace(/ /g, '-') || ''}`"
-                  :tagName = "`cf-rule-risk:${localDoc.risk}`"
-                  :tagCategory = "`cf-rule-category:${localDoc.category?.replace(/ /g, '-') || ''}`"
-                  :tagSubCategory = "`cf-rule-subcategory:${localDoc.subcategory?.replace(/ /g, '-') || ''}`" >
+                  :tags = "localAutomaticTags" >
                 </automatic-tags>
               </div>
             </div>
@@ -133,7 +129,7 @@
 
 <script lang="ts">
 import {defineComponent} from 'vue'
-import {ContentFilterRule} from '@/types'
+import {ContentFilterRule, LocalAutomaticTags} from '@/types'
 import _ from 'lodash'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import AutomaticTags from '@/components/AutomaticTags.vue'
@@ -167,6 +163,14 @@ export default defineComponent({
         }) : []
         this.emitDocUpdate()
       },
+    },
+    localAutomaticTags(): LocalAutomaticTags {
+      return {
+        tagID: `cf-rule-id:${this.localDoc.id?.replace(/ /g, '-') || ''}`,
+        tagName: `cf-rule-risk:${this.localDoc.risk}`,
+        tagCategory: `cf-rule-category:${this.localDoc.category?.replace(/ /g, '-') || ''}`,
+        tagSubCategory: `cf-rule-subcategory:${this.localDoc.subcategory?.replace(/ /g, '-') || ''}`,
+      }
     },
   },
   data() {

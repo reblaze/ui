@@ -81,8 +81,7 @@
               </div>
             </div>
             <automatic-tags
-              :tagID = "`fc-id:${localDoc.id?.replace(/ /g, '-') || ''}`"
-              :tagName = "`fc-name:${localDoc.name}`" >
+              :tags = "localAutomaticTags" >
             </automatic-tags>
             <div class="field textarea-field">
               <label class="label is-small">Description</label>
@@ -366,6 +365,7 @@ import {
   IncludeExcludeType,
   LimitOptionType,
   LimitRuleType,
+  LocalAutomaticTags,
 } from '@/types'
 import {httpRequestMethods} from '@/types/const'
 import AutomaticTags from '@/components/AutomaticTags.vue'
@@ -432,6 +432,14 @@ export default defineComponent({
         }) : []
         this.emitDocUpdate()
       },
+    },
+    localAutomaticTags(): LocalAutomaticTags {
+      return {
+        tagID: `fc-id:${this.localDoc.id?.replace(/ /g, '-') || ''}`,
+        tagName: `fc-name:${this.localDoc.name}`,
+        tagCategory: null,
+        tagSubCategory: null,
+      }
     },
   },
 

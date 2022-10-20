@@ -65,9 +65,7 @@
                 </div>
               </div>
               <automatic-tags
-                :tagID="`acl-id:${localDoc.id?.replace(/ /g, '-') || ''}`"
-                :tagName="`acl-name:${localDoc.name}`"
-                >
+              :tags = "localAutomaticTags" >
               </automatic-tags>
             </div>
           </div>
@@ -141,7 +139,7 @@ import DatasetsUtils from '@/assets/DatasetsUtils'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import AutomaticTags from '@/components/AutomaticTags.vue'
 import {defineComponent} from 'vue'
-import {ACLProfile, ACLProfileFilter, CustomResponse, Dictionary} from '@/types'
+import {ACLProfile, ACLProfileFilter, CustomResponse, Dictionary, LocalAutomaticTags} from '@/types'
 import RequestsUtils from '@/assets/RequestsUtils'
 import {AxiosResponse} from 'axios'
 
@@ -195,6 +193,14 @@ export default defineComponent({
         }) : []
         this.emitDocUpdate()
       },
+    },
+    localAutomaticTags(): LocalAutomaticTags {
+      return {
+        tagID: `acl-id:${this.localDoc.id?.replace(/ /g, '-') || ''}`,
+        tagName: `acl-name:${this.localDoc.name}`,
+        tagCategory: null,
+        tagSubCategory: null,
+      }
     },
   },
   methods: {
