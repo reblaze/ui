@@ -35,7 +35,7 @@
 </div>
 </template>
 <script lang="ts">
-import RequestsUtils from '@/assets/RequestsUtils'
+// import RequestsUtils from '@/assets/RequestsUtils'
 export default {
   props: {
     deleteShown: Boolean,
@@ -51,10 +51,11 @@ export default {
 
   methods: {
     async deleteCertificate(clickedRow:any) {
-      const url = `configs/${this.selectedBranch}/d/certificates/e/${clickedRow}`
+      /* TODO: after the backend finish - const url = `configs/${this.selectedBranch}/d/certificates/e/${clickedRow}`
       await RequestsUtils.sendReblazeRequest({methodName: 'DELETE', url}).then(() => {
         this.$emit('deleteShownChanged', false)
-      })
+      }) */
+      this.$emit('deleteClickedChanged', clickedRow)
     },
   },
 }

@@ -21,10 +21,18 @@
                                type="text"
                                disabled />
                     </div>
+                    <!-- TODO: HERE (want to divide for static divs and introduce the correct field) -->
+                    <!-- <div class="control content is-small mb-2">
+                      <textarea
+                        v-if="field === 'cert_body'"
+                        v-html="cert"
+                        class="textarea is-small cert-body"
+                        disabled />
+                    </div> -->
                     <div v-for="field in filteredCertFields()"
                          :key="field"
                          class="control content is-small mb-2">
-                           {{ CERT_FIELDS_LABELS[field] }} <!-- TODO: check with Aviv wht got there error -->
+                           <!-- {{ CERT_FIELDS_LABELS[field] }} --> <!-- TODO: check with Aviv wh got there error -->
                     <textarea
                         v-if="field === 'cert_body'"
                         v-html="cert"
@@ -121,7 +129,7 @@
                                                 aaaa
                                             </option>
                                             <option
-                                                v-for="certId in assignedCertsNamesExceptCurrent"
+                                                v-for="(index, certId) in assignedCertsNamesExceptCurrent"
                                                 :value="certId"
                                                 :key="certId">
                                                 {{ certId }}
@@ -171,6 +179,7 @@
     </div>
 </template>
 <script lang="ts">
+// type CertificateFields = 'subject' | 'issuer' | 'san' | 'cert_body'
 export default {
   props: {
     editShown: Boolean,
@@ -242,10 +251,12 @@ export default {
 
     assignedCertsNamesExceptCurrent() {
       // TODO: return this.assignedCertsNames.filter(cert => cert !== this.cert._id)
+      return true
     },
 
     certCanReplaceByLE():any {
       // TODO: return !this.cert['san'] || !this.cert['san'].includes('*')
+      return true
     },
 
     getConnectedSitesForEditCert():string {
@@ -263,6 +274,7 @@ export default {
       return this.filterGrid(this.searchMultiselect, options, filterCb)
     },
 
+    // TODO: this is really importent pice of code
     isEditOptionNotSelected() {
       const isAttachOptionNotSelected = this.isAttachSelectedOnEdit &&
                                               this.selectedApps.length === this.assignedApps.length &&
@@ -296,9 +308,7 @@ export default {
     },
 
     filteredCertFields() {
-      const a = Object.keys(this.CERT_FIELDS_LABELS)
-      console.log('filteredCertFields', a)
-      return a
+      return Object.keys(this.CERT_FIELDS_LABELS)
     },
 
     onSearchMultiselect(search:any) {
@@ -330,7 +340,9 @@ export default {
         } catch (err) {
           try {
             result = doSearch(search.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'))
-          } catch (e) {}
+          } catch (e) {
+            console.log(e)
+          }
         }
       }
       return result

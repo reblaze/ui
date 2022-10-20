@@ -113,6 +113,7 @@
                             @callLoaders="callLoaders"/>
       <delete-certificate :deleteShown="deleteShown"
                           @deleteShownChanged="deleteShown = false"
+                          @deleteClickedChanged="deleteCertificate"
                           :clickedRow="clickedRow"
                           :selectedBranch="selectedBranch"
                           @callLoaders="callLoaders"/>
@@ -267,6 +268,44 @@ export default defineComponent({
       apiRoot: RequestsUtils.reblazeAPIRoot,
       apiVersion: RequestsUtils.reblazeAPIVersion,
       clickedRow: null,
+      certificatesMock:
+        [
+          {
+            'cert_body': 'Cert body test',
+            'expires': '2022-10-18',
+            'id': 'planet-www-example.com-4a5b',
+            'issuer': 'Lets Encrypt',
+            'le_auto_renew': true,
+            'le_auto_replace': true,
+            'le_hash': '344ACF178F22A6CD086300EE37E4C0E21C5668E1',
+            'provider_links': {
+              'link': 'www.test.com',
+              'provider': 'test provider',
+              'region': 'test region',
+            },
+            'san': ['www.example.com', 'www.csccjhj.com'],
+            'subject': 'www.example.com',
+            'uploaded': '2017-07-21T17:32:28Z',
+          },
+          {
+            'cert_body': 'Cert body test2',
+            'expires': '2022-10-18 2',
+            'id': 'planet-www-example.com-4a5b 2',
+            'issuer': 'Lets Encrypt 2',
+            'le_auto_renew': true,
+            'le_auto_replace': true,
+            'le_hash': '344ACF178F22A6CD086300EE37E4C0E21C5668E1 2',
+            'provider_links': {
+              'link': 'www.test.com 2',
+              'provider': 'test provider 2',
+              'region': 'test region 2',
+            },
+            'san': ['www.example.com 2', 'www.csccjhj.com 2'],
+            'subject': 'www.example.com 2',
+            'uploaded': '2017-07-21T17:32:28Z 2',
+          },
+        ],
+      certificateByID: [],
     }
   },
 
@@ -282,6 +321,12 @@ export default defineComponent({
   },
 
   methods: {
+    // TODO: ask Aviv about this idea - i want to filter and get the the specific field like subject, issuer, san, cert_body from the correct certificate
+    getCertificateByID() {
+      this.certificateByID.push(this.certificatesMock.filter((certificate) => certificate.id === this.clickedRow))
+      console.log(this.certificateByID)
+    },
+
     async callLoaders() {
       // TODO: add await this.loadBalancers()
       await this.loadCertificates()
@@ -301,6 +346,7 @@ export default defineComponent({
 
     editProfile(id: string) {
       this.clickedRow = id
+      this.getCertificateByID()
       this.isNewLoading = true
       this.editShown = true
       this.isNewLoading = false
@@ -335,27 +381,7 @@ export default defineComponent({
       // const url = `configs/${this.selectedBranch}/d/certificates/`
       // const response = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
       // TODO: add this.certificates = response?.data || []
-      const certificatesMock =
-        [
-          {
-            'cert_body': 'Cert body test',
-            'expires': '2022-10-18',
-            'id': 'planet-www-example.com-4a5b',
-            'issuer': 'Lets Encrypt',
-            'le_auto_renew': true,
-            'le_auto_replace': true,
-            'le_hash': '344ACF178F22A6CD086300EE37E4C0E21C5668E1',
-            'provider_links': {
-              'link': 'www.test.com',
-              'provider': 'test provider',
-              'region': 'test region',
-            },
-            'san': ['www.example.com', 'www.csccjhj.com'],
-            'subject': 'www.example.com',
-            'uploaded': '2017-07-21T17:32:28Z',
-          },
-        ]
-      this.certificates = certificatesMock
+      this.certificates = this.certificatesMock
     },
 
     async loadConfigs() {
@@ -378,6 +404,12 @@ export default defineComponent({
       await this.loadBalancers()
       await this.loadCertificates()
       this.setLoadingDocStatus(false)
+    },
+
+    deleteCertificate(id:string) {
+      this.certificatesMock = this.certificatesMock.filter((certificate) => certificate.id !== id)
+      this.loadCertificates()
+      this.deleteShown = false
     },
   },
   async created() {

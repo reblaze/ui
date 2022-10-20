@@ -262,8 +262,8 @@ export default {
       const formData = new FormData()
       formData.append('action', 'upload_certificate')
       formData.append('data', btoa(JSON.stringify(data)))
+      console.log(formData)
       try {
-        console.log('formData', formData)
         /* TODO: const {data} = await axios({
           method: 'post',
           url: '/ssl-gcp',
