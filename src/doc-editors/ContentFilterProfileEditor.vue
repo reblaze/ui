@@ -79,8 +79,8 @@
               </div>
             </div>
             <automatic-tags
-              :selected-doc="localDoc"
-              :selectedDocType="selectedDocType" >
+              :tagName = "`cf-profile-name:${localDoc.name}`"
+              :tagID = "`cf-profile-id:${localDoc.id?.replace(/ /g, '-') || ''}`" >
             </automatic-tags>
             <div class="field ignore-alphanumeric-input-field"
                  :title="additionalInfoIgnoreAlphanumericInput">
@@ -676,7 +676,6 @@ export default defineComponent({
   props: {
     selectedBranch: String,
     selectedDoc: Object,
-    selectedDocType: String,
     apiPath: String,
   },
 

@@ -65,8 +65,9 @@
                 </div>
               </div>
               <automatic-tags
-                :selected-doc="localDoc"
-                :selectedDocType="selectedDocType" >
+                :tagID="`acl-id:${localDoc.id?.replace(/ /g, '-') || ''}`"
+                :tagName="`acl-name:${localDoc.name}`"
+                >
               </automatic-tags>
             </div>
           </div>
@@ -155,7 +156,6 @@ export default defineComponent({
   props: {
     selectedBranch: String,
     selectedDoc: Object,
-    selectedDocType: String,
     apiPath: String,
   },
   emits: ['update:selectedDoc', 'form-invalid'],

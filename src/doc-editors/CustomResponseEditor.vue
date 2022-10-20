@@ -62,8 +62,7 @@
               </div>
             </div>
             <automatic-tags
-              :selected-doc="localDoc"
-              :selectedDocType="selectedDocType" >
+              :tagID="`cf-rule-id:${localDoc.id?.replace(/ /g, '-') || ''}`">
             </automatic-tags>
           </div>
           <div v-if="localDoc.type === 'custom'"
@@ -195,7 +194,6 @@ export default defineComponent({
   },
   props: {
     selectedDoc: Object,
-    selectedDocType: String,
     apiPath: String,
   },
   data() {

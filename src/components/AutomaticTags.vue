@@ -9,64 +9,24 @@
 
 <script lang="ts">
 import {defineComponent} from 'vue'
-import {Document} from '@/types'
-import _ from 'lodash'
 
 
 export default defineComponent({
   name: 'AutomaticTags',
 
   props: {
-    selectedDocType: String,
-    selectedDoc: Object,
+    tagID: String,
+    tagName: String,
+    tagCategory: String,
+    tagSubCategory: String,
   },
-
-  // data() {
-  //   return {
-  //   }
-  // },
   computed: {
-    localDoc(): Document {
-      return _.cloneDeep(this.selectedDoc as Document)
-    },
-
     automaticTags(): string {
-      const tag = this.localDoc as any
-      let tagID = null
-      let tagName = null
-      let tagCategory = null
-      let tagSubCategory = null
-      console.log('this.selectedDocType', this.selectedDocType)
-      if (this.selectedDocType === 'aclprofiles') {
-        tagID = `acl-id:${tag.id?.replace(/ /g, '-') || ''}`
-        tagName = `acl-name:${tag.name}`
-      } else if (this.selectedDocType === 'actions') {
-        tagID = `cf-rule-id:${tag.id?.replace(/ /g, '-') || ''}`
-      } else if (this.selectedDocType === 'dynamic-rules') {
-        tagID = `dr-rule-id:${tag.id?.replace(/ /g, '-') || ''}`
-      } else if (this.selectedDocType === 'flowcontrol') {
-        tagID = `fc-id:${tag.id?.replace(/ /g, '-') || ''}`
-        tagName = `fc-name:${tag.name}`
-      } else if (this.selectedDocType === 'contentfilterprofiles') {
-        tagID = `cf-profile-id:${tag.id?.replace(/ /g, '-') || ''}`
-        tagName = `cf-profile-name:${tag.name}`
-      } else if (this.selectedDocType === 'contentfilterrules') {
-        tagID = `cf-rule-id:${tag.id?.replace(/ /g, '-') || ''}`
-        tagName = `cf-rule-risk:${tag.risk}`
-        tagCategory = `cf-rule-category:${tag.category?.replace(/ /g, '-') || ''}`
-        tagSubCategory = `cf-rule-subcategory:${tag.subcategory?.replace(/ /g, '-') || ''}`
-      } else if (this.selectedDocType === 'globalfilters') {
-        tagID = `gf-rule-id:${tag.id?.replace(/ /g, '-') || ''}`
-        tagName = `gf-rule-name:${tag.name}`
-      } else if (this.selectedDocType === 'ratelimits') {
-        tagID = `limit-rule-id:${tag.id?.replace(/ /g, '-') || ''}`
-        tagName = `limit-rule-name:${tag.name}`
-      }
-
-      const tagCategoryElement = tagCategory ? this.createTagElement(tagCategory) : tagCategory
-      const tagSubCategoryElement = tagSubCategory ? this.createTagElement(tagSubCategory) : tagSubCategory
-      const tagIdElement = this.createTagElement(tagID)
-      const tagNameElement = tagName ? this.createTagElement(tagName) : tagName
+      const tagCategoryElement = this.tagCategory ? this.createTagElement(this.tagCategory) : this.tagCategory
+      const tagSubCategoryElement = this.tagSubCategory ? this.createTagElement(this.tagSubCategory):
+        this.tagSubCategory
+      const tagIdElement = this.createTagElement(this.tagID)
+      const tagNameElement = this.tagName ? this.createTagElement(this.tagName) : this.tagName
       return `${tagIdElement}${tagNameElement ? tagNameElement : ''}
       ${tagCategoryElement ? tagCategoryElement : ''}${tagSubCategoryElement ? tagSubCategoryElement : ''}`
     },

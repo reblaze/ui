@@ -69,8 +69,8 @@
                 </div>
               </div>
               <automatic-tags
-                :selected-doc="localDoc"
-                :selectedDocType="selectedDocType" >
+                :tagID = "`limit-rule-id:${localDoc.id?.replace(/ /g, '-') || ''}`"
+                :tagName = "`limit-rule-name:${localDoc.name}`" >
               </automatic-tags>
               <div class="group-key mb-3">
                 <limit-option v-for="(option, index) in localDoc.key"
@@ -276,7 +276,6 @@ export default defineComponent({
   props: {
     selectedBranch: String,
     selectedDoc: Object,
-    selectedDocType: String,
     apiPath: String,
   },
   components: {

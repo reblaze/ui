@@ -74,8 +74,8 @@
               </div>
             </div>
             <automatic-tags
-              :selected-doc="localDoc"
-              :selectedDocType="selectedDocType" >
+              :tagID = "`gf-rule-id:${localDoc.id?.replace(/ /g, '-') || ''}`"
+              :tagName = "`gf-rule-name:${localDoc.name}`">
             </automatic-tags>
             <div class="field">
               <a v-if="externalSource"
@@ -203,7 +203,6 @@ export default defineComponent({
   props: {
     selectedBranch: String,
     selectedDoc: Object,
-    selectedDocType: String,
     apiPath: String,
     docs: Array,
   },

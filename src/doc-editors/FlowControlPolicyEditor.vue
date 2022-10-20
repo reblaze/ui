@@ -81,8 +81,8 @@
               </div>
             </div>
             <automatic-tags
-              :selected-doc="localDoc"
-              :selectedDocType="selectedDocType" >
+              :tagID = "`fc-id:${localDoc.id?.replace(/ /g, '-') || ''}`"
+              :tagName = "`fc-name:${localDoc.name}`" >
             </automatic-tags>
             <div class="field textarea-field">
               <label class="label is-small">Description</label>
@@ -376,7 +376,6 @@ export default defineComponent({
 
   props: {
     selectedDoc: Object,
-    selectedDocType: String,
     apiPath: String,
   },
 

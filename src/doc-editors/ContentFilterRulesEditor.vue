@@ -88,7 +88,10 @@
                 </div>
                 <automatic-tags
                   :selected-doc="localDoc"
-                  :selectedDocType="selectedDocType" >
+                  :tagID = "`cf-rule-id:${localDoc.id?.replace(/ /g, '-') || ''}`"
+                  :tagName = "`cf-rule-risk:${localDoc.risk}`"
+                  :tagCategory = "`cf-rule-category:${localDoc.category?.replace(/ /g, '-') || ''}`"
+                  :tagSubCategory = "`cf-rule-subcategory:${localDoc.subcategory?.replace(/ /g, '-') || ''}`" >
                 </automatic-tags>
               </div>
             </div>
@@ -145,7 +148,6 @@ export default defineComponent({
   },
   props: {
     selectedDoc: Object,
-    selectedDocType: String,
   },
   computed: {
     localDoc(): ContentFilterRule {

@@ -104,8 +104,7 @@
                       </tag-autocomplete-input>
                     </div>
                     <automatic-tags
-                      :selected-doc="localDoc"
-                      :selectedDocType="selectedDocType" >
+                      :tagID = "`dr-rule-id:${localDoc.id?.replace(/ /g, '-') || ''}`">
                     </automatic-tags>
                   </div>
                   <div class="field">
@@ -131,7 +130,6 @@
                       <select v-model="localDoc.target"
                                 data-qa="target-dropdown"
                                 title="Target"
-                                :value="localDoc.target"
                                 defaultValue="remote_addr"
                                 @change="emitDocUpdate"
                                 class="target-dropdown">
@@ -237,7 +235,6 @@ export default defineComponent({
     selectedDoc: Object,
     selectedDocMatchingGlobalFilter: Object,
     selectedBranch: String,
-    selectedDocType: String,
     apiPath: String,
   },
   components: {
