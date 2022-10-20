@@ -171,7 +171,6 @@
             :is="componentsMap[selectedDocType].component"
             v-model:selectedBranch="selectedBranch"
             v-model:selectedDoc="selectedDoc"
-            v-model:selectedDocType="selectedDocType"
             v-model:selectedDocMatchingGlobalFilter="selectedDocMatchingGlobalFilter"
             v-model:docs="docs"
             :apiPath="documentAPIPath"
