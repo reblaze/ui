@@ -1,80 +1,64 @@
 <template>
-  <div class="card">
-    <div class="card-content">
-      <div class="media">
-        <div class="media-content">
-          <div class="field is-grouped">
-            <div class="control"
-                 v-if="branchNames.length">
-              <div class="select is-small">
-                <select v-model="selectedBranch"
-                        title="Switch branch"
-                        class="branch-selection"
-                        @change="switchBranch()">
-                  <option v-for="name in branchNames"
-                          :key="name"
-                          :value="name">
-                    {{ name }}
-                  </option>
-                </select>
-              </div>
-            </div>
-            <p class="control">
-              <button class="button is-small download-doc-button"
-                      :class="{'is-loading':isDownloadLoading}"
-                      @click="downloadDoc()"
-                      title="Download document"
-                      data-qa="download-document">
+  <div class="card-content">
+    <div class="media">
+      <div class="media-content">
+        <div class="field is-grouped">
+          <p class="control">
+            <button :class="{'is-loading':isDownloadLoading}"
+                    class="button is-small download-doc-button"
+                    data-qa="download-document"
+                    title="Download document"
+                    @click="downloadDoc()">
                 <span class="icon is-small">
                     <i class="fas fa-download"></i>
                 </span>
-              </button>
-            </p>
-          </div>
+            </button>
+          </p>
         </div>
       </div>
+    </div>
 
-      <hr/>
+    <hr/>
 
-      <div class="content document-list-wrapper"
-           v-show="!loadingDocCounter && selectedBranch">
-        <div class="card">
-          <div class="card-content">
-            <div class="content">
-              <rbz-table :columns="columns"
-                         :data="proxyTemplates"
-                         :show-menu-column="true"
-                         :show-filter-button="true"
-                         :show-new-button="true"
-                         @new-button-clicked="addNewProxyTemplate"
-                         :show-row-button="true"
-                         @row-button-clicked="editProxyTemplate">
-              </rbz-table>
-              <span class="is-family-monospace has-text-grey-lighter">
+    <div v-show="!loadingDocCounter && selectedBranch"
+         class="content document-list-wrapper">
+      <div class="card">
+        <div class="card-content">
+          <div class="content">
+            <rbz-table :columns="columns"
+                       :data="proxyTemplates"
+                       :show-filter-button="true"
+                       :show-menu-column="true"
+                       :show-new-button="true"
+                       :show-row-button="true"
+                       @new-button-clicked="addNewProxyTemplate"
+                       @row-button-clicked="editProxyTemplate">
+            </rbz-table>
+            <span class="is-family-monospace has-text-grey-lighter">
                 {{ documentListAPIPath }}
               </span>
-            </div>
           </div>
         </div>
       </div>
+    </div>
 
-      <div class="content no-data-wrapper"
-           v-if="loadingDocCounter || !selectedBranch">
-        <button class="button is-outlined is-text is-small is-loading document-loading">
-          Loading
-        </button>
-      </div>
+    <div v-if="loadingDocCounter || !selectedBranch"
+         class="content no-data-wrapper">
+      <button class="button is-outlined is-text is-small is-loading document-loading">
+        Loading
+      </button>
     </div>
   </div>
 </template>
 <script lang="ts">
-import _ from 'lodash'
 import {defineComponent} from 'vue'
 import RbzTable from '@/components/RbzTable.vue'
 import {ColumnOptions, ProxyTemplate} from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import Utils from '@/assets/Utils'
+import {mapStores} from 'pinia'
+import {useBranchesStore} from '@/stores/BranchesStore'
 
 export default defineComponent({
   name: 'ProxyTemplateList',
@@ -125,13 +109,22 @@ export default defineComponent({
       isNewLoading: false,
       titles: DatasetsUtils.titles,
       proxyTemplates: [],
-      selectedBranch: null,
-      configs: [],
       loadingDocCounter: 0,
       isDownloadLoading: false,
       apiRoot: RequestsUtils.reblazeAPIRoot,
       apiVersion: RequestsUtils.reblazeAPIVersion,
     }
+  },
+
+  watch: {
+    selectedBranch: {
+      handler: function(val, oldVal) {
+        if ((this.$route.name as string).includes('ProxyTemplates/list') && val && val !== oldVal) {
+          this.loadProxyTemplates()
+        }
+      },
+      immediate: true,
+    },
   },
 
   computed: {
@@ -140,9 +133,11 @@ export default defineComponent({
       return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/proxy-templates/`
     },
 
-    branchNames(): string[] {
-      return this.configs?.length ? _.sortBy(_.map(this.configs, 'id')) : []
+    selectedBranch(): string {
+      return this.branchesStore.selectedBranchId
     },
+
+    ...mapStores(useBranchesStore),
   },
 
   methods: {
@@ -160,8 +155,7 @@ export default defineComponent({
     },
 
     editProxyTemplate(id: string) {
-      const routeToEditProxyTemplate = `/proxy-templates/config/${id}`
-      this.$router.push(routeToEditProxyTemplate)
+      this.$router.push(`/${this.selectedBranch}/proxy-templates/config/${id}`)
     },
 
     async addNewProxyTemplate() {
@@ -189,24 +183,6 @@ export default defineComponent({
       this.proxyTemplates = response?.data
     },
 
-    async loadConfigs() {
-      let configs
-      try {
-        const response = await RequestsUtils.sendRequest({
-          methodName: 'GET',
-          url: 'configs/',
-          config: {headers: {'x-fields': 'id'}},
-        })
-        configs = response.data
-      } catch (err) {
-        console.log('Error while attempting to get configs')
-        console.log(err)
-      }
-      console.log('loaded configs: ', configs)
-      this.configs = configs
-      this.selectedBranch = this.branchNames[0]
-    },
-
     async switchBranch() {
       this.setLoadingDocStatus(true)
       Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
@@ -215,8 +191,7 @@ export default defineComponent({
     },
   },
   async created() {
-    await this.loadConfigs()
-    this.loadProxyTemplates()
+    await this.branchesStore.list
   },
 })
 </script>

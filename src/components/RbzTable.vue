@@ -173,6 +173,7 @@ export default defineComponent({
             return columnOptions.isSortable
           })
           this.sortColumnTitle = firstSortableColumn?.title || null
+          this.filter = {}
         }
       },
       immediate: true,
@@ -223,7 +224,8 @@ export default defineComponent({
                   return item[filterColumn?.fieldNames[0]]?.toString() || ''
                 }
               }
-              return (match && getFilterValue(item).toLowerCase().includes(this.filter[key].toLowerCase()))
+              const filterValue = getFilterValue(item)?.toLowerCase() || ''
+              return (match && filterValue.includes(this.filter[key].toLowerCase()))
             }, true)
       }).sort((a: GenericObject, b: GenericObject) => {
         let getSortValue: (item: GenericObject) => string
