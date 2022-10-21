@@ -253,6 +253,9 @@
                             data-qa="mobile-sdk-dropdown"
                             class="document-mobile-sdk-selection"
                             title="Mobile SDK">
+                      <option value="">
+                        None
+                      </option>
                       <option v-for="mobileSDK in mobileSDKsNames"
                               :value="mobileSDK[0]"
                               :key="mobileSDK[0]">

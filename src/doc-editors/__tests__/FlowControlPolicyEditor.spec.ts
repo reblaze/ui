@@ -194,7 +194,7 @@ describe('FlowControlPolicyEditor.vue', () => {
         },
       }
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === `db/master/k/autocomplete/`) {
+        if (path === `db/prod/k/autocomplete/`) {
           return Promise.resolve(tagsData)
         }
         return Promise.resolve()

@@ -8,8 +8,8 @@
               Name
               <span class="has-text-grey is-pulled-right document-id"
                     title="Document id">
-                    {{ localDoc.id }}
-                  </span>
+                {{ localDoc.id }}
+              </span>
             </label>
             <div class="control">
               <input class="input is-small document-name"
@@ -113,8 +113,8 @@
                             Name
                             <span class="has-text-grey is-pulled-right map-entry-id"
                                   title="Map entry id">
-                                  {{ mapEntry.id }}
-                                </span>
+                              {{ mapEntry.id }}
+                            </span>
                           </label>
                           <div class="control">
                             <input class="input is-small current-entry-name"

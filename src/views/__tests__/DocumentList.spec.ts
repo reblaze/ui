@@ -46,8 +46,8 @@ describe.skip('DocumentList.vue', () => {
   beforeEach((done) => {
     gitData = [
       {
-        'id': 'master',
-        'description': 'Update entry [__default__] of document [aclprofiles]',
+        'id': 'prod',
+        'description': 'Update entry [__acldefault__] of document [aclprofiles]',
         'date': '2020-11-10T15:49:17+02:00',
         'logs': [
           {
@@ -56,7 +56,7 @@ describe.skip('DocumentList.vue', () => {
             'parents': [
               'fc47a6cd9d7f254dd97875a04b87165cc484e075',
             ],
-            'message': 'Update entry [__default__] of document [aclprofiles]',
+            'message': 'Update entry [__acldefault__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -66,7 +66,7 @@ describe.skip('DocumentList.vue', () => {
             'parents': [
               '5aba4a5b9d6faea1896ee8965c7aa651f76af63c',
             ],
-            'message': 'Update entry [__default__] of document [aclprofiles]',
+            'message': 'Update entry [__acldefault__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -76,7 +76,7 @@ describe.skip('DocumentList.vue', () => {
             'parents': [
               '277c5d7bd0e2eb4b9d2944f7eefdfadf37ba8581',
             ],
-            'message': 'Update entry [__default__] of document [aclprofiles]',
+            'message': 'Update entry [__acldefault__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -86,7 +86,7 @@ describe.skip('DocumentList.vue', () => {
             'parents': [
               '878b47deeddac94625fe7c759786f2df885ec541',
             ],
-            'message': 'Update entry [__default__] of document [aclprofiles]',
+            'message': 'Update entry [__acldefault__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -96,7 +96,7 @@ describe.skip('DocumentList.vue', () => {
             'parents': [
               '93c180513fe7edeaf1c0ca69a67aa2a11374da4f',
             ],
-            'message': 'Update entry [__default__] of document [aclprofiles]',
+            'message': 'Update entry [__acldefault__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -106,7 +106,7 @@ describe.skip('DocumentList.vue', () => {
             'parents': [
               '1662043d2a18d6ad2c9c94d6f826593ff5506354',
             ],
-            'message': 'Update entry [__default__] of document [aclprofiles]',
+            'message': 'Update entry [__acldefault__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -116,7 +116,7 @@ describe.skip('DocumentList.vue', () => {
             'parents': [
               '16379cdf39501574b4a2f5a227b82a4454884b84',
             ],
-            'message': 'Create config [master]\n',
+            'message': 'Create config [prod]\n',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -160,7 +160,7 @@ describe.skip('DocumentList.vue', () => {
     ]
     aclDocs = [
       {
-        'id': '__default__',
+        'id': '__acldefault__',
         'name': 'default-acl',
         'tags': ['google', 'china'],
       },
@@ -188,7 +188,7 @@ describe.skip('DocumentList.vue', () => {
           'parents': [
             '7a24bd37e93e812fa5173c4b2fb0068ad8e4ffdd',
           ],
-          'message': 'Update entry [__default__] of document [aclprofiles]',
+          'message': 'Update entry [__acldefault__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -198,7 +198,7 @@ describe.skip('DocumentList.vue', () => {
           'parents': [
             '886baf66ddd032744ac34b848c8412386a160fb3',
           ],
-          'message': 'Update entry [__default__] of document [aclprofiles]',
+          'message': 'Update entry [__acldefault__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -208,7 +208,7 @@ describe.skip('DocumentList.vue', () => {
           'parents': [
             'af98cb28fc4db3a76c3a51d697b6037e8695dd7b',
           ],
-          'message': 'Update entry [__default__] of document [aclprofiles]',
+          'message': 'Update entry [__acldefault__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -218,7 +218,7 @@ describe.skip('DocumentList.vue', () => {
           'parents': [
             'cda70058b632405600db1fbc5cf8dfd90514ec30',
           ],
-          'message': 'Update entry [__default__] of document [aclprofiles]',
+          'message': 'Update entry [__acldefault__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -388,7 +388,7 @@ describe.skip('DocumentList.vue', () => {
           'parents': [
             'fc47a6cd9d7f254dd97875a04b87165cc484e075',
           ],
-          'message': 'Update entry [__default__] of document [aclprofiles]',
+          'message': 'Update entry [__acldefault__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -398,7 +398,7 @@ describe.skip('DocumentList.vue', () => {
           'parents': [
             '5aba4a5b9d6faea1896ee8965c7aa651f76af63c',
           ],
-          'message': 'Update entry [__default__] of document [aclprofiles]',
+          'message': 'Update entry [__acldefault__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -408,7 +408,7 @@ describe.skip('DocumentList.vue', () => {
           'parents': [
             '277c5d7bd0e2eb4b9d2944f7eefdfadf37ba8581',
           ],
-          'message': 'Update entry [__default__] of document [aclprofiles]',
+          'message': 'Update entry [__acldefault__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -418,7 +418,7 @@ describe.skip('DocumentList.vue', () => {
           'parents': [
             '878b47deeddac94625fe7c759786f2df885ec541',
           ],
-          'message': 'Update entry [__default__] of document [aclprofiles]',
+          'message': 'Update entry [__acldefault__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -428,7 +428,7 @@ describe.skip('DocumentList.vue', () => {
           'parents': [
             '93c180513fe7edeaf1c0ca69a67aa2a11374da4f',
           ],
-          'message': 'Update entry [__default__] of document [aclprofiles]',
+          'message': 'Update entry [__acldefault__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -438,7 +438,7 @@ describe.skip('DocumentList.vue', () => {
           'parents': [
             '1662043d2a18d6ad2c9c94d6f826593ff5506354',
           ],
-          'message': 'Update entry [__default__] of document [aclprofiles]',
+          'message': 'Update entry [__acldefault__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -448,7 +448,7 @@ describe.skip('DocumentList.vue', () => {
           'parents': [
             '16379cdf39501574b4a2f5a227b82a4454884b84',
           ],
-          'message': 'Create config [master]\n',
+          'message': 'Create config [prod]\n',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -460,7 +460,7 @@ describe.skip('DocumentList.vue', () => {
           'parents': [
             '1662043d2a18d6ad2c9c94d6f826593ff5506354',
           ],
-          'message': 'Update entry [__default__] of document [aclprofiles]',
+          'message': 'Update entry [__acldefault__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -470,7 +470,7 @@ describe.skip('DocumentList.vue', () => {
           'parents': [
             '16379cdf39501574b4a2f5a227b82a4454884b84',
           ],
-          'message': 'Create config [master]\n',
+          'message': 'Create config [prod]\n',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -478,7 +478,7 @@ describe.skip('DocumentList.vue', () => {
     ]
     aclGitOldVersion = [
       {
-        'id': '__default__',
+        'id': '__acldefault__',
         'name': 'default-acl',
         'tags': ['google', 'china'],
       },
@@ -736,7 +736,7 @@ describe.skip('DocumentList.vue', () => {
       if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/v/7f8a987c8e5e9db7c734ac8841c543d5bc5d9657/`) {
         return Promise.resolve({data: aclGitOldVersion})
       }
-      if (path === `/conf/api/v3/configs/master/d/globalfilters/`) {
+      if (path === `/conf/api/v3/configs/prod/d/globalfilters/`) {
         const globalFilterXFields = _.flatMap(COLUMN_OPTIONS_MAP['globalfilters'], 'fieldNames')
         globalFilterXFields.unshift('id')
         if (config && config.headers && config.headers['x-fields'] === globalFilterXFields.join(', ')) {
@@ -797,7 +797,7 @@ describe.skip('DocumentList.vue', () => {
         }
         return Promise.resolve({data: rateLimitsDocs})
       }
-      if (path === '/conf/api/v3/configs/master/v/') {
+      if (path === '/conf/api/v3/configs/prod/v/') {
         return Promise.resolve({data: gitData[0].logs})
       }
       if (path === '/conf/api/v3/configs/zzz_branch/v/') {
@@ -807,10 +807,10 @@ describe.skip('DocumentList.vue', () => {
     })
     mockRoute = {
       params: {
-        branch: 'master',
+        branch: 'prod',
         doc_type: 'aclprofiles',
       },
-      path: `/list/master/aclprofiles`,
+      path: `/list/prod/aclprofiles`,
       name: `DocumentList`,
     }
     mockRouter = {
@@ -856,7 +856,7 @@ describe.skip('DocumentList.vue', () => {
         if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/`) {
           return Promise.resolve({data: aclDocs})
         }
-        if (path === `/conf/api/v3/configs/master/d/aclprofiles/v/`) {
+        if (path === `/conf/api/v3/configs/prod/d/aclprofiles/v/`) {
           return Promise.resolve(null)
         }
         return Promise.resolve({data: []})
@@ -882,7 +882,7 @@ describe.skip('DocumentList.vue', () => {
         if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/`) {
           return Promise.resolve({data: aclDocs})
         }
-        if (path === `/conf/api/v3/configs/master/d/aclprofiles/v/`) {
+        if (path === `/conf/api/v3/configs/prod/d/aclprofiles/v/`) {
           return Promise.resolve({data: null})
         }
         return Promise.resolve({data: []})
@@ -903,7 +903,7 @@ describe.skip('DocumentList.vue', () => {
       const wantedVersion = {
         version: '7f8a987c8e5e9db7c734ac8841c543d5bc5d9657',
       }
-      const wantedPath = `/conf/api/v3/configs/master/d/aclprofiles/v/${wantedVersion.version}/revert/`
+      const wantedPath = `/conf/api/v3/configs/prod/d/aclprofiles/v/${wantedVersion.version}/revert/`
       const putSpy = jest.spyOn(axios, 'put')
       putSpy.mockImplementation(() => Promise.resolve())
       const gitHistory = wrapper.findComponent(GitHistory)
@@ -943,7 +943,7 @@ describe.skip('DocumentList.vue', () => {
     test('should load correct default branch if got non existent branch in route params', (done) => {
       router.push('/list/random123/random123')
       setImmediate(() => {
-        expect(wrapper.vm.selectedBranch).toEqual('master')
+        expect(wrapper.vm.selectedBranch).toEqual('prod')
         expect(rbzTable.vm.data[0].name).toEqual('API Discovery')
         done()
       })
@@ -952,7 +952,7 @@ describe.skip('DocumentList.vue', () => {
     test('should load correct default branch if none given in route params', (done) => {
       router.push('/list')
       setImmediate(() => {
-        expect(wrapper.vm.selectedBranch).toEqual('master')
+        expect(wrapper.vm.selectedBranch).toEqual('prod')
         expect(rbzTable.vm.data[0].name).toEqual('API Discovery')
         done()
       })
@@ -977,7 +977,7 @@ describe.skip('DocumentList.vue', () => {
     })
 
     test('should load correct data when changing doc type', (done) => {
-      router.push('/list/master/contentfilterprofiles')
+      router.push('/list/prod/contentfilterprofiles')
       setImmediate(() => {
         expect(wrapper.vm.selectedDocType).toEqual('contentfilterprofiles')
         expect(rbzTable.vm.data[0].name).toEqual('content filter')
@@ -987,7 +987,7 @@ describe.skip('DocumentList.vue', () => {
 
     test('should not load new data if new route is not DocumentList', (done) => {
       const spy = jest.spyOn(wrapper.vm, 'setSelectedDataFromRouteParams')
-      router.push('/config/master/contentfilterprofiles')
+      router.push('/config/prod/contentfilterprofiles')
       setImmediate(() => {
         expect(spy).not.toHaveBeenCalled()
         done()
@@ -1230,10 +1230,10 @@ describe.skip('DocumentList.vue', () => {
     describe('new document button', () => {
       test('should be able to add a new aclprofiles document', (done) => {
         mockRoute.params = {
-          branch: 'master',
+          branch: 'prod',
           doc_type: 'aclprofiles',
         }
-        mockRoute.path = `/list/master/aclprofiles`
+        mockRoute.path = `/list/prod/aclprofiles`
         wrapper = mount(DocumentList, {
           global: {
             mocks: {
@@ -1250,17 +1250,17 @@ describe.skip('DocumentList.vue', () => {
           postSpy.mockImplementation(() => Promise.resolve())
           const rbzTable = wrapper.findComponent(RbzTable)
           rbzTable.vm.$emit('new-button-clicked')
-          expect(postSpy).toHaveBeenCalledWith(`/conf/api/v3/configs/master/d/aclprofiles/e/`, newACLProfilesDoc)
+          expect(postSpy).toHaveBeenCalledWith(`/conf/api/v3/configs/prod/d/aclprofiles/e/`, newACLProfilesDoc)
           done()
         })
       })
 
       test('should be able to add a new globalfilters document', (done) => {
         mockRoute.params = {
-          branch: 'master',
+          branch: 'prod',
           doc_type: 'globalfilters',
         }
-        mockRoute.path = `/list/master/globalfilters`
+        mockRoute.path = `/list/prod/globalfilters`
         wrapper = mount(DocumentList, {
           global: {
             mocks: {
@@ -1277,17 +1277,17 @@ describe.skip('DocumentList.vue', () => {
           postSpy.mockImplementation(() => Promise.resolve())
           const rbzTable = wrapper.findComponent(RbzTable)
           rbzTable.vm.$emit('new-button-clicked')
-          expect(postSpy).toHaveBeenCalledWith(`/conf/api/v3/configs/master/d/globalfilters/e/`, newGlobalFilterDoc)
+          expect(postSpy).toHaveBeenCalledWith(`/conf/api/v3/configs/prod/d/globalfilters/e/`, newGlobalFilterDoc)
           done()
         })
       })
 
       test('should be able to add a new contentfilterprofiles document', (done) => {
         mockRoute.params = {
-          branch: 'master',
+          branch: 'prod',
           doc_type: 'contentfilterprofiles',
         }
-        mockRoute.path = `/list/master/contentfilterprofiles`
+        mockRoute.path = `/list/prod/contentfilterprofiles`
         wrapper = mount(DocumentList, {
           global: {
             mocks: {
@@ -1303,7 +1303,7 @@ describe.skip('DocumentList.vue', () => {
           postSpy.mockImplementation(() => Promise.resolve())
           const rbzTable = wrapper.findComponent(RbzTable)
           rbzTable.vm.$emit('new-button-clicked')
-          const wantedPath = `/conf/api/v3/configs/master/d/contentfilterprofiles/e/`
+          const wantedPath = `/conf/api/v3/configs/prod/d/contentfilterprofiles/e/`
           expect(postSpy).toHaveBeenCalledWith(wantedPath, newContentFilterProfilesDoc)
           done()
         })
@@ -1311,10 +1311,10 @@ describe.skip('DocumentList.vue', () => {
 
       test('should be able to add a new ratelimits document', (done) => {
         mockRoute.params = {
-          branch: 'master',
+          branch: 'prod',
           doc_type: 'ratelimits',
         }
-        mockRoute.path = `/list/master/ratelimits`
+        mockRoute.path = `/list/prod/ratelimits`
         wrapper = mount(DocumentList, {
           global: {
             mocks: {
@@ -1330,17 +1330,17 @@ describe.skip('DocumentList.vue', () => {
           postSpy.mockImplementation(() => Promise.resolve())
           const rbzTable = wrapper.findComponent(RbzTable)
           rbzTable.vm.$emit('new-button-clicked')
-          expect(postSpy).toHaveBeenCalledWith(`/conf/api/v3/configs/master/d/ratelimits/e/`, newRateLimitsDoc)
+          expect(postSpy).toHaveBeenCalledWith(`/conf/api/v3/configs/prod/d/ratelimits/e/`, newRateLimitsDoc)
           done()
         })
       })
 
       test('should be able to add a new flowcontrol document', (done) => {
         mockRoute.params = {
-          branch: 'master',
+          branch: 'prod',
           doc_type: 'flowcontrol',
         }
-        mockRoute.path = `/list/master/flowcontrol`
+        mockRoute.path = `/list/prod/flowcontrol`
         wrapper = mount(DocumentList, {
           global: {
             mocks: {
@@ -1356,17 +1356,17 @@ describe.skip('DocumentList.vue', () => {
           postSpy.mockImplementation(() => Promise.resolve())
           const rbzTable = wrapper.findComponent(RbzTable)
           rbzTable.vm.$emit('new-button-clicked')
-          expect(postSpy).toHaveBeenCalledWith(`/conf/api/v3/configs/master/d/flowcontrol/e/`, newFlowControlDoc)
+          expect(postSpy).toHaveBeenCalledWith(`/conf/api/v3/configs/prod/d/flowcontrol/e/`, newFlowControlDoc)
           done()
         })
       })
 
       test('should be able to add a new contentfilterrules document', (done) => {
         mockRoute.params = {
-          branch: 'master',
+          branch: 'prod',
           doc_type: 'contentfilterrules',
         }
-        mockRoute.path = `/list/master/contentfilterrules`
+        mockRoute.path = `/list/prod/contentfilterrules`
         wrapper = mount(DocumentList, {
           global: {
             mocks: {
@@ -1382,7 +1382,7 @@ describe.skip('DocumentList.vue', () => {
           postSpy.mockImplementation(() => Promise.resolve())
           const rbzTable = wrapper.findComponent(RbzTable)
           rbzTable.vm.$emit('new-button-clicked')
-          const wantedPath = `/conf/api/v3/configs/master/d/contentfilterrules/e/`
+          const wantedPath = `/conf/api/v3/configs/prod/d/contentfilterrules/e/`
           expect(postSpy).toHaveBeenCalledWith(wantedPath, newContentFilterRulesDoc)
           done()
         })
@@ -1393,9 +1393,9 @@ describe.skip('DocumentList.vue', () => {
       test('should redirect to correct document when clicking on edit document button', async () => {
         const rbzTable = wrapper.findComponent(RbzTable)
         rbzTable.vm.$emit('row-button-clicked', aclDocs[1]['id'])
-        expect(mockRouter.push).toHaveBeenCalledWith(`/config/master/aclprofiles/${aclDocs[1]['id']}`)
+        expect(mockRouter.push).toHaveBeenCalledWith(`/config/prod/aclprofiles/${aclDocs[1]['id']}`)
         rbzTable.vm.$emit('row-button-clicked', aclDocs[0]['id'])
-        expect(mockRouter.push).toHaveBeenCalledWith(`/config/master/aclprofiles/${aclDocs[0]['id']}`)
+        expect(mockRouter.push).toHaveBeenCalledWith(`/config/prod/aclprofiles/${aclDocs[0]['id']}`)
       })
     })
   })
@@ -1404,10 +1404,10 @@ describe.skip('DocumentList.vue', () => {
     const buildColumnOptionsTest = (docType: DocumentType) => {
       test(`should load correct column options for ${docType}`, (done) => {
         mockRoute.params = {
-          branch: 'master',
+          branch: 'prod',
           doc_type: docType,
         }
-        mockRoute.path = `/list/master/${docType}`
+        mockRoute.path = `/list/prod/${docType}`
         wrapper = mount(DocumentList, {
           global: {
             mocks: {

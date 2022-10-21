@@ -16,7 +16,7 @@ describe('ACLEditor.vue', () => {
   beforeEach(() => {
     docs = [
       {
-        'id': '__default__',
+        'id': '__acldefault__',
         'name': 'default-acl',
         'description': 'New ACL Profile Description and Remarks',
         'action': 'monitor',
@@ -51,7 +51,7 @@ describe('ACLEditor.vue', () => {
         'name': 'default monitoring action',
       },
     ]
-    const selectedBranch = 'master'
+    const selectedBranch = 'prod'
     jest.spyOn(axios, 'get').mockImplementation((path) => {
       if (path === `/conf/api/v3/configs/${selectedBranch}/d/actions/`) {
         return Promise.resolve({data: customResponsesDocs})

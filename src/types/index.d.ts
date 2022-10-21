@@ -297,6 +297,7 @@ declare module CuriefenseClient {
   }
 
   type RoutingProfileEntryLocation = {
+    id: string
     path: string
     backend_id: string
     cloud_functions: string[]

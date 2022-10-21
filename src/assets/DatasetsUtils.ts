@@ -211,7 +211,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
           'id': generateUUID2(),
           'match': '/',
           'name': 'default',
-          'acl_profile': '__default__',
+          'acl_profile': '__acldefault__',
           'content_filter_profile': '__default__',
           'acl_active': false,
           'content_filter_active': false,
@@ -344,7 +344,7 @@ const newOperationEntryFactory: { [key: string]: Function } = {
       'security_policy': '__default__',
       'routing_profile': '__default__',
       'proxy_template': '__default__',
-      'mobile_sdk': '__default__',
+      'mobile_sdk': '',
     }
   },
 
@@ -355,6 +355,7 @@ const newOperationEntryFactory: { [key: string]: Function } = {
       'description': 'New Routing Profile Description and Remarks',
       'locations': [
         {
+          'id': generateUUID2(),
           'path': '/',
           'backend_id': '__default__',
           'cloud_functions': [],

@@ -18,8 +18,8 @@ describe.skip('VersionControl.vue', () => {
   beforeEach(() => {
     gitData = [
       {
-        'id': 'master',
-        'description': 'Update entry [__default__] of document [aclprofiles]',
+        'id': 'prod',
+        'description': 'Update entry [__acldefault__] of document [aclprofiles]',
         'date': '2020-11-10T15:49:17+02:00',
         'logs': [
           {
@@ -28,7 +28,7 @@ describe.skip('VersionControl.vue', () => {
             'parents': [
               'fc47a6cd9d7f254dd97875a04b87165cc484e075',
             ],
-            'message': 'Update entry [__default__] of document [aclprofiles]',
+            'message': 'Update entry [__acldefault__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -38,7 +38,7 @@ describe.skip('VersionControl.vue', () => {
             'parents': [
               '5aba4a5b9d6faea1896ee8965c7aa651f76af63c',
             ],
-            'message': 'Update entry [__default__] of document [aclprofiles]',
+            'message': 'Update entry [__acldefault__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -48,7 +48,7 @@ describe.skip('VersionControl.vue', () => {
             'parents': [
               '277c5d7bd0e2eb4b9d2944f7eefdfadf37ba8581',
             ],
-            'message': 'Update entry [__default__] of document [aclprofiles]',
+            'message': 'Update entry [__acldefault__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -58,7 +58,7 @@ describe.skip('VersionControl.vue', () => {
             'parents': [
               '878b47deeddac94625fe7c759786f2df885ec541',
             ],
-            'message': 'Update entry [__default__] of document [aclprofiles]',
+            'message': 'Update entry [__acldefault__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -68,7 +68,7 @@ describe.skip('VersionControl.vue', () => {
             'parents': [
               '93c180513fe7edeaf1c0ca69a67aa2a11374da4f',
             ],
-            'message': 'Update entry [__default__] of document [aclprofiles]',
+            'message': 'Update entry [__acldefault__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -78,7 +78,7 @@ describe.skip('VersionControl.vue', () => {
             'parents': [
               '1662043d2a18d6ad2c9c94d6f826593ff5506354',
             ],
-            'message': 'Update entry [__default__] of document [aclprofiles]',
+            'message': 'Update entry [__acldefault__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -88,7 +88,7 @@ describe.skip('VersionControl.vue', () => {
             'parents': [
               '16379cdf39501574b4a2f5a227b82a4454884b84',
             ],
-            'message': 'Create config [master]\n',
+            'message': 'Create config [prod]\n',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -134,13 +134,13 @@ describe.skip('VersionControl.vue', () => {
       if (path === '/conf/api/v3/configs/') {
         return Promise.resolve({data: gitData})
       }
-      if (path === '/conf/api/v3/configs/master/') {
+      if (path === '/conf/api/v3/configs/prod/') {
         return Promise.resolve({data: gitData[0]})
       }
       if (path === '/conf/api/v3/configs/zzz_branch/') {
         return Promise.resolve({data: gitData[1]})
       }
-      if (path === '/conf/api/v3/configs/master/v/') {
+      if (path === '/conf/api/v3/configs/prod/v/') {
         return Promise.resolve({data: gitData[0].logs})
       }
       if (path === '/conf/api/v3/configs/zzz_branch/v/') {
@@ -197,8 +197,8 @@ describe.skip('VersionControl.vue', () => {
   test('should display correct singular amount of branches', (done) => {
     gitData = [
       {
-        'id': 'master',
-        'description': 'Update entry [__default__] of document [aclprofiles]',
+        'id': 'prod',
+        'description': 'Update entry [__acldefault__] of document [aclprofiles]',
         'date': '2020-11-10T15:49:17+02:00',
         'logs': [{
           'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
@@ -206,7 +206,7 @@ describe.skip('VersionControl.vue', () => {
           'parents': [
             'fc47a6cd9d7f254dd97875a04b87165cc484e075',
           ],
-          'message': 'Update entry [__default__] of document [aclprofiles]',
+          'message': 'Update entry [__acldefault__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         }],
@@ -217,10 +217,10 @@ describe.skip('VersionControl.vue', () => {
       if (path === '/conf/api/v3/configs/') {
         return Promise.resolve({data: gitData})
       }
-      if (path === '/conf/api/v3/configs/master/') {
+      if (path === '/conf/api/v3/configs/prod/') {
         return Promise.resolve({data: gitData[0]})
       }
-      if (path === '/conf/api/v3/configs/master/v/') {
+      if (path === '/conf/api/v3/configs/prod/v/') {
         return Promise.resolve({data: gitData[0].logs})
       }
       return Promise.resolve({data: []})
@@ -237,8 +237,8 @@ describe.skip('VersionControl.vue', () => {
   test('should display correct singular amount of commits', (done) => {
     gitData = [
       {
-        'id': 'master',
-        'description': 'Update entry [__default__] of document [aclprofiles]',
+        'id': 'prod',
+        'description': 'Update entry [__acldefault__] of document [aclprofiles]',
         'date': '2020-11-10T15:49:17+02:00',
         'logs': [{
           'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
@@ -246,7 +246,7 @@ describe.skip('VersionControl.vue', () => {
           'parents': [
             'fc47a6cd9d7f254dd97875a04b87165cc484e075',
           ],
-          'message': 'Update entry [__default__] of document [aclprofiles]',
+          'message': 'Update entry [__acldefault__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         }],
@@ -257,10 +257,10 @@ describe.skip('VersionControl.vue', () => {
       if (path === '/conf/api/v3/configs/') {
         return Promise.resolve({data: gitData})
       }
-      if (path === '/conf/api/v3/configs/master/') {
+      if (path === '/conf/api/v3/configs/prod/') {
         return Promise.resolve({data: gitData[0]})
       }
-      if (path === '/conf/api/v3/configs/master/v/') {
+      if (path === '/conf/api/v3/configs/prod/v/') {
         return Promise.resolve({data: gitData[0].logs})
       }
       return Promise.resolve({data: []})
@@ -329,11 +329,11 @@ describe.skip('VersionControl.vue', () => {
     const gitHistory = wrapper.findComponent(GitHistory)
     gitHistory.vm.$emit('restore-version', wantedVersion)
     await nextTick()
-    expect(putSpy).toHaveBeenCalledWith(`/conf/api/v3/configs/master/v/${wantedVersion.version}/revert/`)
+    expect(putSpy).toHaveBeenCalledWith(`/conf/api/v3/configs/prod/v/${wantedVersion.version}/revert/`)
   })
 
   test('should attempt to download branch when download button is clicked', async () => {
-    const wantedFileName = 'master'
+    const wantedFileName = 'prod'
     const wantedFileType = 'json'
     const wantedFileData = gitData[0]
     const downloadFileSpy = jest.spyOn(Utils, 'downloadFile')
@@ -395,7 +395,7 @@ describe.skip('VersionControl.vue', () => {
         if (path === '/conf/api/v3/configs/') {
           return Promise.resolve({data: gitData})
         }
-        if (path === '/conf/api/v3/configs/master/') {
+        if (path === '/conf/api/v3/configs/prod/') {
           return Promise.resolve(null)
         }
         return Promise.resolve({data: {}})
@@ -414,7 +414,7 @@ describe.skip('VersionControl.vue', () => {
         if (path === '/conf/api/v3/configs/') {
           return Promise.resolve({data: gitData})
         }
-        if (path === '/conf/api/v3/configs/master/') {
+        if (path === '/conf/api/v3/configs/prod/') {
           return Promise.resolve({data: null})
         }
         return Promise.resolve({data: {}})
@@ -432,10 +432,10 @@ describe.skip('VersionControl.vue', () => {
       if (path === '/conf/api/v3/configs/') {
         return Promise.resolve({data: gitData})
       }
-      if (path === '/conf/api/v3/configs/master/') {
+      if (path === '/conf/api/v3/configs/prod/') {
         return Promise.resolve({data: gitData[0]})
       }
-      if (path === '/conf/api/v3/configs/master/v/') {
+      if (path === '/conf/api/v3/configs/prod/v/') {
         return Promise.resolve(null)
       }
       return Promise.resolve({data: []})
@@ -450,10 +450,10 @@ describe.skip('VersionControl.vue', () => {
       if (path === '/conf/api/v3/configs/') {
         return Promise.resolve({data: gitData})
       }
-      if (path === '/conf/api/v3/configs/master/') {
+      if (path === '/conf/api/v3/configs/prod/') {
         return Promise.resolve({data: gitData[0]})
       }
-      if (path === '/conf/api/v3/configs/master/v/') {
+      if (path === '/conf/api/v3/configs/prod/v/') {
         return Promise.resolve({data: null})
       }
       return Promise.resolve({data: []})
@@ -499,7 +499,7 @@ describe.skip('VersionControl.vue', () => {
       const forkBranchSaveButton = wrapper.find('.fork-branch-confirm')
       await forkBranchNameInput.setValue(newBranchName)
       await forkBranchSaveButton.trigger('click')
-      expect(postSpy).toHaveBeenCalledWith(`/conf/api/v3/configs/master/clone/${newBranchName}/`, {
+      expect(postSpy).toHaveBeenCalledWith(`/conf/api/v3/configs/prod/clone/${newBranchName}/`, {
         'description': 'string',
         'id': 'string',
       })

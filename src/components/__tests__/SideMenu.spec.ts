@@ -22,8 +22,8 @@ describe.skip('SideMenu.vue', () => {
   beforeEach(() => {
     gitData = [
       {
-        'id': 'master',
-        'description': 'Update entry [__default__] of document [aclprofiles]',
+        'id': 'prod',
+        'description': 'Update entry [__acldefault__] of document [aclprofiles]',
         'date': '2020-11-10T15:49:17+02:00',
         'logs': [
           {

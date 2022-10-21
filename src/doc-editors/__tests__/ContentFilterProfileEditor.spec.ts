@@ -136,7 +136,7 @@ describe('ContentFilterProfileEditor.vue', () => {
     wrapper = shallowMount(ContentFilterEditor, {
       props: {
         'selectedDoc': docs[0],
-        'selectedBranch': 'master',
+        'selectedBranch': 'prod',
         'onUpdate:selectedDoc': onUpdate,
       },
     })
@@ -412,7 +412,7 @@ describe('ContentFilterProfileEditor.vue', () => {
         wrapper = shallowMount(ContentFilterEditor, {
           props: {
             selectedDoc: docsForNormalization[0],
-            selectedBranch: 'master',
+            selectedBranch: 'prod',
           },
         })
       })
@@ -483,7 +483,7 @@ describe('ContentFilterProfileEditor.vue', () => {
         wrapper = shallowMount(ContentFilterEditor, {
           props: {
             selectedDoc: docsShouldNotNormalize[0],
-            selectedBranch: 'master',
+            selectedBranch: 'prod',
           },
         })
         expect(wrapper.emitted('update:selectedDoc')).toBeFalsy()
@@ -539,7 +539,7 @@ describe('ContentFilterProfileEditor.vue', () => {
         wrapper = shallowMount(ContentFilterEditor, {
           props: {
             selectedDoc: docsForNormalization[0],
-            selectedBranch: 'master',
+            selectedBranch: 'prod',
           },
         })
       })
