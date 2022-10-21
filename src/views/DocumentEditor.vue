@@ -309,10 +309,13 @@ export default defineComponent({
 
     selectedDocNotDeletable(): boolean {
       return !this.selectedDoc ||
-          this.selectedDoc.id === '__default__' ||
+          this.selectedDoc.id.startsWith('__') || // Default entries
+          this.selectedDoc.id.startsWith('rl-') || // Reblaze-managed Rate Limits
+          this.selectedDoc.id.startsWith('action-') || // Reblaze-managed Custom Responses
+          this.selectedDoc.id.startsWith('rbz-') || // Reblaze-managed Global Filters
+          this.selectedDoc.id.startsWith('dr_') || // Dynamic-Rule-managed Global Filters
           this.isDocReferenced ||
-          this.docs.length <= 1 ||
-          this.selectedDoc.id.startsWith('dr_')
+          this.docs.length <= 1
     },
 
     selectedDocIndex(): number {
@@ -383,7 +386,6 @@ export default defineComponent({
       this.isDocumentInvalid = false
 
       await this.loadSelectedDocData()
-      this.addMissingDefaultsToDoc()
       await this.goToRoute()
       this.setLoadingDocStatus(false)
     },
@@ -482,7 +484,6 @@ export default defineComponent({
           this.selectedDocID = this.docIdNames[0][0]
         }
         await this.loadSelectedDocData()
-        this.addMissingDefaultsToDoc()
       }
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
@@ -642,7 +643,6 @@ export default defineComponent({
 
       this.selectedDocID = this.docs[0].id
       await this.loadSelectedDocData()
-      this.addMissingDefaultsToDoc()
       this.goToRoute()
       this.isDeleteLoading = false
       this.setLoadingDocStatus(false)
@@ -673,13 +673,6 @@ export default defineComponent({
 
     restoreGitVersion() {
       this.loadDocs(true)
-    },
-
-    addMissingDefaultsToDoc() {
-      if (!this.selectedDoc) {
-        return
-      }
-      this.selectedDoc = {...this.newDoc(), ...this.selectedDoc as {}}
     },
 
     // Collect every request to display a loading indicator

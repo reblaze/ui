@@ -149,6 +149,10 @@
                             <div class="field">
                               <label class="label is-small">
                                 Path
+                                <span class="has-text-grey is-pulled-right map-entry-id"
+                                      title="Map entry id">
+                                  {{ mapEntry.id }}
+                                </span>
                               </label>
                               <div class="control has-icons-left">
                                 <input class="input is-small current-entry-path"
@@ -527,7 +531,9 @@ export default defineComponent({
 
     addNewProfile(mapEntry: RoutingProfileEntryLocation, idx: number) {
       const newMapEntry = _.cloneDeep(mapEntry)
-      newMapEntry.path = `/new/path/to/match/profile/${DatasetsUtils.generateUUID2()}`
+      const newMapEntryId = DatasetsUtils.generateUUID2()
+      newMapEntry.id = newMapEntryId
+      newMapEntry.path = `/new/path/to/match/profile/${newMapEntryId}`
 
       // reverting the entry match to a stable and valid state if invalid
       if (!this.isSelectedMapEntryPathValid(idx)) {

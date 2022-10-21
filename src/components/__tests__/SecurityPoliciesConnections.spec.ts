@@ -39,7 +39,7 @@ describe('SecurityPoliciesConnections.vue', () => {
           {
             'name': 'default',
             'match': '/',
-            'acl_profile': '__default__',
+            'acl_profile': '__acldefault__',
             'acl_active': false,
             'content_filter_profile': '__default__',
             'content_filter_active': false,
@@ -64,7 +64,7 @@ describe('SecurityPoliciesConnections.vue', () => {
           {
             'name': 'default',
             'match': '/',
-            'acl_profile': '__default__',
+            'acl_profile': '__acldefault__',
             'acl_active': false,
             'content_filter_profile': '__default__',
             'content_filter_active': false,
@@ -82,7 +82,7 @@ describe('SecurityPoliciesConnections.vue', () => {
         ],
       },
     ]
-    const selectedBranch = 'master'
+    const selectedBranch = 'prod'
     jest.spyOn(axios, 'get').mockImplementation((path) => {
       if (path === `/conf/api/v3/configs/${selectedBranch}/d/securitypolicies/`) {
         return Promise.resolve({data: securityPoliciesDocs})
@@ -151,7 +151,7 @@ describe('SecurityPoliciesConnections.vue', () => {
             {
               'name': 'default',
               'match': '/',
-              'acl_profile': '__default__',
+              'acl_profile': '__acldefault__',
               'acl_active': false,
               'content_filter_profile': '__default__',
               'content_filter_active': false,
@@ -178,7 +178,7 @@ describe('SecurityPoliciesConnections.vue', () => {
               'match': '/',
               'acl_profile': '__default__',
               'acl_active': false,
-              'content_filter_profile': '__default__',
+              'content_filter_profile': '__acldefault__',
               'content_filter_active': false,
               'limit_ids': ['f971e92459e2', '365757ec0689'],
             },
@@ -194,7 +194,7 @@ describe('SecurityPoliciesConnections.vue', () => {
           ],
         },
       ]
-      const selectedBranch = 'master'
+      const selectedBranch = 'prod'
       jest.spyOn(axios, 'get').mockImplementation((path) => {
         if (path === `/conf/api/v3/configs/${selectedBranch}/d/securitypolicies/`) {
           return Promise.resolve({data: securityPoliciesDocs})
@@ -205,7 +205,7 @@ describe('SecurityPoliciesConnections.vue', () => {
         props: {
           selectedDocId: 'f971e92459e2',
           selectedDocType: 'ratelimits',
-          selectedBranch: 'master',
+          selectedBranch: 'prod',
         },
       })
       const newConnectionButton = wrapper.find('.new-connection-button')

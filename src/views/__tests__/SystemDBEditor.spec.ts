@@ -24,7 +24,7 @@ describe('SystemDBEditor.vue', () => {
         'name': 'devops',
         'url': 's3://curiefense-test01/devops',
       }],
-      'branch_buckets': [{'name': 'master', 'buckets': ['prod']}, {'name': 'devops', 'buckets': ['devops']}],
+      'branch_buckets': [{'name': 'prod', 'buckets': ['prod']}, {'name': 'devops', 'buckets': ['devops']}],
     }
     dbData = {
       'publishinfo': publishInfoData,

@@ -13,7 +13,7 @@ describe.skip('GitHistory.vue', () => {
       'parents': [
         'fc47a6cd9d7f254dd97875a04b87165cc484e075',
       ],
-      'message': 'Update entry [__default__] of document [aclprofiles]',
+      'message': 'Update entry [__acldefault__] of document [aclprofiles]',
       'email': 'curiefense@reblaze.com',
       'author': 'Curiefense API',
     },
@@ -23,7 +23,7 @@ describe.skip('GitHistory.vue', () => {
       'parents': [
         '5aba4a5b9d6faea1896ee8965c7aa651f76af63c',
       ],
-      'message': 'Update entry [__default__] of document [aclprofiles]',
+      'message': 'Update entry [__acldefault__] of document [aclprofiles]',
       'email': 'curiefense@reblaze.com',
       'author': 'Curiefense API',
     },
@@ -33,7 +33,7 @@ describe.skip('GitHistory.vue', () => {
       'parents': [
         '277c5d7bd0e2eb4b9d2944f7eefdfadf37ba8581',
       ],
-      'message': 'Update entry [__default__] of document [aclprofiles]',
+      'message': 'Update entry [__acldefault__] of document [aclprofiles]',
       'email': 'curiefense@reblaze.com',
       'author': 'Curiefense API',
     },
@@ -43,7 +43,7 @@ describe.skip('GitHistory.vue', () => {
       'parents': [
         '878b47deeddac94625fe7c759786f2df885ec541',
       ],
-      'message': 'Update entry [__default__] of document [aclprofiles]',
+      'message': 'Update entry [__acldefault__] of document [aclprofiles]',
       'email': 'curiefense@reblaze.com',
       'author': 'Curiefense API',
     },
@@ -53,7 +53,7 @@ describe.skip('GitHistory.vue', () => {
       'parents': [
         '93c180513fe7edeaf1c0ca69a67aa2a11374da4f',
       ],
-      'message': 'Update entry [__default__] of document [aclprofiles]',
+      'message': 'Update entry [__acldefault__] of document [aclprofiles]',
       'email': 'curiefense@reblaze.com',
       'author': 'Curiefense API',
     },
@@ -63,7 +63,7 @@ describe.skip('GitHistory.vue', () => {
       'parents': [
         '1662043d2a18d6ad2c9c94d6f826593ff5506354',
       ],
-      'message': 'Update entry [__default__] of document [aclprofiles]',
+      'message': 'Update entry [__acldefault__] of document [aclprofiles]',
       'email': 'curiefense@reblaze.com',
       'author': 'Curiefense API',
     },
@@ -73,12 +73,12 @@ describe.skip('GitHistory.vue', () => {
       'parents': [
         '16379cdf39501574b4a2f5a227b82a4454884b84',
       ],
-      'message': 'Create config [master]\n',
+      'message': 'Create config [prod]\n',
       'email': 'curiefense@reblaze.com',
       'author': 'Curiefense API',
     },
   ]
-  const apiPath = '/conf/api/v3/configs/master/d/aclprofiles/e/__default__/v/'
+  const apiPath = '/conf/api/v3/configs/prod/d/aclprofiles/e/__acldefault__/v/'
   let wrapper: any
   beforeEach(() => {
     wrapper = mount(GitHistory, {

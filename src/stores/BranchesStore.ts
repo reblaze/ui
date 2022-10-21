@@ -54,7 +54,7 @@ export const useBranchesStore = defineStore('branches', () => {
       }).then((response: AxiosResponse) => {
         console.log('Branches loaded: ', response.data)
         setBranches(response.data)
-        const branchNameFromRoute = route.params.branch.toString()
+        const branchNameFromRoute = route.params.branch?.toString()
         setSelectedBranch(branchNameFromRoute)
         _loading.value = false
         resolve(list.value)

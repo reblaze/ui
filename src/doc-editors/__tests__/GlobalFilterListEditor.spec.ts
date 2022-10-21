@@ -77,7 +77,7 @@ describe('GlobalFilterListEditor.vue', () => {
         'name': 'default monitoring action',
       },
     ]
-    const selectedBranch = 'master'
+    const selectedBranch = 'prod'
     jest.spyOn(axios, 'get').mockImplementation((path) => {
       if (path === `/conf/api/v3/configs/${selectedBranch}/d/actions/`) {
         return Promise.resolve({data: customResponsesDocs})
