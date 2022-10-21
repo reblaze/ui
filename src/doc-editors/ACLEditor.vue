@@ -62,6 +62,8 @@
                                         :selection-type="'multiple'"
                                         @tag-changed="selectedDocTags = $event" />
               </div>
+              <labeled-tags title="Automatic Tags"
+                            :tags="automaticTags" />
             </div>
           </div>
         </div>
@@ -140,11 +142,13 @@ import {defineComponent} from 'vue'
 import {ACLProfile, ACLProfileFilter, CustomResponse, Dictionary} from '@/types'
 import RequestsUtils from '@/assets/RequestsUtils'
 import {AxiosResponse} from 'axios'
+import LabeledTags from '@/components/LabeledTags.vue'
 
 export default defineComponent({
   name: 'ACLEditor',
 
   components: {
+    LabeledTags,
     TagAutocompleteInput,
   },
 
@@ -190,6 +194,12 @@ export default defineComponent({
         }) : []
         this.emitDocUpdate()
       },
+    },
+
+    automaticTags(): string[] {
+      const idTag = `aclid:${this.localDoc.id?.replace(/ /g, '-') || ''}`
+      const nameTag = `aclname:${this.localDoc.name?.replace(/ /g, '-') || ''}`
+      return [idTag, nameTag]
     },
   },
   methods: {

@@ -83,10 +83,8 @@
                                         :selection-type="'multiple'"
                                         @tag-changed="selectedDocTags = $event" />
               </div>
-              <div class="is-size-7 document-automatic-tags">
-                Automatic Tags:
-                <div v-html="automaticTags"></div>
-              </div>
+              <labeled-tags title="Automatic Tags"
+                            :tags="automaticTags" />
             </div>
           </div>
         </div>
@@ -115,8 +113,8 @@
                    @change="emitDocUpdate"
                    required>
             <span class="icon is-small is-left has-text-grey">
-                      <i class="fas fa-code"></i>
-                    </span>
+              <i class="fas fa-code"></i>
+            </span>
           </div>
         </div>
       </div>
@@ -129,10 +127,12 @@ import {defineComponent} from 'vue'
 import {ContentFilterRule} from '@/types'
 import _ from 'lodash'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
+import LabeledTags from '@/components/LabeledTags.vue'
 
 export default defineComponent({
   name: 'ContentFilterRulesEditor',
   components: {
+    LabeledTags,
     TagAutocompleteInput,
   },
   props: {
@@ -158,17 +158,12 @@ export default defineComponent({
       },
     },
 
-    automaticTags(): string {
-      const rule = this.localDoc
-      const ruleTag = `cf-rule-id:${rule.id?.replace(/ /g, '-') || ''}`
-      const ruleTagElement = this.createTagElement(ruleTag)
-      const riskTag = `cf-rule-risk:${rule.risk}`
-      const riskTagElement = this.createTagElement(riskTag)
-      const categoryTag = `cf-rule-category:${rule.category?.replace(/ /g, '-') || ''}`
-      const categoryTagElement = this.createTagElement(categoryTag)
-      const subcategoryTag = `cf-rule-subcategory:${rule.subcategory?.replace(/ /g, '-') || ''}`
-      const subcategoryTagElement = this.createTagElement(subcategoryTag)
-      return `${ruleTagElement}${riskTagElement}${categoryTagElement}${subcategoryTagElement}`
+    automaticTags(): string[] {
+      const ruleTag = `cf-rule-id:${this.localDoc.id?.replace(/ /g, '-') || ''}`
+      const riskTag = `cf-rule-risk:${this.localDoc.risk}`
+      const categoryTag = `cf-rule-category:${this.localDoc.category?.replace(/ /g, '-') || ''}`
+      const subcategoryTag = `cf-rule-subcategory:${this.localDoc.subcategory?.replace(/ /g, '-') || ''}`
+      return [ruleTag, riskTag, categoryTag, subcategoryTag]
     },
   },
   data() {
@@ -180,34 +175,6 @@ export default defineComponent({
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
     },
-
-    createTagElement(tag: string): string {
-      return `
-            <div
-                class="automatic-tag ellipsis"
-                title="${tag}">
-                    ${tag}
-            </div>`
-    },
   },
 })
 </script>
-
-<style lang="scss">
-
-@import 'node_modules/bulma/sass/utilities/initial-variables.sass';
-@import 'node_modules/bulma/sass/utilities/functions.sass';
-@import 'node_modules/bulma/sass/utilities/derived-variables.sass';
-@import 'node_modules/bulma/sass/helpers/color.sass';
-
-.automatic-tag {
-  @extend .has-background-grey-lighter;
-  border: 1px solid #fff;
-  border-radius: 10px;
-  margin-right: 0.25rem;
-  max-width: 90vh;
-  padding: 0.05rem 0.5rem;
-  width: fit-content;
-}
-
-</style>

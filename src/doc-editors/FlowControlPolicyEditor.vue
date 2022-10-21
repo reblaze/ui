@@ -79,6 +79,8 @@
                                       :selection-type="'multiple'"
                                       @tag-changed="selectedDocTags = $event" />
             </div>
+            <labeled-tags title="Automatic Tags"
+                          :tags="automaticTags" />
           </div>
           <div class="field textarea-field">
             <label class="label is-small">Description</label>
@@ -366,6 +368,7 @@ import {
   LimitRuleType,
 } from '@/types'
 import {httpRequestMethods} from '@/types/const'
+import LabeledTags from '@/components/LabeledTags.vue'
 
 
 export default defineComponent({
@@ -377,6 +380,7 @@ export default defineComponent({
   },
 
   components: {
+    LabeledTags,
     LimitOption,
     TagAutocompleteInput,
   },
@@ -428,6 +432,12 @@ export default defineComponent({
         }) : []
         this.emitDocUpdate()
       },
+    },
+
+    automaticTags(): string[] {
+      const idTag = `fc-id:${this.localDoc.id?.replace(/ /g, '-') || ''}`
+      const nameTag = `fc-name:${this.localDoc.name?.replace(/ /g, '-') || ''}`
+      return [idTag, nameTag]
     },
   },
 

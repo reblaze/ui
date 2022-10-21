@@ -64,6 +64,8 @@
                                       :selection-type="'multiple'"
                                       @tag-changed="selectedDocTags = $event" />
             </div>
+            <labeled-tags title="Automatic Tags"
+                          :tags="automaticTags" />
           </div>
           <div class="group-key mb-3">
             <limit-option v-for="(option, index) in localDoc.key"
@@ -258,6 +260,7 @@ import {
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import {AxiosResponse} from 'axios'
+import LabeledTags from '@/components/LabeledTags.vue'
 
 export default defineComponent({
   name: 'RateLimits',
@@ -267,6 +270,7 @@ export default defineComponent({
     apiPath: String,
   },
   components: {
+    LabeledTags,
     LimitOption,
     TagAutocompleteInput,
     SecurityPoliciesConnections,
@@ -299,6 +303,12 @@ export default defineComponent({
         }) : []
         this.emitDocUpdate()
       },
+    },
+
+    automaticTags(): string[] {
+      const idTag = `limit-id:${this.localDoc.id?.replace(/ /g, '-') || ''}`
+      const nameTag = `limit-name:${this.localDoc.name?.replace(/ /g, '-') || ''}`
+      return [idTag, nameTag]
     },
 
     duplicateTags(): Dictionary<string> {
