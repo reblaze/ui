@@ -30,7 +30,7 @@ export type SeriesOptions = {
 export default defineComponent({
   name: 'RbzChart',
   props: {
-    data: Array as PropType<GenericObject>,
+    data: Array as PropType<GenericObject[]>,
     seriesOptions: Array as PropType<SeriesOptions[]>,
     legendAsTooltip: Boolean,
     chartHeight: Number,
@@ -47,69 +47,16 @@ export default defineComponent({
         if (!val && !oldVal) {
           return
         }
-        const datasets: [
-          xValues: number[],
-          ...yValues: ((number | null | undefined)[])[],
-        ] = [[]]
-        this.seriesOptions.forEach(() => {
-          datasets.push([])
-        })
-        const sortedData = _.sortBy(val, 'timeframe')
-        // uPlot is displaying time in local, so we need to offset our timeframe by the timezone offset
-        const date = new Date(0)
-        date.setUTCSeconds(sortedData[0]?.timeframe)
-        const timezoneOffset = date.getTimezoneOffset() * 60
-        sortedData.forEach((dataItem) => {
-          datasets[0].push(dataItem.timeframe + timezoneOffset) // timestamps X axis
-          datasets.forEach((dataset, index) => {
-            if (index !== 0) { // timestamps X axis
-              dataset.push(dataItem[this.seriesOptions[index - 1].fieldName])
-            }
-          })
-        })
-        this.chartOptions = {
-          class: 'chart',
-          width: 0,
-          height: 0,
-          plugins: [],
-          series: [
-            {}, // timestamps X axis
-          ],
-          axes: [
-            {},
-            {
-              values: (self, splits) => splits.map((value) => {
-                return value == null ? null : this.amountSuffixFormatter(value)
-              }),
-            },
-          ],
+        this.redrawChart()
+      },
+      deep: true,
+    },
+    seriesOptions: {
+      handler: function(val, oldVal) {
+        if (!val && !oldVal) {
+          return
         }
-        this.seriesOptions.forEach((seriesOptions) => {
-          this.chartOptions.series.push({
-            show: seriesOptions.show,
-            spanGaps: true,
-            label: seriesOptions.title,
-            stroke: seriesOptions.strokeColor,
-            width: 0.4,
-            fill: seriesOptions.fillColor,
-            dash: [10, 5],
-            paths: this.paths as Series.PathBuilder,
-          })
-        })
-        if (this.legendAsTooltip) {
-          this.chartOptions.plugins.push(this.legendAsTooltipPlugin({
-            classList: ['legend-tooltip'],
-          }))
-        }
-        if (!this.chart) {
-          // eslint-disable-next-line new-cap
-          this.chart = new uPlot(this.chartOptions, datasets, this.$refs.chart)
-        } else {
-          this.chart.opts = this.chartOptions
-          this.chart.data = datasets
-          this.chart.targ = this.$refs.chart
-        }
-        this.setChartSize()
+        this.redrawChart()
       },
       deep: true,
     },
@@ -120,6 +67,69 @@ export default defineComponent({
     },
   },
   methods: {
+    redrawChart() {
+      const datasets: [
+        xValues: number[],
+        ...yValues: ((number | null | undefined)[])[],
+      ] = [[]]
+      this.seriesOptions.forEach(() => {
+        datasets.push([])
+      })
+      const sortedData = _.sortBy(this.data, 'timeframe')
+      // uPlot is displaying time in local, so we need to offset our timeframe by the timezone offset
+      const date = new Date(0)
+      date.setUTCSeconds(sortedData[0]?.timeframe)
+      const timezoneOffset = date.getTimezoneOffset() * 60
+      sortedData.forEach((dataItem) => {
+        datasets[0].push(dataItem.timeframe + timezoneOffset) // timestamps X axis
+        datasets.forEach((dataset, index) => {
+          if (index !== 0) { // timestamps X axis
+            dataset.push(dataItem[this.seriesOptions[index - 1].fieldName])
+          }
+        })
+      })
+      this.chartOptions = {
+        class: 'chart',
+        width: 0,
+        height: 0,
+        plugins: [],
+        series: [
+          {}, // timestamps X axis
+        ],
+        axes: [
+          {},
+          {
+            values: (self, splits) => splits.map((value) => {
+              return value == null ? null : this.amountSuffixFormatter(value)
+            }),
+          },
+        ],
+      }
+      this.seriesOptions.forEach((seriesOptions) => {
+        this.chartOptions.series.push({
+          show: seriesOptions.show,
+          spanGaps: true,
+          label: seriesOptions.title,
+          stroke: seriesOptions.strokeColor,
+          width: 0.4,
+          fill: seriesOptions.fillColor,
+          dash: [10, 5],
+          paths: this.paths as Series.PathBuilder,
+        })
+      })
+      if (this.legendAsTooltip) {
+        this.chartOptions.plugins.push(this.legendAsTooltipPlugin({
+          classList: ['legend-tooltip'],
+        }))
+      }
+      if (this.chart) {
+        this.chart.destroy()
+      }
+      // eslint-disable-next-line new-cap
+      this.chart = new uPlot(this.chartOptions, datasets, this.$refs.chart)
+      this.setChartSize()
+    },
+
     // converts the legend into a simple tooltip
     legendAsTooltipPlugin({classList = [], style = {}} = {}) {
       let legendElement: HTMLElement
@@ -135,10 +145,10 @@ export default defineComponent({
           ...{backgroundColor: 'rgba(255, 250, 195, 0.85)', color: 'black'},
         })
 
-        // hide series color markers
+        // better the color series color markers
         const idents: NodeListOf<HTMLElement> = legendElement.querySelectorAll('.u-marker')
         idents.forEach((ident) => {
-          ident.style.display = 'none'
+          ident.style.backgroundColor = ident.style.borderColor
         })
 
         const overElement: HTMLDivElement = uPlotChart.over

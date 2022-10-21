@@ -1,157 +1,160 @@
 <template>
-  <table class="table is-bordered is-fullwidth is-size-7 rbz-table is-hoverable">
-    <thead>
-    <tr class="header-row"
-        v-if="tableTitle">
-      <th :colspan="columns.length"
-          class="has-text-centered">
-        {{ tableTitle }}
-      </th>
-    </tr>
-    <tr class="header-row">
-      <th v-for="(col, index) in columns"
-          :key="index"
-          class="column-header is-size-7 column-title"
-          :class="`${col.classes} ${col.isSortable ? 'is-clickable' : ''}`"
-          @click="sortColumn(col)">
-        <div v-if="col.isSortable">
-          <div class="arrow-wrapper">
-                        <span class="arrow arrow-asc"
-                              :class="{'is-active': sortColumnTitle === col.title && sortDirection === 'asc'}"/>
-          </div>
-          <div class="arrow-wrapper">
-                        <span class="arrow arrow-desc"
-                              :class="{'is-active': sortColumnTitle === col.title && sortDirection === 'desc'}"/>
-          </div>
-        </div>
-        <span>
-          {{ col.title }}
-        </span>
-      </th>
-      <th class="column-header width-45px is-relative has-text-centered"
-          v-if="showMenuColumn">
-        <div class="dropdown is-block"
-             :class="{'is-active': menuVisible}">
-          <div class="dropdown-trigger">
-            <button class="button is-size-7 menu-toggle-button is-block"
-                    aria-haspopup="true"
-                    aria-controls="dropdown-menu"
-                    :title="`${menuVisible ? 'Close' : 'Open'} menu`"
-                    v-if="showFilterButton || showNewButton"
-                    @click.stop="menuVisible = !menuVisible">
-            <span class="icon is-small">
-              <i class="fas fa-ellipsis-v"></i>
-            </span>
-            </button>
-          </div>
-          <div class="dropdown-menu"
-               id="dropdown-menu"
-               role="menubar">
-            <div class="dropdown-content width-100px">
-              <button class="button is-size-7 filter-toggle dropdown-item"
-                      :class="{'is-active': filtersVisible }"
-                      title="Filter table data"
-                      v-if="showFilterButton"
-                      @click.stop="filtersVisible = !filtersVisible">
-                <span class="icon is-small">
-                  <i class="fas fa-filter"></i>
-                </span>
-                <span>
-                  Filter
-                </span>
-              </button>
-              <hr class="dropdown-divider">
-              <button class="button is-size-7 new-entity-button dropdown-item"
-                      title="Add new"
-                      v-if="showNewButton"
-                      @click.stop="newButtonClicked()">
-                <span class="icon is-small">
-                  <i class="fas fa-plus"></i>
-                </span>
-                <span>
-                  Add
-                </span>
-              </button>
+  <div class="rbz-table-wrapper"
+       :class="{'scrollable scrollbox-shadowed': useScroll}"
+       :style="useScroll ? `max-height: ${2 * rowsPerPage}rem` : ''">
+    <table class="table is-bordered is-fullwidth is-size-7 rbz-table is-hoverable">
+      <thead>
+      <tr class="header-row"
+          v-if="tableTitle">
+        <th :colspan="columns.length"
+            class="has-text-centered table-title">
+          {{ tableTitle }}
+        </th>
+      </tr>
+      <tr class="header-row">
+        <th v-for="(col, index) in columns"
+            :key="index"
+            class="column-header is-size-7 column-title"
+            :class="`${col.classes} ${col.isSortable ? 'is-clickable' : ''}`"
+            @click="sortColumn(col)">
+          <div v-if="col.isSortable">
+            <div class="arrow-wrapper">
+                          <span class="arrow arrow-asc"
+                                :class="{'is-active': sortColumnTitle === col.title && sortDirection === 'asc'}"/>
+            </div>
+            <div class="arrow-wrapper">
+                          <span class="arrow arrow-desc"
+                                :class="{'is-active': sortColumnTitle === col.title && sortDirection === 'desc'}"/>
             </div>
           </div>
-        </div>
-      </th>
-    </tr>
-    <tr class="search-row header-row"
-        v-if="filtersVisible">
-      <th class="control has-icons-right"
-          v-for="(col, index) in columns"
-          :key="index">
-        <div v-if="col.isSearchable">
-          <input class="input is-small filter-input"
-                 :title="col.title"
-                 :placeholder="col.title"
-                 v-model="filter[col.title]"
-                 @change="currentPage = 1"/>
-          <span class="icon is-small is-right">
-            <i class="fa fa-filter"
-               aria-hidden="true"></i>
+          <span>
+            {{ col.title }}
           </span>
-        </div>
-      </th>
-      <th v-if="showMenuColumn"></th>
-    </tr>
-    </thead>
-    <tbody :class="{'scrollable scrollbox-shadowed': useScroll}"
-           :style="useScroll ? `max-height: ${2 * rowsPerPage}rem` : ''">
-    <tr v-for="row in slicedDataArrayDisplay"
-        :key="row.id"
-        class="data-row">
-      <td v-for="(col, index) in columns"
-          :key="index"
-          :title="row[col.title]">
-        <div class="is-size-7 vertical-scroll data-cell"
-             :class="col.classes">
-          <span v-if="col.displayFunction"
-                v-html="col.displayFunction(row)"
-                :title="col.displayFunction(row)">
-          </span>
-          <span v-else
-                :title="row[col.fieldNames[0]]">
-            {{ row[col.fieldNames[0]] }}
-          </span>
-        </div>
-      </td>
-      <td class="is-size-7"
-          v-if="showMenuColumn">
-        <div class="field is-grouped is-grouped-centered">
-          <p class="control"
-             v-if="showRowButton">
-            <button :title="rowButtonTitle"
-                    class="button is-small row-entity-button"
-                    @click="rowButtonClicked(row.id)">
+        </th>
+        <th class="column-header width-45px is-relative has-text-centered"
+            v-if="showMenuColumn">
+          <div class="dropdown is-block"
+               :class="{'is-active': menuVisible}">
+            <div class="dropdown-trigger">
+              <button class="button is-size-7 menu-toggle-button is-block"
+                      aria-haspopup="true"
+                      aria-controls="dropdown-menu"
+                      :title="`${menuVisible ? 'Close' : 'Open'} menu`"
+                      v-if="showFilterButton || showNewButton"
+                      @click.stop="menuVisible = !menuVisible">
               <span class="icon is-small">
-                <i :class="`fas ${rowButtonIcon ? rowButtonIcon : 'fa-edit'}`"></i>
+                <i class="fas fa-ellipsis-v"></i>
               </span>
+              </button>
+            </div>
+            <div class="dropdown-menu"
+                 id="dropdown-menu"
+                 role="menubar">
+              <div class="dropdown-content width-100px">
+                <button class="button is-size-7 filter-toggle dropdown-item"
+                        :class="{'is-active': filtersVisible }"
+                        title="Filter table data"
+                        v-if="showFilterButton"
+                        @click.stop="filtersVisible = !filtersVisible">
+                  <span class="icon is-small">
+                    <i class="fas fa-filter"></i>
+                  </span>
+                  <span>
+                    Filter
+                  </span>
+                </button>
+                <hr class="dropdown-divider">
+                <button class="button is-size-7 new-entity-button dropdown-item"
+                        title="Add new"
+                        v-if="showNewButton"
+                        @click.stop="newButtonClicked()">
+                  <span class="icon is-small">
+                    <i class="fas fa-plus"></i>
+                  </span>
+                  <span>
+                    Add
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </th>
+      </tr>
+      <tr class="search-row header-row"
+          v-if="filtersVisible">
+        <th class="control has-icons-right"
+            v-for="(col, index) in columns"
+            :key="index">
+          <div v-if="col.isSearchable">
+            <input class="input is-small filter-input"
+                   :title="col.title"
+                   :placeholder="col.title"
+                   v-model="filter[col.title]"
+                   @change="currentPage = 1"/>
+            <span class="icon is-small is-right">
+              <i class="fa fa-filter"
+                 aria-hidden="true"></i>
+            </span>
+          </div>
+        </th>
+        <th v-if="showMenuColumn"></th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr v-for="row in slicedDataArrayDisplay"
+          :key="row.id"
+          class="data-row">
+        <td v-for="(col, index) in columns"
+            :key="index"
+            :title="row[col.title]">
+          <div class="is-size-7 vertical-scroll data-cell"
+               :class="col.classes">
+            <span v-if="col.displayFunction"
+                  v-html="col.displayFunction(row)"
+                  :title="col.displayFunction(row)">
+            </span>
+            <span v-else
+                  :title="row[col.fieldNames[0]]">
+              {{ row[col.fieldNames[0]] }}
+            </span>
+          </div>
+        </td>
+        <td class="is-size-7"
+            v-if="showMenuColumn">
+          <div class="field is-grouped is-grouped-centered">
+            <p class="control"
+               v-if="showRowButton">
+              <button :title="rowButtonTitle"
+                      class="button is-small row-entity-button"
+                      @click="rowButtonClicked(row.id)">
+                <span class="icon is-small">
+                  <i :class="`fas ${rowButtonIcon ? rowButtonIcon : 'fa-edit'}`"></i>
+                </span>
+              </button>
+            </p>
+          </div>
+        </td>
+      </tr>
+      <tr v-if="totalPages > 1 && !useScroll"
+          class="pagination-row">
+        <td :colspan="columns.length + 1">
+          <div class="pagination is-small">
+            <button class="pagination-previous"
+                    @click="prevPage"
+                    :disabled="currentPage === 1">
+              Previous Page
             </button>
-          </p>
-        </div>
-      </td>
-    </tr>
-    <tr v-if="totalPages > 1 && !useScroll"
-        class="pagination-row">
-      <td :colspan="columns.length + 1">
-        <div class="pagination is-small">
-          <button class="pagination-previous"
-                  @click="prevPage"
-                  :disabled="currentPage === 1">
-            Previous Page
-          </button>
-          <button class="pagination-next"
-                  @click="nextPage"
-                  :disabled="currentPage === totalPages">
-            Next Page
-          </button>
-        </div>
-      </td>
-    </tr>
-    </tbody>
-  </table>
+            <button class="pagination-next"
+                    @click="nextPage"
+                    :disabled="currentPage === totalPages">
+              Next Page
+            </button>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
 </template>
 
 <script lang="ts">
@@ -350,9 +353,19 @@ export default defineComponent({
 
 <style scoped
        lang="scss">
-.rbz-table thead,
-.rbz-table tbody {
-  display: block;
+.scrollable {
+  border-collapse: separate;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.scrollable thead {
+  position: sticky;
+  top: 0;
+}
+
+.rbz-table {
+  border-collapse: separate;
 }
 
 .rbz-table .arrow-wrapper {
@@ -443,9 +456,5 @@ export default defineComponent({
 
 .rbz-table .data-cell {
   max-height: 4.5rem;
-}
-
-.rbz-table .scrollable {
-  overflow-y: auto;
 }
 </style>

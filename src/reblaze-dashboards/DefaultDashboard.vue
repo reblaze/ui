@@ -44,7 +44,7 @@
                               size="small"
                               class="flag"/>
                 <span>
-                  +{{ data.topCountries.length - 3 }}
+                  {{ data.topCountries.length > 3 ? `+${data.topCountries.length - 3}` : '' }}
                 </span>
               </template>
             </span>
@@ -63,9 +63,9 @@
           </rbz-chart>
         </div>
         <div class="height-200px">
-          <label class="label is-small"
+          <label class="label is-small is-clickable"
                  @click="toggleStatusesClassDetails">
-            Response Status
+            Response Status {{ statusesClassDetails ? 'Classes' : '' }}
           </label>
           <rbz-chart :data="statusesChartData"
                      :series-options="statusesChartSeriesOptions"
@@ -76,7 +76,7 @@
       </div>
       <div class="column width-200px">
         <div class="height-200px is-flex is-justify-content-space-around has-text-centered">
-          <span>
+          <div>
             Humans
             <div class="bar-wrapper height-130px">
               <div class="humans-bar width-60px"
@@ -89,8 +89,8 @@
               </div>
             </div>
             Bots
-          </span>
-          <span>
+          </div>
+          <div>
             Passed
             <div class="bar-wrapper height-130px">
               <div class="passed-bar width-60px"
@@ -103,11 +103,14 @@
               </div>
             </div>
             Blocked
-          </span>
+          </div>
         </div>
         <div class="height-200px">
-          Pie
-          <!--TODO-->
+          <svg id="doughnut"
+               width="100%"
+               height="100%"
+               viewBox="0 0 100 100">
+          </svg>
         </div>
       </div>
     </div>
@@ -244,7 +247,14 @@ import _ from 'lodash'
 import RbzChart, {SeriesOptions} from '@/components/RbzChart.vue'
 import Utils from '@/assets/Utils'
 import CountryFlag from 'vue-country-flag-next'
-import DatasetsUtils from '@/assets/DatasetsUtils'
+
+const STATUS_COLORS = {
+  '1': '#02a4d3', // $color-cerulean
+  '2': '#06c', // $color-science-blue
+  '3': '#4169e1', // $color-royal-blue
+  '4': '#f34723', // $color-pomegranate
+  '5': '#ff355e', // $color-radical-red
+}
 
 type topTableData = {
   rowIdentification?: string
@@ -268,7 +278,7 @@ export default defineComponent({
       {
         title: '',
         fieldNames: ['rowIdentification'],
-        classes: 'width-100px ellipsis',
+        classes: 'width-80px ellipsis',
       },
       {
         title: 'Passed',
@@ -339,44 +349,64 @@ export default defineComponent({
         },
       ] as SeriesOptions[],
       statusesClassDetails: true,
-      statusesChartSeriesOptions: [
-        {
-          title: '1xx',
-          fieldName: '1xx',
-          show: true,
-          drawStyle: 'line',
-          strokeColor: '#02a4d3', // $color-cerulean
-        },
-        {
-          title: '2xx',
-          fieldName: '2xx',
-          show: true,
-          drawStyle: 'line',
-          strokeColor: '#06c', // $color-science-blue
-        },
-        {
-          title: '3xx',
-          fieldName: '3xx',
-          show: true,
-          drawStyle: 'line',
-          strokeColor: '#4169e1', // $color-royal-blue
-        },
-        {
-          title: '4xx',
-          fieldName: '4xx',
-          show: true,
-          drawStyle: 'line',
-          strokeColor: '#f34723', // $color-pomegranate
-        },
-        {
-          title: '5xx',
-          fieldName: '5xx',
-          show: true,
-          drawStyle: 'line',
-          strokeColor: '#ff355e', // $color-radical-red
-        },
-      ] as SeriesOptions[],
     }
+  },
+  watch: {
+    statusesChartData: {
+      handler(val, oldVal) {
+        if (!val || _.isEqual(val, oldVal)) {
+          return
+        }
+        const totals: GenericObject = {}
+        for (const dataItem of val) {
+          for (const [key, value] of Object.entries(dataItem)) {
+            if (key === 'timeframe') {
+              continue
+            }
+            if (!totals[key]) {
+              totals[key] = 0
+            }
+            totals[key] += value
+          }
+        }
+        const data = []
+        for (const [key, value] of Object.entries(totals)) {
+          data.push({
+            status: key,
+            fill: (value / _.sum(Object.values(totals))) * 100,
+            color: this.getStatusColor(key),
+          })
+        }
+        const svgDoughnut = document.querySelector('#doughnut')
+        svgDoughnut.innerHTML = ''
+        let filled = 0
+        data.forEach((dataItem) => {
+          const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
+          const startAngle = -90
+          const radius = 20
+          const cx = 50
+          const cy = 50
+          const strokeWidth = 40
+          const dashArray = 2 * Math.PI * radius
+          const dashOffset = dashArray - (dashArray * dataItem.fill / 100)
+          const angle = (filled * 360 / 100) + startAngle
+          circle.setAttribute('r', radius.toString())
+          circle.setAttribute('cx', cx.toString())
+          circle.setAttribute('cy', cy.toString())
+          circle.setAttribute('fill', 'transparent')
+          circle.setAttribute('stroke', dataItem.color)
+          circle.setAttribute('stroke-width', strokeWidth.toString())
+          circle.setAttribute('stroke-dasharray', dashArray.toString())
+          circle.setAttribute('stroke-dashoffset', dashOffset.toString())
+          circle.setAttribute('transform', 'rotate(' + (angle) + ' ' + cx + ' ' + cy + ')')
+          const circleTooltip = document.createElementNS('http://www.w3.org/2000/svg', 'title')
+          circleTooltip.innerHTML = `${dataItem.status}: ${dataItem.fill}%`
+          circle.appendChild(circleTooltip)
+          svgDoughnut.appendChild(circle)
+          filled += dataItem.fill
+        })
+      },
+    },
   },
   computed: {
     totalCallsInfo() {
@@ -403,7 +433,7 @@ export default defineComponent({
         return value?.counters.blocks
       })
       const passed = hits - blocked
-      const passedPercentile = Math.round((passed / hits) * 1e2) / 1e2
+      const passedPercentile = (Math.round((passed / hits) * 1e2) / 1e2) * 100
       const blockedPercentile = 100 - passedPercentile
       const humans = _.sumBy(this.data, (value) => {
         return value?.counters.human
@@ -411,21 +441,25 @@ export default defineComponent({
       const bots = _.sumBy(this.data, (value) => {
         return value?.counters.bot
       })
-      const humansPercentile = Math.round((humans / hits) * 1e2) / 1e2
+      const humansPercentile = (Math.round((humans / hits) * 1e2) / 1e2) * 100
       const botsPercentile = 100 - humansPercentile
       return {
         'passed': {
           amount: passed,
           percentile: passedPercentile,
-          topCountries: _.map(_.orderBy(this.topCountries, ['passed'], ['desc']), (topCountry) => {
-            return DatasetsUtils.geoCountryTagToCode(topCountry.rowIdentification)
+          topCountries: _.map(_.filter(_.orderBy(this.topCountries, ['passed'], ['desc']), (topCountry) => {
+            return topCountry.passed > 0
+          }), (topCountry) => {
+            return topCountry.rowIdentification
           }),
         },
         'blocked': {
           amount: blocked,
           percentile: blockedPercentile,
-          topCountries: _.map(_.orderBy(this.topCountries, ['blocked'], ['desc']), (topCountry) => {
-            return DatasetsUtils.geoCountryTagToCode(topCountry.rowIdentification)
+          topCountries: _.map(_.filter(_.orderBy(this.topCountries, ['blocked'], ['desc']), (topCountry) => {
+            return topCountry.blocked > 0
+          }), (topCountry) => {
+            return topCountry.rowIdentification
           }),
         },
         'humans': {
@@ -441,18 +475,14 @@ export default defineComponent({
 
     trafficChartData(): GenericObject[] {
       const returnArray = []
-      // Group by minutes
-      const groupedObject = _.groupBy(this.data, (dataItem) => {
-        return Math.floor(new Date(dataItem['timestamp']).getTime() / 1000)
-      })
-      for (const minute of Object.keys(groupedObject)) {
-        const passed = _.sumBy(groupedObject[minute], (item) => item.counters.hits - item.counters.blocks)
-        const blocked = _.sumBy(groupedObject[minute], (item) => item.counters.blocks)
-        const report = _.sumBy(groupedObject[minute], (item) => item.counters.report)
-        const humans = _.sumBy(groupedObject[minute], (item) => item.counters.human)
-        const bots = _.sumBy(groupedObject[minute], (item) => item.counters.bot)
+      for (const dataItem of this.data) {
+        const passed = dataItem.counters.hits - dataItem.counters.blocks
+        const blocked = dataItem.counters.blocks
+        const report = dataItem.counters.report
+        const humans = dataItem.counters.human
+        const bots = dataItem.counters.bot
         returnArray.push({
-          timeframe: Number(minute),
+          timeframe: Math.floor(new Date(dataItem['timestamp']).getTime() / 1000),
           passed: passed > 0 ? passed : 0,
           blocked: blocked > 0 ? blocked : 0,
           report: report > 0 ? report : 0,
@@ -465,33 +495,47 @@ export default defineComponent({
 
     statusesChartData(): GenericObject[] {
       const returnArray = []
-      // Group by minutes
-      const groupedObject = _.groupBy(this.data, (dataItem) => {
-        return Math.floor(new Date(dataItem['timestamp']).getTime() / 1000)
-      })
       if (this.statusesClassDetails) {
-        for (const minute of Object.keys(groupedObject)) {
-          const counter1xx = _.sumBy(groupedObject[minute], (item) => item.counters['1xx'])
-          const counter2xx = _.sumBy(groupedObject[minute], (item) => item.counters['2xx'])
-          const counter3xx = _.sumBy(groupedObject[minute], (item) => item.counters['3xx'])
-          const counter4xx = _.sumBy(groupedObject[minute], (item) => item.counters['4xx'])
-          const counter5xx = _.sumBy(groupedObject[minute], (item) => item.counters['5xx'])
-          returnArray.push({
-            'timeframe': Number(minute),
-            '1xx': counter1xx > 0 ? counter1xx : 0,
-            '2xx': counter2xx > 0 ? counter2xx : 0,
-            '3xx': counter3xx > 0 ? counter3xx : 0,
-            '4xx': counter4xx > 0 ? counter4xx : 0,
-            '5xx': counter5xx > 0 ? counter5xx : 0,
-          })
+        for (const dataItem of this.data) {
+          const statusesObject: GenericObject = {
+            'timeframe': Math.floor(new Date(dataItem['timestamp']).getTime() / 1000),
+          }
+          for (const statusClass of dataItem.counters.status_classes) {
+            statusesObject[`${statusClass.key}xx`] = statusClass.value > 0 ? statusClass.value : 0
+          }
+          returnArray.push(statusesObject)
         }
       } else {
-        for (const minute of Object.keys(groupedObject)) {
-          // TODO
-          returnArray.push({
-            'timeframe': Number(minute),
-          })
+        for (const dataItem of this.data) {
+          const statusesObject: GenericObject = {
+            'timeframe': Math.floor(new Date(dataItem['timestamp']).getTime() / 1000),
+          }
+          for (const status of dataItem.counters.status) {
+            statusesObject[status.key] = status.value > 0 ? status.value : 0
+          }
+          returnArray.push(statusesObject)
         }
+      }
+      return returnArray
+    },
+
+    statusesChartSeriesOptions(): SeriesOptions[] {
+      const seriesOption: SeriesOptions = {
+        title: '',
+        fieldName: '',
+        show: true,
+        drawStyle: 'line',
+        strokeColor: '',
+      }
+      const statusKeys = _.uniq(_.flatMap(this.statusesChartData, (statusesChartDataItem) => {
+        return _.keys(statusesChartDataItem)
+      })).filter((key) => key !== 'timeframe')
+      const returnArray = []
+      for (const key of statusKeys) {
+        seriesOption.title = key
+        seriesOption.fieldName = key
+        seriesOption.strokeColor = this.getStatusColor(key)
+        returnArray.push(seriesOption)
       }
       return returnArray
     },
@@ -524,7 +568,7 @@ export default defineComponent({
     },
 
     topCountries(): topTableData[] {
-      return this.buildTopDataFromCounters('top_blocked_countries', 'top_passed_countries', 'top_reported_countries')
+      return this.buildTopDataFromCounters('top_blocked_country', 'top_passed_country', 'top_reported_country')
     },
 
     topASNumbers(): topTableData[] {
@@ -571,21 +615,30 @@ export default defineComponent({
       const groupedObject: { [key: string]: topTableData } = {}
       this.data.forEach((item) => {
         if (item.counters[blocksFieldName]) {
-          for (const key of Object.keys(item.counters[blocksFieldName])) {
-            (groupedObject[key] || (groupedObject[key] = {})).blocked = groupedObject[key].blocked || 0
-            groupedObject[key].blocked += item.counters[blocksFieldName][key] || 0
+          for (const blockedItem of item.counters[blocksFieldName]) {
+            if (!groupedObject[blockedItem.key]) {
+              groupedObject[blockedItem.key] = {}
+            }
+            groupedObject[blockedItem.key].blocked = groupedObject[blockedItem.key].blocked || 0
+            groupedObject[blockedItem.key].blocked += blockedItem.value || 0
           }
         }
         if (item.counters[passedFieldName]) {
-          for (const key of Object.keys(item.counters[passedFieldName])) {
-            (groupedObject[key] || (groupedObject[key] = {})).passed = groupedObject[key].passed || 0
-            groupedObject[key].passed += item.counters[passedFieldName][key] || 0
+          for (const passedItem of item.counters[passedFieldName]) {
+            if (!groupedObject[passedItem.key]) {
+              groupedObject[passedItem.key] = {}
+            }
+            groupedObject[passedItem.key].passed = groupedObject[passedItem.key].passed || 0
+            groupedObject[passedItem.key].passed += passedItem.value || 0
           }
         }
         if (item.counters[reportFieldName]) {
-          for (const key of Object.keys(item.counters[reportFieldName])) {
-            (groupedObject[key] || (groupedObject[key] = {})).report = groupedObject[key].report || 0
-            groupedObject[key].report += item.counters[reportFieldName][key] || 0
+          for (const reportedItem of item.counters[reportFieldName]) {
+            if (!groupedObject[reportedItem.key]) {
+              groupedObject[reportedItem.key] = {}
+            }
+            groupedObject[reportedItem.key].report = groupedObject[reportedItem.key].report || 0
+            groupedObject[reportedItem.key].report += reportedItem.value || 0
           }
         }
       })
@@ -606,6 +659,15 @@ export default defineComponent({
 
     amountSuffixFormatter(value: number) {
       return Utils.amountSuffixFormatter(value)
+    },
+
+    getStatusColor(status: string) {
+      for (const [key, value] of Object.entries(STATUS_COLORS)) {
+        if (status.startsWith(key)) {
+          return value
+        }
+      }
+      return `#000`
     },
   },
 })

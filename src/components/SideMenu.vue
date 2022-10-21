@@ -123,10 +123,10 @@ export default defineComponent({
         {
           header: 'Analytics',
         },
-        // {
-        //   href: '/dashboard',
-        //   title: 'Dashboard',
-        // },
+        {
+          href: '/dashboard',
+          title: 'Dashboard',
+        },
         {
           href: this.defaultGrafanaURL,
           title: 'Grafana',
