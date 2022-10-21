@@ -1,89 +1,90 @@
 <template>
-  <div class="card">
-    <div class="card-content">
-      <div class="media">
-        <div class="media-content">
-          <div class="columns">
-            <div class="column">
-              <input class="input is-small is-fullwidth filter-input"
-                     placeholder="Filters, comma separated. Available filters: `proxy`, `appid`, and `profile`."
-                     v-model="searchFilter"/>
-            </div>
-            <div class="column is-narrow">
-              <div class="field is-grouped is-pulled-right">
-                <p class="control">
-                  <Datepicker v-model="date"
-                              range
-                              utc
-                              enableSeconds
-                              format="yyyy-MM-dd HH:mm"
-                              inputClassName="input is-small is-size-7 width-260px date-picker-input"
-                              :monthChangeOnScroll="false"
-                              :clearable="false"
-                              :presetRanges="presetRanges"
-                              @open="loadPresetRanges">
-                  </Datepicker>
-                </p>
-                <p class="control">
-                  <button class="button is-small search-button"
-                          :class="{'is-loading': isSearchLoading}"
-                          @click="loadData()"
-                          title="Search"
-                          data-qa="search-button">
+  <div class="card-content">
+    <div class="media">
+      <div class="media-content">
+        <div class="columns">
+          <div class="column">
+            <input class="input is-small is-fullwidth filter-input"
+                   placeholder="Filters, comma separated. Available filters: `proxy`, `appid`, and `profile`."
+                   v-model="searchFilter"/>
+          </div>
+          <div class="column is-narrow">
+            <div class="field is-grouped is-pulled-right">
+              <p class="control">
+                <Datepicker v-model="date"
+                            range
+                            utc
+                            enableSeconds
+                            format="yyyy-MM-dd HH:mm"
+                            inputClassName="input is-small is-size-7 width-260px date-picker-input"
+                            :monthChangeOnScroll="false"
+                            :clearable="false"
+                            :presetRanges="presetRanges"
+                            @open="loadPresetRanges">
+                </Datepicker>
+              </p>
+              <p class="control">
+                <button class="button is-small search-button"
+                        :class="{'is-loading': isSearchLoading}"
+                        @click="loadData()"
+                        title="Search"
+                        data-qa="search-button">
                     <span class="icon is-small">
                       <i class="fas fa-search"></i>
                     </span>
-                  </button>
-                </p>
-                <p class="control">
-                  <button class="button is-small clear-search-button"
-                          @click="clearSearch()"
-                          title="Clear filter"
-                          data-qa="clear-search-button">
+                </button>
+              </p>
+              <p class="control">
+                <button class="button is-small clear-search-button"
+                        @click="clearSearch()"
+                        title="Clear filter"
+                        data-qa="clear-search-button">
                     <span class="icon is-small">
                       <i class="fas fa-times"></i>
                     </span>
-                  </button>
-                </p>
-              </div>
+                </button>
+              </p>
             </div>
           </div>
         </div>
       </div>
+    </div>
 
-      <hr/>
+    <hr/>
 
-      <div class="media">
-        <div class="media-content">
-          <div class="tabs"
-               data-qa="dashboard-tabs">
-            <ul>
-              <li v-for="(dashboard, index) in dashboards"
-                  :key="index"
-                  :class="{'is-active': index === activeDashboardIndex}"
-                  @click="activeDashboardIndex = index"
-                  :data-qa="`dashboard-tab-${index}`">
-                <a>
-                  {{ dashboard.title }}
-                </a>
-              </li>
-            </ul>
-          </div>
+    <div class="media">
+      <div class="media-content">
+        <div class="tabs"
+             data-qa="dashboard-tabs">
+          <ul>
+            <li v-for="(dashboard, index) in dashboards"
+                :key="index"
+                :class="{'is-active': index === activeDashboardIndex}"
+                @click="activeDashboardIndex = index"
+                :data-qa="`dashboard-tab-${index}`">
+              <a>
+                {{ dashboard.title }}
+              </a>
+            </li>
+          </ul>
         </div>
       </div>
-      <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'default' && data?.length">
-        <rbz-dashboard-default :data="data">
-        </rbz-dashboard-default>
-      </div>
-      <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'threats' && data?.length">
-      </div>
-      <div v-if="dashboards[activeDashboardIndex]?.metabaseId && data?.length">
-<!--        <iframe :src="getDashboardURL(dashboards[activeDashboardIndex]?.metabaseId)"-->
-<!--                width="100%"-->
-<!--                height="600"-->
-<!--                allowtransparency>-->
-<!--        </iframe>-->
-      </div>
+    </div>
+    <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'default' && data?.length">
+      <rbz-dashboard-default :data="data">
+      </rbz-dashboard-default>
+    </div>
+    <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'threats' && data?.length">
+    </div>
+    <div v-if="dashboards[activeDashboardIndex]?.metabaseId && data?.length">
+      <!--        <iframe :src="getDashboardURL(dashboards[activeDashboardIndex]?.metabaseId)"-->
+      <!--                width="100%"-->
+      <!--                height="600"-->
+      <!--                allowtransparency>-->
+      <!--        </iframe>-->
+    </div>
+    <div v-if="!data?.length">
+      No results found
     </div>
   </div>
 </template>
