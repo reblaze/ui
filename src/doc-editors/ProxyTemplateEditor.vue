@@ -431,8 +431,23 @@
                                     :show-menu-column="true"
                                     :show-filter-button="true"
                                     :show-row-button="true"
+                                    :show-new-button="true"
+                                    @new-button-clicked="toggleAddingNewTrustedSource"
                                     @row-button-clicked="deleteTrustedElement">
                         </rbz-table>
+                    </div>
+                    <div class="columns columns-divided add-new-trusted-source"  v-if="addingNewTrustedSource">
+                          <input class="column is-6 ellipsis add-new-address"
+                            title="Trusted Source CIDR / IP / Tag Rule Address"
+                            placeholder="CIDR/IP/Tag Rule Address"
+                            v-model="newAddress">
+                          <input class="column is-5 ellipsis add-new-comment"
+                            title="Trusted Source Comment"
+                            placeholder="CIDR/IP/Tag Rule Address"
+                            v-model="newComment">
+                          <button  class="width-50px is-2 add-new-trusted-source" @click="addNewTrustedSource" >
+                            Add
+                          </button>
                     </div>
                 </div>
               </div>
@@ -466,7 +481,7 @@
                             <textarea
                               rows="5"
                               class="is-small textarea site-conf"
-                              v-model="selectedProxyTemplate.conf_specific">
+                              v-model="confSpecific">
                             </textarea>
                           </div>
                           <p class="help has-text-danger">Unless instructed, don't touch!</p>
@@ -481,7 +496,7 @@
                             <textarea
                               rows="5"
                               class="is-small textarea site-ssl-conf"
-                              v-model="selectedProxyTemplate.ssl_conf_specific">
+                              v-model="sslConfSpecific">
                             </textarea>
                           </div>
                           <p class="help has-text-danger">Unless instructed, don't touch!</p>
@@ -534,6 +549,7 @@ export default defineComponent({
       isSaveLoading: false,
       isDeleteLoading: false,
       isDownloadLoading: false,
+      addingNewTrustedSource: false,
 
       apiRoot: RequestsUtils.reblazeAPIRoot,
       apiVersion: RequestsUtils.reblazeAPIVersion,
@@ -557,6 +573,8 @@ export default defineComponent({
           classes: 'ellipsis',
         },
       ],
+      newAddress: '127.0.0.0/8',
+      newComment: 'Private subnet',
     }
   },
   computed: {
@@ -567,6 +585,38 @@ export default defineComponent({
 
     branchNames() {
       return this.configs?.length ? _.sortBy(_.map(this.configs, 'id')) : []
+    },
+
+    sslConfSpecific: {
+      get: function(): string {
+        if (this.selectedProxyTemplate.ssl_conf_specific) {
+          return Object.values(this.selectedProxyTemplate.ssl_conf_specific).join('\n')
+        }
+        return ''
+      },
+      // turn an Array into an Object
+      set: function(site: string): void {
+        this.selectedProxyTemplate.ssl_conf_specific = site.length > 0 ?
+          Object.assign({}, _.map(site.split('\n'), (site) => {
+            return site.trim()
+          })) : {}
+      },
+    },
+    // in type {} will storw an array 0: 'string', 1: 'string'
+    confSpecific: {
+      get: function(): string {
+        if (this.selectedProxyTemplate.conf_specific) {
+          return Object.values(this.selectedProxyTemplate.conf_specific).join('\n')
+        }
+        return ''
+      },
+      // turn an Array into an Object
+      set: function(site: string): void {
+        this.selectedProxyTemplate.conf_specific = site.length > 0 ?
+          Object.assign({}, _.map(site.split('\n'), (site) => {
+            return site.trim()
+          })) : {}
+      },
     },
   },
   methods: {
@@ -679,6 +729,21 @@ export default defineComponent({
           return {id: index, address: trusted.address, comment: trusted.comment}
         })
     },
+    toggleAddingNewTrustedSource() {
+      this.addingNewTrustedSource=!this.addingNewTrustedSource
+      console.log('this.addingNewTrustedSource', this.addingNewTrustedSource)
+    },
+    addNewTrustedSource() {
+      const id = this.trustedData.length
+      const newTrustedElement = {id: id, address: this.newAddress, comment: this.newComment}
+      this.trustedData.push(newTrustedElement)
+      this.newAddress = '127.0.0.0/8'
+      this.newComment = 'Private subnet'
+      this.toggleAddingNewTrustedSource()
+    },
+    editTrustedSource(id: number) {
+
+    },
     // placeholder until to be implemented by backend
     async deleteTrustedElement(id: number) {
       const trustedArr = [...this.trustedData]
@@ -731,5 +796,9 @@ export default defineComponent({
 
 .collapsible .fa-angle-down {
   align-self: center;
+}
+
+.add-new-trusted-source {
+  margin-left: 3px;
 }
 </style>

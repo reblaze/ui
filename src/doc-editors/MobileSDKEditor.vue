@@ -573,7 +573,7 @@ export default defineComponent({
       this.configAdditionalInfoIndex = this.configAdditionalInfoIndex === index ? null : index
     },
 
-    editConfigName(event: InputEvent, index?: number) {
+    editConfigName(event: Event, index?: number) {
       const value = (event.target as HTMLInputElement)?.value
       if (_.isNil(index)) {
         this.newConfig.name = value
@@ -582,7 +582,7 @@ export default defineComponent({
       }
     },
 
-    editConfig(event: InputEvent, index?: number) {
+    editConfig(event: Event, index?: number) {
       const value = (event.target as HTMLTextAreaElement)?.value
       if (_.isNil(index)) {
         this.newConfig.json = value

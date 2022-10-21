@@ -25,7 +25,7 @@
           v-if="showMenuColumn">
         <div class="dropdown is-block"
              :class="{'is-active': menuVisible}">
-          <div class="dropdown-trigger">
+          <div class="dropdown-trigger menu">
             <button class="button is-size-7 menu-toggle-button is-block"
                     aria-haspopup="true"
                     aria-controls="dropdown-menu"
@@ -120,6 +120,15 @@
               </span>
             </button>
           </p>
+          <p class="control" v-if="showSecondRowButton">
+            <button :title="secondRowButtonTitle"
+                    class="button is-small second-row-entity-button"
+                    @click="secondRowButtonClicked(row.id)">
+              <span class="icon is-small">
+                <i :class="`fas ${secondRowButtonIcon ? secondRowButtonIcon : 'fa-edit'}`"></i>
+              </span>
+            </button>
+          </p>
         </div>
       </td>
     </tr>
@@ -158,8 +167,11 @@ export default defineComponent({
     showFilterButton: Boolean,
     showNewButton: Boolean,
     showRowButton: Boolean,
+    showSecondRowButton: Boolean,
     rowButtonTitle: String,
     rowButtonIcon: String,
+    secondRowButtonTitle: String,
+    secondRowButtonIcon: String,
     rowsPerPage: {
       type: Number,
       default: 10,
@@ -200,7 +212,7 @@ export default defineComponent({
       loadingCounter: 0,
     }
   },
-  emits: ['new-button-clicked', 'row-button-clicked'],
+  emits: ['new-button-clicked', 'row-button-clicked', 'second-row-button-clicked'],
   computed: {
     dataArrayDisplay() {
       if (!this.data?.length) {
@@ -270,6 +282,10 @@ export default defineComponent({
 
     rowButtonClicked(id: string) {
       this.$emit('row-button-clicked', id)
+    },
+
+    secondRowButtonClicked(id: string) {
+      this.$emit('second-row-button-clicked', id)
     },
 
     sortColumn(column: ColumnOptions) {
@@ -369,6 +385,10 @@ export default defineComponent({
   padding: 0.5em;
 }
 
+.menu {
+  float: right;
+}
+
 .rbz-table .menu-toggle-button {
   background: transparent;
   border-color: transparent;
@@ -380,7 +400,8 @@ export default defineComponent({
 
 .rbz-table .filter-toggle,
 .rbz-table .new-entity-button,
-.rbz-table .row-entity-button {
+.rbz-table .row-entity-button,
+.rbz-table .second-row-entity-button {
   background: transparent;
   border-color: transparent;
   color: initial;

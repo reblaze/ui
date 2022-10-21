@@ -131,12 +131,13 @@
                     Match Host/Authority Headers
                   </label>
                   <div class="control">
-                    <textarea class="input is-small match-host"
-                        title="Match Host/Authority Headers"
-                        placeholder="Match Host/Authority Headers"
-                        data-qa="match-host-input"
-                        v-model="selectedWebProxy.canonical_name"
-                        rows="5">
+                    <textarea
+                      class="is-small textarea match-host"
+                      title="Match Host/Authority Headers"
+                      placeholder="Match Host/Authority Headers"
+                      data-qa="match-host-input"
+                      v-model="serverNames"
+                      rows="5">
                     </textarea>
                   </div>
                 </div>
@@ -160,9 +161,9 @@
                   </div>
                   <p class="help">
                     (Optional) Choose a certificate for the site, or create a
-                    <safe-link url="/new-ssl-page/certificate-store">
+                    <a url="/new-ssl-page/certificate-store">
                         new one
-                    </safe-link>.
+                    </a>.
                   </p>
                 </div>
                 <div class="field">
@@ -403,6 +404,7 @@ export default defineComponent({
       contentFilterProfilesNames: [] as [ContentFilterProfile['id'], ContentFilterProfile['name']][],
       aclProfilesNames: [] as [ACLProfile['id'], ACLProfile['name']][],
 
+
       deleteWebProxyDocName: '' as string,
       deleteWebProxyDoc: false as boolean,
 
@@ -430,6 +432,20 @@ export default defineComponent({
       return this.routingProfiles.find((routingProfile) => {
         return routingProfile.id === this.selectedWebProxy.routing_profile
       })
+    },
+
+    serverNames: {
+      get: function(): string {
+        if (this.selectedWebProxy.server_names && this.selectedWebProxy.server_names.length > 0) {
+          return this.selectedWebProxy.server_names.join('\n')
+        }
+        return ''
+      },
+      set: function(servers: string): void {
+        this.selectedWebProxy.server_names = servers.length > 0 ? _.map(servers.split('\n'), (server) => {
+          return server.trim()
+        }) : []
+      },
     },
 
   },
@@ -600,7 +616,8 @@ export default defineComponent({
             return e[1]
           })
         } else {
-          this.certificatesNames = [['planet-www-example.com-4a5b', ['www.example.com']]] as [string, string[]][]
+          // this is a mockup data. need to take out as soon as we get certificate to work
+          this.certificatesNames = [['need-real-data', ['www.certificate.com']]] as [string, string[]][]
         }
       })
     },
