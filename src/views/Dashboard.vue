@@ -179,7 +179,7 @@ export default defineComponent({
           },
         },
       })
-      this.data = response?.data || []
+      this.data = response?.data?.results || []
       this.isSearchLoading = false
     },
 
