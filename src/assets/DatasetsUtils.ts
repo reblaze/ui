@@ -206,6 +206,8 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'id': id,
       'name': 'New Security Policy',
       'match': `${id}.example.com`,
+      'description': 'New Security Policy Description and Remarks',
+      'tags': [],
       'map': [
         {
           'id': generateUUID2(),
@@ -303,6 +305,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'include': ['all'],
       'exclude': [],
       'ttl': 7200,
+      'tags': [],
       'target': 'remote_addr',
     }
   },

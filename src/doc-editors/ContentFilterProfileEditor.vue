@@ -72,8 +72,7 @@
                data-qa="tag-input">
             <tag-autocomplete-input :initial-tag="selectedDocTags"
                                     :selection-type="'multiple'"
-                                    @tag-changed="selectedDocTags = $event">
-            </tag-autocomplete-input>
+                                    @tag-changed="selectedDocTags = $event" />
           </div>
           <labeled-tags title="Automatic Tags"
                         :tags="automaticTags" />

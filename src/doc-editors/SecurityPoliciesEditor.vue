@@ -22,7 +22,7 @@
           </div>
           <div class="field">
             <label class="label is-small">
-              Matching Names
+              Match Host/Authority Header
             </label>
             <div class="control has-icons-left">
               <input type="text"
@@ -38,6 +38,33 @@
               <span class="icon is-small is-left has-text-grey"><i class="fas fa-code"></i></span>
             </div>
           </div>
+          <div class="field">
+            <label class="label is-small">Tags</label>
+            <div class="control"
+                 data-qa="tag-input">
+              <tag-autocomplete-input :initial-tag="selectedDocTags"
+                                      :selection-type="'multiple'"
+                                      @tag-changed="selectedDocTags = $event" />
+              <labeled-tags title="Automatic Tag"
+                            :tags="automaticTags" />
+            </div>
+          </div>
+          <div class="field">
+            <div class="field textarea-field">
+              <label class="label is-small">
+                Description
+              </label>
+              <div class="control">
+                <textarea class="is-small textarea document-description"
+                          data-qa="description-input"
+                          title="Document description"
+                          v-model="localDoc.description"
+                          @input="emitDocUpdate"
+                          rows="5">
+                </textarea>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="field px-3">
@@ -50,7 +77,7 @@
             <th></th>
             <th>Name</th>
             <th>
-              <span>Match</span>
+              <span>Match Path</span>
               &nbsp;
               <span><i class="fas fa-sort-alpha-down"></i></span>
             </th>
@@ -129,7 +156,7 @@
                         </div>
                         <div class="field">
                           <label class="label is-small">
-                            Match
+                            Match Path
                           </label>
                           <div class="control has-icons-left">
                             <input class="input is-small current-entry-match"
@@ -363,10 +390,12 @@ import {defineComponent} from 'vue'
 import {ACLProfile, ContentFilterProfile, RateLimit, SecurityPolicy, SecurityPolicyEntryMatch} from '@/types'
 import {AxiosResponse} from 'axios'
 import Utils from '@/assets/Utils'
+import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
+import LabeledTags from '@/components/LabeledTags.vue'
 
 export default defineComponent({
   name: 'SecurityPoliciesEditor',
-
+  components: {LabeledTags, TagAutocompleteInput},
   props: {
     selectedDoc: Object,
     selectedBranch: String,
@@ -397,6 +426,26 @@ export default defineComponent({
   computed: {
     localDoc(): SecurityPolicy {
       return _.cloneDeep(this.selectedDoc as SecurityPolicy)
+    },
+
+    selectedDocTags: {
+      get: function(): string {
+        if (this.localDoc.tags && this.localDoc.tags.length > 0) {
+          return this.localDoc.tags.join(' ')
+        }
+        return ''
+      },
+      set: function(tags: string): void {
+        this.localDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
+          return tag.trim()
+        }) : []
+        this.emitDocUpdate()
+      },
+    },
+
+    automaticTags(): string[] {
+      const nameTag = `securitypolicy:${this.localDoc.name?.replace(/ /g, '-') || ''}`
+      return [nameTag]
     },
 
     isFormInvalid(): boolean {

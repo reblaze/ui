@@ -40,7 +40,7 @@ export default defineComponent({
   border: 1px solid #fff;
   border-radius: 10px;
   margin-right: 0.25rem;
-  max-width: 90vh;
+  max-width: 90%;
   padding: 0.05rem 0.5rem;
   width: fit-content;
 }

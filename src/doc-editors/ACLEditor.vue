@@ -60,8 +60,7 @@
                    data-qa="tag-input">
                 <tag-autocomplete-input :initial-tag="selectedDocTags"
                                         :selection-type="'multiple'"
-                                        @tag-changed="selectedDocTags = $event">
-                </tag-autocomplete-input>
+                                        @tag-changed="selectedDocTags = $event" />
               </div>
               <labeled-tags title="Automatic Tags"
                             :tags="automaticTags" />
@@ -111,8 +110,7 @@
                                         :selection-type="'single'"
                                         :auto-focus="true"
                                         @keydown.esc="cancelAddNewTag"
-                                        @tag-submitted="addNewEntry(operation, $event)">
-                </tag-autocomplete-input>
+                                        @tag-submitted="addNewEntry(operation, $event)" />
               </td>
               <td class="is-size-7 width-20px">
                 <a title="add new entry"

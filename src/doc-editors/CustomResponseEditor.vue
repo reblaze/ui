@@ -40,7 +40,7 @@
               <select v-model="localDoc.type"
                       class="type-selection"
                       title="Switch type"
-                      @change="emitDocUpdate()">
+                      @change="normalizeParams()">
                 <option v-for="name in customResponseTypes"
                         :key="name"
                         :value="name">
@@ -56,8 +56,7 @@
               <tag-autocomplete-input :initial-tag="selectedDocTags"
                                       :selection-type="'multiple'"
                                       @tag-changed="selectedDocTags = $event"
-                                      class="document-autocomplete-input">
-              </tag-autocomplete-input>
+                                      class="document-autocomplete-input" />
             </div>
           </div>
         </div>

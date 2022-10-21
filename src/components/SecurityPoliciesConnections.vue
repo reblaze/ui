@@ -6,9 +6,9 @@
       <tr>
         <th class="is-size-7 width-150px">Name</th>
         <th class="is-size-7 width-120px">ID</th>
-        <th class="is-size-7 ellipsis">Domain Match</th>
+        <th class="is-size-7 width-300px">Domain Match</th>
         <th class="is-size-7 width-300px">Entry Match</th>
-        <th class="is-size-7 width-80px has-text-centered">
+        <th class="is-size-7 width-70px has-text-centered">
           <a v-if="!newSecurityPolicyConnectionOpened"
               class="has-text-grey-dark is-small new-connection-button"
               data-qa="attach-to-site-btn"
@@ -87,7 +87,7 @@
         </template>
       </tr>
       <tr v-for="(connection, index) in connectedSecurityPoliciesEntries" :key="index">
-        <td class="is-size-7 is-vcentered py-3 width-200px connected-entry-row"
+        <td class="is-size-7 is-vcentered py-3 width-150px connected-entry-row"
             :title="connection[0]">
           <a title="Add new"
               class="security-policy-referral-button"
@@ -99,7 +99,7 @@
             :title="connection.id">
           {{ connection.id }}
         </td>
-        <td class="is-size-7 is-vcentered py-3 width-300px"
+        <td class="is-size-7 is-vcentered py-3 width-300px ellipsis"
             :title="connection.domainMatch">
           {{ connection.domainMatch }}
         </td>
@@ -107,7 +107,7 @@
             :title="connection.entryMatch">
           {{ connection.entryMatch }}
         </td>
-        <td class="is-size-7 is-vcentered width-80px height-50px">
+        <td class="is-size-7 is-vcentered width-70px height-50px">
             <span v-show="currentEntryDeleteIndex !== index">
             <a tabindex="0"
                 title="Remove connection to the Security Policy"
