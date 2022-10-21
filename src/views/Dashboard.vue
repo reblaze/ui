@@ -71,13 +71,13 @@
           </div>
         </div>
       </div>
-      <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'default' && data">
+      <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'default' && data?.length">
         <rbz-dashboard-default :data="data">
         </rbz-dashboard-default>
       </div>
-      <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'threats' && data">
+      <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'threats' && data?.length">
       </div>
-      <div v-if="dashboards[activeDashboardIndex]?.metabaseId && data">
+      <div v-if="dashboards[activeDashboardIndex]?.metabaseId && data?.length">
 <!--        <iframe :src="getDashboardURL(dashboards[activeDashboardIndex]?.metabaseId)"-->
 <!--                width="100%"-->
 <!--                height="600"-->
@@ -173,7 +173,8 @@ export default defineComponent({
         url: `metrics/1m?filters=${query}`,
         config: {
           headers: {
-            'flavor': 'mongodb',
+            'syntax': 'mongodb',
+            'provider': 'mongodb',
             'Content-Type': 'application/json',
           },
         },
