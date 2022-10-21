@@ -4,7 +4,7 @@ import {
   ColumnOptionsMap,
   ContentFilterProfile,
   ContentFilterRule,
-  CustomResponse, DynamicRule,
+  CustomResponse,
   FlowControlPolicy,
   GlobalFilter,
   RateLimit,
@@ -428,16 +428,6 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       isSortable: true,
       isSearchable: true,
       classes: 'ellipsis',
-    },
-    {
-      title: 'Tags',
-      fieldNames: ['tags'],
-      displayFunction: (item: DynamicRule) => {
-        return item?.tags?.join('\n')
-      },
-      isSortable: true,
-      isSearchable: true,
-      classes: 'width-80px',
     },
     {
       title: 'Timeframe',

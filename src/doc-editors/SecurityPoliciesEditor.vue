@@ -45,6 +45,8 @@
               <tag-autocomplete-input :initial-tag="selectedDocTags"
                                       :selection-type="'multiple'"
                                       @tag-changed="selectedDocTags = $event" />
+              <labeled-tags title="Automatic Tag"
+                            :tags="automaticTags" />
             </div>
           </div>
           <div class="field">
@@ -389,10 +391,11 @@ import {ACLProfile, ContentFilterProfile, RateLimit, SecurityPolicy, SecurityPol
 import {AxiosResponse} from 'axios'
 import Utils from '@/assets/Utils'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
+import LabeledTags from '@/components/LabeledTags.vue'
 
 export default defineComponent({
   name: 'SecurityPoliciesEditor',
-  components: {TagAutocompleteInput},
+  components: {LabeledTags, TagAutocompleteInput},
   props: {
     selectedDoc: Object,
     selectedBranch: String,
@@ -438,6 +441,11 @@ export default defineComponent({
         }) : []
         this.emitDocUpdate()
       },
+    },
+
+    automaticTags(): string[] {
+      const nameTag = `securitypolicy:${this.localDoc.name?.replace(/ /g, '-') || ''}`
+      return [nameTag]
     },
 
     isFormInvalid(): boolean {
