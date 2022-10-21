@@ -17,18 +17,19 @@ import WebProxyEditor from '@/doc-editors/WebProxyEditor.vue'
 import BackendServiceList from '@/views/BackendServiceList.vue'
 import BackendServiceEditor from '@/doc-editors/BackendServiceEditor.vue'
 import HelpAndSupport from '@/views/HelpAndSupport.vue'
+import DashboardDisplay from '@/views/Dashboard.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
     name: 'MainComponent',
     component: MainComponent,
-    redirect: '/support',
+    redirect: '/dashboard',
     children: [
       {
         path: ':branch',
         name: 'MainComponent/Branch',
-        redirect: '/support',
+        redirect: '/dashboard',
         children: [
           {
             path: 'web-proxy',
@@ -148,51 +149,7 @@ const routes: Array<RouteRecordRaw> = [
           {path: 'publish', name: 'PublishChanges', component: PublishChanges},
         ],
       },
-      // {
-      //   path: 'config',
-      //   name: 'DocumentEditor',
-      //   component: DocumentEditor,
-      //   children: [
-      //     {
-      //       path: ':branch',
-      //       name: 'DocumentEditor/Branch',
-      //       component: DocumentEditor,
-      //       children: [
-      //         {
-      //           path: ':doc_type',
-      //           name: 'DocumentEditor/Branch/DocType',
-      //           component: DocumentEditor,
-      //           children: [
-      //             {
-      //               path: ':doc_id',
-      //               name: 'DocumentEditor/Branch/DocType/DocID',
-      //               component: DocumentEditor,
-      //             },
-      //           ],
-      //         },
-      //       ],
-      //     },
-      //   ],
-      // },
-      // {
-      //   path: 'list',
-      //   name: 'DocumentList',
-      //   component: DocumentList,
-      //   children: [
-      //     {
-      //       path: ':branch',
-      //       name: 'DocumentList/Branch',
-      //       component: DocumentList,
-      //       children: [
-      //         {
-      //           path: ':doc_type',
-      //           name: 'DocumentList/Branch/DocType',
-      //           component: DocumentList,
-      //         },
-      //       ],
-      //     },
-      //   ],
-      // },
+      {path: 'dashboard', name: 'DashboardDisplay', component: DashboardDisplay},
       {path: 'quarantined', name: 'Quarantined', component: QuarantinedList},
       {path: 'system-db', name: 'SystemDBEditor', component: SystemDBEditor},
       {path: 'support', name: 'Support', component: HelpAndSupport},

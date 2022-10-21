@@ -126,6 +126,7 @@ import GitHistory from '@/components/GitHistory.vue'
 import {defineComponent} from 'vue'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
+import {Branch} from '@/types'
 
 export default defineComponent({
 
@@ -139,6 +140,7 @@ export default defineComponent({
     return {
       selectedBranchData: null,
       isDownloadLoading: false,
+      branches: null as Branch[],
 
       forkBranchName: '',
       forkBranchInputOpen: false,
@@ -167,12 +169,10 @@ export default defineComponent({
       const newName = this.forkBranchName.trim()
       const isBranchNameEmpty = newName === ''
       const isBranchNameContainsSpaces = newName.includes(' ')
-      // TODO
-      // const isBranchNameDuplicate = this.branchesStore.list.find((item) => {
-      //   return item.id === newName
-      // })
-      // return !isBranchNameEmpty && !isBranchNameDuplicate && !isBranchNameContainsSpaces
-      return !isBranchNameEmpty && !isBranchNameContainsSpaces
+      const isBranchNameDuplicate = this.branches.find((item) => {
+        return item.id === newName
+      })
+      return !isBranchNameEmpty && !isBranchNameDuplicate && !isBranchNameContainsSpaces
     },
 
     isSelectedBranchDeleteNameValid(): boolean {
@@ -223,7 +223,7 @@ export default defineComponent({
         successMessage: `Branch ${this.selectedBranch} was deleted.`,
         failureMessage: `Failed while attempting to delete branch "${this.selectedBranch}".`,
       }).then(async () => {
-        await this.branchesStore.loadBranches()
+        this.branches = await this.branchesStore.loadBranches()
         await this.branchesStore.setSelectedBranch()
         this.toggleBranchDelete()
       })
@@ -241,7 +241,7 @@ export default defineComponent({
         successMessage: `Branch "${this.selectedBranch}" was forked to "${this.forkBranchName}".`,
         failureMessage: `Failed while attempting to fork branch "${this.selectedBranch}" to "${this.forkBranchName}".`,
       }).then(async () => {
-        await this.branchesStore.loadBranches()
+        this.branches = await this.branchesStore.loadBranches()
         await this.branchesStore.setSelectedBranch(newBranchName)
         this.toggleBranchFork()
       })
@@ -256,7 +256,7 @@ export default defineComponent({
   },
 
   async created() {
-    await this.branchesStore.list
+    this.branches = await this.branchesStore.list
   },
 })
 </script>

@@ -1,7 +1,8 @@
 <template>
   <div class="container is-fluid">
     <div class="navbar-brand">
-      <a class="navbar-item">
+      <a class="navbar-item"
+         href="/">
         <img :src="require('@/assets/logo.png')" class="logo" alt="logo">
       </a>
     </div>

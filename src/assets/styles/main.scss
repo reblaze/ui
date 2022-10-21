@@ -106,6 +106,12 @@ html {
   width: 250px;
 }
 
+.width-260px {
+  max-width: 260px;
+  min-width: 260px;
+  width: 260px;
+}
+
 .width-300px {
   max-width: 300px;
   min-width: 300px;
@@ -182,6 +188,12 @@ html {
   height: 130px;
   max-height: 130px;
   min-height: 130px;
+}
+
+.height-200px {
+  height: 200px;
+  max-height: 200px;
+  min-height: 200px;
 }
 
 /* Text */
@@ -300,6 +312,24 @@ $color-light: hsl(0, 0%, 96%);
 .button.is-light.is-focused,
 .button.is-light:focus {
   border-color: #3273dc;
+}
+
+.is-justify-content-space-around {
+  justify-content: space-around;
+}
+
+/* Vue3Datepicker */
+
+.dp__preset_ranges { /* stylelint-disable-line */
+  width: 150px;
+}
+
+.dp__action_row { /* stylelint-disable-line */
+  min-width: 100%;
+}
+
+.dp__input_icon { /* stylelint-disable-line */
+  color: #000;
 }
 
 /* Other */

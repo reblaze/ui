@@ -15,9 +15,9 @@ describe.skip('SideMenu.vue', () => {
   let $route: any
   let gitData: Branch[]
   let swaggerURL: string
-  let kibanaURL: string
+  // let kibanaURL: string
   let grafanaURL: string
-  let prometheusURL: string
+  // let prometheusURL: string
   let dbData: any
   beforeEach(() => {
     gitData = [
@@ -58,15 +58,15 @@ describe.skip('SideMenu.vue', () => {
       path: '/list',
     }
     swaggerURL = 'https://10.0.0.1:30000/api/v3/'
-    kibanaURL = 'https://10.0.0.1:5601/app/discover/'
+    // kibanaURL = 'https://10.0.0.1:5601/app/discover/'
     grafanaURL = 'https://10.0.0.1:30300/'
-    prometheusURL = 'https://10.0.0.1:9090/'
+    // prometheusURL = 'https://10.0.0.1:9090/'
     dbData = {
       links: {
         swagger_url: swaggerURL,
-        kibana_url: kibanaURL,
+        // kibana_url: kibanaURL,
         grafana_url: grafanaURL,
-        prometheus_url: prometheusURL,
+        // prometheus_url: prometheusURL,
       },
     }
     jest.spyOn(axios, 'get').mockImplementation((path) => {
@@ -171,21 +171,21 @@ describe.skip('SideMenu.vue', () => {
       },
     ]
     const wantedAnalyticsMenuItems = [
-      {
-        path: kibanaURL,
-        title: 'Kibana',
-        external: true,
-      },
+      // {
+      //   path: kibanaURL,
+      //   title: 'Kibana',
+      //   external: true,
+      // },
       {
         path: grafanaURL,
         title: 'Grafana',
         external: true,
       },
-      {
-        path: prometheusURL,
-        title: 'Prometheus',
-        external: true,
-      },
+      // {
+      //   path: prometheusURL,
+      //   title: 'Prometheus',
+      //   external: true,
+      // },
     ]
     // allow all requests to finish
     setImmediate(() => {
@@ -197,8 +197,8 @@ describe.skip('SideMenu.vue', () => {
 
   test('should render all dynamic menu items when system db exists without URLs in links data', (done) => {
     delete dbData.links.grafana_url
-    delete dbData.links.kibana_url
-    delete dbData.links.prometheus_url
+    // delete dbData.links.kibana_url
+    // delete dbData.links.prometheus_url
     delete dbData.links.swagger_url
     jest.spyOn(axios, 'get').mockImplementation((path) => {
       if (path === `/conf/api/v3/db/system/`) {
@@ -222,21 +222,21 @@ describe.skip('SideMenu.vue', () => {
       },
     ]
     const wantedAnalyticsMenuItems = [
-      {
-        path: `${location.protocol}//${location.hostname}:5601/app/discover`,
-        title: 'Kibana',
-        external: true,
-      },
+      // {
+      //   path: `${location.protocol}//${location.hostname}:5601/app/discover`,
+      //   title: 'Kibana',
+      //   external: true,
+      // },
       {
         path: `${location.protocol}//${location.hostname}:30300/`,
         title: 'Grafana',
         external: true,
       },
-      {
-        path: `${location.protocol}//${location.hostname}:9090/`,
-        title: 'Prometheus',
-        external: true,
-      },
+      // {
+      //   path: `${location.protocol}//${location.hostname}:9090/`,
+      //   title: 'Prometheus',
+      //   external: true,
+      // },
     ]
     // allow all requests to finish
     setImmediate(() => {
@@ -270,21 +270,21 @@ describe.skip('SideMenu.vue', () => {
       },
     ]
     const wantedAnalyticsMenuItems = [
-      {
-        path: `${location.protocol}//${location.hostname}:5601/app/discover`,
-        title: 'Kibana',
-        external: true,
-      },
+      // {
+      //   path: `${location.protocol}//${location.hostname}:5601/app/discover`,
+      //   title: 'Kibana',
+      //   external: true,
+      // },
       {
         path: `${location.protocol}//${location.hostname}:30300/`,
         title: 'Grafana',
         external: true,
       },
-      {
-        path: `${location.protocol}//${location.hostname}:9090/`,
-        title: 'Prometheus',
-        external: true,
-      },
+      // {
+      //   path: `${location.protocol}//${location.hostname}:9090/`,
+      //   title: 'Prometheus',
+      //   external: true,
+      // },
     ]
     // allow all requests to finish
     setImmediate(() => {
@@ -317,21 +317,21 @@ describe.skip('SideMenu.vue', () => {
       },
     ]
     const wantedAnalyticsMenuItems = [
-      {
-        path: `${location.protocol}//${location.hostname}:5601/app/discover`,
-        title: 'Kibana',
-        external: true,
-      },
+      // {
+      //   path: `${location.protocol}//${location.hostname}:5601/app/discover`,
+      //   title: 'Kibana',
+      //   external: true,
+      // },
       {
         path: `${location.protocol}//${location.hostname}:30300/`,
         title: 'Grafana',
         external: true,
       },
-      {
-        path: `${location.protocol}//${location.hostname}:9090/`,
-        title: 'Prometheus',
-        external: true,
-      },
+      // {
+      //   path: `${location.protocol}//${location.hostname}:9090/`,
+      //   title: 'Prometheus',
+      //   external: true,
+      // },
     ]
     // allow all requests to finish
     setImmediate(() => {
@@ -345,9 +345,9 @@ describe.skip('SideMenu.vue', () => {
     dbData = {
       links: {
         swagger_url: 'Aylon',
-        kibana_url: kibanaURL,
+        // kibana_url: kibanaURL,
         grafana_url: grafanaURL,
-        prometheus_url: prometheusURL,
+        // prometheus_url: prometheusURL,
       },
     }
     jest.clearAllMocks()
