@@ -75,6 +75,8 @@
                                     @tag-changed="selectedDocTags = $event">
             </tag-autocomplete-input>
           </div>
+          <labeled-tags title="Automatic Tags"
+                        :tags="automaticTags" />
         </div>
         <div class="field ignore-alphanumeric-input-field"
              :title="additionalInfoIgnoreAlphanumericInput">
@@ -654,6 +656,7 @@ import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import Utils from '@/assets/Utils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import {AxiosResponse} from 'axios'
+import LabeledTags from '@/components/LabeledTags.vue'
 
 type ContentFilterProfileType = {
   value: keyof ContentFilterProfile['decoding'],
@@ -663,6 +666,7 @@ type ContentFilterProfileType = {
 export default defineComponent({
   name: 'ContentFilterEditor',
   components: {
+    LabeledTags,
     AutocompleteInput,
     TagAutocompleteInput,
   },
@@ -795,6 +799,12 @@ export default defineComponent({
         }) : []
         this.emitDocUpdate()
       },
+    },
+
+    automaticTags(): string[] {
+      const idTag = `contentfilterid:${this.localDoc.id?.replace(/ /g, '-') || ''}`
+      const nameTag = `contentfiltername:${this.localDoc.name?.replace(/ /g, '-') || ''}`
+      return [idTag, nameTag]
     },
   },
 
