@@ -10,7 +10,8 @@
           <side-menu></side-menu>
         </div>
         <div class="column">
-          <div class="card is-fullheight has-overflow-y-auto">
+          <div class="card is-fullheight has-overflow-y-auto"
+          ref="viewCardScroll">
             <router-view></router-view>
           </div>
         </div>
@@ -30,6 +31,16 @@ import {useBranchesStore} from '@/stores/BranchesStore'
 export default defineComponent({
   name: 'MainComponent',
   components: {HeaderMain, SideMenu},
+  watch: {
+    $route: {
+      handler: async function(val, oldVal) {
+        if (val && val !== oldVal) {
+          this.$refs.viewCardScroll.scrollTop = 0
+        }
+      },
+      deep: true,
+    },
+  },
   computed: {
     ...mapStores(useBranchesStore),
   },

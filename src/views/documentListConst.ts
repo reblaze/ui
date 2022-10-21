@@ -4,7 +4,7 @@ import {
   ColumnOptionsMap,
   ContentFilterProfile,
   ContentFilterRule,
-  CustomResponse,
+  CustomResponse, DynamicRule,
   FlowControlPolicy,
   GlobalFilter,
   RateLimit,
@@ -109,46 +109,60 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       classes: 'width-120px',
     },
     {
-      title: 'Matching Names',
-      fieldNames: ['match'],
+      title: 'Description',
+      fieldNames: ['description'],
       isSortable: true,
       isSearchable: true,
       classes: 'ellipsis',
     },
     {
-      title: 'Rate Limit Rules',
-      fieldNames: ['map'],
-      displayFunction: (item: SecurityPolicy) => {
-        const amount = _.sumBy(item?.map, (mapEntry: SecurityPolicyEntryMatch) => {
-          return mapEntry.limit_ids.length
-        })
-        return amount.toString()
-      },
-      classes: 'width-120px',
+      title: 'Matching Names',
+      fieldNames: ['match'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-150px ellipsis',
     },
     {
-      title: 'Active ACL Profiles',
-      fieldNames: ['map'],
+      title: 'Tags',
+      fieldNames: ['tags'],
       displayFunction: (item: SecurityPolicy) => {
-        const active = item?.map?.filter((mapEntry: SecurityPolicyEntryMatch) => {
-          return mapEntry.acl_active
-        }).length
-        const total = item?.map?.length
-        return `${active} out of ${total}`
+        return item?.tags?.join('\n')
       },
-      classes: 'width-120px',
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-80px',
     },
     {
-      title: 'Active Content Filter Profiles',
+      title: 'Connected Profiles & Rules',
       fieldNames: ['map'],
       displayFunction: (item: SecurityPolicy) => {
-        const active = item?.map?.filter((mapEntry: SecurityPolicyEntryMatch) => {
-          return mapEntry.acl_active
-        }).length
-        const total = item?.map?.length
-        return `${active} out of ${total}`
+        const getRateLimitsAmount = () => {
+          const amount = _.sumBy(item?.map, (mapEntry: SecurityPolicyEntryMatch) => {
+            return mapEntry.limit_ids.length
+          })
+          return `Rate Limit: ${amount} total`
+        }
+        const getActiveACLs = () => {
+          const active = item?.map?.filter((mapEntry: SecurityPolicyEntryMatch) => {
+            return mapEntry.acl_active
+          }).length
+          const total = item?.map?.length
+          return `ACL: ${active} out of ${total} active`
+        }
+        const getActiveContentFilters = () => {
+          const active = item?.map?.filter((mapEntry: SecurityPolicyEntryMatch) => {
+            return mapEntry.acl_active
+          }).length
+          const total = item?.map?.length
+          return `Content Filter: ${active} out of ${total} active`
+        }
+        return [
+          getActiveContentFilters(),
+          getActiveACLs(),
+          getRateLimitsAmount(),
+        ].join('\n')
       },
-      classes: 'width-180px',
+      classes: 'width-200px white-space-pre ellipsis',
     },
   ],
   'ratelimits': [
@@ -366,7 +380,7 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       title: 'Tags',
       fieldNames: ['tags'],
       displayFunction: (item: ContentFilterRule) => {
-        return item?.tags?.join(', ')
+        return item?.tags?.join('\n')
       },
       isSortable: true,
       isSearchable: true,
@@ -414,6 +428,16 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       isSortable: true,
       isSearchable: true,
       classes: 'ellipsis',
+    },
+    {
+      title: 'Tags',
+      fieldNames: ['tags'],
+      displayFunction: (item: DynamicRule) => {
+        return item?.tags?.join('\n')
+      },
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-80px',
     },
     {
       title: 'Timeframe',

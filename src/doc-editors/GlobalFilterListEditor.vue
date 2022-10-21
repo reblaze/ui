@@ -68,8 +68,7 @@
               <tag-autocomplete-input :initial-tag="selectedDocTags"
                                       :selection-type="'multiple'"
                                       :editable="editable"
-                                      @tag-changed="selectedDocTags = $event">
-              </tag-autocomplete-input>
+                                      @tag-changed="selectedDocTags = $event" />
             </div>
           </div>
           <div class="field">
