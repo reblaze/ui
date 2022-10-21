@@ -6,8 +6,23 @@
         <img :src="require('@/assets/logo.png')" class="logo" alt="logo">
       </a>
     </div>
-    <div class="version-box is-size-7 has-text-grey">
-      client version: {{ version || '0.0.0' }}
+    <div class="width-120px version-box is-size-7 has-text-grey">
+      <div class="ui-version">
+        <span class="width-80px is-inline-block">
+          UI version:
+        </span>
+        <span>
+          {{ clientVersion || '0.0.0' }}
+        </span>
+      </div>
+      <div class="api-version">
+        <span class="width-80px is-inline-block">
+          API version:
+        </span>
+        <span>
+          {{ apiVersion || '0.0.0' }}
+        </span>
+      </div>
     </div>
   </div>
 </template>
@@ -15,12 +30,14 @@
 <script lang="ts">
 import packageJson from '@/../package.json'
 import {defineComponent} from 'vue'
+import RequestsUtils from '@/assets/RequestsUtils'
 
 export default defineComponent({
   name: 'HeaderMain',
   data() {
     return {
-      version: packageJson.version,
+      clientVersion: packageJson.version,
+      apiVersion: RequestsUtils.reblazeAPIVersion,
     }
   },
 

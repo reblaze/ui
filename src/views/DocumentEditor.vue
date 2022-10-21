@@ -1,223 +1,157 @@
 <template>
-  <div class="card">
-    <div class="card-content">
-      <div class="media">
-        <div class="media-content">
-          <div class="columns">
-            <div class="column">
-              <div class="field is-grouped">
-                <p class="control">
-                  <button class="button is-small redirect-list-button"
-                          @click="redirectToList()"
-                          title="Return to list"
-                          data-qa="redirect-to-list">
+  <div class="card-content">
+    <div class="media">
+      <div class="media-content">
+        <div class="columns">
+          <div class="column">
+            <div class="field is-grouped">
+              <p class="control">
+                <button class="button is-small redirect-list-button"
+                        @click="redirectToList()"
+                        title="Return to list"
+                        data-qa="redirect-to-list">
                     <span class="icon is-small">
                       <i class="fas fa-arrow-left"></i>
                     </span>
-                  </button>
-                </p>
-                <div class="control"
-                     v-if="branchNames.length">
-                  <div class="select is-small">
-                    <select v-model="selectedBranch"
-                            data-qa="policies-switch-branch"
-                            title="Switch branch"
-                            @change="switchBranch()"
-                            class="branch-selection">
-                      <option v-for="name in branchNames"
-                              :key="name"
-                              :value="name">
-                        {{ name }}
-                      </option>
-                    </select>
-                  </div>
-                </div>
-                <div class="control">
-                  <div class="select is-small">
-                    <select v-model="selectedDocType"
-                            data-qa="switch-document-dropdown"
-                            title="Switch document type"
-                            @change="switchDocType()"
-                            class="doc-type-selection">
-                      <option v-for="(component, propertyName) in componentsMap"
-                              :key="propertyName"
-                              :value="propertyName">
-                        {{ titles[propertyName] }}
-                      </option>
-                    </select>
-                  </div>
-                </div>
-                <p class="control">
-                  <button class="button is-small download-doc-button"
-                          :class="{'is-loading': isDownloadLoading}"
-                          :disabled="!selectedDoc"
-                          @click="downloadDoc()"
-                          title="Download document"
-                          data-qa="download-document">
+                </button>
+              </p>
+              <p class="control">
+                <button class="button is-small download-doc-button"
+                        :class="{'is-loading': isDownloadLoading}"
+                        :disabled="!selectedDoc"
+                        @click="downloadDoc()"
+                        title="Download document"
+                        data-qa="download-document">
                     <span class="icon is-small">
                       <i class="fas fa-download"></i>
                     </span>
-                  </button>
-                </p>
-                <div class="control">
-                  <span class="icon is-small is-vcentered">
-                    <svg :width="24"
-                         :height="24"
-                         :viewBox="'0 0 24 24'">
-                      <path :d="mdiSourceBranchPath"/>
-                    </svg>
-                  </span>
-                  <span class="is-size-7 git-branches">
-                    {{ branches }} branch<span v-if="branches !== 1">es</span>
-                  </span>
-                </div>
-                <div class="control">
-                  <span class="icon is-small is-vcentered">
-                    <svg :width="24"
-                         :height="24"
-                         :viewBox="'0 0 24 24'">
-                      <path :d="mdiSourceCommitPath"/>
-                    </svg>
-                  </span>
-                  <span class="is-size-7 git-commits">
-                    {{ commits }} commit<span v-if="commits !== 1">s</span>
-                  </span>
+                </button>
+              </p>
+            </div>
+          </div>
+
+          <div class="column">
+            <div class="field is-grouped is-pulled-right">
+              <div class="control"
+                   v-if="docIdNames.length">
+                <div class="select is-small">
+                  <select v-model="selectedDocID"
+                          title="Switch document ID"
+                          @change="switchDocID()"
+                          class="doc-selection"
+                          data-qa="switch-document">
+                    <option v-for="pair in docIdNames"
+                            :key="pair[0]"
+                            :value="pair[0]">
+                      {{ pair[1] }}
+                    </option>
+                  </select>
                 </div>
               </div>
-            </div>
 
-            <div class="column">
-              <div class="field is-grouped is-pulled-right">
-                <div class="control"
-                     v-if="docIdNames.length">
-                  <div class="select is-small">
-                    <select v-model="selectedDocID"
-                            title="Switch document ID"
-                            @change="switchDocID()"
-                            class="doc-selection"
-                            data-qa="switch-document">
-                      <option v-for="pair in docIdNames"
-                              :key="pair[0]"
-                              :value="pair[0]">
-                        {{ pair[1] }}
-                      </option>
-                    </select>
-                  </div>
-                </div>
-
-                <p class="control">
-                  <button class="button is-small fork-document-button"
-                          :class="{'is-loading': isForkLoading}"
-                          @click="forkDoc()"
-                          title="Duplicate document"
-                          :disabled="!selectedDoc || dynamicRuleManaged"
-                          data-qa="duplicate-document">
+              <p class="control">
+                <button class="button is-small fork-document-button"
+                        :class="{'is-loading': isForkLoading}"
+                        @click="forkDoc()"
+                        title="Duplicate document"
+                        :disabled="!selectedDoc || dynamicRuleManaged"
+                        data-qa="duplicate-document">
                     <span class="icon is-small">
                       <i class="fas fa-clone"></i>
                     </span>
-                  </button>
-                </p>
+                </button>
+              </p>
 
-                <p class="control">
-                  <button class="button is-small new-document-button"
-                          :class="{'is-loading': isNewLoading}"
-                          @click="addNewDoc()"
-                          title="Add new document"
-                          :disabled="!selectedBranch || !selectedDocType"
-                          data-qa="add-new-document">
+              <p class="control">
+                <button class="button is-small new-document-button"
+                        :class="{'is-loading': isNewLoading}"
+                        @click="addNewDoc()"
+                        title="Add new document"
+                        :disabled="!selectedBranch || !selectedDocType"
+                        data-qa="add-new-document">
                     <span class="icon is-small">
                       <i class="fas fa-plus"></i>
                     </span>
-                  </button>
-                </p>
+                </button>
+              </p>
 
-                <p class="control">
-                  <button class="button is-small save-document-button"
-                          :class="{'is-loading': isSaveLoading}"
-                          @click="saveChanges()"
-                          title="Save changes"
-                          :disabled="isDocumentInvalid || !selectedDoc || dynamicRuleManaged"
-                          data-qa="save-changes">
+              <p class="control">
+                <button class="button is-small save-document-button"
+                        :class="{'is-loading': isSaveLoading}"
+                        @click="saveChanges()"
+                        title="Save changes"
+                        :disabled="isDocumentInvalid || !selectedDoc || dynamicRuleManaged"
+                        data-qa="save-changes">
                     <span class="icon is-small">
                       <i class="fas fa-save"></i>
                     </span>
-                  </button>
-                </p>
+                </button>
+              </p>
 
-                <p class="control">
-                  <button class="button is-small has-text-danger delete-document-button"
-                          :class="{'is-loading': isDeleteLoading}"
-                          @click="deleteDoc()"
-                          title="Delete document"
-                          :disabled="selectedDocNotDeletable"
-                          data-qa="delete-document">
+              <p class="control">
+                <button class="button is-small has-text-danger delete-document-button"
+                        :class="{'is-loading': isDeleteLoading}"
+                        @click="deleteDoc()"
+                        title="Delete document"
+                        :disabled="selectedDocNotDeletable"
+                        data-qa="delete-document">
                     <span class="icon is-small">
                       <i class="fas fa-trash"></i>
                     </span>
-                  </button>
-                </p>
+                </button>
+              </p>
 
-              </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
 
+    <hr/>
+
+    <div class="content document-editor-wrapper"
+         v-show="!loadingDocCounter">
+      <component
+          v-if="selectedBranch && selectedDocType && selectedDoc && !loadingDocCounter"
+          :is="componentsMap[selectedDocType].component"
+          v-model:selectedBranch="selectedBranch"
+          v-model:selectedDoc="selectedDoc"
+          v-model:selectedDocMatchingGlobalFilter="selectedDocMatchingGlobalFilter"
+          v-model:docs="docs"
+          :apiPath="documentAPIPath"
+          @form-invalid="isDocumentInvalid = $event"
+          @go-to-route="goToRoute($event)"
+          ref="currentComponent">
+      </component>
       <hr/>
+      <git-history v-if="selectedDocID && !isReblazeDocument"
+                   :api-path="gitAPIPath"
+                   :doc-title="titles[selectedDocType]"
+                   @restore-version="restoreGitVersion"/>
+    </div>
 
-      <div class="content document-editor-wrapper"
-           v-show="!loadingDocCounter">
-        <component
-            v-if="selectedBranch && selectedDocType && selectedDoc && !loadingDocCounter"
-            :is="componentsMap[selectedDocType].component"
-            v-model:selectedBranch="selectedBranch"
-            v-model:selectedDoc="selectedDoc"
-            v-model:selectedDocMatchingGlobalFilter="selectedDocMatchingGlobalFilter"
-            v-model:docs="docs"
-            :apiPath="documentAPIPath"
-            @form-invalid="isDocumentInvalid = $event"
-            @go-to-route="goToRoute($event)"
-            ref="currentComponent">
-        </component>
-        <hr/>
-        <git-history v-if="selectedDocID && !isReblazeDocument"
-                     :gitLog="gitLog"
-                     :apiPath="gitAPIPath"
-                     :loading="loadingGitlog"
-                     @restore-version="restoreGitVersion"></git-history>
+    <div class="content no-data-wrapper"
+         v-if="loadingDocCounter || !selectedBranch || !selectedDocType || !selectedDoc">
+      <div v-if="loadingDocCounter > 0">
+        <button class="button is-outlined is-text is-small is-loading document-loading">
+          Loading
+        </button>
       </div>
-
-      <div class="content no-data-wrapper"
-           v-if="loadingDocCounter || !selectedBranch || !selectedDocType || !selectedDoc">
-        <div v-if="loadingDocCounter > 0">
-          <button class="button is-outlined is-text is-small is-loading document-loading">
-            Loading
-          </button>
-        </div>
-        <div v-else
-             class="no-data-message">
-          No data found!
-          <div>
-            <!--display correct message by priority (Branch -> Document type -> Document)-->
-            <span v-if="!branchNames.includes(selectedBranch)">
-              Missing branch. To be redirected to Version Control page where you will be able to create a new one, click
-              <a title="Add new"
-                 class="redirect-version-control-button"
-                 @click="redirectToVersionControl()">
-                here
-              </a>
-            </span>
-            <span v-else-if="!Object.keys(componentsMap).includes(selectedDocType)">
-              Missing document type. Please select one from the dropdown above
-            </span>
-            <span v-else-if="!docIdNames.find((docIdName) => docIdName[0].includes(selectedDoc?.id))">
-              Missing document. To create a new one, click
-              <a title="Add new"
-                 @click="addNewDoc()">
-                here
-              </a>
-            </span>
-          </div>
+      <div v-else
+           class="no-data-message">
+        No data found!
+        <div>
+          <!--display correct message by priority (Document type -> Document)-->
+          <span v-if="!Object.keys(componentsMap).includes(selectedDocType)">
+            Missing document type. Please check your URL or click a link in the menu to the side
+          </span>
+          <span v-else-if="!docIdNames.find((docIdName) => docIdName[0].includes(selectedDoc?.id))">
+            Missing document. To create a new one, click
+            <a title="Add new"
+               @click="addNewDoc()">
+              here
+            </a>
+          </span>
         </div>
       </div>
     </div>
@@ -242,8 +176,10 @@ import CustomResponseEditor from '@/doc-editors/CustomResponseEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
 import {defineComponent, shallowRef} from 'vue'
-import {Commit, Document, DocumentType, DynamicRule, GlobalFilter, HttpRequestMethods, SecurityPolicy} from '@/types'
+import {Document, DocumentType, DynamicRule, GlobalFilter, HttpRequestMethods, SecurityPolicy} from '@/types'
 import axios, {AxiosResponse} from 'axios'
+import {mapStores} from 'pinia'
+import {useBranchesStore} from '@/stores/BranchesStore'
 
 export default defineComponent({
   name: 'DocumentEditor',
@@ -276,7 +212,6 @@ export default defineComponent({
       referencedIDsCloudFunctions: [],
       referencedIDsDynamicRules: [],
 
-      selectedBranch: null,
       selectedDocType: null as DocumentType,
 
       docs: [] as Document[],
@@ -287,11 +222,6 @@ export default defineComponent({
       isDocumentInvalid: false,
       selectedDocMatchingGlobalFilter: null as GlobalFilter,
       duplicatedDocMatchingGlobalFilter: null as GlobalFilter,
-
-      gitLog: [],
-      loadingGitlog: false,
-      commits: 0,
-      branches: 0,
 
       componentsMap: {
         'globalfilters': shallowRef({component: GlobalFilterListEditor}),
@@ -312,6 +242,18 @@ export default defineComponent({
     }
   },
   watch: {
+    selectedBranch: {
+      handler: async function(val, oldVal) {
+        if ((this.$route.name as string).includes('DocumentEditor') && val && val !== oldVal) {
+          this.setLoadingDocStatus(true)
+          await this.setSelectedDataFromRouteParams(true)
+          await this.loadReferencedDocsIDs()
+          this.setLoadingDocStatus(false)
+        }
+      },
+      immediate: true,
+    },
+
     selectedDocID: {
       handler: async function(val, oldVal) {
         if (val && val !== oldVal && this.selectedDocType === 'dynamic-rules') {
@@ -353,12 +295,7 @@ export default defineComponent({
     },
 
     gitAPIPath(): string {
-      const apiPrefix = `${this.confAPIRoot}/${this.confAPIVersion}`
-      return `${apiPrefix}/configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/v/`
-    },
-
-    branchNames(): string[] {
-      return this.configs?.length ? _.sortBy(_.map(this.configs, 'id')) : []
+      return `configs/${this.selectedBranch}/d/${this.selectedDocType}/v/`
     },
 
     selectedDoc: {
@@ -372,10 +309,13 @@ export default defineComponent({
 
     selectedDocNotDeletable(): boolean {
       return !this.selectedDoc ||
-          this.selectedDoc.id === '__default__' ||
+          this.selectedDoc.id.startsWith('__') || // Default entries
+          this.selectedDoc.id.startsWith('rl-') || // Reblaze-managed Rate Limits
+          this.selectedDoc.id.startsWith('action-') || // Reblaze-managed Custom Responses
+          this.selectedDoc.id.startsWith('rbz-') || // Reblaze-managed Global Filters
+          this.selectedDoc.id.startsWith('dr_') || // Dynamic-Rule-managed Global Filters
           this.isDocReferenced ||
-          this.docs.length <= 1 ||
-          this.selectedDoc.id.startsWith('dr_')
+          this.docs.length <= 1
     },
 
     selectedDocIndex(): number {
@@ -405,12 +345,18 @@ export default defineComponent({
       }
       return false
     },
+
+    selectedBranch(): string {
+      return this.branchesStore.selectedBranchId
+    },
+
+    ...mapStores(useBranchesStore),
   },
   methods: {
 
     async goToRoute(newRoute?: string) {
       if (!newRoute) {
-        newRoute = `/config/${this.selectedBranch}/${this.selectedDocType}/${this.selectedDocID}`
+        newRoute = `/${this.selectedBranch}/${this.selectedDocType}/config/${this.selectedDocID}`
       }
       if (this.$route.path !== newRoute) {
         console.log('Switching document, new document path: ' + newRoute)
@@ -419,14 +365,8 @@ export default defineComponent({
       }
     },
 
-    async setSelectedDataFromRouteParams() {
+    async setSelectedDataFromRouteParams(forceLoadDocs: boolean = false) {
       this.setLoadingDocStatus(true)
-      const branchNameFromRoute = this.$route.params?.branch?.toString()
-      if (branchNameFromRoute && this.branchNames.includes(branchNameFromRoute)) {
-        this.selectedBranch = branchNameFromRoute
-      } else {
-        this.selectedBranch = this.branchNames[0]
-      }
       const prevDocType = this.selectedDocType
       const docTypeFromRoute = this.$route.params?.doc_type?.toString()
       if (docTypeFromRoute && Object.keys(this.componentsMap).includes(docTypeFromRoute)) {
@@ -434,11 +374,11 @@ export default defineComponent({
       } else {
         this.selectedDocType = Object.keys(this.componentsMap)[0] as DocumentType
       }
-      if (!prevDocType || prevDocType !== this.selectedDocType) {
+      if (forceLoadDocs || !prevDocType || prevDocType !== this.selectedDocType) {
         await this.loadDocs()
       }
       const docIdFromRoute = this.$route.params?.doc_id?.toString()
-      if (docIdFromRoute && this.docIdNames.findIndex((idName) => idName[0] === docIdFromRoute)) {
+      if (docIdFromRoute && this.docIdNames.findIndex((idName) => idName[0] === docIdFromRoute) > -1) {
         this.selectedDocID = docIdFromRoute
       } else {
         this.selectedDocID = this.docIdNames?.[0]?.[0]
@@ -446,52 +386,21 @@ export default defineComponent({
       this.isDocumentInvalid = false
 
       await this.loadSelectedDocData()
-      this.addMissingDefaultsToDoc()
       await this.goToRoute()
       this.setLoadingDocStatus(false)
-      this.loadGitLog()
     },
 
     redirectToVersionControl() {
-      this.$router.push('/versioncontrol')
+      this.$router.push(`/${this.selectedBranch}/versioncontrol`)
     },
 
     redirectToList() {
-      this.$router.push(`/list/${this.selectedBranch}/${this.selectedDocType}`)
-    },
-
-    resetGitLog() {
-      this.gitLog = []
+      this.$router.push(`/${this.selectedBranch}/${this.selectedDocType}/list`)
     },
 
     newDoc(): Document {
       const factory = DatasetsUtils.newDocEntryFactory[this.selectedDocType]
       return factory && factory()
-    },
-
-    async loadConfigs(counterOnly?: boolean) {
-      let configs
-      try {
-        const response = await RequestsUtils.sendRequest({
-          methodName: 'GET',
-          url: 'configs/',
-          config: {headers: {'x-fields': 'id'}},
-        })
-        configs = response.data
-      } catch (err) {
-        console.log('Error while attempting to get configs')
-        console.log(err)
-      }
-      if (!counterOnly) {
-        console.log('loaded configs: ', configs)
-        this.configs = configs
-      }
-      // counters
-      this.commits = _.sum(_.map(_.map(configs, 'logs'), (logs) => {
-        return _.size(logs)
-      }))
-      this.branches = _.size(configs)
-      console.log('config counters', this.branches, this.commits)
     },
 
     updateDocIdNames() {
@@ -575,57 +484,13 @@ export default defineComponent({
           this.selectedDocID = this.docIdNames[0][0]
         }
         await this.loadSelectedDocData()
-        this.addMissingDefaultsToDoc()
       }
-      this.loadGitLog()
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
     },
 
-    loadGitLog(interaction?: boolean) {
-      if (this.isReblazeDocument) {
-        return
-      }
-      this.loadingGitlog = true
-      const config = this.selectedBranch
-      const document = this.selectedDocType
-      const entry = this.selectedDocID
-      const url = `configs/${config}/d/${document}/e/${entry}/v/`
-      if (config && document && entry) {
-        RequestsUtils.sendRequest({methodName: 'GET', url}).then((response: AxiosResponse<Commit[]>) => {
-          this.gitLog = response?.data || []
-          if (interaction) {
-            this.loadConfigs(true)
-          }
-          this.loadingGitlog = false
-        })
-      }
-    },
-
-    async switchBranch() {
-      this.setLoadingDocStatus(true)
-      this.resetGitLog()
-      Utils.toast(`Switched to branch "${this.selectedBranch}".`, 'is-info')
-      await this.loadDocs(true)
-      await this.loadReferencedDocsIDs()
-      this.goToRoute()
-      this.setLoadingDocStatus(false)
-    },
-
-    async switchDocType() {
-      this.setLoadingDocStatus(true)
-      this.docs = []
-      this.selectedDocID = null
-      this.resetGitLog()
-      Utils.toast(`Switched to document type ${this.titles[this.selectedDocType]}.`, 'is-info')
-      await this.loadDocs(true)
-      this.goToRoute()
-      this.setLoadingDocStatus(false)
-    },
-
     async switchDocID() {
       this.setLoadingDocStatus(true)
-      this.loadGitLog()
       const docName = this.selectedDoc.name
       if (docName) {
         Utils.toast(
@@ -671,7 +536,6 @@ export default defineComponent({
       if (!docToAdd) {
         docToAdd = this.newDoc()
       }
-      this.resetGitLog()
       this.docs.unshift(docToAdd)
       this.selectedDocID = docToAdd.id
       const docTypeText = this.titles[this.selectedDocType + '-singular']
@@ -733,7 +597,6 @@ export default defineComponent({
 
       await requestFunction({methodName, url, data, successMessage, failureMessage}).then(() => {
         this.updateDocIdNames()
-        this.loadGitLog(true)
         // If the saved doc was a security policy, refresh the referenced IDs lists
         if (this.selectedDocType === 'securitypolicies') {
           this.loadReferencedDocsIDs()
@@ -769,7 +632,6 @@ export default defineComponent({
       }
       await requestFunction({methodName, url, successMessage, failureMessage}).then(() => {
         this.updateDocIdNames()
-        this.loadGitLog(true)
       })
       // If the deleted doc is a dynamic rule, also delete the matching global filter
       if (this.selectedDocType === 'dynamic-rules') {
@@ -781,8 +643,6 @@ export default defineComponent({
 
       this.selectedDocID = this.docs[0].id
       await this.loadSelectedDocData()
-      this.addMissingDefaultsToDoc()
-      this.resetGitLog()
       this.goToRoute()
       this.isDeleteLoading = false
       this.setLoadingDocStatus(false)
@@ -811,27 +671,8 @@ export default defineComponent({
       this.referencedIDsCloudFunctions = _.uniq(_.flatten(referencedCloudFunctions))
     },
 
-    async restoreGitVersion(gitVersion: Commit) {
-      const branch = this.selectedBranch
-      const doctype: DocumentType = this.selectedDocType
-      const docTitle = this.titles[doctype]
-      const versionId = gitVersion.version
-      const urlTrail = `configs/${branch}/d/${doctype}/v/${versionId}/`
-
-      await RequestsUtils.sendRequest({
-        methodName: 'PUT',
-        url: `${urlTrail}revert/`,
-        successMessage: `Document [${docTitle}] restored to version [${versionId}]!`,
-        failureMessage: `Failed restoring document [${docTitle}] to version [${versionId}]!`,
-      })
-      await this.loadDocs(true)
-    },
-
-    addMissingDefaultsToDoc() {
-      if (!this.selectedDoc) {
-        return
-      }
-      this.selectedDoc = {...this.newDoc(), ...this.selectedDoc as {}}
+    restoreGitVersion() {
+      this.loadDocs(true)
     },
 
     // Collect every request to display a loading indicator
@@ -847,9 +688,7 @@ export default defineComponent({
 
   async created() {
     this.setLoadingDocStatus(true)
-    await this.loadConfigs()
-    this.setSelectedDataFromRouteParams()
-    this.loadReferencedDocsIDs()
+    await this.branchesStore.list
     this.setLoadingDocStatus(false)
   },
 })

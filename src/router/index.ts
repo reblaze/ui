@@ -1,11 +1,9 @@
 import {createRouter, createWebHistory, RouteRecordRaw} from 'vue-router'
 import MainComponent from '@/views/MainComponent.vue'
-import DashboardDisplay from '@/views/Dashboard.vue'
 import DocumentEditor from '@/views/DocumentEditor.vue'
-import CurieDBEditor from '@/views/CurieDBEditor.vue'
+import SystemDBEditor from '@/views/SystemDBEditor.vue'
 import PublishChanges from '@/views/Publish.vue'
 import VersionControl from '@/views/VersionControl.vue'
-import DocumentSearch from '@/views/DocumentSearch.vue'
 import DocumentList from '@/views/DocumentList.vue'
 import QuarantinedList from '@/components/QuarantinedList.vue'
 import RoutingProfileList from '@/views/RoutingProfileList.vue'
@@ -25,150 +23,184 @@ const routes: Array<RouteRecordRaw> = [
     path: '/',
     name: 'MainComponent',
     component: MainComponent,
-    redirect: '/dashboard',
+    redirect: '/support',
     children: [
-      {path: 'dashboard', name: 'DashboardDisplay', component: DashboardDisplay},
       {
-        path: 'config',
-        name: 'DocumentEditor',
-        component: DocumentEditor,
+        path: ':branch',
+        name: 'MainComponent/Branch',
+        redirect: '/support',
         children: [
           {
-            path: ':branch',
-            name: 'DocumentEditor/Branch',
-            component: DocumentEditor,
+            path: 'web-proxy',
+            name: 'WebProxy',
+            redirect: (route) => {
+              return `/${route.params.branch}/web-proxy/list`
+            },
             children: [
               {
-                path: ':doc_type',
-                name: 'DocumentEditor/Branch/DocType',
-                component: DocumentEditor,
-                children: [
-                  {
-                    path: ':doc_id',
-                    name: 'DocumentEditor/Branch/DocType/DocID',
-                    component: DocumentEditor,
-                  },
-                ],
+                path: 'list',
+                name: 'WebProxy/list',
+                component: WebProxyList,
+              },
+              {
+                path: 'config/:doc_id',
+                name: 'WebProxy/config',
+                component: WebProxyEditor,
               },
             ],
           },
-        ],
-      },
-      {
-        path: 'list',
-        name: 'DocumentList',
-        component: DocumentList,
-        children: [
           {
-            path: ':branch',
-            name: 'DocumentList/Branch',
-            component: DocumentList,
+            path: 'routing-profiles',
+            name: 'RoutingProfiles',
+            redirect: (route) => {
+              return `/${route.params.branch}/routing-profiles/list`
+            },
             children: [
               {
-                path: ':doc_type',
-                name: 'DocumentList/Branch/DocType',
+                path: 'list',
+                name: 'RoutingProfiles/list',
+                component: RoutingProfileList,
+              },
+              {
+                path: 'config/:doc_id',
+                name: 'RoutingProfiles/config',
+                component: RoutingProfileEditor,
+              },
+            ],
+          },
+          {
+            path: 'mobile-sdks',
+            name: 'MobileSDKs',
+            redirect: (route) => {
+              return `/${route.params.branch}/mobile-sdks/list`
+            },
+            children: [
+              {
+                path: 'list',
+                name: 'MobileSDKs/list',
+                component: MobileSDKList,
+              },
+              {
+                path: 'config/:doc_id',
+                name: 'MobileSDKs/config',
+                component: MobileSDKEditor,
+              },
+            ],
+          },
+          {
+            path: 'proxy-templates',
+            name: 'ProxyTemplates',
+            redirect: (route) => {
+              return `/${route.params.branch}/proxy-templates/list`
+            },
+            children: [
+              {
+                path: 'list',
+                name: 'ProxyTemplates/list',
+                component: ProxyTemplateList,
+              },
+              {
+                path: 'config/:doc_id',
+                name: 'ProxyTemplates/config',
+                component: ProxyTemplateEditor,
+              },
+            ],
+          },
+          {
+            path: 'backend-services',
+            name: 'BackendServices',
+            redirect: (route) => {
+              return `/${route.params.branch}/backend-services/list`
+            },
+            children: [
+              {
+                path: 'list',
+                name: 'BackendServices/list',
+                component: BackendServiceList,
+              },
+              {
+                path: 'config/:doc_id',
+                name: 'BackendServices/config',
+                component: BackendServiceEditor,
+              },
+            ],
+          },
+          {
+            path: ':doc_type',
+            name: 'Document',
+            redirect: (route) => {
+              return `/${route.params.branch}/${route.params.doc_type}/list`
+            },
+            children: [
+              {
+                path: 'list',
+                name: 'DocumentList/DocType/list',
                 component: DocumentList,
               },
+              {
+                path: 'config/:doc_id',
+                name: 'DocumentEditor/DocType/config/DocID',
+                component: DocumentEditor,
+              },
             ],
           },
+          {path: 'version-control', name: 'VersionControl', component: VersionControl},
+          {path: 'publish', name: 'PublishChanges', component: PublishChanges},
         ],
       },
+      // {
+      //   path: 'config',
+      //   name: 'DocumentEditor',
+      //   component: DocumentEditor,
+      //   children: [
+      //     {
+      //       path: ':branch',
+      //       name: 'DocumentEditor/Branch',
+      //       component: DocumentEditor,
+      //       children: [
+      //         {
+      //           path: ':doc_type',
+      //           name: 'DocumentEditor/Branch/DocType',
+      //           component: DocumentEditor,
+      //           children: [
+      //             {
+      //               path: ':doc_id',
+      //               name: 'DocumentEditor/Branch/DocType/DocID',
+      //               component: DocumentEditor,
+      //             },
+      //           ],
+      //         },
+      //       ],
+      //     },
+      //   ],
+      // },
+      // {
+      //   path: 'list',
+      //   name: 'DocumentList',
+      //   component: DocumentList,
+      //   children: [
+      //     {
+      //       path: ':branch',
+      //       name: 'DocumentList/Branch',
+      //       component: DocumentList,
+      //       children: [
+      //         {
+      //           path: ':doc_type',
+      //           name: 'DocumentList/Branch/DocType',
+      //           component: DocumentList,
+      //         },
+      //       ],
+      //     },
+      //   ],
+      // },
       {path: 'quarantined', name: 'Quarantined', component: QuarantinedList},
-      {path: 'CurieDB', name: 'CurieDBEditor', component: CurieDBEditor},
-      {
-        path: 'web-proxy',
-        name: 'WebProxy',
-        redirect: '/web-proxy/list',
-        children: [
-          {
-            path: 'list',
-            name: 'WebProxy/list',
-            component: WebProxyList,
-          },
-          {
-            path: 'config/:doc_id',
-            name: 'WebProxy/config',
-            component: WebProxyEditor,
-          },
-        ],
-      },
-      {
-        path: 'routing-profiles',
-        name: 'RoutingProfiles',
-        redirect: '/routing-profiles/list',
-        children: [
-          {
-            path: 'list',
-            name: 'RoutingProfiles/list',
-            component: RoutingProfileList,
-          },
-          {
-            path: 'config/:doc_id',
-            name: 'RoutingProfiles/config',
-            component: RoutingProfileEditor,
-          },
-        ],
-      },
-      {
-        path: 'mobile-sdks',
-        name: 'MobileSDKs',
-        redirect: '/mobile-sdks/list',
-        children: [
-          {
-            path: 'list',
-            name: 'MobileSDKs/list',
-            component: MobileSDKList,
-          },
-          {
-            path: 'config/:doc_id',
-            name: 'MobileSDKs/config',
-            component: MobileSDKEditor,
-          },
-        ],
-      },
-      {
-        path: 'proxy-templates',
-        name: 'ProxyTemplates',
-        redirect: '/proxy-templates/list',
-        children: [
-          {
-            path: 'list',
-            name: 'ProxyTemplates/list',
-            component: ProxyTemplateList,
-          },
-          {
-            path: 'config/:doc_id',
-            name: 'ProxyTemplates/config',
-            component: ProxyTemplateEditor,
-          },
-        ],
-      },
-      {
-        path: 'backend-services',
-        name: 'BackendServices',
-        redirect: '/backend-services/list',
-        children: [
-          {
-            path: 'list',
-            name: 'BackendServices/list',
-            component: BackendServiceList,
-          },
-          {
-            path: 'config/:doc_id',
-            name: 'BackendServices/config',
-            component: BackendServiceEditor,
-          },
-        ],
-      },
-      {path: 'publish', name: 'PublishChanges', component: PublishChanges},
-      {path: 'versioncontrol', name: 'VersionControl', component: VersionControl},
+      {path: 'system-db', name: 'SystemDBEditor', component: SystemDBEditor},
       {path: 'support', name: 'Support', component: HelpAndSupport},
-      {path: 'search', name: 'DocumentSearch', component: DocumentSearch},
     ],
   },
   {
     path: '/:pathMatch(.*)*',
-    redirect: '/config',
+    redirect: '/',
   },
 ]
 

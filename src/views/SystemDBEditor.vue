@@ -1,261 +1,261 @@
 <template>
-  <div class="card">
-    <div class="card-content">
-      <div class="media">
-        <div class="media-content">
-          <div class="columns">
-            <div class="column">
-              <div class="field is-grouped">
-                <div class="control" v-if="databases.length">
-                  <div class="select is-small">
-                    <select class="namespace-selection"
-                            data-qa="switch-namespace-dropdown"
-                            title="Switch namespace"
-                            v-model="selectedNamespace"
-                            @change="switchNamespace">
-                      <option v-for="namespace in databases"
-                              :key="namespace"
-                              :value="namespace">
-                        {{ namespace }}
-                      </option>
-                    </select>
-                  </div>
+  <div class="card-content">
+    <div class="media">
+      <div class="media-content">
+        <div class="columns">
+          <div class="column">
+            <div class="field is-grouped">
+              <div class="control"
+                   v-if="databases.length">
+                <div class="select is-small">
+                  <select class="namespace-selection"
+                          data-qa="switch-namespace-dropdown"
+                          title="Switch namespace"
+                          v-model="selectedNamespace"
+                          @change="switchNamespace">
+                    <option v-for="namespace in databases"
+                            :key="namespace"
+                            :value="namespace">
+                      {{ namespace }}
+                    </option>
+                  </select>
                 </div>
+              </div>
 
-                <p class="control" >
-                  <button class="button is-small fork-namespace-button"
-                          :class="{'is-loading': isForkNamespaceLoading}"
-                          @click="forkNamespace"
-                          :disabled="!selectedNamespace"
-                          data-qa="duplicate-namespace-btn"
-                          title="Duplicate namespace">
+              <p class="control">
+                <button class="button is-small fork-namespace-button"
+                        :class="{'is-loading': isForkNamespaceLoading}"
+                        @click="forkNamespace"
+                        :disabled="!selectedNamespace"
+                        data-qa="duplicate-namespace-btn"
+                        title="Duplicate namespace">
                     <span class="icon is-small">
                       <i class="fas fa-clone"></i>
                     </span>
-                  </button>
-                </p>
+                </button>
+              </p>
 
-                <p class="control">
-                  <button class="button is-small download-namespace-button"
-                     @click="downloadNamespace"
-                     :disabled="!selectedNamespace"
-                     data-qa="download-namespace-btn"
-                     title="Download namespace">
+              <p class="control">
+                <button class="button is-small download-namespace-button"
+                        @click="downloadNamespace"
+                        :disabled="!selectedNamespace"
+                        data-qa="download-namespace-btn"
+                        title="Download namespace">
                     <span class="icon is-small">
                       <i class="fas fa-download"></i>
                     </span>
-                  </button>
-                </p>
+                </button>
+              </p>
 
-                <p class="control">
-                  <button class="button is-small new-namespace-button"
-                          :class="{'is-loading': isNewNamespaceLoading}"
-                          @click="addNewNamespace()"
-                          data-qa="add-namespace-btn"
-                          title="Add new namespace">
+              <p class="control">
+                <button class="button is-small new-namespace-button"
+                        :class="{'is-loading': isNewNamespaceLoading}"
+                        @click="addNewNamespace()"
+                        data-qa="add-namespace-btn"
+                        title="Add new namespace">
                     <span class="icon is-small">
                       <i class="fas fa-plus"></i>
                     </span>
-                  </button>
-                </p>
+                </button>
+              </p>
 
-                <p class="control">
-                  <button class="button is-small has-text-danger delete-namespace-button"
-                          :class="{'is-loading': isDeleteNamespaceLoading}"
-                          @click="deleteNamespace()"
-                          data-qa="delete-namespace-btn"
-                          title="Delete namespace"
-                          :disabled="selectedNamespace === defaultNamespaceName || databases.length <= 1">
+              <p class="control">
+                <button class="button is-small has-text-danger delete-namespace-button"
+                        :class="{'is-loading': isDeleteNamespaceLoading}"
+                        @click="deleteNamespace()"
+                        data-qa="delete-namespace-btn"
+                        title="Delete namespace"
+                        :disabled="selectedNamespace === defaultNamespaceName || databases.length <= 1">
                     <span class="icon is-small">
                       <i class="fas fa-trash"></i>
                     </span>
-                  </button>
-                </p>
-              </div>
+                </button>
+              </p>
             </div>
-            <div class="column">
-              <div class="field is-grouped is-pulled-right">
-                <div class="control" v-if="namespaceKeys.length">
-                  <div class="select is-small">
-                    <select class="key-selection"
-                            title="Switch key"
-                            data-qa="switch-key-dropdown"
-                            v-model="selectedKey"
-                            @change="switchKey">
-                      <option v-for="key in namespaceKeys"
-                              :key="key"
-                              :value="key">
-                        {{ key }}
-                      </option>
-                    </select>
-                  </div>
+          </div>
+          <div class="column">
+            <div class="field is-grouped is-pulled-right">
+              <div class="control"
+                   v-if="namespaceKeys.length">
+                <div class="select is-small">
+                  <select class="key-selection"
+                          title="Switch key"
+                          data-qa="switch-key-dropdown"
+                          v-model="selectedKey"
+                          @change="switchKey">
+                    <option v-for="key in namespaceKeys"
+                            :key="key"
+                            :value="key">
+                      {{ key }}
+                    </option>
+                  </select>
                 </div>
+              </div>
 
-                <p class="control">
-                  <button class="button is-small fork-key-button"
-                          :class="{'is-loading': isForkKeyLoading}"
-                          @click="forkKey"
-                          :disabled="!selectedNamespace"
-                          data-qa="duplicate-key-btn"
-                          title="Duplicate Key">
+              <p class="control">
+                <button class="button is-small fork-key-button"
+                        :class="{'is-loading': isForkKeyLoading}"
+                        @click="forkKey"
+                        :disabled="!selectedNamespace"
+                        data-qa="duplicate-key-btn"
+                        title="Duplicate Key">
                     <span class="icon is-small">
                       <i class="fas fa-clone"></i>
                     </span>
-                  </button>
-                </p>
+                </button>
+              </p>
 
-                <p class="control">
-                  <button class="button is-small download-key-button"
-                     @click="downloadKey"
-                     :disabled="!selectedKeyValue"
-                     title="Download Key"
-                     data-qa="download-key-btn">
+              <p class="control">
+                <button class="button is-small download-key-button"
+                        @click="downloadKey"
+                        :disabled="!selectedKeyValue"
+                        title="Download Key"
+                        data-qa="download-key-btn">
                     <span class="icon is-small">
                       <i class="fas fa-download"></i>
                     </span>
-                  </button>
-                </p>
+                </button>
+              </p>
 
-                <p class="control">
-                  <button class="button is-small new-key-button"
-                          :class="{'is-loading': isNewKeyLoading}"
-                          @click="addNewKey()"
-                          :disabled="!selectedNamespace"
-                          data-qa="add-new-key-btn"
-                          title="Add New Key">
+              <p class="control">
+                <button class="button is-small new-key-button"
+                        :class="{'is-loading': isNewKeyLoading}"
+                        @click="addNewKey()"
+                        :disabled="!selectedNamespace"
+                        data-qa="add-new-key-btn"
+                        title="Add New Key">
                     <span class="icon is-small">
                       <i class="fas fa-plus"></i>
                     </span>
-                  </button>
-                </p>
+                </button>
+              </p>
 
-                <p class="control">
-                  <button class="button is-small save-button"
-                          :class="{'is-loading': isSaveDocLoading}"
-                          @click="saveChanges"
-                          title="Save changes"
-                          data-qa="save-changes-btn"
-                          :disabled="!isFormValid">
+              <p class="control">
+                <button class="button is-small save-button"
+                        :class="{'is-loading': isSaveDocLoading}"
+                        @click="saveChanges"
+                        title="Save changes"
+                        data-qa="save-changes-btn"
+                        :disabled="!isFormValid">
                     <span class="icon is-small">
                       <i class="fas fa-save"></i>
                     </span>
-                  </button>
-                </p>
+                </button>
+              </p>
 
-                <p class="control">
-                  <button class="button is-small has-text-danger delete-key-button"
-                          :class="{'is-loading': isDeleteKeyLoading}"
-                          @click="deleteKey()"
-                          title="Delete Key"
-                          data-qa="delete-key-btn"
-                          :disabled="(selectedNamespace === defaultNamespaceName && selectedKey === defaultKeyName)
+              <p class="control">
+                <button class="button is-small has-text-danger delete-key-button"
+                        :class="{'is-loading': isDeleteKeyLoading}"
+                        @click="deleteKey()"
+                        title="Delete Key"
+                        data-qa="delete-key-btn"
+                        :disabled="(selectedNamespace === defaultNamespaceName && selectedKey === defaultKeyName)
                                      || namespaceKeys.length <= 1">
                     <span class="icon is-small">
                       <i class="fas fa-trash"></i>
                     </span>
-                  </button>
-                </p>
+                </button>
+              </p>
 
-              </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
 
-      <hr/>
+    <hr/>
 
-      <div class="content"
-           v-if="selectedNamespace && selectedKey">
-        <div class="card">
-          <div class="card-content">
-            <div class="content">
-              <div class="field">
-                <label class="label">Namespace</label>
-                <div class="control">
-                  <input class="input is-small is-fullwidth namespace-name-input"
-                         title="Namespace name"
-                         data-qa="namespace-name-input"
-                         @input="validateInput($event, isSelectedNamespaceNewNameValid)"
-                         type="text"
-                         placeholder="Namespace name"
-                         v-model="namespaceNameInput"
-                         :disabled="selectedNamespace === defaultNamespaceName">
-                </div>
+    <div class="content"
+         v-if="selectedNamespace && selectedKey">
+      <div class="card">
+        <div class="card-content">
+          <div class="content">
+            <div class="field">
+              <label class="label">Namespace</label>
+              <div class="control">
+                <input class="input is-small is-fullwidth namespace-name-input"
+                       title="Namespace name"
+                       data-qa="namespace-name-input"
+                       @input="validateInput($event, isSelectedNamespaceNewNameValid)"
+                       type="text"
+                       placeholder="Namespace name"
+                       v-model="namespaceNameInput"
+                       :disabled="selectedNamespace === defaultNamespaceName">
               </div>
             </div>
+          </div>
 
-            <div class="content">
-              <div class="field">
-                <label class="label">Key</label>
-                <div class="control">
-                  <input class="input is-small is-fullwidth key-name-input"
-                         title="Key name"
-                         data-qa="key-name-input"
-                         @input="validateInput($event, isSelectedKeyNewNameValid)"
-                         type="text"
-                         placeholder="Key name"
-                         v-model="keyNameInput"
-                         :disabled="selectedNamespace === defaultNamespaceName && selectedKey === defaultKeyName">
-                </div>
+          <div class="content">
+            <div class="field">
+              <label class="label">Key</label>
+              <div class="control">
+                <input class="input is-small is-fullwidth key-name-input"
+                       title="Key name"
+                       data-qa="key-name-input"
+                       @input="validateInput($event, isSelectedKeyNewNameValid)"
+                       type="text"
+                       placeholder="Key name"
+                       v-model="keyNameInput"
+                       :disabled="selectedNamespace === defaultNamespaceName && selectedKey === defaultKeyName">
               </div>
             </div>
+          </div>
 
-            <div class="content">
-              <div class="field">
-                <label class="label">Value</label>
-                <div class="control">
+          <div class="content">
+            <div class="field">
+              <label class="label">Value</label>
+              <div class="control">
 
-                  <div v-if="isJsonEditor"
-                       class="editor">
-                  </div>
-                  <textarea
-                      v-else
-                      @input="validateInput($event, isNewValueValid)"
-                      title="Value"
-                      data-qa="value-input"
-                      rows="20"
-                      class="is-family-monospace textarea value-input"
-                      v-model="selectedKeyValue">
+                <div v-if="isJsonEditor"
+                     class="editor">
+                </div>
+                <textarea
+                    v-else
+                    @input="validateInput($event, isNewValueValid)"
+                    title="Value"
+                    data-qa="value-input"
+                    rows="20"
+                    class="is-family-monospace textarea value-input"
+                    v-model="selectedKeyValue">
                   </textarea>
-                </div>
               </div>
             </div>
           </div>
         </div>
-        <hr/>
-        <git-history :gitLog="gitLog"
-                     :apiPath="gitAPIPath"
-                     :loading="loadingGitlog"
-                     @restore-version="restoreGitVersion"></git-history>
       </div>
+      <hr/>
+      <git-history :gitLog="gitLog"
+                   :apiPath="gitAPIPath"
+                   :loading="loadingGitLog"
+                   @restore-version="restoreGitVersion"></git-history>
+    </div>
 
-      <div class="content no-data-wrapper"
-           v-else>
-        <div v-if="loadingDocCounter > 0">
-          <button class="button is-outlined is-text is-small is-loading value-loading">
-            Loading
-          </button>
-        </div>
-        <div v-else
-             class="no-data-message">
-          No data found!
-          <div>
-            <!--display correct message by priority (Namespace -> Key)-->
-            <span v-if="!selectedNamespace">
+    <div class="content no-data-wrapper"
+         v-else>
+      <div v-if="loadingDocCounter > 0">
+        <button class="button is-outlined is-text is-small is-loading value-loading">
+          Loading
+        </button>
+      </div>
+      <div v-else
+           class="no-data-message">
+        No data found!
+        <div>
+          <!--display correct message by priority (Namespace -> Key)-->
+          <span v-if="!selectedNamespace">
               Missing namespace. To create a new one, click
               <a title="Add new"
                  @click="addNewNamespace()">
                 here
               </a>
             </span>
-            <span v-if="selectedNamespace && !selectedKey">
+          <span v-if="selectedNamespace && !selectedKey">
               Missing key. To create a new one, click
               <a title="Add new"
                  @click="addNewKey()">
                 here
               </a>
             </span>
-          </div>
         </div>
       </div>
     </div>
@@ -274,7 +274,7 @@ import {AxiosResponse} from 'axios'
 
 export default defineComponent({
 
-  name: 'CurieDBEditor',
+  name: 'SystemDBEditor',
   props: {},
   components: {
     GitHistory,
@@ -310,7 +310,7 @@ export default defineComponent({
       selectedKeyValue: null,
 
       gitLog: [] as Commit[],
-      loadingGitlog: false,
+      loadingGitLog: false,
 
       apiRoot: RequestsUtils.confAPIRoot,
       apiVersion: RequestsUtils.confAPIVersion,
@@ -556,11 +556,11 @@ export default defineComponent({
     },
 
     async loadGitLog() {
-      this.loadingGitlog = true
+      this.loadingGitLog = true
       const url = `db/${this.selectedNamespace}/k/${this.selectedKey}/v/`
       const response = await RequestsUtils.sendRequest({methodName: 'GET', url})
       this.gitLog = response?.data || []
-      this.loadingGitlog = false
+      this.loadingGitLog = false
     },
 
     async restoreGitVersion(gitVersion: Commit) {
@@ -637,7 +637,8 @@ export default defineComponent({
 
 })
 </script>
-<style scoped lang="scss">
+<style scoped
+       lang="scss">
 
 @import 'node_modules/bulma/sass/utilities/initial-variables.sass';
 @import 'node_modules/bulma/sass/utilities/functions.sass';

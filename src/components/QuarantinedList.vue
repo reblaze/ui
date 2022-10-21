@@ -1,25 +1,23 @@
-<template >
-        <div class="card">
-          <div class="card-content">
-                <div class="content">
-                    <rbz-table :columns="columns"
-                                :data="quarantinedData"
-                                :row-button-icon="'fa-trash'"
-                                :row-button-title="'Delete'"
-                                :show-menu-column="true"
-                                :show-filter-button="true"
-                                :show-row-button="true"
-                                @row-button-clicked="deleteQuarantinedElement">
-                    </rbz-table>
-                </div>
-          </div>
-        </div>
+<template>
+  <div class="card-content">
+    <div class="content">
+      <rbz-table :columns="columns"
+                 :data="quarantinedData"
+                 :row-button-icon="'fa-trash'"
+                 :row-button-title="'Delete'"
+                 :show-menu-column="true"
+                 :show-filter-button="true"
+                 :show-row-button="true"
+                 @row-button-clicked="deleteQuarantinedElement">
+      </rbz-table>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
 import {defineComponent} from 'vue'
 import RbzTable from '@/components/RbzTable.vue'
-import {Quarantined, ColumnOptions} from '@/types'
+import {ColumnOptions, Quarantined} from '@/types'
 import DateTimeUtils from '@/assets/DateTimeUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 
@@ -101,15 +99,15 @@ export default defineComponent({
       const config = {headers: {'provider': 'mongodb'}}
       const data = {
         'query':
-          {
-            'collection': 'dynamic_rules_violations_active',
-            'execute': [
-              {
-                'func': 'find',
-                'options': {},
-              },
-            ],
-          },
+            {
+              'collection': 'dynamic_rules_violations_active',
+              'execute': [
+                {
+                  'func': 'find',
+                  'options': {},
+                },
+              ],
+            },
       }
       const response = await RequestsUtils.sendDataLayerRequest({methodName: 'POST', url, data, config})
 
@@ -123,15 +121,15 @@ export default defineComponent({
       const config = {headers: {'provider': 'mongodb'}}
       const data = {
         'query':
-          {
-            'collection': 'dynamic_rules_violations_active',
-            'execute': [
-              {
-                'func': 'delete_many',
-                'options': {'filter': {'_id': {'$oid': id}}},
-              },
-            ],
-          },
+            {
+              'collection': 'dynamic_rules_violations_active',
+              'execute': [
+                {
+                  'func': 'delete_many',
+                  'options': {'filter': {'_id': {'$oid': id}}},
+                },
+              ],
+            },
       }
       await RequestsUtils.sendDataLayerRequest({methodName: 'POST', url, data, config})
       this.loadQuarantinedData()

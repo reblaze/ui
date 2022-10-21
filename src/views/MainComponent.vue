@@ -1,16 +1,18 @@
 <template>
-  <div>
+  <div class="main-component-wrapper is-fullheight">
     <nav class="navbar is-fixed-top is-light" role="navigation" aria-label="main navigation">
       <header-main/>
     </nav>
     <br/>
-    <div class="content-container">
+    <div class="content-container is-fullheight">
       <div class="columns">
-        <div class="column width-250px">
+        <div class="column width-220px">
           <side-menu></side-menu>
         </div>
         <div class="column">
-          <router-view></router-view>
+          <div class="card is-fullheight has-overflow-y-auto">
+            <router-view></router-view>
+          </div>
         </div>
       </div>
     </div>
@@ -22,11 +24,18 @@ import HeaderMain from '@/components/HeaderMain.vue'
 import SideMenu from '@/components/SideMenu.vue'
 import {defineComponent} from 'vue'
 import 'core-js'
+import {mapStores} from 'pinia'
+import {useBranchesStore} from '@/stores/BranchesStore'
 
 export default defineComponent({
   name: 'MainComponent',
   components: {HeaderMain, SideMenu},
-  methods: {},
+  computed: {
+    ...mapStores(useBranchesStore),
+  },
+  created() {
+    this.branchesStore.loadBranches()
+  },
 })
 </script>
 <style scoped lang="scss">

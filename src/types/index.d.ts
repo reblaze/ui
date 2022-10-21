@@ -80,7 +80,7 @@ declare module CuriefenseClient {
 
   type NamesRegexType = 'names' | 'regex'
 
-  type CloudFunctionsPhaseType = 'request0' | 'request1' | 'response0' | 'response1'
+  type CloudFunctionsPhaseType = 'request1' | 'response0'
 
   type Document =
     BasicDocument
@@ -298,6 +298,7 @@ declare module CuriefenseClient {
   }
 
   type RoutingProfileEntryLocation = {
+    id: string
     path: string
     backend_id: string
     cloud_functions: string[]

@@ -8,6 +8,12 @@
 @import 'node_modules/bulma/sass/utilities/mixins.sass';
 @import 'node_modules/bulma/sass/helpers/typography.sass';
 
+/* System */
+
+html {
+  overflow: hidden;
+}
+
 /* Element width */
 
 .width-20px {
@@ -86,6 +92,12 @@
   max-width: 200px;
   min-width: 200px;
   width: 200px;
+}
+
+.width-220px {
+  max-width: 220px;
+  min-width: 220px;
+  width: 220px;
 }
 
 .width-250px {
@@ -318,6 +330,14 @@ $color-light: hsl(0, 0%, 96%);
 
 .is-clickable {
   cursor: pointer;
+}
+
+.is-fullheight {
+  height: 100%;
+}
+
+.has-overflow-y-auto {
+  overflow-y: auto;
 }
 
 .tag-cell {

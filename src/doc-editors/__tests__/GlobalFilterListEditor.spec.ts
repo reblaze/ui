@@ -77,7 +77,7 @@ describe('GlobalFilterListEditor.vue', () => {
         'name': 'default monitoring action',
       },
     ]
-    const selectedBranch = 'master'
+    const selectedBranch = 'prod'
     jest.spyOn(axios, 'get').mockImplementation((path) => {
       if (path === `/conf/api/v3/configs/${selectedBranch}/d/actions/`) {
         return Promise.resolve({data: customResponsesDocs})
@@ -416,6 +416,11 @@ describe('GlobalFilterListEditor.vue', () => {
   })
 
   test('should remove all entries relation data from component when clear button is clicked', () => {
+    wrapper = mount(GlobalFilterListEditor, {
+      props: {
+        selectedDoc: docs[0],
+      },
+    })
     const wantedRule: GlobalFilter['rule'] = {
       relation: docs[0].rule.relation,
       entries: [],

@@ -76,16 +76,14 @@ const titles: { [key: string]: string } = {
   'mobile-sdks-singular': 'MobileSDK',
   'proxy-templates': 'Proxy Templates',
   'proxy-templates-singular': 'Proxy Template',
-  'sites': 'Sites',
-  'sites-singular': 'Site',
+  'sites': 'Web Proxies',
+  'sites-singular': 'Web Proxy',
   'backends': 'Backends Services',
   'backends-singular': 'Backend Service',
   'report': 'Report',
   'ignore': 'Ignore',
-  'request0': 'Request Pre Reblaze',
-  'request1': 'Request Post Reblaze',
-  'response0': 'Response Pre Reblaze',
-  'response1': 'Response Post Reblaze',
+  'request1': 'Request',
+  'response0': 'Response',
 }
 
 const dynamicRuleTargets = {
@@ -213,7 +211,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
           'id': generateUUID2(),
           'match': '/',
           'name': 'default',
-          'acl_profile': '__default__',
+          'acl_profile': '__acldefault__',
           'content_filter_profile': '__default__',
           'acl_active': false,
           'content_filter_active': false,
@@ -247,7 +245,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
           'attrs': 'securitypolicyentryid',
         },
         {
-          'headers': 'rbzsessionid',
+          'attrs': 'curiesession',
         },
       ],
       'pairwith': {
@@ -346,7 +344,7 @@ const newOperationEntryFactory: { [key: string]: Function } = {
       'security_policy': '__default__',
       'routing_profile': '__default__',
       'proxy_template': '__default__',
-      'mobile_sdk': '__default__',
+      'mobile_sdk': '',
     }
   },
 
@@ -357,6 +355,7 @@ const newOperationEntryFactory: { [key: string]: Function } = {
       'description': 'New Routing Profile Description and Remarks',
       'locations': [
         {
+          'id': generateUUID2(),
           'path': '/',
           'backend_id': '__default__',
           'cloud_functions': [],

@@ -26,7 +26,7 @@ describe('CloudFunctionsEditor.vue', () => {
       'id': 'f123456789',
       'name': 'New Cloud Function',
       'description': '2 requests per minute',
-      'phase': 'response1',
+      'phase': 'response0',
       'code': `-- begin custom code
       --custom response header
       ngx.header['foo'] = 'bar'`,
@@ -40,7 +40,7 @@ describe('CloudFunctionsEditor.vue', () => {
           {
             'name': 'default',
             'match': '/',
-            'acl_profile': '__default__',
+            'acl_profile': '__acldefault__',
             'acl_active': false,
             'content_filter_profile': '__default__',
             'content_filter_active': false,
@@ -65,7 +65,7 @@ describe('CloudFunctionsEditor.vue', () => {
           {
             'name': 'default',
             'match': '/',
-            'acl_profile': '__default__',
+            'acl_profile': '__acldefault__',
             'acl_active': false,
             'content_filter_profile': '__default__',
             'content_filter_active': false,
@@ -83,7 +83,7 @@ describe('CloudFunctionsEditor.vue', () => {
         ],
       },
     ]
-    const selectedBranch = 'master'
+    const selectedBranch = 'prod'
     jest.spyOn(axios, 'get').mockImplementation((path) => {
       if (path === `/conf/api/v3/configs/${selectedBranch}/d/securitypolicies/`) {
         return Promise.resolve({data: securityPoliciesDocs})

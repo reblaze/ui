@@ -1,250 +1,332 @@
 <template>
-
-  <aside class="menu mt-3">
-    <div v-for="(sectionItems, sectionTitle) in menuItems"
-         :key="sectionTitle"
-         class="menu-item">
-      <p class="menu-label">
-        {{ sectionTitle }}
-      </p>
-      <ul class="menu-list">
-        <li v-for="(menuItemDetails, menuItemKey) in sectionItems"
-            :key="menuItemKey"
-            class="section-item">
-          <a v-if="menuItemDetails.external"
-             :data-qa="menuItemDetails.title"
-             :data-curie="menuItemKey"
-             :href="menuItemDetails.url"
-             target="_blank">
-            {{ menuItemDetails.title }}
-          </a>
-          <router-link v-else
-                       :data-qa="menuItemDetails.title"
-                       :data-curie="menuItemKey"
-                       :to="menuItemKey.toString()"
-                       :class="{ 'is-active': currentRoutePath.includes(menuItemKey.toString()) }">
-            {{ menuItemDetails.title }}
-          </router-link>
-          <ul v-if="menuItemDetails.items"
-              class="my-0">
-            <li v-for="(menuSubItemDetails, menuSubItemKey) in menuItemDetails.items"
-                :key="menuSubItemKey">
-              <router-link :data-curie="menuSubItemKey"
-                           :to="menuItemKey + menuSubItemKey.toString()"
-                           :class="{ 'is-active': currentRoutePath.includes(menuSubItemKey.toString()) }">
-                {{ menuSubItemDetails.title }}
-              </router-link>
-            </li>
-          </ul>
-        </li>
-      </ul>
+  <div class="side-menu-wrapper">
+    <div class="branch-management-wrapper mb-3">
+      <div class="control">
+        <div class="select is-small is-fullwidth">
+          <select :value="selectedBranch"
+                  data-qa="switch-branch-dropdown"
+                  title="Switch branch"
+                  @change="switchBranch($event)"
+                  class="branch-selection">
+            <option v-for="name in branchNames"
+                    :key="name"
+                    :value="name">
+              {{ name }}
+            </option>
+          </select>
+        </div>
+      </div>
+      <div class="is-flex">
+        <div class="control mr-3">
+          <span class="icon is-small is-vcentered">
+            <svg :width="24"
+                 :height="24"
+                 :viewBox="'0 0 24 24'">
+              <path :d="mdiSourceBranchPath"/>
+            </svg>
+          </span>
+          <span class="is-size-7 git-branches">
+            {{ branchesCounter }} branch<span v-if="branchesCounter !== 1">es</span>
+          </span>
+        </div>
+        <div class="control">
+          <span class="icon is-small is-vcentered">
+            <svg :width="24"
+                 :height="24"
+                 :viewBox="'0 0 24 24'">
+              <path :d="mdiSourceCommitPath"/>
+            </svg>
+          </span>
+          <span class="is-size-7 git-commits">
+            {{ commitsCounter }} commit<span v-if="commitsCounter !== 1">s</span>
+          </span>
+        </div>
+      </div>
     </div>
-  </aside>
-
+    <div class="menu-wrapper">
+      <sidebar-menu :menu="menu"
+                    :relative="true"
+                    :hideToggle="true"
+                    width="200px"
+                    theme="white-theme"/>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
-import RequestsUtils from '@/assets/RequestsUtils'
+// import RequestsUtils from '@/assets/RequestsUtils'
 import {defineComponent} from 'vue'
-
-type menuItem = {
-  title: string
-  url?: string
-  external?: boolean
-  items?: {
-    [key: string]: menuItem
-  }
-}
+import {mapStores} from 'pinia'
+import {useBranchesStore} from '@/stores/BranchesStore'
+import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
+import _ from 'lodash'
+import {Branch} from '@/types'
+import Utils from '@/assets/Utils'
+import RequestsUtils from '@/assets/RequestsUtils'
 
 export default defineComponent({
   name: 'SideMenu',
   data() {
     const swaggerURL = `${location.protocol}//${location.hostname}:30000/api/v3/`
-    // const kibanaURL = `${location.protocol}//${location.hostname}:5601/app/discover`
+    const kibanaURL = `${location.protocol}//${location.hostname}:5601/app/discover`
     const grafanaURL = `${location.protocol}//${location.hostname}:30300/`
-    // const prometheusURL = `${location.protocol}//${location.hostname}:9090/`
+    const prometheusURL = `${location.protocol}//${location.hostname}:9090/`
 
     return {
+      // Branches / Commits counters
+      mdiSourceBranchPath: mdiSourceBranch,
+      mdiSourceCommitPath: mdiSourceCommit,
+      branches: null as Branch[],
+
+      // Default URLs
       defaultSwaggerURL: swaggerURL,
-      // defaultKibanaURL: kibanaURL,
+      defaultKibanaURL: kibanaURL,
       defaultGrafanaURL: grafanaURL,
-      // defaultPrometheusURL: prometheusURL,
-      menuItems: {
-        analytics: {
-          '/dashboard': {
-            title: 'Dashboard',
-          },
-          // 'kibana': {
-          //   title: 'Kibana',
-          //   url: kibanaURL,
-          //   external: true,
-          // },
-          'grafana': {
-            title: 'Grafana',
-            url: grafanaURL,
-            external: true,
-          },
-          // 'prometheus': {
-          //   title: 'Prometheus',
-          //   url: prometheusURL,
-          //   external: true,
-          // },
-        },
-        settings: {
-          '/list': {
-            title: 'Policies & Rules',
-            items: {},
-          },
-          '/quarantined': {
-            title: 'Quarantined',
-          },
-          '/CurieDB': {
-            title: 'CurieDB',
-          },
-          '/web-proxy': {
-            title: 'Web Proxy',
-          },
-          '/routing-profiles': {
-            title: 'Routing Profiles',
-          },
-          '/mobile-sdks': {
-            title: 'Mobile SDKs',
-          },
-          '/proxy-templates': {
-            title: 'Proxy Templates',
-          },
-          '/backend-services': {
-            title: 'Backend Services',
-          },
-          '/publish': {
-            title: 'Publish Changes',
-          },
-        },
-        git: {
-          '/versioncontrol': {
-            title: 'Version Control',
-          },
-        },
-        help: {
-          '/support': {
-            title: 'Support',
-          },
-          'curiebook': {
-            title: 'Curiebook',
-            url: 'https://docs.curiefense.io/',
-            external: true,
-          },
-          'swagger': {
-            title: 'API',
-            url: swaggerURL,
-            external: true,
-          },
-        },
-      } as {
-        [key: string]: {
-          [key: string]: menuItem
-        }
-      },
+      defaultPrometheusURL: prometheusURL,
+
+      // Actual URLs
+      swaggerURL: swaggerURL,
+      kibanaURL: kibanaURL,
+      grafanaURL: grafanaURL,
+      prometheusURL: prometheusURL,
     }
   },
-  computed: {
-    currentRoutePath() {
-      return this.$route?.path || ''
+  watch: {
+    branchesCounter: {
+      handler: async function() {
+        this.branches = await this.branchesStore.list
+      },
     },
   },
+  computed: {
+    branchNames(): string[] {
+      return this.branches?.length ? _.sortBy(_.map(this.branches, 'id')) : []
+    },
+
+    selectedBranch(): string {
+      return this.branchesStore.selectedBranchId
+    },
+
+    branchesCounter(): number {
+      return this.branchesStore.branchesCounter
+    },
+
+    commitsCounter(): number {
+      return this.branchesStore.commitsCounter
+    },
+
+    menu(): any[] {
+      return [
+        // #########
+        // Analytics
+        // #########
+        {
+          header: 'Analytics',
+        },
+        // {
+        //   href: '/dashboard',
+        //   title: 'Dashboard',
+        // },
+        {
+          href: this.defaultGrafanaURL,
+          title: 'Grafana',
+          external: true,
+        },
+        // {
+        //   href: '/events-log',
+        //   title: 'Events Log',
+        // },
+        // ########
+        // Security
+        // ########
+        {
+          header: 'Security',
+        },
+        {
+          href: `/${this.selectedBranch}/globalfilters`,
+          title: 'Global Filters',
+        },
+        {
+          href: `/${this.selectedBranch}/flowcontrol`,
+          title: 'Flow Control Policies',
+        },
+        {
+          href: `/${this.selectedBranch}/securitypolicies`,
+          title: 'Security Policies',
+        },
+        {
+          href: `/${this.selectedBranch}/ratelimits`,
+          title: 'Rate Limit Rules',
+        },
+        {
+          href: `/${this.selectedBranch}/aclprofiles`,
+          title: 'ACL Profiles',
+        },
+        {
+          href: `/${this.selectedBranch}/contentfilterprofiles`,
+          title: 'Content Filter Profiles',
+        },
+        {
+          href: `/${this.selectedBranch}/contentfilterrules`,
+          title: 'Content Filter Rules',
+        },
+        {
+          href: `/${this.selectedBranch}/actions`,
+          title: 'Custom Responses',
+        },
+        // ################
+        // Premium Security
+        // ################
+        {
+          header: 'Premium Security',
+        },
+        {
+          href: `/${this.selectedBranch}/dynamic-rules`,
+          title: 'Dynamic Rules',
+        },
+        {
+          href: '/quarantined',
+          title: 'Quarantined',
+        },
+        {
+          href: `/${this.selectedBranch}/mobile-sdks`,
+          title: 'Mobile SDKs',
+        },
+        // ################
+        // Cloud Operations
+        // ################
+        {
+          header: 'Cloud Operations',
+        },
+        {
+          href: `/${this.selectedBranch}/web-proxy`,
+          title: 'Web Proxy',
+        },
+        {
+          href: `/${this.selectedBranch}/routing-profiles`,
+          title: 'Routing Profiles',
+        },
+        {
+          href: `/${this.selectedBranch}/proxy-templates`,
+          title: 'Proxy Templates',
+        },
+        {
+          href: `/${this.selectedBranch}/cloud-functions`,
+          title: 'Cloud Functions',
+        },
+        {
+          href: `/${this.selectedBranch}/backend-services`,
+          title: 'Backend Services',
+        },
+        // {
+        //   href: `/${this.selectedBranch}/ssl`,
+        //   title: 'SSL',
+        // },
+        // ######
+        // System
+        // ######
+        {
+          header: 'System',
+        },
+        {
+          href: `/${this.selectedBranch}/version-control`,
+          title: 'Version Control',
+        },
+        {
+          href: '/system-db',
+          title: 'System DB',
+        },
+        {
+          href: `/${this.selectedBranch}/publish`,
+          title: 'Publish Changes',
+        },
+        // ####
+        // Help
+        // ####
+        {
+          header: 'Help',
+        },
+        {
+          href: '/support',
+          title: 'Support',
+        },
+        {
+          href: 'https://docs.curiefense.io/',
+          title: 'Curiebook',
+          external: true,
+        },
+        // {
+        //   href: 'https://',
+        //   title: 'Reblazebook',
+        //   external: true,
+        // },
+        {
+          href: this.defaultSwaggerURL,
+          title: 'API',
+          external: true,
+        },
+      ]
+    },
+
+    ...mapStores(useBranchesStore),
+  },
   methods: {
+    switchBranch(event: Event) {
+      const id: Branch['id'] = (event.target as HTMLSelectElement).value
+      Utils.toast(`Switched to branch "${id}".`, 'is-info')
+      this.branchesStore.setSelectedBranch(id)
+      const name = this.$route.name
+      this.$router.push({name: name, params: {branch: id}})
+    },
+
     async loadLinksFromDB() {
       const response = await RequestsUtils.sendRequest({
         methodName: 'GET',
         url: `db/system/`,
       })
       const systemDBData = response?.data
-      const swaggerURL = systemDBData?.links?.swagger_url || this.defaultSwaggerURL
-      // const kibanaURL = systemDBData?.links?.kibana_url || this.defaultKibanaURL
-      const grafanaURL = systemDBData?.links?.grafana_url || this.defaultGrafanaURL
-      // const prometheusURL = systemDBData?.links?.prometheus_url || this.defaultPrometheusURL
-      this.menuItems.help.swagger = {
-        title: 'API',
-        url: swaggerURL,
-        external: true,
-      }
-      // this.menuItems.analytics.kibana = {
-      //   title: 'Kibana',
-      //   url: kibanaURL,
-      //   external: true,
-      // }
-      this.menuItems.analytics.grafana = {
-        title: 'Grafana',
-        url: grafanaURL,
-        external: true,
-      }
-      // this.menuItems.analytics.prometheus = {
-      //   title: 'Prometheus',
-      //   url: prometheusURL,
-      //   external: true,
-      // }
-    },
-
-    async loadBranches() {
-      const response = await RequestsUtils.sendRequest({
-        methodName: 'GET',
-        url: 'configs/',
-        config: {headers: {'x-fields': 'id'}},
-      })
-      const branchId = response?.data?.[0]?.id || 'undefined'
-      const items = this.menuItems.settings['/list'].items // reference
-      items[`/${branchId}/globalfilters`] = {title: 'Global Filters'} as menuItem
-      items[`/${branchId}/flowcontrol`] = {title: 'Flow Control Policies'} as menuItem
-      items[`/${branchId}/securitypolicies`] = {title: 'Security Policies'} as menuItem
-      items[`/${branchId}/ratelimits`] = {title: 'Rate Limits'} as menuItem
-      items[`/${branchId}/aclprofiles`] = {title: 'ACL Profiles'} as menuItem
-      items[`/${branchId}/contentfilterprofiles`] = {title: 'Content Filter Profiles'} as menuItem
-      items[`/${branchId}/contentfilterrules`] = {title: 'Content Filter Rules'} as menuItem
-      items[`/${branchId}/actions`] = {title: 'Custom Responses'} as menuItem
-      items[`/${branchId}/cloud-functions`] = {title: 'Cloud Functions'} as menuItem
-      items[`/${branchId}/dynamic-rules`] = {title: 'Dynamic Rules'} as menuItem
-      // items[`/${branchId}/search`] = {title: 'Search'} as menuItem
+      this.swaggerURL = systemDBData?.links?.swagger_url || this.defaultSwaggerURL
+      this.kibanaURL = systemDBData?.links?.kibana_url || this.defaultKibanaURL
+      this.grafanaURL = systemDBData?.links?.grafana_url || this.defaultGrafanaURL
+      this.prometheusURL = systemDBData?.links?.prometheus_url || this.defaultPrometheusURL
     },
   },
   async mounted() {
+    this.branches = await this.branchesStore.list
     await this.loadLinksFromDB()
-    await this.loadBranches()
   },
 })
 </script>
-<style scoped
-       lang="scss">
-.menu-item {
-  margin-top: 1.5rem;
-
-  &:first-child {
-    margin-top: 0;
-  }
+<style lang="scss">
+.side-menu-wrapper {
+  height: 100%;
+  position: fixed;
 }
 
-.menu-label {
-  color: #8f99a3;
-  font-weight: 700;
-  margin-bottom: 0;
+.branch-management-wrapper {
+  height: 60px;
 }
 
-.menu-list {
-  a {
-    color: #0f1d38;
-    font-size: 14px;
-    font-weight: 700;
-  }
-
-  a:hover {
-    background-color: transparent;
-    color: #276cda;
-  }
-
-  .is-active {
-    background-color: transparent;
-    color: #276cda;
-    font-weight: 700;
-  }
+.menu-wrapper {
+  height: calc(100% - 200px);
 }
 
+.menu-wrapper .v-sidebar-menu .vsm--scroll-bar {
+  left: 2px;
+  right: auto;
+}
+
+.menu-wrapper .v-sidebar-menu .vsm--header {
+  font-size: 0.75rem;
+  line-height: 0.75rem;
+}
+
+.menu-wrapper .v-sidebar-menu .vsm--item {
+  padding-left: 15px;
+}
+
+.menu-wrapper .v-sidebar-menu .vsm--link {
+  font-size: 0.75rem;
+  line-height: 0.5rem;
+}
 </style>

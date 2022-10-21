@@ -1,112 +1,90 @@
 <template>
-  <div class="card">
-    <div class="card-content">
-      <div class="media">
-        <div class="media-content">
-          <div class="columns">
-            <div class="column is-4">
-              <div class="field is-grouped">
-                <div class="control"
-                     v-if="branchNames.length">
-                  <div class="select is-small">
-                    <select v-model="selectedBranchName"
-                            class="branch-selection"
-                            title="Switch branch"
-                            data-qa="switch-branch-dropdown"
-                            @change="switchBranch">
-                      <option v-for="name in branchNames"
-                              :key="name"
-                              :value="name">
-                        {{ name }}
-                      </option>
-                    </select>
-                  </div>
-                </div>
+  <div class="card-content">
+    <div class="media">
+      <div class="media-content">
+        <div class="columns">
+          <div class="column">
+            <div class="field is-grouped is-pulled-right">
+              <div class="control">
+                <span class="is-size-7 version-display">Version: {{ selectedCommit }}</span>
               </div>
-            </div>
-
-            <div class="column">
-              <div class="field is-grouped is-pulled-right">
-                <div class="control">
-                  <span class="is-size-7 version-display">Version: {{ selectedCommit }}</span>
-                </div>
-                <div class="control">
-                  <span class="is-size-7 buckets-display">Buckets: {{ selectedBucketNames.length }}</span>
-                </div>
-                <p class="control">
-                  <button
-                      data-qa="publish-changes"
-                      class="button is-small publish-button"
-                      :class="{'is-loading': isPublishLoading}"
-                      @click="publish"
-                      :title="selectedBucketNames.length > 0 ? 'Publish configuration': 'Select one or more buckets'"
-                      :disabled="selectedBucketNames.length === 0">
+              <div class="control">
+                <span class="is-size-7 buckets-display">Buckets: {{ selectedBucketNames.length }}</span>
+              </div>
+              <p class="control">
+                <button
+                    data-qa="publish-changes"
+                    class="button is-small publish-button"
+                    :class="{'is-loading': isPublishLoading}"
+                    @click="publish"
+                    :title="selectedBucketNames.length > 0 ? 'Publish configuration': 'Select one or more buckets'"
+                    :disabled="selectedBucketNames.length === 0">
                     <span class="icon is-small">
                       <i class="fas fa-cloud-upload-alt"></i>
                     </span>
-                    <span>Publish configuration</span>
-                  </button>
-                </p>
-              </div>
+                  <span>Publish configuration</span>
+                </button>
+              </p>
             </div>
           </div>
         </div>
       </div>
+    </div>
 
-      <div class="content">
-        <hr/>
-        <div class="columns">
-          <div class="column">
-            <p class="title is-6 is-expanded">Version History</p>
-            <table class="table"
-                   v-if="gitLog && gitLog.length > 0">
-              <tbody>
-              <tr @click="selectCommit(commit)"
-                  class="commit-row"
-                  data-qa="commit-row-btn"
-                  v-for="commit in commitLines"
-                  :key="commit.version"
-                  :class="getVersionRowClass(commit.version)">
-                <td class="is-size-7">
-                  {{ formatDate(commit.date) }} {{ commit.version }}
-                  <br/>
-                  {{ commit.message }}
-                  <br/>
-                  <strong>{{ commit.author }}</strong> <i>{{ commit.email }}</i>
-                </td>
-              </tr>
-              <tr v-if="!expanded && gitLog.length > init_max_rows">
-                <td>
-                  <a class="has-text-grey view-more-button"
-                     @click="expanded = true">
-                    View More
-                  </a>
-                </td>
-              </tr>
-              <tr v-if="expanded && gitLog.length > init_max_rows">
-                <td>
-                  <a class="has-text-grey view-less-button"
-                     @click="expanded = false">
-                    View Less
-                  </a>
-                </td>
-              </tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="column">
-            <p class="title is-6 is-expanded">Target Buckets</p>
-            <table class="table"
-                   v-if="gitLog && gitLog.length > 0">
-              <tbody>
-              <tr
-                  v-for="bucket in buckets"
-                  :key="bucket.name"
-                  :data-qa="bucket.name"
-                  class="bucket-row"
-                  :class="{'has-background-warning-light': !publishMode && selectedBucketNames.includes(bucket.name)}"
-                  @click="bucketNameClicked(bucket.name)">
-                <td class="is-size-7">
+    <div class="content">
+      <hr/>
+      <div class="columns">
+        <div class="column">
+          <p class="title is-6 is-expanded">Version History</p>
+          <table class="table"
+                 v-if="gitLog && gitLog.length > 0">
+            <tbody>
+            <tr @click="selectCommit(commit)"
+                class="commit-row"
+                data-qa="commit-row-btn"
+                v-for="commit in commitLines"
+                :key="commit.version"
+                :class="getVersionRowClass(commit.version)">
+              <td class="is-size-7">
+                {{ formatDate(commit.date) }} {{ commit.version }}
+                <br/>
+                {{ commit.message }}
+                <br/>
+                <strong>{{ commit.author }}</strong> <i>{{ commit.email }}</i>
+              </td>
+            </tr>
+            <tr v-if="!expanded && gitLog.length > init_max_rows">
+              <td>
+                <a class="has-text-grey view-more-button"
+                   @click="expanded = true">
+                  View More
+                </a>
+              </td>
+            </tr>
+            <tr v-if="expanded && gitLog.length > init_max_rows">
+              <td>
+                <a class="has-text-grey view-less-button"
+                   @click="expanded = false">
+                  View Less
+                </a>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="column">
+          <p class="title is-6 is-expanded">Target Buckets</p>
+          <table class="table"
+                 v-if="gitLog && gitLog.length > 0">
+            <tbody>
+            <tr
+                v-for="bucket in buckets"
+                :key="bucket.name"
+                :data-qa="bucket.name"
+                class="bucket-row"
+                :class="{'has-background-warning-light': !publishMode && selectedBucketNames.includes(bucket.name)}"
+                @click="bucketNameClicked(bucket.name)">
+              <td class="is-size-7">
                   <span class="icon is-small is-vcentered">
                     <svg :width="14"
                          :height="14"
@@ -114,24 +92,23 @@
                       <path :d="mdiBucketPath"/>
                     </svg>
                   </span>
-                  &nbsp;
-                  <span class="is-vcentered">{{ bucket.name }}</span>
-                </td>
-                <td class="is-size-7">
-                  {{ bucket.url }}
-                  <p class="has-text-danger"
-                     v-if="bucket.publishStatus && !bucket.publishStatus.ok">
-                    Error publishing to this bucket: {{ bucket.publishStatus.message }}!
-                  </p>
-                  <p class="has-text-success"
-                     v-if="bucket.publishStatus && bucket.publishStatus.ok">
-                    Publish to this bucket has been done successfully!
-                  </p>
-                </td>
-              </tr>
-              </tbody>
-            </table>
-          </div>
+                &nbsp;
+                <span class="is-vcentered">{{ bucket.name }}</span>
+              </td>
+              <td class="is-size-7">
+                {{ bucket.url }}
+                <p class="has-text-danger"
+                   v-if="bucket.publishStatus && !bucket.publishStatus.ok">
+                  Error publishing to this bucket: {{ bucket.publishStatus.message }}!
+                </p>
+                <p class="has-text-success"
+                   v-if="bucket.publishStatus && bucket.publishStatus.ok">
+                  Publish to this bucket has been done successfully!
+                </p>
+              </td>
+            </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -143,10 +120,12 @@ import _ from 'lodash'
 import RequestsUtils from '@/assets/RequestsUtils'
 import {mdiBucket} from '@mdi/js'
 import {defineComponent} from 'vue'
-import {Branch, Commit} from '@/types'
+import {Commit} from '@/types'
 import {AxiosResponse} from 'axios'
 import Utils from '@/assets/Utils'
 import DateTimeUtils from '@/assets/DateTimeUtils'
+import {mapStores} from 'pinia'
+import {useBranchesStore} from '@/stores/BranchesStore'
 
 
 export default defineComponent({
@@ -156,12 +135,10 @@ export default defineComponent({
   data() {
     return {
       mdiBucketPath: mdiBucket,
-      configs: [],
       gitLog: [],
       expanded: false,
       init_max_rows: 5,
       publishMode: false,
-      selectedBranchName: null,
       // db/system info
       publishInfo: {buckets: [], branch_buckets: []},
       // reent commit or user clicks
@@ -175,6 +152,18 @@ export default defineComponent({
       // loading indicator
       isPublishLoading: false,
     }
+  },
+  watch: {
+    selectedBranch: {
+      handler: function(val, oldVal) {
+        if ((this.$route.name as string).includes('PublishChanges') && val && val !== oldVal) {
+          this.loadPublishInfo()
+          this.loadBranchLogs()
+          this.setDefaultBuckets()
+        }
+      },
+      immediate: true,
+    },
   },
   computed: {
     buckets(): any[] {
@@ -191,9 +180,11 @@ export default defineComponent({
       return this.gitLog.slice(0, this.init_max_rows)
     },
 
-    branchNames(): string[] {
-      return _.sortBy(_.map(this.configs, 'id'))
+    selectedBranch(): string {
+      return this.branchesStore.selectedBranchId
     },
+
+    ...mapStores(useBranchesStore),
   },
   methods: {
     selectCommit(commit: Commit) {
@@ -215,24 +206,21 @@ export default defineComponent({
     },
 
     loadBranchLogs() {
-      const selectedBranch = _.find(this.configs, (conf) => {
-        return conf.id === this.selectedBranchName
-      })
-      this.gitLog = selectedBranch.logs
+      this.gitLog = this.branchesStore.selectedBranch?.logs
       this.selectedCommit = this.gitLog?.[0]?.version || null
     },
 
     switchBranch() {
       this.loadBranchLogs()
       this.publishMode = false
-      Utils.toast(`Switched to branch "${this.selectedBranchName}".`, 'is-info')
+      Utils.toast(`Switched to branch "${this.selectedBranch}".`, 'is-info')
       this.setDefaultBuckets()
     },
 
     setDefaultBuckets() {
       this.selectedBucketNames = []
       const bucketList = _.find(this.publishInfo.branch_buckets, (list) => {
-        return list.name === this.selectedBranchName
+        return list.name === this.selectedBranch
       })
       if (bucketList) {
         this.selectedBucketNames = _.cloneDeep(_.filter(bucketList.buckets, (bucket) => {
@@ -263,23 +251,6 @@ export default defineComponent({
       }
     },
 
-    loadConfigs() {
-      RequestsUtils.sendRequest({
-        methodName: 'GET',
-        url: 'configs/',
-        config: {headers: {'x-fields': 'id'}},
-      }).then((response: AxiosResponse<Branch[]>) => {
-        this.configs = response?.data || []
-        if (!this.configs.length) {
-          return
-        }
-        // pick first branch name as selected
-        this.selectedBranchName = this.branchNames[0]
-        this.loadBranchLogs()
-        this.setDefaultBuckets()
-      })
-    },
-
     async publish() {
       this.isPublishLoading = true
       this.publishMode = true
@@ -288,10 +259,10 @@ export default defineComponent({
       }))
 
       const failureMessage = 'Failed while attempting to publish branch ' +
-          `"${this.selectedBranchName}" version "${this.selectedCommit}".`
+          `"${this.selectedBranch}" version "${this.selectedCommit}".`
       await RequestsUtils.sendRequest({
         methodName: 'PUT',
-        url: `tools/publish/${this.selectedBranchName}/v/${this.selectedCommit}/`,
+        url: `tools/publish/${this.selectedBranch}/v/${this.selectedCommit}/`,
         data: this.buckets,
         failureMessage,
         onFail: () => {
@@ -306,12 +277,12 @@ export default defineComponent({
     parsePublishResults(data: any) {
       if (data?.ok) {
         Utils.toast(
-            `Branch "${this.selectedBranchName}" was published with version "${this.selectedCommit}".`,
+            `Branch "${this.selectedBranch}" was published with version "${this.selectedCommit}".`,
             'is-success',
         )
       } else {
         Utils.toast(
-            `Failed while attempting to publish branch "${this.selectedBranchName}" version "${this.selectedCommit}".`,
+            `Failed while attempting to publish branch "${this.selectedBranch}" version "${this.selectedCommit}".`,
             'is-danger',
         )
       }
@@ -328,9 +299,8 @@ export default defineComponent({
 
   },
 
-  created() {
-    this.loadConfigs()
-    this.loadPublishInfo()
+  async created() {
+    await this.branchesStore.list
   },
 
 })

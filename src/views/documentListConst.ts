@@ -299,11 +299,11 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       title: 'Restrict Content Type',
       fieldNames: ['content_type'],
       displayFunction: (item: ContentFilterProfile) => {
-        return item['content_type']?.join(', ')
+        return item['content_type']?.join('\n')
       },
       isSortable: true,
       isSearchable: true,
-      classes: 'width-150px',
+      classes: 'width-150px white-space-pre ellipsis',
     },
     {
       title: 'Decoding',

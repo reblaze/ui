@@ -87,7 +87,7 @@ describe('RequestsUtils.ts', () => {
       expect(document['match']).toEqual(`${document['id']}.example.com`)
       expect(document['map'][0]['match']).toEqual('/')
       expect(document['map'][0]['name']).toEqual('default')
-      expect(document['map'][0]['acl_profile']).toEqual('__default__')
+      expect(document['map'][0]['acl_profile']).toEqual('__acldefault__')
       expect(document['map'][0]['content_filter_profile']).toEqual('__default__')
       expect(document['map'][0]['acl_active']).toEqual(false)
       expect(document['map'][0]['content_filter_active']).toEqual(false)
@@ -102,7 +102,7 @@ describe('RequestsUtils.ts', () => {
       expect(document['thresholds'][0]['limit']).toEqual(5)
       expect(document['timeframe']).toEqual(60)
       expect(document['key']).toEqual([{'attrs': 'securitypolicyid'},
-        {'attrs': 'securitypolicyentryid'}, {'headers': 'rbzsessionid'}])
+        {'attrs': 'securitypolicyentryid'}, {'attrs': 'curiesession'}])
       expect(document['thresholds'][0]['action']).toEqual('monitor')
       expect(document['pairwith']).toEqual({'self': 'self'})
       expect(document['exclude']).toEqual([])

@@ -30,7 +30,7 @@ describe('RateLimitsEditor.vue', () => {
       'timeframe': '60',
       'include': ['blocklist'],
       'exclude': ['allowlist'],
-      'key': [{'attrs': 'securitypolicyid'}, {'attrs': 'securitypolicyentryid'}, {'headers': 'rbzsessionid'}],
+      'key': [{'attrs': 'securitypolicyid'}, {'attrs': 'securitypolicyentryid'}, {'attrs': 'curiesession'}],
       'pairwith': {'self': 'self'},
     }]
     securityPoliciesDocs = [
@@ -42,7 +42,7 @@ describe('RateLimitsEditor.vue', () => {
           {
             'name': 'default',
             'match': '/',
-            'acl_profile': '__default__',
+            'acl_profile': '__acldefault__',
             'acl_active': false,
             'content_filter_profile': '__default__',
             'content_filter_active': false,
@@ -67,7 +67,7 @@ describe('RateLimitsEditor.vue', () => {
           {
             'name': 'default',
             'match': '/',
-            'acl_profile': '__default__',
+            'acl_profile': '__acldefault__',
             'acl_active': false,
             'content_filter_profile': '__default__',
             'content_filter_active': false,
@@ -95,7 +95,7 @@ describe('RateLimitsEditor.vue', () => {
         'name': 'default monitoring action',
       },
     ]
-    const selectedBranch = 'master'
+    const selectedBranch = 'prod'
     jest.spyOn(axios, 'get').mockImplementation((path) => {
       if (path === `/conf/api/v3/configs/${selectedBranch}/d/securitypolicies/`) {
         return Promise.resolve({data: securityPoliciesDocs})
@@ -392,7 +392,7 @@ describe('RateLimitsEditor.vue', () => {
         },
       }
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === `db/master/k/autocomplete/`) {
+        if (path === `db/prod/k/autocomplete/`) {
           return Promise.resolve(tagsData)
         }
         return Promise.resolve()
@@ -499,7 +499,7 @@ describe('RateLimitsEditor.vue', () => {
             {
               'name': 'default',
               'match': '/',
-              'acl_profile': '__default__',
+              'acl_profile': '__acldefault__',
               'acl_active': false,
               'content_filter_profile': '__default__',
               'content_filter_active': false,
@@ -524,7 +524,7 @@ describe('RateLimitsEditor.vue', () => {
             {
               'name': 'default',
               'match': '/',
-              'acl_profile': '__default__',
+              'acl_profile': '__acldefault__',
               'acl_active': false,
               'content_filter_profile': '__default__',
               'content_filter_active': false,
@@ -545,7 +545,7 @@ describe('RateLimitsEditor.vue', () => {
       wrapper = mount(RateLimitsEditor, {
         props: {
           selectedDoc: rateLimitsDocs[0],
-          selectedBranch: 'master',
+          selectedBranch: 'prod',
         },
       })
       const newConnectionButton = wrapper.find('.new-connection-button')

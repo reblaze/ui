@@ -1,59 +1,12 @@
 <template>
-  <div class="card">
-    <div class="card-content">
-      <div class="media">
-        <div class="media-content">
-          <div class="columns">
-            <div class="column">
-              <div class="field is-grouped">
-                <div class="control"
-                     v-if="branchNames.length">
-                  <div class="select is-small"
-                       data-qa="branch-selection">
-                    <select v-model="selectedBranch"
-                            title="Switch Branch"
-                            @change="switchBranch()"
-                            class="branch-selection">
-                      <option v-for="name in branchNames"
-                              :key="name"
-                              :value="name">
-                        {{ name }}
-                      </option>
-                    </select>
-                  </div>
-                </div>
-                <div class="control">
-                  <span class="icon is-small is-vcentered">
-                    <svg :width="24"
-                         :height="24"
-                         :viewBox="'0 0 24 24'">
-                      <path :d="mdiSourceBranchPath"/>
-                    </svg>
-                  </span>
-                  <span class="is-size-7 git-branches">
-                    {{ branches }} branch<span v-if="branches !== 1">es</span>
-                  </span>
-                </div>
-                <div class="control">
-                  <span class="icon is-small is-vcentered">
-                    <svg :width="24"
-                         :height="24"
-                         :viewBox="'0 0 24 24'">
-                      <path :d="mdiSourceCommitPath"/>
-                    </svg>
-                  </span>
-                  <span class="is-size-7 git-commits">
-                    {{ commits }} commit<span v-if="commits !== 1">s</span>
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div class="column"
-                 v-if="branches">
-              <div class="field is-grouped is-pulled-right">
-
-                <p class="control">
+  <div class="card-content">
+    <div class="media">
+      <div class="media-content">
+        <div class="columns">
+          <div class="column"
+               v-if="selectedBranch">
+            <div class="field is-grouped is-pulled-right">
+              <p class="control">
                   <span class="field has-addons">
                     <span class="control">
                       <button class="button is-small fork-branch-toggle"
@@ -96,21 +49,21 @@
                       </button>
                     </span>
                   </span>
-                </p>
+              </p>
 
-                <p class="control">
-                  <button class="button is-small download-branch-button"
-                          :class="{'is-loading': isDownloadLoading}"
-                          @click="downloadBranch()"
-                          data-qa="download-branch-btn"
-                          title="Download branch">
+              <p class="control">
+                <button class="button is-small download-branch-button"
+                        :class="{'is-loading': isDownloadLoading}"
+                        @click="downloadBranch()"
+                        data-qa="download-branch-btn"
+                        title="Download branch">
                     <span class="icon is-small">
                       <i class="fas fa-download"></i>
                     </span>
-                  </button>
-                </p>
+                </button>
+              </p>
 
-                <p class="control">
+              <p class="control">
                   <span class="field has-addons">
                     <span class="control">
                       <button class="button is-small has-text-danger delete-branch-toggle"
@@ -152,33 +105,27 @@
                       </button>
                     </span>
                   </span>
-                </p>
-              </div>
+              </p>
             </div>
           </div>
         </div>
       </div>
-      <div class="content">
-        <hr/>
-        <git-history :gitLog="gitLog"
-                     :apiPath="gitAPIPath"
-                     :loading="loadingGitlog"
-                     @restore-version="restoreGitVersion">
-        </git-history>
-      </div>
+    </div>
+    <hr/>
+    <div class="content">
+      <git-history :api-path="gitAPIPath"
+                   :is-collapsed-initial-state="false"/>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import _ from 'lodash'
 import RequestsUtils from '@/assets/RequestsUtils'
 import Utils from '@/assets/Utils'
 import GitHistory from '@/components/GitHistory.vue'
-import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
 import {defineComponent} from 'vue'
-import {AxiosResponse} from 'axios'
-import {Commit} from '@/types'
+import {mapStores} from 'pinia'
+import {useBranchesStore} from '@/stores/BranchesStore'
 
 export default defineComponent({
 
@@ -190,46 +137,42 @@ export default defineComponent({
 
   data() {
     return {
-      mdiSourceBranchPath: mdiSourceBranch,
-      mdiSourceCommitPath: mdiSourceCommit,
-
-      configs: [],
-      selectedBranch: null,
       selectedBranchData: null,
       isDownloadLoading: false,
-
-      gitLog: [],
-      commits: 0,
-      branches: 0,
 
       forkBranchName: '',
       forkBranchInputOpen: false,
       deleteBranchName: '',
       deleteBranchInputOpen: false,
-
-      apiRoot: RequestsUtils.confAPIRoot,
-      apiVersion: RequestsUtils.confAPIVersion,
-
-      loadingGitlog: false,
     }
   },
 
-  computed: {
-
-    gitAPIPath(): string {
-      return `${this.apiRoot}/${this.apiVersion}/configs/${this.selectedBranch}/v/`
+  watch: {
+    selectedBranch: {
+      handler: async function(val, oldVal) {
+        if ((this.$route.name as string).includes('VersionControl') && val && val !== oldVal) {
+          await this.loadSelectedBranchData()
+        }
+      },
+      immediate: true,
     },
+  },
 
-    branchNames(): string[] {
-      return _.sortBy(_.map(this.configs, 'id'))
+  computed: {
+    gitAPIPath(): string {
+      return `configs/${this.selectedBranch}/v/`
     },
 
     isSelectedBranchForkNameValid(): boolean {
       const newName = this.forkBranchName.trim()
       const isBranchNameEmpty = newName === ''
       const isBranchNameContainsSpaces = newName.includes(' ')
-      const isBranchNameDuplicate = this.branchNames.includes(newName)
-      return !isBranchNameEmpty && !isBranchNameDuplicate && !isBranchNameContainsSpaces
+      // TODO
+      // const isBranchNameDuplicate = this.branchesStore.list.find((item) => {
+      //   return item.id === newName
+      // })
+      // return !isBranchNameEmpty && !isBranchNameDuplicate && !isBranchNameContainsSpaces
+      return !isBranchNameEmpty && !isBranchNameContainsSpaces
     },
 
     isSelectedBranchDeleteNameValid(): boolean {
@@ -237,14 +180,14 @@ export default defineComponent({
       return newName === this.selectedBranch
     },
 
+    selectedBranch(): string {
+      return this.branchesStore.selectedBranchId
+    },
+
+    ...mapStores(useBranchesStore),
   },
 
   methods: {
-
-    resetGitLog(): void {
-      this.gitLog = []
-    },
-
     validateInput(event: Event, validator: Function | boolean) {
       Utils.validateInput(event, validator)
     },
@@ -263,29 +206,6 @@ export default defineComponent({
       }
     },
 
-    async loadConfigs(activeBranch?: string) {
-      const response = await RequestsUtils.sendRequest({
-        methodName: 'GET',
-        url: 'configs/',
-        config: {headers: {'x-fields': 'id'}},
-      })
-      this.configs = response?.data || []
-      if (!activeBranch) {
-        // pick first branch name as selected if not given active branch
-        this.selectedBranch = this.branchNames[0]
-      } else {
-        this.selectedBranch = this.branchNames.find((branch) => {
-          return branch === activeBranch
-        })
-      }
-      // counters
-      this.commits = _.sum(_.map(_.map(this.configs, 'logs'), (logs) => {
-        return _.size(logs)
-      }))
-      this.branches = _.size(this.configs)
-      console.log('config counters', this.branches, this.commits)
-    },
-
     async loadSelectedBranchData() {
       this.isDownloadLoading = true
       const response = await RequestsUtils.sendRequest({
@@ -296,53 +216,15 @@ export default defineComponent({
       this.isDownloadLoading = false
     },
 
-    async switchBranch() {
-      this.resetGitLog()
-      Utils.toast(`Switched to branch "${this.selectedBranch}".`, 'is-info')
-      this.forkBranchInputOpen = false
-      this.deleteBranchInputOpen = false
-      await this.loadSelectedBranchData()
-      await this.loadGitLog()
-    },
-
-    async loadGitLog() {
-      this.loadingGitlog = true
-      const config = this.selectedBranch
-      const url = `configs/${config}/v/`
-      return RequestsUtils.sendRequest({
-        methodName: 'GET',
-        url,
-        failureMessage: 'Failed while attempting to load Git log',
-      }).then((response: AxiosResponse<Commit[]>) => {
-        this.gitLog = response?.data
-        this.loadingGitlog = false
-        return response
-      })
-    },
-
-    async restoreGitVersion(gitVersion: Commit) {
-      this.resetGitLog()
-      const branch = this.selectedBranch
-      const versionId = gitVersion.version
-      const urlTrail = `configs/${branch}/v/${versionId}/`
-
-      await RequestsUtils.sendRequest({
-        methodName: 'PUT',
-        url: `${urlTrail}revert/`,
-        successMessage: `Branch "${branch}" was restored to version "${versionId}".`,
-        failureMessage: `Failed while attempting to restore branch "${branch}" to version "${versionId}".`,
-      })
-      await this.loadGitLog()
-    },
-
     deleteBranch() {
       RequestsUtils.sendRequest({
         methodName: 'DELETE',
         url: `configs/${this.selectedBranch}/`,
         successMessage: `Branch ${this.selectedBranch} was deleted.`,
         failureMessage: `Failed while attempting to delete branch "${this.selectedBranch}".`,
-      }).then(() => {
-        this.loadConfigs()
+      }).then(async () => {
+        await this.branchesStore.loadBranches()
+        await this.branchesStore.setSelectedBranch()
         this.toggleBranchDelete()
       })
     },
@@ -358,8 +240,9 @@ export default defineComponent({
         },
         successMessage: `Branch "${this.selectedBranch}" was forked to "${this.forkBranchName}".`,
         failureMessage: `Failed while attempting to fork branch "${this.selectedBranch}" to "${this.forkBranchName}".`,
-      }).then(() => {
-        this.loadConfigs(newBranchName)
+      }).then(async () => {
+        await this.branchesStore.loadBranches()
+        await this.branchesStore.setSelectedBranch(newBranchName)
         this.toggleBranchFork()
       })
     },
@@ -372,17 +255,8 @@ export default defineComponent({
 
   },
 
-  mounted() {
-  },
-
   async created() {
-    await this.loadConfigs()
-    await this.loadSelectedBranchData()
-    this.loadGitLog()
+    await this.branchesStore.list
   },
-
 })
 </script>
-<style scoped
-       lang="scss">
-</style>
