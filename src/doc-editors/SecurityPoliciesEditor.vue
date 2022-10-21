@@ -154,7 +154,7 @@
                         </div>
                         <div class="field">
                           <label class="label is-small">
-                            Match
+                            Match Path
                           </label>
                           <div class="control has-icons-left">
                             <input class="input is-small current-entry-match"
