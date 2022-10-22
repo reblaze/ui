@@ -444,6 +444,13 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       classes: 'width-100px',
     },
     {
+      title: 'Action',
+      fieldNames: ['action'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-100px',
+    },
+    {
       title: 'Tags',
       fieldNames: ['tags'],
       isSortable: true,

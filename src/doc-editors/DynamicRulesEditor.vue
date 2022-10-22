@@ -53,7 +53,6 @@
                 <select v-model="localDoc.target"
                         data-qa="target-dropdown"
                         title="Target"
-                        :value="localDoc.target"
                         @change="emitDocUpdate"
                         class="target-dropdown">
                   <option v-for="key in options"

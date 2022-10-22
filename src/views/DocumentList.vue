@@ -26,7 +26,7 @@
         <div class="card-content">
           <div class="content">
             <rbz-table :columns="columns"
-                       :data="docs"
+                       :data="(selectedDocType === 'dynamic-rules') ? matchedDocsData : docs"
                        :show-menu-column="true"
                        :show-filter-button="true"
                        :show-new-button="true"
@@ -91,6 +91,7 @@ import {COLUMN_OPTIONS_MAP} from './documentListConst'
 import RbzTable from '@/components/RbzTable.vue'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
+import {AxiosResponse} from 'axios'
 
 export default defineComponent({
   watch: {
@@ -163,6 +164,8 @@ export default defineComponent({
         ...reblazeComponentsMap,
       },
       reblazeComponentsMap: reblazeComponentsMap,
+      selectedDocMatchingGlobalFilter: null as GlobalFilter,
+      matchedDocsData: null as any,
     }
   },
   computed: {
@@ -239,6 +242,22 @@ export default defineComponent({
       })
 
       this.docs = response?.data || []
+      console.log('this.Docs1', this.docs)
+      if (this.selectedDocType === 'dynamic-rules') {
+        // bring Tags from GlobalFilters
+        this.matchedDocsData = this.docs.map((doc) => {
+          const url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${doc.id}/`
+          RequestsUtils.sendRequest({methodName: 'GET', url}).then((response: AxiosResponse) => {
+            const tagsArray = response.data.tags
+            doc.tags = tagsArray
+          })
+          console.log('doc', doc)
+          return doc
+          // return {...doc, tags: tagsArray}
+        })
+      }
+      console.log('this.Docs2', this.docs)
+      console.log('this.matchedDocsData', this.matchedDocsData)
       this.isDownloadLoading = false
     },
 
