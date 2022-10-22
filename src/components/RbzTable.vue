@@ -135,6 +135,19 @@
           </div>
         </td>
       </tr>
+      <tr v-if="!slicedDataArrayDisplay?.length">
+        <td :colspan="columns.length"
+            class="has-text-centered table-no-data-message">
+          <div v-if="loading">
+            <button class="button is-outlined is-text is-small is-loading document-loading">
+              Loading
+            </button>
+          </div>
+          <div v-else>
+            No results found
+          </div>
+        </td>
+      </tr>
       <tr v-if="totalPages > 1 && !useScroll"
           class="pagination-row">
         <td :colspan="columns.length + 1">
@@ -181,6 +194,7 @@ export default defineComponent({
       default: 10,
     },
     useScroll: Boolean,
+    loading: Boolean,
   },
   watch: {
     columns: {
@@ -224,9 +238,6 @@ export default defineComponent({
 
       // Pagination
       currentPage: 1,
-
-      // Loading indicator
-      loadingCounter: 0,
     }
   },
   emits: ['new-button-clicked', 'row-button-clicked'],
