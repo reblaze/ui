@@ -70,21 +70,22 @@
         </div>
       </div>
     </div>
-    <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'default' && data?.length">
-      <rbz-dashboard-default :data="data">
+    <div v-if="!isSearchLoading && !data?.length">
+      No results found
+    </div>
+    <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'default'">
+      <rbz-dashboard-default :data="data"
+                             :loading="isSearchLoading">
       </rbz-dashboard-default>
     </div>
-    <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'threats' && data?.length">
+    <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'threats'">
     </div>
-    <div v-if="dashboards[activeDashboardIndex]?.metabaseId && data?.length">
+    <div v-if="dashboards[activeDashboardIndex]?.metabaseId">
       <!--        <iframe :src="getDashboardURL(dashboards[activeDashboardIndex]?.metabaseId)"-->
       <!--                width="100%"-->
       <!--                height="600"-->
       <!--                allowtransparency>-->
       <!--        </iframe>-->
-    </div>
-    <div v-if="!data?.length">
-      No results found
     </div>
   </div>
 </template>
