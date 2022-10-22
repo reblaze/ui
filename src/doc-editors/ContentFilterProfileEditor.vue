@@ -305,6 +305,17 @@
               <td>
                 <div class="tabs is-centered">
                   <ul>
+                        <li :class=" tab === 'allsections' ? 'is-active' : '' "
+                            class="all-tab"
+                            data-qa="all-tab-btn">
+                          <a tabindex="0"
+                             @click='tab="allsections"'
+                             @keypress.space.prevent
+                             @keypress.space='tab="allsections"'
+                             @keypress.enter='tab="allsections"'>
+                            All
+                          </a>
+                        </li>
                     <li :class=" tab === 'headers' ? 'is-active' : '' "
                         class="headers-tab"
                         data-qa="headers-tab-btn">
@@ -662,6 +673,8 @@ type ContentFilterProfileType = {
   displayName: 'base64' | 'URL' | 'HTML' | 'Unicode'
 }
 
+type LocalArgsCookiesHeadersType = 'allsections' | ArgsCookiesHeadersType
+
 export default defineComponent({
   name: 'ContentFilterEditor',
   components: {
@@ -701,8 +714,8 @@ export default defineComponent({
     return {
       sections: ['ignore', 'active', 'report'] as ContentFilterProfileTagLists[],
       addNewColName: null,
-      tab: 'args' as ArgsCookiesHeadersType,
-      newContentFilterLine: null as ArgsCookiesHeadersType,
+      tab: 'args' as LocalArgsCookiesHeadersType,
+      newContentFilterLine: null as LocalArgsCookiesHeadersType,
       newEntry: defaultNewEntry,
       titles: DatasetsUtils.titles,
       defaultNewEntry: defaultNewEntry,
@@ -814,7 +827,7 @@ export default defineComponent({
       this.$emit('update:selectedDoc', this.localDoc)
     },
 
-    openAddNewParameter(tab: ArgsCookiesHeadersType) {
+    openAddNewParameter(tab: LocalArgsCookiesHeadersType) {
       this.newContentFilterLine = tab
       this.newEntry = {...this.defaultNewEntry}
     },
@@ -840,7 +853,7 @@ export default defineComponent({
       return `${tab}-${type}-${idx}`
     },
 
-    deleteEntryRow(tab: ArgsCookiesHeadersType, type: NamesRegexType, index: number) {
+    deleteEntryRow(tab: LocalArgsCookiesHeadersType, type: NamesRegexType, index: number) {
       this.localDoc[tab][type].splice(index, 1)
       this.emitDocUpdate()
     },

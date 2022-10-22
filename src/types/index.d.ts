@@ -133,6 +133,7 @@ declare module CuriefenseClient {
     tags: string[]
     ignore_body: boolean
     ignore_alphanum: boolean
+    allsections: ContentFilterProfileSection
     headers: ContentFilterProfileSection
     cookies: ContentFilterProfileSection
     args: ContentFilterProfileSection
