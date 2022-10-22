@@ -306,8 +306,8 @@
                 <div class="tabs is-centered">
                   <ul>
                         <li :class=" tab === 'allsections' ? 'is-active' : '' "
-                            class="all-tab"
-                            data-qa="all-tab-btn">
+                            class="allsections-tab"
+                            data-qa="allsections-tab-btn">
                           <a tabindex="0"
                              @click='tab="allsections"'
                              @keypress.space.prevent
