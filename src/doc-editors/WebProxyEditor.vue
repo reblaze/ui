@@ -182,8 +182,6 @@
                   </div>
                 </div>
               </div>
-              <div class="column is-4">
-              </div>
             </div>
             <div class="columns is-multiline">
               <div class="column is-4">
@@ -616,7 +614,7 @@ export default defineComponent({
             return e[1]
           })
         } else {
-          // this is a mockup data. need to take out as soon as we get certificate to work
+          // TODO  get certificate to work
           this.certificatesNames = [['need-real-data', ['www.certificate.com']]] as [string, string[]][]
         }
       })

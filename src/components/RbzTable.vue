@@ -385,8 +385,10 @@ export default defineComponent({
   padding: 0.5em;
 }
 
-.menu {
-  float: right;
+.rbz-table .menu {
+  display: inline-flex;
+  justify-content: flex-end;
+  width: 100%;
 }
 
 .rbz-table .menu-toggle-button {

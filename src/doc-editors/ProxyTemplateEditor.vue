@@ -173,7 +173,7 @@
                                  placeholder="Client body timeout"
                                  v-model="selectedProxyTemplate.client_body_timeout">
                         </div>
-                        <div class="help">
+                        <div class="help height-50px">
                           Defines a timeout for reading client request body, for a period between two successive read
                           operations, not for the transmission of the whole request body
                           <a href="https://nginx.org/en/docs/http/ngx_http_core_module.html#client_body_timeout"
@@ -374,13 +374,13 @@
                         <label class="label is-small">
                           Backend Service Host Header
                         </label>
-                        <div class="control cell-height">
+                        <div class="control">
                           <input class="input is-small document-upstream-host"
                                  title="Backend service host header"
                                  placeholder="Backend service host header"
                                  v-model="selectedProxyTemplate.upstream_host">
                         </div>
-                        <div class="help cell-height">
+                        <div class="help  height-50px">
                           The Host header Reblaze will present to the backend service.<br/>Setting value to $host means
                           client's header is passed as is
                         </div>
@@ -439,7 +439,7 @@
                                     >
                         </rbz-table>
                     </div>
-                    <div class="columns columns-divided add-new-trusted-source"  v-if="addingNewTrustedSource">
+                    <div class="columns columns-divided add-new-trusted-source ml-3px"  v-if="addingNewTrustedSource">
                           <input class="column is-6 ellipsis add-new-address"
                             title="Trusted Source CIDR / IP / Tag Rule Address"
                             placeholder="CIDR/IP/Tag Rule Address"
@@ -448,11 +448,11 @@
                             title="Trusted Source Comment"
                             placeholder="CIDR/IP/Tag Rule Address"
                             v-model="newComment">
-                          <button  class="width-50px is-2 add-new-trusted-source" @click="addNewTrustedSource" >
+                          <button  class="width-50px is-2 ml-3px" @click="addNewTrustedSource" >
                             Add
                           </button>
                     </div>
-                    <div class="columns columns-divided add-new-trusted-source"  v-if="showEditTrustedSource">
+                    <div class="columns columns-divided edit-new-trusted-source ml-3px"  v-if="showEditTrustedSource">
                           <input class="column is-6 ellipsis add-new-address"
                             title="Trusted Source CIDR / IP / Tag Rule Address"
                             placeholder="CIDR/IP/Tag Rule Address"
@@ -461,7 +461,7 @@
                             title="Trusted Source Comment"
                             placeholder="CIDR/IP/Tag Rule Address"
                             v-model="editComment">
-                          <button  class="width-50px is-2 add-new-trusted-source" @click="editTrustedSource" >
+                          <button  class="width-50px is-2 ml-3px" @click="editTrustedSource" >
                             Edit
                           </button>
                     </div>
@@ -739,7 +739,6 @@ export default defineComponent({
       this.isDownloadLoading = false
     },
 
-    // placeholder until to be implemented by backend
     async loadTrustedSources() {
       const url = `configs/${this.selectedBranch}/d/planet/`
       const methodName = 'GET'
@@ -778,7 +777,7 @@ export default defineComponent({
 
       this.showEditTrustedSource=false
     },
-    // placeholder until to be implemented by backend
+
     async deleteTrustedElement(id: number) {
       const trustedArr = [...this.trustedData]
       this.trustedData = trustedArr.filter((trusted) => trusted.id !== id)
@@ -832,17 +831,12 @@ export default defineComponent({
   align-self: center;
 }
 
-.add-new-trusted-source {
+.ml-3px {
   margin-left: 3px;
 }
 
 .cell-height {
   height: fit-content;
-}
-
-.height-100px {
-  height: 100px;
-  min-height: 100px;
 }
 
 </style>
