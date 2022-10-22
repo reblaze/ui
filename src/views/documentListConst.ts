@@ -443,5 +443,12 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       isSearchable: true,
       classes: 'width-100px',
     },
+    {
+      title: 'Tags',
+      fieldNames: ['tags'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-100px',
+    },
   ],
 }
