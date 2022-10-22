@@ -171,7 +171,7 @@ export default defineComponent({
       const query = this.buildQuery()
       const response = await RequestsUtils.sendDataLayerRequest({
         methodName: 'GET',
-        url: `metrics/1m?filters=${query}`,
+        url: `metrics/1s?filters=${query}`,
         config: {
           headers: {
             'syntax': 'mongodb',
