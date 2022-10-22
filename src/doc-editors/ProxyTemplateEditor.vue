@@ -462,7 +462,7 @@
                             placeholder="CIDR/IP/Tag Rule Address"
                             v-model="editComment">
                           <button  class="width-50px is-2 add-new-trusted-source" @click="editTrustedSource" >
-                            Add
+                            Edit
                           </button>
                     </div>
                 </div>
