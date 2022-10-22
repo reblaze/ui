@@ -70,7 +70,7 @@ declare module CuriefenseClient {
 
   type Category = 'path' | 'query' | 'uri' | 'method' | 'ip' | 'asn' | 'country' | 'headers' | 'args' | 'cookies'
 
-  type ContentFilterProfileSectionType = 'headers' | 'args' | 'cookies' | 'path'
+  type ContentFilterProfileSectionType = 'headers' | 'args' | 'cookies' | 'path' | 'allsections'
 
   type ArgsCookiesHeadersType = 'headers' | 'args' | 'cookies'
 

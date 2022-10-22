@@ -227,6 +227,7 @@
           <thead>
           <tr>
             <th></th>
+            <th class="has-text-centered">All</th>
             <th class="has-text-centered">Headers</th>
             <th class="has-text-centered">Cookies</th>
             <th class="has-text-centered">Arguments</th>
@@ -235,6 +236,15 @@
           <tbody>
           <tr>
             <td>Max Length</td>
+            <td>
+              <input required
+                     class="input is-small max-allsections-length-input"
+                     data-qa="max-allsections-length-input"
+                     type="number"
+                     @change="emitDocUpdate"
+                     title="Max All length"
+                     v-model.number="localDoc.allsections.max_length"/>
+            </td>
             <td>
               <input required
                      class="input is-small max-header-length-input"
@@ -265,6 +275,15 @@
           </tr>
           <tr>
             <td>Max Count</td>
+            <td>
+              <input required
+                     class="input is-small max-allsections-count-input"
+                     data-qa="max-allsections-count-input"
+                     type="number"
+                     @change="emitDocUpdate"
+                     title="Max All count"
+                     v-model.number="localDoc.allsections.max_count"/>
+            </td>
             <td>
               <input required
                      class="input is-small max-headers-count-input"
@@ -651,7 +670,6 @@ import _ from 'lodash'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import {defineComponent} from 'vue'
 import {
-  ArgsCookiesHeadersType,
   ContentFilterEntryMatch,
   ContentFilterProfile,
   ContentFilterProfileSection,
@@ -672,8 +690,6 @@ type ContentFilterProfileType = {
   value: keyof ContentFilterProfile['decoding'],
   displayName: 'base64' | 'URL' | 'HTML' | 'Unicode'
 }
-
-type LocalArgsCookiesHeadersType = 'allsections' | ArgsCookiesHeadersType
 
 export default defineComponent({
   name: 'ContentFilterEditor',
@@ -714,8 +730,8 @@ export default defineComponent({
     return {
       sections: ['ignore', 'active', 'report'] as ContentFilterProfileTagLists[],
       addNewColName: null,
-      tab: 'args' as LocalArgsCookiesHeadersType,
-      newContentFilterLine: null as LocalArgsCookiesHeadersType,
+      tab: 'args' as ContentFilterProfileSectionType,
+      newContentFilterLine: null as ContentFilterProfileSectionType,
       newEntry: defaultNewEntry,
       titles: DatasetsUtils.titles,
       defaultNewEntry: defaultNewEntry,
@@ -827,7 +843,7 @@ export default defineComponent({
       this.$emit('update:selectedDoc', this.localDoc)
     },
 
-    openAddNewParameter(tab: LocalArgsCookiesHeadersType) {
+    openAddNewParameter(tab: ContentFilterProfileSectionType) {
       this.newContentFilterLine = tab
       this.newEntry = {...this.defaultNewEntry}
     },
@@ -853,7 +869,7 @@ export default defineComponent({
       return `${tab}-${type}-${idx}`
     },
 
-    deleteEntryRow(tab: LocalArgsCookiesHeadersType, type: NamesRegexType, index: number) {
+    deleteEntryRow(tab: ContentFilterProfileSectionType, type: NamesRegexType, index: number) {
       this.localDoc[tab][type].splice(index, 1)
       this.emitDocUpdate()
     },
