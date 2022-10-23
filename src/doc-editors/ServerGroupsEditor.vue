@@ -10,20 +10,12 @@
                         @click="redirectToList()"
                         title="Return to list"
                         data-qa="redirect-to-list">
-                        <span class="icon is-small">
-                          <i class="fas fa-arrow-left"></i>
-                        </span>
-                </button>
-              </p>
-              <p class="control">
-                <button class="button is-small download-doc-button"
-                        :class="{'is-loading':isDownloadLoading}"
-                        @click="downloadDoc()"
-                        title="Download document"
-                        data-qa="download-document">
-                        <span class="icon is-small">
-                          <i class="fas fa-download"></i>
-                        </span>
+                  <span class="icon is-small">
+                    <i class="fas fa-arrow-left"></i>
+                  </span>
+                  <span>
+                    Return To List
+                  </span>
                 </button>
               </p>
             </div>
@@ -31,14 +23,31 @@
           <div class="column">
             <div class="field is-grouped is-pulled-right">
               <p class="control">
+                <button class="button is-small download-doc-button"
+                        :class="{'is-loading':isDownloadLoading}"
+                        @click="downloadDoc()"
+                        title="Download document"
+                        data-qa="download-document">
+                  <span class="icon is-small">
+                    <i class="fas fa-download"></i>
+                  </span>
+                  <span>
+                    Download
+                  </span>
+                </button>
+              </p>
+              <p class="control">
                 <button class="button is-small save-document-button"
                         :class="{'is-loading': isSaveLoading}"
                         title="Save changes"
                         data-qa="save-changes"
                         @click="saveChanges()">
-                      <span class="icon is-small">
-                        <i class="fas fa-save"></i>
-                      </span>
+                  <span class="icon is-small">
+                    <i class="fas fa-save"></i>
+                  </span>
+                  <span>
+                    Save
+                  </span>
                 </button>
               </p>
               <p class="control">
@@ -46,11 +55,14 @@
                         title="Delete document"
                         data-qa="delete-document"
                         :class="{'is-loading': isDeleteLoading}"
-                        :disabled="selectedWebProxy?.id === '__default__'"
+                        :disabled="selectedServerGroup?.id === '__default__'"
                         @click="deleteDoc()">
-                      <span class="icon is-small">
-                        <i class="fas fa-trash"></i>
-                      </span>
+                  <span class="icon is-small">
+                    <i class="fas fa-trash"></i>
+                  </span>
+                  <span>
+                    Delete
+                  </span>
                 </button>
               </p>
             </div>
@@ -62,7 +74,7 @@
     <div class="card">
       <div class="card-content">
         <div class="content"
-             v-if="selectedWebProxy">
+             v-if="selectedServerGroup">
           <div class="columns columns-divided">
             <div class="column is-4">
               <div class="field">
@@ -70,14 +82,14 @@
                   Name
                   <span class="has-text-grey is-pulled-right document-id"
                         title="Rule id">
-                      {{ selectedWebProxy.id }}
+                      {{ selectedServerGroup.id }}
                     </span>
                 </label>
                 <div class="control">
                   <input class="input is-small document-name"
                          title="Document name"
                          placeholder="Document name"
-                         v-model="selectedWebProxy.name"/>
+                         v-model="selectedServerGroup.name"/>
                 </div>
               </div>
               <div class="field">
@@ -87,7 +99,7 @@
                       <textarea class="is-small textarea document-description"
                                 data-qa="description-input"
                                 title="Document description"
-                                v-model="selectedWebProxy.description"
+                                v-model="selectedServerGroup.description"
                                 rows="5">
                       </textarea>
                   </div>
@@ -103,7 +115,7 @@
                   <input class="input is-small domain-name"
                          title="Domain name"
                          placeholder="Domain name"
-                         v-model="selectedWebProxy.canonical_name"/>
+                         v-model="selectedServerGroup.canonical_name"/>
                 </div>
               </div>
               <div class="field">
@@ -124,7 +136,7 @@
                 <label class="label is-small">Routing Profile</label>
                 <div class="control is-expanded">
                   <div class="select is-fullwidth is-small">
-                    <select v-model="selectedWebProxy.routing_profile"
+                    <select v-model="selectedServerGroup.routing_profile"
                             data-qa="routing-profile-dropdown"
                             class="document-routing-profile-selection"
                             title="Routing profile">
@@ -152,7 +164,7 @@
                         Backend Service
                       </th>
                       <th class="width-120px">
-                        Cloud Functions
+                        Edge Functions
                       </th>
                     </tr>
                     </thead>
@@ -166,8 +178,8 @@
                         {{ referencedDocName(backendServicesNames, location.backend_id) }}
                       </td>
                       <td>
-                          <span v-for="cloudFunction in location.cloud_functions"
-                                :key="cloudFunction">
+                          <span v-for="edgeFunction in location.cloud_functions"
+                                :key="edgeFunction">
                             {{ location.cloud_functions.length }}
                           </span>
                       </td>
@@ -184,7 +196,7 @@
                 <label class="label is-small">Security Policy</label>
                 <div class="control is-expanded">
                   <div class="select is-fullwidth is-small">
-                    <select v-model="selectedWebProxy.security_policy"
+                    <select v-model="selectedServerGroup.security_policy"
                             data-qa="security-policy-dropdown"
                             class="document-security-policy-selection"
                             title="Security policy">
@@ -249,7 +261,7 @@
                 <label class="label is-small">Mobile SDK</label>
                 <div class="control is-expanded">
                   <div class="select is-fullwidth is-small">
-                    <select v-model="selectedWebProxy.mobile_sdk"
+                    <select v-model="selectedServerGroup.mobile_sdk"
                             data-qa="mobile-sdk-dropdown"
                             class="document-mobile-sdk-selection"
                             title="Mobile SDK">
@@ -266,17 +278,17 @@
                 </div>
               </div>
               <div class="field">
-                <label class="label is-small">Proxy Template</label>
+                <label class="label is-small">Config Template</label>
                 <div class="control is-expanded">
                   <div class="select is-fullwidth is-small">
-                    <select v-model="selectedWebProxy.proxy_template"
-                            data-qa="proxy-template-dropdown"
-                            class="document-proxy-template-selection"
-                            title="Proxy template">
-                      <option v-for="proxyTemplate in proxyTemplatesNames"
-                              :value="proxyTemplate[0]"
-                              :key="proxyTemplate[0]">
-                        {{ proxyTemplate[1] }}
+                    <select v-model="selectedServerGroup.proxy_template"
+                            data-qa="config-template-dropdown"
+                            class="document-config-template-selection"
+                            title="Config template">
+                      <option v-for="configTemplate in configTemplatesNames"
+                              :value="configTemplate[0]"
+                              :key="configTemplate[0]">
+                        {{ configTemplate[1] }}
                       </option>
                     </select>
                   </div>
@@ -284,7 +296,7 @@
               </div>
             </div>
           </div>
-          <span class="is-family-monospace has-text-grey-lighter">{{ documentAPIPath }}</span>
+          <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ documentAPIPath }}</span>
         </div>
       </div>
     </div>
@@ -298,7 +310,7 @@ import {
   BackendService,
   ContentFilterProfile,
   MobileSDK,
-  ProxyTemplate,
+  ConfigTemplate,
   RoutingProfile,
   SecurityPolicy,
   Site,
@@ -311,11 +323,11 @@ import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
 
 export default defineComponent({
-  name: 'WebProxyEditor',
+  name: 'ServerGroupsEditor',
   data() {
     return {
       titles: DatasetsUtils.titles,
-      selectedWebProxy: null as Site,
+      selectedServerGroup: null as Site,
       docIdFromRoute: '',
 
       // Loading indicators
@@ -329,7 +341,7 @@ export default defineComponent({
       securityPoliciesNames: [] as [SecurityPolicy['id'], SecurityPolicy['name']][],
       routingProfiles: [] as RoutingProfile[],
       routingProfilesNames: [] as [RoutingProfile['id'], RoutingProfile['name']][],
-      proxyTemplatesNames: [] as [ProxyTemplate['id'], ProxyTemplate['name']][],
+      configTemplatesNames: [] as [ConfigTemplate['id'], ConfigTemplate['name']][],
       mobileSDKsNames: [] as [MobileSDK['id'], MobileSDK['name']][],
       backendServicesNames: [] as [BackendService['id'], BackendService['name']][],
       contentFilterProfilesNames: [] as [ContentFilterProfile['id'], ContentFilterProfile['name']][],
@@ -342,11 +354,11 @@ export default defineComponent({
   watch: {
     selectedBranch: {
       handler: function(val, oldVal) {
-        if ((this.$route.name as string).includes('WebProxy/config') && val && val !== oldVal) {
+        if ((this.$route.name as string).includes('ServerGroups/config') && val && val !== oldVal) {
           this.setSelectedDataFromRouteParams()
           this.loadSecurityPolicies()
           this.loadRoutingProfiles()
-          this.loadProxyTemplates()
+          this.loadConfigTemplates()
           this.loadMobileSDKs()
           this.loadBackendServices()
           this.loadContentFilterProfiles()
@@ -359,28 +371,28 @@ export default defineComponent({
   computed: {
     documentAPIPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
-      return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/sites/e/${this.selectedWebProxy.id}/`
+      return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/sites/e/${this.selectedServerGroup.id}/`
     },
 
     selectedSecurityPolicy(): SecurityPolicy {
       return this.securityPolicies.find((securityPolicy) => {
-        return securityPolicy.id === this.selectedWebProxy.security_policy
+        return securityPolicy.id === this.selectedServerGroup.security_policy
       })
     },
 
     selectedRoutingProfile(): RoutingProfile {
       return this.routingProfiles.find((routingProfile) => {
-        return routingProfile.id === this.selectedWebProxy.routing_profile
+        return routingProfile.id === this.selectedServerGroup.routing_profile
       })
     },
 
     serverNames: {
       get() {
-        return Array.from(this.selectedWebProxy.server_names || '').join('\n')
+        return Array.from(this.selectedServerGroup.server_names || '').join('\n')
       },
       set(newValue: string) {
         const value = newValue.replaceAll(' ', '')
-        this.selectedWebProxy.server_names = value.split('\n')
+        this.selectedServerGroup.server_names = value.split('\n')
       },
     },
 
@@ -394,11 +406,11 @@ export default defineComponent({
     async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
       this.docIdFromRoute = this.$route.params?.doc_id?.toString()
-      await this.loadWebProxy()
+      await this.loadServerGroup()
     },
 
     redirectToList() {
-      this.$router.push(`/${this.selectedBranch}/web-proxy/list`)
+      this.$router.push(`/${this.selectedBranch}/server-groups/list`)
     },
 
     setLoadingDocStatus(isLoading: boolean) {
@@ -412,23 +424,23 @@ export default defineComponent({
     async switchBranch() {
       this.setLoadingDocStatus(true)
       Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
-      await this.loadWebProxy()
+      await this.loadServerGroup()
       this.setLoadingDocStatus(false)
     },
 
     downloadDoc() {
       if (!this.isDownloadLoading) {
-        Utils.downloadFile('web-proxy', 'json', this.selectedWebProxy)
+        Utils.downloadFile('server-groups', 'json', this.selectedServerGroup)
       }
     },
 
     async deleteDoc() {
       this.setLoadingDocStatus(true)
       this.isDeleteLoading = true
-      const webProxyText = this.titles['sites-singular']
-      const url = `configs/${this.selectedBranch}/d/sites/e/${this.selectedWebProxy.id}/`
-      const successMessage = `The ${webProxyText} was deleted.`
-      const failureMessage = `Failed while attempting to delete the ${webProxyText}.`
+      const serverGroupText = this.titles['sites-singular']
+      const url = `configs/${this.selectedBranch}/d/sites/e/${this.selectedServerGroup.id}/`
+      const successMessage = `The ${serverGroupText} was deleted.`
+      const failureMessage = `Failed while attempting to delete the ${serverGroupText}.`
       await RequestsUtils.sendReblazeRequest({
         methodName: 'DELETE',
         url: url,
@@ -443,27 +455,27 @@ export default defineComponent({
     async saveChanges() {
       this.isSaveLoading = true
       const methodName = 'PUT'
-      const url = `configs/${this.selectedBranch}/d/sites/e/${this.selectedWebProxy.id}/`
-      const data = this.selectedWebProxy
-      const webProxyText = this.titles['sites-singular']
-      const successMessage = `Changes to the ${webProxyText} were saved.`
-      const failureMessage = `Failed while attempting to save the changes to the ${webProxyText}.`
+      const url = `configs/${this.selectedBranch}/d/sites/e/${this.selectedServerGroup.id}/`
+      const data = this.selectedServerGroup
+      const serverGroupText = this.titles['sites-singular']
+      const successMessage = `Changes to the ${serverGroupText} were saved.`
+      const failureMessage = `Failed while attempting to save the changes to the ${serverGroupText}.`
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
       this.isSaveLoading = false
     },
 
-    async loadWebProxy() {
+    async loadServerGroup() {
       this.isDownloadLoading = true
       const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/sites/e/${this.docIdFromRoute}`,
         onFail: () => {
-          console.log('Error while attempting to load the Web Proxy')
-          this.selectedWebProxy = null
+          console.log(`Error while attempting to load the ${this.titles['sites-singular']}`)
+          this.selectedServerGroup = null
           this.isDownloadLoading = false
         },
       })
-      this.selectedWebProxy = response?.data || {}
+      this.selectedServerGroup = response?.data || {}
       this.isDownloadLoading = false
     },
 
@@ -495,13 +507,13 @@ export default defineComponent({
       })
     },
 
-    loadProxyTemplates() {
+    loadConfigTemplates() {
       RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/proxy-templates/`,
         config: {headers: {'x-fields': 'id, name'}},
-      }).then((response: AxiosResponse<ProxyTemplate[]>) => {
-        this.proxyTemplatesNames = _.sortBy(_.map(response.data, (entity) => {
+      }).then((response: AxiosResponse<ConfigTemplate[]>) => {
+        this.configTemplatesNames = _.sortBy(_.map(response.data, (entity) => {
           return [entity.id, entity.name]
         }), (e) => {
           return e[1]

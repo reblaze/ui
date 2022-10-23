@@ -1,5 +1,5 @@
 // @ts-nocheck
-import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
+import RateLimitsEditor from '../RateLimitRulesEditor.vue'
 import LimitOption from '@/components/LimitOption.vue'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {mount, shallowMount, VueWrapper} from '@vue/test-utils'
@@ -10,7 +10,7 @@ import {nextTick} from 'vue'
 
 jest.mock('axios')
 
-describe('RateLimitsEditor.vue', () => {
+describe('RateLimitRulesEditor.vue', () => {
   let rateLimitsDocs: RateLimit[]
   let securityPoliciesDocs: SecurityPolicy[]
   let customResponsesDocs: CustomResponse[]
@@ -24,13 +24,13 @@ describe('RateLimitsEditor.vue', () => {
       'thresholds': [
         {
           'limit': '5',
-          'action': 'monitor',
+          'action': 'action-rate-limit-block',
         },
       ],
       'timeframe': '60',
       'include': ['blocklist'],
       'exclude': ['allowlist'],
-      'key': [{'attrs': 'securitypolicyid'}, {'attrs': 'securitypolicyentryid'}, {'attrs': 'curiesession'}],
+      'key': [{'attrs': 'securitypolicyid'}, {'attrs': 'securitypolicyentryid'}, {'attrs': 'session'}],
       'pairwith': {'self': 'self'},
     }]
     securityPoliciesDocs = [
@@ -87,11 +87,7 @@ describe('RateLimitsEditor.vue', () => {
     ]
     customResponsesDocs = [
       {
-        'id': 'default',
-        'name': 'default blocking action',
-      },
-      {
-        'id': 'monitor',
+        'id': 'action-rate-limit-block',
         'name': 'default monitoring action',
       },
     ]
@@ -114,7 +110,7 @@ describe('RateLimitsEditor.vue', () => {
     const onUpdate = async (selectedDoc: RateLimit) => {
       await wrapper.setProps({selectedDoc})
     }
-    wrapper = mount(RateLimitsEditor, {
+    wrapper = shallowMount(RateLimitsEditor, {
       props: {
         'selectedDoc': rateLimitsDocs[0],
         'selectedBranch': selectedBranch,
@@ -197,10 +193,10 @@ describe('RateLimitsEditor.vue', () => {
     })
 
     test('should have response action selection with correct data', () => {
-      const wantedAction = rateLimitsDocs[0].thresholds[0].action.toString()
+      const wantedCustomResponse = rateLimitsDocs[0].thresholds[0].action.toString()
       const thresholdActionSelection = wrapper.find('.threshold-action-selection')
-      const selectedAction = (thresholdActionSelection.find('option:checked').element as HTMLOptionElement).value
-      expect(selectedAction).toEqual(wantedAction)
+      const selectedCustomResponse = (thresholdActionSelection.find('option:checked').element as HTMLOptionElement).value
+      expect(selectedCustomResponse).toEqual(wantedCustomResponse)
     })
 
     test('should have correct include data in table', () => {
@@ -233,7 +229,7 @@ describe('RateLimitsEditor.vue', () => {
 
     test('should handle key with no value', async () => {
       rateLimitsDocs[0].key = [{'headers': null}]
-      wrapper = mount(RateLimitsEditor, {
+      wrapper = shallowMount(RateLimitsEditor, {
         props: {
           selectedDoc: rateLimitsDocs[0],
         },
@@ -289,7 +285,7 @@ describe('RateLimitsEditor.vue', () => {
     test('should handle selectedDoc with undefined key value', async () => {
       try {
         rateLimitsDocs[0].key = [{'headers': null}, undefined]
-        wrapper = mount(RateLimitsEditor, {
+        wrapper = shallowMount(RateLimitsEditor, {
           props: {
             selectedDoc: rateLimitsDocs[0],
           },
@@ -307,12 +303,12 @@ describe('RateLimitsEditor.vue', () => {
       const addThresholdButton = wrapper.find('.add-threshold-button')
       await addThresholdButton.trigger('click')
       const wantedLimit = 0
-      const wantedAction = 'default'
+      const wantedCustomResponse = 'default'
       const actualLimit = wrapper.vm.localDoc.thresholds[1].limit
-      const actualAction = wrapper.vm.localDoc.thresholds[1].action
+      const actualCustomResponse = wrapper.vm.localDoc.thresholds[1].action
       expect(wrapper.vm.localDoc.thresholds.length).toEqual(2)
       expect(actualLimit).toEqual(wantedLimit)
-      expect(actualAction).toEqual(wantedAction)
+      expect(actualCustomResponse).toEqual(wantedCustomResponse)
     })
 
     test('should remove threshold when remove event occurs', async () => {
@@ -335,7 +331,7 @@ describe('RateLimitsEditor.vue', () => {
   describe('event', () => {
     test('should handle key with no value', async () => {
       rateLimitsDocs[0].pairwith = {'self': null}
-      wrapper = mount(RateLimitsEditor, {
+      wrapper = shallowMount(RateLimitsEditor, {
         props: {
           selectedDoc: rateLimitsDocs[0],
         },
@@ -461,6 +457,24 @@ describe('RateLimitsEditor.vue', () => {
   })
 
   describe('connected Security Policies', () => {
+    beforeEach(() => {
+      const selectedBranch = 'prod'
+      const onUpdate = async (selectedDoc: RateLimit) => {
+        await wrapper.setProps({selectedDoc})
+      }
+      wrapper = mount(RateLimitsEditor, {
+        props: {
+          'selectedDoc': rateLimitsDocs[0],
+          'selectedBranch': selectedBranch,
+          'onUpdate:selectedDoc': onUpdate,
+        },
+        global: {
+          mocks: {
+            $router: mockRouter,
+          },
+        },
+      })
+    })
     afterEach(() => {
       jest.clearAllMocks()
       jest.clearAllTimers()

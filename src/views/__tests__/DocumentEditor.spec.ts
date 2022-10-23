@@ -17,7 +17,7 @@ import {
   GlobalFilter,
   RateLimit,
   SecurityPolicy,
-  CloudFunction,
+  EdgeFunction,
 } from '@/types'
 import {setImmediate, setTimeout} from 'timers'
 import {nextTick} from 'vue'
@@ -40,7 +40,7 @@ describe.skip('DocumentEditor.vue', () => {
   let flowControlPolicyDocs: FlowControlPolicy[]
   let contentFilterDocs: ContentFilterProfile[]
   let rateLimitsDocs: RateLimit[]
-  let cloudFunctionsDocs: CloudFunction[]
+  let edgeFunctionsDocs: EdgeFunction[]
 
   beforeEach((done) => {
     gitData = [
@@ -736,11 +736,11 @@ describe.skip('DocumentEditor.vue', () => {
       'report': [],
       'ignore': [],
     }]
-    cloudFunctionsDocs = [{
+    edgeFunctionsDocs = [{
       'id': 'cf-12345678',
-      'name': 'New Cloud Functions',
+      'name': 'New Edge Functions',
       'key': 'cf12345678',
-      'description': 'New Cloud Functions Documentation',
+      'description': 'New Edge Functions Documentation',
       'code': 'foo = 12345678',
       'phase': 'request0',
     }]
@@ -855,9 +855,9 @@ describe.skip('DocumentEditor.vue', () => {
       }
       if (path === `/reblaze/api/v3/reblaze/config/d/cloud-functions/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
-          return Promise.resolve({data: _.map(cloudFunctionsDocs, (i) => _.pick(i, 'id', 'name'))})
+          return Promise.resolve({data: _.map(edgeFunctionsDocs, (i) => _.pick(i, 'id', 'name'))})
         }
-        return Promise.resolve({data: cloudFunctionsDocs[0]})
+        return Promise.resolve({data: edgeFunctionsDocs[0]})
       }
       if (path === '/conf/api/v3/configs/prod/v/') {
         return Promise.resolve({data: gitData[0].logs})
@@ -1789,7 +1789,7 @@ describe.skip('DocumentEditor.vue', () => {
       setImmediate(() => {
         const noDataMessage: DOMWrapper = wrapper.find('.no-data-message')
         expect(noDataMessage.exists()).toBeTruthy()
-        expect(noDataMessage.text().toLowerCase()).toContain('no data found!')
+        expect(noDataMessage.text().toLowerCase()).toContain('no data found.')
         expect(noDataMessage.text().toLowerCase()).toContain('missing branch.')
         done()
       })
@@ -1828,7 +1828,7 @@ describe.skip('DocumentEditor.vue', () => {
       setImmediate(() => {
         const noDataMessage: DOMWrapper = wrapper.find('.no-data-message')
         expect(noDataMessage.exists()).toBeTruthy()
-        expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found!')
+        expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found.')
         expect(noDataMessage?.text()?.toLowerCase()).toContain('missing document type.')
         done()
       })
@@ -1853,7 +1853,7 @@ describe.skip('DocumentEditor.vue', () => {
       setImmediate(() => {
         const noDataMessage: DOMWrapper = wrapper.find('.no-data-message')
         expect(noDataMessage.exists()).toBeTruthy()
-        expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found!')
+        expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found.')
         expect(noDataMessage?.text()?.toLowerCase()).toContain('missing document.')
         done()
       })

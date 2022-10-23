@@ -1,89 +1,101 @@
 <template>
-  <div class="card">
-    <div class="card-content">
-      <div class="media">
-        <div class="media-content">
-          <div class="columns">
-            <div class="column">
-              <input class="input is-small is-fullwidth filter-input"
-                     placeholder="Filters, comma separated. Available filters: `proxy`, `appid`, and `profile`."
-                     v-model="searchFilter"/>
-            </div>
-            <div class="column is-narrow">
-              <div class="field is-grouped is-pulled-right">
-                <p class="control">
-                  <Datepicker v-model="date"
-                              range
-                              utc
-                              enableSeconds
-                              format="yyyy-MM-dd HH:mm"
-                              inputClassName="input is-small is-size-7 width-260px date-picker-input"
-                              :monthChangeOnScroll="false"
-                              :clearable="false"
-                              :presetRanges="presetRanges"
-                              @open="loadPresetRanges">
-                  </Datepicker>
-                </p>
-                <p class="control">
-                  <button class="button is-small search-button"
-                          :class="{'is-loading': isSearchLoading}"
-                          @click="loadData()"
-                          title="Search"
-                          data-qa="search-button">
-                    <span class="icon is-small">
-                      <i class="fas fa-search"></i>
-                    </span>
-                  </button>
-                </p>
-                <p class="control">
-                  <button class="button is-small clear-search-button"
-                          @click="clearSearch()"
-                          title="Clear filter"
-                          data-qa="clear-search-button">
-                    <span class="icon is-small">
-                      <i class="fas fa-times"></i>
-                    </span>
-                  </button>
-                </p>
-              </div>
-            </div>
+  <div class="card-content">
+    <div class="media">
+      <div class="media-content">
+        <div class="field is-grouped">
+          <div class="control search-wrapper">
+            <input class="input is-small is-fullwidth filter-input"
+                   placeholder="Filters, comma separated. Available filters: `proxy`, `appid`, and `profile`."
+                   v-model="searchFilter"/>
           </div>
+          <p class="control">
+            <Datepicker v-model="date"
+                        range
+                        utc
+                        enableSeconds
+                        format="yyyy-MM-dd HH:mm"
+                        inputClassName="input is-small is-size-7 width-260px date-picker-input"
+                        :monthChangeOnScroll="false"
+                        :clearable="false"
+                        :presetRanges="presetRanges"
+                        @open="loadPresetRanges">
+            </Datepicker>
+          </p>
+          <p class="control">
+            <button class="button is-small search-button"
+                    :class="{'is-loading': isSearchLoading}"
+                    @click="loadData()"
+                    title="Search"
+                    data-qa="search-button">
+              <span class="icon is-small">
+                <i class="fas fa-search"></i>
+              </span>
+              <span>
+                Search
+              </span>
+            </button>
+          </p>
+          <p class="control">
+            <button class="button is-small clear-search-button"
+                    @click="clearSearch()"
+                    title="Clear filter"
+                    data-qa="clear-search-button">
+              <span class="icon is-small">
+                <i class="fas fa-times"></i>
+              </span>
+              <span>
+                Clear
+              </span>
+            </button>
+          </p>
         </div>
       </div>
+    </div>
 
-      <hr/>
+    <hr/>
 
-      <div class="media">
-        <div class="media-content">
-          <div class="tabs"
-               data-qa="dashboard-tabs">
-            <ul>
-              <li v-for="(dashboard, index) in dashboards"
-                  :key="index"
-                  :class="{'is-active': index === activeDashboardIndex}"
-                  @click="activeDashboardIndex = index"
-                  :data-qa="`dashboard-tab-${index}`">
-                <a>
-                  {{ dashboard.title }}
-                </a>
-              </li>
-            </ul>
-          </div>
+    <div class="media">
+      <div class="media-content">
+        <div class="tabs"
+             data-qa="dashboard-tabs">
+          <ul>
+            <li v-for="(dashboard, index) in dashboards"
+                :key="index"
+                :class="{'is-active': index === activeDashboardIndex}"
+                @click="activeDashboardIndex = index"
+                :data-qa="`dashboard-tab-${index}`">
+              <a>
+                {{ dashboard.title }}
+              </a>
+            </li>
+          </ul>
         </div>
       </div>
-      <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'default' && data">
-        <rbz-dashboard-default :data="data">
-        </rbz-dashboard-default>
+    </div>
+    <div v-if="!data?.length"
+         class="has-text-centered is-fullwidth">
+      <div v-if="isSearchLoading">
+        <button class="button is-outlined is-text is-small is-loading dashboard-loading">
+          Loading
+        </button>
       </div>
-      <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'threats' && data">
+      <div v-else>
+        Your search did not match any data
       </div>
-      <div v-if="dashboards[activeDashboardIndex]?.metabaseId && data">
-<!--        <iframe :src="getDashboardURL(dashboards[activeDashboardIndex]?.metabaseId)"-->
-<!--                width="100%"-->
-<!--                height="600"-->
-<!--                allowtransparency>-->
-<!--        </iframe>-->
-      </div>
+    </div>
+    <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'default'">
+      <rbz-dashboard-default :data="data"
+                             :loading="isSearchLoading">
+      </rbz-dashboard-default>
+    </div>
+    <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'threats'">
+    </div>
+    <div v-if="dashboards[activeDashboardIndex]?.metabaseId">
+      <!--        <iframe :src="getDashboardURL(dashboards[activeDashboardIndex]?.metabaseId)"-->
+      <!--                width="100%"-->
+      <!--                height="600"-->
+      <!--                allowtransparency>-->
+      <!--        </iframe>-->
     </div>
   </div>
 </template>
@@ -94,7 +106,6 @@ import RequestsUtils from '@/assets/RequestsUtils'
 import RbzDashboardDefault from '@/reblaze-dashboards/DefaultDashboard.vue'
 import Datepicker from '@vuepic/vue-datepicker'
 import {GenericObject} from '@/types'
-import '@vuepic/vue-datepicker/dist/main.css'
 
 const MS_PER_MINUTE = 60000
 const HOUR = 60 * MS_PER_MINUTE
@@ -170,15 +181,16 @@ export default defineComponent({
       const query = this.buildQuery()
       const response = await RequestsUtils.sendDataLayerRequest({
         methodName: 'GET',
-        url: `metrics/1m?filters=${query}`,
+        url: `metrics/1s?filters=${query}`,
         config: {
           headers: {
-            'flavor': 'mongodb',
+            'syntax': 'mongodb',
+            'provider': 'mongodb',
             'Content-Type': 'application/json',
           },
         },
       })
-      this.data = response?.data || []
+      this.data = response?.data?.data?.results || []
       this.isSearchLoading = false
     },
 
@@ -239,6 +251,11 @@ export default defineComponent({
 </script>
 <style lang="scss">
 @import 'node_modules/@vuepic/vue-datepicker/src/VueDatePicker/style/main';
+
+.search-wrapper {
+  /* Magic number 450x - width of datepicker, search, and clear buttons */
+  width: calc(100% - 450px);
+}
 
 .date-picker-input {
   padding-left: 33px;

@@ -1,5 +1,5 @@
 // @ts-nocheck
-import ContentFilterEditor from '@/doc-editors/ContentFilterProfileEditor.vue'
+import ContentFilterEditor from '../ContentFilterProfilesEditor.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {shallowMount} from '@vue/test-utils'
@@ -18,7 +18,7 @@ import {nextTick} from 'vue'
 
 jest.mock('axios')
 
-describe('ContentFilterProfileEditor.vue', () => {
+describe('ContentFilterProfilesEditor.vue', () => {
   let docs: ContentFilterProfile[]
   let wrapper: any
   let contentFilterRulesDocs: ContentFilterRule[]
@@ -28,7 +28,7 @@ describe('ContentFilterProfileEditor.vue', () => {
       'id': '__default__',
       'name': 'default contentfilter',
       'description': 'New Content Filter Profile Description and Remarks',
-      'action': 'monitor',
+      'action': 'action-contentfilter-block',
       'tags': [],
       'ignore_body': true,
       'ignore_alphanum': true,
@@ -106,11 +106,7 @@ describe('ContentFilterProfileEditor.vue', () => {
     ]
     customResponsesDocs = [
       {
-        'id': 'default',
-        'name': 'default blocking action',
-      },
-      {
-        'id': 'monitor',
+        'id': 'action-contentfilter-block',
         'name': 'default monitoring action',
       },
     ]

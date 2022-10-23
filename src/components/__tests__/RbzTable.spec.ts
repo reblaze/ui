@@ -48,7 +48,7 @@ describe('RbzTable.vue', () => {
         classes: 'width-80px',
       },
       {
-        title: 'Action',
+        title: 'Custom Response',
         fieldNames: ['action'],
         isSortable: true,
         classes: 'width-80px',
@@ -297,7 +297,7 @@ describe('RbzTable.vue', () => {
           classes: 'width-100px',
         },
         {
-          title: 'Action',
+          title: 'Custom Response',
           fieldNames: ['action'],
           isSortable: true,
           isSearchable: true,

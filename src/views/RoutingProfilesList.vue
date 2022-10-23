@@ -2,16 +2,19 @@
   <div class="card-content">
     <div class="media">
       <div class="media-content">
-        <div class="field is-grouped">
+        <div class="field is-grouped is-pulled-right">
           <p class="control">
             <button class="button is-small download-doc-button"
                     :class="{'is-loading':isDownloadLoading}"
                     @click="downloadDoc()"
                     title="Download document"
                     data-qa="download-document">
-                <span class="icon is-small">
-                    <i class="fas fa-download"></i>
-                </span>
+              <span class="icon is-small">
+                <i class="fas fa-download"></i>
+              </span>
+              <span>
+                Download
+              </span>
             </button>
           </p>
         </div>
@@ -26,15 +29,17 @@
         <div class="card-content">
           <div class="content">
             <rbz-table :columns="columns"
-                       :data="mobileSDKs"
+                       :data="routingProfiles"
                        :show-menu-column="true"
                        :show-filter-button="true"
                        :show-new-button="true"
-                       @new-button-clicked="addNewSDK"
+                       @new-button-clicked="addNewProfile"
+                       :row-clickable="true"
+                       @row-clicked="editProfile"
                        :show-row-button="true"
-                       @row-button-clicked="editMobileSDK">
+                       @row-button-clicked="editProfile">
             </rbz-table>
-            <span class="is-family-monospace has-text-grey-lighter">
+            <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">
                 {{ documentListAPIPath }}
               </span>
           </div>
@@ -51,9 +56,10 @@
   </div>
 </template>
 <script lang="ts">
+import _ from 'lodash'
 import {defineComponent} from 'vue'
 import RbzTable from '@/components/RbzTable.vue'
-import {ColumnOptions, MobileSDK} from '@/types'
+import {ColumnOptions, RoutingProfile} from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import Utils from '@/assets/Utils'
@@ -61,7 +67,7 @@ import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
 
 export default defineComponent({
-  name: 'MobileSDKList',
+  name: 'RoutingProfileList',
   components: {
     RbzTable,
   },
@@ -83,26 +89,31 @@ export default defineComponent({
           classes: 'ellipsis',
         },
         {
-          title: 'Grace Period',
-          fieldNames: ['grace'],
-          displayFunction: (item: MobileSDK) => {
-            return `${item.grace} seconds`
+          title: 'Paths',
+          fieldNames: ['locations'],
+          displayFunction: (item: RoutingProfile) => {
+            return item.locations.length
           },
           isSortable: true,
           isSearchable: true,
-          classes: 'width-100px',
+          classes: 'width-60px white-space-pre',
         },
         {
-          title: 'Token Header Name',
-          fieldNames: ['uid_header'],
+          title: 'Edge Functions',
+          fieldNames: ['locations'],
+          displayFunction: (item: RoutingProfile) => {
+            return _.sumBy(item.locations, (mapEntry) => {
+              return mapEntry['cloud_functions']?.length || 0
+            })
+          },
           isSortable: true,
           isSearchable: true,
-          classes: 'width-150px',
+          classes: 'width-120px white-space-pre',
         },
       ] as ColumnOptions[],
       isNewLoading: false,
       titles: DatasetsUtils.titles,
-      mobileSDKs: [],
+      routingProfiles: [] as RoutingProfile[],
       loadingDocCounter: 0,
       isDownloadLoading: false,
       apiRoot: RequestsUtils.reblazeAPIRoot,
@@ -113,8 +124,8 @@ export default defineComponent({
   watch: {
     selectedBranch: {
       handler: function(val, oldVal) {
-        if ((this.$route.name as string).includes('MobileSDKs/list') && val && val !== oldVal) {
-          this.loadMobileSDKs()
+        if ((this.$route.name as string).includes('RoutingProfiles/list') && val && val !== oldVal) {
+          this.loadProfiles()
         }
       },
       immediate: true,
@@ -124,7 +135,7 @@ export default defineComponent({
   computed: {
     documentListAPIPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
-      return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/mobile-sdks/`
+      return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/routing-profiles/`
     },
 
     selectedBranch(): string {
@@ -143,50 +154,44 @@ export default defineComponent({
       }
     },
 
-    newMobileSDK(): MobileSDK {
-      const factory = DatasetsUtils.newOperationEntryFactory['mobile-sdks']
+    newProfile(): RoutingProfile {
+      const factory = DatasetsUtils.newOperationEntryFactory['routing-profiles']
       return factory && factory()
     },
 
-    editMobileSDK(id: string) {
-      this.$router.push(`/${this.selectedBranch}/mobile-sdks/config/${id}`)
+    editProfile(id: string) {
+      this.$router.push(`/${this.selectedBranch}/routing-profiles/config/${id}`)
     },
 
-    async addNewSDK() {
+    async addNewProfile() {
       this.isNewLoading = true
-      const mobileSDKToAdd = this.newMobileSDK()
-      const mobileSDKText = this.titles['mobile-sdks-singular']
-      const successMessage = `New ${mobileSDKText} was created.`
-      const failureMessage = `Failed while attempting to create the new ${mobileSDKText}.`
-      const url = `configs/${this.selectedBranch}/d/mobile-sdks/e/${mobileSDKToAdd.id}/`
-      const data = mobileSDKToAdd
-      await RequestsUtils.sendReblazeRequest({
-        methodName: 'POST',
-        url,
-        data,
-        successMessage,
-        failureMessage,
-      })
-      this.editMobileSDK(mobileSDKToAdd.id)
+      const profileToAdd = this.newProfile()
+      const routingProfileText = this.titles['routing-profiles-singular']
+      const successMessage = `New ${routingProfileText} was created.`
+      const failureMessage = `Failed while attempting to create the new ${routingProfileText}.`
+      const url = `configs/${this.selectedBranch}/d/routing-profiles/e/${profileToAdd.id}`
+      const data = profileToAdd
+      await RequestsUtils.sendReblazeRequest({methodName: 'POST', url, data, successMessage, failureMessage})
+      this.editProfile(profileToAdd.id)
       this.isNewLoading = false
     },
 
     downloadDoc() {
       if (!this.isDownloadLoading) {
-        Utils.downloadFile('mobile-sdks', 'json', this.mobileSDKs)
+        Utils.downloadFile('routing-profiles', 'json', this.routingProfiles)
       }
     },
 
-    async loadMobileSDKs() {
-      const url = `configs/${this.selectedBranch}/d/mobile-sdks/`
+    async loadProfiles() {
+      const url = `configs/${this.selectedBranch}/d/routing-profiles/`
       const response = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
-      this.mobileSDKs = response?.data
+      this.routingProfiles = response?.data
     },
 
     async switchBranch() {
       this.setLoadingDocStatus(true)
       Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
-      await this.loadMobileSDKs()
+      await this.loadProfiles()
       this.setLoadingDocStatus(false)
     },
   },

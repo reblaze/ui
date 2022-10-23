@@ -2,16 +2,19 @@
   <div class="card-content">
     <div class="media">
       <div class="media-content">
-        <div class="field is-grouped">
+        <div class="field is-grouped is-pulled-right">
           <p class="control">
             <button :class="{'is-loading':isDownloadLoading}"
                     class="button is-small download-doc-button"
                     data-qa="download-document"
                     title="Download document"
                     @click="downloadDoc()">
-                <span class="icon is-small">
-                    <i class="fas fa-download"></i>
-                </span>
+              <span class="icon is-small">
+                <i class="fas fa-download"></i>
+              </span>
+              <span>
+                Download
+              </span>
             </button>
           </p>
         </div>
@@ -26,15 +29,17 @@
         <div class="card-content">
           <div class="content">
             <rbz-table :columns="columns"
-                       :data="proxyTemplates"
+                       :data="configTemplates"
                        :show-filter-button="true"
                        :show-menu-column="true"
                        :show-new-button="true"
+                       @new-button-clicked="addNewConfigTemplate"
+                       :row-clickable="true"
+                       @row-clicked="editConfigTemplate"
                        :show-row-button="true"
-                       @new-button-clicked="addNewProxyTemplate"
-                       @row-button-clicked="editProxyTemplate">
+                       @row-button-clicked="editConfigTemplate">
             </rbz-table>
-            <span class="is-family-monospace has-text-grey-lighter">
+            <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">
                 {{ documentListAPIPath }}
               </span>
           </div>
@@ -53,7 +58,7 @@
 <script lang="ts">
 import {defineComponent} from 'vue'
 import RbzTable from '@/components/RbzTable.vue'
-import {ColumnOptions, ProxyTemplate} from '@/types'
+import {ColumnOptions, ConfigTemplate} from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import Utils from '@/assets/Utils'
@@ -61,7 +66,7 @@ import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
 
 export default defineComponent({
-  name: 'ProxyTemplateList',
+  name: 'ConfigTemplateList',
   components: {
     RbzTable,
   },
@@ -85,7 +90,7 @@ export default defineComponent({
         {
           title: 'Static IP Rate Limit',
           fieldNames: ['limit_req_rate', 'limit_req_burst'],
-          displayFunction: (item: ProxyTemplate) => {
+          displayFunction: (item: ConfigTemplate) => {
             return [
               `<span class="width-50px is-inline-block">Rate:</span> ${item['limit_req_rate']} / second`,
               `<span class="width-50px is-inline-block">Burst:</span> ${item['limit_req_burst']} / second`,
@@ -96,7 +101,7 @@ export default defineComponent({
         {
           title: 'Proxy Timeout',
           fieldNames: ['proxy_connect_timeout', 'proxy_send_timeout', 'proxy_read_timeout'],
-          displayFunction: (item: ProxyTemplate) => {
+          displayFunction: (item: ConfigTemplate) => {
             return [
               `<span class="width-60px is-inline-block">Connect:</span> ${item['proxy_connect_timeout']}`,
               `<span class="width-60px is-inline-block">Send:</span> ${item['proxy_send_timeout']}`,
@@ -108,7 +113,7 @@ export default defineComponent({
       ] as ColumnOptions[],
       isNewLoading: false,
       titles: DatasetsUtils.titles,
-      proxyTemplates: [],
+      configTemplates: [],
       loadingDocCounter: 0,
       isDownloadLoading: false,
       apiRoot: RequestsUtils.reblazeAPIRoot,
@@ -119,8 +124,8 @@ export default defineComponent({
   watch: {
     selectedBranch: {
       handler: function(val, oldVal) {
-        if ((this.$route.name as string).includes('ProxyTemplates/list') && val && val !== oldVal) {
-          this.loadProxyTemplates()
+        if ((this.$route.name as string).includes('ConfigTemplates/list') && val && val !== oldVal) {
+          this.loadConfigTemplates()
         }
       },
       immediate: true,
@@ -149,44 +154,44 @@ export default defineComponent({
       }
     },
 
-    newProxyTemplate(): ProxyTemplate {
+    newConfigTemplate(): ConfigTemplate {
       const factory = DatasetsUtils.newOperationEntryFactory['proxy-templates']
       return factory && factory()
     },
 
-    editProxyTemplate(id: string) {
-      this.$router.push(`/${this.selectedBranch}/proxy-templates/config/${id}`)
+    editConfigTemplate(id: string) {
+      this.$router.push(`/${this.selectedBranch}/config-templates/config/${id}`)
     },
 
-    async addNewProxyTemplate() {
+    async addNewConfigTemplate() {
       this.isNewLoading = true
-      const proxyTemplateToAdd = this.newProxyTemplate()
-      const proxyTemplateText = this.titles['proxy-templates-singular']
-      const successMessage = `New ${proxyTemplateText} was created.`
-      const failureMessage = `Failed while attempting to create the new ${proxyTemplateText}.`
-      const url = `configs/${this.selectedBranch}/d/proxy-templates/e/${proxyTemplateToAdd.id}`
-      const data = proxyTemplateToAdd
+      const configTemplateToAdd = this.newConfigTemplate()
+      const configTemplateText = this.titles['proxy-templates-singular']
+      const successMessage = `New ${configTemplateText} was created.`
+      const failureMessage = `Failed while attempting to create the new ${configTemplateText}.`
+      const url = `configs/${this.selectedBranch}/d/proxy-templates/e/${configTemplateToAdd.id}`
+      const data = configTemplateToAdd
       await RequestsUtils.sendReblazeRequest({methodName: 'POST', url, data, successMessage, failureMessage})
-      this.editProxyTemplate(proxyTemplateToAdd.id)
+      this.editConfigTemplate(configTemplateToAdd.id)
       this.isNewLoading = false
     },
 
     downloadDoc() {
       if (!this.isDownloadLoading) {
-        Utils.downloadFile('proxy-templates', 'json', this.proxyTemplates)
+        Utils.downloadFile(this.titles['proxy-templates'], 'json', this.configTemplates)
       }
     },
 
-    async loadProxyTemplates() {
+    async loadConfigTemplates() {
       const url = `configs/${this.selectedBranch}/d/proxy-templates/`
       const response = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
-      this.proxyTemplates = response?.data
+      this.configTemplates = response?.data
     },
 
     async switchBranch() {
       this.setLoadingDocStatus(true)
       Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
-      await this.loadProxyTemplates()
+      await this.loadConfigTemplates()
       this.setLoadingDocStatus(false)
     },
   },

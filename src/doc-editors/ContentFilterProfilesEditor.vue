@@ -28,9 +28,9 @@
                    title="Masking seed"
                    data-qa="waf-masking"
                    placeholder="Masking seed"
-                   type="password"
-                   @change="emitDocUpdate"
-                   v-model="localDoc.masking_seed"/>
+                   @focus="maskingSeedHidden = false"
+                   @blur="maskingSeedHidden = true"
+                   v-model="maskingSeed"/>
           </div>
         </div>
 
@@ -48,7 +48,7 @@
         </div>
         <div class="field">
           <label class="label is-small">
-            Action
+            Custom Response
           </label>
           <div class="control is-expanded">
             <div class="select is-fullwidth is-small">
@@ -56,7 +56,7 @@
                       @change="emitDocUpdate"
                       data-qa="action-dropdown"
                       class="document-action-selection"
-                      title="Action">
+                      title="Custom Response">
                 <option v-for="customResponse in customResponseNames"
                         :value="customResponse[0]"
                         :key="customResponse[0]">
@@ -661,7 +661,7 @@
         </div>
       </div>
     </div>
-    <span class="is-family-monospace has-text-grey-lighter">{{ apiPath }}</span>
+    <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ apiPath }}</span>
   </div>
 </template>
 
@@ -780,6 +780,7 @@ export default defineComponent({
         },
       ],
       customResponseNames: [] as [CustomResponse['id'], CustomResponse['name']][],
+      maskingSeedHidden: true,
     }
   },
 
@@ -812,6 +813,20 @@ export default defineComponent({
         return 'Matching Value cannot be empty if Mask is unchecked & Ignore Tags is empty'
       }
       return 'Add new parameter'
+    },
+
+    maskingSeed: {
+      get: function(): string {
+        if (this.maskingSeedHidden) {
+          return '•••••'
+        } else {
+          return this.localDoc.masking_seed
+        }
+      },
+      set: function(value: string): void {
+        this.localDoc.masking_seed = value
+        this.emitDocUpdate()
+      },
     },
 
     selectedDocTags: {
@@ -890,6 +905,11 @@ export default defineComponent({
 
     normalizeDocSections(section: ContentFilterProfileSectionType) {
       this.localDoc[section] = _.cloneDeep(this.defaultContentFilterProfileSection)
+      this.emitDocUpdate()
+    },
+
+    normalizeDocContentType() {
+      this.localDoc.content_type = []
       this.emitDocUpdate()
     },
 
@@ -981,6 +1001,9 @@ export default defineComponent({
         }
         if (!value['decoding']) {
           this.normalizeDocDecoding()
+        }
+        if (!value['content_type']) {
+          this.normalizeDocContentType()
         }
       },
       immediate: true,

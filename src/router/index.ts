@@ -6,18 +6,18 @@ import PublishChanges from '@/views/Publish.vue'
 import VersionControl from '@/views/VersionControl.vue'
 import DocumentList from '@/views/DocumentList.vue'
 import QuarantinedList from '@/components/QuarantinedList.vue'
-import RoutingProfileList from '@/views/RoutingProfileList.vue'
-import RoutingProfileEditor from '@/doc-editors/RoutingProfileEditor.vue'
-import MobileSDKList from '@/views/MobileSDKList.vue'
-import MobileSDKEditor from '@/doc-editors/MobileSDKEditor.vue'
-import ProxyTemplateList from '@/views/ProxyTemplateList.vue'
-import ProxyTemplateEditor from '@/doc-editors/ProxyTemplateEditor.vue'
-import WebProxyList from '@/views/WebProxyList.vue'
-import WebProxyEditor from '@/doc-editors/WebProxyEditor.vue'
-import BackendServiceList from '@/views/BackendServiceList.vue'
-import BackendServiceEditor from '@/doc-editors/BackendServiceEditor.vue'
+import RoutingProfileList from '@/views/RoutingProfilesList.vue'
+import RoutingProfileEditor from '@/doc-editors/RoutingProfilesEditor.vue'
+import MobileSDKList from '@/views/MobileSDKsList.vue'
+import MobileSDKEditor from '@/doc-editors/MobileSDKsEditor.vue'
+import ConfigTemplateList from '@/views/ConfigTemplatesList.vue'
+import ConfigTemplateEditor from '@/doc-editors/ConfigTemplatesEditor.vue'
+import ServerGroupsList from '@/views/ServerGroupsList.vue'
+import ServerGroupsEditor from '@/doc-editors/ServerGroupsEditor.vue'
+import BackendServiceList from '@/views/BackendServicesList.vue'
+import BackendServiceEditor from '@/doc-editors/BackendServicesEditor.vue'
 import HelpAndSupport from '@/views/HelpAndSupport.vue'
-import DashboardDisplay from '@/views/Dashboard.vue'
+import DashboardDisplay from '@/views/Dashboards.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -32,21 +32,21 @@ const routes: Array<RouteRecordRaw> = [
         redirect: '/dashboard',
         children: [
           {
-            path: 'web-proxy',
-            name: 'WebProxy',
+            path: 'server-groups',
+            name: 'ServerGroups',
             redirect: (route) => {
-              return `/${route.params.branch}/web-proxy/list`
+              return `/${route.params.branch}/server-groups/list`
             },
             children: [
               {
                 path: 'list',
-                name: 'WebProxy/list',
-                component: WebProxyList,
+                name: 'ServerGroups/list',
+                component: ServerGroupsList,
               },
               {
                 path: 'config/:doc_id',
-                name: 'WebProxy/config',
-                component: WebProxyEditor,
+                name: 'ServerGroups/config',
+                component: ServerGroupsEditor,
               },
             ],
           },
@@ -89,21 +89,21 @@ const routes: Array<RouteRecordRaw> = [
             ],
           },
           {
-            path: 'proxy-templates',
-            name: 'ProxyTemplates',
+            path: 'config-templates',
+            name: 'ConfigTemplates',
             redirect: (route) => {
-              return `/${route.params.branch}/proxy-templates/list`
+              return `/${route.params.branch}/config-templates/list`
             },
             children: [
               {
                 path: 'list',
-                name: 'ProxyTemplates/list',
-                component: ProxyTemplateList,
+                name: 'ConfigTemplates/list',
+                component: ConfigTemplateList,
               },
               {
                 path: 'config/:doc_id',
-                name: 'ProxyTemplates/config',
-                component: ProxyTemplateEditor,
+                name: 'ConfigTemplates/config',
+                component: ConfigTemplateEditor,
               },
             ],
           },
