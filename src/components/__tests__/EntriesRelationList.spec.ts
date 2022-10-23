@@ -3,15 +3,15 @@ import EntriesRelationList from '@/components/EntriesRelationList.vue'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {DOMWrapper, mount, VueWrapper} from '@vue/test-utils'
 import _ from 'lodash'
-import {GlobalFilter, GlobalFilterSection, Rule} from '@/types'
+import {GlobalFilter, Rule} from '@/types'
 import {nextTick} from 'vue'
 
 
 describe('EntriesRelationList.vue', () => {
   let wrapper: VueWrapper
-  let ruleData: GlobalFilter['rule']
-  let entryData1: GlobalFilterSection
-  let entryData2: GlobalFilterSection
+  let ruleData: any
+  let entryData1: any
+  let entryData2: any
   beforeEach(() => {
     entryData1 = {
       relation: 'OR',
@@ -46,7 +46,7 @@ describe('EntriesRelationList.vue', () => {
         entryData2,
       ],
     }
-    const onUpdate = async (rule: GlobalFilter['rule']) => {
+    const onUpdate = async (rule: any) => {
       await wrapper.setProps({rule})
     }
     wrapper = mount(EntriesRelationList, {
@@ -220,7 +220,7 @@ describe('EntriesRelationList.vue', () => {
           entryData1,
         ],
       }
-      const onUpdate = (rule: GlobalFilter['rule']) => {
+      const onUpdate = (rule: any) => {
         wrapper.setProps({rule})
       }
       wrapper = mount(EntriesRelationList, {
@@ -724,7 +724,7 @@ describe('EntriesRelationList.vue', () => {
       expect(wrapper.vm.rule.entries[0].entries.length).toEqual(1)
     })
     test('should remove section if no entries left', async () => {
-      const entryData3: GlobalFilterSection = {
+      const entryData3: any = {
         relation: 'AND',
         entries: [
           [
@@ -795,7 +795,7 @@ describe('EntriesRelationList.vue', () => {
           entryData2,
         ],
       }
-      const onUpdate = async (rule: GlobalFilter['rule']) => {
+      const onUpdate = async (rule: any) => {
         await wrapper.setProps({rule})
       }
       wrapper = mount(EntriesRelationList, {

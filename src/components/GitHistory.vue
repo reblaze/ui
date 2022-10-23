@@ -89,7 +89,9 @@
             </tbody>
           </table>
         </div>
-        <span class="is-family-monospace has-text-grey-lighter">{{ apiRoot }}/{{ apiVersion }}/{{ apiPath }}</span>
+        <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">
+          {{ apiRoot }}/{{ apiVersion }}/{{ apiPath }}
+        </span>
       </div>
     </div>
   </div>

@@ -10,28 +10,14 @@
                         @click="redirectToList()"
                         title="Return to list"
                         data-qa="redirect-to-list">
-                    <span class="icon is-small">
-                      <i class="fas fa-arrow-left"></i>
-                    </span>
+                  <span class="icon is-small">
+                    <i class="fas fa-arrow-left"></i>
+                  </span>
+                  <span>
+                    Back To List
+                  </span>
                 </button>
               </p>
-              <p class="control">
-                <button class="button is-small download-doc-button"
-                        :class="{'is-loading': isDownloadLoading}"
-                        :disabled="!selectedDoc"
-                        @click="downloadDoc()"
-                        title="Download document"
-                        data-qa="download-document">
-                    <span class="icon is-small">
-                      <i class="fas fa-download"></i>
-                    </span>
-                </button>
-              </p>
-            </div>
-          </div>
-
-          <div class="column">
-            <div class="field is-grouped is-pulled-right">
               <div class="control"
                    v-if="docIdNames.length">
                 <div class="select is-small">
@@ -48,6 +34,26 @@
                   </select>
                 </div>
               </div>
+            </div>
+          </div>
+
+          <div class="column">
+            <div class="field is-grouped is-pulled-right">
+              <p class="control">
+                <button class="button is-small new-document-button"
+                        :class="{'is-loading': isNewLoading}"
+                        @click="addNewDoc()"
+                        title="Add new document"
+                        :disabled="!selectedBranch || !selectedDocType"
+                        data-qa="add-new-document">
+                  <span class="icon is-small">
+                    <i class="fas fa-plus"></i>
+                  </span>
+                  <span>
+                    New
+                  </span>
+                </button>
+              </p>
 
               <p class="control">
                 <button class="button is-small fork-document-button"
@@ -56,22 +62,28 @@
                         title="Duplicate document"
                         :disabled="!selectedDoc || dynamicRuleManaged"
                         data-qa="duplicate-document">
-                    <span class="icon is-small">
-                      <i class="fas fa-clone"></i>
-                    </span>
+                  <span class="icon is-small">
+                    <i class="fas fa-clone"></i>
+                  </span>
+                  <span>
+                    Duplicate
+                  </span>
                 </button>
               </p>
 
               <p class="control">
-                <button class="button is-small new-document-button"
-                        :class="{'is-loading': isNewLoading}"
-                        @click="addNewDoc()"
-                        title="Add new document"
-                        :disabled="!selectedBranch || !selectedDocType"
-                        data-qa="add-new-document">
-                    <span class="icon is-small">
-                      <i class="fas fa-plus"></i>
-                    </span>
+                <button class="button is-small download-doc-button"
+                        :class="{'is-loading': isDownloadLoading}"
+                        :disabled="!selectedDoc"
+                        @click="downloadDoc()"
+                        title="Download document"
+                        data-qa="download-document">
+                  <span class="icon is-small">
+                    <i class="fas fa-download"></i>
+                  </span>
+                  <span>
+                    Download
+                  </span>
                 </button>
               </p>
 
@@ -82,9 +94,12 @@
                         title="Save changes"
                         :disabled="isDocumentInvalid || !selectedDoc || dynamicRuleManaged"
                         data-qa="save-changes">
-                    <span class="icon is-small">
-                      <i class="fas fa-save"></i>
-                    </span>
+                  <span class="icon is-small">
+                    <i class="fas fa-save"></i>
+                  </span>
+                  <span>
+                    Save
+                  </span>
                 </button>
               </p>
 
@@ -95,9 +110,12 @@
                         title="Delete document"
                         :disabled="selectedDocNotDeletable"
                         data-qa="delete-document">
-                    <span class="icon is-small">
-                      <i class="fas fa-trash"></i>
-                    </span>
+                  <span class="icon is-small">
+                    <i class="fas fa-trash"></i>
+                  </span>
+                  <span>
+                    Delete
+                  </span>
                 </button>
               </p>
 
@@ -139,7 +157,7 @@
       </div>
       <div v-else
            class="no-data-message">
-        No data found!
+        No data found
         <div>
           <!--display correct message by priority (Document type -> Document)-->
           <span v-if="!Object.keys(componentsMap).includes(selectedDocType)">
@@ -164,15 +182,15 @@ import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import Utils from '@/assets/Utils'
 import ACLEditor from '@/doc-editors/ACLEditor.vue'
-import ContentFilterEditor from '@/doc-editors/ContentFilterProfileEditor.vue'
+import ContentFilterEditor from '@/doc-editors/ContentFilterProfilesEditor.vue'
 import ContentFilterRulesEditor from '@/doc-editors/ContentFilterRulesEditor.vue'
 import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
-import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
-import CloudFunctionsEditor from '@/doc-editors/CloudFunctionsEditor.vue'
+import RateLimitsEditor from '@/doc-editors/RateLimitRulesEditor.vue'
+import EdgeFunctionsEditor from '@/doc-editors/EdgeFunctionsEditor.vue'
 import DynamicRulesEditor from '@/doc-editors/DynamicRulesEditor.vue'
-import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
-import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
-import CustomResponseEditor from '@/doc-editors/CustomResponseEditor.vue'
+import GlobalFilterListEditor from '@/doc-editors/GlobalFiltersEditor.vue'
+import FlowControlPolicyEditor from '@/doc-editors/FlowControlPoliciesEditor.vue'
+import CustomResponseEditor from '@/doc-editors/CustomResponsesEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
 import {defineComponent, shallowRef} from 'vue'
@@ -182,14 +200,14 @@ import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
 
 export default defineComponent({
-  name: 'DocumentEditor',
+  name: 'DocumentEditor2',
   props: {},
   components: {
     GitHistory,
   },
   data() {
     const reblazeComponentsMap = {
-      'cloud-functions': shallowRef({component: CloudFunctionsEditor}),
+      'cloud-functions': shallowRef({component: EdgeFunctionsEditor}),
       'dynamic-rules': shallowRef({component: DynamicRulesEditor}),
     }
     return {
@@ -209,7 +227,7 @@ export default defineComponent({
       referencedIDsACL: [],
       referencedIDsContentFilter: [],
       referencedIDsLimits: [],
-      referencedIDsCloudFunctions: [],
+      referencedIDsEdgeFunctions: [],
       referencedIDsDynamicRules: [],
 
       selectedDocType: null as DocumentType,
@@ -338,7 +356,7 @@ export default defineComponent({
         return this.referencedIDsLimits.includes(this.selectedDocID)
       }
       if (this.selectedDocType === 'cloud-functions') {
-        return this.referencedIDsCloudFunctions.includes(this.selectedDocID)
+        return this.referencedIDsEdgeFunctions.includes(this.selectedDocID)
       }
       if (this.selectedDocType === 'dynamic-rules') {
         return this.referencedIDsDynamicRules.includes(this.selectedDocID)
@@ -504,7 +522,7 @@ export default defineComponent({
 
     downloadDoc() {
       if (!this.isDownloadLoading) {
-        Utils.downloadFile(this.selectedDocType, 'json', this.docs)
+        Utils.downloadFile(this.titles[`${this.selectedDocType}-singular`], 'json', this.selectedDoc)
       }
     },
 
@@ -546,19 +564,17 @@ export default defineComponent({
         failureMessage = `Failed while attempting to create the new ${docTypeText}.`
       }
       if (this.selectedDocType === 'dynamic-rules') {
+        let docMatchingGlobalFilter
         if (this.isForkLoading) {
-          const docMatchingGlobalFilter = this.duplicatedDocMatchingGlobalFilter
-          docMatchingGlobalFilter.id = `dr_${this.selectedDocID}`
-          docMatchingGlobalFilter.active = (this.selectedDoc as DynamicRule).active
-          docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule ' + this.selectedDocID
-          this.selectedDocMatchingGlobalFilter = docMatchingGlobalFilter
+          docMatchingGlobalFilter = this.duplicatedDocMatchingGlobalFilter
         } else {
-          const docMatchingGlobalFilter = DatasetsUtils.newDocEntryFactory['globalfilters']() as GlobalFilter
-          docMatchingGlobalFilter.id = `dr_${this.selectedDocID}`
-          docMatchingGlobalFilter.active = (this.selectedDoc as DynamicRule).active
-          docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule ' + this.selectedDocID
-          this.selectedDocMatchingGlobalFilter = docMatchingGlobalFilter
+          docMatchingGlobalFilter = DatasetsUtils.newDocEntryFactory['globalfilters']() as GlobalFilter
         }
+        docMatchingGlobalFilter.id = `dr_${this.selectedDocID}`
+        docMatchingGlobalFilter.active = (this.selectedDoc as DynamicRule).active
+        docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule ' + this.selectedDocID
+        docMatchingGlobalFilter.action = 'action-dynamic-rule-block'
+        this.selectedDocMatchingGlobalFilter = docMatchingGlobalFilter
       }
       await this.saveChanges('POST', successMessage, failureMessage)
 
@@ -657,7 +673,7 @@ export default defineComponent({
       const referencedACL: string[] = []
       const referencedContentFilter: string[] = []
       const referencedLimit: string[] = []
-      const referencedCloudFunctions: string[] = []
+      const referencedEdgeFunctions: string[] = []
       _.forEach(docs, (doc) => {
         _.forEach(doc.map, (mapEntry) => {
           referencedACL.push(mapEntry['acl_profile'])
@@ -668,7 +684,7 @@ export default defineComponent({
       this.referencedIDsACL = _.uniq(referencedACL)
       this.referencedIDsContentFilter = _.uniq(referencedContentFilter)
       this.referencedIDsLimits = _.uniq(_.flatten(referencedLimit))
-      this.referencedIDsCloudFunctions = _.uniq(_.flatten(referencedCloudFunctions))
+      this.referencedIDsEdgeFunctions = _.uniq(_.flatten(referencedEdgeFunctions))
     },
 
     restoreGitVersion() {

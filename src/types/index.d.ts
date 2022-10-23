@@ -44,12 +44,14 @@ declare module CuriefenseClient {
     limit_ids: string[]
   }
 
-  type GlobalFilterSectionEntry = [Category, string | string[], string?]
+  type GlobalFilterRuleEntry = [Category, string | string[], string]
 
-  type GlobalFilterSection = {
-    entries: GlobalFilterSectionEntry[]
+  type GlobalFilterRuleSection = {
     relation: Relation
+    entries: GlobalFilterRule[]
   }
+
+  type GlobalFilterRule = GlobalFilterRuleSection | GlobalFilterRuleEntry
 
   type LimitOptionType = {
     [key: string]: string
@@ -80,11 +82,11 @@ declare module CuriefenseClient {
 
   type NamesRegexType = 'names' | 'regex'
 
-  type CloudFunctionsPhaseType = 'request1' | 'response0'
+  type EdgeFunctionsPhaseType = 'request' | 'response'
 
   type Document =
     BasicDocument
-    & (ACLProfile | CloudFunction | ContentFilterProfile | ContentFilterRule | CustomResponse |
+    & (ACLProfile | EdgeFunction | ContentFilterProfile | ContentFilterRule | CustomResponse |
       DynamicRule | FlowControlPolicy | GlobalFilter | RateLimit | SecurityPolicy)
 
   type DocumentType =
@@ -159,10 +161,7 @@ declare module CuriefenseClient {
     active: boolean
     tags: string[]
     action: string
-    rule: {
-      relation: Relation
-      entries: GlobalFilterSection[]
-    }
+    rule: GlobalFilterRuleSection
   }
 
   type SecurityPolicy = {
@@ -174,12 +173,12 @@ declare module CuriefenseClient {
     map: SecurityPolicyEntryMatch[]
   }
 
-  type CloudFunction = {
+  type EdgeFunction = {
     id: string
     name: string
     description: string
     code: string
-    phase: CloudFunctionsPhaseType
+    phase: EdgeFunctionsPhaseType
   }
 
   type DynamicRule = {
@@ -200,6 +199,7 @@ declare module CuriefenseClient {
     id: string
     name: string
     global: boolean
+    active: boolean
     description: string
     thresholds: ThresholdActionPair[]
     key: LimitOptionType[]
@@ -341,7 +341,7 @@ declare module CuriefenseClient {
     support_legacy_sdk: boolean
   }
 
-  type ProxyTemplate = {
+  type ConfigTemplate = {
     name: string
     id: string
     description: string
@@ -373,7 +373,7 @@ declare module CuriefenseClient {
     server_names: string[]
     security_policy: SecurityPolicy['id']
     routing_profile: RoutingProfile['id']
-    proxy_template: ProxyTemplate['id']
+    proxy_template: ConfigTemplate['id']
     mobile_sdk: MobileSDK['id']
     ssl_certificate?: string
   }

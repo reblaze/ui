@@ -63,6 +63,7 @@ import _ from 'lodash'
 import {Branch} from '@/types'
 import Utils from '@/assets/Utils'
 import RequestsUtils from '@/assets/RequestsUtils'
+import packageJson from '../../package.json'
 
 export default defineComponent({
   name: 'SideMenu',
@@ -71,8 +72,12 @@ export default defineComponent({
     const kibanaURL = `${location.protocol}//${location.hostname}:5601/app/discover`
     const grafanaURL = `${location.protocol}//${location.hostname}:30300/`
     const prometheusURL = `${location.protocol}//${location.hostname}:9090/`
+    const splitVersion = packageJson.version.split('.')
+    const docsVersion = `${splitVersion[0]}.${splitVersion[1]}`
 
     return {
+      docsVersion: docsVersion,
+
       // Branches / Commits counters
       mdiSourceBranchPath: mdiSourceBranch,
       mdiSourceCommitPath: mdiSourceCommit,
@@ -128,8 +133,18 @@ export default defineComponent({
           title: 'Dashboard',
         },
         {
-          href: this.defaultGrafanaURL,
+          href: this.kibanaURL,
+          title: 'Kibana',
+          external: true,
+        },
+        {
+          href: this.grafanaURL,
           title: 'Grafana',
+          external: true,
+        },
+        {
+          href: this.prometheusURL,
+          title: 'Prometheus',
           external: true,
         },
         // {
@@ -192,27 +207,27 @@ export default defineComponent({
           href: `/${this.selectedBranch}/mobile-sdks`,
           title: 'Mobile SDKs',
         },
-        // ################
-        // Cloud Operations
-        // ################
+        // ##############
+        // Proxy Settings
+        // ##############
         {
-          header: 'Cloud Operations',
+          header: 'Proxy Settings',
         },
         {
-          href: `/${this.selectedBranch}/web-proxy`,
-          title: 'Web Proxy',
+          href: `/${this.selectedBranch}/server-groups`,
+          title: 'Server Groups',
         },
         {
           href: `/${this.selectedBranch}/routing-profiles`,
           title: 'Routing Profiles',
         },
         {
-          href: `/${this.selectedBranch}/proxy-templates`,
-          title: 'Proxy Templates',
+          href: `/${this.selectedBranch}/config-templates`,
+          title: 'Config Templates',
         },
         {
           href: `/${this.selectedBranch}/cloud-functions`,
-          title: 'Cloud Functions',
+          title: 'Edge Functions',
         },
         {
           href: `/${this.selectedBranch}/backend-services`,
@@ -255,13 +270,13 @@ export default defineComponent({
           title: 'Curiebook',
           external: true,
         },
-        // {
-        //   href: 'https://',
-        //   title: 'Reblazebook',
-        //   external: true,
-        // },
         {
-          href: this.defaultSwaggerURL,
+          href: `https://gb.docs.reblaze.com/v/v${this.docsVersion}`,
+          title: 'Reblazebook',
+          external: true,
+        },
+        {
+          href: this.swaggerURL,
           title: 'API',
           external: true,
         },
