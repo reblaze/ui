@@ -22,38 +22,45 @@
                                disabled />
                     </div>
                     <!-- TODO: HERE (want to divide for static divs and introduce the correct field) -->
-                    <!-- <div class="control content is-small mb-2">
-                      <textarea
-                        v-if="field === 'cert_body'"
-                        v-html="cert"
-                        class="textarea is-small cert-body"
-                        disabled />
-                    </div> -->
-                    <div v-for="field in filteredCertFields()"
-                         :key="field"
-                         class="control content is-small mb-2">
-                           <!-- {{ CERT_FIELDS_LABELS[field] }} --> <!-- TODO: check with Aviv wh got there error -->
-                    <textarea
-                        v-if="field === 'cert_body'"
-                        v-html="cert"
-                        class="textarea is-small cert-body"
-                        disabled />
-                        <!-- TODO: on the textarea instead v-html="cert" need to be v-html="cert[field]" -->
-                        <!-- TODO: on the input instead :value="cert" and :title="cert" need to be :value="cert[field]" and :title="cert[field]" -->
-                    <input
-                        v-else
-                        :value="cert"
+                    <div class="control content is-small mb-2">
+                      Certificate subject:
+                      <input
+                        :value="subject"
                         class="input is-small"
-                        :title="cert"
+                        :title="subject"
                         type="text"
+                        disabled />
+                    </div>
+                    <div class="control content is-small mb-2">
+                      Certificate issuer:
+                      <input
+                        :value="issuer"
+                        class="input is-small"
+                        :title="issuer"
+                        type="text"
+                        disabled />
+                    </div>
+                    <div class="control content is-small mb-2">
+                      SAN:
+                      <input
+                        :value="san.toString()"
+                        class="input is-small"
+                        :title="san.toString()"
+                        type="text"
+                        disabled />
+                    </div>
+                    <div class="control content is-small mb-2">
+                      Certificate body:
+                      <textarea
+                        v-html="cert_body"
+                        class="textarea is-small cert-body"
                         disabled />
                     </div>
                     <div v-if="certCanReplaceByLE" class="control content is-small mb-0 mt-4">
                         <label class="checkbox is-align-items-center is-inline-flex">
-                            <!-- TODO: instead v-model="test" need to be v-model="cert['le_auto_replace']" -->
                             <input
                                 type="checkbox"
-                                v-model="test"
+                                v-model="certificateReplaceByLE"
                                 @click="changeUpdateLE"
                                 class="mr-1" />
                             Auto Replacement by&nbsp;
@@ -72,38 +79,34 @@
                                 :class="{'is-active': isReplaceSelectedOnEdit}">
                                 <a>Replace existing certificates</a>
                             </li>
+                            <!-- TODO: don't sure what the porpuse of this code?
                             {#
                                 <li
                                     @click="certAction='pem'"
                                     :class="{'is-active': isPem}">
                                     <a>PEM</a>
                                 </li>
-                            #}
+                            #} -->
                         </ul>
                     </div>
                     <div class="edit-cert-action-container">
                         <div v-if="isAttachSelectedOnEdit">
                             <div class="field">
-                                <div class="is-size-7 pl-1">{{ selectedAppsLabel }}</div>
-                                <multiselect
-                                    :options="optionsMultiselect"
-                                    @search-change="onSearchMultiselect"
-                                    :internal-search="false"
-                                    @open="openMultiselect"
-                                    @close="closeMultiselect"
-                                    :multiple="true"
-                                    :loading="is_loading"
-                                    :close-on-select="false"
-                                    :clear-on-select="false"
-                                    open-direction="bottom"
-                                    placeholder="Search or select apps"
-                                    select-label=""
-                                    deselect-label=""
-                                    selected-label=""
-                                    :option-height="25"
-                                    :max-height="220"
-                                    style="width: 400px;"> <!-- TODO: need to move it to style section style="width: 400px;" -->
-                                    <!-- <span class="option-wrapper" slot="option" slot-scope="scope">
+                                <div class="is-size-7 pl-1">{{ selectedAppsLabel }}</div> <!-- TODO: ask Aviv what is this function -->
+                                <select :v-model="selectedApps"
+                                        :options="optionsMultiselect"
+                                        :multiple="true"
+                                        title="Select links"
+                                        :loading="is_loading"
+                                        :option-height="25"
+                                        style="width: 400px;"> <!-- TODO: need to move it to style section style="width: 400px;" -->
+                                  <option v-for="name in sites"
+                                          :key="name"
+                                          :value="name">
+                                    {{ name }}
+                                  </option>
+                                </select>
+                                    <!-- TODO: ask Aviv about this section - what about the scope and slot atters <span class="option-wrapper" slot="option" slot-scope="scope">
                                         <span
                                             class="checkbox-label"
                                             @click="scope.option.checked = !scope.option.checked; changeOption(scope.option.checked, scope.option.label)">
@@ -113,10 +116,9 @@
                                             type="checkbox"
                                             :checked="scope.option.checked"
                                             @change="changeOption($event.target.checked, scope.option.label)" />
-                                    </span> -->
+                                    </span>
                                     <span slot="noResult">No apps found</span>
-                                    <span slot="noOptions">There are no apps to select</span>
-                                </multiselect>
+                                    <span slot="noOptions">There are no apps to select</span>-->
                             </div>
                         </div>
                         <div v-if="isReplaceSelectedOnEdit">
@@ -179,11 +181,16 @@
     </div>
 </template>
 <script lang="ts">
-// type CertificateFields = 'subject' | 'issuer' | 'san' | 'cert_body'
 export default {
   props: {
     editShown: Boolean,
     clickedRow: String,
+    subject: String,
+    issuer: String,
+    san: Array<string>,
+    cert_body: String,
+    le_auto_replace: Boolean,
+    sites: Array<string>,
   },
   data() {
     return {
@@ -207,6 +214,8 @@ export default {
       balancers: [],
       link_to_certificates_map: {},
       test: false,
+      certificateReplaceByLE: null,
+      testArr: [] as string[],
     }
   },
   computed: {
@@ -255,8 +264,7 @@ export default {
     },
 
     certCanReplaceByLE():any {
-      // TODO: return !this.cert['san'] || !this.cert['san'].includes('*')
-      return true
+      return !this.san || !this.san.toString().includes('*')
     },
 
     getConnectedSitesForEditCert():string {
@@ -303,6 +311,15 @@ export default {
       this.update_le = false
     },
 
+    testF(event:any) {
+      if (!(this.testArr.find((item) => item === event.target.value)) && (event.target.value !== '')) {
+        this.testArr.push(event.target.value)
+      } else {
+        console.log('object')
+      }
+      console.log(this.testArr.length)
+    },
+
     changeUpdateLE() {
       this.update_le = !this.update_le
     },
@@ -313,14 +330,6 @@ export default {
 
     onSearchMultiselect(search:any) {
       this.searchMultiselect = search
-    },
-
-    openMultiselect() {
-      this.multiselectOpen = true
-    },
-
-    closeMultiselect() {
-      this.multiselectOpen = false
     },
 
     certActionSelected() {
@@ -419,6 +428,9 @@ export default {
             this.notify ( ...msg );
             this.is_loading = false; */
     },
+  },
+  created() {
+    this.certCanReplaceByLE = this.le_auto_replace
   },
 }
 </script>

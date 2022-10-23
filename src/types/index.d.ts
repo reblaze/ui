@@ -373,6 +373,24 @@ declare module CuriefenseClient {
     ssl_certificate?: string
   }
 
+  type Certificate = {
+    cert_body: string
+    expires: string
+    id: string
+    issuer: string
+    le_auto_renew: boolean
+    le_auto_replace: boolean
+    le_hash: string
+    provider_links: {
+      link: string
+      provider: string
+      region: string
+    }
+    san: string[]
+    subject: string
+    uploaded: string
+  }
+
   // Operation documents - END
 
   // Git - START

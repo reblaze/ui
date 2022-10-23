@@ -120,6 +120,12 @@
       <edit-certificate :editShown="editShown"
                           @editShownChanged="editShown = false"
                           :clickedRow="clickedRow"
+                          :subject="certificateByID.subject"
+                          :issuer="certificateByID.issuer"
+                          :san="certificateByID.san"
+                          :cert_body="certificateByID.cert_body"
+                          :le_auto_replace="certificateByID.le_auto_replace"
+                          :sites="sites"
                           @callLoaders="callLoaders"/>
     </div>
 </template>
@@ -127,7 +133,7 @@
 import _ from 'lodash'
 import {defineComponent} from 'vue'
 import RbzTable from '@/components/RbzTable.vue'
-import {ColumnOptions} from '@/types'
+import {Certificate, ColumnOptions} from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import Utils from '@/assets/Utils'
@@ -304,8 +310,10 @@ export default defineComponent({
             'subject': 'www.example.com 2',
             'uploaded': '2017-07-21T17:32:28Z 2',
           },
-        ],
-      certificateByID: [],
+        ] as Certificate[],
+      sitesMock: ['www.test.com', 'www.example.com'],
+      certificateByID: {} as Certificate,
+      sites: [],
     }
   },
 
@@ -322,14 +330,13 @@ export default defineComponent({
 
   methods: {
     // TODO: ask Aviv about this idea - i want to filter and get the the specific field like subject, issuer, san, cert_body from the correct certificate
-    getCertificateByID() {
-      this.certificateByID.push(this.certificatesMock.filter((certificate) => certificate.id === this.clickedRow))
-      console.log(this.certificateByID)
+    getCertificateByID(id:string) {
+      this.certificateByID = this.certificatesMock.find((certificate) => certificate.id === id)
     },
 
     async callLoaders() {
       // TODO: add await this.loadBalancers()
-      await this.loadCertificates()
+      await this.loadCertificatesAndSites()
     },
     setLoadingDocStatus(isLoading: boolean) {
       if (isLoading) {
@@ -346,7 +353,7 @@ export default defineComponent({
 
     editProfile(id: string) {
       this.clickedRow = id
-      this.getCertificateByID()
+      this.getCertificateByID(id)
       this.isNewLoading = true
       this.editShown = true
       this.isNewLoading = false
@@ -377,11 +384,15 @@ export default defineComponent({
       this.loadBalancer = response?.data || []
     },
 
-    async loadCertificates() {
-      // const url = `configs/${this.selectedBranch}/d/certificates/`
-      // const response = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
-      // TODO: add this.certificates = response?.data || []
+    async loadCertificatesAndSites() {
+      // const certificatesUrl = `configs/${this.selectedBranch}/d/certificates/`
+      // const sitesUrl = `configs/${this.selectedBranch}/d/sites/`
+      // const certificatesResponse = await RequestsUtils.sendReblazeRequest({methodName: 'GET', certificatesUrl})
+      // const sitesResponse = await RequestsUtils.sendReblazeRequest({methodName: 'GET', sitesUrl})
+      // TODO: add this.certificates = certificatesResponse?.data || []
+      // TODO: add this.sites = sitesResponse?.data || []
       this.certificates = this.certificatesMock
+      this.sites = this.sitesMock
     },
 
     async loadConfigs() {
@@ -402,20 +413,20 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
       await this.loadBalancers()
-      await this.loadCertificates()
+      await this.loadCertificatesAndSites()
       this.setLoadingDocStatus(false)
     },
 
     deleteCertificate(id:string) {
       this.certificatesMock = this.certificatesMock.filter((certificate) => certificate.id !== id)
-      this.loadCertificates()
+      this.loadCertificatesAndSites()
       this.deleteShown = false
     },
   },
   async created() {
     await this.loadConfigs()
     await this.loadBalancers()
-    await this.loadCertificates()
+    await this.loadCertificatesAndSites()
   },
 })
 </script>
