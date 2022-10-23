@@ -149,7 +149,6 @@ export default defineComponent({
       handler: async function(val, oldVal) {
         if ((this.$route.name as string).includes('DynamicRules/list') && val && val !== oldVal) {
           await this.loadDynamicRulesData()
-          console.log('DR loaded', this.dynamicRulesData, this.globalFiltersData)
         }
       },
       immediate: true,
@@ -184,20 +183,15 @@ export default defineComponent({
     },
 
     async addNewDynamicRule() {
-      console.log('addNewDynamicRule')
       this.setLoadingDocStatus(true)
       this.isNewLoading = true
       const docToAdd = this.newDynamicRuleDoc()
-      console.log('docToAdd.name1', docToAdd)
       docToAdd.name = docToAdd.name + ' ' + docToAdd.id
-      console.log('docToAdd.name2', docToAdd.name)
       const docTypeText = this.titles['dynamic-rules-singular']
       const successMessage = `New ${docTypeText} was created.`
       const failureMessage = `Failed while attempting to create the new ${docTypeText}.`
       const data = docToAdd
-      console.log('addnew this.selectedBranch', this.selectedBranch)
       const url = `configs/${this.selectedBranch}/d/dynamic-rules/e/${docToAdd.id}`
-      console.log('add new doc function', url, data, successMessage)
       await RequestsUtils.sendReblazeRequest({methodName: 'POST', url, data, successMessage, failureMessage,
       })
       // update the Tags and Actions from GlobalFilters
@@ -206,7 +200,6 @@ export default defineComponent({
       docMatchingGlobalFilter.active = (docToAdd as DynamicRule).active
       docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule ' + docToAdd.id
       const globalFiltersData = docMatchingGlobalFilter
-      console.log('addnew this.selectedBranch2', this.selectedBranch)
       const globalFiltersUrl = `configs/${this.selectedBranch}/d/globalfilters/e/`
       await RequestsUtils.sendRequest({methodName: 'POST', url: globalFiltersUrl, data: globalFiltersData})
 
@@ -217,7 +210,6 @@ export default defineComponent({
     },
 
     editDynamicRule(id: string) {
-      console.log(id, this.selectedBranch)
       const routeToDoc = `/${this.selectedBranch}/dynamic-rules/config/${id}`
       this.$router.push(routeToDoc)
     },
