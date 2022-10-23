@@ -242,7 +242,7 @@
                      data-qa="max-allsections-length-input"
                      type="number"
                      @change="emitDocUpdate"
-                     title="Max All length"
+                     title="Max length for all sections"
                      v-model.number="localDoc.allsections.max_length"/>
             </td>
             <td>
@@ -281,7 +281,7 @@
                      data-qa="max-allsections-count-input"
                      type="number"
                      @change="emitDocUpdate"
-                     title="Max All count"
+                     title="Max count for all sections"
                      v-model.number="localDoc.allsections.max_count"/>
             </td>
             <td>
