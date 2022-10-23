@@ -129,7 +129,7 @@ export default defineComponent({
   watch: {
     selectedBranch: {
       handler: function(val, oldVal) {
-        if ((this.$route.name as string).includes('WebProxy/list') && val && val !== oldVal) {
+        if ((this.$route.name as string).includes('DynamicRules/list') && val && val !== oldVal) {
           this.loadDynamicRulesData()
         }
       },
