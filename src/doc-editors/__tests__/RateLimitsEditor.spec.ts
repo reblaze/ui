@@ -195,7 +195,8 @@ describe('RateLimitRulesEditor.vue', () => {
     test('should have response action selection with correct data', () => {
       const wantedCustomResponse = rateLimitsDocs[0].thresholds[0].action.toString()
       const thresholdActionSelection = wrapper.find('.threshold-action-selection')
-      const selectedCustomResponse = (thresholdActionSelection.find('option:checked').element as HTMLOptionElement).value
+      const selectedCustomResponse =
+        (thresholdActionSelection.find('option:checked').element as HTMLOptionElement).value
       expect(selectedCustomResponse).toEqual(wantedCustomResponse)
     })
 
