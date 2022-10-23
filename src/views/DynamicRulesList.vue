@@ -29,7 +29,7 @@
         <div class="card-content">
           <div class="content">
             <rbz-table :columns="columns"
-                       :data="dynamicRulesDataAndGlobalFilters"
+                       :data="dynamicRulesData"
                        :show-menu-column="true"
                        :show-filter-button="true"
                        :show-new-button="true"
@@ -54,10 +54,10 @@
   </div>
 </template>
 <script lang="ts">
-import _ from 'lodash'
+// import _ from 'lodash'
 import {defineComponent} from 'vue'
 import RbzTable from '@/components/RbzTable.vue'
-import {ColumnOptions, DynamicRule, GlobalFilter, DynamicRuleAndGlobalFilters} from '@/types'
+import {ColumnOptions, DynamicRule, GlobalFilter} from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import Utils from '@/assets/Utils'
@@ -109,9 +109,21 @@ export default defineComponent({
           classes: 'width-100px',
         },
         {
+          title: 'Action',
+          displayFunction: (item: DynamicRule) => {
+            const matchingGlobalFilter = this.globalFiltersData.find((globalFilter: GlobalFilter) => {
+              return globalFilter.id === `dr_${item.id}`
+            })
+            return matchingGlobalFilter.action?.join('\n')
+          },
+          isSortable: false,
+          isSearchable: true,
+          classes: 'width-100px white-space-pre ellipsis',
+        },
+        {
           title: 'Tags',
           displayFunction: (item: DynamicRule) => {
-            const matchingGlobalFilter = (this.globalFiltersData).find((globalFilter: GlobalFilter) => {
+            const matchingGlobalFilter = this.globalFiltersData.find((globalFilter: GlobalFilter) => {
               return globalFilter.id === `dr_${item.id}`
             })
             return matchingGlobalFilter.tags?.join('\n')
@@ -125,7 +137,6 @@ export default defineComponent({
       titles: DatasetsUtils.titles,
       dynamicRulesData: [] as DynamicRule[],
       globalFiltersData: [] as {id: string, action: string, tags: string[]}[],
-      dynamicRulesDataAndGlobalFilters: [] as DynamicRuleAndGlobalFilters[],
       loadingDocCounter: 0,
       isDownloadLoading: false,
 
@@ -209,8 +220,7 @@ export default defineComponent({
 
     downloadDoc() {
       if (!this.isDownloadLoading) {
-        // const completeDoc = {this.dynamicRulesData + this.globalFiltersData}
-        Utils.downloadFile('sites', 'json', this.dynamicRulesData)
+        Utils.downloadFile('dynamic-rules', 'json', this.dynamicRulesData)
       }
     },
 
@@ -231,21 +241,19 @@ export default defineComponent({
 
       // bring Tags from GlobalFilters
       this.globalFiltersData = []
-      this.dynamicRulesDataAndGlobalFilters = []
-      // const config = {headers: {'x-fields': 'id, tags, action'}} returns all fields
+
       this.dynamicRulesData.map(async (doc) => {
         const url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${doc.id}/`
-        RequestsUtils.sendRequest({methodName: 'GET', url, onFail: () => {
+        const config = {headers: {'x-fields': 'id, tags, action'}}
+        RequestsUtils.sendRequest({methodName: 'GET', url, config, onFail: () => {
           console.log('Error while attempting to load documents')
-          this.dynamicRulesDataAndGlobalFilters = []
           this.isDownloadLoading = false
         },
         }).then((responseGlobal: AxiosResponse<GlobalFilter>) => {
+          console.log('responseGlobal.data.id', responseGlobal.data.id,
+            'responseGlobal.data.tags', responseGlobal.data.tags)
           this.globalFiltersData.push({id: responseGlobal.data.id, tags: responseGlobal.data.tags,
             action: responseGlobal.data.action})
-          const joinedObject = JSON.parse(JSON.stringify(_.merge(doc, {tags: responseGlobal.data.tags,
-            action: responseGlobal.data.action}))) as DynamicRuleAndGlobalFilters
-          this.dynamicRulesDataAndGlobalFilters.push(joinedObject)
         })
       })
       this.isDownloadLoading = false
