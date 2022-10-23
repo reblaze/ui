@@ -23,6 +23,16 @@
           <div class="field">
             <label class="checkbox is-size-7">
               <input type="checkbox"
+                     data-qa="active-checkbox"
+                     class="document-active"
+                     @change="emitDocUpdate"
+                     v-model="localDoc.active">
+              Active
+            </label>
+          </div>
+          <div class="field">
+            <label class="checkbox is-size-7">
+              <input type="checkbox"
                      data-qa="global-checkbox"
                      class="document-global"
                      @change="emitDocUpdate"
@@ -140,7 +150,7 @@
               </div>
               <div class="field">
                 <label class="label is-small">
-                  Action
+                  Custom Response
                 </label>
                 <div class="control is-expanded">
                   <div class="select is-fullwidth is-small">
@@ -148,7 +158,7 @@
                             @change="emitDocUpdate"
                             data-qa="action-dropdown"
                             class="threshold-action-selection"
-                            title="Action">
+                            title="Custom Response">
                       <option v-for="customResponse in customResponseNames"
                               :value="customResponse[0]"
                               :key="customResponse[0]">

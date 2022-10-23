@@ -1,5 +1,5 @@
 // @ts-nocheck
-import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
+import FlowControlPolicyEditor from '../FlowControlPoliciesEditor.vue'
 import LimitOption from '@/components/LimitOption.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import {beforeEach, describe, expect, test, jest} from '@jest/globals'
@@ -11,7 +11,7 @@ import {nextTick} from 'vue'
 
 jest.mock('axios')
 
-describe('FlowControlPolicyEditor.vue', () => {
+describe('FlowControlPoliciesEditor.vue', () => {
   let docs: FlowControlPolicy[]
   let wrapper: VueWrapper
   beforeEach(() => {

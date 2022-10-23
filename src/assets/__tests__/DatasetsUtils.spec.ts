@@ -102,7 +102,7 @@ describe('RequestsUtils.ts', () => {
       expect(document['thresholds'][0]['limit']).toEqual(5)
       expect(document['timeframe']).toEqual(60)
       expect(document['key']).toEqual([{'attrs': 'securitypolicyid'},
-        {'attrs': 'securitypolicyentryid'}, {'attrs': 'curiesession'}])
+        {'attrs': 'securitypolicyentryid'}, {'attrs': 'session'}])
       expect(document['thresholds'][0]['action']).toEqual('monitor')
       expect(document['pairwith']).toEqual({'self': 'self'})
       expect(document['exclude']).toEqual([])

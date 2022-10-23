@@ -2,16 +2,19 @@
   <div class="card-content">
     <div class="media">
       <div class="media-content">
-        <div class="field is-grouped">
+        <div class="field is-grouped is-pulled-right">
           <p class="control">
             <button class="button is-small download-doc-button"
                     :class="{'is-loading':isDownloadLoading}"
                     @click="downloadDoc()"
                     title="Download document"
                     data-qa="download-document">
-                <span class="icon is-small">
-                    <i class="fas fa-download"></i>
-                </span>
+              <span class="icon is-small">
+                <i class="fas fa-download"></i>
+              </span>
+              <span>
+                Download
+              </span>
             </button>
           </p>
         </div>
@@ -22,25 +25,23 @@
 
     <div class="content document-list-wrapper"
          v-show="!loadingDocCounter && selectedBranch && selectedDocType">
-      <div class="card">
-        <div class="card-content">
-          <div class="content">
-            <rbz-table :columns="columns"
-                       :data="docs"
-                       :show-menu-column="true"
-                       :show-filter-button="true"
-                       :show-new-button="true"
-                       @new-button-clicked="addNewDoc"
-                       :show-row-button="true"
-                       :row-button-title="rowButtonTitle"
-                       :row-button-icon="rowButtonIcon"
-                       @row-button-clicked="editDoc">
-            </rbz-table>
-            <span class="is-family-monospace has-text-grey-lighter">
-                {{ documentListAPIPath }}
-              </span>
-          </div>
-        </div>
+      <div class="content">
+        <rbz-table :columns="columns"
+                   :data="docs"
+                   :show-menu-column="true"
+                   :show-filter-button="true"
+                   :show-new-button="true"
+                   @new-button-clicked="addNewDoc"
+                   :row-clickable="true"
+                   @row-clicked="editDoc"
+                   :show-row-button="true"
+                   :row-button-title="rowButtonTitle"
+                   :row-button-icon="rowButtonIcon"
+                   @row-button-clicked="editDoc">
+        </rbz-table>
+        <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">
+          {{ documentListAPIPath }}
+        </span>
       </div>
       <hr/>
       <git-history v-if="!isReblazeDocument"
@@ -58,7 +59,7 @@
       </div>
       <div v-else
            class="no-data-message">
-        No data found!
+        No data found
         <div>
           <span v-if="!Object.keys(componentsMap).includes(selectedDocType)">
             Missing document type. Please check your URL or click a link in the menu to the side
@@ -75,14 +76,14 @@ import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import Utils from '@/assets/Utils'
 import ACLEditor from '@/doc-editors/ACLEditor.vue'
-import ContentFilterEditor from '@/doc-editors/ContentFilterProfileEditor.vue'
+import ContentFilterEditor from '@/doc-editors/ContentFilterProfilesEditor.vue'
 import ContentFilterRulesEditor from '@/doc-editors/ContentFilterRulesEditor.vue'
 import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
-import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
-import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
-import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
-import CloudFunctionsEditor from '@/doc-editors/CloudFunctionsEditor.vue'
-import CustomResponseEditor from '@/doc-editors/CustomResponseEditor.vue'
+import RateLimitsEditor from '@/doc-editors/RateLimitRulesEditor.vue'
+import GlobalFilterListEditor from '@/doc-editors/GlobalFiltersEditor.vue'
+import FlowControlPolicyEditor from '@/doc-editors/FlowControlPoliciesEditor.vue'
+import EdgeFunctionsEditor from '@/doc-editors/EdgeFunctionsEditor.vue'
+import CustomResponseEditor from '@/doc-editors/CustomResponsesEditor.vue'
 import DynamicRulesEditor from '@/doc-editors/DynamicRulesEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {defineComponent, shallowRef} from 'vue'
@@ -122,7 +123,7 @@ export default defineComponent({
   },
   data() {
     const reblazeComponentsMap = {
-      'cloud-functions': shallowRef({component: CloudFunctionsEditor}),
+      'cloud-functions': shallowRef({component: EdgeFunctionsEditor}),
       'dynamic-rules': shallowRef({component: DynamicRulesEditor}),
     }
     return {

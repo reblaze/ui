@@ -1,5 +1,5 @@
 // @ts-nocheck
-import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
+import RateLimitsEditor from '../RateLimitRulesEditor.vue'
 import LimitOption from '@/components/LimitOption.vue'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {mount, shallowMount, VueWrapper} from '@vue/test-utils'
@@ -10,7 +10,7 @@ import {nextTick} from 'vue'
 
 jest.mock('axios')
 
-describe('RateLimitsEditor.vue', () => {
+describe('RateLimitRulesEditor.vue', () => {
   let rateLimitsDocs: RateLimit[]
   let securityPoliciesDocs: SecurityPolicy[]
   let customResponsesDocs: CustomResponse[]
@@ -30,7 +30,7 @@ describe('RateLimitsEditor.vue', () => {
       'timeframe': '60',
       'include': ['blocklist'],
       'exclude': ['allowlist'],
-      'key': [{'attrs': 'securitypolicyid'}, {'attrs': 'securitypolicyentryid'}, {'attrs': 'curiesession'}],
+      'key': [{'attrs': 'securitypolicyid'}, {'attrs': 'securitypolicyentryid'}, {'attrs': 'session'}],
       'pairwith': {'self': 'self'},
     }]
     securityPoliciesDocs = [
@@ -197,10 +197,10 @@ describe('RateLimitsEditor.vue', () => {
     })
 
     test('should have response action selection with correct data', () => {
-      const wantedAction = rateLimitsDocs[0].thresholds[0].action.toString()
+      const wantedCustomResponse = rateLimitsDocs[0].thresholds[0].action.toString()
       const thresholdActionSelection = wrapper.find('.threshold-action-selection')
-      const selectedAction = (thresholdActionSelection.find('option:checked').element as HTMLOptionElement).value
-      expect(selectedAction).toEqual(wantedAction)
+      const selectedCustomResponse = (thresholdActionSelection.find('option:checked').element as HTMLOptionElement).value
+      expect(selectedCustomResponse).toEqual(wantedCustomResponse)
     })
 
     test('should have correct include data in table', () => {
@@ -307,12 +307,12 @@ describe('RateLimitsEditor.vue', () => {
       const addThresholdButton = wrapper.find('.add-threshold-button')
       await addThresholdButton.trigger('click')
       const wantedLimit = 0
-      const wantedAction = 'default'
+      const wantedCustomResponse = 'default'
       const actualLimit = wrapper.vm.localDoc.thresholds[1].limit
-      const actualAction = wrapper.vm.localDoc.thresholds[1].action
+      const actualCustomResponse = wrapper.vm.localDoc.thresholds[1].action
       expect(wrapper.vm.localDoc.thresholds.length).toEqual(2)
       expect(actualLimit).toEqual(wantedLimit)
-      expect(actualAction).toEqual(wantedAction)
+      expect(actualCustomResponse).toEqual(wantedCustomResponse)
     })
 
     test('should remove threshold when remove event occurs', async () => {

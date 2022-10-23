@@ -10,20 +10,12 @@
                         @click="redirectToList()"
                         title="Return to list"
                         data-qa="redirect-to-list">
-                        <span class="icon is-small">
-                          <i class="fas fa-arrow-left"></i>
-                        </span>
-                </button>
-              </p>
-              <p class="control">
-                <button class="button is-small download-doc-button"
-                        :class="{'is-loading':isDownloadLoading}"
-                        @click="downloadDoc()"
-                        title="Download document"
-                        data-qa="download-document">
-                        <span class="icon is-small">
-                          <i class="fas fa-download"></i>
-                        </span>
+                  <span class="icon is-small">
+                    <i class="fas fa-arrow-left"></i>
+                  </span>
+                  <span>
+                    Return To List
+                  </span>
                 </button>
               </p>
             </div>
@@ -31,14 +23,31 @@
           <div class="column">
             <div class="field is-grouped is-pulled-right">
               <p class="control">
+                <button class="button is-small download-doc-button"
+                        :class="{'is-loading':isDownloadLoading}"
+                        @click="downloadDoc()"
+                        title="Download document"
+                        data-qa="download-document">
+                  <span class="icon is-small">
+                    <i class="fas fa-download"></i>
+                  </span>
+                  <span>
+                    Download
+                  </span>
+                </button>
+              </p>
+              <p class="control">
                 <button class="button is-small save-document-button"
                         :class="{'is-loading': isSaveLoading}"
                         title="Save changes"
                         data-qa="save-changes"
                         @click="saveChanges()">
-                      <span class="icon is-small">
-                        <i class="fas fa-save"></i>
-                      </span>
+                  <span class="icon is-small">
+                    <i class="fas fa-save"></i>
+                  </span>
+                  <span>
+                    Save
+                  </span>
                 </button>
               </p>
               <p class="control">
@@ -48,9 +57,12 @@
                         :class="{'is-loading': isDeleteLoading}"
                         :disabled="selectedRoutingProfile?.id === '__default__'"
                         @click="deleteDoc()">
-                      <span class="icon is-small">
-                        <i class="fas fa-trash"></i>
-                      </span>
+                  <span class="icon is-small">
+                    <i class="fas fa-trash"></i>
+                  </span>
+                  <span>
+                    Delete
+                  </span>
                 </button>
               </p>
             </div>
@@ -105,7 +117,7 @@
                 <th class="is-size-7 width-50px"></th>
                 <th class="is-size-7 width-400px">Path</th>
                 <th class="is-size-7 width-150px">Backend Service</th>
-                <th class="is-size-7 width-150px">Cloud Functions</th>
+                <th class="is-size-7 width-150px">Edge Functions</th>
                 <th></th>
               </tr>
               </thead>
@@ -124,9 +136,9 @@
                 <td class="is-size-7 width-150px ellipsis entry-content-filter">
                   {{ backendServiceName(mapEntry.backend_id) }}
                 </td>
-                <td class="is-size-7 width-150px entry-cloud-functions-count"
-                    v-if="existingCloudFunctionIDs(mapEntry)">
-                  {{ existingCloudFunctionIDs(mapEntry).length }}
+                <td class="is-size-7 width-150px entry-edge-functions-count"
+                    v-if="existingEdgeFunctionIDs(mapEntry)">
+                  {{ existingEdgeFunctionIDs(mapEntry).length }}
                 </td>
                 <td class="is-size-7 width-70px"
                     :rowspan="mapEntryIndex === mapIndex ? '2' : '1'">
@@ -172,15 +184,15 @@
                             </div>
                             <hr/>
                             <p class="title is-6 has-text-grey">
-                              Cloud Functions
+                              Edge Functions
                             </p>
                             <div class="content">
                               <table class="table is-hoverable is-narrow is-fullwidth
-                                              current-entry-cloud-functions-table">
+                                              current-entry-edge-functions-table">
                                 <thead>
                                 <tr>
                                   <th class="is-size-7 width-250px">
-                                    Cloud Function Name
+                                    Edge Function Name
                                   </th>
                                   <th class="is-size-7 width-200px">
                                     Description
@@ -189,94 +201,94 @@
                                     Phase
                                   </th>
                                   <th class="has-text-centered is-size-7 width-60px">
-                                    <a v-if="cloudFunctions && mapEntry.cloud_functions &&
-                                             cloudFunctions.length > existingCloudFunctionIDs(mapEntry).length"
-                                       class="has-text-grey-dark is-small cloud-function-add-button"
-                                       data-qa="add-existing-cloud-function"
+                                    <a v-if="edgeFunctions && mapEntry.cloud_functions &&
+                                             edgeFunctions.length > existingEdgeFunctionIDs(mapEntry).length"
+                                       class="has-text-grey-dark is-small edge-function-add-button"
+                                       data-qa="add-existing-edge-function"
                                        title="Add new"
                                        tabindex="0"
-                                       @click="cloudFunctionNewEntryModeMapEntryId = mapIndex"
+                                       @click="edgeFunctionNewEntryModeMapEntryId = mapIndex"
                                        @keypress.space.prevent
-                                       @keypress.space="cloudFunctionNewEntryModeMapEntryId = mapIndex"
-                                       @keypress.enter="cloudFunctionNewEntryModeMapEntryId = mapIndex">
+                                       @keypress.space="edgeFunctionNewEntryModeMapEntryId = mapIndex"
+                                       @keypress.enter="edgeFunctionNewEntryModeMapEntryId = mapIndex">
                                       <span class="icon is-small"><i class="fas fa-plus"></i></span>
                                     </a>
                                   </th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <template v-for="(cloudFunctionId, cloudFunctionIndex) in mapEntry.cloud_functions">
-                                  <tr v-if="cloudFunctionsDetails(cloudFunctionId)"
-                                      :key="cloudFunctionId"
-                                      class="cloud-function-row">
-                                    <td class="is-size-7 width-250px ellipsis cloud-function-name"
-                                        v-if="cloudFunctionsDetails(cloudFunctionId)"
-                                        :title="cloudFunctionsDetails(cloudFunctionId).name">
-                                      {{ cloudFunctionsDetails(cloudFunctionId).name }}
+                                <template v-for="(edgeFunctionId, edgeFunctionIndex) in mapEntry.cloud_functions">
+                                  <tr v-if="edgeFunctionsDetails(edgeFunctionId)"
+                                      :key="edgeFunctionId"
+                                      class="edge-function-row">
+                                    <td class="is-size-7 width-250px ellipsis edge-function-name"
+                                        v-if="edgeFunctionsDetails(edgeFunctionId)"
+                                        :title="edgeFunctionsDetails(edgeFunctionId).name">
+                                      {{ edgeFunctionsDetails(edgeFunctionId).name }}
                                     </td>
-                                    <td class="is-size-7 width-220px ellipsis cloud-function-description"
-                                        v-if="cloudFunctionsDetails(cloudFunctionId)"
-                                        :title="cloudFunctionsDetails(cloudFunctionId).description">
-                                      {{ cloudFunctionsDetails(cloudFunctionId).description }}
+                                    <td class="is-size-7 width-220px ellipsis edge-function-description"
+                                        v-if="edgeFunctionsDetails(edgeFunctionId)"
+                                        :title="edgeFunctionsDetails(edgeFunctionId).description">
+                                      {{ edgeFunctionsDetails(edgeFunctionId).description }}
                                     </td>
-                                    <td class="is-size-7 width-80px ellipsis cloud-function-timeframe"
-                                        v-if="cloudFunctionsDetails(cloudFunctionId)">
-                                      {{ cloudFunctionsDetails(cloudFunctionId).phase }}
+                                    <td class="is-size-7 width-80px ellipsis edge-function-timeframe"
+                                        v-if="edgeFunctionsDetails(edgeFunctionId)">
+                                      {{ edgeFunctionsDetails(edgeFunctionId).phase }}
                                     </td>
                                     <td class="has-text-centered is-size-7 width-60px">
-                                      <a class="is-small has-text-grey cloud-function-remove-button"
-                                         data-qa="remove-cloud-function-btn"
+                                      <a class="is-small has-text-grey edge-function-remove-button"
+                                         data-qa="remove-edge-function-btn"
                                          title="Remove entry"
                                          tabindex="0"
-                                         @click="removeCloudFunctionFromEntry(mapEntry, cloudFunctionIndex)"
+                                         @click="removeEdgeFunctionFromEntry(mapEntry, edgeFunctionIndex)"
                                          @keypress.space.prevent
-                                         @keypress.space="removeCloudFunctionFromEntry(mapEntry, cloudFunctionIndex)"
-                                         @keypress.enter="removeCloudFunctionFromEntry(mapEntry, cloudFunctionIndex)">
+                                         @keypress.space="removeEdgeFunctionFromEntry(mapEntry, edgeFunctionIndex)"
+                                         @keypress.enter="removeEdgeFunctionFromEntry(mapEntry, edgeFunctionIndex)">
                                         remove
                                       </a>
                                     </td>
                                   </tr>
                                 </template>
-                                <tr v-if="cloudFunctionNewEntryMode(mapIndex)"
-                                    class="new-cloud-function-row">
+                                <tr v-if="edgeFunctionNewEntryMode(mapIndex)"
+                                    class="new-edge-function-row">
                                   <td colspan="3">
                                     <div class="control is-expanded">
                                       <div class="select is-small is-size-7 is-fullwidth">
-                                        <select class="select is-small new-cloud-function-selection"
-                                                title="Cloud Function ID"
-                                                v-model="cloudFunctionMapEntryId">
-                                          <option v-for="cloudFunction in newCloudFunctions(mapEntry.cloud_functions)"
-                                                  :key="cloudFunction.id"
-                                                  :value="cloudFunction.id">
-                                            {{ cloudFunction.name + ' ' + cloudFunction.description }}
+                                        <select class="select is-small new-edge-function-selection"
+                                                title="Edge Function ID"
+                                                v-model="edgeFunctionMapEntryId">
+                                          <option v-for="edgeFunction in newEdgeFunctions(mapEntry.cloud_functions)"
+                                                  :key="edgeFunction.id"
+                                                  :value="edgeFunction.id">
+                                            {{ edgeFunction.name + ' ' + edgeFunction.description }}
                                           </option>
                                         </select>
                                       </div>
                                     </div>
                                   </td>
                                   <td class="has-text-centered is-size-7 width-60px">
-                                    <a class="is-small has-text-grey cloud-function-confirm-add-button"
+                                    <a class="is-small has-text-grey edge-function-confirm-add-button"
                                        title="Add this entry"
                                        tabindex="0"
-                                       @click="addCloudFunctionToEntry(mapEntry, cloudFunctionMapEntryId)"
+                                       @click="addEdgeFunctionToEntry(mapEntry, edgeFunctionMapEntryId)"
                                        @keypress.space.prevent
-                                       @keypress.space="addCloudFunctionToEntry(mapEntry, cloudFunctionMapEntryId)"
-                                       @keypress.enter="addCloudFunctionToEntry(mapEntry, cloudFunctionMapEntryId)">
+                                       @keypress.space="addEdgeFunctionToEntry(mapEntry, edgeFunctionMapEntryId)"
+                                       @keypress.enter="addEdgeFunctionToEntry(mapEntry, edgeFunctionMapEntryId)">
                                       add
                                     </a>
                                   </td>
                                 </tr>
-                                <tr v-if="mapEntry.cloud_functions && !existingCloudFunctionIDs(mapEntry).length">
+                                <tr v-if="mapEntry.cloud_functions && !existingEdgeFunctionIDs(mapEntry).length">
                                   <td colspan="5">
                                     <p class="is-size-7 has-text-grey has-text-centered">
-                                      To attach an existing Cloud Function, click
-                                      <a class="cloud-function-text-add-button"
+                                      To attach an existing Edge Function, click
+                                      <a class="edge-function-text-add-button"
                                          title="Add New"
-                                         @click="cloudFunctionNewEntryModeMapEntryId = mapIndex">here</a>.
+                                         @click="edgeFunctionNewEntryModeMapEntryId = mapIndex">here</a>.
                                       <br/>
-                                      To create a new Cloud Function, click
-                                      <a class="cloud-function-referral-button"
-                                         @click="referToCloudFunction">here</a>.
+                                      To create a new Edge Function, click
+                                      <a class="edge-function-referral-button"
+                                         @click="referToEdgeFunction">here</a>.
                                     </p>
                                   </td>
                                 </tr>
@@ -331,7 +343,7 @@
               </tbody>
             </table>
           </div>
-          <span class="is-family-monospace has-text-grey-lighter">{{ documentAPIPath }}</span>
+          <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ documentAPIPath }}</span>
         </div>
       </div>
     </div>
@@ -340,7 +352,7 @@
 <script lang="ts">
 import _ from 'lodash'
 import RequestsUtils from '@/assets/RequestsUtils'
-import {BackendService, CloudFunction, RoutingProfile, RoutingProfileEntryLocation} from '@/types'
+import {BackendService, EdgeFunction, RoutingProfile, RoutingProfileEntryLocation} from '@/types'
 import Utils from '@/assets/Utils'
 import {defineComponent} from 'vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
@@ -366,9 +378,9 @@ export default defineComponent({
       initialMapEntryPath: '',
       entriesLocationNames: [] as RoutingProfileEntryLocation['path'][],
       backendServiceNames: [] as [BackendService['id'], BackendService['name']][],
-      cloudFunctions: [] as CloudFunction[],
-      cloudFunctionNewEntryModeMapEntryId: null,
-      cloudFunctionMapEntryId: null,
+      edgeFunctions: [] as EdgeFunction[],
+      edgeFunctionNewEntryModeMapEntryId: null,
+      edgeFunctionMapEntryId: null,
       matchingPathTitle: 'A unique matching regex value, not overlapping other path mapping definitions',
 
       apiRoot: RequestsUtils.reblazeAPIRoot,
@@ -380,7 +392,7 @@ export default defineComponent({
       handler: function(val, oldVal) {
         if ((this.$route.name as string).includes('RoutingProfiles/config') && val && val !== oldVal) {
           this.loadBackendServices()
-          this.loadCloudFunctions()
+          this.loadEdgeFunctions()
           this.setSelectedDataFromRouteParams()
         }
       },
@@ -495,37 +507,37 @@ export default defineComponent({
       return backendService?.[1] || ''
     },
 
-    newCloudFunctions(currentCloudFunctionIDs: string[]): CloudFunction[] {
-      return _.filter(this.cloudFunctions, (cloudFunction) => {
-        return _.indexOf(currentCloudFunctionIDs, cloudFunction.id) === -1
+    newEdgeFunctions(currentEdgeFunctionIDs: string[]): EdgeFunction[] {
+      return _.filter(this.edgeFunctions, (edgeFunction) => {
+        return _.indexOf(currentEdgeFunctionIDs, edgeFunction.id) === -1
       })
     },
 
-    addCloudFunctionToEntry(mapEntry: RoutingProfileEntryLocation, id: string) {
+    addEdgeFunctionToEntry(mapEntry: RoutingProfileEntryLocation, id: string) {
       if (id) {
         mapEntry.cloud_functions.push(id)
-        this.cloudFunctionNewEntryModeMapEntryId = null
-        this.cloudFunctionMapEntryId = null
+        this.edgeFunctionNewEntryModeMapEntryId = null
+        this.edgeFunctionMapEntryId = null
       }
     },
 
-    removeCloudFunctionFromEntry(mapEntry: RoutingProfileEntryLocation, index: number) {
+    removeEdgeFunctionFromEntry(mapEntry: RoutingProfileEntryLocation, index: number) {
       mapEntry.cloud_functions.splice(index, 1)
     },
 
-    cloudFunctionsDetails(cloudFunctionId: CloudFunction['id']): CloudFunction {
-      return _.find(this.cloudFunctions, (cloudFunction) => {
-        return cloudFunction.id === cloudFunctionId
+    edgeFunctionsDetails(edgeFunctionId: EdgeFunction['id']): EdgeFunction {
+      return _.find(this.edgeFunctions, (edgeFunction) => {
+        return edgeFunction.id === edgeFunctionId
       })
     },
 
-    cloudFunctionNewEntryMode(id: number): boolean {
-      return this.cloudFunctionNewEntryModeMapEntryId === id
+    edgeFunctionNewEntryMode(id: number): boolean {
+      return this.edgeFunctionNewEntryModeMapEntryId === id
     },
 
-    existingCloudFunctionIDs(mapEntry: RoutingProfileEntryLocation): CloudFunction['id'][] {
-      return _.filter(mapEntry.cloud_functions, (cloudFunctionId) => {
-        return this.cloudFunctionsDetails(cloudFunctionId) !== undefined
+    existingEdgeFunctionIDs(mapEntry: RoutingProfileEntryLocation): EdgeFunction['id'][] {
+      return _.filter(mapEntry.cloud_functions, (edgeFunctionId) => {
+        return this.edgeFunctionsDetails(edgeFunctionId) !== undefined
       })
     },
 
@@ -573,8 +585,8 @@ export default defineComponent({
       this.selectedRoutingProfile.locations.splice(index, 1)
     },
 
-    referToCloudFunction() {
-      this.$emit('go-to-route', `/config/${this.selectedBranch}/cloud-functions`)
+    referToEdgeFunction() {
+      this.$emit('go-to-route', `/config/${this.selectedBranch}/edge-functions`)
     },
 
     loadBackendServices() {
@@ -591,12 +603,12 @@ export default defineComponent({
       })
     },
 
-    loadCloudFunctions() {
+    loadEdgeFunctions() {
       RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/cloud-functions/`,
-      }).then((response: AxiosResponse<CloudFunction[]>) => {
-        this.cloudFunctions = response.data
+      }).then((response: AxiosResponse<EdgeFunction[]>) => {
+        this.edgeFunctions = response.data
       })
     },
   },

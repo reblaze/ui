@@ -1,6 +1,6 @@
 import {
   ACLProfile,
-  CloudFunction,
+  EdgeFunction,
   ColumnOptionsMap,
   ContentFilterProfile,
   ContentFilterRule,
@@ -50,7 +50,7 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       classes: 'width-80px',
     },
     {
-      title: 'Action',
+      title: 'Custom Response',
       fieldNames: ['action'],
       isSortable: true,
       isSearchable: true,
@@ -264,6 +264,16 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       classes: 'ellipsis',
     },
     {
+      title: 'Status Code',
+      fieldNames: ['params'],
+      displayFunction: (item: CustomResponse) => {
+        return item?.params?.status.toString() || ''
+      },
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-100px white-space-pre ellipsis',
+    },
+    {
       title: 'Tags',
       fieldNames: ['tags'],
       displayFunction: (item: CustomResponse) => {
@@ -405,7 +415,7 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
     {
       title: 'Phase',
       fieldNames: ['phase'],
-      displayFunction: (item: CloudFunction) => {
+      displayFunction: (item: EdgeFunction) => {
         const titles = DatasetsUtils.titles
         return titles[item.phase]
       },

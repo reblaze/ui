@@ -1,5 +1,5 @@
 // @ts-nocheck
-import ContentFilterEditor from '@/doc-editors/ContentFilterProfileEditor.vue'
+import ContentFilterEditor from '../ContentFilterProfilesEditor.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {shallowMount} from '@vue/test-utils'
@@ -18,7 +18,7 @@ import {nextTick} from 'vue'
 
 jest.mock('axios')
 
-describe('ContentFilterProfileEditor.vue', () => {
+describe('ContentFilterProfilesEditor.vue', () => {
   let docs: ContentFilterProfile[]
   let wrapper: any
   let contentFilterRulesDocs: ContentFilterRule[]

@@ -1,8 +1,8 @@
 // @ts-nocheck
-import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
+import GlobalFilterListEditor from '../GlobalFiltersEditor.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {mount, shallowMount, VueWrapper} from '@vue/test-utils'
-import {CustomResponse, GlobalFilter, GlobalFilterSectionEntry} from '@/types'
+import {CustomResponse, GlobalFilter, GlobalFilterRuleEntry} from '@/types'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import EntriesRelationList from '@/components/EntriesRelationList.vue'
 import axios from 'axios'
@@ -10,7 +10,7 @@ import {nextTick} from 'vue'
 
 jest.mock('axios')
 
-describe('GlobalFilterListEditor.vue', () => {
+describe('GlobalFiltersEditor.vue', () => {
   let docs: GlobalFilter[]
   let customResponsesDocs: CustomResponse[]
   let wrapper: VueWrapper
@@ -126,10 +126,10 @@ describe('GlobalFilterListEditor.vue', () => {
     })
 
     test('should have response action selection with correct data', () => {
-      const wantedAction = docs[0].action.toString()
+      const wantedCustomResponse = docs[0].action.toString()
       const actionSelection = wrapper.find('.document-action-selection')
-      const selectedAction = (actionSelection.find('option:checked').element as HTMLOptionElement).value
-      expect(selectedAction).toEqual(wantedAction)
+      const selectedCustomResponse = (actionSelection.find('option:checked').element as HTMLOptionElement).value
+      expect(selectedCustomResponse).toEqual(wantedCustomResponse)
     })
 
     test('should have correct description in input', () => {
@@ -421,7 +421,7 @@ describe('GlobalFilterListEditor.vue', () => {
         selectedDoc: docs[0],
       },
     })
-    const wantedRule: GlobalFilter['rule'] = {
+    const wantedRule: GlobalFilterRule = {
       relation: docs[0].rule.relation,
       entries: [],
     }
@@ -450,7 +450,7 @@ describe('GlobalFilterListEditor.vue', () => {
     })
 
     test('should update entries relation component with correct data - ipv4 array', async () => {
-      const wantedEntries: GlobalFilterSectionEntry[] = [
+      const wantedEntries: GlobalFilterRuleEntry[] = [
         [
           'ip',
           '203.208.60.0/24',
@@ -467,7 +467,7 @@ describe('GlobalFilterListEditor.vue', () => {
           'Crawler',
         ],
       ]
-      const wantedData: GlobalFilter['rule'] = {
+      const wantedData: GlobalFilterRule = {
         relation: 'OR',
         entries: [{
           entries: wantedEntries,
@@ -500,7 +500,7 @@ describe('GlobalFilterListEditor.vue', () => {
     })
 
     test('should update entries relation component with correct data - ipv6 array', async () => {
-      const wantedEntries: GlobalFilterSectionEntry[] = [
+      const wantedEntries: GlobalFilterRuleEntry[] = [
         [
           'ip',
           '2603:8080:3d40:f7:d45b:477e:579e:245',
@@ -517,7 +517,7 @@ describe('GlobalFilterListEditor.vue', () => {
           'Crawler',
         ],
       ]
-      const wantedData: GlobalFilter['rule'] = {
+      const wantedData: GlobalFilterRule = {
         relation: 'OR',
         entries: [{
           entries: wantedEntries,
@@ -550,7 +550,7 @@ describe('GlobalFilterListEditor.vue', () => {
     })
 
     test('should update entries relation component with correct data - asn array', async () => {
-      const wantedEntries: GlobalFilterSectionEntry[] = [
+      const wantedEntries: GlobalFilterRuleEntry[] = [
         [
           'asn',
           'as34109',
@@ -567,7 +567,7 @@ describe('GlobalFilterListEditor.vue', () => {
           'spam',
         ],
       ]
-      const wantedData: GlobalFilter['rule'] = {
+      const wantedData: GlobalFilterRule = {
         relation: 'OR',
         entries: [{
           entries: wantedEntries,
@@ -600,7 +600,7 @@ describe('GlobalFilterListEditor.vue', () => {
     })
 
     test('should update entries relation component with correct data - ip singles', async () => {
-      const wantedEntries: GlobalFilterSectionEntry[] = [
+      const wantedEntries: GlobalFilterRuleEntry[] = [
         [
           'ip',
           '203.208.60.0/24',
@@ -617,7 +617,7 @@ describe('GlobalFilterListEditor.vue', () => {
           null,
         ],
       ]
-      const wantedData: GlobalFilter['rule'] = {
+      const wantedData: GlobalFilterRule = {
         relation: 'OR',
         entries: [{
           entries: wantedEntries,
@@ -641,7 +641,7 @@ describe('GlobalFilterListEditor.vue', () => {
     })
 
     test('should update entries relation component with correct data - asn singles', async () => {
-      const wantedEntries: GlobalFilterSectionEntry[] = [
+      const wantedEntries: GlobalFilterRuleEntry[] = [
         [
           'asn',
           'as34109',
@@ -658,7 +658,7 @@ describe('GlobalFilterListEditor.vue', () => {
           null,
         ],
       ]
-      const wantedData: GlobalFilter['rule'] = {
+      const wantedData: GlobalFilterRule = {
         relation: 'OR',
         entries: [{
           entries: wantedEntries,
@@ -682,7 +682,7 @@ describe('GlobalFilterListEditor.vue', () => {
     })
 
     test('should update entries relation component with correct data - ip inside object', async () => {
-      const wantedEntries: GlobalFilterSectionEntry[] = [
+      const wantedEntries: GlobalFilterRuleEntry[] = [
         [
           'ip',
           '203.208.60.0/24',
@@ -699,7 +699,7 @@ describe('GlobalFilterListEditor.vue', () => {
           'Crawler',
         ],
       ]
-      const wantedData: GlobalFilter['rule'] = {
+      const wantedData: GlobalFilterRule = {
         relation: 'OR',
         entries: [{
           entries: wantedEntries,
@@ -735,7 +735,7 @@ describe('GlobalFilterListEditor.vue', () => {
     })
 
     test('should update entries relation component with correct data - asn inside object', async () => {
-      const wantedEntries: GlobalFilterSectionEntry[] = [
+      const wantedEntries: GlobalFilterRuleEntry[] = [
         [
           'asn',
           'as34109',
@@ -752,7 +752,7 @@ describe('GlobalFilterListEditor.vue', () => {
           'spam',
         ],
       ]
-      const wantedData: GlobalFilter['rule'] = {
+      const wantedData: GlobalFilterRule = {
         relation: 'OR',
         entries: [{
           entries: wantedEntries,
@@ -788,7 +788,7 @@ describe('GlobalFilterListEditor.vue', () => {
     })
 
     test('should update entries relation component with correct data - ip array', async () => {
-      const wantedEntries: GlobalFilterSectionEntry[] = [
+      const wantedEntries: GlobalFilterRuleEntry[] = [
         [
           'ip',
           '203.208.60.0/24',
@@ -810,7 +810,7 @@ describe('GlobalFilterListEditor.vue', () => {
           null,
         ],
       ]
-      const wantedData: GlobalFilter['rule'] = {
+      const wantedData: GlobalFilterRule = {
         relation: 'OR',
         entries: [{
           entries: wantedEntries,
@@ -832,7 +832,7 @@ describe('GlobalFilterListEditor.vue', () => {
     })
 
     test('should update entries relation component with correct data - asn array', async () => {
-      const wantedEntries: GlobalFilterSectionEntry[] = [
+      const wantedEntries: GlobalFilterRuleEntry[] = [
         [
           'asn',
           'as34109',
@@ -854,7 +854,7 @@ describe('GlobalFilterListEditor.vue', () => {
           null,
         ],
       ]
-      const wantedData: GlobalFilter['rule'] = {
+      const wantedData: GlobalFilterRule = {
         relation: 'OR',
         entries: [{
           entries: wantedEntries,
@@ -895,7 +895,7 @@ describe('GlobalFilterListEditor.vue', () => {
           ],
         },
       }
-      const wantedData: GlobalFilter['rule'] = JSON.parse(JSON.stringify(globalFilter.rule))
+      const wantedData: GlobalFilterRule = JSON.parse(JSON.stringify(globalFilter.rule))
       resolveData = {data: globalFilter}
       const button = wrapper.find('.update-now-button')
       await button.trigger('click')
@@ -906,7 +906,7 @@ describe('GlobalFilterListEditor.vue', () => {
     })
 
     test('should not update entries relation component with correct data - global filter - no entries', async () => {
-      const wantedData: GlobalFilter['rule'] = docs[0].rule
+      const wantedData: GlobalFilterRule = docs[0].rule
       resolveData = {
         data: {
           'id': 'xlbp148c',
@@ -932,7 +932,7 @@ describe('GlobalFilterListEditor.vue', () => {
     })
 
     test('should not update entries relation component with correct data - global filter - no sections', async () => {
-      const wantedData: GlobalFilter['rule'] = docs[0].rule
+      const wantedData: GlobalFilterRule = docs[0].rule
       resolveData = {
         data: {
           'id': 'xlbp148c',
@@ -957,7 +957,7 @@ describe('GlobalFilterListEditor.vue', () => {
     })
 
     test('should not update entries relation component with correct data - global filter - no rule', async () => {
-      const wantedData: GlobalFilter['rule'] = docs[0].rule
+      const wantedData: GlobalFilterRule = docs[0].rule
       resolveData = {
         data: {
           'id': 'xlbp148c',
@@ -979,7 +979,7 @@ describe('GlobalFilterListEditor.vue', () => {
     })
 
     test('should not update entries relation component when no data found', async () => {
-      const wantedData: GlobalFilter['rule'] = docs[0].rule
+      const wantedData: GlobalFilterRule = docs[0].rule
       resolveData = {
         data: null,
       }

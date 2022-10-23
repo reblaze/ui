@@ -2,16 +2,19 @@
   <div class="card-content">
     <div class="media">
       <div class="media-content">
-        <div class="field is-grouped">
+        <div class="field is-grouped is-pulled-right">
           <p class="control">
             <button class="button is-small download-doc-button"
                     :class="{'is-loading':isDownloadLoading}"
                     @click="downloadDoc()"
                     title="Download document"
                     data-qa="download-document">
-                <span class="icon is-small">
-                    <i class="fas fa-download"></i>
-                </span>
+              <span class="icon is-small">
+                <i class="fas fa-download"></i>
+              </span>
+              <span>
+                Download
+              </span>
             </button>
           </p>
         </div>
@@ -31,10 +34,12 @@
                        :show-filter-button="true"
                        :show-new-button="true"
                        @new-button-clicked="addNewSite"
+                       :row-clickable="true"
+                       @row-clicked="editSite"
                        :show-row-button="true"
                        @row-button-clicked="editSite">
             </rbz-table>
-            <span class="is-family-monospace has-text-grey-lighter">
+            <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">
                 {{ documentListAPIPath }}
               </span>
           </div>
@@ -54,7 +59,7 @@
 import _ from 'lodash'
 import {defineComponent} from 'vue'
 import RbzTable from '@/components/RbzTable.vue'
-import {ColumnOptions, MobileSDK, ProxyTemplate, RoutingProfile, SecurityPolicy, Site} from '@/types'
+import {ColumnOptions, MobileSDK, ConfigTemplate, RoutingProfile, SecurityPolicy, Site} from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import Utils from '@/assets/Utils'
@@ -63,7 +68,7 @@ import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
 
 export default defineComponent({
-  name: 'WebProxyList',
+  name: 'ServerGroupsList',
   components: {
     RbzTable,
   },
@@ -111,13 +116,13 @@ export default defineComponent({
           classes: 'width-120px ellipsis',
         },
         {
-          title: 'Proxy Template',
+          title: 'Config Template',
           fieldNames: ['proxy_template'],
           displayFunction: (item: Site) => {
-            const proxyTemplate = _.find(this.proxyTemplatesNames, (proxyTemplate) => {
-              return proxyTemplate[0] === item.proxy_template
+            const configTemplate = _.find(this.configTemplatesNames, (configTemplate) => {
+              return configTemplate[0] === item.proxy_template
             })
-            return proxyTemplate?.[1] || ''
+            return configTemplate?.[1] || ''
           },
           isSortable: true,
           isSearchable: true,
@@ -144,7 +149,7 @@ export default defineComponent({
       isDownloadLoading: false,
       securityPoliciesNames: [] as [SecurityPolicy['id'], SecurityPolicy['name']][],
       routingProfilesNames: [] as [RoutingProfile['id'], RoutingProfile['name']][],
-      proxyTemplatesNames: [] as [ProxyTemplate['id'], ProxyTemplate['name']][],
+      configTemplatesNames: [] as [ConfigTemplate['id'], ConfigTemplate['name']][],
       mobileSDKsNames: [] as [MobileSDK['id'], MobileSDK['name']][],
       apiRoot: RequestsUtils.reblazeAPIRoot,
       apiVersion: RequestsUtils.reblazeAPIVersion,
@@ -154,11 +159,11 @@ export default defineComponent({
   watch: {
     selectedBranch: {
       handler: function(val, oldVal) {
-        if ((this.$route.name as string).includes('WebProxy/list') && val && val !== oldVal) {
+        if ((this.$route.name as string).includes('ServerGroups/list') && val && val !== oldVal) {
           this.loadSites()
           this.loadSecurityPolicies()
           this.loadRoutingProfiles()
-          this.loadProxyTemplates()
+          this.loadConfigTemplates()
           this.loadMobileSDKs()
         }
       },
@@ -194,7 +199,7 @@ export default defineComponent({
     },
 
     editSite(id: string) {
-      this.$router.push(`/${this.selectedBranch}/web-proxy/config/${id}`)
+      this.$router.push(`/${this.selectedBranch}/server-groups/config/${id}`)
     },
 
     async addNewSite() {
@@ -257,13 +262,13 @@ export default defineComponent({
       })
     },
 
-    loadProxyTemplates() {
+    loadConfigTemplates() {
       RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/proxy-templates/`,
         config: {headers: {'x-fields': 'id, name'}},
-      }).then((response: AxiosResponse<ProxyTemplate[]>) => {
-        this.proxyTemplatesNames = _.sortBy(_.map(response.data, (entity) => {
+      }).then((response: AxiosResponse<ConfigTemplate[]>) => {
+        this.configTemplatesNames = _.sortBy(_.map(response.data, (entity) => {
           return [entity.id, entity.name]
         }), (e) => {
           return e[1]

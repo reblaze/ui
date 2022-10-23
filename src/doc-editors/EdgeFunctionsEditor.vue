@@ -8,12 +8,12 @@
               Name
               <span class="has-text-grey is-pulled-right document-id"
                     title="Document id">
-                    {{ localDoc.id }}
-                  </span>
+                {{ localDoc.id }}
+              </span>
             </label>
             <div class="control">
               <input class="input is-small document-name"
-                     data-qa="cloud-functions-name-input"
+                     data-qa="edge-functions-name-input"
                      type="text"
                      title="Document name"
                      placeholder="Document name"
@@ -55,7 +55,7 @@
         <div class="column is-8">
           <div class="field">
             <label class="label is-small">Code</label>
-            <textarea class="is-small textarea is-family-monospace cloud-functions-code"
+            <textarea class="is-small textarea edge-functions-code"
                       data-qa="code-input"
                       title="code"
                       v-model="localDoc.code"
@@ -66,34 +66,34 @@
         </div>
       </div>
     </div>
-    <span class="is-family-monospace has-text-grey-lighter">{{ apiPath }}</span>
+    <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ apiPath }}</span>
   </div>
 </template>
 
 <script lang="ts">
 import _ from 'lodash'
 import {defineComponent, PropType} from 'vue'
-import {CloudFunction, CloudFunctionsPhaseType} from '@/types'
+import {EdgeFunction, EdgeFunctionsPhaseType} from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 
 
 export default defineComponent({
-  name: 'CloudFunctionsEditor',
+  name: 'EdgeFunctionsEditor',
   props: {
-    selectedDoc: Object as PropType<CloudFunction>,
+    selectedDoc: Object as PropType<EdgeFunction>,
     selectedBranch: String,
     apiPath: String,
     docs: Array,
   },
   data() {
     return {
-      cloudPhases: ['request1', 'response0'] as CloudFunctionsPhaseType[],
+      cloudPhases: ['request', 'response'] as EdgeFunctionsPhaseType[],
       titles: DatasetsUtils.titles,
     }
   },
   computed: {
-    localDoc(): CloudFunction {
-      return _.cloneDeep(this.selectedDoc as CloudFunction)
+    localDoc(): EdgeFunction {
+      return _.cloneDeep(this.selectedDoc as EdgeFunction)
     },
   },
   emits: ['update:selectedDoc'],

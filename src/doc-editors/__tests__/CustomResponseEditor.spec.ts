@@ -1,10 +1,10 @@
 // @ts-nocheck
-import CustomResponseEditor from '@/doc-editors/CustomResponseEditor.vue'
+import CustomResponseEditor from '../CustomResponsesEditor.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import {beforeEach, describe, expect, test} from '@jest/globals'
 import {shallowMount, VueWrapper} from '@vue/test-utils'
 
-describe('CustomResponseEditor.vue', () => {
+describe('CustomResponsesEditor.vue', () => {
   let docs: ContentFilterRule[]
   let wrapper: VueWrapper
   beforeEach(() => {
