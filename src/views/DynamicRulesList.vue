@@ -54,7 +54,7 @@
   </div>
 </template>
 <script lang="ts">
-// import _ from 'lodash'
+import _ from 'lodash'
 import {defineComponent} from 'vue'
 import RbzTable from '@/components/RbzTable.vue'
 import {ColumnOptions, DynamicRule, GlobalFilter} from '@/types'
@@ -64,6 +64,12 @@ import Utils from '@/assets/Utils'
 import {AxiosResponse} from 'axios'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
+
+type MiniGlobalFilter = {
+  id: string,
+  action: string,
+  tags: string[]
+}
 
 export default defineComponent({
   name: 'DynamicRulesList',
@@ -103,18 +109,11 @@ export default defineComponent({
         },
         {
           title: 'Action',
-          fieldNames: ['action'],
-          isSortable: true,
-          isSearchable: true,
-          classes: 'width-100px',
-        },
-        {
-          title: 'Action',
           displayFunction: (item: DynamicRule) => {
-            const matchingGlobalFilter = this.globalFiltersData.find((globalFilter: GlobalFilter) => {
+            const matchingGlobalFilter = _.find(this.globalFiltersData, (globalFilter: GlobalFilter) => {
               return globalFilter.id === `dr_${item.id}`
             })
-            return matchingGlobalFilter.action?.join('\n')
+            return matchingGlobalFilter.action
           },
           isSortable: false,
           isSearchable: true,
@@ -123,7 +122,7 @@ export default defineComponent({
         {
           title: 'Tags',
           displayFunction: (item: DynamicRule) => {
-            const matchingGlobalFilter = this.globalFiltersData.find((globalFilter: GlobalFilter) => {
+            const matchingGlobalFilter = _.find(this.globalFiltersData, (globalFilter: GlobalFilter) => {
               return globalFilter.id === `dr_${item.id}`
             })
             return matchingGlobalFilter.tags?.join('\n')
@@ -136,7 +135,7 @@ export default defineComponent({
       isNewLoading: false,
       titles: DatasetsUtils.titles,
       dynamicRulesData: [] as DynamicRule[],
-      globalFiltersData: [] as {id: string, action: string, tags: string[]}[],
+      globalFiltersData: [] as MiniGlobalFilter[],
       loadingDocCounter: 0,
       isDownloadLoading: false,
 
@@ -150,6 +149,7 @@ export default defineComponent({
       handler: async function(val, oldVal) {
         if ((this.$route.name as string).includes('DynamicRules/list') && val && val !== oldVal) {
           await this.loadDynamicRulesData()
+          console.log('DR loaded', this.dynamicRulesData, this.globalFiltersData)
         }
       },
       immediate: true,
@@ -179,21 +179,23 @@ export default defineComponent({
     },
 
     newDynamicRuleDoc(): DynamicRule {
-      const factory = DatasetsUtils.newOperationEntryFactory['dynamic-rule']
+      const factory = DatasetsUtils.newOperationEntryFactory['dynamic-rules']
       return factory && factory()
     },
 
     async addNewDynamicRule() {
+      console.log('addNewDynamicRule')
       this.setLoadingDocStatus(true)
       this.isNewLoading = true
       const docToAdd = this.newDynamicRuleDoc()
+      console.log('docToAdd.name1', docToAdd)
       docToAdd.name = docToAdd.name + ' ' + docToAdd.id
-
+      console.log('docToAdd.name2', docToAdd.name)
       const docTypeText = this.titles['dynamic-rules-singular']
       const successMessage = `New ${docTypeText} was created.`
       const failureMessage = `Failed while attempting to create the new ${docTypeText}.`
       const data = docToAdd
-
+      console.log('addnew this.selectedBranch', this.selectedBranch)
       const url = `configs/${this.selectedBranch}/d/dynamic-rules/e/${docToAdd.id}`
       console.log('add new doc function', url, data, successMessage)
       await RequestsUtils.sendReblazeRequest({methodName: 'POST', url, data, successMessage, failureMessage,
@@ -204,6 +206,7 @@ export default defineComponent({
       docMatchingGlobalFilter.active = (docToAdd as DynamicRule).active
       docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule ' + docToAdd.id
       const globalFiltersData = docMatchingGlobalFilter
+      console.log('addnew this.selectedBranch2', this.selectedBranch)
       const globalFiltersUrl = `configs/${this.selectedBranch}/d/globalfilters/e/`
       await RequestsUtils.sendRequest({methodName: 'POST', url: globalFiltersUrl, data: globalFiltersData})
 
@@ -214,6 +217,7 @@ export default defineComponent({
     },
 
     editDynamicRule(id: string) {
+      console.log(id, this.selectedBranch)
       const routeToDoc = `/${this.selectedBranch}/dynamic-rules/config/${id}`
       this.$router.push(routeToDoc)
     },
@@ -240,18 +244,17 @@ export default defineComponent({
       this.dynamicRulesData = response?.data || []
 
       // bring Tags from GlobalFilters
-      this.globalFiltersData = []
+      this.globalFiltersData = [] as MiniGlobalFilter[]
 
       this.dynamicRulesData.map(async (doc) => {
         const url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${doc.id}/`
-        const config = {headers: {'x-fields': 'id, tags, action'}}
-        RequestsUtils.sendRequest({methodName: 'GET', url, config, onFail: () => {
-          console.log('Error while attempting to load documents')
-          this.isDownloadLoading = false
-        },
+        // const config = {headers: {'x-fields': 'id, tags, action'}} config,
+        RequestsUtils.sendRequest({methodName: 'GET', url,
+          onFail: () => {
+            console.log('Error while attempting to load documents')
+            this.isDownloadLoading = false
+          },
         }).then((responseGlobal: AxiosResponse<GlobalFilter>) => {
-          console.log('responseGlobal.data.id', responseGlobal.data.id,
-            'responseGlobal.data.tags', responseGlobal.data.tags)
           this.globalFiltersData.push({id: responseGlobal.data.id, tags: responseGlobal.data.tags,
             action: responseGlobal.data.action})
         })
@@ -263,7 +266,6 @@ export default defineComponent({
   async created() {
     this.setLoadingDocStatus(true)
     await this.branchesStore.list
-    await this.loadDynamicRulesData()
     this.setLoadingDocStatus(false)
   },
 })

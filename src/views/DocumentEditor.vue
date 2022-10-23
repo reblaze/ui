@@ -274,6 +274,7 @@ export default defineComponent({
 
     selectedDocID: {
       handler: async function(val, oldVal) {
+        console.log('documentEditor selectedDocID', this.selectedDocID)
         if (val && val !== oldVal && this.selectedDocType === 'dynamic-rules') {
           if (this.isNewLoading) {
             const docMatchingGlobalFilter = DatasetsUtils.newDocEntryFactory['globalfilters']() as GlobalFilter

@@ -444,7 +444,24 @@ const newOperationEntryFactory: { [key: string]: Function } = {
       }],
     }
   },
+
+  'dynamic-rules'(): DynamicRule {
+    const id = generateUUID2()
+    return {
+      'id': id,
+      'name': 'New Dynamic Rule ' + id,
+      'description': 'New Dynamic Rule Description and Remarks',
+      'timeframe': 60,
+      'threshold': 9999,
+      'active': false,
+      'include': ['all'],
+      'exclude': [],
+      'ttl': 7200,
+      'target': 'remote_addr',
+    }
+  },
 }
+
 
 export default {
   name: 'DatasetsUtils',
