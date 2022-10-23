@@ -1,133 +1,132 @@
 <template>
-    <div class="card">
-      <div class="card-content">
-        <div class="media">
-          <div class="media-content">
-            <div class="field is-grouped">
-              <div class="control"
-                   v-if="branchNames.length">
-                <div class="select is-small">
-                  <select v-model="selectedBranch"
-                          title="Switch branch"
-                          class="branch-selection"
-                          @change="switchBranch()">
-                    <option v-for="name in branchNames"
-                            :key="name"
-                            :value="name">
-                      {{ name }}
-                    </option>
-                  </select>
-                </div>
-              </div>
-              <p class="control">
-                <button class="button is-small download-doc-button"
-                        :class="{'is-loading':isDownloadLoading}"
-                        @click="downloadDoc()"
-                        title="Download document"
-                        data-qa="download-document">
-                  <span class="icon is-small">
-                      <i class="fas fa-download"></i>
-                  </span>
-                </button>
-              </p>
+  <div class="card-content">
+    <div class="media">
+      <div class="media-content">
+        <div class="field is-grouped">
+          <div class="control"
+                v-if="branchNames.length">
+            <div class="select is-small">
+              <select v-model="selectedBranch"
+                      title="Switch branch"
+                      class="branch-selection"
+                      @change="switchBranch()">
+                <option v-for="name in branchNames"
+                        :key="name"
+                        :value="name">
+                  {{ name }}
+                </option>
+              </select>
             </div>
           </div>
-        </div>
-
-        <hr/>
-
-        <div class="tabs is-centered">
-            <ul>
-              <li :class=" tab === 'Load balancers' ? 'is-active' : '' "
-                  class="load-balancers-tab"
-                  data-qa="load-balancers-tab-btn">
-                <a tabindex="0"
-                   @click='tab = "Load balancers"'>
-                   Load balancers
-                </a>
-              </li>
-              <li :class=" tab === 'Certificates' ? 'is-active' : '' "
-                  class="certificate-tab"
-                  data-qa="certificate-tab-btn">
-                <a tabindex="0"
-                   @click='tab = "Certificates"'>
-                   Certificate store
-                </a>
-              </li>
-            </ul>
-          </div>
-
-
-        <div class="content document-list-wrapper"
-             v-show="!loadingDocCounter && selectedBranch">
-          <div class="card">
-            <div class="card-content">
-              <div class="content">
-                <div v-show="tab === 'Load balancers'">
-                  <rbz-table :columns="loadBalancerColumns"
-                    :data="loadBalancer"
-                    :show-menu-column="true"
-                    :show-filter-button="true"
-                    :show-new-button="true"
-                    @new-button-clicked="addNewCertificate"
-                    :show-row-button="true"
-                    :show-second-row-button="true"
-                    :row-button-title="rowButtonTitle"
-                    :row-button-icon="rowButtonIcon"
-                    :second-row-button-title="secondRowButtonTitle"
-                    :second-row-button-icon="secondRowButtonIcon">
-                  </rbz-table>
-                </div>
-                <div v-show="tab === 'Certificates'">
-                    <rbz-table :columns="certificationColumns"
-                      :data="certificates"
-                      :show-menu-column="true"
-                      :show-filter-button="true"
-                      :show-new-button="true"
-                      @new-button-clicked="addNewCertificate"
-                      @row-button-clicked="editProfile"
-                      @second-row-button-clicked="deleteProfile"
-                      :show-row-button="true"
-                      :show-second-row-button="true"
-                      :second-row-button-title="secondRowButtonTitle"
-                      :second-row-button-icon="secondRowButtonIcon">
-                    </rbz-table>
-                  </div>
-                <span class="is-family-monospace has-text-grey-lighter">
-                  {{ documentListAPIPath }}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="content no-data-wrapper"
-             v-if="loadingDocCounter || !selectedBranch">
-          <button class="button is-outlined is-text is-small is-loading document-loading">
-            Loading
-          </button>
+          <p class="control">
+            <button class="button is-small download-doc-button"
+                    :class="{'is-loading':isDownloadLoading}"
+                    @click="downloadDoc()"
+                    title="Download document"
+                    data-qa="download-document">
+              <span class="icon is-small">
+                  <i class="fas fa-download"></i>
+              </span>
+            </button>
+          </p>
         </div>
       </div>
-      <generate-certificate :generateShown="generateShown"
-                            @generateShownChanged="generateShown = false"
-                            @callLoaders="callLoaders"/>
-      <delete-certificate :deleteShown="deleteShown"
-                          @deleteShownChanged="deleteShown = false"
-                          @deleteClickedChanged="deleteCertificate"
-                          :clickedRow="clickedRow"
-                          :selectedBranch="selectedBranch"
-                          @callLoaders="callLoaders"/>
-      <edit-certificate :editShown="editShown"
-                          @editShownChanged="editShown = false"
-                          :clickedRow="clickedRow"
-                          :subject="certificateByID.subject"
-                          :issuer="certificateByID.issuer"
-                          :san="certificateByID.san"
-                          :cert_body="certificateByID.cert_body"
-                          :le_auto_replace="certificateByID.le_auto_replace"
-                          :sites="sites"
-                          @callLoaders="callLoaders"/>
     </div>
+
+    <hr/>
+
+    <div class="tabs is-centered">
+        <ul>
+          <li :class=" tab === 'Load balancers' ? 'is-active' : '' "
+              class="load-balancers-tab"
+              data-qa="load-balancers-tab-btn">
+            <a tabindex="0"
+                @click='tab = "Load balancers"'>
+                Load balancers
+            </a>
+          </li>
+          <li :class=" tab === 'Certificates' ? 'is-active' : '' "
+              class="certificate-tab"
+              data-qa="certificate-tab-btn">
+            <a tabindex="0"
+                @click='tab = "Certificates"'>
+                Certificate store
+            </a>
+          </li>
+        </ul>
+      </div>
+
+
+    <div class="content document-list-wrapper"
+          v-show="!loadingDocCounter && selectedBranch">
+      <div class="card">
+        <div class="card-content">
+          <div class="content">
+            <div v-show="tab === 'Load balancers'">
+              <rbz-table :columns="loadBalancerColumns"
+                :data="loadBalancer"
+                :show-menu-column="true"
+                :show-filter-button="true"
+                :show-new-button="true"
+                @new-button-clicked="addNewCertificate"
+                :show-row-button="true"
+                :show-second-row-button="true"
+                :row-button-title="rowButtonTitle"
+                :row-button-icon="rowButtonIcon"
+                :second-row-button-title="secondRowButtonTitle"
+                :second-row-button-icon="secondRowButtonIcon">
+              </rbz-table>
+            </div>
+            <div v-show="tab === 'Certificates'">
+                <rbz-table :columns="certificationColumns"
+                  :data="certificates"
+                  :show-menu-column="true"
+                  :show-filter-button="true"
+                  :show-new-button="true"
+                  @new-button-clicked="addNewCertificate"
+                  @row-button-clicked="editProfile"
+                  @second-row-button-clicked="deleteProfile"
+                  :show-row-button="true"
+                  :show-second-row-button="true"
+                  :second-row-button-title="secondRowButtonTitle"
+                  :second-row-button-icon="secondRowButtonIcon">
+                </rbz-table>
+              </div>
+            <span class="is-family-monospace has-text-grey-lighter">
+              {{ documentListAPIPath }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content no-data-wrapper"
+          v-if="loadingDocCounter || !selectedBranch">
+      <button class="button is-outlined is-text is-small is-loading document-loading">
+        Loading
+      </button>
+    </div>
+  <generate-certificate :generateShown="generateShown"
+                        @generateShownChanged="generateShown = false"
+                        @callLoaders="callLoaders"/>
+  <delete-certificate :deleteShown="deleteShown"
+                      @deleteShownChanged="deleteShown = false"
+                      @deleteClickedChanged="deleteCertificate"
+                      :clickedRow="clickedRow"
+                      :selectedBranch="selectedBranch"
+                      @callLoaders="callLoaders"/>
+  <edit-certificate :editShown="editShown"
+                      @editShownChanged="editShown = false"
+                      :clickedRow="clickedRow"
+                      :subject="certificateByID.subject"
+                      :issuer="certificateByID.issuer"
+                      :san="certificateByID.san"
+                      :cert_body="certificateByID.cert_body"
+                      :le_auto_replace="certificateByID.le_auto_replace"
+                      :sites="sites"
+                      @callLoaders="callLoaders"/>
+  </div>
+
 </template>
 <script lang="ts">
 import _ from 'lodash'

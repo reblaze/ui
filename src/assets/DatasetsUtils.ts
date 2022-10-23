@@ -1,7 +1,7 @@
 import {
   ACLProfile,
   BackendService,
-  CloudFunction,
+  EdgeFunction,
   ContentFilterProfile,
   ContentFilterRule,
   CustomResponse,
@@ -10,7 +10,7 @@ import {
   GlobalFilter,
   HttpRequestMethods,
   MobileSDK,
-  ProxyTemplate,
+  ConfigTemplate,
   RateLimit,
   RoutingProfile,
   SecurityPolicy,
@@ -60,8 +60,8 @@ const titles: { [key: string]: string } = {
   'contentfilterprofiles-singular': 'Content Filter Profile',
   'contentfilterrules': 'Content Filter Rules',
   'contentfilterrules-singular': 'Content Filter Rule',
-  'cloud-functions': 'Cloud Functions',
-  'cloud-functions-singular': 'Cloud Function',
+  'cloud-functions': 'Edge Functions',
+  'cloud-functions-singular': 'Edge Function',
   'globalfilters': 'Global Filters',
   'globalfilters-singular': 'Global Filter',
   'quarantined': 'Quarantined List',
@@ -74,18 +74,16 @@ const titles: { [key: string]: string } = {
   'routing-profiles-singular': 'Routing Profile',
   'mobile-sdks': 'MobileSDKs',
   'mobile-sdks-singular': 'MobileSDK',
-  'proxy-templates': 'Proxy Templates',
-  'proxy-templates-singular': 'Proxy Template',
-  'sites': 'Sites',
-  'sites-singular': 'Site',
+  'proxy-templates': 'Config Templates',
+  'proxy-templates-singular': 'Config Template',
+  'sites': 'Server Groups',
+  'sites-singular': 'Server Group',
   'backends': 'Backends Services',
   'backends-singular': 'Backend Service',
   'report': 'Report',
   'ignore': 'Ignore',
-  'request0': 'Request Pre Reblaze',
-  'request1': 'Request Post Reblaze',
-  'response0': 'Response Pre Reblaze',
-  'response1': 'Response Post Reblaze',
+  'request': 'Request',
+  'response': 'Response',
 }
 
 const dynamicRuleTargets = {
@@ -127,7 +125,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'id': generateUUID2(),
       'name': 'New ACL Profile',
       'description': 'New ACL Profile Description and Remarks',
-      'action': 'monitor',
+      'action': 'action-acl-block',
       'tags': [],
       'allow': [],
       'allow_bot': [],
@@ -143,7 +141,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'id': generateUUID2(),
       'name': 'New Content Filter Profile',
       'description': 'New Content Filter Profile Description and Remarks',
-      'action': 'monitor',
+      'action': 'action-contentfilter-block',
       'tags': [],
       'ignore_body': true,
       'ignore_alphanum': true,
@@ -194,7 +192,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'description': 'New Global Filter Description and Remarks',
       'active': false,
       'tags': ['trusted'],
-      'action': 'monitor',
+      'action': 'action-global-filter-block',
       'rule': {
         'relation': 'OR',
         'entries': [],
@@ -208,12 +206,14 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'id': id,
       'name': 'New Security Policy',
       'match': `${id}.example.com`,
+      'description': 'New Security Policy Description and Remarks',
+      'tags': [],
       'map': [
         {
           'id': generateUUID2(),
           'match': '/',
           'name': 'default',
-          'acl_profile': '__default__',
+          'acl_profile': '__acldefault__',
           'content_filter_profile': '__default__',
           'acl_active': false,
           'content_filter_active': false,
@@ -228,13 +228,14 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'id': generateUUID2(),
       'name': 'New Rate Limit Rule',
       'global': false,
+      'active': false,
       'description': 'New Rate Limit Rule Description and Remarks',
       'timeframe': 60,
       'tags': [],
       'thresholds': [
         {
           'limit': 5,
-          'action': 'monitor',
+          'action': 'action-rate-limit-block',
         },
       ],
       'include': ['all'],
@@ -247,7 +248,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
           'attrs': 'securitypolicyentryid',
         },
         {
-          'headers': 'rbzsessionid',
+          'attrs': 'session',
         },
       ],
       'pairwith': {
@@ -281,12 +282,12 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  'cloud-functions'(): CloudFunction {
+  'cloud-functions'(): EdgeFunction {
     return {
       'id': generateUUID2(),
-      'name': 'New Cloud Function',
-      'description': 'New Cloud Function Description and Remarks',
-      'phase': 'request1',
+      'name': 'New Edge Function',
+      'description': 'New Edge Function Description and Remarks',
+      'phase': 'request',
       'code': `-- begin custom code
         --custom response header
         ngx.header['foo'] = 'bar'`,
@@ -305,6 +306,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'include': ['all'],
       'exclude': [],
       'ttl': 7200,
+      'tags': [],
       'target': 'remote_addr',
     }
   },
@@ -346,7 +348,7 @@ const newOperationEntryFactory: { [key: string]: Function } = {
       'security_policy': '__default__',
       'routing_profile': '__default__',
       'proxy_template': '__default__',
-      'mobile_sdk': '__default__',
+      'mobile_sdk': '',
     }
   },
 
@@ -357,6 +359,7 @@ const newOperationEntryFactory: { [key: string]: Function } = {
       'description': 'New Routing Profile Description and Remarks',
       'locations': [
         {
+          'id': generateUUID2(),
           'path': '/',
           'backend_id': '__default__',
           'cloud_functions': [],
@@ -388,11 +391,11 @@ const newOperationEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  'proxy-templates'(): ProxyTemplate {
+  'proxy-templates'(): ConfigTemplate {
     return {
       'id': generateUUID2(),
-      'name': 'New Proxy Template ' + generateUUID2(), // TODO: Remove this random uuid once names are no longer unique
-      'description': 'New Proxy Template Description and Remarks',
+      'name': 'New Config Template ' + generateUUID2(), // TODO: Remove this random uuid once names are no longer unique
+      'description': 'New Config Template Description and Remarks',
       'acao_header': false,
       'xff_header_name': 'X-Forwarded-For',
       'post_private_args': '(cc_number|password)',

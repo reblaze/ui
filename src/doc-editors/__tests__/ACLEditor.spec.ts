@@ -16,10 +16,10 @@ describe('ACLEditor.vue', () => {
   beforeEach(() => {
     docs = [
       {
-        'id': '__default__',
+        'id': '__acldefault__',
         'name': 'default-acl',
         'description': 'New ACL Profile Description and Remarks',
-        'action': 'monitor',
+        'action': 'action-acl-block',
         'tags': ['test', 'tag'],
         'allow': [],
         'allow_bot': [
@@ -43,15 +43,11 @@ describe('ACLEditor.vue', () => {
     ]
     customResponsesDocs = [
       {
-        'id': 'default',
-        'name': 'default blocking action',
-      },
-      {
-        'id': 'monitor',
+        'id': 'action-acl-block',
         'name': 'default monitoring action',
       },
     ]
-    const selectedBranch = 'master'
+    const selectedBranch = 'prod'
     jest.spyOn(axios, 'get').mockImplementation((path) => {
       if (path === `/conf/api/v3/configs/${selectedBranch}/d/actions/`) {
         return Promise.resolve({data: customResponsesDocs})

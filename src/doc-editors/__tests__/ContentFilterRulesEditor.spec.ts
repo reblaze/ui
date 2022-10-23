@@ -1,5 +1,6 @@
 // @ts-nocheck
 import ContentFilterRulesEditor from '@/doc-editors/ContentFilterRulesEditor.vue'
+import LabeledTags from '@/components/LabeledTags.vue'
 import {beforeEach, describe, expect, test} from '@jest/globals'
 import {shallowMount, VueWrapper} from '@vue/test-utils'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
@@ -63,11 +64,13 @@ describe('ContentFilterRulesEditor.vue', () => {
     })
 
     test('should have correct automatic tags displayed', () => {
-      const element = wrapper.find('.document-automatic-tags').element as HTMLDivElement
-      expect(element.innerHTML).toContain(`cf-rule-id:${docs[0].id.replace(/ /g, '-')}`)
-      expect(element.innerHTML).toContain(`cf-rule-risk:${docs[0].risk}`)
-      expect(element.innerHTML).toContain(`cf-rule-category:${docs[0].category.replace(/ /g, '-')}`)
-      expect(element.innerHTML).toContain(`cf-rule-subcategory:${docs[0].subcategory.replace(/ /g, '-')}`)
+      const labeledTagsComponent = wrapper.findComponent(LabeledTags)
+      expect(labeledTagsComponent.exists()).toBeTruthy()
+      expect(labeledTagsComponent.vm.tags).toContain(`cf-rule-id:${docs[0].id.replace(/ /g, '-')}`)
+      expect(labeledTagsComponent.vm.tags).toContain(`cf-rule-risk:${docs[0].risk}`)
+      expect(labeledTagsComponent.vm.tags).toContain(`cf-rule-category:${docs[0].category.replace(/ /g, '-')}`)
+      expect(labeledTagsComponent.vm.tags).toContain(`cf-rule-subcategory:${docs[0].subcategory.replace(/ /g, '-')}`)
+      expect(labeledTagsComponent.vm.tags).toEqual(wrapper.vm.automaticTags)
     })
 
     test('should have empty automatic tags displayed - empty id', () => {
@@ -77,8 +80,8 @@ describe('ContentFilterRulesEditor.vue', () => {
           selectedDoc: docs[0],
         },
       })
-      const element = wrapper.find('.document-automatic-tags').element as HTMLDivElement
-      expect(element.innerHTML).toContain('cf-rule-id:\n')
+      const labeledTagsComponent = wrapper.findComponent(LabeledTags)
+      expect(labeledTagsComponent.vm.tags).toContain('cf-rule-id:')
     })
 
     test('should have empty automatic tags displayed - empty category', () => {
@@ -88,8 +91,8 @@ describe('ContentFilterRulesEditor.vue', () => {
           selectedDoc: docs[0],
         },
       })
-      const element = wrapper.find('.document-automatic-tags').element as HTMLDivElement
-      expect(element.innerHTML).toContain('cf-rule-category:\n')
+      const labeledTagsComponent = wrapper.findComponent(LabeledTags)
+      expect(labeledTagsComponent.vm.tags).toContain('cf-rule-category:')
     })
 
     test('should have empty automatic tags displayed - empty subcategory', () => {
@@ -99,8 +102,8 @@ describe('ContentFilterRulesEditor.vue', () => {
           selectedDoc: docs[0],
         },
       })
-      const element = wrapper.find('.document-automatic-tags').element as HTMLDivElement
-      expect(element.innerHTML).toContain('cf-rule-subcategory:\n')
+      const labeledTagsComponent = wrapper.findComponent(LabeledTags)
+      expect(labeledTagsComponent.vm.tags).toContain('cf-rule-subcategory:')
     })
   })
 

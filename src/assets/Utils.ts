@@ -125,6 +125,21 @@ const removeExtraWhitespaces = (value: string) => {
   return value?.replace(/\s\s+/g, ' ') || ''
 }
 
+const amountSuffixFormatter = (value: number) => {
+  const lookup = [
+    {value: 1, symbol: ''},
+    {value: 1e3, symbol: 'K'},
+    {value: 1e6, symbol: 'M'},
+    {value: 1e9, symbol: 'B'},
+    {value: 1e12, symbol: 'T'},
+  ]
+  const rx = /\.0+$|(\.[0-9]*[1-9])0+$/
+  const item = lookup.slice().reverse().find(function(item) {
+    return value >= item.value
+  })
+  return item ? (value / item.value).toFixed(0).toString().replace(rx, '$1') + item.symbol : '0'
+}
+
 export default {
   name: 'Utils',
   validateInput,
@@ -133,4 +148,5 @@ export default {
   downloadFile,
   toast,
   removeExtraWhitespaces,
+  amountSuffixFormatter,
 }

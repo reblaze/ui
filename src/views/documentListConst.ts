@@ -1,6 +1,6 @@
 import {
   ACLProfile,
-  CloudFunction,
+  EdgeFunction,
   ColumnOptionsMap,
   ContentFilterProfile,
   ContentFilterRule,
@@ -50,7 +50,7 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       classes: 'width-80px',
     },
     {
-      title: 'Action',
+      title: 'Custom Response',
       fieldNames: ['action'],
       isSortable: true,
       isSearchable: true,
@@ -109,46 +109,60 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       classes: 'width-120px',
     },
     {
-      title: 'Matching Names',
-      fieldNames: ['match'],
+      title: 'Description',
+      fieldNames: ['description'],
       isSortable: true,
       isSearchable: true,
       classes: 'ellipsis',
     },
     {
-      title: 'Rate Limit Rules',
-      fieldNames: ['map'],
-      displayFunction: (item: SecurityPolicy) => {
-        const amount = _.sumBy(item?.map, (mapEntry: SecurityPolicyEntryMatch) => {
-          return mapEntry.limit_ids.length
-        })
-        return amount.toString()
-      },
-      classes: 'width-120px',
+      title: 'Matching Names',
+      fieldNames: ['match'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-150px ellipsis',
     },
     {
-      title: 'Active ACL Profiles',
-      fieldNames: ['map'],
+      title: 'Tags',
+      fieldNames: ['tags'],
       displayFunction: (item: SecurityPolicy) => {
-        const active = item?.map?.filter((mapEntry: SecurityPolicyEntryMatch) => {
-          return mapEntry.acl_active
-        }).length
-        const total = item?.map?.length
-        return `${active} out of ${total}`
+        return item?.tags?.join('\n')
       },
-      classes: 'width-120px',
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-80px',
     },
     {
-      title: 'Active Content Filter Profiles',
+      title: 'Connected Profiles & Rules',
       fieldNames: ['map'],
       displayFunction: (item: SecurityPolicy) => {
-        const active = item?.map?.filter((mapEntry: SecurityPolicyEntryMatch) => {
-          return mapEntry.acl_active
-        }).length
-        const total = item?.map?.length
-        return `${active} out of ${total}`
+        const getRateLimitsAmount = () => {
+          const amount = _.sumBy(item?.map, (mapEntry: SecurityPolicyEntryMatch) => {
+            return mapEntry.limit_ids.length
+          })
+          return `Rate Limit: ${amount} total`
+        }
+        const getActiveACLs = () => {
+          const active = item?.map?.filter((mapEntry: SecurityPolicyEntryMatch) => {
+            return mapEntry.acl_active
+          }).length
+          const total = item?.map?.length
+          return `ACL: ${active} out of ${total} active`
+        }
+        const getActiveContentFilters = () => {
+          const active = item?.map?.filter((mapEntry: SecurityPolicyEntryMatch) => {
+            return mapEntry.acl_active
+          }).length
+          const total = item?.map?.length
+          return `Content Filter: ${active} out of ${total} active`
+        }
+        return [
+          getActiveContentFilters(),
+          getActiveACLs(),
+          getRateLimitsAmount(),
+        ].join('\n')
       },
-      classes: 'width-180px',
+      classes: 'width-200px white-space-pre ellipsis',
     },
   ],
   'ratelimits': [
@@ -250,6 +264,16 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       classes: 'ellipsis',
     },
     {
+      title: 'Status Code',
+      fieldNames: ['params'],
+      displayFunction: (item: CustomResponse) => {
+        return item?.params?.status.toString() || ''
+      },
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-100px white-space-pre ellipsis',
+    },
+    {
       title: 'Tags',
       fieldNames: ['tags'],
       displayFunction: (item: CustomResponse) => {
@@ -299,11 +323,11 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       title: 'Restrict Content Type',
       fieldNames: ['content_type'],
       displayFunction: (item: ContentFilterProfile) => {
-        return item['content_type']?.join(', ')
+        return item['content_type']?.join('\n')
       },
       isSortable: true,
       isSearchable: true,
-      classes: 'width-150px',
+      classes: 'width-150px white-space-pre ellipsis',
     },
     {
       title: 'Decoding',
@@ -366,7 +390,7 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       title: 'Tags',
       fieldNames: ['tags'],
       displayFunction: (item: ContentFilterRule) => {
-        return item?.tags?.join(', ')
+        return item?.tags?.join('\n')
       },
       isSortable: true,
       isSearchable: true,
@@ -391,7 +415,7 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
     {
       title: 'Phase',
       fieldNames: ['phase'],
-      displayFunction: (item: CloudFunction) => {
+      displayFunction: (item: EdgeFunction) => {
         const titles = DatasetsUtils.titles
         return titles[item.phase]
       },

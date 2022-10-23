@@ -225,9 +225,12 @@ describe('RequestsUtils.ts', () => {
   }
 
   const sendRequestBaseUrl = `${RequestsUtils.confAPIRoot}/${RequestsUtils.confAPIVersion}/`
-  const sendRequestUrlTrail = 'configs/master/'
+  const sendRequestUrlTrail = 'configs/prod/'
   const sendReblazeRequestBaseUrl = `${RequestsUtils.reblazeAPIRoot}/${RequestsUtils.reblazeAPIVersion}/reblaze/`
   const sendReblazeRequestUrlTrail = 'config/planet/'
+  const sendDataLayerRequestBaseUrl = `${RequestsUtils.dataLayerAPIRoot}/${RequestsUtils.dataLayerAPIVersion}/`
+  const sendDataLayerRequestUrlTrail = 'metrics'
   buildFuncDescribe(RequestsUtils.sendRequest, sendRequestBaseUrl, sendRequestUrlTrail)
   buildFuncDescribe(RequestsUtils.sendReblazeRequest, sendReblazeRequestBaseUrl, sendReblazeRequestUrlTrail)
+  buildFuncDescribe(RequestsUtils.sendDataLayerRequest, sendDataLayerRequestBaseUrl, sendDataLayerRequestUrlTrail)
 })

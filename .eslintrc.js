@@ -1,5 +1,3 @@
-const { mdiShoppingMusic } = require("@mdi/js");
-
 module.exports = {
   'root': true,
   'env': {
@@ -52,5 +50,6 @@ module.exports = {
     'space-in-parens': [2, 'never'],
     'array-bracket-spacing': [2, 'never'],
     'computed-property-spacing': [2, 'never'],
+    'no-undef': 'off',
   },
 }

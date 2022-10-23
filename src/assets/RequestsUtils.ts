@@ -106,5 +106,4 @@ export default {
   sendDataLayerRequest,
   dataLayerAPIRoot,
   dataLayerAPIVersion,
-
 }

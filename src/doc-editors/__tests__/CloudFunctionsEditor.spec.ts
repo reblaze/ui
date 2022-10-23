@@ -1,32 +1,32 @@
 // @ts-nocheck
-import CloudFunctionsEditor from '@/doc-editors/CloudFunctionsEditor.vue'
+import EdgeFunctionsEditor from '@/doc-editors/EdgeFunctionsEditor.vue'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {mount, VueWrapper} from '@vue/test-utils'
-import {CloudFunction, SecurityPolicy} from '@/types'
+import {EdgeFunction, SecurityPolicy} from '@/types'
 import axios from 'axios'
 
 jest.mock('axios')
 
-describe('CloudFunctionsEditor.vue', () => {
+describe('EdgeFunctionsEditor.vue', () => {
   let securityPoliciesDocs: SecurityPolicy[]
-  let cloudFunctionsDocs: CloudFunction[]
+  let edgeFunctionsDocs: EdgeFunction[]
   let mockRouter: any
   let wrapper: VueWrapper
   beforeEach(() => {
-    cloudFunctionsDocs = [{
+    edgeFunctionsDocs = [{
       'id': 'f971e92459e2',
-      'name': 'New Cloud Functions',
+      'name': 'New Edge Functions',
       'description': '5 requests per minute',
-      'phase': 'request1',
+      'phase': 'request',
       'code': `-- begin custom code
       --custom response header
       ngx.header['foo'] = 'bar'`,
     },
     {
       'id': 'f123456789',
-      'name': 'New Cloud Function',
+      'name': 'New Edge Function',
       'description': '2 requests per minute',
-      'phase': 'response1',
+      'phase': 'response',
       'code': `-- begin custom code
       --custom response header
       ngx.header['foo'] = 'bar'`,
@@ -40,7 +40,7 @@ describe('CloudFunctionsEditor.vue', () => {
           {
             'name': 'default',
             'match': '/',
-            'acl_profile': '__default__',
+            'acl_profile': '__acldefault__',
             'acl_active': false,
             'content_filter_profile': '__default__',
             'content_filter_active': false,
@@ -65,7 +65,7 @@ describe('CloudFunctionsEditor.vue', () => {
           {
             'name': 'default',
             'match': '/',
-            'acl_profile': '__default__',
+            'acl_profile': '__acldefault__',
             'acl_active': false,
             'content_filter_profile': '__default__',
             'content_filter_active': false,
@@ -83,7 +83,7 @@ describe('CloudFunctionsEditor.vue', () => {
         ],
       },
     ]
-    const selectedBranch = 'master'
+    const selectedBranch = 'prod'
     jest.spyOn(axios, 'get').mockImplementation((path) => {
       if (path === `/conf/api/v3/configs/${selectedBranch}/d/securitypolicies/`) {
         return Promise.resolve({data: securityPoliciesDocs})
@@ -93,12 +93,12 @@ describe('CloudFunctionsEditor.vue', () => {
     mockRouter = {
       push: jest.fn(),
     }
-    const onUpdate = async (selectedDoc: CloudFunctions) => {
+    const onUpdate = async (selectedDoc: EdgeFunctions) => {
       await wrapper.setProps({selectedDoc})
     }
-    wrapper = mount(CloudFunctionsEditor, {
+    wrapper = mount(EdgeFunctionsEditor, {
       props: {
-        'selectedDoc': cloudFunctionsDocs[0],
+        'selectedDoc': edgeFunctionsDocs[0],
         'selectedBranch': selectedBranch,
         'onUpdate:selectedDoc': onUpdate,
       },
@@ -117,22 +117,22 @@ describe('CloudFunctionsEditor.vue', () => {
     })
 
     test('should have correct ID displayed', () => {
-      expect(wrapper.find('.document-id').text()).toEqual(cloudFunctionsDocs[0].id)
+      expect(wrapper.find('.document-id').text()).toEqual(edgeFunctionsDocs[0].id)
     })
 
     test('should have correct name in input', () => {
       const element = wrapper.find('.document-name').element as HTMLInputElement
-      expect(element.value).toEqual(cloudFunctionsDocs[0].name)
+      expect(element.value).toEqual(edgeFunctionsDocs[0].name)
     })
 
     test('should have correct description in input', () => {
       const element = wrapper.find('.document-description').element as HTMLInputElement
-      expect(element.value).toEqual(cloudFunctionsDocs[0].description)
+      expect(element.value).toEqual(edgeFunctionsDocs[0].description)
     })
 
     test('should have correct phase in dropdown', () => {
       const element = wrapper.find('.phase-selection').element as HTMLInputElement
-      expect(element.value).toEqual(cloudFunctionsDocs[0].phase)
+      expect(element.value).toEqual(edgeFunctionsDocs[0].phase)
     })
 
     test('should emit correct data after input was changed', async () => {
