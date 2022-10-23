@@ -19,7 +19,7 @@ describe('ACLEditor.vue', () => {
         'id': '__acldefault__',
         'name': 'default-acl',
         'description': 'New ACL Profile Description and Remarks',
-        'action': 'monitor',
+        'action': 'action-acl-block',
         'tags': ['test', 'tag'],
         'allow': [],
         'allow_bot': [
@@ -43,11 +43,7 @@ describe('ACLEditor.vue', () => {
     ]
     customResponsesDocs = [
       {
-        'id': 'default',
-        'name': 'default blocking action',
-      },
-      {
-        'id': 'monitor',
+        'id': 'action-acl-block',
         'name': 'default monitoring action',
       },
     ]

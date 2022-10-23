@@ -117,7 +117,7 @@
 
 <script lang="ts">
 import _ from 'lodash'
-import RequestsUtils from '@/assets/RequestsUtils'
+import RequestsUtils, {IRequestParams} from '@/assets/RequestsUtils'
 import {mdiBucket} from '@mdi/js'
 import {defineComponent} from 'vue'
 import {Commit} from '@/types'
@@ -126,7 +126,6 @@ import Utils from '@/assets/Utils'
 import DateTimeUtils from '@/assets/DateTimeUtils'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
-
 
 export default defineComponent({
   name: 'PublishChanges',
@@ -260,18 +259,27 @@ export default defineComponent({
 
       const failureMessage = 'Failed while attempting to publish branch ' +
           `"${this.selectedBranch}" version "${this.selectedCommit}".`
-      await RequestsUtils.sendRequest({
+      const publishRequestData: IRequestParams = {
         methodName: 'PUT',
         url: `tools/publish/${this.selectedBranch}/v/${this.selectedCommit}/`,
         data: this.buckets,
-        failureMessage,
-        onFail: () => {
-          this.isPublishLoading = false
-        },
-      }).then((response: AxiosResponse) => {
-        this.parsePublishResults(response?.data)
+      }
+      const response = await RequestsUtils.sendReblazeRequest(publishRequestData)
+      if (response && response.data) {
+        this.parsePublishResults(response.data)
         this.isPublishLoading = false
-      })
+      } else {
+        console.log(`Reblaze publish ${failureMessage}`)
+        console.log('Attempting publish using confserver')
+        publishRequestData.failureMessage = failureMessage
+        publishRequestData.onFail = () => {
+          this.isPublishLoading = false
+        }
+        RequestsUtils.sendRequest(publishRequestData).then((response: AxiosResponse) => {
+          this.parsePublishResults(response?.data)
+          this.isPublishLoading = false
+        })
+      }
     },
 
     parsePublishResults(data: any) {

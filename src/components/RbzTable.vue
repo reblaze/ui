@@ -6,7 +6,7 @@
       <thead>
       <tr class="header-row"
           v-if="tableTitle">
-        <th :colspan="columns.length"
+        <th :colspan="totalColumns"
             class="has-text-centered table-title">
           {{ tableTitle }}
         </th>
@@ -33,7 +33,7 @@
         </th>
         <th class="column-header width-45px is-relative has-text-centered"
             v-if="showMenuColumn">
-          <div class="dropdown is-block"
+          <div class="dropdown is-block is-right"
                :class="{'is-active': menuVisible}">
             <div class="dropdown-trigger">
               <button class="button is-size-7 menu-toggle-button is-block"
@@ -72,7 +72,7 @@
                     <i class="fas fa-plus"></i>
                   </span>
                   <span>
-                    Add
+                    New
                   </span>
                 </button>
               </div>
@@ -103,6 +103,8 @@
       <tbody>
       <tr v-for="row in slicedDataArrayDisplay"
           :key="row.id"
+          @click="rowClickable && rowClicked(row.id)"
+          :class="{'is-clickable': rowClickable}"
           class="data-row">
         <td v-for="(col, index) in columns"
             :key="index"
@@ -135,9 +137,22 @@
           </div>
         </td>
       </tr>
+      <tr v-if="!slicedDataArrayDisplay?.length">
+        <td :colspan="totalColumns"
+            class="has-text-centered table-no-data-message">
+          <div v-if="loading">
+            <button class="button is-outlined is-text is-small is-loading document-loading">
+              Loading
+            </button>
+          </div>
+          <div v-else>
+            No data found.
+          </div>
+        </td>
+      </tr>
       <tr v-if="totalPages > 1 && !useScroll"
           class="pagination-row">
-        <td :colspan="columns.length + 1">
+        <td :colspan="totalColumns">
           <div class="pagination is-small">
             <button class="pagination-previous"
                     @click="prevPage"
@@ -172,6 +187,7 @@ export default defineComponent({
     showMenuColumn: Boolean,
     showFilterButton: Boolean,
     showNewButton: Boolean,
+    rowClickable: Boolean,
     showRowButton: Boolean,
     rowButtonTitle: String,
     rowButtonIcon: String,
@@ -181,6 +197,7 @@ export default defineComponent({
       default: 10,
     },
     useScroll: Boolean,
+    loading: Boolean,
   },
   watch: {
     columns: {
@@ -201,6 +218,8 @@ export default defineComponent({
             this.sortDirection = this.defaultSortColumnDirection
           }
           this.filter = {}
+          this.filtersVisible = false
+          this.currentPage = 1
         }
       },
       immediate: true,
@@ -224,15 +243,12 @@ export default defineComponent({
 
       // Pagination
       currentPage: 1,
-
-      // Loading indicator
-      loadingCounter: 0,
     }
   },
-  emits: ['new-button-clicked', 'row-button-clicked'],
+  emits: ['new-button-clicked', 'row-button-clicked', 'row-clicked'],
   computed: {
     dataArrayDisplay() {
-      if (!this.data?.length) {
+      if (!this.data?.length || !Array.isArray(this.data)) {
         return []
       }
       const sortModifier = this.sortDirection === 'asc' ? 1 : -1
@@ -299,8 +315,13 @@ export default defineComponent({
       return this.dataArrayDisplay.slice(sliceStart, sliceEnd)
     },
 
-    totalPages() {
+    totalPages(): number {
       return Math.ceil(this.dataArrayDisplay.length / this.rowsPerPage) || 1
+    },
+
+    totalColumns(): number {
+      const extraColumns = this.showMenuColumn ? 1 : 0
+      return this.columns.length + extraColumns
     },
   },
   methods: {
@@ -310,6 +331,10 @@ export default defineComponent({
 
     rowButtonClicked(id: string) {
       this.$emit('row-button-clicked', id)
+    },
+
+    rowClicked(id: string) {
+      this.$emit('row-clicked', id)
     },
 
     sortColumn(column: ColumnOptions) {
@@ -428,6 +453,10 @@ export default defineComponent({
 .rbz-table .menu-toggle-button {
   background: transparent;
   border-color: transparent;
+}
+
+.rbz-table .dropdown-menu {
+  min-width: 0;
 }
 
 .rbz-table .menu-toggle-button:focus {

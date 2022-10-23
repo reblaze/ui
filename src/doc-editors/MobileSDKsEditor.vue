@@ -11,20 +11,12 @@
                         @click="redirectToList()"
                         title="Return to list"
                         data-qa="redirect-to-list">
-                        <span class="icon is-small">
-                          <i class="fas fa-arrow-left"></i>
-                        </span>
-                </button>
-              </p>
-              <p class="control">
-                <button class="button is-small download-doc-button"
-                        :class="{'is-loading':isDownloadLoading}"
-                        @click="downloadDoc()"
-                        title="Download document"
-                        data-qa="download-document">
-                    <span class="icon is-small">
-                      <i class="fas fa-download"></i>
-                    </span>
+                  <span class="icon is-small">
+                    <i class="fas fa-arrow-left"></i>
+                  </span>
+                  <span>
+                    Return To List
+                  </span>
                 </button>
               </p>
             </div>
@@ -32,14 +24,31 @@
           <div class="column">
             <div class="field is-grouped is-pulled-right">
               <p class="control">
+                <button class="button is-small download-doc-button"
+                        :class="{'is-loading':isDownloadLoading}"
+                        @click="downloadDoc()"
+                        title="Download document"
+                        data-qa="download-document">
+                  <span class="icon is-small">
+                    <i class="fas fa-download"></i>
+                  </span>
+                  <span>
+                    Download
+                  </span>
+                </button>
+              </p>
+              <p class="control">
                 <button class="button is-small save-document-button"
                         :class="{'is-loading': isSaveLoading}"
                         title="Save changes"
                         data-qa="save-changes"
                         @click="saveChanges()">
-                    <span class="icon is-small">
-                      <i class="fas fa-save"></i>
-                    </span>
+                  <span class="icon is-small">
+                    <i class="fas fa-save"></i>
+                  </span>
+                  <span>
+                    Save
+                  </span>
                 </button>
               </p>
               <p class="control">
@@ -49,9 +58,12 @@
                         :class="{'is-loading': isDeleteLoading}"
                         :disabled="selectedMobileSDK?.id === '__default__'"
                         @click="deleteDoc()">
-                    <span class="icon is-small">
-                      <i class="fas fa-trash"></i>
-                    </span>
+                  <span class="icon is-small">
+                    <i class="fas fa-trash"></i>
+                  </span>
+                  <span>
+                    Delete
+                  </span>
                 </button>
               </p>
             </div>
@@ -326,7 +338,7 @@
               </table>
             </div>
           </div>
-          <span class="is-family-monospace has-text-grey-lighter">{{ documentAPIPath }}</span>
+          <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ documentAPIPath }}</span>
         </div>
       </div>
     </div>

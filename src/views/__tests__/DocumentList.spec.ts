@@ -1015,7 +1015,7 @@ describe.skip('DocumentList.vue', () => {
       setImmediate(() => {
         const noDataMessage: DOMWrapper = wrapper.find('.no-data-message')
         expect(noDataMessage.exists()).toBeTruthy()
-        expect(noDataMessage.text().toLowerCase()).toContain('no data found!')
+        expect(noDataMessage.text().toLowerCase()).toContain('no data found.')
         done()
       })
     })

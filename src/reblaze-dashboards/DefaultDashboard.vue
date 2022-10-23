@@ -122,6 +122,7 @@
                    :default-sort-column-index="1"
                    :use-scroll="true"
                    :rows-per-page="5"
+                   :loading="loading"
                    default-sort-column-direction="desc"
                    table-title="TOP TARGETED SERVICES/APPS">
         </rbz-table>
@@ -132,6 +133,7 @@
                    :default-sort-column-index="1"
                    :use-scroll="true"
                    :rows-per-page="5"
+                   :loading="loading"
                    default-sort-column-direction="desc"
                    table-title="TOP TARGETED URLs">
         </rbz-table>
@@ -142,6 +144,7 @@
                    :default-sort-column-index="1"
                    :use-scroll="true"
                    :rows-per-page="5"
+                   :loading="loading"
                    default-sort-column-direction="desc"
                    table-title="TOP TARGETED RTCs">
         </rbz-table>
@@ -155,6 +158,7 @@
                    :default-sort-column-index="1"
                    :use-scroll="true"
                    :rows-per-page="5"
+                   :loading="loading"
                    default-sort-column-direction="desc"
                    table-title="TOP COUNTRIES">
         </rbz-table>
@@ -165,6 +169,7 @@
                    :default-sort-column-index="1"
                    :use-scroll="true"
                    :rows-per-page="5"
+                   :loading="loading"
                    default-sort-column-direction="desc"
                    table-title="TOP AS NUMBERS">
         </rbz-table>
@@ -175,6 +180,7 @@
                    :default-sort-column-index="1"
                    :use-scroll="true"
                    :rows-per-page="5"
+                   :loading="loading"
                    default-sort-column-direction="desc"
                    table-title="TOP IP ADDRESSES">
         </rbz-table>
@@ -188,6 +194,7 @@
                    :default-sort-column-index="1"
                    :use-scroll="true"
                    :rows-per-page="5"
+                   :loading="loading"
                    default-sort-column-direction="desc"
                    table-title="TOP RATE LIMITS">
         </rbz-table>
@@ -198,6 +205,7 @@
                    :default-sort-column-index="1"
                    :use-scroll="true"
                    :rows-per-page="5"
+                   :loading="loading"
                    default-sort-column-direction="desc"
                    table-title="TOP ACLs">
         </rbz-table>
@@ -208,6 +216,7 @@
                    :default-sort-column-index="1"
                    :use-scroll="true"
                    :rows-per-page="5"
+                   :loading="loading"
                    default-sort-column-direction="desc"
                    table-title="TOP CONTENT FILTERS">
         </rbz-table>
@@ -221,6 +230,7 @@
                    :default-sort-column-index="1"
                    :use-scroll="true"
                    :rows-per-page="5"
+                   :loading="loading"
                    default-sort-column-direction="desc"
                    table-title="TOP USER AGENT">
         </rbz-table>
@@ -231,6 +241,7 @@
                    :default-sort-column-index="1"
                    :use-scroll="true"
                    :rows-per-page="5"
+                   :loading="loading"
                    default-sort-column-direction="desc"
                    table-title="TOP TAGS">
         </rbz-table>
@@ -272,6 +283,7 @@ export default defineComponent({
   },
   props: {
     data: Array as PropType<GenericObject[]>,
+    loading: Boolean,
   },
   data() {
     const topTableColumns: ColumnOptions[] = [

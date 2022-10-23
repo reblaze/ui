@@ -15,6 +15,9 @@
                         <span class="icon is-small">
                           <i class="fas fa-code-branch"></i>
                         </span>
+                        <span>
+                          Fork
+                        </span>
                       </button>
                     </span>
                     <span class="control is-expanded"
@@ -57,9 +60,12 @@
                         @click="downloadBranch()"
                         data-qa="download-branch-btn"
                         title="Download branch">
-                    <span class="icon is-small">
-                      <i class="fas fa-download"></i>
-                    </span>
+                  <span class="icon is-small">
+                    <i class="fas fa-download"></i>
+                  </span>
+                  <span>
+                    Download
+                  </span>
                 </button>
               </p>
 
@@ -68,9 +74,14 @@
                     <span class="control">
                       <button class="button is-small has-text-danger delete-branch-toggle"
                               data-qa="delete-branch-btn"
-                              @click="toggleBranchDelete()">
+                              @click="toggleBranchDelete()"
+                              :disabled="isSelectedBranchProtected"
+                              :title="isSelectedBranchProtected ? 'Protected branch cannot be deleted' : ''">
                         <span class="icon is-small">
                           <i class="fas fa-trash"></i>
+                        </span>
+                        <span>
+                          Delete
                         </span>
                       </button>
                     </span>
@@ -178,6 +189,10 @@ export default defineComponent({
     isSelectedBranchDeleteNameValid(): boolean {
       const newName = this.deleteBranchName.trim()
       return newName === this.selectedBranch
+    },
+
+    isSelectedBranchProtected(): boolean {
+      return ['prod', 'stage'].includes(this.selectedBranch.toLowerCase())
     },
 
     selectedBranch(): string {

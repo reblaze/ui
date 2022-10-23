@@ -378,7 +378,7 @@
           </tbody>
         </table>
       </div>
-      <span class="is-family-monospace has-text-grey-lighter">{{ apiPath }}</span>
+      <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ apiPath }}</span>
     </div>
   </div>
 </template>

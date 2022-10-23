@@ -10,20 +10,12 @@
                         @click="redirectToList()"
                         title="Return to list"
                         data-qa="redirect-to-list">
-                        <span class="icon is-small">
-                          <i class="fas fa-arrow-left"></i>
-                        </span>
-                </button>
-              </p>
-              <p class="control">
-                <button class="button is-small download-doc-button"
-                        :class="{'is-loading':isDownloadLoading}"
-                        @click="downloadDoc()"
-                        title="Download document"
-                        data-qa="download-document">
-                        <span class="icon is-small">
-                          <i class="fas fa-download"></i>
-                        </span>
+                  <span class="icon is-small">
+                    <i class="fas fa-arrow-left"></i>
+                  </span>
+                  <span>
+                    Return To List
+                  </span>
                 </button>
               </p>
             </div>
@@ -31,14 +23,31 @@
           <div class="column">
             <div class="field is-grouped is-pulled-right">
               <p class="control">
+                <button class="button is-small download-doc-button"
+                        :class="{'is-loading':isDownloadLoading}"
+                        @click="downloadDoc()"
+                        title="Download document"
+                        data-qa="download-document">
+                  <span class="icon is-small">
+                    <i class="fas fa-download"></i>
+                  </span>
+                  <span>
+                    Download
+                  </span>
+                </button>
+              </p>
+              <p class="control">
                 <button class="button is-small save-document-button"
                         :class="{'is-loading': isSaveLoading}"
                         title="Save changes"
                         data-qa="save-changes"
                         @click="saveChanges()">
-                      <span class="icon is-small">
-                        <i class="fas fa-save"></i>
-                      </span>
+                  <span class="icon is-small">
+                    <i class="fas fa-save"></i>
+                  </span>
+                  <span>
+                    Save
+                  </span>
                 </button>
               </p>
               <p class="control">
@@ -46,11 +55,14 @@
                         title="Delete document"
                         data-qa="delete-document"
                         :class="{'is-loading': isDeleteLoading}"
-                        :disabled="selectedProxyTemplate?.id === '__default__'"
+                        :disabled="selectedConfigTemplate?.id === '__default__'"
                         @click="deleteDoc()">
-                      <span class="icon is-small">
-                        <i class="fas fa-trash"></i>
-                      </span>
+                  <span class="icon is-small">
+                    <i class="fas fa-trash"></i>
+                  </span>
+                  <span>
+                    Delete
+                  </span>
                 </button>
               </p>
             </div>
@@ -62,7 +74,7 @@
     <div class="card">
       <div class="card-content">
         <div class="content"
-             v-if="selectedProxyTemplate">
+             v-if="selectedConfigTemplate">
           <div class="columns">
             <div class="column is-4">
               <div class="field">
@@ -70,14 +82,14 @@
                   Name
                   <span class="has-text-grey is-pulled-right document-id"
                         title="Rule id">
-                      {{ selectedProxyTemplate.id }}
+                      {{ selectedConfigTemplate.id }}
                     </span>
                 </label>
                 <div class="control">
                   <input class="input is-small document-name"
                          title="Document name"
                          placeholder="Document name"
-                         v-model="selectedProxyTemplate.name"/>
+                         v-model="selectedConfigTemplate.name"/>
                 </div>
               </div>
               <div class="field">
@@ -87,7 +99,7 @@
                       <textarea class="is-small textarea document-description"
                                 data-qa="description-input"
                                 title="Document description"
-                                v-model="selectedProxyTemplate.description"
+                                v-model="selectedConfigTemplate.description"
                                 rows="5">
                       </textarea>
                   </div>
@@ -123,7 +135,7 @@
                         <input class="input is-small document-ip-header-name"
                                title="Client IP header name"
                                placeholder="Client IP header name"
-                               v-model="selectedProxyTemplate.xff_header_name">
+                               v-model="selectedConfigTemplate.xff_header_name">
                       </div>
                       <div class="help">
                         The header name which Reblaze will use to extract the client's IP address
@@ -137,7 +149,7 @@
                         <input class="input is-small document-limit-req-rate"
                                title="Requests per second per IP address"
                                placeholder="Requests per second per IP address"
-                               v-model="selectedProxyTemplate.limit_req_rate">
+                               v-model="selectedConfigTemplate.limit_req_rate">
                       </div>
                       <div class="help">
                         Static rate limiting for each IP address: the requests per second per IP address for this
@@ -155,7 +167,7 @@
                         <input class="input is-small document-client-body-timeout"
                                title="Client body timeout"
                                placeholder="Client body timeout"
-                               v-model="selectedProxyTemplate.client_body_timeout">
+                               v-model="selectedConfigTemplate.client_body_timeout">
                       </div>
                       <div class="help">
                         Defines a timeout for reading client request body, for a period between two successive read
@@ -174,7 +186,7 @@
                         <input class="input is-small document-client-header-timeout"
                                title="Client header timeout"
                                placeholder="Client header timeout"
-                               v-model="selectedProxyTemplate.client_header_timeout">
+                               v-model="selectedConfigTemplate.client_header_timeout">
                       </div>
                       <div class="help">
                         Defines a timeout for reading client request header. If a client does not transmit the entire
@@ -196,7 +208,7 @@
                         <input class="input is-small document-client-max-body-size"
                                title="Client max body size"
                                placeholder="Client max body size"
-                               v-model="selectedProxyTemplate.client_max_body_size">
+                               v-model="selectedConfigTemplate.client_max_body_size">
                       </div>
                       <div class="help">
                         Sets the maximum allowed size of the client request body, based on “Content-Length” request
@@ -216,7 +228,7 @@
                         <input class="input is-small document-limit-req-burst"
                                title="Burst of requests per second per IP address"
                                placeholder="Burst of requests per second per IP address"
-                               v-model="selectedProxyTemplate.limit_req_burst">
+                               v-model="selectedConfigTemplate.limit_req_burst">
                       </div>
                       <div class="help">
                         The burst parameter defines how many requests a client can make in excess of the rate
@@ -236,7 +248,7 @@
                         <input class="input is-small document-keepalive-timeout"
                                title="Keepalive timeout"
                                placeholder="Keepalive timeout"
-                               v-model="selectedProxyTemplate.keepalive_timeout">
+                               v-model="selectedConfigTemplate.keepalive_timeout">
                       </div>
                       <div class="help">
                         Defines a timeout during which a keep-alive client connection will stay open on the server
@@ -256,7 +268,7 @@
                         <input class="input is-small document-send-timeout"
                                title="Send timeout"
                                placeholder="Send timeout"
-                               v-model="selectedProxyTemplate.send_timeout">
+                               v-model="selectedConfigTemplate.send_timeout">
                       </div>
                       <div class="help">
                         Defines a timeout for transmitting a response to the client between two successive write
@@ -301,7 +313,7 @@
                         <input class="input is-small document-proxy-connect-timeout"
                                title="Proxy connect timeout"
                                placeholder="Proxy connect timeout"
-                               v-model="selectedProxyTemplate.proxy_connect_timeout">
+                               v-model="selectedConfigTemplate.proxy_connect_timeout">
                       </div>
                       <div class="help">
                         Defines a timeout for establishing a connection with a proxied server. It should be noted that
@@ -320,7 +332,7 @@
                         <input class="input is-small document-proxy-sen-timeout"
                                title="Proxy send timeout"
                                placeholder="Proxy send timeout"
-                               v-model="selectedProxyTemplate.proxy_send_timeout">
+                               v-model="selectedConfigTemplate.proxy_send_timeout">
                       </div>
                       <div class="help">
                         Sets a timeout for transmitting a request to the proxied server. The timeout is set only
@@ -340,7 +352,7 @@
                         <input class="input is-small document-proxy-read-timeout"
                                title="Proxy read timeout"
                                placeholder="Proxy read timeout"
-                               v-model="selectedProxyTemplate.proxy_read_timeout">
+                               v-model="selectedConfigTemplate.proxy_read_timeout">
                       </div>
                       <div class="help">
                         Defines a timeout for reading a response from the proxied server. The timeout is set only
@@ -362,7 +374,7 @@
                         <input class="input is-small document-upstream-host"
                                title="Backend service host header"
                                placeholder="Backend service host header"
-                               v-model="selectedProxyTemplate.upstream_host">
+                               v-model="selectedConfigTemplate.upstream_host">
                       </div>
                       <div class="help">
                         The Host header Reblaze will present to the backend service.<br/>Setting value to $host means
@@ -377,7 +389,7 @@
                         <input class="input is-small document-real-ip-header-name"
                                title="Real IP header name"
                                placeholder="Real IP header name"
-                               v-model="selectedProxyTemplate.xrealip_header_name">
+                               v-model="selectedConfigTemplate.xrealip_header_name">
                       </div>
                       <div class="help">
                         The Host header Reblaze will present to the backend service.<br/>X-Real-IP is the default
@@ -389,7 +401,7 @@
               </div>
             </div>
           </div>
-          <span class="is-family-monospace has-text-grey-lighter">{{ documentAPIPath }}</span>
+          <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ documentAPIPath }}</span>
         </div>
       </div>
     </div>
@@ -397,7 +409,7 @@
 </template>
 <script lang="ts">
 import RequestsUtils from '@/assets/RequestsUtils'
-import {ProxyTemplate} from '@/types'
+import {ConfigTemplate} from '@/types'
 import Utils from '@/assets/Utils'
 import {defineComponent} from 'vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
@@ -405,11 +417,11 @@ import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
 
 export default defineComponent({
-  name: 'ProxyTemplateEditor',
+  name: 'ConfigTemplateEditor',
   data() {
     return {
       titles: DatasetsUtils.titles,
-      selectedProxyTemplate: null as ProxyTemplate,
+      selectedConfigTemplate: null as ConfigTemplate,
       docIdFromRoute: '',
 
       // Collapsible cards
@@ -429,7 +441,7 @@ export default defineComponent({
   watch: {
     selectedBranch: {
       handler: function(val, oldVal) {
-        if ((this.$route.name as string).includes('ProxyTemplates/config') && val && val !== oldVal) {
+        if ((this.$route.name as string).includes('ConfigTemplates/config') && val && val !== oldVal) {
           this.setSelectedDataFromRouteParams()
         }
       },
@@ -439,7 +451,8 @@ export default defineComponent({
   computed: {
     documentAPIPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
-      return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/proxy-templates/e/${this.selectedProxyTemplate.id}/`
+      const apiPath = `configs/${this.selectedBranch}/d/proxy-templates/e/${this.selectedConfigTemplate.id}/`
+      return `${apiPrefix}/reblaze/${apiPath}`
     },
 
     selectedBranch(): string {
@@ -452,11 +465,11 @@ export default defineComponent({
     async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
       this.docIdFromRoute = this.$route.params?.doc_id?.toString()
-      await this.loadProxyTemplate()
+      await this.loadConfigTemplate()
     },
 
     redirectToList() {
-      this.$router.push(`/${this.selectedBranch}/proxy-templates/list`)
+      this.$router.push(`/${this.selectedBranch}/config-templates/list`)
     },
 
     setLoadingDocStatus(isLoading: boolean) {
@@ -470,23 +483,23 @@ export default defineComponent({
     async switchBranch() {
       this.setLoadingDocStatus(true)
       Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
-      await this.loadProxyTemplate()
+      await this.loadConfigTemplate()
       this.setLoadingDocStatus(false)
     },
 
     downloadDoc() {
       if (!this.isDownloadLoading) {
-        Utils.downloadFile('proxy-template', 'json', this.selectedProxyTemplate)
+        Utils.downloadFile(this.titles['proxy-templates-singular'], 'json', this.selectedConfigTemplate)
       }
     },
 
     async deleteDoc() {
       this.setLoadingDocStatus(true)
       this.isDeleteLoading = true
-      const proxyTemplateText = this.titles['proxy-templates-singular']
-      const url = `configs/${this.selectedBranch}/d/proxy-templates/e/${this.selectedProxyTemplate.id}/`
-      const successMessage = `The ${proxyTemplateText} was deleted.`
-      const failureMessage = `Failed while attempting to delete the ${proxyTemplateText}.`
+      const configTemplateText = this.titles['proxy-templates-singular']
+      const url = `configs/${this.selectedBranch}/d/proxy-templates/e/${this.selectedConfigTemplate.id}/`
+      const successMessage = `The ${configTemplateText} was deleted.`
+      const failureMessage = `Failed while attempting to delete the ${configTemplateText}.`
       await RequestsUtils.sendReblazeRequest({
         methodName: 'DELETE',
         url: url,
@@ -501,27 +514,27 @@ export default defineComponent({
     async saveChanges() {
       this.isSaveLoading = true
       const methodName = 'PUT'
-      const url = `configs/${this.selectedBranch}/d/proxy-templates/e/${this.selectedProxyTemplate.id}/`
-      const data = this.selectedProxyTemplate
-      const proxyTemplateText = this.titles['proxy-templates-singular']
-      const successMessage = `Changes to the ${proxyTemplateText} were saved.`
-      const failureMessage = `Failed while attempting to save the changes to the ${proxyTemplateText}.`
+      const url = `configs/${this.selectedBranch}/d/proxy-templates/e/${this.selectedConfigTemplate.id}/`
+      const data = this.selectedConfigTemplate
+      const configTemplateText = this.titles['proxy-templates-singular']
+      const successMessage = `Changes to the ${configTemplateText} were saved.`
+      const failureMessage = `Failed while attempting to save the changes to the ${configTemplateText}.`
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
       this.isSaveLoading = false
     },
 
-    async loadProxyTemplate() {
+    async loadConfigTemplate() {
       this.isDownloadLoading = true
       const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/proxy-templates/e/${this.docIdFromRoute}`,
         onFail: () => {
-          console.log('Error while attempting to load the Proxy Template')
-          this.selectedProxyTemplate = null
+          console.log(`Error while attempting to load the ${this.titles['proxy-template-singular']}`)
+          this.selectedConfigTemplate = null
           this.isDownloadLoading = false
         },
       })
-      this.selectedProxyTemplate = response?.data || {}
+      this.selectedConfigTemplate = response?.data || {}
       this.isDownloadLoading = false
     },
   },

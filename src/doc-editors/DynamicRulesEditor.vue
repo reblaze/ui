@@ -94,7 +94,7 @@
           </div>
           <div class="field">
             <label class="label is-small">
-              Action
+              Custom Response
             </label>
             <div class="control is-expanded">
               <div class="select is-fullwidth is-small">
@@ -102,7 +102,7 @@
                         @change="emitDocUpdate"
                         data-qa="action-dropdown"
                         class="document-action-selection"
-                        title="Action">
+                        title="Custom Response">
                   <option v-for="customResponse in customResponseNames"
                           :value="customResponse[0]"
                           :key="customResponse[0]">
@@ -200,7 +200,7 @@
         </div>
       </div>
     </div>
-    <span class="is-family-monospace has-text-grey-lighter">{{ apiPath }}</span>
+    <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ apiPath }}</span>
   </div>
 </template>
 <script lang="ts">

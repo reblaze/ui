@@ -20,9 +20,6 @@
                      v-model="localDoc.name"
                      :disabled="reblazeManaged || dynamicRuleManaged"/>
             </div>
-            <p class="subtitle is-7 has-text-grey entries-entries-display">
-              {{ sectionsEntriesDisplay }}
-            </p>
           </div>
           <div class="field">
             <label class="checkbox is-size-7">
@@ -35,31 +32,6 @@
                      v-model="localDoc.active">
               Active
             </label>
-          </div>
-          <div class="field">
-            <div class="control"
-                 v-if="editable">
-              <label class="label is-small">Sections Relation</label>
-              <div class="tags has-addons mb-0 document-entries-relation"
-                   tabindex="0"
-                   @keypress.space.prevent
-                   @keypress.space="toggleRuleRelation()"
-                   @keypress.enter="toggleRuleRelation()">
-                  <span class="tag pointer mb-0"
-                        data-qa="relation-toggle"
-                        :style="(reblazeManaged || dynamicRuleManaged) ? {cursor: 'not-allowed'} : {cursor: 'pointer'}"
-                        :class="localDoc.rule.relation === 'AND' ? 'is-info xis-light is-selected' : ''"
-                        @click="setRuleRelation('AND')">
-                    AND
-                  </span>
-                <span class="tag pointer mb-0"
-                      :style="(reblazeManaged || dynamicRuleManaged) ? {cursor: 'not-allowed'} : {cursor: 'pointer'}"
-                      :class="localDoc.rule.relation === 'OR' ? 'is-info xis-light is-selected' : ''"
-                      @click="setRuleRelation('OR')">
-                    OR
-                  </span>
-              </div>
-            </div>
           </div>
           <div class="field">
             <label class="label is-small">Tags</label>
@@ -102,7 +74,7 @@
           <div class="field">
             <div class="field">
               <label class="label is-small">
-                Action
+                Custom Response
               </label>
               <div class="control is-expanded">
                 <div class="select is-fullwidth is-small">
@@ -112,7 +84,7 @@
                           class="document-action-selection"
                           :defaultValue="localDoc.action"
                           :disabled="dynamicRuleManaged"
-                          title="Action">
+                          title="Custom Response">
                     <option v-for="customResponse in customResponseNames"
                             :value="customResponse[0]"
                             :key="customResponse[0]">
@@ -161,7 +133,7 @@
           </entries-relation-list>
         </div>
       </div>
-      <span class="is-family-monospace has-text-grey-lighter">{{ apiPath }}</span>
+      <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ apiPath }}</span>
     </div>
   </div>
 </template>
@@ -172,7 +144,7 @@ import RequestsUtils from '@/assets/RequestsUtils'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import EntriesRelationList from '@/components/EntriesRelationList.vue'
 import {defineComponent} from 'vue'
-import {Category, CustomResponse, GlobalFilter, GlobalFilterSection, GlobalFilterSectionEntry, Relation} from '@/types'
+import {Category, CustomResponse, GlobalFilter, GlobalFilterRule, GlobalFilterRuleEntry} from '@/types'
 import {AxiosResponse} from 'axios'
 import DateTimeUtils from '@/assets/DateTimeUtils'
 
@@ -210,13 +182,6 @@ export default defineComponent({
   },
 
   computed: {
-    sectionsEntriesDisplay(): string {
-      const sectionsCounter = (this.localDoc.rule?.entries?.length !== 1) ? 'sections' : 'section'
-      const entriesCounter = (this.localDocTotalEntries !== 1) ? 'entries' : 'entry'
-      const sectionsLength = this.localDoc.rule?.entries?.length
-      return `${sectionsLength} ${sectionsCounter}\t|\t${this.localDocTotalEntries} ${entriesCounter}`
-    },
-
     reblazeManaged(): boolean {
       return this.localDoc.source === 'reblaze-managed'
     },
@@ -258,16 +223,6 @@ export default defineComponent({
       return _.cloneDeep(this.selectedDoc as GlobalFilter)
     },
 
-    localDocTotalEntries(): number {
-      let totalEntries = 0
-      if (this.localDoc.rule?.entries?.length) {
-        totalEntries = _.sumBy(this.localDoc.rule.entries, (section: GlobalFilterSection) => {
-          return section.entries?.length || 0
-        })
-      }
-      return totalEntries
-    },
-
     formattedModifiedDate(): string {
       return this.localDoc.mdate ? DateTimeUtils.isoToNowCuriefenseFormat(this.localDoc.mdate) : 'N/A'
     },
@@ -289,29 +244,18 @@ export default defineComponent({
       this.$emit('form-invalid', isFormInvalid)
     },
 
-    setRuleRelation(relation: Relation) {
-      if (!this.dynamicRuleManaged) {
-        this.localDoc.rule.relation = relation
-        this.emitDocUpdate()
-      }
-    },
-
-    toggleRuleRelation(): void {
-      this.localDoc.rule.relation === 'AND' ? this.setRuleRelation('OR') : this.setRuleRelation('AND')
-    },
-
     removeAllEntries() {
       this.localDoc.rule.entries.splice(0, this.localDoc.rule.entries.length)
       this.$refs.entriesRelationList?.cancelAllEntries()
       this.emitDocUpdate()
     },
 
-    tryMatch(data: string, regex: RegExp, type: Category): GlobalFilterSectionEntry[] {
+    tryMatch(data: string, regex: RegExp, type: Category): GlobalFilterRuleEntry[] {
       let matches
       const entries = []
       matches = regex.exec(data)
       while (matches) {
-        const entry: GlobalFilterSectionEntry = [type, matches[1], null]
+        const entry: GlobalFilterRuleEntry = [type, matches[1], null]
         if (matches.length > 2 && matches.slice(-1)[0]) {
           entry[2] = (matches.slice(-1)[0]).slice(1, 128)
         }
@@ -328,7 +272,7 @@ export default defineComponent({
       const singleIP = /^((((\d{1,3})\.){3}\d{1,3}(\/\d{1,2})?)|([0-9a-f]+:+){1,8}([0-9a-f]+)?(\/\d{1,3})?)$/
       const singleASN = /(as\d{3,6})/i
       // try every node / element of String type with the regex.
-      const objectParser = (data: any, store: GlobalFilterSectionEntry[]) => {
+      const objectParser = (data: any, store: GlobalFilterRuleEntry[]) => {
         _.each(data, (item) => {
           if (_.isArray(item) && (item.length === 2 || item.length === 3)) {
             if (_.isString(item[0]) && (item[0].toLowerCase() === 'ip' || item[0].toLowerCase() === 'asn') &&
@@ -356,7 +300,7 @@ export default defineComponent({
         url: `tools/fetch?url=${url}`,
       }).then((response: AxiosResponse) => {
         const data = response.data
-        let entries: GlobalFilterSectionEntry[]
+        let entries: GlobalFilterRuleEntry[]
         const convertedData = data as GlobalFilter
         if (convertedData?.rule?.entries?.length) {
           this.localDoc.rule = convertedData.rule
@@ -372,7 +316,7 @@ export default defineComponent({
           objectParser(data, entries)
         }
         if (entries.length > 0) {
-          const newSection: GlobalFilterSection = {
+          const newSection: GlobalFilterRule = {
             relation: 'OR',
             entries: entries,
           }
