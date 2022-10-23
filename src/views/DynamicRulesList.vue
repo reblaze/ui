@@ -263,6 +263,7 @@ export default defineComponent({
   async created() {
     this.setLoadingDocStatus(true)
     await this.branchesStore.list
+    await this.loadDynamicRulesData()
     this.setLoadingDocStatus(false)
   },
 })
