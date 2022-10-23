@@ -305,7 +305,6 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'include': ['all'],
       'exclude': [],
       'ttl': 7200,
-      'tags': [],
       'target': 'remote_addr',
     }
   },

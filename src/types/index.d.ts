@@ -192,8 +192,22 @@ declare module CuriefenseClient {
     exclude: string[]
     include: string[]
     ttl: number,
-    tags: string[],
     target: DynamicRuleTargetOptionType
+  }
+
+  type DynamicRuleAndGlobalFilters = {
+    id: string
+    name: string
+    active: boolean
+    description: string
+    timeframe: number
+    threshold: number
+    exclude: string[]
+    include: string[]
+    ttl: number,
+    target: DynamicRuleTargetOptionType
+    action: string,
+    tags: string[],
   }
 
   type RateLimit = {

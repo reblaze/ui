@@ -26,7 +26,7 @@
         <div class="card-content">
           <div class="content">
             <rbz-table :columns="columns"
-                       :data="(selectedDocType === 'dynamic-rules') ? matchedDocsData : docs"
+                       :data="docs"
                        :show-menu-column="true"
                        :show-filter-button="true"
                        :show-new-button="true"
@@ -86,12 +86,11 @@ import CustomResponseEditor from '@/doc-editors/CustomResponseEditor.vue'
 import DynamicRulesEditor from '@/doc-editors/DynamicRulesEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {defineComponent, shallowRef} from 'vue'
-import {ColumnOptions, Document, DocumentType, DynamicRule, GenericObject, GlobalFilter} from '@/types'
+import {ColumnOptions, Document, DocumentType, GenericObject, GlobalFilter} from '@/types'
 import {COLUMN_OPTIONS_MAP} from './documentListConst'
 import RbzTable from '@/components/RbzTable.vue'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
-import {AxiosResponse} from 'axios'
 
 export default defineComponent({
   watch: {
@@ -242,22 +241,6 @@ export default defineComponent({
       })
 
       this.docs = response?.data || []
-      console.log('this.Docs1', this.docs)
-      if (this.selectedDocType === 'dynamic-rules') {
-        // bring Tags from GlobalFilters
-        this.matchedDocsData = this.docs.map((doc) => {
-          const url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${doc.id}/`
-          RequestsUtils.sendRequest({methodName: 'GET', url}).then((response: AxiosResponse) => {
-            const tagsArray = response.data.tags
-            doc.tags = tagsArray
-          })
-          console.log('doc', doc)
-          return doc
-          // return {...doc, tags: tagsArray}
-        })
-      }
-      console.log('this.Docs2', this.docs)
-      console.log('this.matchedDocsData', this.matchedDocsData)
       this.isDownloadLoading = false
     },
 
@@ -289,13 +272,11 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       this.isNewLoading = true
       const docToAdd = this.newDoc()
-      if (this.selectedDocType === 'dynamic-rules') {
-        docToAdd.name = docToAdd.name + ' ' + docToAdd.id
-      }
+
       const docTypeText = this.titles[this.selectedDocType + '-singular']
       const successMessage = `New ${docTypeText} was created.`
       const failureMessage = `Failed while attempting to create the new ${docTypeText}.`
-      let data = docToAdd
+      const data = docToAdd
       if (this.isReblazeDocument) {
         const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${docToAdd.id}`
         console.log('add new doc function', url, data, successMessage)
@@ -319,16 +300,6 @@ export default defineComponent({
         }).then(() => {
           this.editDoc(docToAdd.id)
         })
-      }
-
-      if (this.selectedDocType === 'dynamic-rules') {
-        const docMatchingGlobalFilter = DatasetsUtils.newDocEntryFactory['globalfilters']() as GlobalFilter
-        docMatchingGlobalFilter.id = `dr_${docToAdd.id}`
-        docMatchingGlobalFilter.active = (docToAdd as DynamicRule).active
-        docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule ' + docToAdd.id
-        data = docMatchingGlobalFilter
-        const url = `configs/${this.selectedBranch}/d/globalfilters/e/`
-        await RequestsUtils.sendRequest({methodName: 'POST', url, data})
       }
 
       this.isNewLoading = false
