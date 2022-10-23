@@ -691,6 +691,7 @@ type ContentFilterProfileType = {
   displayName: 'base64' | 'URL' | 'HTML' | 'Unicode'
 }
 
+
 export default defineComponent({
   name: 'ContentFilterEditor',
   components: {
