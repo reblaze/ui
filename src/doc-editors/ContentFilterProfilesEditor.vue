@@ -994,7 +994,7 @@ export default defineComponent({
     selectedDoc: {
       handler: function(value) {
         // adding necessary fields to all local doc sections if missing
-        const sections: ContentFilterProfileSectionType[] = ['args', 'cookies', 'headers', 'path']
+        const sections: ContentFilterProfileSectionType[] = ['args', 'cookies', 'headers', 'path', 'allsections']
         for (let i = 0; i < sections.length; i++) {
           if (!value[sections[i]]) {
             this.normalizeDocSections(sections[i])
