@@ -227,6 +227,7 @@
           <thead>
           <tr>
             <th></th>
+            <th class="has-text-centered">All</th>
             <th class="has-text-centered">Headers</th>
             <th class="has-text-centered">Cookies</th>
             <th class="has-text-centered">Arguments</th>
@@ -235,6 +236,15 @@
           <tbody>
           <tr>
             <td>Max Length</td>
+            <td>
+              <input required
+                     class="input is-small max-allsections-length-input"
+                     data-qa="max-allsections-length-input"
+                     type="number"
+                     @change="emitDocUpdate"
+                     title="Max length for all sections"
+                     v-model.number="localDoc.allsections.max_length"/>
+            </td>
             <td>
               <input required
                      class="input is-small max-header-length-input"
@@ -265,6 +275,15 @@
           </tr>
           <tr>
             <td>Max Count</td>
+            <td>
+              <input required
+                     class="input is-small max-allsections-count-input"
+                     data-qa="max-allsections-count-input"
+                     type="number"
+                     @change="emitDocUpdate"
+                     title="Max count for all sections"
+                     v-model.number="localDoc.allsections.max_count"/>
+            </td>
             <td>
               <input required
                      class="input is-small max-headers-count-input"
@@ -305,6 +324,17 @@
               <td>
                 <div class="tabs is-centered">
                   <ul>
+                        <li :class=" tab === 'allsections' ? 'is-active' : '' "
+                            class="allsections-tab"
+                            data-qa="allsections-tab-btn">
+                          <a tabindex="0"
+                             @click='tab="allsections"'
+                             @keypress.space.prevent
+                             @keypress.space='tab="allsections"'
+                             @keypress.enter='tab="allsections"'>
+                            All
+                          </a>
+                        </li>
                     <li :class=" tab === 'headers' ? 'is-active' : '' "
                         class="headers-tab"
                         data-qa="headers-tab-btn">
@@ -640,7 +670,6 @@ import _ from 'lodash'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import {defineComponent} from 'vue'
 import {
-  ArgsCookiesHeadersType,
   ContentFilterEntryMatch,
   ContentFilterProfile,
   ContentFilterProfileSection,
@@ -661,6 +690,7 @@ type ContentFilterProfileType = {
   value: keyof ContentFilterProfile['decoding'],
   displayName: 'base64' | 'URL' | 'HTML' | 'Unicode'
 }
+
 
 export default defineComponent({
   name: 'ContentFilterEditor',
@@ -701,8 +731,8 @@ export default defineComponent({
     return {
       sections: ['ignore', 'active', 'report'] as ContentFilterProfileTagLists[],
       addNewColName: null,
-      tab: 'args' as ArgsCookiesHeadersType,
-      newContentFilterLine: null as ArgsCookiesHeadersType,
+      tab: 'args' as ContentFilterProfileSectionType,
+      newContentFilterLine: null as ContentFilterProfileSectionType,
       newEntry: defaultNewEntry,
       titles: DatasetsUtils.titles,
       defaultNewEntry: defaultNewEntry,
@@ -829,7 +859,7 @@ export default defineComponent({
       this.$emit('update:selectedDoc', this.localDoc)
     },
 
-    openAddNewParameter(tab: ArgsCookiesHeadersType) {
+    openAddNewParameter(tab: ContentFilterProfileSectionType) {
       this.newContentFilterLine = tab
       this.newEntry = {...this.defaultNewEntry}
     },
@@ -855,7 +885,7 @@ export default defineComponent({
       return `${tab}-${type}-${idx}`
     },
 
-    deleteEntryRow(tab: ArgsCookiesHeadersType, type: NamesRegexType, index: number) {
+    deleteEntryRow(tab: ContentFilterProfileSectionType, type: NamesRegexType, index: number) {
       this.localDoc[tab][type].splice(index, 1)
       this.emitDocUpdate()
     },
@@ -964,7 +994,7 @@ export default defineComponent({
     selectedDoc: {
       handler: function(value) {
         // adding necessary fields to all local doc sections if missing
-        const sections: ContentFilterProfileSectionType[] = ['args', 'cookies', 'headers', 'path']
+        const sections: ContentFilterProfileSectionType[] = ['args', 'cookies', 'headers', 'path', 'allsections']
         for (let i = 0; i < sections.length; i++) {
           if (!value[sections[i]]) {
             this.normalizeDocSections(sections[i])

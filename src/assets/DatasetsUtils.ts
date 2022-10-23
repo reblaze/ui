@@ -145,6 +145,12 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'tags': [],
       'ignore_body': true,
       'ignore_alphanum': true,
+      'allsections': {
+        'names': [],
+        'regex': [],
+        'max_count': 42,
+        'max_length': 1024,
+      },
       'headers': {
         'names': [],
         'regex': [],

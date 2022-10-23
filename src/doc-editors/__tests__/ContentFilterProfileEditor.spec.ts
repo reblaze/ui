@@ -32,6 +32,12 @@ describe('ContentFilterProfilesEditor.vue', () => {
       'tags': [],
       'ignore_body': true,
       'ignore_alphanum': true,
+      'allsections': {
+        'names': [],
+        'regex': [],
+        'max_count': 42,
+        'max_length': 1024,
+      },
       'headers': {
         'names': [],
         'regex': [],
@@ -146,6 +152,11 @@ describe('ContentFilterProfilesEditor.vue', () => {
     test('should have correct name in input', () => {
       const element = wrapper.find('.document-name').element as HTMLInputElement
       expect(element.value).toEqual(docs[0].name)
+    })
+
+    test('should have correct max header length in input', () => {
+      const element = wrapper.find('.max-allsections-length-input').element as HTMLInputElement
+      expect(element.value).toEqual(docs[0].allsections.max_length.toString())
     })
 
     test('should have correct max header length in input', () => {
@@ -440,6 +451,12 @@ describe('ContentFilterProfilesEditor.vue', () => {
           'id': '__default__',
           'name': 'default contentfilter',
           'ignore_alphanum': true,
+          'allsections': {
+            'names': [],
+            'regex': [],
+            'max_count': 42,
+            'max_length': 1024,
+          },
           'headers': {
             'names': [],
             'regex': [],
@@ -496,6 +513,12 @@ describe('ContentFilterProfilesEditor.vue', () => {
           'id': '__default__',
           'name': 'default contentfilter',
           'ignore_alphanum': true,
+          'allsections': {
+            'names': [],
+            'regex': [],
+            'max_count': 42,
+            'max_length': 1024,
+          },
           'headers': {
             'names': [],
             'regex': [],
@@ -561,6 +584,7 @@ describe('ContentFilterProfilesEditor.vue', () => {
     expect(actualUnpackedExclusions).toEqual(unpackedExclusions)
   })
 
+  buildTabDescribe('allsections')
   buildTabDescribe('headers')
   buildTabDescribe('cookies')
   buildTabDescribe('args')

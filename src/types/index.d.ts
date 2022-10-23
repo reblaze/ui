@@ -72,7 +72,7 @@ declare module CuriefenseClient {
 
   type Category = 'path' | 'query' | 'uri' | 'method' | 'ip' | 'asn' | 'country' | 'headers' | 'args' | 'cookies'
 
-  type ContentFilterProfileSectionType = 'headers' | 'args' | 'cookies' | 'path'
+  type ContentFilterProfileSectionType = 'headers' | 'args' | 'cookies' | 'path' | 'allsections'
 
   type ArgsCookiesHeadersType = 'headers' | 'args' | 'cookies'
 
@@ -135,6 +135,7 @@ declare module CuriefenseClient {
     tags: string[]
     ignore_body: boolean
     ignore_alphanum: boolean
+    allsections: ContentFilterProfileSection
     headers: ContentFilterProfileSection
     cookies: ContentFilterProfileSection
     args: ContentFilterProfileSection
