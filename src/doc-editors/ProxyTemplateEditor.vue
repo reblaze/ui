@@ -309,7 +309,7 @@
                 <div class="content collapsible-content px-5 py-5">
                   <div class="columns">
                     <div class="column is-6">
-                      <div class="field cell-height">
+                      <div class="field height-100px">
                         <label class="label is-small">
                           Proxy Connect Timeout
                         </label>
@@ -328,7 +328,7 @@
                           </a>
                         </div>
                       </div>
-                      <div class="field cell-height">
+                      <div class="field height-140px">
                         <label class="label is-small">
                           Proxy Send Timeout
                         </label>
@@ -338,7 +338,7 @@
                                  placeholder="Proxy send timeout"
                                  v-model="selectedProxyTemplate.proxy_send_timeout">
                         </div>
-                        <div class="help height-100px">
+                        <div class="help height-140px">
                           Sets a timeout for transmitting a request to the proxied server. The timeout is set only
                           between two successive write operations, not for the transmission of the whole request. If the
                           proxied server does not receive anything within this time, the connection is closed
@@ -348,7 +348,7 @@
                           </a>
                         </div>
                       </div>
-                      <div class="field cell-height">
+                      <div class="field height-140px">
                         <label class="label is-small">
                           Proxy Read Timeout
                         </label>
@@ -358,7 +358,7 @@
                                  placeholder="Proxy read timeout"
                                  v-model="selectedProxyTemplate.proxy_read_timeout">
                         </div>
-                        <div class="help height-100px">
+                        <div class="help height-140px">
                           Defines a timeout for reading a response from the proxied server. The timeout is set only
                           between two successive read operations, not for the transmission of the whole response. If the
                           proxied server does not transmit anything within this time, the connection is closed
@@ -370,7 +370,7 @@
                       </div>
                     </div>
                     <div class="column is-6">
-                      <div class="field cell-height">
+                      <div class="field height-100px">
                         <label class="label is-small">
                           Backend Service Host Header
                         </label>
@@ -385,17 +385,17 @@
                           client's header is passed as is
                         </div>
                       </div>
-                      <div class="field cell-height">
+                      <div class="field height-120px">
                         <label class="label is-small">
                           Real IP Header Name
                         </label>
-                        <div class="control cell-height">
+                        <div class="control ">
                           <input class="input is-small document-real-ip-header-name"
                                  title="Real IP header name"
                                  placeholder="Real IP header name"
                                  v-model="selectedProxyTemplate.xrealip_header_name">
                         </div>
-                        <div class="help cell-height">
+                        <div class="help">
                           The Host header Reblaze will present to the backend service.<br/>X-Real-IP is the default
                           value
                         </div>
@@ -439,7 +439,7 @@
                                     >
                         </rbz-table>
                     </div>
-                    <div class="columns columns-divided add-new-trusted-source ml-3px"  v-if="addingNewTrustedSource">
+                    <div class="columns columns-divided add-new-trusted-source ml-3"  v-if="addingNewTrustedSource">
                           <input class="column is-6 ellipsis add-new-address"
                             title="Trusted Source CIDR / IP / Tag Rule Address"
                             placeholder="CIDR/IP/Tag Rule Address"
@@ -448,11 +448,11 @@
                             title="Trusted Source Comment"
                             placeholder="CIDR/IP/Tag Rule Address"
                             v-model="newComment">
-                          <button  class="width-50px is-2 ml-3px" @click="addNewTrustedSource" >
+                          <button  class="width-50px is-2 ml-3" @click="addNewTrustedSource" >
                             Add
                           </button>
                     </div>
-                    <div class="columns columns-divided edit-new-trusted-source ml-3px"  v-if="showEditTrustedSource">
+                    <div class="columns columns-divided edit-new-trusted-source ml-3"  v-if="showEditTrustedSource">
                           <input class="column is-6 ellipsis add-new-address"
                             title="Trusted Source CIDR / IP / Tag Rule Address"
                             placeholder="CIDR/IP/Tag Rule Address"
@@ -461,7 +461,7 @@
                             title="Trusted Source Comment"
                             placeholder="CIDR/IP/Tag Rule Address"
                             v-model="editComment">
-                          <button  class="width-50px is-2 ml-3px" @click="editTrustedSource" >
+                          <button  class="width-50px is-2 ml-3" @click="editTrustedSource" >
                             Edit
                           </button>
                     </div>
@@ -829,14 +829,6 @@ export default defineComponent({
 
 .collapsible .fa-angle-down {
   align-self: center;
-}
-
-.ml-3px {
-  margin-left: 3px;
-}
-
-.cell-height {
-  height: fit-content;
 }
 
 </style>
