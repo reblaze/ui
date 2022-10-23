@@ -602,7 +602,7 @@ describe('SystemDBEditor.vue', () => {
       setImmediate(() => {
         const noDataMessage = wrapper.find('.no-data-message')
         expect(noDataMessage?.exists()).toBeTruthy()
-        expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found!')
+        expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found.')
         expect(noDataMessage?.text()?.toLowerCase()).toContain('missing namespace.')
         done()
       })
@@ -626,7 +626,7 @@ describe('SystemDBEditor.vue', () => {
       setImmediate(() => {
         const noDataMessage = wrapper.find('.no-data-message')
         expect(noDataMessage?.exists()).toBeTruthy()
-        expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found!')
+        expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found.')
         expect(noDataMessage?.text()?.toLowerCase()).toContain('missing key.')
         done()
       })
@@ -650,7 +650,7 @@ describe('SystemDBEditor.vue', () => {
       setImmediate(() => {
         const noDataMessage = wrapper.find('.no-data-message')
         expect(noDataMessage?.exists()).toBeTruthy()
-        expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found!')
+        expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found.')
         expect(noDataMessage?.text()?.toLowerCase()).toContain('missing key.')
         done()
       })

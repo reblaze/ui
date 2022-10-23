@@ -2,7 +2,7 @@
 import ContentFilterRulesEditor from '@/doc-editors/ContentFilterRulesEditor.vue'
 import LabeledTags from '@/components/LabeledTags.vue'
 import {beforeEach, describe, expect, test} from '@jest/globals'
-import {mount, VueWrapper} from '@vue/test-utils'
+import {shallowMount, VueWrapper} from '@vue/test-utils'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import {ContentFilterRule} from '@/types'
 
@@ -21,7 +21,7 @@ describe('ContentFilterRulesEditor.vue', () => {
       'subcategory': 'statement injection',
       'tags': ['sqli'],
     }]
-    wrapper = mount(ContentFilterRulesEditor, {
+    wrapper = shallowMount(ContentFilterRulesEditor, {
       props: {
         selectedDoc: docs[0],
       },
@@ -75,7 +75,7 @@ describe('ContentFilterRulesEditor.vue', () => {
 
     test('should have empty automatic tags displayed - empty id', () => {
       delete docs[0].id
-      wrapper = mount(ContentFilterRulesEditor, {
+      wrapper = shallowMount(ContentFilterRulesEditor, {
         props: {
           selectedDoc: docs[0],
         },
@@ -86,7 +86,7 @@ describe('ContentFilterRulesEditor.vue', () => {
 
     test('should have empty automatic tags displayed - empty category', () => {
       delete docs[0].category
-      wrapper = mount(ContentFilterRulesEditor, {
+      wrapper = shallowMount(ContentFilterRulesEditor, {
         props: {
           selectedDoc: docs[0],
         },
@@ -97,7 +97,7 @@ describe('ContentFilterRulesEditor.vue', () => {
 
     test('should have empty automatic tags displayed - empty subcategory', () => {
       delete docs[0].subcategory
-      wrapper = mount(ContentFilterRulesEditor, {
+      wrapper = shallowMount(ContentFilterRulesEditor, {
         props: {
           selectedDoc: docs[0],
         },
@@ -135,7 +135,7 @@ describe('ContentFilterRulesEditor.vue', () => {
 
     test('should set tags input to be an empty string if document tags do not exist', () => {
       delete docs[0].tags
-      wrapper = mount(ContentFilterRulesEditor, {
+      wrapper = shallowMount(ContentFilterRulesEditor, {
         props: {
           selectedDoc: docs[0],
         },
@@ -146,7 +146,7 @@ describe('ContentFilterRulesEditor.vue', () => {
 
     test('should set tags input to be an empty string if document tags is empty', () => {
       docs[0].tags = []
-      wrapper = mount(ContentFilterRulesEditor, {
+      wrapper = shallowMount(ContentFilterRulesEditor, {
         props: {
           selectedDoc: docs[0],
         },

@@ -1789,7 +1789,7 @@ describe.skip('DocumentEditor.vue', () => {
       setImmediate(() => {
         const noDataMessage: DOMWrapper = wrapper.find('.no-data-message')
         expect(noDataMessage.exists()).toBeTruthy()
-        expect(noDataMessage.text().toLowerCase()).toContain('no data found!')
+        expect(noDataMessage.text().toLowerCase()).toContain('no data found.')
         expect(noDataMessage.text().toLowerCase()).toContain('missing branch.')
         done()
       })
@@ -1828,7 +1828,7 @@ describe.skip('DocumentEditor.vue', () => {
       setImmediate(() => {
         const noDataMessage: DOMWrapper = wrapper.find('.no-data-message')
         expect(noDataMessage.exists()).toBeTruthy()
-        expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found!')
+        expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found.')
         expect(noDataMessage?.text()?.toLowerCase()).toContain('missing document type.')
         done()
       })
@@ -1853,7 +1853,7 @@ describe.skip('DocumentEditor.vue', () => {
       setImmediate(() => {
         const noDataMessage: DOMWrapper = wrapper.find('.no-data-message')
         expect(noDataMessage.exists()).toBeTruthy()
-        expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found!')
+        expect(noDataMessage?.text()?.toLowerCase()).toContain('no data found.')
         expect(noDataMessage?.text()?.toLowerCase()).toContain('missing document.')
         done()
       })
