@@ -14,7 +14,7 @@
                     <i class="fas fa-arrow-left"></i>
                   </span>
                   <span>
-                    Back To List
+                    Return To List
                   </span>
                 </button>
               </p>
@@ -157,7 +157,7 @@
       </div>
       <div v-else
            class="no-data-message">
-        No data found
+        No data found.
         <div>
           <!--display correct message by priority (Document type -> Document)-->
           <span v-if="!Object.keys(componentsMap).includes(selectedDocType)">

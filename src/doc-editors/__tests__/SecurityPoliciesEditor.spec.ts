@@ -208,7 +208,7 @@ describe.skip('SecurityPoliciesEditor.vue', () => {
         'thresholds': [
           {
             'limit': '5',
-            'action': 'monitor',
+            'action': 'action-rate-limit-block',
           },
         ],
         'include': ['badpeople'],
@@ -224,7 +224,7 @@ describe.skip('SecurityPoliciesEditor.vue', () => {
         'thresholds': [
           {
             'limit': '5',
-            'action': 'monitor',
+            'action': 'action-rate-limit-block',
           },
         ],
         'include': ['badpeople'],

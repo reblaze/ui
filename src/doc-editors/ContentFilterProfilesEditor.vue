@@ -879,6 +879,11 @@ export default defineComponent({
       this.emitDocUpdate()
     },
 
+    normalizeDocContentType() {
+      this.localDoc.content_type = []
+      this.emitDocUpdate()
+    },
+
     normalizeDocDecoding() {
       this.localDoc.decoding = _.cloneDeep(this.defaultContentFilterProfileDecoding)
       this.emitDocUpdate()
@@ -967,6 +972,9 @@ export default defineComponent({
         }
         if (!value['decoding']) {
           this.normalizeDocDecoding()
+        }
+        if (!value['content_type']) {
+          this.normalizeDocContentType()
         }
       },
       immediate: true,

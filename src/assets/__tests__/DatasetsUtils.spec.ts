@@ -75,7 +75,7 @@ describe('RequestsUtils.ts', () => {
       expect(document['description']).toEqual('New Global Filter Description and Remarks')
       expect(document['active']).toEqual(false)
       expect(document['tags']).toEqual(['trusted'])
-      expect(document['action']).toEqual('monitor')
+      expect(document['action']).toEqual('action-global-filter-block')
       expect(document['rule']['relation']).toEqual('OR')
       expect(document['rule']['entries']).toEqual([])
     })
@@ -103,7 +103,7 @@ describe('RequestsUtils.ts', () => {
       expect(document['timeframe']).toEqual(60)
       expect(document['key']).toEqual([{'attrs': 'securitypolicyid'},
         {'attrs': 'securitypolicyentryid'}, {'attrs': 'session'}])
-      expect(document['thresholds'][0]['action']).toEqual('monitor')
+      expect(document['thresholds'][0]['action']).toEqual('action-rate-limit-block')
       expect(document['pairwith']).toEqual({'self': 'self'})
       expect(document['exclude']).toEqual([])
       expect(document['include']).toEqual(['all'])

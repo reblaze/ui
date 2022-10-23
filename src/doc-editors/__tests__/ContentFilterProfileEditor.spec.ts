@@ -28,7 +28,7 @@ describe('ContentFilterProfilesEditor.vue', () => {
       'id': '__default__',
       'name': 'default contentfilter',
       'description': 'New Content Filter Profile Description and Remarks',
-      'action': 'monitor',
+      'action': 'action-contentfilter-block',
       'tags': [],
       'ignore_body': true,
       'ignore_alphanum': true,
@@ -106,11 +106,7 @@ describe('ContentFilterProfilesEditor.vue', () => {
     ]
     customResponsesDocs = [
       {
-        'id': 'default',
-        'name': 'default blocking action',
-      },
-      {
-        'id': 'monitor',
+        'id': 'action-contentfilter-block',
         'name': 'default monitoring action',
       },
     ]

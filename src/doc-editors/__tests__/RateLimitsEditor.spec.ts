@@ -24,7 +24,7 @@ describe('RateLimitRulesEditor.vue', () => {
       'thresholds': [
         {
           'limit': '5',
-          'action': 'monitor',
+          'action': 'action-rate-limit-block',
         },
       ],
       'timeframe': '60',
@@ -87,11 +87,7 @@ describe('RateLimitRulesEditor.vue', () => {
     ]
     customResponsesDocs = [
       {
-        'id': 'default',
-        'name': 'default blocking action',
-      },
-      {
-        'id': 'monitor',
+        'id': 'action-rate-limit-block',
         'name': 'default monitoring action',
       },
     ]
@@ -114,7 +110,7 @@ describe('RateLimitRulesEditor.vue', () => {
     const onUpdate = async (selectedDoc: RateLimit) => {
       await wrapper.setProps({selectedDoc})
     }
-    wrapper = mount(RateLimitsEditor, {
+    wrapper = shallowMount(RateLimitsEditor, {
       props: {
         'selectedDoc': rateLimitsDocs[0],
         'selectedBranch': selectedBranch,
@@ -233,7 +229,7 @@ describe('RateLimitRulesEditor.vue', () => {
 
     test('should handle key with no value', async () => {
       rateLimitsDocs[0].key = [{'headers': null}]
-      wrapper = mount(RateLimitsEditor, {
+      wrapper = shallowMount(RateLimitsEditor, {
         props: {
           selectedDoc: rateLimitsDocs[0],
         },
@@ -289,7 +285,7 @@ describe('RateLimitRulesEditor.vue', () => {
     test('should handle selectedDoc with undefined key value', async () => {
       try {
         rateLimitsDocs[0].key = [{'headers': null}, undefined]
-        wrapper = mount(RateLimitsEditor, {
+        wrapper = shallowMount(RateLimitsEditor, {
           props: {
             selectedDoc: rateLimitsDocs[0],
           },
@@ -335,7 +331,7 @@ describe('RateLimitRulesEditor.vue', () => {
   describe('event', () => {
     test('should handle key with no value', async () => {
       rateLimitsDocs[0].pairwith = {'self': null}
-      wrapper = mount(RateLimitsEditor, {
+      wrapper = shallowMount(RateLimitsEditor, {
         props: {
           selectedDoc: rateLimitsDocs[0],
         },
@@ -461,6 +457,24 @@ describe('RateLimitRulesEditor.vue', () => {
   })
 
   describe('connected Security Policies', () => {
+    beforeEach(() => {
+      const selectedBranch = 'prod'
+      const onUpdate = async (selectedDoc: RateLimit) => {
+        await wrapper.setProps({selectedDoc})
+      }
+      wrapper = mount(RateLimitsEditor, {
+        props: {
+          'selectedDoc': rateLimitsDocs[0],
+          'selectedBranch': selectedBranch,
+          'onUpdate:selectedDoc': onUpdate,
+        },
+        global: {
+          mocks: {
+            $router: mockRouter,
+          },
+        },
+      })
+    })
     afterEach(() => {
       jest.clearAllMocks()
       jest.clearAllTimers()

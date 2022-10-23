@@ -106,7 +106,6 @@ import RequestsUtils from '@/assets/RequestsUtils'
 import RbzDashboardDefault from '@/reblaze-dashboards/DefaultDashboard.vue'
 import Datepicker from '@vuepic/vue-datepicker'
 import {GenericObject} from '@/types'
-import '@vuepic/vue-datepicker/dist/main.css'
 
 const MS_PER_MINUTE = 60000
 const HOUR = 60 * MS_PER_MINUTE

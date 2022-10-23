@@ -239,7 +239,7 @@
       </div>
       <div v-else
            class="no-data-message">
-        No data found
+        No data found.
         <div>
           <!--display correct message by priority (Namespace -> Key)-->
           <span v-if="!selectedNamespace">

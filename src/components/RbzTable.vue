@@ -146,7 +146,7 @@
             </button>
           </div>
           <div v-else>
-            No data found
+            No data found.
           </div>
         </td>
       </tr>
@@ -218,6 +218,7 @@ export default defineComponent({
             this.sortDirection = this.defaultSortColumnDirection
           }
           this.filter = {}
+          this.filtersVisible = false
           this.currentPage = 1
         }
       },
