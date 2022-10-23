@@ -120,6 +120,11 @@ const routes: Array<RouteRecordRaw> = [
                 name: 'DynamicRules/list',
                 component: DynamicRulesList,
               },
+              {
+                path: 'config/:doc_id',
+                name: 'DocumentEditor/DocType/config/DocID',
+                component: DocumentEditor,
+              },
             ],
           },
           {

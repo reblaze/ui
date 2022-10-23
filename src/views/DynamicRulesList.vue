@@ -2,16 +2,19 @@
   <div class="card-content">
     <div class="media">
       <div class="media-content">
-        <div class="field is-grouped">
+        <div class="field is-grouped is-pulled-right">
           <p class="control">
             <button class="button is-small download-doc-button"
                     :class="{'is-loading':isDownloadLoading}"
                     @click="downloadDoc()"
                     title="Download document"
                     data-qa="download-document">
-                <span class="icon is-small">
-                    <i class="fas fa-download"></i>
-                </span>
+              <span class="icon is-small">
+                <i class="fas fa-download"></i>
+              </span>
+              <span>
+                Download
+              </span>
             </button>
           </p>
         </div>
@@ -107,10 +110,15 @@ export default defineComponent({
         },
         {
           title: 'Tags',
-          fieldNames: ['tags'],
-          isSortable: true,
+          displayFunction: (item: DynamicRule) => {
+            const matchingGlobalFilter = (this.globalFiltersData).find((globalFilter: GlobalFilter) => {
+              return globalFilter.id === `dr_${item.id}`
+            })
+            return matchingGlobalFilter.tags?.join('\n')
+          },
+          isSortable: false,
           isSearchable: true,
-          classes: 'width-100px',
+          classes: 'width-100px white-space-pre ellipsis',
         },
       ] as ColumnOptions[],
       isNewLoading: false,
@@ -128,9 +136,9 @@ export default defineComponent({
 
   watch: {
     selectedBranch: {
-      handler: function(val, oldVal) {
+      handler: async function(val, oldVal) {
         if ((this.$route.name as string).includes('DynamicRules/list') && val && val !== oldVal) {
-          this.loadDynamicRulesData()
+          await this.loadDynamicRulesData()
         }
       },
       immediate: true,
@@ -243,17 +251,11 @@ export default defineComponent({
       this.isDownloadLoading = false
     },
 
-    async switchBranch() {
-      this.setLoadingDocStatus(true)
-      Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
-      await this.loadDynamicRulesData()
-      this.setLoadingDocStatus(false)
-    },
-
   },
   async created() {
+    this.setLoadingDocStatus(true)
     await this.branchesStore.list
-    await this.loadDynamicRulesData()
+    this.setLoadingDocStatus(false)
   },
 })
 </script>
