@@ -114,7 +114,7 @@ export default defineComponent({
               const matchingGlobalFilter = _.find(this.globalFiltersData, (globalFilter: GlobalFilter) => {
                 return globalFilter.id === `dr_${item.id}`
               })
-              return matchingGlobalFilter ? matchingGlobalFilter.action : null
+              return matchingGlobalFilter ? matchingGlobalFilter.action : ''
             } else {
               return ''
             }
@@ -130,7 +130,7 @@ export default defineComponent({
               const matchingGlobalFilter = _.find(this.globalFiltersData, (globalFilter: GlobalFilter) => {
                 return globalFilter.id === `dr_${item.id}`
               })
-              return matchingGlobalFilter ? matchingGlobalFilter.tags?.join('\n') : null
+              return matchingGlobalFilter ? matchingGlobalFilter.tags?.join('\n') : ''
             } else {
               return []
             }
