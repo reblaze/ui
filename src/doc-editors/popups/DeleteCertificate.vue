@@ -35,8 +35,9 @@
 </div>
 </template>
 <script lang="ts">
+import {defineComponent} from 'vue'
 // import RequestsUtils from '@/assets/RequestsUtils'
-export default {
+export default defineComponent({
   props: {
     deleteShown: Boolean,
     clickedRow: String,
@@ -58,7 +59,7 @@ export default {
       this.$emit('deleteClickedChanged', clickedRow)
     },
   },
-}
+})
 </script>
 <style scoped lang="scss">
 .modal-location {

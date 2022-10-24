@@ -328,7 +328,6 @@ export default defineComponent({
   },
 
   methods: {
-    // TODO: ask Aviv about this idea - i want to filter and get the the specific field like subject, issuer, san, cert_body from the correct certificate
     getCertificateByID(id:string) {
       this.certificateByID = this.certificatesMock.find((certificate) => certificate.id === id)
     },

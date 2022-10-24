@@ -129,9 +129,11 @@
     </div>
 </div>
 </template>
-<script lang="ts">import axios from 'axios'
+<script lang="ts">
+import axios from 'axios'
+import {defineComponent} from 'vue'
 
-export default {
+export default defineComponent({
   props: {
     generateShown: Boolean,
   },
@@ -287,7 +289,7 @@ export default {
       }
     },
   },
-}
+})
 </script>
 <style scoped lang="scss">
 .modal-location {

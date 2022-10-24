@@ -93,9 +93,8 @@
                         <div v-if="isAttachSelectedOnEdit">
                             <div class="field">
                                 <div class="is-size-7 pl-1">{{ selectedAppsLabel }}</div> <!-- TODO: ask Aviv what is this function -->
-                                <select :v-model="selectedApps"
-                                        :options="optionsMultiselect"
-                                        :multiple="true"
+                                 <select v-model="selectedApps"
+                                        multiple
                                         title="Select links"
                                         :loading="is_loading"
                                         :option-height="25"
@@ -181,7 +180,8 @@
     </div>
 </template>
 <script lang="ts">
-export default {
+import {defineComponent} from 'vue'
+export default defineComponent({
   props: {
     editShown: Boolean,
     clickedRow: String,
@@ -432,7 +432,7 @@ export default {
   created() {
     this.certCanReplaceByLE = this.le_auto_replace
   },
-}
+})
 </script>
 <style scoped lang="scss">
 
