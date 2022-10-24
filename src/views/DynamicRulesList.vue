@@ -110,10 +110,14 @@ export default defineComponent({
         {
           title: 'Action',
           displayFunction: (item: DynamicRule) => {
-            const matchingGlobalFilter = _.find(this.globalFiltersData, (globalFilter: GlobalFilter) => {
-              return globalFilter.id === `dr_${item.id}`
-            })
-            return matchingGlobalFilter.action
+            if (this.globalFiltersData.length > 0) {
+              const matchingGlobalFilter = _.find(this.globalFiltersData, (globalFilter: GlobalFilter) => {
+                return globalFilter.id === `dr_${item.id}`
+              })
+              return matchingGlobalFilter ? matchingGlobalFilter.action : null
+            } else {
+              return ''
+            }
           },
           isSortable: false,
           isSearchable: true,
@@ -122,10 +126,14 @@ export default defineComponent({
         {
           title: 'Tags',
           displayFunction: (item: DynamicRule) => {
-            const matchingGlobalFilter = _.find(this.globalFiltersData, (globalFilter: GlobalFilter) => {
-              return globalFilter.id === `dr_${item.id}`
-            })
-            return matchingGlobalFilter.tags?.join('\n')
+            if (this.globalFiltersData.length > 0) {
+              const matchingGlobalFilter = _.find(this.globalFiltersData, (globalFilter: GlobalFilter) => {
+                return globalFilter.id === `dr_${item.id}`
+              })
+              return matchingGlobalFilter ? matchingGlobalFilter.tags?.join('\n') : null
+            } else {
+              return []
+            }
           },
           isSortable: false,
           isSearchable: true,
@@ -221,6 +229,7 @@ export default defineComponent({
     },
 
     async loadDynamicRulesData() {
+      this.setLoadingDocStatus(true)
       this.isDownloadLoading = true
       const url = `configs/${this.selectedBranch}/d/dynamic-rules/`
       const response = await RequestsUtils.sendReblazeRequest({
@@ -238,7 +247,7 @@ export default defineComponent({
       // bring Tags from GlobalFilters
       this.globalFiltersData = [] as MiniGlobalFilter[]
 
-      this.dynamicRulesData.map(async (doc) => {
+      this.dynamicRulesData.map((doc) => {
         const url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${doc.id}/`
         // const config = {headers: {'x-fields': 'id, tags, action'}} config,
         RequestsUtils.sendRequest({methodName: 'GET', url,
@@ -252,13 +261,12 @@ export default defineComponent({
         })
       })
       this.isDownloadLoading = false
+      this.setLoadingDocStatus(false)
     },
 
   },
   async created() {
-    this.setLoadingDocStatus(true)
     await this.branchesStore.list
-    this.setLoadingDocStatus(false)
   },
 })
 </script>
