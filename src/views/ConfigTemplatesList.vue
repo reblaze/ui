@@ -78,14 +78,14 @@ export default defineComponent({
           fieldNames: ['id'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-120px',
+          classes: 'width-130px',
         },
         {
           title: 'Name',
           fieldNames: ['name'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-120px',
+          classes: 'width-130px',
         },
         {
           title: 'Description',
