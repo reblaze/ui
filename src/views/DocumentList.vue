@@ -1,95 +1,69 @@
 <template>
-  <div class="card">
-    <div class="card-content">
-      <div class="media">
-        <div class="media-content">
-          <div class="field is-grouped">
-            <div class="control"
-                 v-if="branchNames.length">
-              <div class="select is-small">
-                <select v-model="selectedBranch"
-                        title="Switch branch"
-                        class="branch-selection"
-                        @change="switchBranch()">
-                  <option v-for="name in branchNames"
-                          :key="name"
-                          :value="name">
-                    {{ name }}
-                  </option>
-                </select>
-              </div>
-            </div>
-            <p class="control">
-              <button class="button is-small download-doc-button"
-                      :class="{'is-loading':isDownloadLoading}"
-                      @click="downloadDoc()"
-                      title="Download document"
-                      data-qa="download-document">
-                <span class="icon is-small">
-                    <i class="fas fa-download"></i>
-                </span>
-              </button>
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <hr/>
-
-      <div class="content document-list-wrapper"
-           v-show="!loadingDocCounter && selectedBranch && selectedDocType">
-        <div class="card">
-          <div class="card-content">
-            <div class="content">
-              <rbz-table :columns="columns"
-                         :data="docs"
-                         :show-menu-column="true"
-                         :show-filter-button="true"
-                         :show-new-button="true"
-                         @new-button-clicked="addNewDoc"
-                         :show-row-button="true"
-                         :row-button-title="rowButtonTitle"
-                         :row-button-icon="rowButtonIcon"
-                         @row-button-clicked="editDoc">
-              </rbz-table>
-              <span class="is-family-monospace has-text-grey-lighter">
-                {{ documentListAPIPath }}
+  <div class="card-content">
+    <div class="media">
+      <div class="media-content">
+        <div class="field is-grouped is-pulled-right">
+          <p class="control">
+            <button class="button is-small download-doc-button"
+                    :class="{'is-loading':isDownloadLoading}"
+                    @click="downloadDoc()"
+                    title="Download document"
+                    data-qa="download-document">
+              <span class="icon is-small">
+                <i class="fas fa-download"></i>
               </span>
-            </div>
-          </div>
+              <span>
+                Download
+              </span>
+            </button>
+          </p>
         </div>
-        <hr/>
-        <git-history v-if="!isReblazeDocument"
-                     :gitLog="gitLog"
-                     :apiPath="gitAPIPath"
-                     :loading="isGitLogLoading"
-                     @restore-version="restoreGitVersion"></git-history>
       </div>
+    </div>
 
-      <div class="content no-data-wrapper"
-           v-if="loadingDocCounter || !selectedBranch || !selectedDocType">
-        <div v-if="loadingDocCounter > 0">
-          <button class="button is-outlined is-text is-small is-loading document-loading">
-            Loading
-          </button>
-        </div>
-        <div v-else
-             class="no-data-message">
-          No data found!
-          <div>
-            <!--display correct message by priority (Branch -> Document type)-->
-            <span v-if="!branchNames.includes(selectedBranch)">
-              Missing branch. To be redirected to Version Control page where you will be able to create a new one, click
-              <a title="Add new"
-                 class="redirect-version-control-button"
-                 @click="redirectToVersionControl()">
-                here
-              </a>
-            </span>
-            <span v-else-if="!Object.keys(componentsMap).includes(selectedDocType)">
-              Missing document type. Please select one from the menu to the left
-            </span>
-          </div>
+    <hr/>
+
+    <div class="content document-list-wrapper"
+         v-show="!loadingDocCounter && selectedBranch && selectedDocType">
+      <div class="content">
+        <rbz-table :columns="columns"
+                   :data="docs"
+                   :show-menu-column="true"
+                   :show-filter-button="true"
+                   :show-new-button="true"
+                   @new-button-clicked="addNewDoc"
+                   :row-clickable="true"
+                   @row-clicked="editDoc"
+                   :show-row-button="true"
+                   :row-button-title="rowButtonTitle"
+                   :row-button-icon="rowButtonIcon"
+                   @row-button-clicked="editDoc">
+        </rbz-table>
+        <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">
+          {{ documentListAPIPath }}
+        </span>
+      </div>
+      <hr/>
+      <git-history v-if="!isReblazeDocument"
+                   :api-path="gitAPIPath"
+                   :doc-title="titles[selectedDocType]"
+                   @restore-version="restoreGitVersion"/>
+    </div>
+
+    <div class="content no-data-wrapper"
+         v-if="loadingDocCounter || !selectedBranch || !selectedDocType">
+      <div v-if="loadingDocCounter > 0">
+        <button class="button is-outlined is-text is-small is-loading document-loading">
+          Loading
+        </button>
+      </div>
+      <div v-else
+           class="no-data-message">
+        No data found.
+        <div>
+          <span v-if="!Object.keys(componentsMap).includes(selectedDocType)">
+            Missing document type. Please check your URL or click a link in the menu to the side
+          </span>
         </div>
       </div>
     </div>
@@ -102,25 +76,36 @@ import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import Utils from '@/assets/Utils'
 import ACLEditor from '@/doc-editors/ACLEditor.vue'
-import ContentFilterEditor from '@/doc-editors/ContentFilterProfileEditor.vue'
+import ContentFilterEditor from '@/doc-editors/ContentFilterProfilesEditor.vue'
 import ContentFilterRulesEditor from '@/doc-editors/ContentFilterRulesEditor.vue'
 import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
-import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
-import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
-import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
-import CloudFunctionsEditor from '@/doc-editors/CloudFunctionsEditor.vue'
-import CustomResponseEditor from '@/doc-editors/CustomResponseEditor.vue'
+import RateLimitsEditor from '@/doc-editors/RateLimitRulesEditor.vue'
+import GlobalFilterListEditor from '@/doc-editors/GlobalFiltersEditor.vue'
+import FlowControlPolicyEditor from '@/doc-editors/FlowControlPoliciesEditor.vue'
+import EdgeFunctionsEditor from '@/doc-editors/EdgeFunctionsEditor.vue'
+import CustomResponseEditor from '@/doc-editors/CustomResponsesEditor.vue'
 import DynamicRulesEditor from '@/doc-editors/DynamicRulesEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {defineComponent, shallowRef} from 'vue'
-import {ColumnOptions, Commit, Document, DocumentType, DynamicRule, GenericObject, GlobalFilter} from '@/types'
+import {ColumnOptions, Document, DocumentType, DynamicRule, GenericObject, GlobalFilter} from '@/types'
 import {COLUMN_OPTIONS_MAP} from './documentListConst'
-import {AxiosResponse} from 'axios'
 import RbzTable from '@/components/RbzTable.vue'
-
+import {mapStores} from 'pinia'
+import {useBranchesStore} from '@/stores/BranchesStore'
 
 export default defineComponent({
   watch: {
+    selectedBranch: {
+      handler: async function(val, oldVal) {
+        if ((this.$route.name as string).includes('DocumentList') && val && val !== oldVal) {
+          this.setLoadingDocStatus(true)
+          await this.setSelectedDataFromRouteParams(true)
+          this.setLoadingDocStatus(false)
+        }
+      },
+      immediate: true,
+    },
+
     $route: {
       handler: async function(val) {
         if (val.name.includes('DocumentList')) {
@@ -138,16 +123,13 @@ export default defineComponent({
   },
   data() {
     const reblazeComponentsMap = {
-      'cloud-functions': shallowRef({component: CloudFunctionsEditor}),
+      'cloud-functions': shallowRef({component: EdgeFunctionsEditor}),
       'dynamic-rules': shallowRef({component: DynamicRulesEditor}),
     }
     return {
       columns: [] as ColumnOptions[],
-      configs: [],
-      gitLog: [],
       titles: DatasetsUtils.titles,
 
-      selectedBranch: null,
       selectedDocType: null as DocumentType,
       // Documents
       docs: [] as GenericObject[],
@@ -164,7 +146,6 @@ export default defineComponent({
       // Loading indicators
       isNewLoading: false,
       isDownloadLoading: false,
-      isGitLogLoading: false,
       loadingDocCounter: 0,
 
       confAPIRoot: RequestsUtils.confAPIRoot,
@@ -201,32 +182,26 @@ export default defineComponent({
     },
 
     gitAPIPath(): string {
-      const apiPrefix = `${this.confAPIRoot}/${this.confAPIVersion}`
-      return `${apiPrefix}/configs/${this.selectedBranch}/d/${this.selectedDocType}/v/`
+      return `configs/${this.selectedBranch}/d/${this.selectedDocType}/v/`
     },
 
-    branchNames(): string[] {
-      return this.configs?.length ? _.sortBy(_.map(this.configs, 'id')) : []
+    selectedBranch(): string {
+      return this.branchesStore.selectedBranchId
     },
 
+    ...mapStores(useBranchesStore),
   },
   methods: {
     goToRoute() {
-      const currentRoute = `/list/${this.selectedBranch}/${this.selectedDocType}`
+      const currentRoute = `/${this.selectedBranch}/${this.selectedDocType}/list`
       if (this.$route.path !== currentRoute) {
         console.log('Switching document list, new document list path: ' + currentRoute)
         this.$router.push(currentRoute)
       }
     },
 
-    async setSelectedDataFromRouteParams() {
+    async setSelectedDataFromRouteParams(forceLoadDocs: boolean = false) {
       this.setLoadingDocStatus(true)
-      const branchNameFromRoute = this.$route.params.branch?.toString()
-      if (branchNameFromRoute && this.branchNames.includes(branchNameFromRoute)) {
-        this.selectedBranch = branchNameFromRoute
-      } else {
-        this.selectedBranch = this.branchNames[0]
-      }
       const prevDocType = this.selectedDocType
       const docTypeFromRoute = this.$route.params.doc_type?.toString()
       if (docTypeFromRoute && Object.keys(this.componentsMap).includes(docTypeFromRoute)) {
@@ -235,29 +210,11 @@ export default defineComponent({
         this.selectedDocType = Object.keys(this.componentsMap)[0] as DocumentType
       }
       this.columns = COLUMN_OPTIONS_MAP[this.selectedDocType]
-      if (!prevDocType || prevDocType !== this.selectedDocType) {
+      if (forceLoadDocs || !prevDocType || prevDocType !== this.selectedDocType) {
         await this.loadDocs()
       }
       this.setLoadingDocStatus(false)
-      this.loadGitLog()
       this.goToRoute()
-    },
-
-    async loadConfigs() {
-      let configs
-      try {
-        const response = await RequestsUtils.sendRequest({
-          methodName: 'GET',
-          url: 'configs/',
-          config: {headers: {'x-fields': 'id'}},
-        })
-        configs = response.data
-      } catch (err) {
-        console.log('Error while attempting to get configs')
-        console.log(err)
-      }
-      console.log('loaded configs: ', configs)
-      this.configs = configs
     },
 
     async loadDocs() {
@@ -283,9 +240,7 @@ export default defineComponent({
       })
 
       this.docs = response?.data || []
-      console.log('list docs: ', this.docs)
       this.isDownloadLoading = false
-      this.loadGitLog()
     },
 
     async switchBranch() {
@@ -308,7 +263,7 @@ export default defineComponent({
     },
 
     editDoc(id: string) {
-      const routeToDoc = `/config/${this.selectedBranch}/${this.selectedDocType}/${id}`
+      const routeToDoc = `/${this.selectedBranch}/${this.selectedDocType}/config/${id}`
       this.$router.push(routeToDoc)
     },
 
@@ -373,46 +328,17 @@ export default defineComponent({
     },
 
     redirectToVersionControl() {
-      this.$router.push('/versioncontrol')
+      this.$router.push(`${this.selectedBranch}/versioncontrol`)
     },
 
-    loadGitLog() {
-      if (this.isReblazeDocument) {
-        return
-      }
-      this.isGitLogLoading = true
-      const config = this.selectedBranch
-      const document = this.selectedDocType
-      const url = `configs/${config}/d/${document}/v/`
-      if (config && document) {
-        RequestsUtils.sendRequest({methodName: 'GET', url}).then((response: AxiosResponse<Commit[]>) => {
-          this.gitLog = response?.data
-          this.isGitLogLoading = false
-        })
-      }
-    },
-
-    async restoreGitVersion(gitVersion: Commit) {
-      const branch = this.selectedBranch
-      const doctype: DocumentType = this.selectedDocType
-      const docTitle = this.titles[doctype]
-      const versionId = gitVersion.version
-      const urlTrail = `configs/${branch}/d/${doctype}/v/${versionId}/`
-
-      await RequestsUtils.sendRequest({
-        methodName: 'PUT',
-        url: `${urlTrail}revert/`,
-        successMessage: `Document [${docTitle}] restored to version [${versionId}]!`,
-        failureMessage: `Failed restoring document [${docTitle}] to version [${versionId}]!`,
-      })
-      await this.loadDocs()
+    restoreGitVersion() {
+      this.loadDocs()
     },
   },
 
   async created() {
     this.setLoadingDocStatus(true)
-    await this.loadConfigs()
-    this.setSelectedDataFromRouteParams()
+    await this.branchesStore.list
     this.setLoadingDocStatus(false)
   },
 })

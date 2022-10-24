@@ -1,69 +1,57 @@
 <template>
-  <div class="card">
-    <div class="card-content">
-      <div class="media">
-        <div class="media-content">
-          <div class="field is-grouped">
-            <div class="control"
-                 v-if="branchNames.length">
-              <div class="select is-small">
-                <select v-model="selectedBranch"
-                        title="Switch branch"
-                        class="branch-selection"
-                        @change="switchBranch()">
-                  <option v-for="name in branchNames"
-                          :key="name"
-                          :value="name">
-                    {{ name }}
-                  </option>
-                </select>
-              </div>
-            </div>
-            <p class="control">
-              <button class="button is-small download-doc-button"
-                      :class="{'is-loading':isDownloadLoading}"
-                      @click="downloadDoc()"
-                      title="Download document"
-                      data-qa="download-document">
-                <span class="icon is-small">
-                    <i class="fas fa-download"></i>
-                </span>
-              </button>
-            </p>
-          </div>
+  <div class="card-content">
+    <div class="media">
+      <div class="media-content">
+        <div class="field is-grouped is-pulled-right">
+          <p class="control">
+            <button class="button is-small download-doc-button"
+                    :class="{'is-loading':isDownloadLoading}"
+                    @click="downloadDoc()"
+                    title="Download document"
+                    data-qa="download-document">
+              <span class="icon is-small">
+                <i class="fas fa-download"></i>
+              </span>
+              <span>
+                Download
+              </span>
+            </button>
+          </p>
         </div>
       </div>
+    </div>
 
-      <hr/>
+    <hr/>
 
-      <div class="content document-list-wrapper"
-           v-show="!loadingDocCounter && selectedBranch">
-        <div class="card">
-          <div class="card-content">
-            <div class="content">
-              <rbz-table :columns="columns"
-                         :data="mobileSDKs"
-                         :show-menu-column="true"
-                         :show-filter-button="true"
-                         :show-new-button="true"
-                         @new-button-clicked="addNewSDK"
-                         :show-row-button="true"
-                         @row-button-clicked="editMobileSDK">
-              </rbz-table>
-              <span class="is-family-monospace has-text-grey-lighter">
+    <div class="content document-list-wrapper"
+         v-show="!loadingDocCounter && selectedBranch">
+      <div class="card">
+        <div class="card-content">
+          <div class="content">
+            <rbz-table :columns="columns"
+                       :data="mobileSDKs"
+                       :show-menu-column="true"
+                       :show-filter-button="true"
+                       :show-new-button="true"
+                       @new-button-clicked="addNewSDK"
+                       :row-clickable="true"
+                       @row-clicked="editMobileSDK"
+                       :show-row-button="true"
+                       @row-button-clicked="editMobileSDK">
+            </rbz-table>
+            <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">
                 {{ documentListAPIPath }}
               </span>
-            </div>
           </div>
         </div>
       </div>
+    </div>
 
-      <div class="content no-data-wrapper"
-           v-if="loadingDocCounter || !selectedBranch">
-        <button class="button is-outlined is-text is-small is-loading document-loading">
-          Loading
-        </button>
-      </div>
+    <div class="content no-data-wrapper"
+         v-if="loadingDocCounter || !selectedBranch">
+      <button class="button is-outlined is-text is-small is-loading document-loading">
+        Loading
+      </button>
     </div>
   </div>
 </template>
@@ -73,8 +61,9 @@ import RbzTable from '@/components/RbzTable.vue'
 import {ColumnOptions, MobileSDK} from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
-import _ from 'lodash'
 import Utils from '@/assets/Utils'
+import {mapStores} from 'pinia'
+import {useBranchesStore} from '@/stores/BranchesStore'
 
 export default defineComponent({
   name: 'MobileSDKList',
@@ -120,12 +109,21 @@ export default defineComponent({
       titles: DatasetsUtils.titles,
       mobileSDKs: [],
       loadingDocCounter: 0,
-      configs: [],
-      selectedBranch: null,
       isDownloadLoading: false,
       apiRoot: RequestsUtils.reblazeAPIRoot,
       apiVersion: RequestsUtils.reblazeAPIVersion,
     }
+  },
+
+  watch: {
+    selectedBranch: {
+      handler: function(val, oldVal) {
+        if ((this.$route.name as string).includes('MobileSDKs/list') && val && val !== oldVal) {
+          this.loadMobileSDKs()
+        }
+      },
+      immediate: true,
+    },
   },
 
   computed: {
@@ -134,9 +132,11 @@ export default defineComponent({
       return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/mobile-sdks/`
     },
 
-    branchNames(): string[] {
-      return this.configs?.length ? _.sortBy(_.map(this.configs, 'id')) : []
+    selectedBranch(): string {
+      return this.branchesStore.selectedBranchId
     },
+
+    ...mapStores(useBranchesStore),
   },
 
   methods: {
@@ -154,8 +154,7 @@ export default defineComponent({
     },
 
     editMobileSDK(id: string) {
-      const routeToDoc = `/mobile-sdks/config/${id}`
-      this.$router.push(routeToDoc)
+      this.$router.push(`/${this.selectedBranch}/mobile-sdks/config/${id}`)
     },
 
     async addNewSDK() {
@@ -187,25 +186,6 @@ export default defineComponent({
       const url = `configs/${this.selectedBranch}/d/mobile-sdks/`
       const response = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
       this.mobileSDKs = response?.data
-      this.selectedBranch = this.branchNames[0]
-    },
-
-    async loadConfigs() {
-      let configs
-      try {
-        const response = await RequestsUtils.sendRequest({
-          methodName: 'GET',
-          url: 'configs/',
-          config: {headers: {'x-fields': 'id'}},
-        })
-        configs = response.data
-      } catch (err) {
-        console.log('Error while attempting to get configs')
-        console.log(err)
-      }
-      console.log('loaded configs: ', configs)
-      this.configs = configs
-      this.selectedBranch = this.branchNames[0]
     },
 
     async switchBranch() {
@@ -216,8 +196,7 @@ export default defineComponent({
     },
   },
   async created() {
-    await this.loadConfigs()
-    this.loadMobileSDKs()
+    await this.branchesStore.list
   },
 })
 </script>

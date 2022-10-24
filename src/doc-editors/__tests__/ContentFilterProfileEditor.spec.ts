@@ -1,5 +1,5 @@
 // @ts-nocheck
-import ContentFilterEditor from '@/doc-editors/ContentFilterProfileEditor.vue'
+import ContentFilterEditor from '../ContentFilterProfilesEditor.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {shallowMount} from '@vue/test-utils'
@@ -18,7 +18,7 @@ import {nextTick} from 'vue'
 
 jest.mock('axios')
 
-describe('ContentFilterProfileEditor.vue', () => {
+describe('ContentFilterProfilesEditor.vue', () => {
   let docs: ContentFilterProfile[]
   let wrapper: any
   let contentFilterRulesDocs: ContentFilterRule[]
@@ -28,10 +28,16 @@ describe('ContentFilterProfileEditor.vue', () => {
       'id': '__default__',
       'name': 'default contentfilter',
       'description': 'New Content Filter Profile Description and Remarks',
-      'action': 'monitor',
+      'action': 'action-contentfilter-block',
       'tags': [],
       'ignore_body': true,
       'ignore_alphanum': true,
+      'allsections': {
+        'names': [],
+        'regex': [],
+        'max_count': 42,
+        'max_length': 1024,
+      },
       'headers': {
         'names': [],
         'regex': [],
@@ -106,11 +112,7 @@ describe('ContentFilterProfileEditor.vue', () => {
     ]
     customResponsesDocs = [
       {
-        'id': 'default',
-        'name': 'default blocking action',
-      },
-      {
-        'id': 'monitor',
+        'id': 'action-contentfilter-block',
         'name': 'default monitoring action',
       },
     ]
@@ -136,7 +138,7 @@ describe('ContentFilterProfileEditor.vue', () => {
     wrapper = shallowMount(ContentFilterEditor, {
       props: {
         'selectedDoc': docs[0],
-        'selectedBranch': 'master',
+        'selectedBranch': 'prod',
         'onUpdate:selectedDoc': onUpdate,
       },
     })
@@ -150,6 +152,11 @@ describe('ContentFilterProfileEditor.vue', () => {
     test('should have correct name in input', () => {
       const element = wrapper.find('.document-name').element as HTMLInputElement
       expect(element.value).toEqual(docs[0].name)
+    })
+
+    test('should have correct max header length in input', () => {
+      const element = wrapper.find('.max-allsections-length-input').element as HTMLInputElement
+      expect(element.value).toEqual(docs[0].allsections.max_length.toString())
     })
 
     test('should have correct max header length in input', () => {
@@ -412,7 +419,7 @@ describe('ContentFilterProfileEditor.vue', () => {
         wrapper = shallowMount(ContentFilterEditor, {
           props: {
             selectedDoc: docsForNormalization[0],
-            selectedBranch: 'master',
+            selectedBranch: 'prod',
           },
         })
       })
@@ -444,6 +451,12 @@ describe('ContentFilterProfileEditor.vue', () => {
           'id': '__default__',
           'name': 'default contentfilter',
           'ignore_alphanum': true,
+          'allsections': {
+            'names': [],
+            'regex': [],
+            'max_count': 42,
+            'max_length': 1024,
+          },
           'headers': {
             'names': [],
             'regex': [],
@@ -483,7 +496,7 @@ describe('ContentFilterProfileEditor.vue', () => {
         wrapper = shallowMount(ContentFilterEditor, {
           props: {
             selectedDoc: docsShouldNotNormalize[0],
-            selectedBranch: 'master',
+            selectedBranch: 'prod',
           },
         })
         expect(wrapper.emitted('update:selectedDoc')).toBeFalsy()
@@ -500,6 +513,12 @@ describe('ContentFilterProfileEditor.vue', () => {
           'id': '__default__',
           'name': 'default contentfilter',
           'ignore_alphanum': true,
+          'allsections': {
+            'names': [],
+            'regex': [],
+            'max_count': 42,
+            'max_length': 1024,
+          },
           'headers': {
             'names': [],
             'regex': [],
@@ -539,7 +558,7 @@ describe('ContentFilterProfileEditor.vue', () => {
         wrapper = shallowMount(ContentFilterEditor, {
           props: {
             selectedDoc: docsForNormalization[0],
-            selectedBranch: 'master',
+            selectedBranch: 'prod',
           },
         })
       })
@@ -565,6 +584,7 @@ describe('ContentFilterProfileEditor.vue', () => {
     expect(actualUnpackedExclusions).toEqual(unpackedExclusions)
   })
 
+  buildTabDescribe('allsections')
   buildTabDescribe('headers')
   buildTabDescribe('cookies')
   buildTabDescribe('args')

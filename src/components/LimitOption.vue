@@ -99,6 +99,7 @@ export const limitAttributes = {
   'company': 'Company',
   'country': 'Country',
   'authority': 'Authority',
+  'session': 'Session ID',
   'securitypolicyid': 'Security Policy ID',
   'securitypolicyentryid': 'Path Matching ID',
 }

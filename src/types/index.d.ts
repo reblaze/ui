@@ -44,12 +44,14 @@ declare module CuriefenseClient {
     limit_ids: string[]
   }
 
-  type GlobalFilterSectionEntry = [Category, string | string[], string?]
+  type GlobalFilterRuleEntry = [Category, string | string[], string]
 
-  type GlobalFilterSection = {
-    entries: GlobalFilterSectionEntry[]
+  type GlobalFilterRuleSection = {
     relation: Relation
+    entries: GlobalFilterRule[]
   }
+
+  type GlobalFilterRule = GlobalFilterRuleSection | GlobalFilterRuleEntry
 
   type LimitOptionType = {
     [key: string]: string
@@ -70,7 +72,7 @@ declare module CuriefenseClient {
 
   type Category = 'path' | 'query' | 'uri' | 'method' | 'ip' | 'asn' | 'country' | 'headers' | 'args' | 'cookies'
 
-  type ContentFilterProfileSectionType = 'headers' | 'args' | 'cookies' | 'path'
+  type ContentFilterProfileSectionType = 'headers' | 'args' | 'cookies' | 'path' | 'allsections'
 
   type ArgsCookiesHeadersType = 'headers' | 'args' | 'cookies'
 
@@ -80,11 +82,11 @@ declare module CuriefenseClient {
 
   type NamesRegexType = 'names' | 'regex'
 
-  type CloudFunctionsPhaseType = 'request0' | 'request1' | 'response0' | 'response1'
+  type EdgeFunctionsPhaseType = 'request' | 'response'
 
   type Document =
     BasicDocument
-    & (ACLProfile | CloudFunction | ContentFilterProfile | ContentFilterRule | CustomResponse |
+    & (ACLProfile | EdgeFunction | ContentFilterProfile | ContentFilterRule | CustomResponse |
       DynamicRule | FlowControlPolicy | GlobalFilter | RateLimit | SecurityPolicy)
 
   type DocumentType =
@@ -133,6 +135,7 @@ declare module CuriefenseClient {
     tags: string[]
     ignore_body: boolean
     ignore_alphanum: boolean
+    allsections: ContentFilterProfileSection
     headers: ContentFilterProfileSection
     cookies: ContentFilterProfileSection
     args: ContentFilterProfileSection
@@ -159,25 +162,24 @@ declare module CuriefenseClient {
     active: boolean
     tags: string[]
     action: string
-    rule: {
-      relation: Relation
-      entries: GlobalFilterSection[]
-    }
+    rule: GlobalFilterRuleSection
   }
 
   type SecurityPolicy = {
     id: string
     name: string
     match: string
+    description: string
+    tags: string[]
     map: SecurityPolicyEntryMatch[]
   }
 
-  type CloudFunction = {
+  type EdgeFunction = {
     id: string
     name: string
     description: string
     code: string
-    phase: CloudFunctionsPhaseType
+    phase: EdgeFunctionsPhaseType
   }
 
   type DynamicRule = {
@@ -190,6 +192,7 @@ declare module CuriefenseClient {
     exclude: string[]
     include: string[]
     ttl: number,
+    tags: string[],
     target: DynamicRuleTargetOptionType
   }
 
@@ -197,6 +200,7 @@ declare module CuriefenseClient {
     id: string
     name: string
     global: boolean
+    active: boolean
     description: string
     thresholds: ThresholdActionPair[]
     key: LimitOptionType[]
@@ -263,6 +267,7 @@ declare module CuriefenseClient {
     displayFunction?: (item: any) => string // Will be rendered as HTML
     isSortable?: boolean
     isSearchable?: boolean
+    isNumber?: boolean // True if all values are always numbers, for sorting
     classes?: string
   }
 
@@ -316,6 +321,7 @@ declare module CuriefenseClient {
   }
 
   type RoutingProfileEntryLocation = {
+    id: string
     path: string
     backend_id: string
     cloud_functions: string[]
@@ -350,7 +356,7 @@ declare module CuriefenseClient {
     signatures: MobileSDKSignature[]
   }
 
-  type ProxyTemplate = {
+  type ConfigTemplate = {
     name: string
     id: string
     description: string
@@ -381,7 +387,7 @@ declare module CuriefenseClient {
     server_names: string[]
     security_policy: SecurityPolicy['id']
     routing_profile: RoutingProfile['id']
-    proxy_template: ProxyTemplate['id']
+    proxy_template: ConfigTemplate['id']
     mobile_sdk: MobileSDK['id']
     ssl_certificate?: string
   }

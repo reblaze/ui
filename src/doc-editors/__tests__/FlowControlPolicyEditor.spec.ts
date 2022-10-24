@@ -1,5 +1,5 @@
 // @ts-nocheck
-import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
+import FlowControlPolicyEditor from '../FlowControlPoliciesEditor.vue'
 import LimitOption from '@/components/LimitOption.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import {beforeEach, describe, expect, test, jest} from '@jest/globals'
@@ -11,7 +11,7 @@ import {nextTick} from 'vue'
 
 jest.mock('axios')
 
-describe('FlowControlPolicyEditor.vue', () => {
+describe('FlowControlPoliciesEditor.vue', () => {
   let docs: FlowControlPolicy[]
   let wrapper: VueWrapper
   beforeEach(() => {
@@ -52,7 +52,6 @@ describe('FlowControlPolicyEditor.vue', () => {
         ],
         'active': true,
         'description': 'New Flow Control Policy Description and Remarks',
-        'action': 'monitor',
         'timeframe': 60,
         'id': 'c03dabe4b9ca',
         'tags': ['test-tag'],
@@ -194,7 +193,7 @@ describe('FlowControlPolicyEditor.vue', () => {
         },
       }
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === `db/master/k/autocomplete/`) {
+        if (path === `db/prod/k/autocomplete/`) {
           return Promise.resolve(tagsData)
         }
         return Promise.resolve()

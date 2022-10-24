@@ -1,15 +1,31 @@
 <template>
-  <section>
-    <div class="card">
-      <div class="card-content">
-        <div class="content">
-          <p class="title is-6 is-expanded version-history-title">
+  <div class="card collapsible-card"
+       :class="{ collapsed: isVersionHistoryCollapsed }">
+    <div class="card-content px-0 py-0">
+      <div class="media collapsible px-5 py-5 mb-0"
+           @click="toggleVersionHistoryCollapsed">
+        <div class="media-content">
+          <p class="title is-6 version-history-title">
             Version History
-            <button class="button is-outlined is-text is-small is-loading" v-if="loading">
+            <button class="button is-outlined is-text is-small is-loading"
+                    v-if="loading">
               Loading
             </button>
           </p>
-          <table class="table" v-if="gitLog && gitLog.length">
+        </div>
+        <span v-show="isVersionHistoryCollapsed">
+                    <i class="fas fa-angle-down"
+                       aria-hidden="true"></i>
+                  </span>
+        <span v-show="!isVersionHistoryCollapsed">
+                    <i class="fas fa-angle-up"
+                       aria-hidden="true"></i>
+                  </span>
+      </div>
+      <div class="content px-5 pb-5">
+        <div class="collapsible-content mb-4">
+          <table class="table"
+                 v-if="gitLog && gitLog.length">
             <thead>
             <tr>
               <th class="is-size-7 width-120px">Date</th>
@@ -22,18 +38,22 @@
             </tr>
             </thead>
             <tbody>
-            <tr v-for="(commit, index) in commits" :key="commit.version"
+            <tr v-for="(commit, index) in commits"
+                :key="commit.version"
                 @mouseleave="mouseLeave()"
                 @mouseover="mouseOver(index)">
               <td class="is-size-7 is-vcentered py-3"
                   :title="fullFormatDate(commit.date)">
                 {{ formatDate(commit.date) }}
               </td>
-              <td class="is-size-7 is-vcentered py-3" :title="commit.version">
+              <td class="is-size-7 is-vcentered py-3"
+                  :title="commit.version">
                 {{ commit.version.substr(0, 7) }}
               </td>
               <td class="is-size-7 is-vcentered py-3">
-                <p v-for="parent in commit.parents" :key="parent" :title="parent">
+                <p v-for="parent in commit.parents"
+                   :key="parent"
+                   :title="parent">
                   {{ parent.substr(0, 7) }}
                 </p>
               </td>
@@ -41,7 +61,8 @@
               <td class="is-size-7 is-vcentered py-3">{{ commit.author }}</td>
               <td class="is-size-7 is-vcentered py-3">{{ commit.email }}</td>
               <td class="is-size-7 is-vcentered restore-cell">
-                <p class="control has-text-centered" v-if="commitOverIndex === index">
+                <p class="control has-text-centered"
+                   v-if="commitOverIndex === index">
                   <button class="button is-small restore-button"
                           @click="restoreVersion(commit)"
                           tabindex="1"
@@ -53,46 +74,70 @@
                 </p>
               </td>
             </tr>
-            <tr v-if="!expanded && gitLog.length > init_max_rows">
+            <tr v-if="!expanded && gitLog.length > maxRows">
               <td colspan="6">
-                <a class="has-text-grey" @click="expanded = true">View More</a>
+                <a class="has-text-grey"
+                   @click="expanded = true">View More</a>
               </td>
             </tr>
-            <tr v-if="expanded && gitLog.length > init_max_rows">
+            <tr v-if="expanded && gitLog.length > maxRows">
               <td colspan="6">
-                <a class="has-text-grey" @click="expanded = false">View Less</a>
+                <a class="has-text-grey"
+                   @click="expanded = false">View Less</a>
               </td>
             </tr>
             </tbody>
           </table>
-          <span class="is-family-monospace has-text-grey-lighter">{{ apiPath }}</span>
         </div>
+        <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">
+          {{ apiRoot }}/{{ apiVersion }}/{{ apiPath }}
+        </span>
       </div>
     </div>
-  </section>
+  </div>
 </template>
 
 <script lang="ts">
-import {defineComponent, PropType} from 'vue'
+import {defineComponent} from 'vue'
 import {Commit} from '@/types'
 import DateTimeUtils from '@/assets/DateTimeUtils'
+import RequestsUtils from '@/assets/RequestsUtils'
+import {AxiosError, AxiosResponse} from 'axios'
 
 export default defineComponent({
   name: 'GitHistory',
 
   props: {
-    gitLog: Array as PropType<Commit[]>,
     apiPath: String,
-    loading: Boolean,
+    docTitle: String,
+    isCollapsedInitialState: {
+      type: Boolean,
+      default: true,
+    },
   },
 
-  components: {},
+  watch: {
+    apiPath: {
+      handler: function(val, oldVal) {
+        if (val && val !== oldVal) {
+          if (!this.isVersionHistoryCollapsed) {
+            this.loadGitLog()
+          }
+        }
+      },
+    },
+  },
 
   data() {
     return {
+      gitLog: [],
+      isVersionHistoryCollapsed: this.isCollapsedInitialState,
+      loading: false,
       expanded: false,
-      init_max_rows: 5,
+      maxRows: 5,
       commitOverIndex: null,
+      apiRoot: RequestsUtils.confAPIRoot,
+      apiVersion: RequestsUtils.confAPIVersion,
     }
   },
 
@@ -101,14 +146,43 @@ export default defineComponent({
       if (this.expanded) {
         return this.gitLog
       }
-
-      return this.gitLog.slice(0, this.init_max_rows)
+      return this.gitLog.slice(0, this.maxRows)
     },
   },
   emits: ['restore-version'],
   methods: {
-    restoreVersion(commit: Commit) {
-      this.$emit('restore-version', commit)
+    loadGitLog() {
+      this.loading = true
+      this.gitLog = []
+      const url = this.apiPath
+      RequestsUtils.sendRequest({methodName: 'GET', url}).then((response: AxiosResponse<Commit[]>) => {
+        this.gitLog = response?.data
+        this.loading = false
+      }).catch((err: AxiosError) => {
+        console.error(`Error while attempting to load Git Log from path: ${this.apiPath}. Error: ${err}`)
+        this.loading = false
+      })
+    },
+
+    async restoreVersion(commit: Commit) {
+      const versionId = commit.version
+      const url = this.apiPath
+
+      await RequestsUtils.sendRequest({
+        methodName: 'PUT',
+        url: `${url}${versionId}/revert/`,
+        successMessage: `Document [${this.docTitle}] restored to version [${versionId}]!`,
+        failureMessage: `Failed restoring document [${this.docTitle}] to version [${versionId}]!`,
+      })
+      this.loadGitLog()
+      this.$emit('restore-version')
+    },
+
+    toggleVersionHistoryCollapsed() {
+      this.isVersionHistoryCollapsed = !this.isVersionHistoryCollapsed
+      if ((!this.gitLog || !this.gitLog.length) && !this.isVersionHistoryCollapsed) {
+        this.loadGitLog()
+      }
     },
 
     mouseLeave() {
@@ -129,14 +203,40 @@ export default defineComponent({
   },
 
   mounted() {
-
-  },
-
-  created() {
+    if (!this.isCollapsedInitialState) {
+      this.loadGitLog()
+    }
   },
 })
 </script>
-<style scoped lang="scss">
+<style scoped
+       lang="scss">
+.collapsible {
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  justify-items: center;
+}
+
+.collapsible-card {
+  border: 1px solid #fff;
+}
+
+.collapsible-card:hover {
+  border: 1px solid #b5b5b5;
+}
+
+.card.collapsed .collapsible-content {
+  display: none;
+}
+
+.rbz-content .collapsed .media {
+  margin: 0;
+}
+
+.collapsible .fa-angle-down {
+  align-self: center;
+}
 
 .version-history-title {
   line-height: 30px;

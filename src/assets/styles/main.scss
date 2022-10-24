@@ -8,6 +8,12 @@
 @import 'node_modules/bulma/sass/utilities/mixins.sass';
 @import 'node_modules/bulma/sass/helpers/typography.sass';
 
+/* System */
+
+html {
+  overflow: hidden;
+}
+
 /* Element width */
 
 .width-20px {
@@ -88,10 +94,22 @@
   width: 200px;
 }
 
+.width-220px {
+  max-width: 220px;
+  min-width: 220px;
+  width: 220px;
+}
+
 .width-250px {
   max-width: 250px;
   min-width: 250px;
   width: 250px;
+}
+
+.width-260px {
+  max-width: 260px;
+  min-width: 260px;
+  width: 260px;
 }
 
 .width-300px {
@@ -172,10 +190,17 @@
   min-height: 130px;
 }
 
+
 .height-140px {
   height: 140px;
   max-height: 140px;
   min-height: 140px;
+}
+
+.height-200px {
+  height: 200px;
+  max-height: 200px;
+  min-height: 200px;
 }
 /* Text */
 
@@ -295,10 +320,36 @@ $color-light: hsl(0, 0%, 96%);
   border-color: #3273dc;
 }
 
+.is-justify-content-space-around {
+  justify-content: space-around;
+}
+
+/* Vue3Datepicker */
+
+.dp__preset_ranges { /* stylelint-disable-line */
+  width: 150px;
+}
+
+.dp__action_row { /* stylelint-disable-line */
+  min-width: 100%;
+}
+
+.dp__input_icon { /* stylelint-disable-line */
+  color: #000;
+}
+
 /* Other */
 
 .is-clickable {
   cursor: pointer;
+}
+
+.is-fullheight {
+  height: 100%;
+}
+
+.has-overflow-y-auto {
+  overflow-y: auto;
 }
 
 .tag-cell {

@@ -37,7 +37,7 @@ describe('DynamicRulesEditor.vue', () => {
         'description': 'Tag API Requests',
         'active': true,
         'tags': ['api', 'okay'],
-        'action': 'monitor',
+        'action': 'action-dynamic-rule-block',
         'rule': {
           'relation': 'OR',
           'entries': [
@@ -50,15 +50,11 @@ describe('DynamicRulesEditor.vue', () => {
     ]
     customResponsesDocs = [
       {
-        'id': 'default',
-        'name': 'default blocking action',
-      },
-      {
-        'id': 'monitor',
+        'id': 'action-dynamic-rule-block',
         'name': 'default monitoring action',
       },
     ]
-    selectedBranch = 'master',
+    selectedBranch = 'prod',
 
     mockRouter = {
       push: jest.fn(),
@@ -159,7 +155,7 @@ describe('DynamicRulesEditor.vue', () => {
         },
       }
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === `db/master/k/autocomplete/`) {
+        if (path === `db/prod/k/autocomplete/`) {
           return Promise.resolve(tagsData)
         }
         return Promise.resolve()
