@@ -76,11 +76,18 @@ export default defineComponent({
     return {
       columns: [
         {
+          title: 'ID',
+          fieldNames: ['id'],
+          isSortable: true,
+          isSearchable: true,
+          classes: 'width-130px',
+        },
+        {
           title: 'Name',
           fieldNames: ['name'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-120px',
+          classes: 'width-130px',
         },
         {
           title: 'Description',
@@ -121,7 +128,7 @@ export default defineComponent({
           },
           isSortable: true,
           isSearchable: true,
-          classes: 'width-120px',
+          classes: 'width-130px',
         },
       ] as ColumnOptions[],
       isNewLoading: false,
