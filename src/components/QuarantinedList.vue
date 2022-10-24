@@ -30,6 +30,13 @@ export default defineComponent({
     return {
       columns: [
         {
+          title: 'ID',
+          fieldNames: ['id'],
+          isSortable: true,
+          isSearchable: true,
+          classes: 'width-130px',
+        },
+        {
           title: 'Key Parameter',
           fieldNames: ['target'],
           isSortable: true,
