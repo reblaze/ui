@@ -405,7 +405,7 @@
                 </div>
               </div>
             </div>
-            <div class="card collapsible-card"
+            <!--div-- class="card collapsible-card"
                  :class="{ collapsed: isTrustedCollapsed }">
               <div class="card-content px-0 py-0">
                 <div class="media collapsible px-5 py-5 mb-0"
@@ -439,35 +439,9 @@
                                     >
                         </rbz-table>
                     </div>
-                    <div class="columns columns-divided add-new-trusted-source ml-3"  v-if="addingNewTrustedSource">
-                          <input class="column is-6 ellipsis add-new-address"
-                            title="Trusted Source CIDR / IP / Tag Rule Address"
-                            placeholder="CIDR/IP/Tag Rule Address"
-                            v-model="newAddress">
-                          <input class="column is-5 ellipsis add-new-comment"
-                            title="Trusted Source Comment"
-                            placeholder="CIDR/IP/Tag Rule Address"
-                            v-model="newComment">
-                          <button  class="width-50px is-2 ml-3" @click="addNewTrustedSource" >
-                            Add
-                          </button>
-                    </div>
-                    <div class="columns columns-divided edit-new-trusted-source ml-3"  v-if="showEditTrustedSource">
-                          <input class="column is-6 ellipsis add-new-address"
-                            title="Trusted Source CIDR / IP / Tag Rule Address"
-                            placeholder="CIDR/IP/Tag Rule Address"
-                            v-model="editAddress">
-                          <input class="column is-5 ellipsis add-new-comment"
-                            title="Trusted Source Comment"
-                            placeholder="CIDR/IP/Tag Rule Address"
-                            v-model="editComment">
-                          <button  class="width-50px is-2 ml-3" @click="editTrustedSource" >
-                            Edit
-                          </button>
-                    </div>
                 </div>
               </div>
-            </div>
+            </div-->
             <div class="card collapsible-card"
                  :class="{ collapsed: isAdvancedCollapsed }">
               <div class="card-content px-0 py-0">
@@ -528,6 +502,80 @@
           </div>
         </div>
       </div>
+      <div class="modal add-source is-active" v-if="isAddModalVisible">
+    <div class="modal-background">
+        <!--div class="modal-card">
+            <div class="modal-card-head">
+                <h5 class="modal-card-title is-size-6 mb-0">
+                    {{! isEdit ? 'Edit' : 'Add' }} Trusted Source
+                </h5>
+                <button class="delete" @click="closeModal"></button>
+            </div>
+            <div class="modal-card-body">
+                <div class="field">
+                    <div class="select is-small is-size-7 is-fullwidth mb-1">
+                        <select
+                            v-model="entryType"
+                            :disabled="isEdit"
+                            @change="onChangeEntryType"
+                        >
+                            <option value="cidr" key="cidr">CIDR/IP address</option>
+                            <option value="tag" key="tag">Tag Rule</option>
+                        </select>
+                    </div>
+                    <div class="control" v-if="entryType === 'cidr' || isEdit">
+                        <input
+                            class="input is-small"
+                            :class="{'is-danger': isError('ip')}"
+                            placeholder="Enter CIDR/IP address"
+                            v-model="isEdit && entryType === 'tag' ? sourceToAdd.tagRule : sourceToAdd.address"
+                            @input="validateIp"
+                            :disabled="isEdit"
+                            ref="address"
+                        />
+                    </div>
+                    <search
+                        v-else
+                        v-model="tagRule"
+                        :options="tagRules.filter (({ id }) => !sources.find (({address}) => address === id ))"
+                        placeholder="Choose tag rule"
+                    ></search>
+                    <p class="help is-danger" v-if="isError ( 'ip' )">
+                        Incorrect value: expected CIDR/IP address
+                    </p>
+                    <p class="help is-danger" v-else-if="isError ( 'duplicate' )">
+                        A source with this ip address is already in the trusted sources list
+                    </p>
+                </div>
+                <div class="field">
+                    <label class="label is-small mb-1">Comment</label>
+                    <div class="control">
+                        <input
+                            class="input is-small"
+                            placeholder="Enter comment"
+                            v-model="sourceToAdd.comment"
+                        />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-card-foot modal-footer-buttons">
+                <div class="buttons is-right is-fullwidth">
+                    <button class="button is-small" @click="closeModal">
+                        Cancel
+                    </button>
+                    <button
+                        :disabled="!sourceToAdd.isValid && !tagRule"
+                        class="button is-small"
+                        :class="{ 'is-loading': isProcessing }"
+                        @click="saveSource"
+                    >
+                        Save
+                    </button>
+                </div>
+            </div>
+        </div-->
+    </div>
+</div>
     </div>
   </div>
 </template>
@@ -538,14 +586,14 @@ import {ProxyTemplate} from '@/types'
 import Utils from '@/assets/Utils'
 import {defineComponent} from 'vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
-import RbzTable from '@/components/RbzTable.vue'
+// import RbzTable from '@/components/RbzTable.vue'
 
 
 export default defineComponent({
   name: 'ProxyTemplateEditor',
-  components: {
-    RbzTable,
-  },
+  // components: {
+  //   RbzTable,
+  // },
   data() {
     return {
       titles: DatasetsUtils.titles,
@@ -570,7 +618,7 @@ export default defineComponent({
       apiVersion: RequestsUtils.reblazeAPIVersion,
 
       // Trusted indicators
-      addingNewTrustedSource: false,
+      isAddModalVisible: false,
       showEditTrustedSource: false,
 
 
@@ -593,10 +641,15 @@ export default defineComponent({
           classes: 'ellipsis',
         },
       ],
+      sourceToAdd: {address: '', comment: '', isValid: false} as {address: string, comment: string, isValid?: boolean},
+      tagRule: '',
       newAddress: '127.0.0.0/8',
       newComment: 'Private subnet',
       editAddress: '',
       editComment: '',
+      isEdit: false,
+      entryType: 'cidr',
+      isError: false,
       currentEditIndex: 0,
     }
   },
@@ -612,7 +665,7 @@ export default defineComponent({
 
     sslConfSpecific: {
       get: function(): string {
-        if (this.selectedProxyTemplate.ssl_conf_specific) {
+        if (this.selectedProxyTemplate && this.selectedProxyTemplate.ssl_conf_specific) {
           return Object.values(this.selectedProxyTemplate.ssl_conf_specific).join('\n')
         }
         return ''
@@ -628,7 +681,7 @@ export default defineComponent({
     // in type {} will storw an array 0: 'string', 1: 'string'
     confSpecific: {
       get: function(): string {
-        if (this.selectedProxyTemplate.conf_specific) {
+        if (this.selectedProxyTemplate && this.selectedProxyTemplate.conf_specific) {
           return Object.values(this.selectedProxyTemplate.conf_specific).join('\n')
         }
         return ''
@@ -739,71 +792,138 @@ export default defineComponent({
       this.isDownloadLoading = false
     },
 
-    async loadTrustedSources() {
-      const url = `configs/${this.selectedBranch}/d/planet/`
-      const methodName = 'GET'
-      const response = await RequestsUtils.sendReblazeRequest({methodName, url})
-      console.log('trusted_nets', response?.data)
-      this.planetID = response.data.id
-      this.planetName = response.data.name
-      this.trustedData = response?.data?.trusted_nets?.map(
-        (trusted: {address: string, comment: string}, index: number)=> {
-          return {id: index, address: trusted.address, comment: trusted.comment}
-        })
-    },
-    toggleAddingNewTrustedSource() {
-      this.addingNewTrustedSource=true
-      console.log('this.addingNewTrustedSource', this.addingNewTrustedSource)
-    },
-    addNewTrustedSource() {
-      const id = this.trustedData.length
-      const newTrustedElement = {id: id, address: this.newAddress, comment: this.newComment}
-      this.trustedData.push(newTrustedElement)
-      this.newAddress = '127.0.0.0/8'
-      this.newComment = 'Private subnet'
-      this.addingNewTrustedSource=false
-    },
-    toggleEditTrustedElement(id: number) {
-      this.showEditTrustedSource=true
+    // TODO waiting for truseted source to be implemented on backend: moved from planet to proxy-template and to have an id for each record.
+    // also need to complete the modal for editing and adding trusted sources.
+    // async loadTrustedSources() {
+    //   const url = `configs/${this.selectedBranch}/d/planet/`
+    //   const methodName = 'GET'
+    //   const response = await RequestsUtils.sendReblazeRequest({methodName, url})
+    //   console.log('trusted_nets', response?.data)
+    //   this.planetID = response.data.id
+    //   this.planetName = response.data.name
+    //   this.trustedData = response?.data?.trusted_nets?.map(
+    //     (trusted: {address: string, comment: string}, index: number)=> {
+    //       return {id: index, address: trusted.address, comment: trusted.comment}
+    //     })
+    // },
+    // toggleAddingNewTrustedSource() {
+    //   this.isAddModalVisible=true
+    //   console.log('this.isAddModalVisible', this.isAddModalVisible)
+    // },
 
-      this.currentEditIndex = this.trustedData.findIndex((trusted) => trusted.id ===id)
-      this.editAddress = this.trustedData[this.currentEditIndex].address
-      this.editComment = this.trustedData[this.currentEditIndex].comment
-      console.log('this.addingNewTrustedSource', this.addingNewTrustedSource)
-    },
-    editTrustedSource() {
-      this.trustedData[this.currentEditIndex].address = this.editAddress
-      this.trustedData[this.currentEditIndex].comment = this.editComment
+    // addNewTrustedSource() {
+    //   const id = this.trustedData.length
+    //   const newTrustedElement = {id: id, address: this.newAddress, comment: this.newComment}
+    //   this.trustedData.push(newTrustedElement)
+    //   this.newAddress = '127.0.0.0/8'
+    //   this.newComment = 'Private subnet'
+    //   this.isAddModalVisible=false
+    // },
+    // openAddModal (id) {
+    //   if ( id ) {
+    //       this.sourceToAdd = {...this.findSource(id), isValid: true}
+    //       const tagRule = this.tagRules.find(tr => tr.id === id)
+    //       if (tagRule) {
+    //           this.entryType = 'tag',
+    //           this.sourceToAdd.tagRule = tagRule.name,
+    //       }
+    //       this.isEdit = true
+    //   }
+    //   else {
+    //       this.sourceToAdd = {
+    //           address: '',
+    //           comment: '',
+    //       };
+    //       this.isEdit = false
+    //   }
+    //   this.isAddModalVisible = true
+    //   this.$nextTick ( () => this.$refs.address?.focus())
+    // },
+    // onChangeEntryType() {
+    //   this.sourceToAdd.address = '';
+    //   this.sourceToAdd.isValid = false;
+    //   this.tagRule = '';
+    //   this.clearError();
+    // },
+    // validateIp() {
+    //   this.clearError('ip');
+    // const ipPattern = /((^\s*((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]
+    //          |1[0-9]{2}|2[0-4][0-9]|25[0-5]))\s*(:([0-9]
+    //          |[1-8][0-9]|9[0-9]|[1-8][0-9]{2}|9[0-8][0-9]|99[0-9]|[1-8][0-9]{3}|9[0-8][0-9]{2}|99[0-8][0-9]|999[0-9]|[1-5][0-9]{4}|6[0-4]
+    //          [0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])|(\/[0-9]|\/[1-2][0-9]|\/[1-3][0-2]))?(\s?)?$)|(^\s*((([0-9A-Fa-f]{1,4}:)
+    //          {7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|
+    //          1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]
+    //          |2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|
+    //          2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|
+    //          ((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]
+    //          {1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|
+    // 1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|
+    // [1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d
+    // |1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*(:([0-9]|[1-8][0-9]|9[0-9]|[1-8][0-9]{2}|9[0-8][0-9]|99[0-9]
+    // |[1-8][0-9]{3}|9[0-8][0-9]{2}|99[0-8][0-9]|999[0-9]|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])|(\/[0-9]
+    // |\/[1-2][0-9]|\/[1-3][0-2]))?(\s?)?$))/
+    //   this.sourceToAdd.isValid = ipPattern.test ( this.sourceToAdd.address )
+    //   if (this.sourceToAdd.isValid) {
+    //       this.validateDuplication()
+    //   }
+    //   else {
+    //       this.errors.push('ip');
+    //   }
+    // },
+    // validateDuplication() {
+    //   this.clearError('duplicate');
+    //   this.sourceToAdd.isValid = !this.findSource ( this.sourceToAdd.address );
+    //   if (!this.sourceToAdd.isValid) {
+    //       this.errors.push ('duplicate');
+    //   }
+    // },
 
-      this.showEditTrustedSource=false
-    },
+    // closeModal() {
+    //   this.isAddModalVisible = false
+    //   this.sourceToAdd = {}
+    //   this.errors = []
+    //   this.entryType = 'cidr'
+    //   this.tagRule = ''
+    // },
+    // toggleEditTrustedElement(id: number) {
+    //   this.showEditTrustedSource=true
 
-    async deleteTrustedElement(id: number) {
-      const trustedArr = [...this.trustedData]
-      this.trustedData = trustedArr.filter((trusted) => trusted.id !== id)
-      const dataTrusted = this.trustedData.map((trusted) => {
-        return {address: trusted.address, comment: trusted.comment}
-      })
-      const data = {
-        id: this.planetID,
-        name: this.planetName,
-        trusted_nets: dataTrusted,
-      }
-      console.log('delete id', id, 'data', data)
-      const url = `configs/${this.selectedBranch}/d/planet/`
-      const methodName = 'PUT'
-      await RequestsUtils.sendReblazeRequest({methodName, url, data})
-    },
+    //   this.currentEditIndex = this.trustedData.findIndex((trusted) => trusted.id ===id)
+    //   this.editAddress = this.trustedData[this.currentEditIndex].address
+    //   this.editComment = this.trustedData[this.currentEditIndex].comment
+    // },
+    // editTrustedSource() {
+    //   this.isEdit = true
+    //   this.trustedData[this.currentEditIndex].address = this.editAddress
+    //   this.trustedData[this.currentEditIndex].comment = this.editComment
+
+    //   this.showEditTrustedSource=false
+    // },
+
+    // async deleteTrustedElement(id: number) {
+    //   const trustedArr = [...this.trustedData]
+    //   this.trustedData = trustedArr.filter((trusted) => trusted.id !== id)
+    //   const dataTrusted = this.trustedData.map((trusted) => {
+    //     return {address: trusted.address, comment: trusted.comment}
+    //   })
+    //   const data = {
+    //     id: this.planetID,
+    //     name: this.planetName,
+    //     trusted_nets: dataTrusted,
+    //   }
+    //   console.log('delete id', id, 'data', data)
+    //   const url = `configs/${this.selectedBranch}/d/planet/`
+    //   const methodName = 'PUT'
+    //   await RequestsUtils.sendReblazeRequest({methodName, url, data})
+    // },
   },
   async created() {
     await this.loadConfigs()
     this.setSelectedDataFromRouteParams()
-    await this.loadTrustedSources()
   },
 })
 </script>
-<style scoped
-       lang="scss">
+<style scoped lang="scss">
 .collapsible {
   cursor: pointer;
   display: flex;
