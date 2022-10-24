@@ -17,6 +17,13 @@ import DatasetsUtils from '@/assets/DatasetsUtils'
 export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
   'globalfilters': [
     {
+      title: 'ID',
+      fieldNames: ['id'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-120px',
+    },
+    {
       title: 'Name',
       fieldNames: ['name'],
       isSortable: true,
@@ -40,6 +47,13 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       classes: 'width-100px white-space-pre ellipsis',
     },
     {
+      title: 'Action',
+      fieldNames: ['action'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-120px',
+    },
+    {
       title: 'Active',
       fieldNames: ['active'],
       displayFunction: (item: GlobalFilter) => {
@@ -58,6 +72,13 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
     },
   ],
   'flowcontrol': [
+    {
+      title: 'ID',
+      fieldNames: ['id'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-120px',
+    },
     {
       title: 'Name',
       fieldNames: ['name'],
@@ -101,6 +122,13 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
     },
   ],
   'securitypolicies': [
+    {
+      title: 'ID',
+      fieldNames: ['id'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-120px',
+    },
     {
       title: 'Name',
       fieldNames: ['name'],
@@ -167,6 +195,13 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
   ],
   'ratelimits': [
     {
+      title: 'ID',
+      fieldNames: ['id'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-120px',
+    },
+    {
       title: 'Name',
       fieldNames: ['name'],
       isSortable: true,
@@ -224,6 +259,13 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
   ],
   'aclprofiles': [
     {
+      title: 'ID',
+      fieldNames: ['id'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-120px',
+    },
+    {
       title: 'Name',
       fieldNames: ['name'],
       isSortable: true,
@@ -249,6 +291,13 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
     },
   ],
   'actions': [
+    {
+      title: 'ID',
+      fieldNames: ['id'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-120px',
+    },
     {
       title: 'Name',
       fieldNames: ['name'],
@@ -295,6 +344,13 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
     },
   ],
   'contentfilterprofiles': [
+    {
+      title: 'ID',
+      fieldNames: ['id'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-130px',
+    },
     {
       title: 'Name',
       fieldNames: ['name'],
@@ -352,6 +408,13 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
   ],
   'contentfilterrules': [
     {
+      title: 'ID',
+      fieldNames: ['id'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-120px',
+    },
+    {
       title: 'Name',
       fieldNames: ['name'],
       isSortable: true,
@@ -399,6 +462,13 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
   ],
   'cloud-functions': [
     {
+      title: 'ID',
+      fieldNames: ['id'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-120px',
+    },
+    {
       title: 'Name',
       fieldNames: ['name'],
       isSortable: true,
@@ -425,6 +495,13 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
     },
   ],
   'dynamic-rules': [
+    {
+      title: 'ID',
+      fieldNames: ['id'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-120px',
+    },
     {
       title: 'Name',
       fieldNames: ['name'],
