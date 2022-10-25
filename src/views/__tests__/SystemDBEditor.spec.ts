@@ -250,17 +250,6 @@ describe('SystemDBEditor.vue', () => {
     expect(wrapper.vm.selectedKey).toEqual(wantedValue)
   })
 
-  test('should send API request to restore to the correct version', () => {
-    const wantedVersion = {
-      version: 'b104d3dd17f790b75c4e067c44bb06b914902d78',
-    }
-    const putSpy = jest.spyOn(axios, 'put')
-    putSpy.mockImplementation(() => Promise.resolve())
-    const gitHistory = wrapper.findComponent(GitHistory)
-    gitHistory.vm.$emit('restore-version', wantedVersion)
-    expect(putSpy).toHaveBeenCalledWith(`/conf/api/v3/db/system/v/${wantedVersion.version}/revert/`)
-  })
-
   test('should load last loaded key if still exists after restoring version', () => {
     const restoredVersion = {
       version: 'b104d3dd17f790b75c4e067c44bb06b914902d78',

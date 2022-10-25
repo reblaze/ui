@@ -44,7 +44,7 @@ describe('RateLimitRulesEditor.vue', () => {
             'match': '/',
             'acl_profile': '__acldefault__',
             'acl_active': false,
-            'content_filter_profile': '__default__',
+            'content_filter_profile': '__defaultcontentfilter__',
             'content_filter_active': false,
             'limit_ids': ['f971e92459e2'],
           },
@@ -69,7 +69,7 @@ describe('RateLimitRulesEditor.vue', () => {
             'match': '/',
             'acl_profile': '__acldefault__',
             'acl_active': false,
-            'content_filter_profile': '__default__',
+            'content_filter_profile': '__defaultcontentfilter__',
             'content_filter_active': false,
             'limit_ids': ['f971e92459e2', '365757ec0689'],
           },
@@ -195,7 +195,8 @@ describe('RateLimitRulesEditor.vue', () => {
     test('should have response action selection with correct data', () => {
       const wantedCustomResponse = rateLimitsDocs[0].thresholds[0].action.toString()
       const thresholdActionSelection = wrapper.find('.threshold-action-selection')
-      const selectedCustomResponse = (thresholdActionSelection.find('option:checked').element as HTMLOptionElement).value
+      const selectedCustomResponseElement = thresholdActionSelection.find('option:checked').element
+      const selectedCustomResponse = (selectedCustomResponseElement as HTMLOptionElement).value
       expect(selectedCustomResponse).toEqual(wantedCustomResponse)
     })
 
@@ -303,7 +304,7 @@ describe('RateLimitRulesEditor.vue', () => {
       const addThresholdButton = wrapper.find('.add-threshold-button')
       await addThresholdButton.trigger('click')
       const wantedLimit = 0
-      const wantedCustomResponse = 'default'
+      const wantedCustomResponse = 'action-rate-limit-block'
       const actualLimit = wrapper.vm.localDoc.thresholds[1].limit
       const actualCustomResponse = wrapper.vm.localDoc.thresholds[1].action
       expect(wrapper.vm.localDoc.thresholds.length).toEqual(2)
@@ -487,7 +488,7 @@ describe('RateLimitRulesEditor.vue', () => {
 
     test('should have a link to each connected Security Policy', async () => {
       const selectedBranchStr = (wrapper.vm as VueWrapper).selectedBranch
-      const wantedRoute = `/config/${selectedBranchStr}/securitypolicies/${securityPoliciesDocs[0].id}`
+      const wantedRoute = `/${selectedBranchStr}/securitypolicies/config/${securityPoliciesDocs[0].id}`
       const connectedSecurityPoliciesEntryRow = wrapper.findAll('.connected-entry-row').at(0)
       const referralButton = connectedSecurityPoliciesEntryRow.find('.security-policy-referral-button')
       await referralButton.trigger('click')
@@ -515,7 +516,7 @@ describe('RateLimitRulesEditor.vue', () => {
               'match': '/',
               'acl_profile': '__acldefault__',
               'acl_active': false,
-              'content_filter_profile': '__default__',
+              'content_filter_profile': '__defaultcontentfilter__',
               'content_filter_active': false,
               'limit_ids': ['f971e92459e2', '365757ec0689'],
             },
@@ -540,7 +541,7 @@ describe('RateLimitRulesEditor.vue', () => {
               'match': '/',
               'acl_profile': '__acldefault__',
               'acl_active': false,
-              'content_filter_profile': '__default__',
+              'content_filter_profile': '__defaultcontentfilter__',
               'content_filter_active': false,
               'limit_ids': ['f971e92459e2', '365757ec0689'],
             },

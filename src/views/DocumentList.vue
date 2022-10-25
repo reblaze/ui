@@ -46,7 +46,7 @@
       <hr/>
       <git-history v-if="!isReblazeDocument"
                    :api-path="gitAPIPath"
-                   :doc-title="titles[selectedDocType]"
+                   :restore-target-title="`document [${titles[selectedDocType]}]`"
                    @restore-version="restoreGitVersion"/>
     </div>
 

@@ -2,7 +2,7 @@
   <div class="card-content">
     <div class="content">
       <div class="columns columns-divided">
-        <div class="column is-3">
+        <div class="column is-4">
           <div class="field">
             <label class="label is-small">
               Name
@@ -61,7 +61,7 @@
           </div>
         </div>
         <div v-if="['monitor', 'custom'].includes(localDoc.type)"
-             class="column is-9">
+             class="column is-8">
           <div class="custom-panel">
             <div class="field">
               <label class="label is-small is-size-7 has-text-left form-label">

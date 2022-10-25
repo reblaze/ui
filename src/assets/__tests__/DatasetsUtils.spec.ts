@@ -88,7 +88,7 @@ describe('RequestsUtils.ts', () => {
       expect(document['map'][0]['match']).toEqual('/')
       expect(document['map'][0]['name']).toEqual('default')
       expect(document['map'][0]['acl_profile']).toEqual('__acldefault__')
-      expect(document['map'][0]['content_filter_profile']).toEqual('__default__')
+      expect(document['map'][0]['content_filter_profile']).toEqual('__defaultcontentfilter__')
       expect(document['map'][0]['acl_active']).toEqual(false)
       expect(document['map'][0]['content_filter_active']).toEqual(false)
       expect(document['map'][0]['limit_ids']).toEqual([])
