@@ -224,10 +224,9 @@
         </div>
       </div>
       <hr/>
-      <git-history :gitLog="gitLog"
-                   :apiPath="gitAPIPath"
-                   :loading="loadingGitLog"
-                   @restore-version="restoreGitVersion"></git-history>
+      <git-history :api-path="gitAPIPath"
+                   :restore-target-title="`namespace [${this.selectedNamespace}]`"
+                   @restore-version="restoreGitVersion"/>
     </div>
 
     <div class="content no-data-wrapper"
@@ -319,7 +318,7 @@ export default defineComponent({
   computed: {
 
     gitAPIPath(): string {
-      return `${this.apiRoot}/${this.apiVersion}/db/${this.selectedNamespace}/k/${this.selectedKey}/v/`
+      return `db/${this.selectedNamespace}/k/${this.selectedKey}/v/`
     },
 
     isFormValid(): boolean {
@@ -563,17 +562,9 @@ export default defineComponent({
       this.loadingGitLog = false
     },
 
-    async restoreGitVersion(gitVersion: Commit) {
+    async restoreGitVersion() {
       const namespace = this.selectedNamespace
       const selectedKey = this.selectedKey
-      const versionId = gitVersion.version
-      const urlTrail = `${namespace}/v/${versionId}/`
-      await RequestsUtils.sendRequest({
-        methodName: 'PUT',
-        url: `db/${urlTrail}revert/`,
-        successMessage: `Namespace [${namespace}] restored to version [${versionId}]!`,
-        failureMessage: `Failed restoring namespace [${namespace}] to version [${versionId}]!`,
-      })
       await this.loadNamespace(namespace)
       // load last loaded key if still exists
       const oldSelectedKey = this.namespaceKeys.find((key: string) => {

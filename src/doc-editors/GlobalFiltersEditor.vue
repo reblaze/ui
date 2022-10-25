@@ -1,15 +1,15 @@
 <template>
   <div class="card-content">
     <div class="content">
-      <div class="columns columns-divided">
-        <div class="column is-3">
+      <div class="columns">
+        <div class="column is-4">
           <div class="field">
             <label class="label is-small">
               Name
               <span class="has-text-grey is-pulled-right document-id"
                     title="Rule id">
-                  {{ localDoc.id }}
-                </span>
+                {{ localDoc.id }}
+              </span>
             </label>
             <div class="control">
               <input class="input is-small document-name"
@@ -39,7 +39,7 @@
                  data-qa="tag-input">
               <tag-autocomplete-input :initial-tag="selectedDocTags"
                                       :selection-type="'multiple'"
-                                      :editable="editable"
+                                      :editable="!dynamicRuleManaged"
                                       @tag-changed="selectedDocTags = $event" />
             </div>
           </div>
@@ -108,29 +108,19 @@
                 </textarea>
             </div>
           </div>
-          <div class="pt-6">
-            <div class="field"
-                 v-if="selfManaged">
-              <div class="control is-expanded">
-                <button class="button is-small has-text-danger-dark remove-all-entries-button"
-                        data-qa="remove-all-entries-btn"
-                        :disabled="dynamicRuleManaged"
-                        title="Remove all entries"
-                        @click="removeAllEntries">
-                  Clear all entries
-                </button>
-              </div>
-            </div>
-          </div>
 
         </div>
-        <div class="column is-9">
-          <entries-relation-list v-model:rule="localDoc.rule"
-                                 :editable="editable"
-                                 ref="entriesRelationList"
-                                 @update:rule="emitDocUpdate"
-                                 @invalid="emitFormInvalid">
-          </entries-relation-list>
+      </div>
+      <div class="columns">
+        <div class="column is-12">
+          <div class="field">
+          <label class="label is-small">Rule</label>
+            <entries-relation-list v-model:rule="localDoc.rule"
+                                   @update:rule="emitDocUpdate"
+                                   @invalid="emitFormInvalid"
+                                   :editable="editable">
+            </entries-relation-list>
+          </div>
         </div>
       </div>
       <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ apiPath }}</span>
@@ -169,22 +159,11 @@ export default defineComponent({
     }
   },
 
-  watch: {
-    selectedDoc: {
-      handler: function(val, oldVal) {
-        if (!val || !oldVal || val.id !== oldVal.id) {
-          this.$refs.entriesRelationList?.cancelAllEntries()
-        }
-      },
-      immediate: true,
-      deep: true,
-    },
-  },
-
   computed: {
     reblazeManaged(): boolean {
       return this.localDoc.source === 'reblaze-managed'
     },
+
     dynamicRuleManaged(): boolean {
       return this.selectedDoc.id ? this.selectedDoc.id.startsWith('dr_') : false
     },
@@ -242,12 +221,6 @@ export default defineComponent({
 
     emitFormInvalid(isFormInvalid: boolean) {
       this.$emit('form-invalid', isFormInvalid)
-    },
-
-    removeAllEntries() {
-      this.localDoc.rule.entries.splice(0, this.localDoc.rule.entries.length)
-      this.$refs.entriesRelationList?.cancelAllEntries()
-      this.emitDocUpdate()
     },
 
     tryMatch(data: string, regex: RegExp, type: Category): GlobalFilterRuleEntry[] {
@@ -355,9 +328,6 @@ export default defineComponent({
 
 <style scoped
        lang="scss">
-.pointer {
-  cursor: pointer;
-}
 
 .tags {
   display: inline-block;

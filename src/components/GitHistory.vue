@@ -109,7 +109,7 @@ export default defineComponent({
 
   props: {
     apiPath: String,
-    docTitle: String,
+    restoreTargetTitle: String,
     isCollapsedInitialState: {
       type: Boolean,
       default: true,
@@ -171,8 +171,8 @@ export default defineComponent({
       await RequestsUtils.sendRequest({
         methodName: 'PUT',
         url: `${url}${versionId}/revert/`,
-        successMessage: `Document [${this.docTitle}] restored to version [${versionId}]!`,
-        failureMessage: `Failed restoring document [${this.docTitle}] to version [${versionId}]!`,
+        successMessage: `The ${this.restoreTargetTitle} restored to version [${versionId}]!`,
+        failureMessage: `Failed restoring ${this.restoreTargetTitle} to version [${versionId}]!`,
       })
       this.loadGitLog()
       this.$emit('restore-version')

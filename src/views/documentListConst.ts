@@ -158,7 +158,7 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       },
       isSortable: true,
       isSearchable: true,
-      classes: 'width-80px',
+      classes: 'width-100px white-space-pre ellipsis',
     },
     {
       title: 'Connected Profiles & Rules',
@@ -179,7 +179,7 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
         }
         const getActiveContentFilters = () => {
           const active = item?.map?.filter((mapEntry: SecurityPolicyEntryMatch) => {
-            return mapEntry.acl_active
+            return mapEntry.content_filter_active
           }).length
           const total = item?.map?.length
           return `Content Filter: ${active} out of ${total} active`
@@ -316,7 +316,7 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       title: 'Status Code',
       fieldNames: ['params'],
       displayFunction: (item: CustomResponse) => {
-        return item?.params?.status.toString() || ''
+        return item?.params?.status?.toString() || ''
       },
       isSortable: true,
       isSearchable: true,
@@ -457,7 +457,7 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       },
       isSortable: true,
       isSearchable: true,
-      classes: 'width-80px',
+      classes: 'width-100px white-space-pre ellipsis',
     },
   ],
   'cloud-functions': [

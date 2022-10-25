@@ -6,11 +6,30 @@ import {nextTick} from 'vue'
 
 describe('LimitOption.vue', () => {
   let option: OptionObject
+  let allAttributes = []
   let wrapper: any
   beforeEach(async () => {
     option = {
       type: 'self',
     }
+    allAttributes = [
+      'Authority',
+      'Company',
+      'Country',
+      'IP Address',
+      'Method',
+      'Network',
+      'Path',
+      'Path Matching ID',
+      'Provider',
+      'Query',
+      'Region',
+      'Security Policy ID',
+      'Session ID',
+      'Subregion',
+      'Tag',
+      'URI',
+    ]
     wrapper = mount(LimitOption, {
       props: {
         option: option,
@@ -105,6 +124,9 @@ describe('LimitOption.vue', () => {
 
   describe('ignoreAttributes prop', () => {
     test('should render dropdown correctly without ignored action types (tags, method)', async () => {
+      allAttributes = allAttributes.filter((item) => {
+        return !['Tag', 'Method'].includes(item)
+      })
       option = {
         type: 'attrs',
       }
@@ -117,36 +139,30 @@ describe('LimitOption.vue', () => {
       await nextTick()
       const selection = wrapper.find('.option-attribute-selection')
       const options = selection.findAll('option')
-      expect(options.at(0).text()).toEqual('IP Address')
-      expect(options.at(1).text()).toEqual('Provider')
-      expect(options.at(2).text()).toEqual('URI')
-      expect(options.at(3).text()).toEqual('Path')
-      expect(options.at(4).text()).toEqual('Query')
-      expect(options.at(5).text()).toEqual('Company')
-      expect(options.at(6).text()).toEqual('Country')
-      expect(options.at(7).text()).toEqual('Authority')
+      options.forEach((option, index) => {
+        expect(option.text()).toEqual(allAttributes[index])
+      })
     })
 
     test('should render dropdown correctly without ignored action types (ip, uri, company)', async () => {
+      allAttributes = allAttributes.filter((item) => {
+        return !['IP Address', 'URI', 'Company'].includes(item)
+      })
       option = {
         type: 'attrs',
       }
       wrapper = mount(LimitOption, {
         props: {
           option: option,
-          ignoreAttributes: ['ip', 'uri', 'country'],
+          ignoreAttributes: ['ip', 'uri', 'company'],
         },
       })
       await nextTick()
       const selection = wrapper.find('.option-attribute-selection')
       const options = selection.findAll('option')
-      expect(options.at(0).text()).toEqual('Provider')
-      expect(options.at(1).text()).toEqual('Path')
-      expect(options.at(2).text()).toEqual('Tag')
-      expect(options.at(3).text()).toEqual('Query')
-      expect(options.at(4).text()).toEqual('Method')
-      expect(options.at(5).text()).toEqual('Company')
-      expect(options.at(6).text()).toEqual('Authority')
+      options.forEach((option, index) => {
+        expect(option.text()).toEqual(allAttributes[index])
+      })
     })
 
     test('should render dropdown correctly with all types if ignore is empty array', async () => {
@@ -162,16 +178,9 @@ describe('LimitOption.vue', () => {
       await nextTick()
       const selection = wrapper.find('.option-attribute-selection')
       const options = selection.findAll('option')
-      expect(options.at(0).text()).toEqual('IP Address')
-      expect(options.at(1).text()).toEqual('Provider')
-      expect(options.at(2).text()).toEqual('URI')
-      expect(options.at(3).text()).toEqual('Path')
-      expect(options.at(4).text()).toEqual('Tag')
-      expect(options.at(5).text()).toEqual('Query')
-      expect(options.at(6).text()).toEqual('Method')
-      expect(options.at(7).text()).toEqual('Company')
-      expect(options.at(8).text()).toEqual('Country')
-      expect(options.at(9).text()).toEqual('Authority')
+      options.forEach((option, index) => {
+        expect(option.text()).toEqual(allAttributes[index])
+      })
     })
   })
 
@@ -317,7 +326,7 @@ describe('LimitOption.vue', () => {
       test('should emit new option when key selected from dropdown - attrs', async () => {
         const wantedEmit = {
           type: 'attrs',
-          key: 'path',
+          key: 'ip',
           oldKey: '',
           value: undefined as unknown as string,
         }
