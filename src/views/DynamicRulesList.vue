@@ -132,7 +132,7 @@ export default defineComponent({
               })
               return matchingGlobalFilter ? matchingGlobalFilter.tags?.join('\n') : ''
             } else {
-              return []
+              return ''
             }
           },
           isSortable: false,
