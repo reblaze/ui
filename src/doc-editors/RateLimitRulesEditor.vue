@@ -134,18 +134,17 @@
                          v-model.number="threshold.limit">
                 </div>
                 <div class="button-wrapper-column column">
-                  <a
-                      :class="[removable ? 'has-text-grey' : 'has-text-grey-light is-disabled']"
+                  <button
+                      class="remove-threshold-option-button button is-light is-small remove-icon"
+                      :class="removable ? 'has-text-grey' : 'has-text-grey-light is-disabled'"
                       :disabled="!removable"
-                      class="remove-threshold-option-button is-pulled-right button is-light is-small
-                            remove-icon is-small"
                       title="Click to remove"
                       @click="removeThreshold(index)"
                       @keypress.space.prevent
                       @keypress.space="removeThreshold(index)"
                       @keypress.enter="removeThreshold(index)">
                     <span class="icon is-small"><i class="fas fa-trash fa-xs"></i></span>
-                  </a>
+                  </button>
                 </div>
               </div>
               <div class="field">
@@ -366,7 +365,7 @@ export default defineComponent({
     },
 
     addThreshold() {
-      this.localDoc.thresholds.push({limit: 0, action: 'default'} as ThresholdActionPair)
+      this.localDoc.thresholds.push({limit: 0, action: 'action-rate-limit-block'} as ThresholdActionPair)
       this.emitDocUpdate()
     },
 

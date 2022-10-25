@@ -70,7 +70,26 @@ declare module CuriefenseClient {
 
   type Relation = 'OR' | 'AND'
 
-  type Category = 'path' | 'query' | 'uri' | 'method' | 'ip' | 'asn' | 'country' | 'headers' | 'args' | 'cookies'
+  type Category =
+    'args'
+    | 'authority'
+    | 'company'
+    | 'cookies'
+    | 'country'
+    | 'headers'
+    | 'ip'
+    | 'method'
+    | 'network'
+    | 'path'
+    | 'securitypolicyentryid'
+    | 'asn'
+    | 'query'
+    | 'region'
+    | 'securitypolicyid'
+    | 'session'
+    | 'subregion'
+    | 'uri'
+    | ArgsCookiesHeadersType
 
   type ContentFilterProfileSectionType = 'headers' | 'args' | 'cookies' | 'path' | 'allsections'
 
@@ -78,7 +97,14 @@ declare module CuriefenseClient {
 
   type LimitRuleType = 'headers' | 'args' | 'cookies' | 'attrs' | 'self'
 
-  type DynamicRuleTargetOptionType = 'remote_addr' | 'organization' | 'cookie' | 'geoip_city_country_name' | 'planet' | 'request_headers' | 'request_body'
+  type DynamicRuleTargetOptionType =
+    'remote_addr'
+    | 'organization'
+    | 'cookie'
+    | 'geoip_city_country_name'
+    | 'planet'
+    | 'request_headers'
+    | 'request_body'
 
   type NamesRegexType = 'names' | 'regex'
 
@@ -87,7 +113,7 @@ declare module CuriefenseClient {
   type Document =
     BasicDocument
     & (ACLProfile | EdgeFunction | ContentFilterProfile | ContentFilterRule | CustomResponse |
-      DynamicRule | FlowControlPolicy | GlobalFilter | RateLimit | SecurityPolicy)
+    DynamicRule | FlowControlPolicy | GlobalFilter | RateLimit | SecurityPolicy)
 
   type DocumentType =
     'aclprofiles'
@@ -192,9 +218,9 @@ declare module CuriefenseClient {
     exclude: string[]
     include: string[]
     ttl: number,
-    tags: string[],
     target: DynamicRuleTargetOptionType
   }
+
 
   type RateLimit = {
     id: string
@@ -265,6 +291,7 @@ declare module CuriefenseClient {
     title: string
     fieldNames?: string[]
     displayFunction?: (item: any) => string // Will be rendered as HTML
+    checkbox?: boolean
     isSortable?: boolean
     isSearchable?: boolean
     isNumber?: boolean // True if all values are always numbers, for sorting
@@ -407,7 +434,7 @@ declare module CuriefenseClient {
     count: number
     first_added: number
     last_seen: number
-    rule_id : string
+    rule_id: string
     tags: string[]
     target: string
     value: string

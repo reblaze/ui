@@ -12,9 +12,6 @@
         </th>
       </tr>
       <tr class="header-row">
-        <th v-if="selectBox">
-          <input type="checkbox"  @click="toggleMarkItem(item.id)">
-        </th>
         <th v-for="(col, index) in columns"
             :key="index"
             class="column-header is-size-7 column-title"
@@ -30,7 +27,10 @@
                                 :class="{'is-active': sortColumnTitle === col.title && sortDirection === 'desc'}"/>
             </div>
           </div>
-          <span>
+          <span v-if="col.title=='selectBox'">
+            <input type="checkbox"  @click="emitId">
+          </span>
+          <span v-else>
             {{ col.title }}
           </span>
         </th>
@@ -53,7 +53,7 @@
             <div class="dropdown-menu"
                  id="dropdown-menu"
                  role="menubar">
-              <div class="dropdown-content width-100px">
+              <div class="dropdown-content width-140px py-0">
                 <button class="button is-size-7 filter-toggle dropdown-item"
                         :class="{'is-active': filtersVisible }"
                         title="Filter table data"
@@ -66,7 +66,7 @@
                     Filter
                   </span>
                 </button>
-                <hr class="dropdown-divider">
+                <hr class="dropdown-divider my-0">
                 <button class="button is-size-7 new-entity-button dropdown-item"
                         title="Add new"
                         v-if="showNewButton"
@@ -78,6 +78,7 @@
                     New
                   </span>
                 </button>
+                <slot name="menu"></slot>
               </div>
             </div>
           </div>
@@ -94,7 +95,7 @@
                    :placeholder="col.title"
                    v-model="filter[col.title]"
                    @change="currentPage = 1"/>
-            <span class="icon is-small is-right">
+            <span class="icon is-small">
               <i class="fa fa-filter"
                  aria-hidden="true"></i>
             </span>
@@ -117,6 +118,9 @@
             <span v-if="col.displayFunction"
                   v-html="col.displayFunction(row)"
                   :title="col.displayFunction(row)">
+            </span>
+            <span v-if="col.checkbox" >
+            <spot name="checkbox"></spot>
             </span>
             <span v-else
                   :title="row[col.fieldNames[0]]">

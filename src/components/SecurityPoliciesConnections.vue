@@ -218,7 +218,7 @@ export default defineComponent({
   emits: ['go-to-route'],
   methods: {
     referToSecurityPolicy(id: string) {
-      this.$emit('go-to-route', `/config/${this.selectedBranch}/securitypolicies/${id}`)
+      this.$emit('go-to-route', `/${this.selectedBranch}/securitypolicies/config/${id}`)
     },
 
     openNewSecurityPolicyConnection() {

@@ -10,8 +10,17 @@
                  :show-filter-button="true"
                  :show-row-button="true"
                  @row-button-clicked="deleteQuarantinedElement">
-                <template>
-                  <button class="btn btn-default" type="button" >Hello</button>
+                <template #menu>
+                  <button class="button is-size-7 new-entity-button dropdown-item"
+                        title="Delete selected"
+                        @click.stop="deleteSelected()">
+                    <span class="icon is-small">
+                      <i class="fas fa-trash"></i>
+                    </span>
+                    <span>
+                      Delete Selected
+                    </span>
+                  </button>
                 </template>
       </rbz-table>
     </div>
@@ -23,7 +32,7 @@ import {defineComponent} from 'vue'
 import RbzTable from '@/components/RbzTable.vue'
 import {ColumnOptions, Quarantined} from '@/types'
 import DateTimeUtils from '@/assets/DateTimeUtils'
-import RequestsUtils from '@/assets/RequestsUtils'
+// import RequestsUtils from '@/assets/RequestsUtils'
 
 export default defineComponent({
   name: 'QuarantinedList',
@@ -34,13 +43,12 @@ export default defineComponent({
     return {
       columns: [
         {
-          title: `Selected  <input type="checkbox" @click="toggleMarkAllItems">`,
+          title: 'selectBox',
           fieldNames: ['id'],
           displayFunction: (item: Quarantined) => {
             return `
-            <input type="checkbox"
-                  @click="toggleMarkItem(item.id)">
-            `
+            <input type="checkbox" :key="${item.id}" :value="${item.id}"
+              @change="${() => this.updateSelected}"    @click="${() => this.toggleMarkItem(item.id)}">`
           },
         },
         {
@@ -109,10 +117,16 @@ export default defineComponent({
     }
   },
   methods: {
+
+    toggleMarkItem(id: string) {
+      console.log('id', id)
+    },
     selectAll() {
       // c
     },
-
+    updateSelected(event: Event) {
+      console.log('event', event.target._value)
+    },
     async loadQuarantinedData() {
       // const url = '/query'
       // const config = {headers: {'provider': 'mongodb'}}
@@ -156,25 +170,27 @@ export default defineComponent({
       // this.quarantinedData = response.data.data.results.map((result: any) => {
       //   return {...result, id: result._id}
       // })
+      // console.log('this.quarantinedData', this.quarantinedData)
     },
 
     async deleteQuarantinedElement(id: string) {
-      const url = '/query'
-      const config = {headers: {'provider': 'mongodb'}}
-      const data = {
-        'query':
-            {
-              'collection': 'dynamic_rules_violations_active',
-              'execute': [
-                {
-                  'func': 'delete_many',
-                  'options': {'filter': {'_id': {'$oid': id}}},
-                },
-              ],
-            },
-      }
-      await RequestsUtils.sendDataLayerRequest({methodName: 'POST', url, data, config})
-      this.loadQuarantinedData()
+      console.log('id', id)
+      // const url = '/query'
+      // const config = {headers: {'provider': 'mongodb'}}
+      // const data = {
+      //   'query':
+      //       {
+      //         'collection': 'dynamic_rules_violations_active',
+      //         'execute': [
+      //           {
+      //             'func': 'delete_many',
+      //             'options': {'filter': {'_id': {'$oid': id}}},
+      //           },
+      //         ],
+      //       },
+      // }
+      // await RequestsUtils.sendDataLayerRequest({methodName: 'POST', url, data, config})
+      // this.loadQuarantinedData()
     },
 
   },
