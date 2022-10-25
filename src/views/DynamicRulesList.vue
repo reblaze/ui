@@ -30,6 +30,7 @@
           <div class="content">
             <rbz-table :columns="columns"
                        :data="dynamicRulesData"
+                       :default-sort-column-index="1"
                        :show-menu-column="true"
                        :show-filter-button="true"
                        :show-new-button="true"

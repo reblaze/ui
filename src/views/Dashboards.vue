@@ -83,14 +83,14 @@
         Your search did not match any data
       </div>
     </div>
-    <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'default'">
+    <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'default' && data?.length">
       <rbz-dashboard-default :data="data"
                              :loading="isSearchLoading">
       </rbz-dashboard-default>
     </div>
-    <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'threats'">
+    <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'threats' && data?.length">
     </div>
-    <div v-if="dashboards[activeDashboardIndex]?.metabaseId">
+    <div v-if="dashboards[activeDashboardIndex]?.metabaseId && data?.length">
       <!--        <iframe :src="getDashboardURL(dashboards[activeDashboardIndex]?.metabaseId)"-->
       <!--                width="100%"-->
       <!--                height="600"-->
