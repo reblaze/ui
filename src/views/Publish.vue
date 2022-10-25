@@ -265,8 +265,8 @@ export default defineComponent({
         data: this.buckets,
       }
       const response = await RequestsUtils.sendReblazeRequest(publishRequestData)
-      if (response && response.data) {
-        this.parsePublishResults(response.data)
+      if (response) {
+        this.parsePublishResults(true)
         this.isPublishLoading = false
       } else {
         console.log(`Reblaze publish ${failureMessage}`)
@@ -276,14 +276,14 @@ export default defineComponent({
           this.isPublishLoading = false
         }
         RequestsUtils.sendRequest(publishRequestData).then((response: AxiosResponse) => {
-          this.parsePublishResults(response?.data)
+          this.parsePublishResults(response?.data.ok, response?.data)
           this.isPublishLoading = false
         })
       }
     },
 
-    parsePublishResults(data: any) {
-      if (data?.ok) {
+    parsePublishResults(success: boolean, data?: any) {
+      if (success) {
         Utils.toast(
             `Branch "${this.selectedBranch}" was published with version "${this.selectedCommit}".`,
             'is-success',
