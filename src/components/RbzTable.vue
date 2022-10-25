@@ -31,6 +31,9 @@
             {{ col.title }}
           </span>
         </th>
+        <th >
+        <slots ></slots>
+        </th>
         <th class="column-header width-45px is-relative has-text-centered"
             v-if="showMenuColumn">
           <div class="dropdown is-block is-right"

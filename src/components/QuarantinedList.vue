@@ -2,6 +2,7 @@
   <div class="card-content">
     <div class="content">
       <rbz-table :columns="columns"
+                table-title="Aylon"
                  :data="quarantinedData"
                  :row-button-icon="'fa-trash'"
                  :row-button-title="'Delete'"
@@ -9,6 +10,9 @@
                  :show-filter-button="true"
                  :show-row-button="true"
                  @row-button-clicked="deleteQuarantinedElement">
+                <template>
+                  <button class="btn btn-default" type="button" >Hello</button>
+                </template>
       </rbz-table>
     </div>
   </div>
@@ -29,6 +33,16 @@ export default defineComponent({
   data() {
     return {
       columns: [
+        {
+          title: `Selected  <input type="checkbox" @click="toggleMarkAllItems">`,
+          fieldNames: ['id'],
+          displayFunction: (item: Quarantined) => {
+            return `
+            <input type="checkbox"
+                  @click="toggleMarkItem(item.id)">
+            `
+          },
+        },
         {
           title: 'Key Parameter',
           fieldNames: ['target'],
