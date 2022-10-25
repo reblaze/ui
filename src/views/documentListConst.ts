@@ -494,41 +494,5 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       classes: 'width-150px',
     },
   ],
-  'dynamic-rules': [
-    {
-      title: 'ID',
-      fieldNames: ['id'],
-      isSortable: true,
-      isSearchable: true,
-      classes: 'width-130px',
-    },
-    {
-      title: 'Name',
-      fieldNames: ['name'],
-      isSortable: true,
-      isSearchable: true,
-      classes: 'width-150px',
-    },
-    {
-      title: 'Description',
-      fieldNames: ['description'],
-      isSortable: true,
-      isSearchable: true,
-      classes: 'ellipsis',
-    },
-    {
-      title: 'Timeframe',
-      fieldNames: ['timeframe'],
-      isSortable: true,
-      isSearchable: true,
-      classes: 'width-100px',
-    },
-    {
-      title: 'Threshold',
-      fieldNames: ['threshold'],
-      isSortable: true,
-      isSearchable: true,
-      classes: 'width-100px',
-    },
-  ],
 }
+

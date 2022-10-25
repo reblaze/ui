@@ -218,9 +218,9 @@ declare module CuriefenseClient {
     exclude: string[]
     include: string[]
     ttl: number,
-    tags: string[],
     target: DynamicRuleTargetOptionType
   }
+
 
   type RateLimit = {
     id: string

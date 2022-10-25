@@ -1439,7 +1439,6 @@ describe.skip('DocumentList.vue', () => {
       'contentfilterprofiles',
       'contentfilterrules',
       'cloud-functions',
-      'dynamic-rules',
       'actions',
     ]
     documentTypes.forEach((docType) => {
