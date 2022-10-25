@@ -374,7 +374,7 @@ declare module CuriefenseClient {
     proxy_read_timeout: string
     proxy_send_timeout: string
     send_timeout: string
-    ssl_conf_specific: {value:string}
+    ssl_conf_specific: {value: string}
     upstream_host: string
     xff_header_name: string
     xrealip_header_name: string

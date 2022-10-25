@@ -665,6 +665,12 @@ export default defineComponent({
         },
       })
       this.selectedConfigTemplate = response?.data || {}
+      if (!this.selectedConfigTemplate.conf_specific) {
+        this.selectedConfigTemplate.conf_specific = {value: ''}
+      }
+      if (!this.selectedConfigTemplate.ssl_conf_specific) {
+        this.selectedConfigTemplate.ssl_conf_specific = {value: ''}
+      }
       this.isDownloadLoading = false
     },
 
