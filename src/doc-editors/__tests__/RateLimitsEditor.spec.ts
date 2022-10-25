@@ -197,6 +197,7 @@ describe('RateLimitRulesEditor.vue', () => {
       const thresholdActionSelection = wrapper.find('.threshold-action-selection')
       const selectedCustomResponseElement = thresholdActionSelection.find('option:checked').element
       const selectedCustomResponse = (selectedCustomResponseElement as HTMLOptionElement).value
+
       expect(selectedCustomResponse).toEqual(wantedCustomResponse)
     })
 
