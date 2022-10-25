@@ -110,6 +110,8 @@ declare module CuriefenseClient {
 
   type EdgeFunctionsPhaseType = 'request' | 'response'
 
+  type SelectedRow = {id: string, selected: boolean}
+
   type Document =
     BasicDocument
     & (ACLProfile | EdgeFunction | ContentFilterProfile | ContentFilterRule | CustomResponse |

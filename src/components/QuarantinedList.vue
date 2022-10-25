@@ -10,11 +10,14 @@
                  :show-menu-column="true"
                  :show-filter-button="true"
                  :show-row-button="true"
+                 :show-checkbox="true"
+                 @select-all="selectAll"
+                 @row-selected="updateSelected"
                  @row-button-clicked="deleteQuarantinedElement">
                 <template #menu>
                   <button class="button is-size-7 new-entity-button dropdown-item"
                         title="Delete selected"
-                        @click.stop="deleteSelected()">
+                        @click.stop="deleteQuarantinedElement()">
                     <span class="icon is-small">
                       <i class="fas fa-trash"></i>
                     </span>
@@ -35,6 +38,7 @@ import {ColumnOptions, Quarantined} from '@/types'
 import DateTimeUtils from '@/assets/DateTimeUtils'
 // import RequestsUtils from '@/assets/RequestsUtils'
 
+
 export default defineComponent({
   name: 'QuarantinedList',
   components: {
@@ -43,15 +47,6 @@ export default defineComponent({
   data() {
     return {
       columns: [
-        {
-          title: 'selectBox',
-          fieldNames: ['id'],
-          displayFunction: (item: Quarantined) => {
-            return `
-            <input type="checkbox" :key="${item.id}" :value="${item.id}"
-              @change="${() => this.updateSelected}"    @click="${() => this.toggleMarkItem(item.id)}">`
-          },
-        },
         {
           title: 'Key Parameter',
           fieldNames: ['target'],
@@ -115,18 +110,37 @@ export default defineComponent({
       ] as ColumnOptions[],
       quarantinedData: null as Quarantined[],
       selectBox: true,
+      selectedArray: [] as string[],
     }
   },
   methods: {
 
+    selectAll(isSelected: boolean) {
+      console.log('quarantined select all', isSelected)
+      if (isSelected) {
+        this.selectedArray = this.quarantinedData.map((item: any) => {
+          return item.id
+        })
+      } else {
+        this.selectedArray = []
+      }
+      console.log(this.selectedArray)
+    },
+
     toggleMarkItem(id: string) {
       console.log('id', id)
     },
-    selectAll() {
-      // c
-    },
-    updateSelected(event: Event) {
-      console.log('event', event.target._value)
+    updateSelected(selected: {id: string, selected: boolean}) {
+      if (selected.selected) {
+        if (this.selectedArray.findIndex((item) => item === selected.id) === -1) {
+          this.selectedArray.push(selected.id)
+        }
+      } else {
+        const selectedIndex = this.selectedArray.findIndex((item) => item === selected.id)
+        if (selectedIndex > -1) {
+          this.selectedArray.splice(selectedIndex, 1)
+        }
+      }
     },
     async loadQuarantinedData() {
       // const url = '/query'
@@ -146,9 +160,9 @@ export default defineComponent({
       // const response = await RequestsUtils.sendDataLayerRequest({methodName: 'POST', url, data, config})
 
       // Mock data
-      this.quarantinedData = [
+      const response = [
         {
-          id: '1313212313',
+          _id: '1313212313',
           count: 10,
           first_added: 12,
           last_seen: 12,
@@ -158,7 +172,7 @@ export default defineComponent({
           value: 'stringify',
         },
         {
-          id: '45643563446',
+          _id: '45643563446',
           count: 10,
           first_added: 12,
           last_seen: 12,
@@ -168,13 +182,18 @@ export default defineComponent({
           value: 'stringify',
         },
       ]
+      this.quarantinedData = response.map((result: any) => {
       // this.quarantinedData = response.data.data.results.map((result: any) => {
-      //   return {...result, id: result._id}
-      // })
+        return {...result, id: result._id}
+      })
       // console.log('this.quarantinedData', this.quarantinedData)
+      this.selectedArray = []
+      // this.selectedArray = this.quarantinedData.map((item: any) => {
+      //   return {id: item.id, selected: false}
+      // })
     },
 
-    async deleteQuarantinedElement(id: string) {
+    async deleteQuarantinedElement(id?: string) {
       console.log('id', id)
       // const url = '/query'
       // const config = {headers: {'provider': 'mongodb'}}

@@ -12,6 +12,14 @@
         </th>
       </tr>
       <tr class="header-row">
+        <th class="is-size-7" v-if="showCheckbox">
+          <div class="field is-grouped is-grouped-centered">
+              R<input type="checkbox"
+                      title="Checkbox"
+                      class="is-small row-checkbox"
+                      @click="selectAll()" />
+          </div>
+        </th>
         <th v-for="(col, index) in columns"
             :key="index"
             class="column-header is-size-7 column-title"
@@ -27,10 +35,7 @@
                                 :class="{'is-active': sortColumnTitle === col.title && sortDirection === 'desc'}"/>
             </div>
           </div>
-          <span v-if="col.title=='selectBox'">
-            <input type="checkbox"  @click="emitId">
-          </span>
-          <span v-else>
+          <span>
             {{ col.title }}
           </span>
         </th>
@@ -110,6 +115,17 @@
           @click="rowClickable && rowClicked(row.id)"
           :class="{'is-clickable': rowClickable}"
           class="data-row">
+        <td class="is-size-7" v-if="showCheckbox">
+          <div class="field is-grouped is-grouped-centered">
+              <input type="checkbox"
+                      title="Checkbox"
+                      :id="row.id"
+                      :check="selectedRow.selected"
+
+                      class="is-small row-checkbox"
+                      @change="(event) => rowSelected(row.id, event)" />
+          </div>
+        </td>
         <td v-for="(col, index) in columns"
             :key="index"
             :title="row[col.title]">
@@ -119,9 +135,9 @@
                   v-html="col.displayFunction(row)"
                   :title="col.displayFunction(row)">
             </span>
-            <span v-if="col.checkbox" >
+            <!--span-- v-if="col.checkbox" >
             <spot name="checkbox"></spot>
-            </span>
+            </-span-->
             <span v-else
                   :title="row[col.fieldNames[0]]">
               {{ row[col.fieldNames[0]] }}
@@ -181,14 +197,15 @@
 
 <script lang="ts">
 import _ from 'lodash'
-import {defineComponent, PropType} from 'vue'
-import {ColumnOptions, GenericObject} from '@/types'
+import {defineComponent, InputHTMLAttributes, PropType} from 'vue'
+import {ColumnOptions, GenericObject, SelectedRow} from '@/types'
 
 export default defineComponent({
   name: 'RbzTable',
   props: {
     columns: Array as PropType<ColumnOptions[]>,
     data: Array as PropType<GenericObject[]>,
+    selectedArr: [] as PropType<SelectedRow[]>,
     defaultSortColumnIndex: Number,
     defaultSortColumnDirection: String as PropType<'asc' | 'desc'>,
     showMenuColumn: Boolean,
@@ -204,6 +221,7 @@ export default defineComponent({
       type: Number,
       default: 10,
     },
+    showCheckbox: Boolean,
     useScroll: Boolean,
     loading: Boolean,
   },
@@ -233,6 +251,18 @@ export default defineComponent({
       immediate: true,
       deep: true,
     },
+    selectedRow: {
+      handler: function(id) {
+        const selectedRow = this.selectedArray.findIndex((row) => row.id === id)
+        if (selectedRow == -1) {
+          this.selectedArray.push(this.selectedRow)
+        } else {
+          this.selectedArray[selectedRow].selected = this.selectedRow.selected
+        }
+      },
+      immediate: true,
+      deep: true,
+    },
   },
   data() {
     return {
@@ -251,9 +281,14 @@ export default defineComponent({
 
       // Pagination
       currentPage: 1,
+
+      // checkboxes
+      isSelected: false,
+      selectedRow: {} as SelectedRow,
+      selectedArray: [] as SelectedRow[],
     }
   },
-  emits: ['new-button-clicked', 'row-button-clicked', 'row-clicked'],
+  emits: ['new-button-clicked', 'row-button-clicked', 'show-checkbox', 'row-clicked', 'row-selected', 'select-all'],
   computed: {
     dataArrayDisplay() {
       if (!this.data?.length || !Array.isArray(this.data)) {
@@ -331,6 +366,11 @@ export default defineComponent({
       const extraColumns = this.showMenuColumn ? 1 : 0
       return this.columns.length + extraColumns
     },
+
+    localSelectedArr(): SelectedRow[] {
+      return _.cloneDeep(this.selectedArr as SelectedRow[])
+    },
+    // selectedArray(): this.selectedArr
   },
   methods: {
     newButtonClicked() {
@@ -342,7 +382,25 @@ export default defineComponent({
     },
 
     rowClicked(id: string) {
-      this.$emit('row-clicked', id)
+      this.$emit('row-selected', id)
+    },
+
+    rowSelected(id: string, event: Event) {
+      event.preventDefault()
+      const target = event.target as InputHTMLAttributes
+      console.log('event:', target.checked)
+      this.$emit('row-selected', {id, selected: target.checked})
+    },
+
+    emitSelected(id: string) {
+      console.log('emitSelected')
+      this.$emit('row-selected', id)
+    },
+
+    selectAll() {
+      console.log('selectAll')
+      this.isSelected= !this.isSelected
+      this.$emit('select-all', this.isSelected)
     },
 
     sortColumn(column: ColumnOptions) {
