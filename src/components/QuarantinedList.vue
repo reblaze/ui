@@ -2,7 +2,7 @@
   <div class="card-content">
     <div class="content">
       <rbz-table :columns="columns"
-                table-title="Aylon"
+                 :select-box="selectAll"
                  :data="quarantinedData"
                  :row-button-icon="'fa-trash'"
                  :row-button-title="'Delete'"
@@ -105,29 +105,57 @@ export default defineComponent({
         },
       ] as ColumnOptions[],
       quarantinedData: null as Quarantined[],
+      selectBox: true,
     }
   },
   methods: {
-    async loadQuarantinedData() {
-      const url = '/query'
-      const config = {headers: {'provider': 'mongodb'}}
-      const data = {
-        'query':
-            {
-              'collection': 'dynamic_rules_violations_active',
-              'execute': [
-                {
-                  'func': 'find',
-                  'options': {},
-                },
-              ],
-            },
-      }
-      const response = await RequestsUtils.sendDataLayerRequest({methodName: 'POST', url, data, config})
+    selectAll() {
+      // c
+    },
 
-      this.quarantinedData = response.data.data.results.map((result: any) => {
-        return {...result, id: result._id}
-      })
+    async loadQuarantinedData() {
+      // const url = '/query'
+      // const config = {headers: {'provider': 'mongodb'}}
+      // const data = {
+      //   'query':
+      //       {
+      //         'collection': 'dynamic_rules_violations_active',
+      //         'execute': [
+      //           {
+      //             'func': 'find',
+      //             'options': {},
+      //           },
+      //         ],
+      //       },
+      // }
+      // const response = await RequestsUtils.sendDataLayerRequest({methodName: 'POST', url, data, config})
+
+      // Mock data
+      this.quarantinedData = [
+        {
+          id: '1313212313',
+          count: 10,
+          first_added: 12,
+          last_seen: 12,
+          rule_id: 'string',
+          tags: ['love'],
+          target: 'action.com',
+          value: 'stringify',
+        },
+        {
+          id: '45643563446',
+          count: 10,
+          first_added: 12,
+          last_seen: 12,
+          rule_id: 'string',
+          tags: ['nolove'],
+          target: 'noaction.com',
+          value: 'stringify',
+        },
+      ]
+      // this.quarantinedData = response.data.data.results.map((result: any) => {
+      //   return {...result, id: result._id}
+      // })
     },
 
     async deleteQuarantinedElement(id: string) {

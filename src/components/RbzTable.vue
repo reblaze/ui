@@ -12,6 +12,9 @@
         </th>
       </tr>
       <tr class="header-row">
+        <th v-if="selectBox">
+          <input type="checkbox"  @click="toggleMarkItem(item.id)">
+        </th>
         <th v-for="(col, index) in columns"
             :key="index"
             class="column-header is-size-7 column-title"
@@ -30,9 +33,6 @@
           <span>
             {{ col.title }}
           </span>
-        </th>
-        <th >
-        <slots ></slots>
         </th>
         <th class="column-header width-45px is-relative has-text-centered"
             v-if="showMenuColumn">
