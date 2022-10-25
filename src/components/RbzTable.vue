@@ -196,6 +196,7 @@ export default defineComponent({
     showNewButton: Boolean,
     rowClickable: Boolean,
     showRowButton: Boolean,
+    showSecondRowButton: Boolean,
     rowButtonTitle: String,
     rowButtonIcon: String,
     tableTitle: String,
@@ -457,6 +458,12 @@ export default defineComponent({
   padding: 0.5em;
 }
 
+.rbz-table .menu {
+  display: inline-flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
 .rbz-table .menu-toggle-button {
   background: transparent;
   border-color: transparent;
@@ -472,7 +479,8 @@ export default defineComponent({
 
 .rbz-table .filter-toggle,
 .rbz-table .new-entity-button,
-.rbz-table .row-entity-button {
+.rbz-table .row-entity-button,
+.rbz-table .second-row-entity-button {
   background: transparent;
   border-color: transparent;
   color: initial;

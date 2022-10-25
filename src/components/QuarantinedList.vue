@@ -4,6 +4,7 @@
       <rbz-table :columns="columns"
                  :select-box="selectAll"
                  :data="quarantinedData"
+                 :default-sort-column-index="1"
                  :row-button-icon="'fa-trash'"
                  :row-button-title="'Delete'"
                  :show-menu-column="true"
