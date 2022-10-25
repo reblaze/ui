@@ -364,7 +364,7 @@ declare module CuriefenseClient {
     client_body_timeout: string
     client_header_timeout: string
     client_max_body_size: string
-    conf_specific: {}
+    conf_specific: {value: string}
     custom_listener: boolean
     keepalive_timeout: string
     limit_req_rate: string
@@ -374,7 +374,7 @@ declare module CuriefenseClient {
     proxy_read_timeout: string
     proxy_send_timeout: string
     send_timeout: string
-    ssl_conf_specific: {}
+    ssl_conf_specific: {value:string}
     upstream_host: string
     xff_header_name: string
     xrealip_header_name: string

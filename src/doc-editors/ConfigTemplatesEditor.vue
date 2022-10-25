@@ -467,7 +467,7 @@
                             <textarea
                               rows="5"
                               class="is-small textarea site-conf"
-                              v-model="confSpecific">
+                              v-model="selectedConfigTemplate.conf_specific.value">
                             </textarea>
                           </div>
                           <p class="help has-text-danger">Unless instructed, don't touch!</p>
@@ -482,7 +482,7 @@
                             <textarea
                               rows="5"
                               class="is-small textarea site-ssl-conf"
-                              v-model="sslConfSpecific">
+                              v-model="selectedConfigTemplate.ssl_conf_specific.value">
                             </textarea>
                           </div>
                           <p class="help has-text-danger">Unless instructed, don't touch!</p>
@@ -502,7 +502,7 @@
 <script lang="ts">
 import RequestsUtils from '@/assets/RequestsUtils'
 import {ConfigTemplate} from '@/types'
-import _ from 'lodash'
+// import _ from 'lodash'
 import Utils from '@/assets/Utils'
 import {defineComponent} from 'vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
@@ -589,37 +589,6 @@ export default defineComponent({
     },
 
     ...mapStores(useBranchesStore),
-
-    sslConfSpecific: {
-      get: function(): string {
-        if (this.selectedConfigTemplate && this.selectedConfigTemplate.ssl_conf_specific) {
-          return Object.values(this.selectedConfigTemplate.ssl_conf_specific).join('\n')
-        }
-        return ''
-      },
-      // turn an Array into an Object
-      set: function(site: string): void {
-        this.selectedConfigTemplate.ssl_conf_specific = site.length > 0 ?
-          Object.assign({}, _.map(site.split('\n'), (site) => {
-            return site.trim()
-          })) : {}
-      },
-    },
-    confSpecific: {
-      get: function(): string {
-        if (this.selectedConfigTemplate && this.selectedConfigTemplate.conf_specific) {
-          return Object.values(this.selectedConfigTemplate.conf_specific).join('\n')
-        }
-        return ''
-      },
-      // turn an Array into an Object
-      set: function(site: string): void {
-        this.selectedConfigTemplate.conf_specific = site.length > 0 ?
-          Object.assign({}, _.map(site.split('\n'), (site) => {
-            return site.trim()
-          })) : {}
-      },
-    },
 
   },
   methods: {
