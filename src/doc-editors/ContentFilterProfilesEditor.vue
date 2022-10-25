@@ -223,7 +223,7 @@
     </div>
     <div class="sections-wrapper">
       <div class="tabs is-centered is-fullwidth">
-        <ul>
+        <ul class="mx-5">
           <li v-for="section in sections"
               :key="section.sectionType"
               :class="`${section.sectionType}-tab ${currentSection === section.sectionType ? 'is-active' : ''}`"

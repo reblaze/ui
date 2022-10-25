@@ -41,7 +41,7 @@ describe('SecurityPoliciesConnections.vue', () => {
             'match': '/',
             'acl_profile': '__acldefault__',
             'acl_active': false,
-            'content_filter_profile': '__default__',
+            'content_filter_profile': '__defaultcontentfilter__',
             'content_filter_active': false,
             'limit_ids': ['f971e92459e2'],
           },
@@ -66,7 +66,7 @@ describe('SecurityPoliciesConnections.vue', () => {
             'match': '/',
             'acl_profile': '__acldefault__',
             'acl_active': false,
-            'content_filter_profile': '__default__',
+            'content_filter_profile': '__defaultcontentfilter__',
             'content_filter_active': false,
             'limit_ids': ['f971e92459e2', '365757ec0689'],
           },
@@ -125,7 +125,7 @@ describe('SecurityPoliciesConnections.vue', () => {
 
     test('should have a link to each connected Security Policy', async () => {
       const selectedBranchStr = (wrapper.vm as VueWrapper).selectedBranch
-      const wantedRoute = `/config/${selectedBranchStr}/securitypolicies/${securityPoliciesDocs[0].id}`
+      const wantedRoute = `/${selectedBranchStr}/securitypolicies/config/${securityPoliciesDocs[0].id}`
       const connectedSecurityPoliciesEntryRow = wrapper.findAll('.connected-entry-row').at(0)
       const referralButton = connectedSecurityPoliciesEntryRow.find('.security-policy-referral-button')
       await referralButton.trigger('click')
@@ -153,7 +153,7 @@ describe('SecurityPoliciesConnections.vue', () => {
               'match': '/',
               'acl_profile': '__acldefault__',
               'acl_active': false,
-              'content_filter_profile': '__default__',
+              'content_filter_profile': '__defaultcontentfilter__',
               'content_filter_active': false,
               'limit_ids': ['f971e92459e2', '365757ec0689'],
             },

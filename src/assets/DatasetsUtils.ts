@@ -220,7 +220,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
           'match': '/',
           'name': 'default',
           'acl_profile': '__acldefault__',
-          'content_filter_profile': '__default__',
+          'content_filter_profile': '__defaultcontentfilter__',
           'acl_active': false,
           'content_filter_active': false,
           'limit_ids': [],

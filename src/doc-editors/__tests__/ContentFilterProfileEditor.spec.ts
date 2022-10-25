@@ -25,7 +25,7 @@ describe('ContentFilterProfilesEditor.vue', () => {
   let customResponsesDocs: CustomResponse[]
   beforeEach(async () => {
     docs = [{
-      'id': '__default__',
+      'id': '__defaultcontentfilter__',
       'name': 'default contentfilter',
       'description': 'New Content Filter Profile Description and Remarks',
       'action': 'action-contentfilter-block',
@@ -400,7 +400,7 @@ describe('ContentFilterProfilesEditor.vue', () => {
         // TS ignore because we want to test the status of normalization where some of the data is missing
         // @ts-ignore
         docsForNormalization = [{
-          'id': '__default__',
+          'id': '__defaultcontentfilter__',
           'name': 'default contentfilter',
           'ignore_alphanum': true,
           'decoding': {
@@ -453,7 +453,7 @@ describe('ContentFilterProfilesEditor.vue', () => {
     describe('sections - with all sections provided', () => {
       test('should not emit new doc if all sections are provided', async () => {
         const docsShouldNotNormalize: ContentFilterProfile[] = [{
-          'id': '__default__',
+          'id': '__defaultcontentfilter__',
           'name': 'default contentfilter',
           'ignore_alphanum': true,
           'allsections': {
@@ -515,7 +515,7 @@ describe('ContentFilterProfilesEditor.vue', () => {
         // TS ignore because we want to test the status of normalization where some of the data is missing
         // @ts-ignore
         docsForNormalization = [{
-          'id': '__default__',
+          'id': '__defaultcontentfilter__',
           'name': 'default contentfilter',
           'ignore_alphanum': true,
           'allsections': {

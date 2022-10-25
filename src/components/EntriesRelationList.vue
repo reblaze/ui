@@ -20,25 +20,26 @@
             </p>
           </div>
         </div>
-        <div v-if="editable"
-             class="column buttons-wrapper height-30px">
+        <div class="column buttons-wrapper height-30px">
           <div class="field is-grouped is-pulled-left">
-            <div class="control">
+            <div v-if="editable"
+                 class="control">
               <button class="button is-small add-section-button"
                       title="Add new section"
                       @click="addSection(); $event.stopPropagation()"
                       @keypress.space.prevent
                       @keypress.space="addSection(); $event.stopPropagation()"
                       @keypress.enter="addSection(); $event.stopPropagation()">
-            <span class="icon is-small">
-              <i class="fas fa-plus"></i>
-            </span>
+                <span class="icon is-small">
+                  <i class="fas fa-plus"></i>
+                </span>
                 <span>
-              New Section
-            </span>
+                  New Section
+                </span>
               </button>
             </div>
-            <div class="control">
+            <div v-if="editable"
+                 class="control">
               <button class="button is-small add-entry-button"
                       title="Add new entry"
                       :disabled="newEntryOpen || isRecursive"
@@ -46,24 +47,24 @@
                       @keypress.space.prevent
                       @keypress.space="setNewEntryOpen(true); $event.stopPropagation()"
                       @keypress.enter="setNewEntryOpen(true); $event.stopPropagation()">
-            <span class="icon is-small">
-              <i class="fas fa-plus"></i>
-            </span>
+                <span class="icon is-small">
+                  <i class="fas fa-plus"></i>
+                </span>
                 <span>
-              New Entry
-            </span>
+                  New Entry
+                </span>
               </button>
             </div>
             <div class="control">
               <button class="button is-small rule-relation-toggle"
                       title="Toggle rule relation"
-                      :disabled="ruleContainsSameCategoryItems"
+                      :disabled="ruleContainsSameCategoryItems || !editable"
                       @click="toggleRuleRelation(); $event.stopPropagation()"
                       @keypress.space.prevent
                       @keypress.space="toggleRuleRelation(); $event.stopPropagation()"
                       @keypress.enter="toggleRuleRelation(); $event.stopPropagation()">
-                <span>
-                  Section Relation:
+                  <span>
+                    Section Relation:
                   <span class="has-text-weight-bold">
                     {{ localRule.relation }}
                   </span>
@@ -71,7 +72,8 @@
               </button>
             </div>
           </div>
-          <div class="field is-grouped is-pulled-right">
+          <div v-if="editable"
+               class="field is-grouped is-pulled-right">
             <div class="dropdown is-block is-right"
                  :class="{'is-active': removeMenuVisible}">
               <div class="dropdown-trigger">
@@ -125,7 +127,7 @@
         </div>
       </div>
       <div class="content collapsible-content px-5 pb-5"
-           v-if="!isEntriesEmpty">
+           v-if="!isEntriesEmpty || newEntryOpen">
         <div class="data-wrapper">
           <template v-if="isRecursive">
             <div class="sections-wrapper"
@@ -250,10 +252,10 @@
                     <a class="is-size-7 has-text-grey remove-button cancel-entry-button"
                        title="cancel add new row"
                        tabindex="0"
-                       @click="cancelEntry()"
+                       @click="setNewEntryOpen(false)"
                        @keypress.space.prevent
-                       @keypress.space="cancelEntry()"
-                       @keypress.enter="cancelEntry()">
+                       @keypress.space="setNewEntryOpen(false)"
+                       @keypress.enter="setNewEntryOpen(false)">
                       <i class="fas fa-times"></i> Cancel
                     </a>
                   </td>
@@ -409,6 +411,7 @@ export default defineComponent({
 
     emitRemoveSection() {
       this.removeMenuVisible = false
+      this.setNewEntryOpen(false)
       this.$emit('remove-section', this.localRule)
     },
 
@@ -470,7 +473,9 @@ export default defineComponent({
           let [entry, annotation] = line.trim().split('#')
           entry = entry.trim()
           annotation = annotation ? annotation.trim() : generalAnnotation
-          this.localRule.entries.push([this.newEntryCategory, entry, annotation])
+          if (entry) {
+            this.localRule.entries.push([this.newEntryCategory, entry, annotation])
+          }
         })
       }
       // change relation to 'OR' if needed
@@ -480,12 +485,6 @@ export default defineComponent({
       this.setNewEntryOpen(false)
       this.emitRuleUpdate()
       this.$nextTick(this.validateDuplicates)
-    },
-
-    cancelEntry() {
-      this.setNewEntryOpen(false)
-      this.invalidIPs = []
-      this.clearError(`${this.newEntryCategory}`)
     },
 
     removeEntry(entryIndex: number) {
@@ -503,12 +502,17 @@ export default defineComponent({
 
     removeSection(sectionIndex: number) {
       this.localRule.entries.splice(sectionIndex, 1)
+      this.setNewEntryOpen(false)
       this.emitRuleUpdate()
     },
 
     setNewEntryOpen(value: boolean) {
       this.clearCategory()
       this.clearFields()
+      if (!value) {
+        this.invalidIPs = []
+        this.clearError(`${this.newEntryCategory}`)
+      }
       this.newEntryOpen = value
     },
 
