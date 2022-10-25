@@ -120,7 +120,7 @@ import _ from 'lodash'
 import RequestsUtils, {IRequestParams} from '@/assets/RequestsUtils'
 import {mdiBucket} from '@mdi/js'
 import {defineComponent} from 'vue'
-import {Commit} from '@/types'
+import {Branch, Commit} from '@/types'
 import {AxiosResponse} from 'axios'
 import Utils from '@/assets/Utils'
 import DateTimeUtils from '@/assets/DateTimeUtils'
@@ -154,14 +154,14 @@ export default defineComponent({
   },
   watch: {
     selectedBranch: {
-      handler: function(val, oldVal) {
-        if ((this.$route.name as string).includes('PublishChanges') && val && val !== oldVal) {
+      handler: function(val) {
+        if ((this.$route.name as string).includes('PublishChanges') && val) {
           this.loadPublishInfo()
           this.loadBranchLogs()
           this.setDefaultBuckets()
         }
       },
-      immediate: true,
+      deep: true,
     },
   },
   computed: {
@@ -179,8 +179,8 @@ export default defineComponent({
       return this.gitLog.slice(0, this.init_max_rows)
     },
 
-    selectedBranch(): string {
-      return this.branchesStore.selectedBranchId
+    selectedBranch(): Branch {
+      return this.branchesStore.selectedBranch
     },
 
     ...mapStores(useBranchesStore),
@@ -212,14 +212,14 @@ export default defineComponent({
     switchBranch() {
       this.loadBranchLogs()
       this.publishMode = false
-      Utils.toast(`Switched to branch "${this.selectedBranch}".`, 'is-info')
+      Utils.toast(`Switched to branch "${this.selectedBranch.id}".`, 'is-info')
       this.setDefaultBuckets()
     },
 
     setDefaultBuckets() {
       this.selectedBucketNames = []
       const bucketList = _.find(this.publishInfo.branch_buckets, (list) => {
-        return list.name === this.selectedBranch
+        return list.name === this.selectedBranch.id
       })
       if (bucketList) {
         this.selectedBucketNames = _.cloneDeep(_.filter(bucketList.buckets, (bucket) => {
@@ -258,10 +258,10 @@ export default defineComponent({
       }))
 
       const failureMessage = 'Failed while attempting to publish branch ' +
-          `"${this.selectedBranch}" version "${this.selectedCommit}".`
+          `"${this.selectedBranch.id}" version "${this.selectedCommit}".`
       const publishRequestData: IRequestParams = {
         methodName: 'PUT',
-        url: `tools/publish/${this.selectedBranch}/v/${this.selectedCommit}/`,
+        url: `tools/publish/${this.selectedBranch.id}/v/${this.selectedCommit}/`,
         data: this.buckets,
       }
       const response = await RequestsUtils.sendReblazeRequest(publishRequestData)
@@ -285,12 +285,12 @@ export default defineComponent({
     parsePublishResults(success: boolean, data?: any) {
       if (success) {
         Utils.toast(
-            `Branch "${this.selectedBranch}" was published with version "${this.selectedCommit}".`,
+            `Branch "${this.selectedBranch.id}" was published with version "${this.selectedCommit}".`,
             'is-success',
         )
       } else {
         Utils.toast(
-            `Failed while attempting to publish branch "${this.selectedBranch}" version "${this.selectedCommit}".`,
+            `Failed while attempting to publish branch "${this.selectedBranch.id}" version "${this.selectedCommit}".`,
             'is-danger',
         )
       }
@@ -307,8 +307,8 @@ export default defineComponent({
 
   },
 
-  async created() {
-    await this.branchesStore.list
+  created() {
+    this.branchesStore.loadBranches()
   },
 
 })

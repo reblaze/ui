@@ -14,6 +14,7 @@ export const useBranchesStore = defineStore('branches', () => {
   const _selectedBranchId = ref(null as Branch['id'])
   const _loading = ref(false)
   const _listPromise = ref(null as Promise<Branch[]>)
+  const _commitsCounter = ref(0 as number)
 
   // Computed
   const list = computed((): Promise<Branch[]> => {
@@ -36,9 +37,7 @@ export const useBranchesStore = defineStore('branches', () => {
     return _.size(_list.value)
   })
   const commitsCounter = computed((): number => {
-    return _.sum(_.map(_.map(_list.value, 'logs'), (logs) => {
-      return _.size(logs)
-    }))
+    return _commitsCounter.value
   })
 
   // Methods
@@ -57,6 +56,9 @@ export const useBranchesStore = defineStore('branches', () => {
         const branchNameFromRoute = route.params.branch?.toString()
         setSelectedBranch(branchNameFromRoute)
         _loading.value = false
+        _commitsCounter.value = _.sum(_.map(_.map(_list.value, 'logs'), (logs) => {
+          return _.size(logs)
+        }))
         resolve(list.value)
       }).catch((err: AxiosError) => {
         console.log('Error while attempting to get configs')
@@ -86,6 +88,10 @@ export const useBranchesStore = defineStore('branches', () => {
     _selectedBranchId.value = newId
   }
 
+  function increaseCommitsCounter() {
+    _commitsCounter.value++
+  }
+
   return {
     _list,
     list,
@@ -95,5 +101,6 @@ export const useBranchesStore = defineStore('branches', () => {
     commitsCounter,
     loadBranches,
     setSelectedBranch,
+    increaseCommitsCounter,
   }
 })
