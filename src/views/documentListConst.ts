@@ -47,13 +47,6 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       classes: 'width-100px white-space-pre ellipsis',
     },
     {
-      title: 'Action',
-      fieldNames: ['action'],
-      isSortable: true,
-      isSearchable: true,
-      classes: 'width-130px',
-    },
-    {
       title: 'Active',
       fieldNames: ['active'],
       displayFunction: (item: GlobalFilter) => {
@@ -68,7 +61,7 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       fieldNames: ['action'],
       isSortable: true,
       isSearchable: true,
-      classes: 'width-80px',
+      classes: 'width-130px',
     },
   ],
   'flowcontrol': [
@@ -236,11 +229,14 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       title: 'Thresholds',
       fieldNames: ['thresholds'],
       displayFunction: (item: RateLimit) => {
-        return _.map(item.thresholds, 'limit').join(', ')
+        return _.map(item.thresholds, (threshold) =>{
+          return `Limit:${threshold.limit}\n` +
+                  `Custom Response: ${threshold.action}`
+        }).join('\n')
       },
       isSortable: true,
       isSearchable: true,
-      classes: 'width-100px white-space-pre ellipsis',
+      classes: 'width-250px white-space-pre ellipsis',
     },
     {
       title: 'Event',
@@ -288,6 +284,13 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       isSortable: false,
       isSearchable: true,
       classes: 'width-100px white-space-pre ellipsis',
+    },
+    {
+      title: 'Custom Response',
+      fieldNames: ['action'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-130px',
     },
   ],
   'actions': [
@@ -337,6 +340,16 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       fieldNames: ['type'],
       displayFunction: (item: CustomResponse) => {
         return _.capitalize(item?.type)
+      },
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-130px',
+    },
+    {
+      title: 'Custom Response',
+      fieldNames: ['action'],
+      displayFunction: (item: CustomResponse) => {
+        return item?.tags?.join('\n')
       },
       isSortable: true,
       isSearchable: true,
@@ -404,7 +417,13 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       isSearchable: true,
       classes: 'width-100px white-space-pre ellipsis',
     },
-
+    {
+      title: 'Custom Response',
+      fieldNames: ['action'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-130px',
+    },
   ],
   'contentfilterrules': [
     {
@@ -529,6 +548,13 @@ export const COLUMN_OPTIONS_MAP: ColumnOptionsMap = {
       isSortable: true,
       isSearchable: true,
       classes: 'width-100px',
+    },
+    {
+      title: 'Custom Response',
+      fieldNames: ['action'],
+      isSortable: true,
+      isSearchable: true,
+      classes: 'width-130px',
     },
   ],
 }

@@ -55,7 +55,7 @@
                         title="Delete document"
                         data-qa="delete-document"
                         :class="{'is-loading': isDeleteLoading}"
-                        :disabled="selectedRoutingProfile?.id === '__default__'"
+                        :disabled="selectedDocNotDeletable"
                         @click="deleteDoc()">
                   <span class="icon is-small">
                     <i class="fas fa-trash"></i>
@@ -383,6 +383,9 @@ export default defineComponent({
       edgeFunctionMapEntryId: null,
       matchingPathTitle: 'A unique matching regex value, not overlapping other path mapping definitions',
 
+      // To prevent deletion of Routing profiles referenced by Server Groups
+      referencedIDsRoutingProfile: [],
+
       apiRoot: RequestsUtils.reblazeAPIRoot,
       apiVersion: RequestsUtils.reblazeAPIVersion,
     }
@@ -394,6 +397,7 @@ export default defineComponent({
           this.loadBackendServices()
           this.loadEdgeFunctions()
           this.setSelectedDataFromRouteParams()
+          this.loadReferencedRoutingProfilesIDs()
         }
       },
       immediate: true,
@@ -404,6 +408,20 @@ export default defineComponent({
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
       const selectedId = this.selectedRoutingProfile.id
       return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/routing-profiles/e/${selectedId}/`
+    },
+
+    selectedDocNotDeletable(): boolean {
+      return !this.selectedRoutingProfile ||
+        this.selectedRoutingProfile.id.startsWith('__') || // Default entries
+        this.selectedRoutingProfile.id.startsWith('rl-') || // Reblaze-managed Rate Limits
+        this.selectedRoutingProfile.id.startsWith('action-') || // Reblaze-managed Custom Responses
+        this.selectedRoutingProfile.id.startsWith('rbz-') || // Reblaze-managed Global Filters
+        this.selectedRoutingProfile.id.startsWith('dr_') || // Dynamic-Rule-managed Global Filters
+        this.isDocReferenced
+    },
+
+    isDocReferenced(): boolean {
+      return this.referencedIDsRoutingProfile.includes(this.selectedRoutingProfile.id)
     },
 
     selectedBranch(): string {
@@ -610,6 +628,19 @@ export default defineComponent({
       }).then((response: AxiosResponse<EdgeFunction[]>) => {
         this.edgeFunctions = response.data
       })
+    },
+
+    async loadReferencedRoutingProfilesIDs() {
+      const response = await RequestsUtils.sendReblazeRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/sites/`,
+      })
+      const serverGroups = response?.data || []
+      const referencedRoutingProfiles: string[] = []
+      _.forEach(serverGroups, (serverGroup) => {
+        referencedRoutingProfiles.push(serverGroup['routing_profile'])
+      })
+      this.referencedIDsRoutingProfile = _.uniq(referencedRoutingProfiles)
     },
   },
   async created() {

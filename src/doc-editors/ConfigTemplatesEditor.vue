@@ -55,7 +55,7 @@
                         title="Delete document"
                         data-qa="delete-document"
                         :class="{'is-loading': isDeleteLoading}"
-                        :disabled="selectedConfigTemplate?.id === '__default__'"
+                        :disabled="selectedDocNotDeletable"
                         @click="deleteDoc()">
                   <span class="icon is-small">
                     <i class="fas fa-trash"></i>
@@ -415,6 +415,7 @@ import {defineComponent} from 'vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
+import _ from 'lodash'
 
 export default defineComponent({
   name: 'ConfigTemplateEditor',
@@ -427,6 +428,9 @@ export default defineComponent({
       // Collapsible cards
       isFrontendCollapsed: true,
       isBackendCollapsed: true,
+
+      // To prevent deletion of Config templates referenced by Server Groups
+      referencedIDsConfigTemplate: [],
 
       // Loading indicators
       loadingDocCounter: 0,
@@ -443,6 +447,7 @@ export default defineComponent({
       handler: function(val, oldVal) {
         if ((this.$route.name as string).includes('ConfigTemplates/config') && val && val !== oldVal) {
           this.setSelectedDataFromRouteParams()
+          this.loadReferencedConfigTemplatesIDs()
         }
       },
       immediate: true,
@@ -453,6 +458,20 @@ export default defineComponent({
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
       const apiPath = `configs/${this.selectedBranch}/d/proxy-templates/e/${this.selectedConfigTemplate.id}/`
       return `${apiPrefix}/reblaze/${apiPath}`
+    },
+
+    selectedDocNotDeletable(): boolean {
+      return !this.selectedConfigTemplate ||
+        this.selectedConfigTemplate.id.startsWith('__') || // Default entries
+        this.selectedConfigTemplate.id.startsWith('rl-') || // Reblaze-managed Rate Limits
+        this.selectedConfigTemplate.id.startsWith('action-') || // Reblaze-managed Custom Responses
+        this.selectedConfigTemplate.id.startsWith('rbz-') || // Reblaze-managed Global Filters
+        this.selectedConfigTemplate.id.startsWith('dr_') || // Dynamic-Rule-managed Global Filters
+        this.isDocReferenced
+    },
+
+    isDocReferenced(): boolean {
+      return this.referencedIDsConfigTemplate.includes(this.selectedConfigTemplate.id)
     },
 
     selectedBranch(): string {
@@ -536,6 +555,18 @@ export default defineComponent({
       })
       this.selectedConfigTemplate = response?.data || {}
       this.isDownloadLoading = false
+    },
+    async loadReferencedConfigTemplatesIDs() {
+      const response = await RequestsUtils.sendReblazeRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/sites/`,
+      })
+      const serverGroups = response?.data || []
+      const referencedConfigTemplates: string[] = []
+      _.forEach(serverGroups, (serverGroup) => {
+        referencedConfigTemplates.push(serverGroup['proxy_template'])
+      })
+      this.referencedIDsConfigTemplate = _.uniq(referencedConfigTemplates)
     },
   },
   async created() {
