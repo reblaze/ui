@@ -89,19 +89,22 @@ export type OptionObject = {
 }
 
 export const limitAttributes = {
-  'ip': 'IP Address',
-  'asn': 'Provider',
-  'uri': 'URI',
-  'path': 'Path',
-  'tags': 'Tag',
-  'query': 'Query',
-  'method': 'Method',
-  'company': 'Company',
-  'country': 'Country',
-  'authority': 'Authority',
-  'session': 'Session ID',
-  'securitypolicyid': 'Security Policy ID',
-  'securitypolicyentryid': 'Path Matching ID',
+  authority: 'Authority',
+  company: 'Company',
+  country: 'Country',
+  ip: 'IP Address',
+  method: 'Method',
+  network: 'Network',
+  path: 'Path',
+  securitypolicyentryid: 'Path Matching ID',
+  asn: 'Provider',
+  query: 'Query',
+  region: 'Region',
+  securitypolicyid: 'Security Policy ID',
+  session: 'Session ID',
+  subregion: 'Subregion',
+  tags: 'Tag',
+  uri: 'URI',
 }
 
 export default defineComponent({

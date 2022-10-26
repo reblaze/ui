@@ -125,6 +125,7 @@
     <hr/>
     <div class="content">
       <git-history :api-path="gitAPIPath"
+                   :restore-target-title="`branch [${selectedBranch}]`"
                    :is-collapsed-initial-state="false"/>
     </div>
   </div>

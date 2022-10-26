@@ -144,7 +144,7 @@
       <hr/>
       <git-history v-if="selectedDocID && !isReblazeDocument"
                    :api-path="gitAPIPath"
-                   :doc-title="titles[selectedDocType]"
+                   :restore-target-title="`document [${titles[selectedDocType]}]`"
                    @restore-version="restoreGitVersion"/>
     </div>
 
@@ -422,7 +422,7 @@ export default defineComponent({
     },
 
     updateDocIdNames() {
-      this.docIdNames = _.sortBy(_.map(this.docs, (doc) => [doc.id, doc.name]), (entry) => entry[1])
+      this.docIdNames = _.sortBy(_.map(this.docs, (doc) => [doc.id, doc.name]), (entry) => entry[1].toLowerCase())
     },
 
     async loadSelectedDocData() {

@@ -50,7 +50,7 @@
             <div class="dropdown-menu"
                  id="dropdown-menu"
                  role="menubar">
-              <div class="dropdown-content width-100px">
+              <div class="dropdown-content width-100px py-0">
                 <button class="button is-size-7 filter-toggle dropdown-item"
                         :class="{'is-active': filtersVisible }"
                         title="Filter table data"
@@ -63,7 +63,7 @@
                     Filter
                   </span>
                 </button>
-                <hr class="dropdown-divider">
+                <hr class="dropdown-divider my-0">
                 <button class="button is-size-7 new-entity-button dropdown-item"
                         title="Add new"
                         v-if="showNewButton"
@@ -91,7 +91,7 @@
                    :placeholder="col.title"
                    v-model="filter[col.title]"
                    @change="currentPage = 1"/>
-            <span class="icon is-small is-right">
+            <span class="icon is-small">
               <i class="fa fa-filter"
                  aria-hidden="true"></i>
             </span>
@@ -189,6 +189,7 @@ export default defineComponent({
     showNewButton: Boolean,
     rowClickable: Boolean,
     showRowButton: Boolean,
+    showSecondRowButton: Boolean,
     rowButtonTitle: String,
     rowButtonIcon: String,
     tableTitle: String,
@@ -450,6 +451,12 @@ export default defineComponent({
   padding: 0.5em;
 }
 
+.rbz-table .menu {
+  display: inline-flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
 .rbz-table .menu-toggle-button {
   background: transparent;
   border-color: transparent;
@@ -465,7 +472,8 @@ export default defineComponent({
 
 .rbz-table .filter-toggle,
 .rbz-table .new-entity-button,
-.rbz-table .row-entity-button {
+.rbz-table .row-entity-button,
+.rbz-table .second-row-entity-button {
   background: transparent;
   border-color: transparent;
   color: initial;
