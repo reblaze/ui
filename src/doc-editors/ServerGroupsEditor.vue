@@ -51,25 +51,52 @@
                 </button>
               </p>
               <p class="control">
-                <button class="button is-small has-text-danger delete-document-button"
-                        title="Delete document"
-                        data-qa="delete-document"
-                        :class="{'is-loading': isDeleteLoading}"
-                        :disabled="selectedServerGroup?.id === '__default__'"
-                        @click="deleteDoc()">
-                  <span class="icon is-small">
-                    <i class="fas fa-trash"></i>
+                  <span class="field has-addons">
+                    <span class="control">
+                      <button class="button is-small has-text-danger delete-web-proxy"
+                              data-qa="delete-web-proxy-btn"
+                              @click="toggleDeleteWebProxyDoc()">
+                        <span class="icon is-small">
+                          <i  class="fas fa-trash"></i>
+                        </span>
+                      </button>
+                    </span>
+                    <span class="control is-expanded"
+                          v-if="deleteWebProxyDoc">
+                      <input class="input is-small width-200px delete-web-proxy-input"
+                             data-qa="confirm-web-proxy-input"
+                             title="Doc ID to Delete"
+                             placeholder="Write The Doc Name to Delete"
+                             v-model="deleteWebProxyDocName"
+                             type="text">
+                    </span>
+                    <span class="control"
+                          v-if="deleteWebProxyDoc">
+                      <button class="button is-danger is-small delete-web-proxy-cancel"
+                              data-qa="cancel-delete-web-proxy-btn"
+                              @click="toggleDeleteWebProxyDoc">
+                        <span class="icon is-small">
+                          <i class="fas fa-times"></i>
+                        </span>
+                      </button>
+                    </span>
+                    <span class="control"
+                          v-if="deleteWebProxyDoc">
+                      <button class="button is-primary is-small delete-web-proxy-confirm"
+                              data-qa="confirm-delete-web-proxy-btn"
+                              @click="deleteWebProxyDocByName">
+                        <span class="icon is-small">
+                          <i class="fas fa-check"></i>
+                        </span>
+                      </button>
+                    </span>
                   </span>
-                  <span>
-                    Delete
-                  </span>
-                </button>
-              </p>
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
     <hr/>
     <div class="card">
       <div class="card-content">
