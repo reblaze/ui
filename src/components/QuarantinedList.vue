@@ -34,7 +34,9 @@ import {defineComponent} from 'vue'
 import RbzTable from '@/components/RbzTable.vue'
 import {ColumnOptions, Quarantined} from '@/types'
 import DateTimeUtils from '@/assets/DateTimeUtils'
-// import RequestsUtils from '@/assets/RequestsUtils'
+import RequestsUtils from '@/assets/RequestsUtils'
+import {mapStores} from 'pinia'
+import {useBranchesStore} from '@/stores/BranchesStore'
 
 
 export default defineComponent({
@@ -111,147 +113,84 @@ export default defineComponent({
       selectedArray: [] as string[],
     }
   },
+  computed: {
+    selectedBranch(): string {
+      return this.branchesStore.selectedBranchId
+    },
+
+    ...mapStores(useBranchesStore),
+  },
   methods: {
 
     updateSelected(selectedBoxes: string[]) {
       this.selectedArray = [...selectedBoxes]
     },
     async loadQuarantinedData() {
-      // const url = '/query'
-      // const config = {headers: {'provider': 'mongodb'}}
-      // const data = {
-      //   'query':
-      //       {
-      //         'collection': 'dynamic_rules_violations_active',
-      //         'execute': [
-      //           {
-      //             'func': 'find',
-      //             'options': {},
-      //           },
-      //         ],
-      //       },
-      // }
-      // const response = await RequestsUtils.sendDataLayerRequest({methodName: 'POST', url, data, config})
+      const url = 'query'
+      const config = {headers: {'provider': 'mongodb'}}
+      const data = {
+        'query':
+            {
+              'collection': 'dynamic_rules_violations_active',
+              'execute': [
+                {
+                  'func': 'find',
+                  'options': {'filter': {'config': 'prod'}},
+                },
+              ],
+            },
+      }
+      const response = await RequestsUtils.sendDataLayerRequest({methodName: 'POST', url, data, config})
 
-      // Mock data
-      const response = [
-        {
-          _id: '633ec6b737f44e76740d8f5e',
-          count: 5,
-          first_added: 1262296800,
-          last_seen: 1262296800,
-          rule_id: '1',
-          tags: ['include1'],
-          target: 'ip',
-          value: '1.1.1.1',
-        },
-        {
-          _id: '633ec6b737f44e76740d8f5f',
-          count: 5,
-          first_added: 1262296800,
-          last_seen: 1262296800,
-          rule_id: 3,
-          tags: ['include1'],
-          target: 'ip',
-          value: '1.1.1.1',
-        },
-        {
-          _id: '633ec6b737f44e76740d8f60',
-          count: 5,
-          first_added: 1262296800,
-          last_seen: 1262296800,
-          rule_id: 1,
-          tags: ['include1'],
-          target: 'ip',
-          value: '2.2.2.2',
-        },
-        {
-          _id: '633ec6b737f44e76740d8f61',
-          count: 5,
-          first_added: 1262296800,
-          last_seen: 1262296800,
-          rule_id: 3,
-          tags: ['include1'],
-          target: 'ip',
-          value: '2.2.2.2',
-        },
-        {
-          _id: '633ec6b737f44e76740d8f62',
-          count: 5,
-          first_added: 1262296800,
-          last_seen: 1262296800,
-          rule_id: 3,
-          tags: ['include1', 'exclude1'],
-          target: 'ip',
-          value: '3.3.3.3',
-        },
-        {
-          _id: '633ec6b737f44e76740d8f63',
-          count: 5,
-          first_added: 1262296800,
-          last_seen: 1262296800,
-          rule_id: 3,
-          tags: ['include1'],
-          target: 'ip',
-          value: '4.4.4.4',
-        },
-        {
-          _id: '633ec6b737f44e76740d8f64',
-          count: 5,
-          first_added: 1262296800,
-          last_seen: 1262296800,
-          rule_id: 2,
-          tags: ['include2', 'include3'],
-          target: 'headers_content-type',
-          value: 'json',
-        },
-        {
-          _id: '633ec6b737f44e76740d8f65',
-          count: 5,
-          first_added: 1262296800,
-          last_seen: 1262296800,
-          rule_id: 4,
-          tags: ['geo-country:Israel'],
-          target: 'country',
-          value: 'israel',
-        },
-      ]
-      this.quarantinedData = response.map((result: any) => {
-      // this.quarantinedData = response.data.data.results.map((result: any) => {
+      this.quarantinedData = response.data.data.results.map((result: any) => {
         return {...result, id: result._id}
       })
       this.selectedArray = []
     },
 
     async deleteQuarantinedElement(id?: string) {
-      this.quarantinedData = this.quarantinedData.filter((item) => item.id !== id)
-
-      // const url = '/query'
-      // const config = {headers: {'provider': 'mongodb'}}
-      // const data = {
-      //   'query':
-      //       {
-      //         'collection': 'dynamic_rules_violations_active',
-      //         'execute': [
-      //           {
-      //             'func': 'delete_many',
-      //             'options': {'filter': {'_id': {'$oid': id}}},
-      //           },
-      //         ],
-      //       },
-      // }
-      // await RequestsUtils.sendDataLayerRequest({methodName: 'POST', url, data, config})
-      // this.loadQuarantinedData()
+      const url = 'query'
+      const config = {headers: {'provider': 'mongodb'}}
+      const data = {
+        'query':
+            {
+              'collection': 'dynamic_rules_violations_active',
+              'execute': [
+                {
+                  'func': 'delete_many',
+                  'options': {'filter': {'_id': {'$oid': id}}},
+                },
+              ],
+            },
+      }
+      await RequestsUtils.sendDataLayerRequest({methodName: 'POST', url, data, config})
+      this.loadQuarantinedData()
     },
-    deleteSelectedRows() {
-      this.selectedArray.forEach((rowId) => {
-        this.quarantinedData = this.quarantinedData.filter((item) => item.id !== rowId)
+    async deleteSelectedRows() {
+      const toDeleteArray = this.selectedArray.map((rowId) => {
+        return {'$oid': rowId}
       })
+      const url = '/query'
+      const config = {headers: {'provider': 'mongodb'}}
+      const data = {
+        'query':
+            {
+              'collection': 'dynamic_rules_violations_active',
+              'execute': [
+                {
+                  'func': 'delete_many',
+                  'options': {'filter': {'_id': {'$in': toDeleteArray}}},
+                },
+              ],
+            },
+      }
+      await RequestsUtils.sendDataLayerRequest({methodName: 'POST', url, data, config})
+      this.loadQuarantinedData()
     },
-
   },
-  created() {
-    this.loadQuarantinedData()
+  async created() {
+    await this.branchesStore.list
+    await this.loadQuarantinedData()
   },
 })
 

@@ -446,6 +446,7 @@ declare module CuriefenseClient {
 
   type Quarantined = {
     id: string
+    config: string
     count: number
     first_added: number
     last_seen: number
