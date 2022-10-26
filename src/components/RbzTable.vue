@@ -14,9 +14,10 @@
       <tr class="header-row">
         <th class="is-size-7" v-if="showCheckbox">
           <div class="field is-grouped is-grouped-centered">
-              R<input type="checkbox"
-                      title="Checkbox"
-                      class="is-small row-checkbox"
+              <input type="checkbox"
+                      title="Select all rows"
+                      ref="check-box"
+                      class="is-small header-checkbox"
                       @click="selectAll()" />
           </div>
         </th>
@@ -120,10 +121,9 @@
               <input type="checkbox"
                       title="Checkbox"
                       :id="row.id"
-                      :check="selectedRow.selected"
-
+                      :ref="row.id"
                       class="is-small row-checkbox"
-                      @change="(event) => rowSelected(row.id, event)" />
+                      @change="() => rowSelected(row.id)" />
           </div>
         </td>
         <td v-for="(col, index) in columns"
@@ -135,9 +135,6 @@
                   v-html="col.displayFunction(row)"
                   :title="col.displayFunction(row)">
             </span>
-            <!--span-- v-if="col.checkbox" >
-            <spot name="checkbox"></spot>
-            </-span-->
             <span v-else
                   :title="row[col.fieldNames[0]]">
               {{ row[col.fieldNames[0]] }}
@@ -197,15 +194,14 @@
 
 <script lang="ts">
 import _ from 'lodash'
-import {defineComponent, InputHTMLAttributes, PropType} from 'vue'
-import {ColumnOptions, GenericObject, SelectedRow} from '@/types'
+import {defineComponent, PropType} from 'vue'
+import {ColumnOptions, GenericObject} from '@/types'
 
 export default defineComponent({
   name: 'RbzTable',
   props: {
     columns: Array as PropType<ColumnOptions[]>,
     data: Array as PropType<GenericObject[]>,
-    selectedArr: [] as PropType<SelectedRow[]>,
     defaultSortColumnIndex: Number,
     defaultSortColumnDirection: String as PropType<'asc' | 'desc'>,
     showMenuColumn: Boolean,
@@ -224,6 +220,30 @@ export default defineComponent({
     showCheckbox: Boolean,
     useScroll: Boolean,
     loading: Boolean,
+  },
+  data() {
+    return {
+      // Menu
+      menuVisible: false,
+
+      // Filtering
+      filter: {} as GenericObject,
+      filtersVisible: false,
+
+      // Sorting
+      sortDirection: 'asc',
+      sortColumnTitle: null as ColumnOptions['title'],
+      sortColumnDisplayFunction: null as ColumnOptions['displayFunction'],
+      sortColumnIsNumber: false as ColumnOptions['isNumber'],
+
+      // Pagination
+      currentPage: 1,
+
+      // checkboxes
+      isSelected: false,
+      selectedRow: '' as string,
+      selectedArray: [] as String[],
+    }
   },
   watch: {
     columns: {
@@ -251,44 +271,8 @@ export default defineComponent({
       immediate: true,
       deep: true,
     },
-    selectedRow: {
-      handler: function(id) {
-        const selectedRow = this.selectedArray.findIndex((row) => row.id === id)
-        if (selectedRow == -1) {
-          this.selectedArray.push(this.selectedRow)
-        } else {
-          this.selectedArray[selectedRow].selected = this.selectedRow.selected
-        }
-      },
-      immediate: true,
-      deep: true,
-    },
   },
-  data() {
-    return {
-      // Menu
-      menuVisible: false,
-
-      // Filtering
-      filter: {} as GenericObject,
-      filtersVisible: false,
-
-      // Sorting
-      sortDirection: 'asc',
-      sortColumnTitle: null as ColumnOptions['title'],
-      sortColumnDisplayFunction: null as ColumnOptions['displayFunction'],
-      sortColumnIsNumber: false as ColumnOptions['isNumber'],
-
-      // Pagination
-      currentPage: 1,
-
-      // checkboxes
-      isSelected: false,
-      selectedRow: {} as SelectedRow,
-      selectedArray: [] as SelectedRow[],
-    }
-  },
-  emits: ['new-button-clicked', 'row-button-clicked', 'show-checkbox', 'row-clicked', 'row-selected', 'select-all'],
+  emits: ['new-button-clicked', 'row-button-clicked', 'show-checkbox', 'row-clicked', 'select-array'],
   computed: {
     dataArrayDisplay() {
       if (!this.data?.length || !Array.isArray(this.data)) {
@@ -367,10 +351,9 @@ export default defineComponent({
       return this.columns.length + extraColumns
     },
 
-    localSelectedArr(): SelectedRow[] {
-      return _.cloneDeep(this.selectedArr as SelectedRow[])
+    allCheckboxes() {
+      return this.data.map((item) => item.id)
     },
-    // selectedArray(): this.selectedArr
   },
   methods: {
     newButtonClicked() {
@@ -382,25 +365,37 @@ export default defineComponent({
     },
 
     rowClicked(id: string) {
-      this.$emit('row-selected', id)
+      this.$emit('row-clicked', id)
     },
 
-    rowSelected(id: string, event: Event) {
-      event.preventDefault()
-      const target = event.target as InputHTMLAttributes
-      console.log('event:', target.checked)
-      this.$emit('row-selected', {id, selected: target.checked})
-    },
+    rowSelected(id: string) {
+      const selectedIndex = this.selectedArray.findIndex((row) => row === id)
+      if (selectedIndex == -1) {
+        this.selectedArray.push(id)
+        this.$refs['check-box'].checked = false
+      } else {
+        this.selectedArray.splice(selectedIndex, 1)
+        this.$refs['check-box'].checked = false
+      }
 
-    emitSelected(id: string) {
-      console.log('emitSelected')
-      this.$emit('row-selected', id)
+      this.$emit('select-array', JSON.parse(JSON.stringify(this.selectedArray)))
     },
 
     selectAll() {
-      console.log('selectAll')
       this.isSelected= !this.isSelected
-      this.$emit('select-all', this.isSelected)
+      const length = this.allCheckboxes.length
+      if (this.isSelected) {
+        for (let i = 0; i < length; i++) {
+          this.$refs[this.allCheckboxes[i]][0].checked = true
+          this.selectedArray = [...this.allCheckboxes]
+        }
+      } else {
+        for (let i = 0; i < length; i++) {
+          this.$refs[this.allCheckboxes[i]][0].checked = false
+          this.selectedArray = []
+        }
+      }
+      this.$emit('select-array', JSON.parse(JSON.stringify(this.selectedArray)))
     },
 
     sortColumn(column: ColumnOptions) {
