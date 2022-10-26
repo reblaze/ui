@@ -135,7 +135,7 @@ export default defineComponent({
               'execute': [
                 {
                   'func': 'find',
-                  'options': {'filter': {'config': 'prod'}},
+                  'options': {'filter': {'config': this.selectedBranch}},
                 },
               ],
             },
