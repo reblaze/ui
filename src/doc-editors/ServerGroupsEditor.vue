@@ -93,6 +93,46 @@
                 </div>
               </div>
               <div class="field">
+                  <label class="label is-small">
+                    Match Host/Authority Headers
+                  </label>
+                  <div class="control">
+                    <textarea
+                      class="is-small textarea match-host"
+                      title="Match Host/Authority Headers"
+                      placeholder="Match Host/Authority Headers"
+                      data-qa="match-host-input"
+                      v-model="serverNames"
+                      rows="5">
+                    </textarea>
+                  </div>
+                </div>
+                <!--div-- class="field">
+                  <label class="label is-small">
+                    Certificate
+                  </label>
+                  <div class="control is-expanded">
+                    <div class="select is-fullwidth is-small">
+                      <select v-model="selectedServerGroup.ssl_certificate" >
+                        <option value="" selected disabled>
+                            Select Certificate
+                        </option>
+                        <option v-for="certificate in certificatesNames"
+                            :value="certificate[0]"
+                            :key="certificate[0]">
+                            {{certificate[0] }} ({{certificate[1] }})
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+                  <p class="help">
+                    (Optional) Choose a certificate for the site, or create a
+                    <a url="/new-ssl-page/certificate-store">
+                        new one
+                    </a>.
+                  </p>
+                </!--div-->
+              <div class="field">
                 <div class="field textarea-field">
                   <label class="label is-small">Description</label>
                   <div class="control">
@@ -103,29 +143,6 @@
                                 rows="5">
                       </textarea>
                   </div>
-                </div>
-              </div>
-            </div>
-            <div class="column is-4">
-              <div class="field">
-                <label class="label is-small">
-                  Domain Name
-                </label>
-                <div class="control">
-                  <input class="input is-small domain-name"
-                         title="Domain name"
-                         placeholder="Domain name"
-                         v-model="selectedServerGroup.canonical_name"/>
-                </div>
-              </div>
-              <div class="field">
-                <label class="label is-small">Additional Domain Names</label>
-                <div class="control">
-                    <textarea
-                        class="textarea is-small additional-domain-names"
-                        placeholder="Additional domain names"
-                        v-model="serverNames">
-                    </textarea>
                 </div>
               </div>
             </div>
@@ -314,6 +331,7 @@ import {
   RoutingProfile,
   SecurityPolicy,
   Site,
+  Certificate,
 } from '@/types'
 import Utils from '@/assets/Utils'
 import {defineComponent} from 'vue'
@@ -327,6 +345,7 @@ export default defineComponent({
   data() {
     return {
       titles: DatasetsUtils.titles,
+      configs: [],
       selectedServerGroup: null as Site,
       docIdFromRoute: '',
 
@@ -343,6 +362,7 @@ export default defineComponent({
       routingProfilesNames: [] as [RoutingProfile['id'], RoutingProfile['name']][],
       configTemplatesNames: [] as [ConfigTemplate['id'], ConfigTemplate['name']][],
       mobileSDKsNames: [] as [MobileSDK['id'], MobileSDK['name']][],
+      certificatesNames: [] as [Certificate['id'], Certificate['san']][],
       backendServicesNames: [] as [BackendService['id'], BackendService['name']][],
       contentFilterProfilesNames: [] as [ContentFilterProfile['id'], ContentFilterProfile['name']][],
       aclProfilesNames: [] as [ACLProfile['id'], ACLProfile['name']][],
@@ -462,6 +482,25 @@ export default defineComponent({
       const failureMessage = `Failed while attempting to save the changes to the ${serverGroupText}.`
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
       this.isSaveLoading = false
+    },
+
+    loadCertificates() {
+      RequestsUtils.sendReblazeRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/certificates/`,
+        config: {headers: {'x-fields': 'id, san'}},
+      }).then((response: AxiosResponse<Certificate[]>) => {
+        if (response.data.length > 0) {
+          this.certificatesNames = _.sortBy(_.map(response.data, (entity) => {
+            return [entity.id, entity.san]
+          }), (e) => {
+            return e[1]
+          })
+        } else {
+          // TODO  get certificate to work
+          this.certificatesNames = [['need-real-data', ['www.certificate.com']]] as [string, string[]][]
+        }
+      })
     },
 
     async loadServerGroup() {
@@ -584,6 +623,7 @@ export default defineComponent({
   },
   async created() {
     await this.branchesStore.list
+    this.loadCertificates()
   },
 })
 </script>

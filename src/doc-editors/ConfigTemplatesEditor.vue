@@ -169,7 +169,7 @@
                                placeholder="Client body timeout"
                                v-model="selectedConfigTemplate.client_body_timeout">
                       </div>
-                      <div class="help">
+                      <div class="help height-50px">
                         Defines a timeout for reading client request body, for a period between two successive read
                         operations, not for the transmission of the whole request body
                         <a href="https://nginx.org/en/docs/http/ngx_http_core_module.html#client_body_timeout"
@@ -315,7 +315,7 @@
                                placeholder="Proxy connect timeout"
                                v-model="selectedConfigTemplate.proxy_connect_timeout">
                       </div>
-                      <div class="help">
+                      <div class="help height-50px">
                         Defines a timeout for establishing a connection with a proxied server. It should be noted that
                         this timeout cannot usually exceed 75 seconds
                         <a href="https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_connect_timeout"
@@ -324,7 +324,7 @@
                         </a>
                       </div>
                     </div>
-                    <div class="field height-130px">
+                    <div class="field height-140px">
                       <label class="label is-small">
                         Proxy Send Timeout
                       </label>
@@ -334,7 +334,7 @@
                                placeholder="Proxy send timeout"
                                v-model="selectedConfigTemplate.proxy_send_timeout">
                       </div>
-                      <div class="help">
+                      <div class="help height-140px">
                         Sets a timeout for transmitting a request to the proxied server. The timeout is set only
                         between two successive write operations, not for the transmission of the whole request. If the
                         proxied server does not receive anything within this time, the connection is closed
@@ -344,7 +344,7 @@
                         </a>
                       </div>
                     </div>
-                    <div class="field height-130px">
+                    <div class="field height-140px">
                       <label class="label is-small">
                         Proxy Read Timeout
                       </label>
@@ -354,7 +354,7 @@
                                placeholder="Proxy read timeout"
                                v-model="selectedConfigTemplate.proxy_read_timeout">
                       </div>
-                      <div class="help">
+                      <div class="help height-140px">
                         Defines a timeout for reading a response from the proxied server. The timeout is set only
                         between two successive read operations, not for the transmission of the whole response. If the
                         proxied server does not transmit anything within this time, the connection is closed
@@ -376,12 +376,12 @@
                                placeholder="Backend service host header"
                                v-model="selectedConfigTemplate.upstream_host">
                       </div>
-                      <div class="help">
+                      <div class="help height-50px">
                         The Host header Reblaze will present to the backend service.<br/>Setting value to $host means
                         client's header is passed as is
                       </div>
                     </div>
-                    <div class="field height-130px">
+                    <div class="field height-120px">
                       <label class="label is-small">
                         Real IP Header Name
                       </label>
@@ -401,6 +401,98 @@
               </div>
             </div>
           </div>
+          <!--div-- class="card collapsible-card"
+                 :class="{ collapsed: isTrustedCollapsed }">
+              <div class="card-content px-0 py-0">
+                <div class="media collapsible px-5 py-5 mb-0"
+                     @click="isTrustedCollapsed = !isTrustedCollapsed">
+                  <div class="media-content">
+                    <p class="title is-5 is-uppercase">Trusted Sources</p>
+                  </div>
+                  <span v-show="isTrustedCollapsed">
+                    <i class="fas fa-angle-down"
+                       aria-hidden="true"></i>
+                  </span>
+                  <span v-show="!isTrustedCollapsed">
+                    <i class="fas fa-angle-up"
+                       aria-hidden="true"></i>
+                  </span>
+                </div>
+                <div class="content collapsible-content px-5 py-5">
+                      <div class="content">
+                        <rbz-table :columns="trusted_sources_columns"
+                                    :data="trustedData"
+                                    :row-button-icon="'fa-trash'"
+                                    :row-button-title="'Delete'"
+                                    :show-menu-column="true"
+                                    :show-filter-button="true"
+                                    :show-row-button="true"
+                                    :show-new-button="true"
+                                    :show-second-row-button="true"
+                                    @row-button-clicked="deleteTrustedElement"
+                                    @new-button-clicked="toggleAddingNewTrustedSource"
+                                    @second-row-button-clicked="toggleEditTrustedElement"
+                                    >
+                        </rbz-table>
+                    </div>
+                </div>
+              </div>
+            </div-->
+            <div class="card collapsible-card"
+                 :class="{ collapsed: isAdvancedCollapsed }">
+              <div class="card-content px-0 py-0">
+                <div class="media collapsible px-5 py-5 mb-0"
+                     @click="isAdvancedCollapsed = !isAdvancedCollapsed">
+                  <div class="media-content">
+                    <p class="title is-5 is-uppercase">Advanced Settings</p>
+                  </div>
+                  <span v-show="isAdvancedCollapsed">
+                    <i class="fas fa-angle-down"
+                       aria-hidden="true"></i>
+                  </span>
+                  <span v-show="!isAdvancedCollapsed">
+                    <i class="fas fa-angle-up"
+                       aria-hidden="true"></i>
+                  </span>
+                </div>
+                <div class="content collapsible-content px-5 py-5">
+                  <div class="columns">
+                    <div class="column is-6">
+                      <div class="field ">
+                        <div class="field">
+                          <label class="label is-small">
+                            HTTP Listener Custom Configuration
+                          </label>
+                          <div class="control">
+                            <textarea
+                              rows="5"
+                              class="is-small textarea site-conf"
+                              v-model="selectedConfigTemplate.conf_specific.value">
+                            </textarea>
+                          </div>
+                          <p class="help has-text-danger">Unless instructed, don't touch!</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="column is-6">
+                      <div class="field ">
+                        <div class="field">
+                          <label class="label is-small">HTTPS Listener Custom Configuration</label>
+                          <div class="control">
+                            <textarea
+                              rows="5"
+                              class="is-small textarea site-ssl-conf"
+                              v-model="selectedConfigTemplate.ssl_conf_specific.value">
+                            </textarea>
+                          </div>
+                          <p class="help has-text-danger">Unless instructed, don't touch!</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ documentAPIPath }}</span>
         </div>
       </div>
@@ -410,6 +502,7 @@
 <script lang="ts">
 import RequestsUtils from '@/assets/RequestsUtils'
 import {ConfigTemplate} from '@/types'
+// import _ from 'lodash'
 import Utils from '@/assets/Utils'
 import {defineComponent} from 'vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
@@ -426,8 +519,10 @@ export default defineComponent({
       docIdFromRoute: '',
 
       // Collapsible cards
-      isFrontendCollapsed: true,
-      isBackendCollapsed: true,
+      isFrontendCollapsed: false,
+      isBackendCollapsed: false,
+      isAdvancedCollapsed: false,
+      isTrustedCollapsed: false,
 
       // To prevent deletion of Config templates referenced by Server Groups
       referencedIDsConfigTemplate: [],
@@ -440,6 +535,40 @@ export default defineComponent({
 
       apiRoot: RequestsUtils.reblazeAPIRoot,
       apiVersion: RequestsUtils.reblazeAPIVersion,
+
+      // Trusted indicators
+      isAddModalVisible: false,
+      showEditTrustedSource: false,
+
+      // planetID: null,
+      // planetName: null,
+      // trustedData: null as {id: number, address: string, 'comment': string}[],
+      // trusted_sources_columns: [
+      //   {
+      //     title: 'CIDR / IP / Tag Rule',
+      //     fieldNames: ['address'],
+      //     isSortable: true,
+      //     isSearchable: true,
+      //     classes: 'ellipsis',
+      //   },
+      //   {
+      //     title: 'comment',
+      //     fieldNames: ['comment'],
+      //     isSortable: true,
+      //     isSearchable: true,
+      //     classes: 'ellipsis',
+      //   },
+      // ],
+      // sourceToAdd: {address: '', comment: '', isValid: false} as {address: string, comment: string, isValid?: boolean},
+      // tagRule: '',
+      // newAddress: '127.0.0.0/8',
+      // newComment: 'Private subnet',
+      // editAddress: '',
+      // editComment: '',
+      // isEdit: false,
+      // entryType: 'cidr',
+      // isError: false,
+      // currentEditIndex: 0,
     }
   },
   watch: {
@@ -479,6 +608,7 @@ export default defineComponent({
     },
 
     ...mapStores(useBranchesStore),
+
   },
   methods: {
     async setSelectedDataFromRouteParams() {
@@ -554,8 +684,15 @@ export default defineComponent({
         },
       })
       this.selectedConfigTemplate = response?.data || {}
+      if (!this.selectedConfigTemplate.conf_specific) {
+        this.selectedConfigTemplate.conf_specific = {value: ''}
+      }
+      if (!this.selectedConfigTemplate.ssl_conf_specific) {
+        this.selectedConfigTemplate.ssl_conf_specific = {value: ''}
+      }
       this.isDownloadLoading = false
     },
+
     async loadReferencedConfigTemplatesIDs() {
       const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
@@ -568,6 +705,131 @@ export default defineComponent({
       })
       this.referencedIDsConfigTemplate = _.uniq(referencedConfigTemplates)
     },
+
+    // TODO waiting for truseted source to be implemented on backend: moved from planet to proxy-template and to have an id for each record.
+    // also need to complete the modal for editing and adding trusted sources.
+    // async loadTrustedSources() {
+    //   const url = `configs/${this.selectedBranch}/d/planet/`
+    //   const methodName = 'GET'
+    //   const response = await RequestsUtils.sendReblazeRequest({methodName, url})
+    //   console.log('trusted_nets', response?.data)
+    //   this.planetID = response.data.id
+    //   this.planetName = response.data.name
+    //   this.trustedData = response?.data?.trusted_nets?.map(
+    //     (trusted: {address: string, comment: string}, index: number)=> {
+    //       return {id: index, address: trusted.address, comment: trusted.comment}
+    //     })
+    // },
+    // toggleAddingNewTrustedSource() {
+    //   this.isAddModalVisible=true
+    //   console.log('this.isAddModalVisible', this.isAddModalVisible)
+    // },
+
+    // addNewTrustedSource() {
+    //   const id = this.trustedData.length
+    //   const newTrustedElement = {id: id, address: this.newAddress, comment: this.newComment}
+    //   this.trustedData.push(newTrustedElement)
+    //   this.newAddress = '127.0.0.0/8'
+    //   this.newComment = 'Private subnet'
+    //   this.isAddModalVisible=false
+    // },
+    // openAddModal (id) {
+    //   if ( id ) {
+    //       this.sourceToAdd = {...this.findSource(id), isValid: true}
+    //       const tagRule = this.tagRules.find(tr => tr.id === id)
+    //       if (tagRule) {
+    //           this.entryType = 'tag',
+    //           this.sourceToAdd.tagRule = tagRule.name,
+    //       }
+    //       this.isEdit = true
+    //   }
+    //   else {
+    //       this.sourceToAdd = {
+    //           address: '',
+    //           comment: '',
+    //       };
+    //       this.isEdit = false
+    //   }
+    //   this.isAddModalVisible = true
+    //   this.$nextTick ( () => this.$refs.address?.focus())
+    // },
+    // onChangeEntryType() {
+    //   this.sourceToAdd.address = '';
+    //   this.sourceToAdd.isValid = false;
+    //   this.tagRule = '';
+    //   this.clearError();
+    // },
+    // validateIp() {
+    //   this.clearError('ip');
+    // const ipPattern = /((^\s*((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]
+    //          |1[0-9]{2}|2[0-4][0-9]|25[0-5]))\s*(:([0-9]
+    //          |[1-8][0-9]|9[0-9]|[1-8][0-9]{2}|9[0-8][0-9]|99[0-9]|[1-8][0-9]{3}|9[0-8][0-9]{2}|99[0-8][0-9]|999[0-9]|[1-5][0-9]{4}|6[0-4]
+    //          [0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])|(\/[0-9]|\/[1-2][0-9]|\/[1-3][0-2]))?(\s?)?$)|(^\s*((([0-9A-Fa-f]{1,4}:)
+    //          {7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|
+    //          1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]
+    //          |2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|
+    //          2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|
+    //          ((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]
+    //          {1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|
+    // 1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|
+    // [1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d
+    // |1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*(:([0-9]|[1-8][0-9]|9[0-9]|[1-8][0-9]{2}|9[0-8][0-9]|99[0-9]
+    // |[1-8][0-9]{3}|9[0-8][0-9]{2}|99[0-8][0-9]|999[0-9]|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])|(\/[0-9]
+    // |\/[1-2][0-9]|\/[1-3][0-2]))?(\s?)?$))/
+    //   this.sourceToAdd.isValid = ipPattern.test ( this.sourceToAdd.address )
+    //   if (this.sourceToAdd.isValid) {
+    //       this.validateDuplication()
+    //   }
+    //   else {
+    //       this.errors.push('ip');
+    //   }
+    // },
+    // validateDuplication() {
+    //   this.clearError('duplicate');
+    //   this.sourceToAdd.isValid = !this.findSource ( this.sourceToAdd.address );
+    //   if (!this.sourceToAdd.isValid) {
+    //       this.errors.push ('duplicate');
+    //   }
+    // },
+
+    // closeModal() {
+    //   this.isAddModalVisible = false
+    //   this.sourceToAdd = {}
+    //   this.errors = []
+    //   this.entryType = 'cidr'
+    //   this.tagRule = ''
+    // },
+    // toggleEditTrustedElement(id: number) {
+    //   this.showEditTrustedSource=true
+
+    //   this.currentEditIndex = this.trustedData.findIndex((trusted) => trusted.id ===id)
+    //   this.editAddress = this.trustedData[this.currentEditIndex].address
+    //   this.editComment = this.trustedData[this.currentEditIndex].comment
+    // },
+    // editTrustedSource() {
+    //   this.isEdit = true
+    //   this.trustedData[this.currentEditIndex].address = this.editAddress
+    //   this.trustedData[this.currentEditIndex].comment = this.editComment
+
+    //   this.showEditTrustedSource=false
+    // },
+
+    // async deleteTrustedElement(id: number) {
+    //   const trustedArr = [...this.trustedData]
+    //   this.trustedData = trustedArr.filter((trusted) => trusted.id !== id)
+    //   const dataTrusted = this.trustedData.map((trusted) => {
+    //     return {address: trusted.address, comment: trusted.comment}
+    //   })
+    //   const data = {
+    //     id: this.planetID,
+    //     name: this.planetName,
+    //     trusted_nets: dataTrusted,
+    //   }
+    //   console.log('delete id', id, 'data', data)
+    //   const url = `configs/${this.selectedBranch}/d/planet/`
+    //   const methodName = 'PUT'
+    //   await RequestsUtils.sendReblazeRequest({methodName, url, data})
+    // },
   },
   async created() {
     await this.branchesStore.list

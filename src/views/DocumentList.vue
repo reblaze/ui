@@ -28,6 +28,7 @@
       <div class="content">
         <rbz-table :columns="columns"
                    :data="docs"
+                   :default-sort-column-index="1"
                    :show-menu-column="true"
                    :show-filter-button="true"
                    :show-new-button="true"
@@ -46,7 +47,7 @@
       <hr/>
       <git-history v-if="!isReblazeDocument"
                    :api-path="gitAPIPath"
-                   :doc-title="titles[selectedDocType]"
+                   :restore-target-title="`document [${titles[selectedDocType]}]`"
                    @restore-version="restoreGitVersion"/>
     </div>
 
@@ -87,7 +88,7 @@ import CustomResponseEditor from '@/doc-editors/CustomResponsesEditor.vue'
 import DynamicRulesEditor from '@/doc-editors/DynamicRulesEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {defineComponent, shallowRef} from 'vue'
-import {ColumnOptions, Document, DocumentType, DynamicRule, GenericObject, GlobalFilter} from '@/types'
+import {ColumnOptions, Document, DocumentType, GenericObject, GlobalFilter} from '@/types'
 import {COLUMN_OPTIONS_MAP} from './documentListConst'
 import RbzTable from '@/components/RbzTable.vue'
 import {mapStores} from 'pinia'
@@ -164,6 +165,8 @@ export default defineComponent({
         ...reblazeComponentsMap,
       },
       reblazeComponentsMap: reblazeComponentsMap,
+      selectedDocMatchingGlobalFilter: null as GlobalFilter,
+      matchedDocsData: null as any,
     }
   },
   computed: {
@@ -271,13 +274,11 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       this.isNewLoading = true
       const docToAdd = this.newDoc()
-      if (this.selectedDocType === 'dynamic-rules') {
-        docToAdd.name = docToAdd.name + ' ' + docToAdd.id
-      }
+
       const docTypeText = this.titles[this.selectedDocType + '-singular']
       const successMessage = `New ${docTypeText} was created.`
       const failureMessage = `Failed while attempting to create the new ${docTypeText}.`
-      let data = docToAdd
+      const data = docToAdd
       if (this.isReblazeDocument) {
         const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${docToAdd.id}`
         console.log('add new doc function', url, data, successMessage)
@@ -301,16 +302,6 @@ export default defineComponent({
         }).then(() => {
           this.editDoc(docToAdd.id)
         })
-      }
-
-      if (this.selectedDocType === 'dynamic-rules') {
-        const docMatchingGlobalFilter = DatasetsUtils.newDocEntryFactory['globalfilters']() as GlobalFilter
-        docMatchingGlobalFilter.id = `dr_${docToAdd.id}`
-        docMatchingGlobalFilter.active = (docToAdd as DynamicRule).active
-        docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule ' + docToAdd.id
-        data = docMatchingGlobalFilter
-        const url = `configs/${this.selectedBranch}/d/globalfilters/e/`
-        await RequestsUtils.sendRequest({methodName: 'POST', url, data})
       }
 
       this.isNewLoading = false

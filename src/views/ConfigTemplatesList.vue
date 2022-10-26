@@ -30,6 +30,7 @@
           <div class="content">
             <rbz-table :columns="columns"
                        :data="configTemplates"
+                       :default-sort-column-index="1"
                        :show-filter-button="true"
                        :show-menu-column="true"
                        :show-new-button="true"

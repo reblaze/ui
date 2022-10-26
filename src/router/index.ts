@@ -18,6 +18,7 @@ import BackendServiceList from '@/views/BackendServicesList.vue'
 import BackendServiceEditor from '@/doc-editors/BackendServicesEditor.vue'
 import HelpAndSupport from '@/views/HelpAndSupport.vue'
 import DashboardDisplay from '@/views/Dashboards.vue'
+import DynamicRulesList from '@/views/DynamicRulesList.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -104,6 +105,25 @@ const routes: Array<RouteRecordRaw> = [
                 path: 'config/:doc_id',
                 name: 'ConfigTemplates/config',
                 component: ConfigTemplateEditor,
+              },
+            ],
+          },
+          {
+            path: 'dynamic-rules',
+            name: 'DynamicRules',
+            redirect: (route) => {
+              return `/${route.params.branch}/dynamic-rules/list`
+            },
+            children: [
+              {
+                path: 'list',
+                name: 'DynamicRules/list',
+                component: DynamicRulesList,
+              },
+              {
+                path: 'config/:doc_id',
+                name: 'DocumentEditor/DocType/config/DocID',
+                component: DocumentEditor,
               },
             ],
           },
