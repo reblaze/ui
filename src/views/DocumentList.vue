@@ -87,7 +87,7 @@ import CustomResponseEditor from '@/doc-editors/CustomResponsesEditor.vue'
 import DynamicRulesEditor from '@/doc-editors/DynamicRulesEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {defineComponent, shallowRef} from 'vue'
-import {ColumnOptions, Document, DocumentType, GenericObject, GlobalFilter} from '@/types'
+import {ColumnOptions, Document, DocumentType, DynamicRule, GenericObject, GlobalFilter} from '@/types'
 import RbzTable from '@/components/RbzTable.vue'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
@@ -103,7 +103,7 @@ import {
   SecurityPolicy,
   SecurityPolicyEntryMatch,
 } from '@/types'
-import { AxiosResponse } from 'axios'
+import {AxiosResponse} from 'axios'
 
 
 export default defineComponent({
@@ -426,9 +426,9 @@ export default defineComponent({
             displayFunction: (item: RateLimit) => {
               return _.map(item.thresholds, (threshold) =>{
                 const customResponse = _.find(this.customResponsesNames, (customResponseName) => {
-                return customResponseName[0] === threshold.action
-              })
-              const customResponseName =  customResponse?.[1] || ''
+                  return customResponseName[0] === threshold.action
+                })
+                const customResponseName = customResponse?.[1] || ''
                 return `Limit:${threshold.limit}\n` +
                         `Custom Response: ${customResponseName}`
               }).join('\n')
