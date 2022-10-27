@@ -140,6 +140,19 @@ const amountSuffixFormatter = (value: number) => {
   return item ? (value / item.value).toFixed(0).toString().replace(rx, '$1') + item.symbol : '0'
 }
 
+const hexToRgbArray = (hex: string) => {
+  let colors: string[]
+  if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
+    colors = hex.substring(1).split('')
+    if (colors.length == 3) {
+      colors = [colors[0], colors[0], colors[1], colors[1], colors[2], colors[2]]
+    }
+    const color = '0x' + colors.join('')
+    const colorNumber = Number(color)
+    return [(colorNumber >> 16) & 255, (colorNumber >> 8) & 255, colorNumber & 255]
+  }
+}
+
 export default {
   name: 'Utils',
   validateInput,
@@ -149,4 +162,5 @@ export default {
   toast,
   removeExtraWhitespaces,
   amountSuffixFormatter,
+  hexToRgbArray,
 }

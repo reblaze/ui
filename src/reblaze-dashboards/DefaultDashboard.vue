@@ -1,20 +1,17 @@
 <template>
   <div>
-    <!--First graphs row-->
-    <div class="columns">
-      <div class="column width-300px">
-        <div class="field traffic-info">
+    <!--First graph row-->
+    <div class="columns height-300px">
+      <div class="column width-200px">
+        <div class="field traffic-info mb-0 height-50px">
           <label class="label is-small has-text-grey-light">
             Total Calls
           </label>
-          <div class="control columns is-variable is-1">
-            <span class="column is-3 has-text-weight-bold">
+          <div class="control columns is-variable is-0">
+            <span class="column is-4 has-text-weight-bold">
               {{ amountSuffixFormatter(totalCallsInfo.amount) }}
             </span>
-            <span class="column is-3">
-              <!--TODO: Trend-->
-            </span>
-            <span class="column is-6">
+            <span class="column is-8">
               <span class="has-text-weight-bold">
                 {{ amountSuffixFormatter(totalCallsInfo.callsPerHour) }}
               </span>
@@ -24,18 +21,18 @@
         </div>
         <div v-for="(data, trafficCategory) in trafficInfo"
              :key="trafficCategory"
-             class="field traffic-info">
+             class="field traffic-info mb-0 width-50pct height-100px is-inline-block">
           <label class="label is-small has-text-grey-light">
             {{ capitalize(trafficCategory) }}
           </label>
-          <div class="control columns is-variable is-1">
-            <span class="column is-3 has-text-weight-bold">
+          <div class="control">
+            <div class="has-text-weight-bold">
+              {{ data.percentile }}%
+            </div>
+            <div class="has-text-weight-bold">
               {{ amountSuffixFormatter(data.amount) }}
-            </span>
-            <span class="column is-3">
-              <!--TODO: Trend-->
-            </span>
-            <span class="column is-6">
+            </div>
+            <div class="height-2rem country-flags-wrapper">
               <template v-if="data.topCountries && data.topCountries.length">
                 <country-flag v-for="topCountry in data.topCountries.slice(0, 3)"
                               :key="topCountry"
@@ -47,64 +44,24 @@
                   {{ data.topCountries.length > 3 ? `+${data.topCountries.length - 3}` : '' }}
                 </span>
               </template>
-            </span>
+            </div>
           </div>
         </div>
       </div>
       <div class="column">
-        <div class="height-200px">
-          <label class="label is-small">
-            Traffic Info
-          </label>
-          <rbz-chart :data="trafficChartData"
-                     :series-options="trafficChartSeriesOptions"
-                     :legend-as-tooltip="true"
-                     :chart-height="150">
-          </rbz-chart>
-        </div>
-        <div class="height-200px">
-          <label class="label is-small is-clickable"
-                 @click="toggleStatusesClassDetails">
-            Response Status {{ statusesClassDetails ? 'Classes' : '' }}
-          </label>
-          <rbz-chart :data="statusesChartData"
-                     :series-options="statusesChartSeriesOptions"
-                     :legend-as-tooltip="true"
-                     :chart-height="150">
-          </rbz-chart>
-        </div>
+        <label class="label is-small">
+          Traffic Info
+        </label>
+        <rbz-chart :data="trafficChartData"
+                   :series-options="trafficChartSeriesOptions"
+                   :legend-as-tooltip="true"
+                   :chart-height="250">
+        </rbz-chart>
       </div>
+    </div>
+    <!--Second graph row-->
+    <div class="columns height-300px">
       <div class="column width-200px">
-        <div class="height-200px is-flex is-justify-content-space-around has-text-centered">
-          <div>
-            Humans
-            <div class="bar-wrapper height-130px">
-              <div class="humans-bar width-60px"
-                   :title="`${trafficInfo.humans.percentile}% humans`"
-                   :style="`height: ${trafficInfo.humans.percentile}%`">
-              </div>
-              <div class="bots-bar width-60px"
-                   :title="`${trafficInfo.bots.percentile}% bots`"
-                   :style="`height: ${trafficInfo.bots.percentile}%`">
-              </div>
-            </div>
-            Bots
-          </div>
-          <div>
-            Passed
-            <div class="bar-wrapper height-130px">
-              <div class="passed-bar width-60px"
-                   :title="`${trafficInfo.passed.percentile}% passed`"
-                   :style="`height: ${trafficInfo.passed.percentile}%`">
-              </div>
-              <div class="blocked-bar width-60px"
-                   :title="`${trafficInfo.blocked.percentile}% blocked`"
-                   :style="`height: ${trafficInfo.blocked.percentile}%`">
-              </div>
-            </div>
-            Blocked
-          </div>
-        </div>
         <div class="height-200px">
           <svg id="doughnut"
                width="100%"
@@ -112,6 +69,35 @@
                viewBox="0 0 100 100">
           </svg>
         </div>
+        <div class="height-100px">
+          <div class="status-legend-wrapper is-size-7 scrollbox-shadowed height-50px">
+            <div v-for="legend in statusesPieChartLegend"
+                 :key="legend.status">
+              <span class="width-60px is-inline-block">
+                <span class="status-marker is-inline-block"
+                      :style="`background: ${legend.color}`">
+                </span>
+                <span class="status-label is-inline-block">
+                  {{ legend.status }}
+                </span>
+              </span>
+              <span class="status-value is-inline-block">
+                {{ legend.percentile }}%
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="column">
+        <label class="label is-small is-clickable"
+               @click="toggleStatusesClassDetails">
+          Response Status {{ statusesClassDetails ? 'Classes' : '' }}
+        </label>
+        <rbz-chart :data="statusesChartData"
+                   :series-options="statusesChartSeriesOptions"
+                   :legend-as-tooltip="true"
+                   :chart-height="250">
+        </rbz-chart>
       </div>
     </div>
     <!--First tables row-->
@@ -328,39 +314,45 @@ export default defineComponent({
           title: 'Passed',
           fieldName: 'passed',
           show: true,
-          drawStyle: 'line',
+          drawStyle: 'spline',
+          fillColor: `rgba(${Utils.hexToRgbArray('#50c878').join(', ')}, 0.1)`,
           strokeColor: '#50c878', // $color-emerald
         },
         {
           title: 'Blocked',
           fieldName: 'blocked',
           show: true,
-          drawStyle: 'line',
+          drawStyle: 'spline',
+          fillColor: `rgba(${Utils.hexToRgbArray('#ff355e').join(', ')}, 0.1)`,
           strokeColor: '#ff355e', // $color-radical-red
         },
         {
           title: 'Report',
           fieldName: 'report',
           show: true,
-          drawStyle: 'line',
+          drawStyle: 'spline',
+          fillColor: `rgba(${Utils.hexToRgbArray('#ffdb58').join(', ')}, 0.1)`,
           strokeColor: '#ffdb58', // $color-mustard
         },
         {
           title: 'Humans',
           fieldName: 'humans',
           show: true,
-          drawStyle: 'line',
+          drawStyle: 'spline',
+          fillColor: `rgba(${Utils.hexToRgbArray('#4169e1').join(', ')}, 0.1)`,
           strokeColor: '#4169e1', // $color-royal-blue
         },
         {
           title: 'Bots',
           fieldName: 'bots',
           show: true,
-          drawStyle: 'line',
+          drawStyle: 'spline',
+          fillColor: `rgba(${Utils.hexToRgbArray('#843179').join(', ')}, 0.1)`,
           strokeColor: '#843179', // $color-plum
         },
       ] as SeriesOptions[],
       statusesClassDetails: true,
+      statusesPieChartLegend: [],
     }
   },
   watch: {
@@ -381,7 +373,7 @@ export default defineComponent({
             totals[key] += value
           }
         }
-        const data = []
+        let data = []
         for (const [key, value] of Object.entries(totals)) {
           data.push({
             status: key,
@@ -389,9 +381,11 @@ export default defineComponent({
             color: this.getStatusColor(key),
           })
         }
+        data = _.sortBy(data, 'status')
         const svgDoughnut = document.querySelector('#doughnut')
         svgDoughnut.innerHTML = ''
         let filled = 0
+        this.statusesPieChartLegend = []
         data.forEach((dataItem) => {
           const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
           const startAngle = -90
@@ -411,10 +405,12 @@ export default defineComponent({
           circle.setAttribute('stroke-dasharray', dashArray.toString())
           circle.setAttribute('stroke-dashoffset', dashOffset.toString())
           circle.setAttribute('transform', 'rotate(' + (angle) + ' ' + cx + ' ' + cy + ')')
-          const circleTooltip = document.createElementNS('http://www.w3.org/2000/svg', 'title')
-          circleTooltip.innerHTML = `${dataItem.status}: ${dataItem.fill}%`
-          circle.appendChild(circleTooltip)
           svgDoughnut.appendChild(circle)
+          this.statusesPieChartLegend.push({
+            status: dataItem.status,
+            percentile: Math.round(dataItem.fill * 100),
+            color: dataItem.color,
+          })
           filled += dataItem.fill
         })
       },
@@ -441,11 +437,13 @@ export default defineComponent({
       const hits = _.sumBy(this.data, (value) => {
         return value?.counters.hits
       })
-      const blocked = _.sumBy(this.data, (value) => {
-        return value?.counters.blocks
+      const passed = _.sumBy(this.data, (value) => {
+        return value?.counters.passed
       })
-      const passed = hits - blocked
-      const passedPercentile = (Math.round((passed / hits) * 1e2) / 1e2) * 100
+      const blocked = _.sumBy(this.data, (value) => {
+        return value?.counters.active
+      })
+      const passedPercentile = Math.round((passed / hits) * 100)
       const blockedPercentile = 100 - passedPercentile
       const humans = _.sumBy(this.data, (value) => {
         return value?.counters.human
@@ -453,7 +451,7 @@ export default defineComponent({
       const bots = _.sumBy(this.data, (value) => {
         return value?.counters.bot
       })
-      const humansPercentile = (Math.round((humans / hits) * 1e2) / 1e2) * 100
+      const humansPercentile = Math.round((humans / hits) * 100)
       const botsPercentile = 100 - humansPercentile
       return {
         'passed': {
@@ -488,8 +486,8 @@ export default defineComponent({
     trafficChartData(): GenericObject[] {
       const returnArray = []
       for (const dataItem of this.data) {
-        const passed = dataItem.counters.hits - dataItem.counters.blocks
-        const blocked = dataItem.counters.blocks
+        const passed = dataItem.counters.passed
+        const blocked = dataItem.counters.active
         const report = dataItem.counters.report
         const humans = dataItem.counters.human
         const bots = dataItem.counters.bot
@@ -532,11 +530,12 @@ export default defineComponent({
     },
 
     statusesChartSeriesOptions(): SeriesOptions[] {
-      const seriesOption: SeriesOptions = {
+      const emptySeriesOption: SeriesOptions = {
         title: '',
         fieldName: '',
         show: true,
-        drawStyle: 'line',
+        drawStyle: 'spline',
+        fillColor: '',
         strokeColor: '',
       }
       const statusKeys = _.uniq(_.flatMap(this.statusesChartData, (statusesChartDataItem) => {
@@ -544,8 +543,10 @@ export default defineComponent({
       })).filter((key) => key !== 'timeframe')
       const returnArray = []
       for (const key of statusKeys) {
+        const seriesOption = _.cloneDeep(emptySeriesOption)
         seriesOption.title = key
         seriesOption.fieldName = key
+        seriesOption.fillColor = `rgba(${Utils.hexToRgbArray(this.getStatusColor(key)).join(', ')}, 0.1)`
         seriesOption.strokeColor = this.getStatusColor(key)
         returnArray.push(seriesOption)
       }
@@ -556,8 +557,8 @@ export default defineComponent({
       const returnArray = []
       const groupedObject = _.groupBy(this.data, 'appid')
       for (const appId of Object.keys(groupedObject)) {
-        const passed = _.sumBy(groupedObject[appId], (item) => item.counters.hits - item.counters.blocks)
-        const blocked = _.sumBy(groupedObject[appId], (item) => item.counters.blocks)
+        const passed = _.sumBy(groupedObject[appId], (item) => item.counters.passed)
+        const blocked = _.sumBy(groupedObject[appId], (item) => item.counters.active)
         const report = _.sumBy(groupedObject[appId], (item) => item.counters.report)
         returnArray.push({
           rowIdentification: appId,
@@ -570,7 +571,7 @@ export default defineComponent({
     },
 
     topTargetUris(): topTableData[] {
-      return this.buildTopDataFromCounters('top_blocked_uri', 'top_passed_uri', 'top_reported_uri')
+      return this.buildTopDataFromCounters('top_active_uri', 'top_passed_uri', 'top_reported_uri')
     },
 
     topTargetRTCs(): topTableData[] {
@@ -580,15 +581,15 @@ export default defineComponent({
     },
 
     topCountries(): topTableData[] {
-      return this.buildTopDataFromCounters('top_blocked_country', 'top_passed_country', 'top_reported_country')
+      return this.buildTopDataFromCounters('top_active_country', 'top_passed_country', 'top_reported_country')
     },
 
     topASNumbers(): topTableData[] {
-      return this.buildTopDataFromCounters('top_blocked_asn', 'top_passed_asn', 'top_reported_asn')
+      return this.buildTopDataFromCounters('top_active_asn', 'top_passed_asn', 'top_reported_asn')
     },
 
     topIPAddresses(): topTableData[] {
-      return this.buildTopDataFromCounters('top_blocked_ip', 'top_passed_ip', 'top_reported_ip')
+      return this.buildTopDataFromCounters('top_active_ip', 'top_passed_ip', 'top_reported_ip')
     },
 
     topRateLimits(): topTableData[] {
@@ -610,11 +611,11 @@ export default defineComponent({
     },
 
     topUserAgents(): topTableData[] {
-      return this.buildTopDataFromCounters('top_blocked_user_agent', 'top_passed_user_agent', 'top_reported_user_agent')
+      return this.buildTopDataFromCounters('top_active_user_agent', 'top_passed_user_agent', 'top_reported_user_agent')
     },
 
     topTags(): topTableData[] {
-      return this.buildTopDataFromCounters('top_blocked_tags', 'top_passed_tags', 'top_reported_tags')
+      return this.buildTopDataFromCounters('top_active_tags', 'top_passed_tags', 'top_reported_tags')
     },
   },
   methods: {
@@ -691,8 +692,8 @@ export default defineComponent({
        lang="scss">
 @import 'src/assets/styles/colors';
 
-.traffic-info:not(:last-child) {
-  margin-bottom: 25px;
+.country-flags-wrapper {
+  position: absolute;
 }
 
 .flag {
@@ -714,5 +715,16 @@ export default defineComponent({
 
 .blocked-bar {
   background-color: $color-radical-red;
+}
+
+.status-legend-wrapper {
+  overflow-y: auto;
+}
+
+.status-marker {
+  height: 1rem;
+  margin-right: 4px;
+  vertical-align: text-bottom;
+  width: 1rem;
 }
 </style>

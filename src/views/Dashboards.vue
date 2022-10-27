@@ -1,6 +1,6 @@
 <template>
   <div class="card-content">
-    <div class="media">
+    <div class="media mb-2">
       <div class="media-content">
         <div class="field is-grouped">
           <div class="control search-wrapper">
@@ -51,25 +51,20 @@
         </div>
       </div>
     </div>
-
-    <hr/>
-
-    <div class="media">
-      <div class="media-content">
-        <div class="tabs"
-             data-qa="dashboard-tabs">
-          <ul>
-            <li v-for="(dashboard, index) in dashboards"
-                :key="index"
-                :class="{'is-active': index === activeDashboardIndex}"
-                @click="activeDashboardIndex = index"
-                :data-qa="`dashboard-tab-${index}`">
-              <a>
-                {{ dashboard.title }}
-              </a>
-            </li>
-          </ul>
-        </div>
+    <div class="tabs-wrapper mb-5">
+      <div class="tabs"
+           data-qa="dashboard-tabs">
+        <ul>
+          <li v-for="(dashboard, index) in dashboards"
+              :key="index"
+              :class="{'is-active': index === activeDashboardIndex}"
+              @click="activeDashboardIndex = index"
+              :data-qa="`dashboard-tab-${index}`">
+            <a>
+              {{ dashboard.title }}
+            </a>
+          </li>
+        </ul>
       </div>
     </div>
     <div v-if="!data?.length"

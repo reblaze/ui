@@ -323,7 +323,7 @@ export default defineComponent({
 }
 
 .menu-wrapper {
-  height: calc(100% - 200px);
+  height: calc(100% - 150px);
 }
 
 .menu-wrapper .v-sidebar-menu .vsm--scroll-bar {
