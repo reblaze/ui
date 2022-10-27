@@ -61,14 +61,16 @@
                         </span>
                       </button>
                     </span>
-                    <span class="control is-expanded"
+                    <span class="control is-expanded confirm-delete"
                           v-if="deleteWebProxyDoc">
-                      <input class="input is-small width-200px delete-web-proxy-input"
+                      <input class="input  is-small width-200px delete-web-proxy-input"
                              data-qa="confirm-web-proxy-input"
-                             title="Doc ID to Delete"
+                             title="Doc Name to Delete"
+                             ref="confirm-delete"
                              placeholder="Write The Doc Name to Delete"
                              v-model="deleteWebProxyDocName"
                              type="text">
+                      <span :class="{'error-message': hasError}" aria-live="polite">Please Match The Doc Name!</span>
                     </span>
                     <span class="control"
                           v-if="deleteWebProxyDoc">
@@ -84,7 +86,7 @@
                           v-if="deleteWebProxyDoc">
                       <button class="button is-primary is-small delete-web-proxy-confirm"
                               data-qa="confirm-delete-web-proxy-btn"
-                              @click="deleteWebProxyDocByName">
+                              @click="confirmDelete">
                         <span class="icon is-small">
                           <i class="fas fa-check"></i>
                         </span>
@@ -394,6 +396,10 @@ export default defineComponent({
       contentFilterProfilesNames: [] as [ContentFilterProfile['id'], ContentFilterProfile['name']][],
       aclProfilesNames: [] as [ACLProfile['id'], ACLProfile['name']][],
 
+      deleteWebProxyDocName: '' as string,
+      deleteWebProxyDoc: false as boolean,
+      hasError: false,
+
       apiRoot: RequestsUtils.reblazeAPIRoot,
       apiVersion: RequestsUtils.reblazeAPIVersion,
     }
@@ -481,13 +487,27 @@ export default defineComponent({
       }
     },
 
-    async deleteDoc() {
+    confirmDelete() {
+      if (this.selectedServerGroup.name === this.deleteWebProxyDocName) {
+        this.deleteWebProxyDocByName()
+      } else {
+        console.log('ref', this.$refs['confirm-delete'])
+        this.deleteWebProxyDocName = 'Please Match The Doc Name!'
+        console.log('ref2', this.$refs['confirm-delete'].title)
+        this.hasError = true
+        // this.$refs['confirm-delete'].setAttributes('class',
+        // `${this.$refs['confirm-delete'].class} delete-warning`) =
+        // {'background-color': '#ff0000'} 0524853193
+      }
+    },
+
+    async deleteWebProxyDocByName() {
       this.setLoadingDocStatus(true)
       this.isDeleteLoading = true
-      const serverGroupText = this.titles['sites-singular']
+      const webProxyText = this.titles['sites-singular']
       const url = `configs/${this.selectedBranch}/d/sites/e/${this.selectedServerGroup.id}/`
-      const successMessage = `The ${serverGroupText} was deleted.`
-      const failureMessage = `Failed while attempting to delete the ${serverGroupText}.`
+      const successMessage = `The ${webProxyText} was deleted.`
+      const failureMessage = `Failed while attempting to delete the ${webProxyText}.`
       await RequestsUtils.sendReblazeRequest({
         methodName: 'DELETE',
         url: url,
@@ -512,22 +532,22 @@ export default defineComponent({
     },
 
     loadCertificates() {
-      RequestsUtils.sendReblazeRequest({
-        methodName: 'GET',
-        url: `configs/${this.selectedBranch}/d/certificates/`,
-        config: {headers: {'x-fields': 'id, san'}},
-      }).then((response: AxiosResponse<Certificate[]>) => {
-        if (response.data.length > 0) {
-          this.certificatesNames = _.sortBy(_.map(response.data, (entity) => {
-            return [entity.id, entity.san]
-          }), (e) => {
-            return e[1]
-          })
-        } else {
-          // TODO  get certificate to work
-          this.certificatesNames = [['need-real-data', ['www.certificate.com']]] as [string, string[]][]
-        }
-      })
+      // RequestsUtils.sendReblazeRequest({
+      //   methodName: 'GET',
+      //   url: `configs/${this.selectedBranch}/d/certificates/`,
+      //   config: {headers: {'x-fields': 'id, san'}},
+      // }).then((response: AxiosResponse<Certificate[]>) => {
+      //   if (response.data.length > 0) {
+      //     this.certificatesNames = _.sortBy(_.map(response.data, (entity) => {
+      //       return [entity.id, entity.san]
+      //     }), (e) => {
+      //       return e[1]
+      //     })
+      //   } else {
+      // TODO  get certificate to work
+      this.certificatesNames = [['need-real-data', ['www.certificate.com']]] as [string, string[]][]
+      //   }
+      // })
     },
 
     async loadServerGroup() {
@@ -647,6 +667,13 @@ export default defineComponent({
       const matchedItem = _.find(list, (listItem) => listItem[0] === id)
       return matchedItem?.[1] || ''
     },
+
+    toggleDeleteWebProxyDoc() {
+      this.deleteWebProxyDoc = !this.deleteWebProxyDoc
+      if (!this.deleteWebProxyDoc) {
+        this.deleteWebProxyDocName = ''
+      }
+    },
   },
   async created() {
     await this.branchesStore.list
@@ -654,3 +681,30 @@ export default defineComponent({
   },
 })
 </script>
+
+<style scoped lang="scss">
+
+.delete-warning {
+  background-color: '#ff0000';
+}
+
+.confirm-delete {
+  margin-bottom: 24px;
+}
+
+.confirm-delete .error-message {
+  align-items: center;
+  background: #d30909;
+  color: #fff;
+  display: flex;
+  font-size: 12px;
+  height: 24px;
+  padding: 0 8px;
+  width: 100%;
+}
+
+.confirm-delete .error-message:empty {
+  opacity: 0;
+}
+
+</style>
