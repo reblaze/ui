@@ -91,8 +91,8 @@
                 <button class="button is-small save-document-button"
                         :class="{'is-loading': isSaveLoading}"
                         @click="saveChanges()"
-                        title="Save changes"
-                        :disabled="isDocumentInvalid || !selectedDoc || dynamicRuleManaged"
+                        :title="!isValidDocWithTags ? 'Missing a tag' : 'Save changes'"
+                        :disabled="isDocumentInvalid || !selectedDoc || dynamicRuleManaged || !isValidDocWithTags"
                         data-qa="save-changes">
                   <span class="icon is-small">
                     <i class="fas fa-save"></i>
@@ -194,7 +194,8 @@ import CustomResponseEditor from '@/doc-editors/CustomResponsesEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
 import {defineComponent, shallowRef} from 'vue'
-import {Document, DocumentType, DynamicRule, GlobalFilter, HttpRequestMethods, RateLimit, ReblazeDocumentType, SecurityPolicy} from '@/types'
+import {Document, DocumentType, DynamicRule, GlobalFilter, HttpRequestMethods, RateLimit,
+  ReblazeDocumentType, SecurityPolicy} from '@/types'
 import axios, {AxiosResponse} from 'axios'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
@@ -386,6 +387,14 @@ export default defineComponent({
     },
 
     ...mapStores(useBranchesStore),
+
+    isValidDocWithTags(): boolean {
+      const localDoc = (this.selectedDocType === 'dynamic-rules') ?
+        this.selectedDocMatchingGlobalFilter as GlobalFilter : this.selectedDoc as any
+      const valid = (localDoc && localDoc.tags && localDoc.tags.length === 0) ? false : true
+      console.log('valid', valid)
+      return valid
+    },
   },
   methods: {
 
