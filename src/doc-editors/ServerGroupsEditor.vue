@@ -70,7 +70,6 @@
                              placeholder="Write The Doc Name to Delete"
                              v-model="deleteWebProxyDocName"
                              type="text">
-                      <span :class="{'error-message': hasError}" aria-live="polite">Please Match The Doc Name!</span>
                     </span>
                     <span class="control"
                           v-if="deleteWebProxyDoc">
@@ -86,7 +85,8 @@
                           v-if="deleteWebProxyDoc">
                       <button class="button is-primary is-small delete-web-proxy-confirm"
                               data-qa="confirm-delete-web-proxy-btn"
-                              @click="confirmDelete">
+                              :disabled="!isDeleteWebProxyDocNameValid"
+                              @click="deleteWebProxyDocByName">
                         <span class="icon is-small">
                           <i class="fas fa-check"></i>
                         </span>
@@ -454,6 +454,11 @@ export default defineComponent({
     },
 
     ...mapStores(useBranchesStore),
+
+    isDeleteWebProxyDocNameValid(): boolean {
+      const newName = this.deleteWebProxyDocName.trim()
+      return newName === this.selectedServerGroup.name
+    },
   },
   methods: {
     async setSelectedDataFromRouteParams() {
@@ -487,19 +492,19 @@ export default defineComponent({
       }
     },
 
-    confirmDelete() {
-      if (this.selectedServerGroup.name === this.deleteWebProxyDocName) {
-        this.deleteWebProxyDocByName()
-      } else {
-        console.log('ref', this.$refs['confirm-delete'])
-        this.deleteWebProxyDocName = 'Please Match The Doc Name!'
-        console.log('ref2', this.$refs['confirm-delete'].title)
-        this.hasError = true
-        // this.$refs['confirm-delete'].setAttributes('class',
-        // `${this.$refs['confirm-delete'].class} delete-warning`) =
-        // {'background-color': '#ff0000'} 0524853193
-      }
-    },
+    // confirmDelete() {
+    //   if (this.selectedServerGroup.name === this.deleteWebProxyDocName) {
+    //     this.deleteWebProxyDocByName()
+    //   } else {
+    //     console.log('ref', this.$refs['confirm-delete'])
+    //     this.deleteWebProxyDocName = 'Please Match The Doc Name!'
+    //     console.log('ref2', this.$refs['confirm-delete'].title)
+    //     this.hasError = true
+    //     // this.$refs['confirm-delete'].setAttributes('class',
+    //     // `${this.$refs['confirm-delete'].class} delete-warning`) =
+    //     // {'background-color': '#ff0000'} 0524853193
+    //   }
+    // },
 
     async deleteWebProxyDocByName() {
       this.setLoadingDocStatus(true)
@@ -681,30 +686,3 @@ export default defineComponent({
   },
 })
 </script>
-
-<style scoped lang="scss">
-
-.delete-warning {
-  background-color: '#ff0000';
-}
-
-.confirm-delete {
-  margin-bottom: 24px;
-}
-
-.confirm-delete .error-message {
-  align-items: center;
-  background: #d30909;
-  color: #fff;
-  display: flex;
-  font-size: 12px;
-  height: 24px;
-  padding: 0 8px;
-  width: 100%;
-}
-
-.confirm-delete .error-message:empty {
-  opacity: 0;
-}
-
-</style>
