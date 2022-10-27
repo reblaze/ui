@@ -30,6 +30,7 @@
           <div class="content">
             <rbz-table :columns="columns"
                        :data="sites"
+                       :default-sort-column-index="1"
                        :show-menu-column="true"
                        :show-filter-button="true"
                        :show-new-button="true"
@@ -76,11 +77,18 @@ export default defineComponent({
     return {
       columns: [
         {
+          title: 'ID',
+          fieldNames: ['id'],
+          isSortable: true,
+          isSearchable: true,
+          classes: 'width-130px',
+        },
+        {
           title: 'Name',
           fieldNames: ['name'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-120px',
+          classes: 'width-130px',
         },
         {
           title: 'Description',
@@ -100,7 +108,7 @@ export default defineComponent({
           },
           isSortable: true,
           isSearchable: true,
-          classes: 'width-120px ellipsis',
+          classes: 'width-130px ellipsis',
         },
         {
           title: 'Routing Profile',
@@ -113,7 +121,7 @@ export default defineComponent({
           },
           isSortable: true,
           isSearchable: true,
-          classes: 'width-120px ellipsis',
+          classes: 'width-130px ellipsis',
         },
         {
           title: 'Config Template',
@@ -126,7 +134,7 @@ export default defineComponent({
           },
           isSortable: true,
           isSearchable: true,
-          classes: 'width-120px ellipsis',
+          classes: 'width-130px ellipsis',
         },
         {
           title: 'Mobile SDK',
@@ -139,7 +147,7 @@ export default defineComponent({
           },
           isSortable: true,
           isSearchable: true,
-          classes: 'width-120px ellipsis',
+          classes: 'width-130px ellipsis',
         },
       ] as ColumnOptions[],
       isNewLoading: false,

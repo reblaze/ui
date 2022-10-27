@@ -25,7 +25,7 @@ describe('ContentFilterProfilesEditor.vue', () => {
   let customResponsesDocs: CustomResponse[]
   beforeEach(async () => {
     docs = [{
-      'id': '__default__',
+      'id': '__defaultcontentfilter__',
       'name': 'default contentfilter',
       'description': 'New Content Filter Profile Description and Remarks',
       'action': 'action-contentfilter-block',
@@ -154,24 +154,29 @@ describe('ContentFilterProfilesEditor.vue', () => {
       expect(element.value).toEqual(docs[0].name)
     })
 
-    test('should have correct max header length in input', () => {
+    test('should have correct max allsections length in input', () => {
       const element = wrapper.find('.max-allsections-length-input').element as HTMLInputElement
       expect(element.value).toEqual(docs[0].allsections.max_length.toString())
     })
 
     test('should have correct max header length in input', () => {
-      const element = wrapper.find('.max-header-length-input').element as HTMLInputElement
+      const element = wrapper.find('.max-headers-length-input').element as HTMLInputElement
       expect(element.value).toEqual(docs[0].headers.max_length.toString())
     })
 
     test('should have correct max cookie length in input', () => {
-      const element = wrapper.find('.max-cookie-length-input').element as HTMLInputElement
+      const element = wrapper.find('.max-cookies-length-input').element as HTMLInputElement
       expect(element.value).toEqual(docs[0].cookies.max_length.toString())
     })
 
     test('should have correct max arg length in input', () => {
-      const element = wrapper.find('.max-arg-length-input').element as HTMLInputElement
+      const element = wrapper.find('.max-args-length-input').element as HTMLInputElement
       expect(element.value).toEqual(docs[0].args.max_length.toString())
+    })
+
+    test('should have correct max allsections count in input', () => {
+      const element = wrapper.find('.max-allsections-count-input').element as HTMLInputElement
+      expect(element.value).toEqual(docs[0].allsections.max_count.toString())
     })
 
     test('should have correct max headers count in input', () => {
@@ -395,7 +400,7 @@ describe('ContentFilterProfilesEditor.vue', () => {
         // TS ignore because we want to test the status of normalization where some of the data is missing
         // @ts-ignore
         docsForNormalization = [{
-          'id': '__default__',
+          'id': '__defaultcontentfilter__',
           'name': 'default contentfilter',
           'ignore_alphanum': true,
           'decoding': {
@@ -448,7 +453,7 @@ describe('ContentFilterProfilesEditor.vue', () => {
     describe('sections - with all sections provided', () => {
       test('should not emit new doc if all sections are provided', async () => {
         const docsShouldNotNormalize: ContentFilterProfile[] = [{
-          'id': '__default__',
+          'id': '__defaultcontentfilter__',
           'name': 'default contentfilter',
           'ignore_alphanum': true,
           'allsections': {
@@ -510,7 +515,7 @@ describe('ContentFilterProfilesEditor.vue', () => {
         // TS ignore because we want to test the status of normalization where some of the data is missing
         // @ts-ignore
         docsForNormalization = [{
-          'id': '__default__',
+          'id': '__defaultcontentfilter__',
           'name': 'default contentfilter',
           'ignore_alphanum': true,
           'allsections': {

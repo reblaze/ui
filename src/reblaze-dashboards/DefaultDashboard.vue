@@ -628,29 +628,32 @@ export default defineComponent({
       this.data.forEach((item) => {
         if (item.counters[blocksFieldName]) {
           for (const blockedItem of item.counters[blocksFieldName]) {
-            if (!groupedObject[blockedItem.key]) {
-              groupedObject[blockedItem.key] = {}
+            const escapedKey = _.escape(blockedItem.key)
+            if (!groupedObject[escapedKey]) {
+              groupedObject[escapedKey] = {}
             }
-            groupedObject[blockedItem.key].blocked = groupedObject[blockedItem.key].blocked || 0
-            groupedObject[blockedItem.key].blocked += blockedItem.value || 0
+            groupedObject[escapedKey].blocked = groupedObject[escapedKey].blocked || 0
+            groupedObject[escapedKey].blocked += blockedItem.value || 0
           }
         }
         if (item.counters[passedFieldName]) {
           for (const passedItem of item.counters[passedFieldName]) {
-            if (!groupedObject[passedItem.key]) {
-              groupedObject[passedItem.key] = {}
+            const escapedKey = _.escape(passedItem.key)
+            if (!groupedObject[escapedKey]) {
+              groupedObject[escapedKey] = {}
             }
-            groupedObject[passedItem.key].passed = groupedObject[passedItem.key].passed || 0
-            groupedObject[passedItem.key].passed += passedItem.value || 0
+            groupedObject[escapedKey].passed = groupedObject[escapedKey].passed || 0
+            groupedObject[escapedKey].passed += passedItem.value || 0
           }
         }
         if (item.counters[reportFieldName]) {
           for (const reportedItem of item.counters[reportFieldName]) {
-            if (!groupedObject[reportedItem.key]) {
-              groupedObject[reportedItem.key] = {}
+            const escapedKey = _.escape(reportedItem.key)
+            if (!groupedObject[escapedKey]) {
+              groupedObject[escapedKey] = {}
             }
-            groupedObject[reportedItem.key].report = groupedObject[reportedItem.key].report || 0
-            groupedObject[reportedItem.key].report += reportedItem.value || 0
+            groupedObject[escapedKey].report = groupedObject[escapedKey].report || 0
+            groupedObject[escapedKey].report += reportedItem.value || 0
           }
         }
       })
