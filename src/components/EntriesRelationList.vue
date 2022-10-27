@@ -7,13 +7,13 @@
            @click="isCollapsed = !isCollapsed">
         <div class="column is-narrow title-wrapper">
           <span v-show="isCollapsed">
-          <i class="fas fa-angle-down"
-             aria-hidden="true"></i>
-        </span>
+            <i class="fas fa-angle-down"
+               aria-hidden="true"></i>
+          </span>
           <span v-show="!isCollapsed">
-          <i class="fas fa-angle-up"
-             aria-hidden="true"></i>
-        </span>
+            <i class="fas fa-angle-up"
+               aria-hidden="true"></i>
+          </span>
           <div class="media-content mx-3 is-inline-block">
             <p class="title is-6 card-title">
               {{ cardTitle }}
@@ -26,10 +26,10 @@
                  class="control">
               <button class="button is-small add-section-button"
                       title="Add new section"
-                      @click="addSection(); $event.stopPropagation()"
+                      @click.stop="addSection()"
                       @keypress.space.prevent
-                      @keypress.space="addSection(); $event.stopPropagation()"
-                      @keypress.enter="addSection(); $event.stopPropagation()">
+                      @keypress.space.stop="addSection()"
+                      @keypress.enter.stop="addSection()">
                 <span class="icon is-small">
                   <i class="fas fa-plus"></i>
                 </span>
@@ -43,10 +43,10 @@
               <button class="button is-small add-entry-button"
                       title="Add new entry"
                       :disabled="newEntryOpen || isRecursive"
-                      @click="setNewEntryOpen(true); $event.stopPropagation()"
+                      @click.stop="setNewEntryOpen(true)"
                       @keypress.space.prevent
-                      @keypress.space="setNewEntryOpen(true); $event.stopPropagation()"
-                      @keypress.enter="setNewEntryOpen(true); $event.stopPropagation()">
+                      @keypress.space.stop="setNewEntryOpen(true)"
+                      @keypress.enter.stop="setNewEntryOpen(true)">
                 <span class="icon is-small">
                   <i class="fas fa-plus"></i>
                 </span>
@@ -59,12 +59,12 @@
               <button class="button is-small rule-relation-toggle"
                       title="Toggle rule relation"
                       :disabled="ruleContainsSameCategoryItems || !editable"
-                      @click="toggleRuleRelation(); $event.stopPropagation()"
+                      @click.stop="toggleRuleRelation()"
                       @keypress.space.prevent
-                      @keypress.space="toggleRuleRelation(); $event.stopPropagation()"
-                      @keypress.enter="toggleRuleRelation(); $event.stopPropagation()">
+                      @keypress.space.stop="toggleRuleRelation()"
+                      @keypress.enter.stop="toggleRuleRelation()">
                   <span>
-                    Section Relation:
+                    Relation:
                   <span class="has-text-weight-bold">
                     {{ localRule.relation }}
                   </span>
@@ -74,14 +74,18 @@
           </div>
           <div v-if="editable"
                class="field is-grouped is-pulled-right">
-            <div class="dropdown is-block is-right"
+            <div class="dropdown control is-right"
                  :class="{'is-active': removeMenuVisible}">
               <div class="dropdown-trigger">
                 <button class="button is-size-7 remove-menu-toggle-button is-block"
                         aria-haspopup="true"
                         aria-controls="dropdown-menu"
                         :title="`${removeMenuVisible ? 'Close' : 'Open'} menu`"
-                        @click.stop="removeMenuVisible = !removeMenuVisible">
+                        @click.stop="removeMenuVisible = !removeMenuVisible"
+                        @keypress.space.prevent
+                        @keypress.space.stop="removeMenuVisible = !removeMenuVisible"
+                        @keypress.enter.stop="removeMenuVisible = !removeMenuVisible"
+                        @blur="closeRemoveMenu($event)">
                   <span class="icon is-small">
                     <i class="fas fa-ellipsis-v"></i>
                   </span>
@@ -93,10 +97,12 @@
                 <div class="dropdown-content width-220px py-0">
                   <button class="button is-small has-text-danger remove-all-entries-button dropdown-item"
                           title="Remove all entries"
-                          @click="removeAllEntries(); $event.stopPropagation()"
+                          :disabled="isEntriesEmpty"
+                          @click="removeAllEntries()"
                           @keypress.space.prevent
-                          @keypress.space="removeAllEntries(); $event.stopPropagation()"
-                          @keypress.enter="removeAllEntries(); $event.stopPropagation()">
+                          @keypress.space="removeAllEntries()"
+                          @keypress.enter="removeAllEntries()"
+                          @blur="closeRemoveMenu($event)">
                     <span class="icon is-small">
                       <i class="fas fa-trash"></i>
                     </span>
@@ -108,10 +114,11 @@
                     <hr class="dropdown-divider my-0">
                     <button class="button is-small has-text-danger remove-section-button dropdown-item"
                             title="Remove section"
-                            @click="emitRemoveSection(); $event.stopPropagation()"
+                            @click="emitRemoveSection()"
                             @keypress.space.prevent
-                            @keypress.space="emitRemoveSection(); $event.stopPropagation()"
-                            @keypress.enter="emitRemoveSection(); $event.stopPropagation()">
+                            @keypress.space="emitRemoveSection()"
+                            @keypress.enter="emitRemoveSection()"
+                            @blur="closeRemoveMenu($event)">
                       <span class="icon is-small">
                         <i class="fas fa-trash"></i>
                       </span>
@@ -195,7 +202,9 @@
                     <div v-if="isCategoryArgsCookiesHeaders(newEntryCategory)"
                          class="control has-icons-left is-fullwidth new-entry-name">
                       <input class="input is-small new-entry-name-input"
-                             :class="{ 'is-danger': isErrorField(newEntryCategory)}"
+                             :class="{
+                                'is-danger': isErrorField(newEntryCategory) || isErrorField('firstAttrEmpty'),
+                              }"
                              @input="validateFirstAttrEmpty()"
                              title="Name"
                              placeholder="Name"
@@ -394,6 +403,23 @@ export default defineComponent({
       }
       return false
     },
+
+    newEntryItemCounter() {
+      const counter = {
+        entries: 0,
+        annotations: 0,
+      }
+      _.forEach(this.newEntryItem.firstAttr.split('\n'), (line) => {
+        const [entry, annotation] = line.trim().split('#')
+        if (entry?.trim()) {
+          counter.entries++
+        }
+        if (annotation?.trim()) {
+          counter.annotations++
+        }
+      })
+      return counter
+    },
   },
   methods: {
     ruleUpdated(val: any, index: number) {
@@ -409,8 +435,14 @@ export default defineComponent({
       this.$emit('invalid', invalid || !!this.entriesErrors.length || this.newEntryOpen)
     },
 
+    closeRemoveMenu(event?: FocusEvent) {
+      if (!event || !(event.relatedTarget as HTMLElement)?.classList.contains('dropdown-item')) {
+        this.removeMenuVisible = false
+      }
+    },
+
     emitRemoveSection() {
-      this.removeMenuVisible = false
+      this.closeRemoveMenu()
       this.setNewEntryOpen(false)
       this.$emit('remove-section', this.localRule)
     },
@@ -433,6 +465,7 @@ export default defineComponent({
           relation: this.localRule.relation as Relation,
           entries: this.localRule.entries as GlobalFilterRule[],
         }
+        this.localRule.relation = 'OR'
         this.localRule.entries = [currentSection]
       }
       this.localRule.entries.push(newSection)
@@ -495,7 +528,7 @@ export default defineComponent({
 
     removeAllEntries() {
       this.localRule.entries = []
-      this.removeMenuVisible = false
+      this.closeRemoveMenu()
       this.setNewEntryOpen(false)
       this.emitRuleUpdate()
     },
@@ -549,7 +582,10 @@ export default defineComponent({
       }
       const id = 'firstAttrEmpty'
       this.clearError(id)
-      this.validate(this.newEntryItem.firstAttr.trim(), null, id)
+      const firstAttrValue = this.newEntryItem.firstAttr.trim()
+      if (!firstAttrValue && this.newEntryItemCounter.entries < this.newEntryItemCounter.annotations) {
+        this.addError(id)
+      }
     },
 
     validateSecondAttrEmpty() {
@@ -558,7 +594,10 @@ export default defineComponent({
       }
       const id = 'secondAttrEmpty'
       this.clearError(id)
-      this.validate(this.newEntryItem.secondAttr.trim(), null, id)
+      const secondAttrValue = this.newEntryItem.secondAttr.trim()
+      if (!secondAttrValue && this.newEntryItemCounter.entries > this.newEntryItemCounter.annotations) {
+        this.addError(id)
+      }
     },
 
     validateDuplicates() {
