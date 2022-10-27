@@ -110,8 +110,6 @@ declare module CuriefenseClient {
 
   type EdgeFunctionsPhaseType = 'request' | 'response'
 
-  type SelectedRow = {id: string, selected: boolean}
-
   type Document =
     BasicDocument
     & (ACLProfile | EdgeFunction | ContentFilterProfile | ContentFilterRule | CustomResponse |
@@ -293,7 +291,6 @@ declare module CuriefenseClient {
     title: string
     fieldNames?: string[]
     displayFunction?: (item: any) => string // Will be rendered as HTML
-    checkbox?: boolean
     isSortable?: boolean
     isSearchable?: boolean
     isNumber?: boolean // True if all values are always numbers, for sorting

@@ -9,11 +9,11 @@
                  :show-menu-column="true"
                  :show-filter-button="true"
                  :show-row-button="true"
-                 :show-checkbox="true"
+                 :show-checkbox-column="true"
                  @select-array="updateSelected"
                  @row-button-clicked="deleteQuarantinedElement">
                 <template #menu>
-                  <button class="button is-size-7 new-entity-button dropdown-item"
+                  <button class="button is-size-7 has-text-danger new-entity-button dropdown-item"
                         title="Delete selected"
                         @click.stop="deleteSelectedRows">
                     <span class="icon is-small">
@@ -47,6 +47,13 @@ export default defineComponent({
   data() {
     return {
       columns: [
+        {
+          title: 'ID',
+          fieldNames: ['id'],
+          isSortable: true,
+          isSearchable: true,
+          classes: 'ellipsis',
+        },
         {
           title: 'Key Parameter',
           fieldNames: ['target'],
@@ -109,7 +116,6 @@ export default defineComponent({
         },
       ] as ColumnOptions[],
       quarantinedData: null as Quarantined[],
-      selectBox: true,
       selectedArray: [] as string[],
     }
   },

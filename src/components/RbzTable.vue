@@ -12,7 +12,7 @@
         </th>
       </tr>
       <tr class="header-row">
-        <th class="is-size-7" v-if="showCheckbox">
+        <th class="is-size-7" v-if="showCheckboxColumn">
           <div class="field is-grouped is-grouped-centered">
               <input type="checkbox"
                       title="Select all rows"
@@ -59,7 +59,8 @@
             <div class="dropdown-menu"
                  id="dropdown-menu"
                  role="menubar">
-              <div class="dropdown-content width-140px py-0">
+              <div class="dropdown-content py-0"
+              :class="showCheckboxColumn? 'width-140px' : 'width-100px'">
                 <button class="button is-size-7 filter-toggle dropdown-item"
                         :class="{'is-active': filtersVisible }"
                         title="Filter table data"
@@ -116,14 +117,14 @@
           @click="rowClickable && rowClicked(row.id)"
           :class="{'is-clickable': rowClickable}"
           class="data-row">
-        <td class="is-size-7" v-if="showCheckbox">
+        <td class="is-size-7" v-if="showCheckboxColumn">
           <div class="field is-grouped is-grouped-centered">
               <input type="checkbox"
                       title="Checkbox"
                       :id="row.id"
                       :ref="row.id"
                       class="is-small row-checkbox"
-                      @change="() => rowSelected(row.id)" />
+                      @change="rowSelected(row.id)" />
           </div>
         </td>
         <td v-for="(col, index) in columns"
@@ -147,7 +148,7 @@
             <p class="control"
                v-if="showRowButton">
               <button :title="rowButtonTitle"
-                      class="button is-small row-entity-button"
+                      class="button is-small has-text-danger row-entity-button"
                       @click="rowButtonClicked(row.id)">
                 <span class="icon is-small">
                   <i :class="`fas ${rowButtonIcon ? rowButtonIcon : 'fa-edit'}`"></i>
@@ -217,7 +218,7 @@ export default defineComponent({
       type: Number,
       default: 10,
     },
-    showCheckbox: Boolean,
+    showCheckboxColumn: Boolean,
     useScroll: Boolean,
     loading: Boolean,
   },
@@ -240,7 +241,6 @@ export default defineComponent({
       currentPage: 1,
 
       // checkboxes
-      isSelected: false,
       selectedRow: '' as string,
       selectedArray: [] as String[],
     }
@@ -272,7 +272,7 @@ export default defineComponent({
       deep: true,
     },
   },
-  emits: ['new-button-clicked', 'row-button-clicked', 'show-checkbox', 'row-clicked', 'select-array'],
+  emits: ['new-button-clicked', 'row-button-clicked', 'row-clicked', 'select-array'],
   computed: {
     dataArrayDisplay() {
       if (!this.data?.length || !Array.isArray(this.data)) {
@@ -350,10 +350,6 @@ export default defineComponent({
       const extraColumns = this.showMenuColumn ? 1 : 0
       return this.columns.length + extraColumns
     },
-
-    allCheckboxes() {
-      return this.data.map((item) => item.id)
-    },
   },
   methods: {
     newButtonClicked() {
@@ -377,25 +373,24 @@ export default defineComponent({
         this.selectedArray.splice(selectedIndex, 1)
         this.$refs['check-box'].checked = false
       }
-
-      this.$emit('select-array', JSON.parse(JSON.stringify(this.selectedArray)))
+      this.$emit('select-array', _.cloneDeep(this.selectedArray))
     },
 
     selectAll() {
-      this.isSelected= !this.isSelected
-      const length = this.allCheckboxes.length
-      if (this.isSelected) {
+      const allCheckboxes = this.dataArrayDisplay.map((item) => item.id)
+      const length = allCheckboxes.length
+      if (this.$refs['check-box'].checked) {
         for (let i = 0; i < length; i++) {
-          this.$refs[this.allCheckboxes[i]][0].checked = true
-          this.selectedArray = [...this.allCheckboxes]
+          this.$refs[allCheckboxes[i]][0].checked = true // this.$refs['check-box'].checked
         }
+        this.selectedArray = [...allCheckboxes]
       } else {
         for (let i = 0; i < length; i++) {
-          this.$refs[this.allCheckboxes[i]][0].checked = false
-          this.selectedArray = []
+          this.$refs[allCheckboxes[i]][0].checked = false
         }
+        this.selectedArray = []
       }
-      this.$emit('select-array', JSON.parse(JSON.stringify(this.selectedArray)))
+      this.$emit('select-array', _.cloneDeep(this.selectedArray))
     },
 
     sortColumn(column: ColumnOptions) {
