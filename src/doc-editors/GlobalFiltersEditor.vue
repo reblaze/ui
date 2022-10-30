@@ -24,10 +24,10 @@
           <div class="field">
             <label class="checkbox is-size-7">
               <input type="checkbox"
-                     :style="(reblazeManaged || dynamicRuleManaged) ? {cursor: 'not-allowed'} : {cursor: 'pointer'}"
+                     :style="dynamicRuleManaged ? {cursor: 'not-allowed'} : {cursor: 'pointer'}"
                      data-qa="active-checkbox"
                      class="document-active"
-                     :disabled="reblazeManaged || dynamicRuleManaged"
+                     :disabled="dynamicRuleManaged"
                      @change="emitDocUpdate"
                      v-model="localDoc.active">
               Active

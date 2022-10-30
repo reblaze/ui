@@ -759,7 +759,7 @@ export default defineComponent({
     },
 
     async loadReferencedEdgeFunctionsDocsIDs() {
-      const response = await RequestsUtils.sendRequest({
+      const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/routing-profiles/`,
       })

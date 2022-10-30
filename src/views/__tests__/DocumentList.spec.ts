@@ -24,7 +24,6 @@ import {setImmediate, setTimeout} from 'timers'
 import {nextTick} from 'vue'
 import {createRouter, createWebHistory} from 'vue-router'
 import {routes} from '@/router'
-import {COLUMN_OPTIONS_MAP} from '../documentListConst'
 
 jest.mock('axios')
 
@@ -723,7 +722,7 @@ describe.skip('DocumentList.vue', () => {
       }
       const branch = wrapper.vm.selectedBranch
       if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/`) {
-        const aclXFields = _.flatMap(COLUMN_OPTIONS_MAP['aclprofiles'], 'fieldNames')
+        const aclXFields = _.flatMap(wrapper.vm.columnOptionMap['aclprofiles'], 'fieldNames')
         aclXFields.unshift('id')
         if (config && config.headers && config.headers['x-fields'] === aclXFields.join(', ')) {
           return Promise.resolve({data: _.map(aclDocs, (i) => _.pick(i, aclXFields))})
@@ -737,7 +736,7 @@ describe.skip('DocumentList.vue', () => {
         return Promise.resolve({data: aclGitOldVersion})
       }
       if (path === `/conf/api/v3/configs/prod/d/globalfilters/`) {
-        const globalFilterXFields = _.flatMap(COLUMN_OPTIONS_MAP['globalfilters'], 'fieldNames')
+        const globalFilterXFields = _.flatMap(wrapper.vm.columnOptionMap['globalfilters'], 'fieldNames')
         globalFilterXFields.unshift('id')
         if (config && config.headers && config.headers['x-fields'] === globalFilterXFields.join(', ')) {
           return Promise.resolve({data: _.map(globalFilterDocs, (i) => _.pick(i, globalFilterXFields))})
@@ -746,7 +745,7 @@ describe.skip('DocumentList.vue', () => {
       }
       if (path === `/conf/api/v3/configs/zzz_branch/d/globalfilters/`) {
         globalFilterDocs.shift()
-        const globalFilterXFields = _.flatMap(COLUMN_OPTIONS_MAP['globalfilters'], 'fieldNames')
+        const globalFilterXFields = _.flatMap(wrapper.vm.columnOptionMap['globalfilters'], 'fieldNames')
         globalFilterXFields.unshift('id')
         if (config && config.headers && config.headers['x-fields'] === globalFilterXFields.join(', ')) {
           return Promise.resolve({data: _.map(globalFilterDocs, (i) => _.pick(i, globalFilterXFields))})
@@ -754,7 +753,7 @@ describe.skip('DocumentList.vue', () => {
         return Promise.resolve({data: globalFilterDocs})
       }
       if (path === `/conf/api/v3/configs/${branch}/d/securitypolicies/`) {
-        const securitypoliciesXFields = _.flatMap(COLUMN_OPTIONS_MAP['securitypolicies'], 'fieldNames')
+        const securitypoliciesXFields = _.flatMap(wrapper.vm.columnOptionMap['securitypolicies'], 'fieldNames')
         securitypoliciesXFields.unshift('id')
         if (config && config.headers && config.headers['x-fields'] === securitypoliciesXFields?.join(', ')) {
           return Promise.resolve({data: _.map(securityPoliciesDocs, (i) => _.pick(i, securitypoliciesXFields))})
@@ -762,7 +761,7 @@ describe.skip('DocumentList.vue', () => {
         return Promise.resolve({data: securityPoliciesDocs})
       }
       if (path === `/conf/api/v3/configs/${branch}/d/flowcontrol/`) {
-        const flowcontrolXFields = _.flatMap(COLUMN_OPTIONS_MAP?.flowcontrol, 'fieldNames')
+        const flowcontrolXFields = _.flatMap(wrapper.vm.columnOptionMap?.flowcontrol, 'fieldNames')
         flowcontrolXFields.unshift('id')
         if (config && config.headers && config.headers['x-fields'] === flowcontrolXFields.join(', ')) {
           return Promise.resolve({data: _.map(flowControlPolicyDocs, (i) => _.pick(i, flowcontrolXFields))})
@@ -770,7 +769,7 @@ describe.skip('DocumentList.vue', () => {
         return Promise.resolve({data: flowControlPolicyDocs})
       }
       if (path === `/conf/api/v3/configs/${branch}/d/contentfilterprofiles/`) {
-        const contentfilterprofilesXFields = _.flatMap(COLUMN_OPTIONS_MAP['contentfilterprofiles'], 'fieldNames')
+        const contentfilterprofilesXFields = _.flatMap(wrapper.vm.columnOptionMap['contentfilterprofiles'], 'fieldNames')
         contentfilterprofilesXFields.unshift('id')
         if (config && config.headers && config.headers['x-fields'] === contentfilterprofilesXFields.join(', ')) {
           return Promise.resolve({
@@ -782,7 +781,7 @@ describe.skip('DocumentList.vue', () => {
         return Promise.resolve({data: contentFilterProfilesDocs})
       }
       if (path === `/conf/api/v3/configs/${branch}/d/contentfilterrules/`) {
-        const contentfilterrulesXFields = _.flatMap(COLUMN_OPTIONS_MAP['contentfilterrules'], 'fieldNames')
+        const contentfilterrulesXFields = _.flatMap(wrapper.vm.columnOptionMap['contentfilterrules'], 'fieldNames')
         contentfilterrulesXFields.unshift('id')
         if (config && config.headers && config.headers['x-fields'] === contentfilterrulesXFields.join(', ')) {
           return Promise.resolve({data: _.map(contentFilterRulesDocs, (i) => _.pick(i, contentfilterrulesXFields))})
@@ -790,7 +789,7 @@ describe.skip('DocumentList.vue', () => {
         return Promise.resolve({data: contentFilterRulesDocs})
       }
       if (path === `/conf/api/v3/configs/${branch}/d/ratelimits/`) {
-        const ratelimitsXFields = _.flatMap(COLUMN_OPTIONS_MAP['ratelimits'], 'fieldNames')
+        const ratelimitsXFields = _.flatMap(wrapper.vm.columnOptionMap['ratelimits'], 'fieldNames')
         ratelimitsXFields.unshift('id')
         if (config && config.headers && config.headers['x-fields'] === ratelimitsXFields.join(', ')) {
           return Promise.resolve({data: _.map(rateLimitsDocs, (i) => _.pick(i, ratelimitsXFields))})
@@ -1180,7 +1179,7 @@ describe.skip('DocumentList.vue', () => {
           }
           const branch = wrapper.vm.selectedBranch
           if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/`) {
-            const aclXFields = _.flatMap(COLUMN_OPTIONS_MAP['aclprofiles'], 'fieldNames')
+            const aclXFields = _.flatMap(wrapper.vm.columnOptionMap['aclprofiles'], 'fieldNames')
             aclXFields.unshift('id')
             if (config && config.headers && config.headers['x-fields'] === aclXFields.join(', ')) {
               return Promise.resolve({data: _.map(aclDocs, (i) => _.pick(i, aclXFields))})
@@ -1418,9 +1417,9 @@ describe.skip('DocumentList.vue', () => {
         })
         // allow all requests to finish
         setImmediate(() => {
-          expect(wrapper.vm.columns).toEqual(COLUMN_OPTIONS_MAP[docType])
+          expect(wrapper.vm.columns).toEqual(wrapper.vm.columnOptionMap[docType])
           const defaultDoc = DatasetsUtils.newDocEntryFactory[docType]()
-          COLUMN_OPTIONS_MAP[docType].forEach((columnOptions) => {
+          wrapper.vm.columnOptionMap[docType].forEach((columnOptions) => {
             if (typeof columnOptions.displayFunction === 'function') {
               expect(typeof columnOptions.displayFunction(defaultDoc) === 'string')
             }
