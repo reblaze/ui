@@ -55,10 +55,10 @@
                         title="Target"
                         @change="emitDocUpdate"
                         class="target-dropdown">
-                  <option v-for="key in options"
-                          :key="key"
-                          :value="key">
-                    {{ dynamicRuleTargets[key] }}
+                  <option v-for="option in targetOptions"
+                          :key="option.key"
+                          :value="option.key">
+                    {{ option.title }}
                   </option>
                 </select>
               </div>
@@ -134,7 +134,7 @@
                  data-qa="tag-input">
               <tag-autocomplete-input :initial-tag="selectedDocTags"
                                       :selection-type="'multiple'"
-                                      @tag-changed="selectedDocTags = $event" />
+                                      @tag-changed="selectedDocTags = $event"/>
             </div>
           </div>
         </div>
@@ -179,7 +179,7 @@
                                             :selection-type="'single'"
                                             :auto-focus="true"
                                             @keydown.esc="cancelAddNewTag"
-                                            @tag-submitted="addNewTag(filter, $event)" />
+                                            @tag-submitted="addNewTag(filter, $event)"/>
                   </td>
                   <td class="is-size-7 width-20px">
                     <a title="add new entry"
@@ -211,7 +211,6 @@ import {
   CustomResponse,
   Dictionary,
   DynamicRule,
-  DynamicRuleTargetOptionType,
   GlobalFilter,
   IncludeExcludeType,
 } from '@/types'
@@ -232,15 +231,41 @@ export default defineComponent({
     TagAutocompleteInput,
   },
   data() {
-    const dynamicRuleTargets = DatasetsUtils.dynamicRuleTargets
     return {
-      dynamicRuleTargets,
       filters: ['include', 'exclude'] as IncludeExcludeType[],
       titles: DatasetsUtils.titles,
       addNewTagColName: null,
       removable: false,
-      options: ['remote_addr', 'organization', 'cookie', 'geoip_city_country_name', 'planet', 'request_headers',
-        'request_body'] as DynamicRuleTargetOptionType[],
+      targetOptions: [
+        {
+          key: 'arguments',
+          title: 'Argument',
+        },
+        {
+          key: 'asn',
+          title: 'ASN',
+        },
+        {
+          key: 'cookies',
+          title: 'Cookie',
+        },
+        {
+          key: 'country',
+          title: 'Country',
+        },
+        {
+          key: 'headers',
+          title: 'Header',
+        },
+        {
+          key: 'ip',
+          title: 'IP',
+        },
+        {
+          key: 'org',
+          title: 'Organization',
+        },
+      ],
       customResponseNames: [] as [CustomResponse['id'], CustomResponse['name']][],
     }
   },

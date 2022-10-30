@@ -87,16 +87,6 @@ const titles: { [key: string]: string } = {
   'response': 'Response',
 }
 
-const dynamicRuleTargets = {
-  'organization': 'ASN',
-  'remote_addr': 'IP',
-  'cookie': 'Cookie',
-  'geoip_city_country_name': 'Country',
-  'planet': 'Planet',
-  'request_headers': 'Request Header',
-  'request_body': 'Request Body',
-}
-
 function generateUUID(): string {
   let dt = new Date().getTime()
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -313,7 +303,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'include': ['all'],
       'exclude': [],
       'ttl': 7200,
-      'target': 'remote_addr',
+      'target': 'ip',
     }
   },
 
@@ -466,7 +456,6 @@ const newOperationEntryFactory: { [key: string]: Function } = {
 export default {
   name: 'DatasetsUtils',
   titles,
-  dynamicRuleTargets,
   generateUUID,
   generateUUID2,
   newDocEntryFactory,

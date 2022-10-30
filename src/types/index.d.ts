@@ -97,15 +97,6 @@ declare module CuriefenseClient {
 
   type LimitRuleType = 'headers' | 'args' | 'cookies' | 'attrs' | 'self'
 
-  type DynamicRuleTargetOptionType =
-    'remote_addr'
-    | 'organization'
-    | 'cookie'
-    | 'geoip_city_country_name'
-    | 'planet'
-    | 'request_headers'
-    | 'request_body'
-
   type NamesRegexType = 'names' | 'regex'
 
   type EdgeFunctionsPhaseType = 'request' | 'response'
@@ -218,7 +209,7 @@ declare module CuriefenseClient {
     exclude: string[]
     include: string[]
     ttl: number,
-    target: DynamicRuleTargetOptionType
+    target: string
   }
 
 
