@@ -92,7 +92,7 @@
                         :class="{'is-loading': isSaveLoading}"
                         @click="saveChanges()"
                         :title="!isValidDocWithTags ? 'Missing a tag' : 'Save changes'"
-                        :disabled="isDocumentInvalid || !selectedDoc || dynamicRuleManaged || !isValidDocWithTags"
+                        :disabled="isDocumentInvalid || !selectedDoc || dynamicRuleManaged"
                         data-qa="save-changes">
                   <span class="icon is-small">
                     <i class="fas fa-save"></i>
@@ -137,7 +137,7 @@
           v-model:selectedDocMatchingGlobalFilter="selectedDocMatchingGlobalFilter"
           v-model:docs="docs"
           :apiPath="documentAPIPath"
-          @form-invalid="isDocumentInvalid = $event"
+          @form-invalid="getIsDocumentInvalid"
           @go-to-route="goToRoute($event)"
           ref="currentComponent">
       </component>
@@ -388,6 +388,7 @@ export default defineComponent({
 
     ...mapStores(useBranchesStore),
 
+    // used only for giving feedback to user
     isValidDocWithTags(): boolean {
       const localDoc = (this.selectedDocType === 'dynamic-rules') ?
         this.selectedDocMatchingGlobalFilter as GlobalFilter : this.selectedDoc as any
@@ -397,6 +398,10 @@ export default defineComponent({
   },
   methods: {
 
+    getIsDocumentInvalid(isDocumentInvalid: boolean) {
+      console.log('emit InValid', isDocumentInvalid)
+      this.isDocumentInvalid = isDocumentInvalid
+    },
     async goToRoute(newRoute?: string) {
       if (!newRoute) {
         newRoute = `/${this.selectedBranch}/${this.selectedDocType}/config/${this.selectedDocID}`

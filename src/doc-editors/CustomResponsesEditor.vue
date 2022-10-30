@@ -55,6 +55,7 @@
                  data-qa="tag-input">
               <tag-autocomplete-input :initial-tag="selectedDocTags"
                                       :selection-type="'multiple'"
+                                      @invalid="emitFormInvalid"
                                       @tag-changed="selectedDocTags = $event"
                                       class="document-autocomplete-input" />
             </div>
@@ -216,10 +217,14 @@ export default defineComponent({
       },
     },
   },
-  emits: ['update:selectedDoc'],
+  emits: ['update:selectedDoc', 'form-invalid'],
   methods: {
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
+    },
+
+    emitFormInvalid(isFormInvalid: boolean) {
+      this.$emit('form-invalid', isFormInvalid)
     },
 
     getHeadersArray(): HeaderObject[] {

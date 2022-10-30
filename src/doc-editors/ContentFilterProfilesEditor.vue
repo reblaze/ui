@@ -72,6 +72,7 @@
                data-qa="tag-input">
             <tag-autocomplete-input :initial-tag="selectedDocTags"
                                     :selection-type="'multiple'"
+                                    @invalid="emitFormInvalid"
                                     @tag-changed="selectedDocTags = $event"/>
           </div>
           <labeled-tags title="Automatic Tags"
@@ -705,6 +706,8 @@ export default defineComponent({
       ],
       customResponseNames: [] as [CustomResponse['id'], CustomResponse['name']][],
       maskingSeedHidden: true,
+
+      isFormInvalid: true,
     }
   },
 
@@ -718,7 +721,7 @@ export default defineComponent({
       const allTags = _.concat(doc['active'], doc['report'], doc['ignore'])
       const dupTags = _.filter(allTags, (val, i, iteratee) => _.includes(iteratee, val, i + 1))
       const result = _.fromPairs(_.zip(dupTags, dupTags))
-      this.$emit('form-invalid', !!_.size(result))
+      // this.$emit('form-invalid', !!_.size(result))
       return result
     },
 
@@ -780,6 +783,11 @@ export default defineComponent({
   methods: {
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
+    },
+
+    emitFormInvalid(isFormInvalid: boolean) {
+      this.isFormInvalid = isFormInvalid
+      this.$emit('form-invalid', (isFormInvalid || !!_.size(this.duplicateTags)))
     },
 
     openAddNewParameter(section: ContentFilterProfileSectionType) {

@@ -134,6 +134,7 @@
                  data-qa="tag-input">
               <tag-autocomplete-input :initial-tag="selectedDocTags"
                                       :selection-type="'multiple'"
+                                      @invalid="emitFormInvalid"
                                       @tag-changed="selectedDocTags = $event" />
             </div>
           </div>
@@ -272,13 +273,16 @@ export default defineComponent({
       },
     },
   },
-  emits: ['update:selectedDoc', 'update:selectedDocMatchingGlobalFilter'],
+  emits: ['update:selectedDoc', 'update:selectedDocMatchingGlobalFilter', 'form-invalid'],
   methods: {
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
     },
     emitMatchDocUpdate() {
       this.$emit('update:selectedDocMatchingGlobalFilter', this.localGlobalFilterDoc)
+    },
+    emitFormInvalid(isFormInvalid: boolean) {
+      this.$emit('form-invalid', isFormInvalid)
     },
     emitToDocAndDocMatchUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)

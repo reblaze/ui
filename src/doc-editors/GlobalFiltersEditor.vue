@@ -40,6 +40,7 @@
               <tag-autocomplete-input :initial-tag="selectedDocTags"
                                       :selection-type="'multiple'"
                                       :editable="!dynamicRuleManaged"
+                                      @invalid="emitTagsInvalid"
                                       @tag-changed="selectedDocTags = $event" />
             </div>
           </div>
@@ -156,6 +157,7 @@ export default defineComponent({
   data() {
     return {
       customResponseNames: [] as [CustomResponse['id'], CustomResponse['name']][],
+      isFormInvalid: false,
     }
   },
 
@@ -220,7 +222,13 @@ export default defineComponent({
     },
 
     emitFormInvalid(isFormInvalid: boolean) {
-      this.$emit('form-invalid', isFormInvalid)
+      this.isFormInvalid = this.isFormInvalid && isFormInvalid
+      this.$emit('form-invalid', this.isFormInvalid)
+    },
+
+    emitTagsInvalid(isTagsInvalid: boolean) {
+      this.isFormInvalid = this.isFormInvalid && isTagsInvalid
+      this.$emit('form-invalid', this.isFormInvalid)
     },
 
     tryMatch(data: string, regex: RegExp, type: Category): GlobalFilterRuleEntry[] {

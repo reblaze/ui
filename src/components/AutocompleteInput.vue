@@ -12,6 +12,7 @@
              class="autocomplete-input input is-small"
              aria-haspopup="true"
              aria-controls="dropdown-menu"
+             @invalid="emitInvalid()"
              @keyup.enter="selectValue()"
              @keyup.space="selectValue()"
              @keyup.down="focusNextSuggestion"
@@ -169,11 +170,21 @@ export default defineComponent({
         }
       },
     },
+
+    // mandatory 1 value
+    isValid(): boolean {
+      return (this.autocompleteValue && this.autocompleteValue.length > 0) ? true : false
+    },
   },
 
-  emits: ['tag-changed', 'value-changed', 'value-submitted', 'keyup', 'keydown', 'keypress', 'focus', 'blur'],
+  emits: ['invalid', 'tag-changed', 'value-changed', 'value-submitted', 'keyup', 'keydown',
+    'keypress', 'focus', 'blur'],
 
   methods: {
+
+    emitInvalid() {
+      this.$emit('invalid', !this.isValid)
+    },
 
     openDropdown() {
       this.open = true

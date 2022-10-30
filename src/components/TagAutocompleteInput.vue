@@ -13,6 +13,7 @@
       :data-qa="inputTitle"
       @value-changed="tagChanged"
       @value-submitted="tagSubmitted"
+      @invalid="emitInvalid"
       @keyup="bubbleEvent('keyup', $event)"
       @keydown="bubbleEvent('keydown', $event)"
       @keypress="bubbleEvent('keypress', $event)"
@@ -123,7 +124,7 @@ export default defineComponent({
       return this.selectionType === 'multiple' ? 'Space separated tags' : 'Tag'
     },
   },
-  emits: ['tag-changed', 'tag-submitted', 'keyup', 'keydown', 'keypress', 'focus', 'blur'],
+  emits: ['tag-changed', 'tag-submitted', 'invalid', 'keyup', 'keydown', 'keypress', 'focus', 'blur'],
   methods: {
 
     async loadAutocompleteSuggestions() {
@@ -185,6 +186,10 @@ export default defineComponent({
       })
       this.tagsSuggestions = [].concat(legitimateTags, maliciousTags, neutralTags) as AutocompleteSuggestion[]
       this.tagsSuggestions = _.sortBy(this.tagsSuggestions, 'value') as AutocompleteSuggestion[]
+    },
+
+    emitInvalid(inValid: boolean) {
+      this.$emit('invalid', inValid)
     },
 
     bubbleEvent(eventName: AutocompleteInputEvents, event: Event) {

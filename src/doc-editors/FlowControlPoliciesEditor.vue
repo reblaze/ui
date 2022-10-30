@@ -77,6 +77,7 @@
                  data-qa="tag-input">
               <tag-autocomplete-input :initial-tag="selectedDocTags"
                                       :selection-type="'multiple'"
+                                      @invalid="emitFormInvalid"
                                       @tag-changed="selectedDocTags = $event" />
             </div>
             <labeled-tags title="Automatic Tags"
@@ -441,7 +442,7 @@ export default defineComponent({
     },
   },
 
-  emits: ['update:selectedDoc'],
+  emits: ['update:selectedDoc', 'form-invalid'],
 
   methods: {
     getListEntryTitle(seqEntry: ArgsCookiesHeadersType): ArgsCookiesHeadersType {
@@ -450,6 +451,10 @@ export default defineComponent({
 
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
+    },
+
+    emitFormInvalid(isFormInvalid: boolean) {
+      this.$emit('form-invalid', isFormInvalid)
     },
 
     // Key

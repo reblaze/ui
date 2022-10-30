@@ -60,6 +60,7 @@
                    data-qa="tag-input">
                 <tag-autocomplete-input :initial-tag="selectedDocTags"
                                         :selection-type="'multiple'"
+                                        @invalid="emitFormInvalid"
                                         @tag-changed="selectedDocTags = $event" />
               </div>
               <labeled-tags title="Automatic Tags"
@@ -205,6 +206,10 @@ export default defineComponent({
   methods: {
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
+    },
+
+    emitFormInvalid(isFormInvalid: boolean) {
+      this.$emit('form-invalid', isFormInvalid)
     },
 
     // returns true if tag "all" is set in a higher priority section
