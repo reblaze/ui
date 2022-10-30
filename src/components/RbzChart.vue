@@ -22,7 +22,7 @@ export type SeriesOptions = {
   title: string
   fieldName: string
   show: boolean
-  drawStyle: 'line' | 'bars'
+  drawStyle: 'line' | 'bars' | 'spline'
   strokeColor: Series.Stroke
   fillColor?: Series.Fill
 }
@@ -75,16 +75,16 @@ export default defineComponent({
       this.seriesOptions.forEach(() => {
         datasets.push([])
       })
-      const sortedData = _.sortBy(this.data, 'timeframe')
+      const sortedGroupedData = _.groupBy(_.sortBy(this.data, 'timeframe'), 'timeframe')
       // uPlot is displaying time in local, so we need to offset our timeframe by the timezone offset
       const date = new Date(0)
-      date.setUTCSeconds(sortedData[0]?.timeframe)
+      date.setUTCSeconds(this.data[0]?.timeframe)
       const timezoneOffset = date.getTimezoneOffset() * 60
-      sortedData.forEach((dataItem) => {
-        datasets[0].push(dataItem.timeframe + timezoneOffset) // timestamps X axis
+      _.forEach(sortedGroupedData, (dataItem) => {
+        datasets[0].push(dataItem[0].timeframe + timezoneOffset) // timestamps X axis
         datasets.forEach((dataset, index) => {
           if (index !== 0) { // timestamps X axis
-            dataset.push(dataItem[this.seriesOptions[index - 1].fieldName])
+            dataset.push(_.sumBy(dataItem, this.seriesOptions[index - 1].fieldName))
           }
         })
       })
@@ -97,8 +97,21 @@ export default defineComponent({
           {}, // timestamps X axis
         ],
         axes: [
-          {},
           {
+            grid: {
+              width: 0.5,
+            },
+            ticks: {
+              width: 0.5,
+            },
+          },
+          {
+            grid: {
+              width: 0.5,
+            },
+            ticks: {
+              width: 0.5,
+            },
             values: (self, splits) => splits.map((value) => {
               return value == null ? null : this.amountSuffixFormatter(value)
             }),
@@ -111,9 +124,8 @@ export default defineComponent({
           spanGaps: true,
           label: seriesOptions.title,
           stroke: seriesOptions.strokeColor,
-          width: 0.4,
+          width: 2,
           fill: seriesOptions.fillColor,
-          dash: [10, 5],
           paths: this.paths as Series.PathBuilder,
         })
       })
@@ -127,7 +139,10 @@ export default defineComponent({
       }
       // eslint-disable-next-line new-cap
       this.chart = new uPlot(this.chartOptions, datasets, this.$refs.chart)
-      this.setChartSize()
+      // Pushing the resize action to the end of queue in order for the new chart to be rendered beforehand
+      setImmediate(() => {
+        this.setChartSize()
+      })
     },
 
     // converts the legend into a simple tooltip
@@ -149,6 +164,7 @@ export default defineComponent({
         const idents: NodeListOf<HTMLElement> = legendElement.querySelectorAll('.u-marker')
         idents.forEach((ident) => {
           ident.style.backgroundColor = ident.style.borderColor
+          delete ident.style.borderColor
         })
 
         const overElement: HTMLDivElement = uPlotChart.over
@@ -180,7 +196,7 @@ export default defineComponent({
     },
 
     paths(uPlotChart: uPlot, seriesIdx: number, idx0: number, idx1: number) {
-      const {linear, bars} = uPlot.paths
+      const {linear, bars, spline} = uPlot.paths
       const style = this.seriesOptions[seriesIdx - 1].drawStyle
       let renderer
       if (style === 'line') {
@@ -188,6 +204,9 @@ export default defineComponent({
       }
       if (style === 'bars') {
         renderer = bars({size: [1, Infinity, 1]})
+      }
+      if (style === 'spline') {
+        renderer = spline()
       }
       return renderer(uPlotChart, seriesIdx, idx0, idx1)
     },
