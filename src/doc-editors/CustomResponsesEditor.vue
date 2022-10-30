@@ -63,6 +63,23 @@
         <div v-if="['monitor', 'custom'].includes(localDoc.type)"
              class="column is-8">
           <div class="custom-panel">
+            <div v-if="localDoc.type === 'custom'"
+                 class="field">
+              <label class="label is-small status-code-label">
+                Status code
+              </label>
+              <div class="columns mb-0">
+                <div class="column is-3 pb-0">
+                  <input class="input is-small document-status-code"
+                         data-qa="status-input"
+                         type="number"
+                         title="Status code"
+                         placeholder="Status code"
+                         @change="emitDocUpdate"
+                         v-model.number="localDoc.params.status"/>
+                </div>
+              </div>
+            </div>
             <div class="field">
               <label class="label is-small is-size-7 has-text-left form-label">
                 {{ localDoc.type === 'custom' ? 'Response' : 'Request' }} Headers
@@ -70,13 +87,13 @@
               <div v-for="(header, index) in headersArray"
                    :key="index"
                    class="columns mb-0 headers-columns">
-                <div class="column is-5">
+                <div class="column is-3">
                   <input class="input is-small document-header-key"
                          title="Header key"
                          placeholder="Header key"
                          v-model="header.key"/>
                 </div>
-                <div class="column is-5">
+                <div class="column">
                   <input class="input is-small document-header-value"
                          title="Header value"
                          placeholder="Header value"
@@ -101,24 +118,7 @@
             </div>
             <div v-if="localDoc.type === 'custom'"
                  class="field">
-              <label class="label is-small status-code-label">
-                Status code
-              </label>
-              <div class="columns mb-0 status-code">
-                <div class="column is-5 pb-0">
-                  <input class="input is-small document-status-code"
-                         data-qa="status-input"
-                         type="number"
-                         title="Status code"
-                         placeholder="Status code"
-                         @change="emitDocUpdate"
-                         v-model.number="localDoc.params.status"/>
-                </div>
-              </div>
-            </div>
-            <div v-if="localDoc.type === 'custom'"
-                 class="field">
-              <label class="label is-small content">
+              <label class="label is-small">
                 Content
               </label>
               <textarea class="is-small textarea document-content"
@@ -250,10 +250,5 @@ export default defineComponent({
   },
 })
 </script>
-<style scoped
-       lang="scss">
-.headers-columns,
-.status-code {
-  width: 50%;
-}
+<style scoped lang="scss">
 </style>
