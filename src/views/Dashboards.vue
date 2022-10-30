@@ -140,8 +140,8 @@ export default defineComponent({
         url: `db/system/`,
       })
       const systemDBData = response?.data
-      this.metabaseURL = systemDBData?.links?.metabase_url || this.defaultMetabaseURL
       const dashboardsInfo = systemDBData?.dashboardsinfo
+      this.metabaseURL = dashboardsInfo.metabaseURL || this.defaultMetabaseURL
       this.metabaseKey = dashboardsInfo?.metabaseKey || ''
       if (dashboardsInfo?.dashboards?.length) {
         this.dashboards = dashboardsInfo.dashboards
