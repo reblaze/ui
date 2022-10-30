@@ -25,26 +25,22 @@
 
     <div class="content document-list-wrapper"
          v-show="!loadingDocCounter && selectedBranch">
-      <div class="card">
-        <div class="card-content">
-          <div class="content">
-            <rbz-table :columns="columns"
-                       :data="routingProfiles"
-                       :default-sort-column-index="1"
-                       :show-menu-column="true"
-                       :show-filter-button="true"
-                       :show-new-button="true"
-                       @new-button-clicked="addNewProfile"
-                       :row-clickable="true"
-                       @row-clicked="editProfile"
-                       :show-row-button="true"
-                       @row-button-clicked="editProfile">
-            </rbz-table>
-            <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">
-                {{ documentListAPIPath }}
-              </span>
-          </div>
-        </div>
+      <div class="content">
+        <rbz-table :columns="columns"
+                   :data="routingProfiles"
+                   :default-sort-column-index="1"
+                   :show-menu-column="true"
+                   :show-filter-button="true"
+                   :show-new-button="true"
+                   @new-button-clicked="addNewProfile"
+                   :row-clickable="true"
+                   @row-clicked="editProfile"
+                   :show-row-button="true"
+                   @row-button-clicked="editProfile">
+        </rbz-table>
+        <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">
+          {{ documentListAPIPath }}
+        </span>
       </div>
     </div>
 

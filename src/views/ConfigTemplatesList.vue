@@ -25,26 +25,22 @@
 
     <div v-show="!loadingDocCounter && selectedBranch"
          class="content document-list-wrapper">
-      <div class="card">
-        <div class="card-content">
-          <div class="content">
-            <rbz-table :columns="columns"
-                       :data="configTemplates"
-                       :default-sort-column-index="1"
-                       :show-filter-button="true"
-                       :show-menu-column="true"
-                       :show-new-button="true"
-                       @new-button-clicked="addNewConfigTemplate"
-                       :row-clickable="true"
-                       @row-clicked="editConfigTemplate"
-                       :show-row-button="true"
-                       @row-button-clicked="editConfigTemplate">
-            </rbz-table>
-            <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">
-                {{ documentListAPIPath }}
-              </span>
-          </div>
-        </div>
+      <div class="content">
+        <rbz-table :columns="columns"
+                   :data="configTemplates"
+                   :default-sort-column-index="1"
+                   :show-filter-button="true"
+                   :show-menu-column="true"
+                   :show-new-button="true"
+                   @new-button-clicked="addNewConfigTemplate"
+                   :row-clickable="true"
+                   @row-clicked="editConfigTemplate"
+                   :show-row-button="true"
+                   @row-button-clicked="editConfigTemplate">
+        </rbz-table>
+        <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">
+          {{ documentListAPIPath }}
+        </span>
       </div>
     </div>
 
