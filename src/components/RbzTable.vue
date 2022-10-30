@@ -91,7 +91,7 @@
                    :placeholder="col.title"
                    v-model="filter[col.title]"
                    @change="currentPage = 1"/>
-            <span class="icon is-small">
+            <span class="icon is-small is-right">
               <i class="fa fa-filter"
                  aria-hidden="true"></i>
             </span>

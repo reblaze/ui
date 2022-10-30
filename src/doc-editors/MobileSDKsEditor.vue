@@ -56,7 +56,7 @@
                         title="Delete document"
                         data-qa="delete-document"
                         :class="{'is-loading': isDeleteLoading}"
-                        :disabled="selectedMobileSDK?.id === '__default__'"
+                        :disabled="selectedDocNotDeletable"
                         @click="deleteDoc()">
                   <span class="icon is-small">
                     <i class="fas fa-trash"></i>
@@ -376,6 +376,9 @@ export default defineComponent({
       getInitConfig: getInitConfig,
       configAdditionalInfoIndex: null,
 
+      // To prevent deletion of Mobile SDKs referenced by Server Groups
+      referencedIDsMobileSDK: [],
+
       // Loading indicators
       loadingDocCounter: 0,
       isSaveLoading: false,
@@ -391,6 +394,7 @@ export default defineComponent({
       handler: function(val, oldVal) {
         if ((this.$route.name as string).includes('MobileSDKs/config') && val && val !== oldVal) {
           this.setSelectedDataFromRouteParams()
+          this.loadReferencedMobileSDKsIDs()
         }
       },
       immediate: true,
@@ -400,6 +404,20 @@ export default defineComponent({
     documentAPIPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
       return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/mobile-sdks/e/${this.selectedMobileSDK.id}/`
+    },
+
+    selectedDocNotDeletable(): boolean {
+      return !this.selectedMobileSDK ||
+        this.selectedMobileSDK.id.startsWith('__') || // Default entries
+        this.selectedMobileSDK.id.startsWith('rl-') || // Reblaze-managed Rate Limits
+        this.selectedMobileSDK.id.startsWith('action-') || // Reblaze-managed Custom Responses
+        this.selectedMobileSDK.id.startsWith('rbz-') || // Reblaze-managed Global Filters
+        this.selectedMobileSDK.id.startsWith('dr_') || // Dynamic-Rule-managed Global Filters
+        this.isDocReferenced
+    },
+
+    isDocReferenced(): boolean {
+      return this.referencedIDsMobileSDK.includes(this.selectedMobileSDK.id)
     },
 
     selectedBranch(): string {
@@ -589,6 +607,19 @@ export default defineComponent({
           con.active = configIndex === index
         })
       }
+    },
+
+    async loadReferencedMobileSDKsIDs() {
+      const response = await RequestsUtils.sendReblazeRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/sites/`,
+      })
+      const serverGroups = response?.data || []
+      const referencedMobileSDKs: string[] = []
+      _.forEach(serverGroups, (serverGroup) => {
+        referencedMobileSDKs.push(serverGroup['mobile_sdk'])
+      })
+      this.referencedIDsMobileSDK = _.uniq(referencedMobileSDKs)
     },
   },
   async created() {

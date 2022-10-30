@@ -55,7 +55,7 @@
                         title="Delete document"
                         data-qa="delete-document"
                         :class="{'is-loading': isDeleteLoading}"
-                        :disabled="selectedBackendService?.id === '__default__'"
+                        :disabled="selectedDocNotDeletable"
                         @click="deleteDoc()">
                   <span class="icon is-small">
                     <i class="fas fa-trash"></i>
@@ -284,6 +284,7 @@ import DatasetsUtils from '@/assets/DatasetsUtils'
 import backendServicesConsts from '@/assets/backendServicesConsts'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
+import _ from 'lodash'
 
 export default defineComponent({
   name: 'BackendServiceEditor',
@@ -305,6 +306,9 @@ export default defineComponent({
         backup: false,
       },
 
+      // To prevent deletion of Backend servises referenced by Routing profiles
+      referencedIDsBackendService: [],
+
       // Loading indicators
       loadingDocCounter: 0,
       isSaveLoading: false,
@@ -320,6 +324,7 @@ export default defineComponent({
       handler: function(val, oldVal) {
         if ((this.$route.name as string).includes('BackendServices/config') && val && val !== oldVal) {
           this.setSelectedDataFromRouteParams()
+          this.loadReferencedBackendServicesIDs()
         }
       },
       immediate: true,
@@ -329,6 +334,16 @@ export default defineComponent({
     documentAPIPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
       return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/backends/e/${this.selectedBackendService.id}/`
+    },
+
+    selectedDocNotDeletable(): boolean {
+      return !this.selectedBackendService ||
+          this.selectedBackendService.id.startsWith('__') || // Default entries
+          this.selectedBackendService.id.startsWith('rl-') || // Reblaze-managed Rate Limits
+          this.selectedBackendService.id.startsWith('action-') || // Reblaze-managed Custom Responses
+          this.selectedBackendService.id.startsWith('rbz-') || // Reblaze-managed Global Filters
+          this.selectedBackendService.id.startsWith('dr_') || // Dynamic-Rule-managed Global Filters
+          this.isDocReferenced
     },
 
     isSingleHost() {
@@ -343,6 +358,10 @@ export default defineComponent({
       return backendServicesConsts.transportProtocols.filter((transportProtocol) => {
         return this.isSingleHost || transportProtocol.value !== 'port_bridge'
       })
+    },
+
+    isDocReferenced(): boolean {
+      return this.referencedIDsBackendService.includes(this.selectedBackendService.id)
     },
 
     selectedBranch(): string {
@@ -443,6 +462,21 @@ export default defineComponent({
           !this.selectedBackendService.back_hosts[0].max_fails) {
         this.selectedBackendService.back_hosts[0].max_fails = 0
       }
+    },
+
+    async loadReferencedBackendServicesIDs() {
+      const response = await RequestsUtils.sendReblazeRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/routing-profiles/`,
+      })
+      const routingProfiles = response?.data || []
+      const referencedRoutingProfiles: string[] = []
+      _.forEach(routingProfiles, (routingProfile) => {
+        _.forEach(routingProfile.locations, (location) => {
+          referencedRoutingProfiles.push(location['backend_id'])
+        })
+      })
+      this.referencedIDsBackendService = _.uniq(referencedRoutingProfiles)
     },
   },
   async created() {
