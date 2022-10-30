@@ -116,7 +116,7 @@ export default defineComponent({
           classes: 'width-100px',
         },
         {
-          title: 'Action',
+          title: 'Custom Response',
           displayFunction: (item: DynamicRule) => {
             const matchingGlobalFilter = _.find(this.globalFiltersData, (globalFilter: GlobalFilter) => {
               return globalFilter.id === `dr_${item.id}`
