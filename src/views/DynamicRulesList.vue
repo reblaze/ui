@@ -58,7 +58,7 @@
 import _ from 'lodash'
 import {defineComponent} from 'vue'
 import RbzTable from '@/components/RbzTable.vue'
-import {ColumnOptions, DynamicRule, GlobalFilter} from '@/types'
+import {ColumnOptions, CustomResponse, DynamicRule, GlobalFilter} from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import Utils from '@/assets/Utils'
@@ -116,16 +116,15 @@ export default defineComponent({
           classes: 'width-100px',
         },
         {
-          title: 'Action',
+          title: 'Custom Response',
           displayFunction: (item: DynamicRule) => {
-            if (this.globalFiltersData.length > 0) {
-              const matchingGlobalFilter = _.find(this.globalFiltersData, (globalFilter: GlobalFilter) => {
-                return globalFilter.id === `dr_${item.id}`
-              })
-              return matchingGlobalFilter ? matchingGlobalFilter.action : ''
-            } else {
-              return ''
-            }
+            const matchingGlobalFilter = _.find(this.globalFiltersData, (globalFilter: GlobalFilter) => {
+              return globalFilter.id === `dr_${item.id}`
+            })
+            const customResponse = _.find(this.customResponsesNames, (customResponseName) => {
+              return customResponseName[0] === matchingGlobalFilter?.action
+            })
+            return customResponse?.[1] || ''
           },
           isSortable: false,
           isSearchable: true,
@@ -154,6 +153,7 @@ export default defineComponent({
       globalFiltersData: [] as MiniGlobalFilter[],
       loadingDocCounter: 0,
       isDownloadLoading: false,
+      customResponsesNames: [],
 
       apiRoot: RequestsUtils.reblazeAPIRoot,
       apiVersion: RequestsUtils.reblazeAPIVersion,
@@ -165,6 +165,7 @@ export default defineComponent({
       handler: async function(val, oldVal) {
         if ((this.$route.name as string).includes('DynamicRules/list') && val && val !== oldVal) {
           await this.loadDynamicRulesData()
+          this.loadCustomResponses()
         }
       },
       immediate: true,
@@ -185,6 +186,20 @@ export default defineComponent({
   },
 
   methods: {
+    loadCustomResponses() {
+      RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/actions/`,
+        config: {headers: {'x-fields': 'id, name'}},
+      }).then((response: AxiosResponse<CustomResponse[]>) => {
+        this.customResponsesNames = _.sortBy(_.map(response.data, (entity) => {
+          return [entity.id, entity.name]
+        }), (e) => {
+          return e[1]
+        })
+      })
+    },
+
     setLoadingDocStatus(isLoading: boolean) {
       if (isLoading) {
         this.loadingDocCounter++
