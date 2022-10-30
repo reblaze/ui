@@ -1,16 +1,16 @@
 import {
   ACLProfile,
   BackendService,
-  EdgeFunction,
+  ConfigTemplate,
   ContentFilterProfile,
   ContentFilterRule,
   CustomResponse,
   DynamicRule,
+  EdgeFunction,
   FlowControlPolicy,
   GlobalFilter,
   HttpRequestMethods,
   MobileSDK,
-  ConfigTemplate,
   RateLimit,
   RoutingProfile,
   SecurityPolicy,
@@ -215,6 +215,10 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'match': `${id}.example.com`,
       'description': 'New Security Policy Description and Remarks',
       'tags': [],
+      'session': {
+        'attrs': 'ip',
+      },
+      'session_ids': [],
       'map': [
         {
           'id': generateUUID2(),

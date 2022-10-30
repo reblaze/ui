@@ -197,6 +197,8 @@ declare module CuriefenseClient {
     match: string
     description: string
     tags: string[]
+    session: LimitOptionType
+    session_ids: LimitOptionType[]
     map: SecurityPolicyEntryMatch[]
   }
 
