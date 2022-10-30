@@ -69,7 +69,7 @@
                 Status code
               </label>
               <div class="columns mb-0">
-                <div class="column is-5 pb-0">
+                <div class="column is-3 pb-0">
                   <input class="input is-small document-status-code"
                          data-qa="status-input"
                          type="number"
