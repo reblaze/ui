@@ -87,7 +87,6 @@
       </div>
 
 
-
       <div class="field px-3">
         <label class="label is-small">
           Path Mapping
@@ -442,7 +441,7 @@ export default defineComponent({
       // titles
       matchingDomainTitle: 'A unique matching regex value, not overlapping other Security Policy definitions',
 
-      //collapsed
+      // collapsed
       isDataCollapsed: false,
     }
   },

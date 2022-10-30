@@ -174,7 +174,7 @@ export default defineComponent({
     return {
       customResponseNames: [] as [CustomResponse['id'], CustomResponse['name']][],
 
-      //collapsed
+      // collapsed
       isDataCollapsed: false,
     }
   },
@@ -347,8 +347,6 @@ export default defineComponent({
   display: inline-block;
   line-height: 0;
 }
-
-
 
 
 .collapsible {
