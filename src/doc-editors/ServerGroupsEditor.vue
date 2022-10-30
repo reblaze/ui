@@ -63,11 +63,11 @@
                     </span>
                     <span class="control is-expanded confirm-delete"
                           v-if="deleteServerGroupDoc">
-                      <input class="input  is-small width-200px delete-server-group-input"
+                      <input class="input is-small width-200px delete-server-group-input"
                              data-qa="confirm-server-group-input"
                              title="Server Group Name to Delete"
                              ref="confirm-delete"
-                             placeholder="Write The Server Group Name to Delete"
+                             placeholder="Confirm Server Group name to delete"
                              v-model="deleteServerGroupDocName"
                              type="text">
                     </span>
@@ -86,7 +86,7 @@
                       <button class="button is-primary is-small delete-server-group-confirm"
                               data-qa="confirm-delete-server-group-btn"
                               :disabled="!isDeleteServerGroupDocNameValid"
-                              @click="deleteServerGroupDocByName">
+                              @click="deleteServerGroup">
                         <span class="icon is-small">
                           <i class="fas fa-check"></i>
                         </span>
@@ -398,7 +398,6 @@ export default defineComponent({
 
       deleteServerGroupDocName: '' as string,
       deleteServerGroupDoc: false as boolean,
-      hasError: false,
 
       apiRoot: RequestsUtils.reblazeAPIRoot,
       apiVersion: RequestsUtils.reblazeAPIVersion,
@@ -456,8 +455,8 @@ export default defineComponent({
     ...mapStores(useBranchesStore),
 
     isDeleteServerGroupDocNameValid(): boolean {
-      const newName = this.deleteServerGroupDocName.trim()
-      return newName === this.selectedServerGroup.name
+      const deleteConfirmInputName = this.deleteServerGroupDocName.trim()
+      return deleteConfirmInputName === this.selectedServerGroup.name
     },
   },
   methods: {
@@ -492,13 +491,13 @@ export default defineComponent({
       }
     },
 
-    async deleteServerGroupDocByName() {
+    async deleteServerGroup() {
       this.setLoadingDocStatus(true)
       this.isDeleteLoading = true
-      const ServerGroupText = this.titles['sites-singular']
+      const serverGroupText = this.titles['sites-singular']
       const url = `configs/${this.selectedBranch}/d/sites/e/${this.selectedServerGroup.id}/`
-      const successMessage = `The ${ServerGroupText} was deleted.`
-      const failureMessage = `Failed while attempting to delete the ${ServerGroupText}.`
+      const successMessage = `The ${serverGroupText} was deleted.`
+      const failureMessage = `Failed while attempting to delete the ${serverGroupText}.`
       await RequestsUtils.sendReblazeRequest({
         methodName: 'DELETE',
         url: url,
