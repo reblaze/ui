@@ -119,6 +119,16 @@ export default defineComponent({
       selectedArray: [] as string[],
     }
   },
+  watch: {
+    selectedBranch: {
+      handler: function(val, oldVal) {
+        if ((this.$route.name as string).includes('Quarantined') && val && val !== oldVal) {
+          this.loadQuarantinedData()
+        }
+      },
+      immediate: true,
+    },
+  },
   computed: {
     selectedBranch(): string {
       return this.branchesStore.selectedBranchId
@@ -196,7 +206,6 @@ export default defineComponent({
   },
   async created() {
     await this.branchesStore.list
-    await this.loadQuarantinedData()
   },
 })
 
