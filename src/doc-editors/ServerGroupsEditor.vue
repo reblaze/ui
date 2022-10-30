@@ -51,25 +51,54 @@
                 </button>
               </p>
               <p class="control">
-                <button class="button is-small has-text-danger delete-document-button"
-                        title="Delete document"
-                        data-qa="delete-document"
-                        :class="{'is-loading': isDeleteLoading}"
-                        :disabled="selectedServerGroup?.id === '__default__'"
-                        @click="deleteDoc()">
-                  <span class="icon is-small">
-                    <i class="fas fa-trash"></i>
+                  <span class="field has-addons">
+                    <span class="control">
+                      <button class="button is-small has-text-danger delete-server-group"
+                              data-qa="delete-server-group-btn"
+                              @click="toggleDeleteServerGroupDoc()">
+                        <span class="icon is-small">
+                          <i  class="fas fa-trash"></i>
+                        </span>
+                      </button>
+                    </span>
+                    <span class="control is-expanded confirm-delete"
+                          v-if="deleteServerGroupDoc">
+                      <input class="input is-small width-200px delete-server-group-input"
+                             data-qa="confirm-server-group-input"
+                             title="Server Group Name"
+                             ref="confirm-delete"
+                             placeholder="Confirm Server Group name"
+                             v-model="deleteServerGroupDocName"
+                             type="text">
+                    </span>
+                    <span class="control"
+                          v-if="deleteServerGroupDoc">
+                      <button class="button is-danger is-small delete-server-group-cancel"
+                              data-qa="cancel-delete-server-group-btn"
+                              @click="toggleDeleteServerGroupDoc">
+                        <span class="icon is-small">
+                          <i class="fas fa-times"></i>
+                        </span>
+                      </button>
+                    </span>
+                    <span class="control"
+                          v-if="deleteServerGroupDoc">
+                      <button class="button is-primary is-small delete-server-group-confirm"
+                              data-qa="confirm-delete-server-group-btn"
+                              :disabled="!isDeleteServerGroupDocNameValid"
+                              @click="deleteServerGroup">
+                        <span class="icon is-small">
+                          <i class="fas fa-check"></i>
+                        </span>
+                      </button>
+                    </span>
                   </span>
-                  <span>
-                    Delete
-                  </span>
-                </button>
-              </p>
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
     <hr/>
     <div class="content"
          v-if="selectedServerGroup">
@@ -363,6 +392,9 @@ export default defineComponent({
       contentFilterProfilesNames: [] as [ContentFilterProfile['id'], ContentFilterProfile['name']][],
       aclProfilesNames: [] as [ACLProfile['id'], ACLProfile['name']][],
 
+      deleteServerGroupDocName: '' as string,
+      deleteServerGroupDoc: false as boolean,
+
       apiRoot: RequestsUtils.reblazeAPIRoot,
       apiVersion: RequestsUtils.reblazeAPIVersion,
     }
@@ -417,6 +449,11 @@ export default defineComponent({
     },
 
     ...mapStores(useBranchesStore),
+
+    isDeleteServerGroupDocNameValid(): boolean {
+      const deleteConfirmInputName = this.deleteServerGroupDocName.trim()
+      return deleteConfirmInputName === this.selectedServerGroup.name
+    },
   },
   methods: {
     async setSelectedDataFromRouteParams() {
@@ -450,7 +487,7 @@ export default defineComponent({
       }
     },
 
-    async deleteDoc() {
+    async deleteServerGroup() {
       this.setLoadingDocStatus(true)
       this.isDeleteLoading = true
       const serverGroupText = this.titles['sites-singular']
@@ -481,22 +518,22 @@ export default defineComponent({
     },
 
     loadCertificates() {
-      RequestsUtils.sendReblazeRequest({
-        methodName: 'GET',
-        url: `configs/${this.selectedBranch}/d/certificates/`,
-        config: {headers: {'x-fields': 'id, san'}},
-      }).then((response: AxiosResponse<Certificate[]>) => {
-        if (response.data.length > 0) {
-          this.certificatesNames = _.sortBy(_.map(response.data, (entity) => {
-            return [entity.id, entity.san]
-          }), (e) => {
-            return e[1]
-          })
-        } else {
-          // TODO  get certificate to work
-          this.certificatesNames = [['need-real-data', ['www.certificate.com']]] as [string, string[]][]
-        }
-      })
+      // RequestsUtils.sendReblazeRequest({
+      //   methodName: 'GET',
+      //   url: `configs/${this.selectedBranch}/d/certificates/`,
+      //   config: {headers: {'x-fields': 'id, san'}},
+      // }).then((response: AxiosResponse<Certificate[]>) => {
+      //   if (response.data.length > 0) {
+      //     this.certificatesNames = _.sortBy(_.map(response.data, (entity) => {
+      //       return [entity.id, entity.san]
+      //     }), (e) => {
+      //       return e[1]
+      //     })
+      //   } else {
+      // TODO  get certificate to work
+      this.certificatesNames = [['need-real-data', ['www.certificate.com']]] as [string, string[]][]
+      //   }
+      // })
     },
 
     async loadServerGroup() {
@@ -615,6 +652,13 @@ export default defineComponent({
     referencedDocName(list: [string, string][], id: string): string {
       const matchedItem = _.find(list, (listItem) => listItem[0] === id)
       return matchedItem?.[1] || ''
+    },
+
+    toggleDeleteServerGroupDoc() {
+      this.deleteServerGroupDoc = !this.deleteServerGroupDoc
+      if (!this.deleteServerGroupDoc) {
+        this.deleteServerGroupDocName = ''
+      }
     },
   },
   async created() {
