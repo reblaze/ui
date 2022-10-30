@@ -60,7 +60,7 @@
                         <label class="checkbox is-align-items-center is-inline-flex">
                             <input
                                 type="checkbox"
-                                v-model="certificateReplaceByLE"
+                                v-model="le_auto_replace"
                                 @click="changeUpdateLE"
                                 class="mr-1" />
                             Auto Replacement by&nbsp;
@@ -94,12 +94,12 @@
                             <div class="field">
                                 <div class="is-size-7 pl-1">{{ selectedAppsLabel }}</div> <!-- TODO: ask Aviv what is this function -->
                                  <select v-model="selectedApps"
+                                        class="select-apps"
                                         multiple
                                         title="Select links"
                                         :loading="is_loading"
-                                        :option-height="25"
-                                        style="width: 400px;"> <!-- TODO: need to move it to style section style="width: 400px;" -->
-                                  <option v-for="name in sites"
+                                        :option-height="25"> <!-- TODO: need to move it to style section style="width: 400px;" -->
+                                  <option v-for="name in sites.server_names"
                                           :key="name"
                                           :value="name">
                                     {{ name }}
@@ -189,8 +189,8 @@ export default defineComponent({
     issuer: String,
     san: Array<string>,
     cert_body: String,
-    le_auto_replace: Boolean,
-    sites: Array<string>,
+    // TODO: needs to add this le_auto_replace: Boolean and remove this.le_auto_replace
+    sites: Object,
   },
   data() {
     return {
@@ -214,8 +214,8 @@ export default defineComponent({
       balancers: [],
       link_to_certificates_map: {},
       test: false,
-      certificateReplaceByLE: null,
       testArr: [] as string[],
+      le_auto_replace: false,
     }
   },
   computed: {
@@ -435,5 +435,7 @@ export default defineComponent({
 })
 </script>
 <style scoped lang="scss">
-
+.select-apps {
+  width: 400px;
+}
 </style>

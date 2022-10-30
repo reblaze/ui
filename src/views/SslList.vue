@@ -78,7 +78,7 @@
               </rbz-table>
             </div>
             <div v-show="tab === 'Certificates'">
-                <rbz-table :columns="certificationColumns"
+                <rbz-table :columns="certificateColumnOption"
                   :data="certificates"
                   :show-menu-column="true"
                   :show-filter-button="true"
@@ -132,7 +132,7 @@
 import _ from 'lodash'
 import {defineComponent} from 'vue'
 import RbzTable from '@/components/RbzTable.vue'
-import {Certificate, ColumnOptions} from '@/types'
+import {Certificate, ColumnOptions, Site} from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import Utils from '@/assets/Utils'
@@ -201,63 +201,6 @@ export default defineComponent({
           classes: 'width-100px white-space-pre',
         },
       ] as ColumnOptions[],
-      certificationColumns: [
-        {
-          title: 'Name',
-          fieldNames: ['id'],
-          isSortable: true,
-          isSearchable: true,
-          classes: 'width-100px',
-        },
-        {
-          title: 'Expiration Date',
-          fieldNames: ['expires'],
-          isSortable: true,
-          isSearchable: true,
-          classes: 'width-100px ellipsis',
-        },
-        {
-          title: 'Linked To',
-          fieldNames: ['subject'],
-          isSortable: true,
-          isSearchable: true,
-          classes: 'width-100px white-space-pre',
-        },
-        {
-          title: 'AWS',
-          fieldNames: ['aws'],
-          isSortable: true,
-          isSearchable: true,
-          classes: 'width-100px white-space-pre',
-        },
-        {
-          title: 'GCP',
-          fieldNames: ['gcp'],
-          isSortable: true,
-          isSearchable: true,
-          classes: 'width-100px white-space-pre',
-        },
-        {
-          title: 'Load Balancers',
-          fieldNames: ['provider_links'],
-          displayFunction: (item) => {
-            return item.provider_links.link
-          },
-          isSortable: true,
-          isSearchable: true,
-          classes: 'width-100px white-space-pre',
-        },
-        {
-          title: 'SAN',
-          fieldNames: ['san'],
-          displayFunction: (item) => {
-            return item?.san?.join('\n')
-          },
-          isSortable: true,
-          isSearchable: true,
-          classes: 'width-120px white-space-pre',
-        },
-      ] as ColumnOptions[],
       isNewLoading: false,
       titles: DatasetsUtils.titles,
       loadBalancer: null, // TODO: need to add LoadBalancer entity
@@ -317,6 +260,89 @@ export default defineComponent({
   },
 
   computed: {
+    certificateColumnOption() : ColumnOptions[] {
+      return [
+        {
+          title: 'ID',
+          fieldNames: ['id'],
+          isSortable: true,
+          isSearchable: true,
+          classes: 'width-100px',
+        },
+        {
+          title: 'Name',
+          fieldNames: ['name'],
+          isSortable: true,
+          isSearchable: true,
+          classes: 'width-100px',
+        },
+        {
+          title: 'Expiration Date',
+          fieldNames: ['exp_date'],
+          isSortable: true,
+          isSearchable: true,
+          classes: 'width-100px ellipsis',
+        },
+        {
+          title: 'Linked To',
+          displayFunction: (item: Certificate) => {
+            if (this.sites?.length > 0) {
+              const matchingSite = _.find(this.sites, (site: Site) => {
+                return site.ssl_certificate === item.id
+              })
+              return matchingSite ? matchingSite.server_names.join('\n') : ''
+            } else {
+              return ''
+            }
+          },
+          isSortable: true,
+          isSearchable: true,
+          classes: 'width-100px white-space-pre',
+        },
+        {
+          title: 'AWS',
+          fieldNames: ['links'],
+          isSortable: true,
+          isSearchable: true,
+          classes: 'width-100px white-space-pre',
+        },
+        {
+          title: 'GCP',
+          fieldNames: ['links'],
+          // TODO: the displayFunction should check if item.links['provider'] include the gcp, if yes return true
+          displayFunction: (item) => {
+            const checkGCP = _.find(item.links['provider'], (provider: any) => {
+              return provider === 'gcp'
+            })
+            return checkGCP
+          },
+          isSortable: true,
+          isSearchable: true,
+          classes: 'width-100px white-space-pre',
+        },
+        {
+          title: 'Load Balancers',
+          fieldNames: ['links'],
+          displayFunction: (item) => {
+            return item?.items?.join('\n')
+          },
+          isSortable: true,
+          isSearchable: true,
+          classes: 'width-100px white-space-pre',
+        },
+        {
+          title: 'SAN',
+          fieldNames: ['san'],
+          displayFunction: (item) => {
+            return item?.san?.join('\n')
+          },
+          isSortable: true,
+          isSearchable: true,
+          classes: 'width-120px white-space-pre',
+        },
+      ]
+    },
+
     documentListAPIPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
       return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/ssl/`
@@ -329,12 +355,12 @@ export default defineComponent({
 
   methods: {
     getCertificateByID(id:string) {
-      this.certificateByID = this.certificatesMock.find((certificate) => certificate.id === id)
+      this.certificateByID = this.certificates.find((certificate:any) => certificate.id === id)
     },
 
     async callLoaders() {
       // TODO: add await this.loadBalancers()
-      await this.loadCertificatesAndSites()
+      await this.loadCertificates()
     },
     setLoadingDocStatus(isLoading: boolean) {
       if (isLoading) {
@@ -382,15 +408,20 @@ export default defineComponent({
       this.loadBalancer = response?.data || []
     },
 
-    async loadCertificatesAndSites() {
-      // const certificatesUrl = `configs/${this.selectedBranch}/d/certificates/`
-      // const sitesUrl = `configs/${this.selectedBranch}/d/sites/`
-      // const certificatesResponse = await RequestsUtils.sendReblazeRequest({methodName: 'GET', certificatesUrl})
-      // const sitesResponse = await RequestsUtils.sendReblazeRequest({methodName: 'GET', sitesUrl})
-      // TODO: add this.certificates = certificatesResponse?.data || []
-      // TODO: add this.sites = sitesResponse?.data || []
-      this.certificates = this.certificatesMock
-      this.sites = this.sitesMock
+    async loadCertificates() {
+      const url = `configs/${this.selectedBranch}/d/certificates/`
+      const certificatesResponse = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
+      this.certificates = certificatesResponse?.data || []
+      console.log('this.certificates', certificatesResponse)
+      // this.certificates = this.certificatesMock
+    },
+
+    async loadSites() {
+      const url = `configs/${this.selectedBranch}/d/sites/`
+      const sitesResponse = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
+      this.sites = sitesResponse?.data || []
+      console.log('this.sites', this.sites)
+      // this.sites = this.sitesMock
     },
 
     async loadConfigs() {
@@ -411,20 +442,21 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
       await this.loadBalancers()
-      await this.loadCertificatesAndSites()
+      await this.loadCertificates()
       this.setLoadingDocStatus(false)
     },
 
     deleteCertificate(id:string) {
       this.certificatesMock = this.certificatesMock.filter((certificate) => certificate.id !== id)
-      this.loadCertificatesAndSites()
+      this.loadCertificates()
       this.deleteShown = false
     },
   },
   async created() {
     await this.loadConfigs()
     await this.loadBalancers()
-    await this.loadCertificatesAndSites()
+    await this.loadCertificates()
+    await this.loadSites()
   },
 })
 </script>
