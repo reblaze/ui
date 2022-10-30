@@ -65,9 +65,9 @@
                           v-if="deleteServerGroupDoc">
                       <input class="input is-small width-200px delete-server-group-input"
                              data-qa="confirm-server-group-input"
-                             title="Server Group Name to Delete"
+                             title="Server Group Name"
                              ref="confirm-delete"
-                             placeholder="Confirm Server Group name to delete"
+                             placeholder="Confirm Server Group name"
                              v-model="deleteServerGroupDocName"
                              type="text">
                     </span>
