@@ -194,7 +194,16 @@ import CustomResponseEditor from '@/doc-editors/CustomResponsesEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
 import {defineComponent, shallowRef} from 'vue'
-import {Document, DocumentType, DynamicRule, GlobalFilter, HttpRequestMethods, RateLimit, ReblazeDocumentType, SecurityPolicy} from '@/types'
+import {
+  Document,
+  DocumentType,
+  DynamicRule,
+  GlobalFilter,
+  HttpRequestMethods,
+  RateLimit,
+  ReblazeDocumentType,
+  SecurityPolicy,
+} from '@/types'
 import axios, {AxiosResponse} from 'axios'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
@@ -439,7 +448,11 @@ export default defineComponent({
     },
 
     updateDocIdNames() {
-      this.docIdNames = _.sortBy(_.map(this.docs, (doc) => [doc.id, doc.name]), (entry) => entry[1].toLowerCase())
+      this.docIdNames = _.sortBy(_.map(this.docs, (doc) => {
+        return [doc.id, doc.name]
+      }), (entry) => {
+        return entry[1].toLowerCase()
+      })
     },
 
     async loadSelectedDocData() {
