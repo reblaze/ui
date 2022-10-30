@@ -53,40 +53,40 @@
               <p class="control">
                   <span class="field has-addons">
                     <span class="control">
-                      <button class="button is-small has-text-danger delete-web-proxy"
-                              data-qa="delete-web-proxy-btn"
-                              @click="toggleDeleteWebProxyDoc()">
+                      <button class="button is-small has-text-danger delete-server-group"
+                              data-qa="delete-server-group-btn"
+                              @click="toggleDeleteServerGroupDoc()">
                         <span class="icon is-small">
                           <i  class="fas fa-trash"></i>
                         </span>
                       </button>
                     </span>
                     <span class="control is-expanded confirm-delete"
-                          v-if="deleteWebProxyDoc">
-                      <input class="input  is-small width-200px delete-web-proxy-input"
-                             data-qa="confirm-web-proxy-input"
-                             title="Doc Name to Delete"
+                          v-if="deleteServerGroupDoc">
+                      <input class="input  is-small width-200px delete-server-group-input"
+                             data-qa="confirm-server-group-input"
+                             title="Server Group Name to Delete"
                              ref="confirm-delete"
-                             placeholder="Write The Doc Name to Delete"
-                             v-model="deleteWebProxyDocName"
+                             placeholder="Write The Server Group Name to Delete"
+                             v-model="deleteServerGroupDocName"
                              type="text">
                     </span>
                     <span class="control"
-                          v-if="deleteWebProxyDoc">
-                      <button class="button is-danger is-small delete-web-proxy-cancel"
-                              data-qa="cancel-delete-web-proxy-btn"
-                              @click="toggleDeleteWebProxyDoc">
+                          v-if="deleteServerGroupDoc">
+                      <button class="button is-danger is-small delete-server-group-cancel"
+                              data-qa="cancel-delete-server-group-btn"
+                              @click="toggleDeleteServerGroupDoc">
                         <span class="icon is-small">
                           <i class="fas fa-times"></i>
                         </span>
                       </button>
                     </span>
                     <span class="control"
-                          v-if="deleteWebProxyDoc">
-                      <button class="button is-primary is-small delete-web-proxy-confirm"
-                              data-qa="confirm-delete-web-proxy-btn"
-                              :disabled="!isDeleteWebProxyDocNameValid"
-                              @click="deleteWebProxyDocByName">
+                          v-if="deleteServerGroupDoc">
+                      <button class="button is-primary is-small delete-server-group-confirm"
+                              data-qa="confirm-delete-server-group-btn"
+                              :disabled="!isDeleteServerGroupDocNameValid"
+                              @click="deleteServerGroupDocByName">
                         <span class="icon is-small">
                           <i class="fas fa-check"></i>
                         </span>
@@ -396,8 +396,8 @@ export default defineComponent({
       contentFilterProfilesNames: [] as [ContentFilterProfile['id'], ContentFilterProfile['name']][],
       aclProfilesNames: [] as [ACLProfile['id'], ACLProfile['name']][],
 
-      deleteWebProxyDocName: '' as string,
-      deleteWebProxyDoc: false as boolean,
+      deleteServerGroupDocName: '' as string,
+      deleteServerGroupDoc: false as boolean,
       hasError: false,
 
       apiRoot: RequestsUtils.reblazeAPIRoot,
@@ -455,8 +455,8 @@ export default defineComponent({
 
     ...mapStores(useBranchesStore),
 
-    isDeleteWebProxyDocNameValid(): boolean {
-      const newName = this.deleteWebProxyDocName.trim()
+    isDeleteServerGroupDocNameValid(): boolean {
+      const newName = this.deleteServerGroupDocName.trim()
       return newName === this.selectedServerGroup.name
     },
   },
@@ -492,27 +492,13 @@ export default defineComponent({
       }
     },
 
-    // confirmDelete() {
-    //   if (this.selectedServerGroup.name === this.deleteWebProxyDocName) {
-    //     this.deleteWebProxyDocByName()
-    //   } else {
-    //     console.log('ref', this.$refs['confirm-delete'])
-    //     this.deleteWebProxyDocName = 'Please Match The Doc Name!'
-    //     console.log('ref2', this.$refs['confirm-delete'].title)
-    //     this.hasError = true
-    //     // this.$refs['confirm-delete'].setAttributes('class',
-    //     // `${this.$refs['confirm-delete'].class} delete-warning`) =
-    //     // {'background-color': '#ff0000'} 0524853193
-    //   }
-    // },
-
-    async deleteWebProxyDocByName() {
+    async deleteServerGroupDocByName() {
       this.setLoadingDocStatus(true)
       this.isDeleteLoading = true
-      const webProxyText = this.titles['sites-singular']
+      const ServerGroupText = this.titles['sites-singular']
       const url = `configs/${this.selectedBranch}/d/sites/e/${this.selectedServerGroup.id}/`
-      const successMessage = `The ${webProxyText} was deleted.`
-      const failureMessage = `Failed while attempting to delete the ${webProxyText}.`
+      const successMessage = `The ${ServerGroupText} was deleted.`
+      const failureMessage = `Failed while attempting to delete the ${ServerGroupText}.`
       await RequestsUtils.sendReblazeRequest({
         methodName: 'DELETE',
         url: url,
@@ -673,10 +659,10 @@ export default defineComponent({
       return matchedItem?.[1] || ''
     },
 
-    toggleDeleteWebProxyDoc() {
-      this.deleteWebProxyDoc = !this.deleteWebProxyDoc
-      if (!this.deleteWebProxyDoc) {
-        this.deleteWebProxyDocName = ''
+    toggleDeleteServerGroupDoc() {
+      this.deleteServerGroupDoc = !this.deleteServerGroupDoc
+      if (!this.deleteServerGroupDoc) {
+        this.deleteServerGroupDocName = ''
       }
     },
   },
