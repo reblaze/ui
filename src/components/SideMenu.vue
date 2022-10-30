@@ -54,7 +54,6 @@
 </template>
 
 <script lang="ts">
-// import RequestsUtils from '@/assets/RequestsUtils'
 import {defineComponent} from 'vue'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'

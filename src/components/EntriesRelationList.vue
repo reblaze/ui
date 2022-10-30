@@ -469,6 +469,7 @@ export default defineComponent({
         this.localRule.entries = [currentSection]
       }
       this.localRule.entries.push(newSection)
+      this.isCollapsed = false
       this.setNewEntryOpen(false)
       this.emitRuleUpdate()
     },
@@ -545,6 +546,8 @@ export default defineComponent({
       if (!value) {
         this.invalidIPs = []
         this.clearError(`${this.newEntryCategory}`)
+      } else {
+        this.isCollapsed = false
       }
       this.newEntryOpen = value
     },

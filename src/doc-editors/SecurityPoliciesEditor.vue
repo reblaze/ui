@@ -44,9 +44,9 @@
                  data-qa="tag-input">
               <tag-autocomplete-input :initial-tag="selectedDocTags"
                                       :selection-type="'multiple'"
-                                      @tag-changed="selectedDocTags = $event" />
+                                      @tag-changed="selectedDocTags = $event"/>
               <labeled-tags title="Automatic Tag"
-                            :tags="automaticTags" />
+                            :tags="automaticTags"/>
             </div>
           </div>
           <div class="field">
@@ -144,14 +144,15 @@
                             </span>
                           </label>
                           <div class="control">
-                            <input class="input is-small current-entry-name"
-                                   @input="emitDocUpdate"
+                            <input v-model="mapEntry.name"
+                                   class="input is-small current-entry-name"
                                    type="text"
                                    data-qa="expanded-path-name-input"
                                    ref="profileName"
                                    title="Name"
-                                   v-model="mapEntry.name"
-                                   required>
+                                   :disabled="isProtectedEntry(mapEntry)"
+                                   :readonly="isProtectedEntry(mapEntry)"
+                                   @input="emitDocUpdate">
                           </div>
                         </div>
                         <div class="field">
@@ -159,18 +160,17 @@
                             Match Path
                           </label>
                           <div class="control has-icons-left">
-                            <input class="input is-small current-entry-match"
+                            <input v-model="mapEntry.match"
+                                   class="input is-small current-entry-match"
                                    type="text"
-                                   @input="emitDocUpdate();
-                                               validateInput($event, isSelectedMapEntryMatchValid(mapIndex))"
                                    data-qa="expanded-path-input"
-                                   :title="matchingDomainTitle"
                                    placeholder="Matching domain(s) regex"
-                                   required
-                                   :disabled="localDoc.id === '__default__' && initialMapEntryMatch === '/'"
-                                   :readonly="localDoc.id === '__default__' && initialMapEntryMatch === '/'"
                                    ref="mapEntryMatch"
-                                   v-model="mapEntry.match">
+                                   :title="matchingDomainTitle"
+                                   :disabled="isProtectedEntry(mapEntry)"
+                                   :readonly="isProtectedEntry(mapEntry)"
+                                   @input="emitDocUpdate();
+                                               validateInput($event, isSelectedMapEntryMatchValid(mapIndex))">
                             <span class="icon is-small is-left has-text-grey">
                                   <i class="fas fa-code"></i>
                                 </span>
@@ -364,7 +364,7 @@
                                   data-qa="delete-location-btn"
                                   class="button is-small is-pulled-right is-danger is-light remove-entry-button"
                                   @click="removeMapEntry(mapIndex)"
-                                  v-if="isRemoveEntryEnabled">
+                                  v-if="!isProtectedEntry(mapEntry)">
                             Delete
                           </button>
                         </div>
@@ -454,11 +454,6 @@ export default defineComponent({
       const isCurrentEntryMatchValid = this.mapEntryIndex === -1 ||
           this.isSelectedMapEntryMatchValid(this.mapEntryIndex)
       return !isDomainMatchValid || !isCurrentEntryMatchValid
-    },
-
-    isRemoveEntryEnabled(): boolean {
-      const isDefaultPath = (this.localDoc.id === '__default__' && this.initialMapEntryMatch === '/')
-      return this.localDoc.map.length > 1 && !isDefaultPath
     },
   },
   emits: ['update:selectedDoc', 'form-invalid', 'go-to-route'],
@@ -594,9 +589,14 @@ export default defineComponent({
       this.entriesMatchNames = _.map(this.localDoc.map, 'match')
     },
 
+    isProtectedEntry(mapEntry: SecurityPolicyEntryMatch): boolean {
+      return mapEntry.id.startsWith('__')
+    },
+
     removeMapEntry(index: number) {
       this.changeSelectedMapEntry(-1)
       this.localDoc.map.splice(index, 1)
+      this.emitDocUpdate()
     },
 
     referToRateLimit() {
