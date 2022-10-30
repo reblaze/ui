@@ -48,8 +48,8 @@ export default defineComponent({
   },
   computed: {
     pageTitle(): string {
-      let title = this.$route?.meta?.title || ''
-      title = title.replace(':docType:', DatasetsUtils.titles[this.$route?.params?.doc_type])
+      let title: string = this.$route?.meta?.title as string || ''
+      title = title.replace(':docType:', DatasetsUtils.titles[this.$route?.params?.doc_type as string])
       return title
     },
   },

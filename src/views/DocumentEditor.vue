@@ -269,8 +269,8 @@ export default defineComponent({
       reblazeComponentsMap: reblazeComponentsMap,
       confAPIRoot: RequestsUtils.confAPIRoot,
       confAPIVersion: RequestsUtils.confAPIVersion,
-      reblazeAPIRoot: RequestsUtils.confAPIRoot,
-      reblazeAPIVersion: RequestsUtils.confAPIVersion,
+      reblazeAPIRoot: RequestsUtils.reblazeAPIRoot,
+      reblazeAPIVersion: RequestsUtils.reblazeAPIVersion,
     }
   },
   watch: {
@@ -296,7 +296,8 @@ export default defineComponent({
             const docMatchingGlobalFilter = DatasetsUtils.newDocEntryFactory['globalfilters']() as GlobalFilter
             docMatchingGlobalFilter.id = `dr_${this.selectedDocID}`
             docMatchingGlobalFilter.active = (this.selectedDoc as DynamicRule).active
-            docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule' + this.selectedDocID
+            docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule ' + this.selectedDocID
+            docMatchingGlobalFilter.action = 'action-dynamic-rule-block'
             this.selectedDocMatchingGlobalFilter = docMatchingGlobalFilter
           } else {
             this.setLoadingDocStatus(true)
