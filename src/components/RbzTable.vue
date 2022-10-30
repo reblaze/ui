@@ -148,7 +148,8 @@
             <p class="control"
                v-if="showRowButton">
               <button :title="rowButtonTitle"
-                      class="button is-small has-text-danger row-entity-button"
+                      class="button is-small row-entity-button"
+                      :class="rowButtonClass"
                       @click="rowButtonClicked(row.id)">
                 <span class="icon is-small">
                   <i :class="`fas ${rowButtonIcon ? rowButtonIcon : 'fa-edit'}`"></i>
@@ -212,6 +213,7 @@ export default defineComponent({
     showRowButton: Boolean,
     showSecondRowButton: Boolean,
     rowButtonTitle: String,
+    rowButtonClass: String,
     rowButtonIcon: String,
     tableTitle: String,
     rowsPerPage: {
