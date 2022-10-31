@@ -479,6 +479,9 @@ export default defineComponent({
   watch: {
     selectedDoc: {
       handler: function(value) {
+        if (!value['session']) {
+          this.normalizeDocSession()
+        }
         if (!value['session_ids']) {
           this.normalizeDocSessionIds()
         }
@@ -515,10 +518,10 @@ export default defineComponent({
 
     sessionOption: {
       get: function(): LimitOptionType {
-        return this.generateOption(this.localDoc.session)
+        return this.generateOption(this.localDoc.session[0])
       },
-      set: function(value: SecurityPolicy['session']): void {
-        this.localDoc.session = value
+      set: function(value: LimitOptionType): void {
+        this.localDoc.session[0] = value
         this.emitDocUpdate()
       },
     },
@@ -712,6 +715,11 @@ export default defineComponent({
       }).then((response: AxiosResponse<RateLimit[]>) => {
         this.limitRuleNames = response.data
       })
+    },
+
+    normalizeDocSession() {
+      this.localDoc.session = []
+      this.emitDocUpdate()
     },
 
     normalizeDocSessionIds() {
