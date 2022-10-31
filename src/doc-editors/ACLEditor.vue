@@ -7,7 +7,12 @@
             <div class="media collapsible px-5 py-5 mb-0"
                @click="isDataCollapsed = !isDataCollapsed">
             <div class="media-content">
-              <p class="title is-5 is-uppercase">Data</p>
+              <p v-show="!isDataCollapsed" class="title is-5"></p>
+              <p v-show="isDataCollapsed" class="is-5">
+                <span class="inline-collapsed-header"><span class="label is-small mr-1"> Name: </span>{{localDoc.name}}</span>
+                <span class="inline-collapsed-header"><span class="label is-small mr-1"> ID: </span>{{localDoc.id}}</span>
+                <span class="inline-collapsed-header"><span class="label is-small mr-1"> Tags: </span> {{localDoc.tags.join(', ')}}</span>
+              </p>
             </div>
             <span v-show="isDataCollapsed">
               <i class="fas fa-angle-down" aria-hidden="true"></i>
@@ -351,30 +356,4 @@ export default defineComponent({
   font-size: 0.58rem;
 }
 
-.collapsible {
-  cursor: pointer;
-  display: flex;
-  flex-direction: row;
-  justify-items: center;
-}
-
-.collapsible-card {
-  border: 1px solid #fff;
-}
-
-.collapsible-card:hover {
-  border: 1px solid #b5b5b5;
-}
-
-.card.collapsed .collapsible-content {
-  display: none;
-}
-
-.collapsed .media {
-  margin: 0;
-}
-
-.collapsible .fa-angle-down {
-  align-self: center;
-}
 </style>
