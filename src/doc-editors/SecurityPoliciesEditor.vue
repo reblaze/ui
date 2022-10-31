@@ -27,7 +27,7 @@
                   <span class="label is-small mr-1">
                     Tags:
                   </span>
-                  {{ localDoc.tags.join(', ') }}
+                  {{ selectedDocTags }}
                 </span>
               </p>
             </div>
