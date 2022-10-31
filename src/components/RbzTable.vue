@@ -213,8 +213,8 @@ export default defineComponent({
     showRowButton: Boolean,
     showSecondRowButton: Boolean,
     rowButtonTitle: String,
-    rowButtonIcon: String,
     rowButtonClass: String,
+    rowButtonIcon: String,
     tableTitle: String,
     rowsPerPage: {
       type: Number,
