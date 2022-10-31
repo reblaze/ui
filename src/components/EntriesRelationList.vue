@@ -586,7 +586,7 @@ export default defineComponent({
       const id = 'firstAttrEmpty'
       this.clearError(id)
       const firstAttrValue = this.newEntryItem.firstAttr.trim()
-      if (!firstAttrValue && this.newEntryItemCounter.entries < this.newEntryItemCounter.annotations) {
+      if (!firstAttrValue || this.newEntryItemCounter.entries < this.newEntryItemCounter.annotations) {
         this.addError(id)
       }
     },

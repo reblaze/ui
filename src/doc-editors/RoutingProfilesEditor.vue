@@ -409,10 +409,6 @@ export default defineComponent({
     selectedDocNotDeletable(): boolean {
       return !this.selectedRoutingProfile ||
           this.selectedRoutingProfile.id.startsWith('__') || // Default entries
-          this.selectedRoutingProfile.id.startsWith('rl-') || // Reblaze-managed Rate Limits
-          this.selectedRoutingProfile.id.startsWith('action-') || // Reblaze-managed Custom Responses
-          this.selectedRoutingProfile.id.startsWith('rbz-') || // Reblaze-managed Global Filters
-          this.selectedRoutingProfile.id.startsWith('dr_') || // Dynamic-Rule-managed Global Filters
           this.isDocReferenced
     },
 

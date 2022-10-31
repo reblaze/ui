@@ -405,10 +405,6 @@ export default defineComponent({
     selectedDocNotDeletable(): boolean {
       return !this.selectedMobileSDK ||
           this.selectedMobileSDK.id.startsWith('__') || // Default entries
-          this.selectedMobileSDK.id.startsWith('rl-') || // Reblaze-managed Rate Limits
-          this.selectedMobileSDK.id.startsWith('action-') || // Reblaze-managed Custom Responses
-          this.selectedMobileSDK.id.startsWith('rbz-') || // Reblaze-managed Global Filters
-          this.selectedMobileSDK.id.startsWith('dr_') || // Dynamic-Rule-managed Global Filters
           this.isDocReferenced
     },
 

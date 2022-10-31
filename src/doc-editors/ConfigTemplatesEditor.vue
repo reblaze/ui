@@ -588,10 +588,6 @@ export default defineComponent({
     selectedDocNotDeletable(): boolean {
       return !this.selectedConfigTemplate ||
           this.selectedConfigTemplate.id.startsWith('__') || // Default entries
-          this.selectedConfigTemplate.id.startsWith('rl-') || // Reblaze-managed Rate Limits
-          this.selectedConfigTemplate.id.startsWith('action-') || // Reblaze-managed Custom Responses
-          this.selectedConfigTemplate.id.startsWith('rbz-') || // Reblaze-managed Global Filters
-          this.selectedConfigTemplate.id.startsWith('dr_') || // Dynamic-Rule-managed Global Filters
           this.isDocReferenced
     },
 

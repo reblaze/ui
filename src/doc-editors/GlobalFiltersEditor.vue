@@ -1,23 +1,43 @@
 <template>
   <div class="card-content">
     <div class="content">
-      <div class="card collapsible-card" :class="{ collapsed: isDataCollapsed }">
+      <div class="card collapsible-card"
+           :class="{ collapsed: isDataCollapsed }">
         <div class="card-content px-0 py-0">
           <div class="media collapsible px-5 py-5 mb-0"
                @click="isDataCollapsed = !isDataCollapsed">
             <div class="media-content">
-              <p v-show="!isDataCollapsed" class="title is-5"></p>
-              <p v-show="isDataCollapsed" class="is-5">
-                <span class="inline-collapsed-header"><span class="label is-small mr-1"> Name: </span>{{localDoc.name}}</span>
-                <span class="inline-collapsed-header"><span class="label is-small mr-1"> ID: </span>{{localDoc.id}}</span>
-                <span class="inline-collapsed-header"><span class="label is-small mr-1"> Tags: </span> {{localDoc.tags.join(', ')}}</span>
+              <p v-show="!isDataCollapsed"
+                 class="title is-5"></p>
+              <p v-show="isDataCollapsed"
+                 class="is-5">
+                <span class="inline-collapsed-header">
+                  <span class="label is-small mr-1">
+                    Name:
+                  </span>
+                  {{ localDoc.name }}
+                </span>
+                <span class="inline-collapsed-header">
+                  <span class="label is-small mr-1">
+                    ID:
+                  </span>
+                  {{ localDoc.id }}
+                </span>
+                <span class="inline-collapsed-header">
+                  <span class="label is-small mr-1">
+                    Tags:
+                  </span>
+                  {{ selectedDocTags }}
+                </span>
               </p>
             </div>
             <span v-show="isDataCollapsed">
-              <i class="fas fa-angle-down" aria-hidden="true"></i>
+              <i class="fas fa-angle-down"
+                 aria-hidden="true"></i>
             </span>
             <span v-show="!isDataCollapsed">
-              <i class="fas fa-angle-up" aria-hidden="true"></i>
+              <i class="fas fa-angle-up"
+                 aria-hidden="true"></i>
             </span>
           </div>
           <div class="content collapsible-content px-5 py-5">
@@ -33,61 +53,61 @@
                   </label>
                   <div class="control">
                     <input class="input is-small document-name"
-                          data-qa="list-name-input"
-                          title="List name"
-                          placeholder="List name"
-                          @change="emitDocUpdate"
-                          v-model="localDoc.name"
-                          :disabled="reblazeManaged || dynamicRuleManaged"/>
+                           data-qa="list-name-input"
+                           title="List name"
+                           placeholder="List name"
+                           @change="emitDocUpdate"
+                           v-model="localDoc.name"
+                           :disabled="reblazeManaged || dynamicRuleManaged"/>
                   </div>
                 </div>
                 <div class="field">
                   <label class="checkbox is-size-7">
                     <input type="checkbox"
-                          :style="dynamicRuleManaged ? {cursor: 'not-allowed'} : {cursor: 'pointer'}"
-                          data-qa="active-checkbox"
-                          class="document-active"
-                          :disabled="dynamicRuleManaged"
-                          @change="emitDocUpdate"
-                          v-model="localDoc.active">
+                           :style="dynamicRuleManaged ? {cursor: 'not-allowed'} : {cursor: 'pointer'}"
+                           data-qa="active-checkbox"
+                           class="document-active"
+                           :disabled="dynamicRuleManaged"
+                           @change="emitDocUpdate"
+                           v-model="localDoc.active">
                     Active
                   </label>
                 </div>
                 <div class="field">
                   <label class="label is-small">Tags</label>
                   <div class="control"
-                      data-qa="tag-input">
+                       data-qa="tag-input">
                     <tag-autocomplete-input :initial-tag="selectedDocTags"
                                             :selection-type="'multiple'"
                                             :editable="!dynamicRuleManaged"
-                                            @tag-changed="selectedDocTags = $event" />
+                                            @tag-changed="selectedDocTags = $event"/>
                   </div>
                 </div>
                 <div class="field">
                   <a v-if="externalSource"
-                    class="is-small has-text-grey is-size-7 is-pulled-right update-now-button"
-                    data-qa="update-now-btn"
-                    tabindex="0"
-                    disabled="dynamicRuleManaged"
-                    @click="fetchList"
-                    @keypress.space.prevent
-                    @keypress.space="fetchList"
-                    @keypress.enter="fetchList">
+                     class="is-small has-text-grey is-size-7 is-pulled-right update-now-button"
+                     data-qa="update-now-btn"
+                     tabindex="0"
+                     disabled="dynamicRuleManaged"
+                     @click="fetchList"
+                     @keypress.space.prevent
+                     @keypress.space="fetchList"
+                     @keypress.enter="fetchList">
                     Update now
                   </a>
                   <label class="label is-small">Source</label>
                   <div class="control">
                     <input class="input is-small document-source"
-                          data-qa="source-input"
-                          title="List source"
-                          placeholder="List source"
-                          @change="emitDocUpdate"
-                          v-model="localDoc.source"
-                          :disabled="reblazeManaged || dynamicRuleManaged"/>
+                           data-qa="source-input"
+                           title="List source"
+                           placeholder="List source"
+                           @change="emitDocUpdate"
+                           v-model="localDoc.source"
+                           :disabled="reblazeManaged || dynamicRuleManaged"/>
                   </div>
                   <p class="help"
-                    v-if="externalSource && !dynamicRuleManaged"
-                    :title="fullFormattedModifiedDate">
+                     v-if="externalSource && !dynamicRuleManaged"
+                     :title="fullFormattedModifiedDate">
                     Updated @ {{ formattedModifiedDate }}
                   </p>
                 </div>
@@ -136,7 +156,7 @@
       <div class="columns">
         <div class="column is-12">
           <div class="field">
-          <label class="label is-small">Rule</label>
+            <label class="label is-small">Rule</label>
             <entries-relation-list v-model:rule="localDoc.rule"
                                    @update:rule="emitDocUpdate"
                                    @invalid="emitFormInvalid"

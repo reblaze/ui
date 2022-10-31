@@ -1,5 +1,6 @@
 <template>
   <div>
+  <div v-show="!loading && totalCallsInfo.amount">
     <!--First graph row-->
     <div class="columns height-300px">
       <div class="column width-200px">
@@ -231,6 +232,18 @@
                    default-sort-column-direction="desc"
                    table-title="TOP TAGS">
         </rbz-table>
+      </div>
+    </div>
+  </div>
+    <div v-show="loading || !totalCallsInfo.amount"
+         class="has-text-centered is-fullwidth">
+      <div v-if="loading">
+        <button class="button is-outlined is-text is-small is-loading dashboard-loading">
+          Loading
+        </button>
+      </div>
+      <div v-else>
+        Your search did not match any data
       </div>
     </div>
   </div>

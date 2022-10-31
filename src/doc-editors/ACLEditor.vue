@@ -2,23 +2,43 @@
   <div class="card-content">
     <div class="media">
       <div class="media-content">
-        <div class="card collapsible-card" :class="{ collapsed: isDataCollapsed }">
+        <div class="card collapsible-card"
+             :class="{ collapsed: isDataCollapsed }">
           <div class="card-content px-0 py-0">
             <div class="media collapsible px-5 py-5 mb-0"
-               @click="isDataCollapsed = !isDataCollapsed">
-            <div class="media-content">
-              <p v-show="!isDataCollapsed" class="title is-5"></p>
-              <p v-show="isDataCollapsed" class="is-5">
-                <span class="inline-collapsed-header"><span class="label is-small mr-1"> Name: </span>{{localDoc.name}}</span>
-                <span class="inline-collapsed-header"><span class="label is-small mr-1"> ID: </span>{{localDoc.id}}</span>
-                <span class="inline-collapsed-header"><span class="label is-small mr-1"> Tags: </span> {{localDoc.tags.join(', ')}}</span>
-              </p>
-            </div>
-            <span v-show="isDataCollapsed">
-              <i class="fas fa-angle-down" aria-hidden="true"></i>
+                 @click="isDataCollapsed = !isDataCollapsed">
+              <div class="media-content">
+                <p v-show="!isDataCollapsed"
+                   class="title is-5"></p>
+                <p v-show="isDataCollapsed"
+                   class="is-5">
+                <span class="inline-collapsed-header">
+                  <span class="label is-small mr-1">
+                    Name:
+                  </span>
+                  {{ localDoc.name }}
+                </span>
+                  <span class="inline-collapsed-header">
+                  <span class="label is-small mr-1">
+                    ID:
+                  </span>
+                  {{ localDoc.id }}
+                </span>
+                  <span class="inline-collapsed-header">
+                  <span class="label is-small mr-1">
+                    Tags:
+                  </span>
+                  {{ selectedDocTags }}
+                </span>
+                </p>
+              </div>
+              <span v-show="isDataCollapsed">
+              <i class="fas fa-angle-down"
+                 aria-hidden="true"></i>
             </span>
-            <span v-show="!isDataCollapsed">
-              <i class="fas fa-angle-up" aria-hidden="true"></i>
+              <span v-show="!isDataCollapsed">
+              <i class="fas fa-angle-up"
+                 aria-hidden="true"></i>
             </span>
             </div>
             <div class="content collapsible-content px-5 py-5">
@@ -35,11 +55,11 @@
                     </label>
                     <div class="control">
                       <input class="input is-small document-name"
-                            title="Document name"
-                            placeholder="Document name"
-                            @change="emitDocUpdate"
-                            data-qa="acl-document-name"
-                            v-model="localDoc.name"/>
+                             title="Document name"
+                             placeholder="Document name"
+                             @change="emitDocUpdate"
+                             data-qa="acl-document-name"
+                             v-model="localDoc.name"/>
                     </div>
                   </div>
                   <div class="field textarea-field">
@@ -77,13 +97,13 @@
                   <div class="field">
                     <label class="label is-small">Tags</label>
                     <div class="control"
-                        data-qa="tag-input">
+                         data-qa="tag-input">
                       <tag-autocomplete-input :initial-tag="selectedDocTags"
                                               :selection-type="'multiple'"
-                                              @tag-changed="selectedDocTags = $event" />
+                                              @tag-changed="selectedDocTags = $event"/>
                     </div>
                     <labeled-tags title="Automatic Tags"
-                                  :tags="automaticTags" />
+                                  :tags="automaticTags"/>
                   </div>
                 </div>
               </div>
@@ -133,7 +153,7 @@
                                         :selection-type="'single'"
                                         :auto-focus="true"
                                         @keydown.esc="cancelAddNewTag"
-                                        @tag-submitted="addNewEntry(operation, $event)" />
+                                        @tag-submitted="addNewEntry(operation, $event)"/>
               </td>
               <td class="is-size-7 width-20px">
                 <a title="add new entry"

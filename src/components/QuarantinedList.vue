@@ -56,6 +56,7 @@ export default defineComponent({
           fieldNames: ['count'],
           isSortable: true,
           isSearchable: true,
+          isNumber: true,
           classes: 'width-100px',
         },
         {

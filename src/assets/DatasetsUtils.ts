@@ -215,9 +215,11 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'match': `${id}.example.com`,
       'description': 'New Security Policy Description and Remarks',
       'tags': [],
-      'session': {
-        'attrs': 'ip',
-      },
+      'session': [
+        {
+          'attrs': 'ip',
+        },
+      ],
       'session_ids': [],
       'map': [
         {

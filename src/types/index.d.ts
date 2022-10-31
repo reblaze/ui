@@ -197,7 +197,7 @@ declare module CuriefenseClient {
     match: string
     description: string
     tags: string[]
-    session: LimitOptionType
+    session: LimitOptionType[]
     session_ids: LimitOptionType[]
     map: SecurityPolicyEntryMatch[]
   }
@@ -292,7 +292,7 @@ declare module CuriefenseClient {
   type ColumnOptions = {
     title: string
     fieldNames?: string[]
-    displayFunction?: (item: any) => string // Will be rendered as HTML
+    displayFunction?: (item: any) => string | number // Will be rendered as HTML
     isSortable?: boolean
     isSearchable?: boolean
     isNumber?: boolean // True if all values are always numbers, for sorting

@@ -35,8 +35,7 @@
            :class="selectedNameColumnClass"
            v-if="selectedType !== 'self'">
         <div v-if="isCategoryArgsCookiesHeaders(selectedType)"
-             :class="{control: true, 'is-fullwidth': true}"
-             class="has-icons-left">
+             class="control is-fullwidth has-icons-left">
           <input type="text"
                  title="Name"
                  :class="{ 'is-danger': selectedName === '' }"
@@ -76,13 +75,14 @@
       <div class="column is-narrow"
            v-if="!!showRemove">
         <button
-            :class="['button', 'is-light', 'is-small', 'remove-icon', 'is-small',
-                    removable ? 'has-text-grey' : 'has-text-grey-light is-disabled']"
+            :class="removable ? 'has-text-grey' : 'has-text-grey-light is-disabled'"
             :disabled="!removable"
-            class="remove-option-button"
+            class="button is-light is-small remove-icon remove-option-button"
             title="Click to remove"
             @click="$emit('remove')">
-          <span class="icon is-small"><i class="fas fa-trash fa-xs"></i></span>
+          <span class="icon is-small">
+            <i class="fas fa-trash fa-xs"></i>
+          </span>
         </button>
       </div>
     </div>
