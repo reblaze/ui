@@ -29,7 +29,7 @@
                                 title="Document description"
                                 v-model="localDoc.description"
                                 @input="emitDocUpdate"
-                                rows="5">
+                                rows="2">
                       </textarea>
               </div>
             </div>

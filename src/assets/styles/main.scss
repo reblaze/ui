@@ -382,6 +382,40 @@ $color-light: hsl(0, 0%, 96%);
   color: #000;
 }
 
+/* Collapsed */
+
+.collapsible {
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  justify-items: center;
+}
+
+.collapsible-card {
+  border: 1px solid #fff;
+}
+
+.collapsible-card:hover {
+  border: 1px solid #b5b5b5;
+}
+
+.card.collapsed .collapsible-content {
+  display: none;
+}
+
+.collapsed .media {
+  margin: 0;
+}
+
+.collapsible .fa-angle-down {
+  align-self: center;
+}
+
+.inline-collapsed-header {
+  align-items: center;
+  display: flex;
+}
+
 /* Other */
 
 .is-clickable {

@@ -130,7 +130,7 @@
                         placeholder="Match Host/Authority Headers"
                         data-qa="match-host-input"
                         v-model="serverNames"
-                        rows="5">
+                        rows="2">
                     </textarea>
             </div>
           </div>
