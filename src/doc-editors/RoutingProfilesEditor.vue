@@ -596,7 +596,7 @@ export default defineComponent({
     },
 
     referToEdgeFunction() {
-      this.$emit('go-to-route', `/config/${this.selectedBranch}/edge-functions`)
+      this.$router.push(`/${this.selectedBranch}/cloud-functions/list`)
     },
 
     loadBackendServices() {

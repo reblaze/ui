@@ -1,79 +1,79 @@
 <template>
   <div>
-  <div v-show="!loading && totalCallsInfo.amount">
-    <!--First graph row-->
-    <div class="columns height-300px">
-      <div class="column width-200px">
-        <div class="field traffic-info mb-0 height-50px">
-          <label class="label is-small has-text-grey-light">
-            Total Calls
-          </label>
-          <div class="control columns is-variable is-0">
+    <div v-show="!loading && totalCallsInfo.amount">
+      <!--First graph row-->
+      <div class="columns height-300px">
+        <div class="column width-200px">
+          <div class="field traffic-info mb-0 height-50px">
+            <label class="label is-small has-text-grey-light">
+              Total Calls
+            </label>
+            <div class="control columns is-variable is-0">
             <span class="column is-4 has-text-weight-bold">
               {{ amountSuffixFormatter(totalCallsInfo.amount) }}
             </span>
-            <span class="column is-8">
+              <span class="column is-8">
               <span class="has-text-weight-bold">
                 {{ amountSuffixFormatter(totalCallsInfo.callsPerHour) }}
               </span>
               Calls / Hr
             </span>
+            </div>
           </div>
-        </div>
-        <div v-for="(data, trafficCategory) in trafficInfo"
-             :key="trafficCategory"
-             class="field traffic-info mb-0 width-50pct height-100px is-inline-block">
-          <label class="label is-small has-text-grey-light">
-            {{ capitalize(trafficCategory) }}
-          </label>
-          <div class="control">
-            <div class="has-text-weight-bold">
-              {{ data.percentile }}%
-            </div>
-            <div class="has-text-weight-bold">
-              {{ amountSuffixFormatter(data.amount) }}
-            </div>
-            <div class="height-2rem country-flags-wrapper">
-              <template v-if="data.topCountries && data.topCountries.length">
-                <country-flag v-for="topCountry in data.topCountries.slice(0, 3)"
-                              :key="topCountry"
-                              :country="topCountry"
-                              :title="topCountry"
-                              size="small"
-                              class="flag"/>
-                <span>
+          <div v-for="(data, trafficCategory) in trafficInfo"
+               :key="trafficCategory"
+               class="field traffic-info mb-0 width-50pct height-100px is-inline-block">
+            <label class="label is-small has-text-grey-light">
+              {{ capitalize(trafficCategory) }}
+            </label>
+            <div class="control">
+              <div class="has-text-weight-bold">
+                {{ data.percentile }}%
+              </div>
+              <div class="has-text-weight-bold">
+                {{ amountSuffixFormatter(data.amount) }}
+              </div>
+              <div class="height-2rem country-flags-wrapper">
+                <template v-if="data.topCountries && data.topCountries.length">
+                  <country-flag v-for="topCountry in data.topCountries.slice(0, 3)"
+                                :key="topCountry"
+                                :country="topCountry"
+                                :title="topCountry"
+                                size="small"
+                                class="flag"/>
+                  <span>
                   {{ data.topCountries.length > 3 ? `+${data.topCountries.length - 3}` : '' }}
                 </span>
-              </template>
+                </template>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <div class="column">
-        <label class="label is-small">
-          Traffic Info
-        </label>
-        <rbz-chart :data="trafficChartData"
-                   :series-options="trafficChartSeriesOptions"
-                   :legend-as-tooltip="true"
-                   :chart-height="250">
-        </rbz-chart>
-      </div>
-    </div>
-    <!--Second graph row-->
-    <div class="columns height-300px">
-      <div class="column width-200px">
-        <div class="height-200px">
-          <svg id="doughnut"
-               width="100%"
-               height="100%"
-               viewBox="0 0 100 100">
-          </svg>
+        <div class="column">
+          <label class="label is-small">
+            Traffic Info
+          </label>
+          <rbz-chart :data="trafficChartData"
+                     :series-options="trafficChartSeriesOptions"
+                     :legend-as-tooltip="true"
+                     :chart-height="250">
+          </rbz-chart>
         </div>
-        <div class="height-100px">
-          <div class="status-legend-wrapper is-size-7 scrollbox-shadowed height-50px">
-            <div v-for="legend in statusesPieChartLegend"
-                 :key="legend.status">
+      </div>
+      <!--Second graph row-->
+      <div class="columns height-300px">
+        <div class="column width-200px">
+          <div class="height-200px">
+            <svg id="doughnut"
+                 width="100%"
+                 height="100%"
+                 viewBox="0 0 100 100">
+            </svg>
+          </div>
+          <div class="height-100px">
+            <div class="status-legend-wrapper is-size-7 scrollbox-shadowed height-50px">
+              <div v-for="legend in statusesPieChartLegend"
+                   :key="legend.status">
               <span class="width-60px is-inline-block">
                 <span class="status-marker is-inline-block"
                       :style="`background: ${legend.color}`">
@@ -82,159 +82,159 @@
                   {{ legend.status }}
                 </span>
               </span>
-              <span class="status-value is-inline-block">
+                <span class="status-value is-inline-block">
                 {{ legend.percentile }}%
               </span>
+              </div>
             </div>
           </div>
         </div>
+        <div class="column">
+          <label class="label is-small is-clickable"
+                 @click="toggleStatusesClassDetails">
+            Response Status {{ statusesClassDetails ? 'Classes' : '' }}
+          </label>
+          <rbz-chart :data="statusesChartData"
+                     :series-options="statusesChartSeriesOptions"
+                     :legend-as-tooltip="true"
+                     :chart-height="250">
+          </rbz-chart>
+        </div>
       </div>
-      <div class="column">
-        <label class="label is-small is-clickable"
-               @click="toggleStatusesClassDetails">
-          Response Status {{ statusesClassDetails ? 'Classes' : '' }}
-        </label>
-        <rbz-chart :data="statusesChartData"
-                   :series-options="statusesChartSeriesOptions"
-                   :legend-as-tooltip="true"
-                   :chart-height="250">
-        </rbz-chart>
+      <!--First tables row-->
+      <div class="columns">
+        <div class="column is-4">
+          <rbz-table :columns="topTableColumns"
+                     :data="topTargetApps"
+                     :default-sort-column-index="1"
+                     :use-scroll="true"
+                     :rows-per-page="5"
+                     :loading="loading"
+                     default-sort-column-direction="desc"
+                     table-title="TOP TARGETED SERVICES/APPS">
+          </rbz-table>
+        </div>
+        <div class="column is-4">
+          <rbz-table :columns="topTableColumns"
+                     :data="topTargetUris"
+                     :default-sort-column-index="1"
+                     :use-scroll="true"
+                     :rows-per-page="5"
+                     :loading="loading"
+                     default-sort-column-direction="desc"
+                     table-title="TOP TARGETED URLs">
+          </rbz-table>
+        </div>
+        <div class="column is-4">
+          <rbz-table :columns="topTableColumnsTagPrefixRemoved"
+                     :data="topTargetRTCs"
+                     :default-sort-column-index="1"
+                     :use-scroll="true"
+                     :rows-per-page="5"
+                     :loading="loading"
+                     default-sort-column-direction="desc"
+                     table-title="TOP TARGETED RTCs">
+          </rbz-table>
+        </div>
+      </div>
+      <!--Second tables row-->
+      <div class="columns">
+        <div class="column is-4">
+          <rbz-table :columns="topTableColumnsTagPrefixRemoved"
+                     :data="topCountries"
+                     :default-sort-column-index="1"
+                     :use-scroll="true"
+                     :rows-per-page="5"
+                     :loading="loading"
+                     default-sort-column-direction="desc"
+                     table-title="TOP COUNTRIES">
+          </rbz-table>
+        </div>
+        <div class="column is-4">
+          <rbz-table :columns="topTableColumnsTagPrefixRemoved"
+                     :data="topASNumbers"
+                     :default-sort-column-index="1"
+                     :use-scroll="true"
+                     :rows-per-page="5"
+                     :loading="loading"
+                     default-sort-column-direction="desc"
+                     table-title="TOP AS NUMBERS">
+          </rbz-table>
+        </div>
+        <div class="column is-4">
+          <rbz-table :columns="topTableColumns"
+                     :data="topIPAddresses"
+                     :default-sort-column-index="1"
+                     :use-scroll="true"
+                     :rows-per-page="5"
+                     :loading="loading"
+                     default-sort-column-direction="desc"
+                     table-title="TOP IP ADDRESSES">
+          </rbz-table>
+        </div>
+      </div>
+      <!--Third tables row-->
+      <div class="columns">
+        <div class="column is-4">
+          <rbz-table :columns="topTableColumnsTagPrefixRemoved"
+                     :data="topRateLimits"
+                     :default-sort-column-index="1"
+                     :use-scroll="true"
+                     :rows-per-page="5"
+                     :loading="loading"
+                     default-sort-column-direction="desc"
+                     table-title="TOP RATE LIMITS">
+          </rbz-table>
+        </div>
+        <div class="column is-4">
+          <rbz-table :columns="topTableColumnsTagPrefixRemoved"
+                     :data="topACLs"
+                     :default-sort-column-index="1"
+                     :use-scroll="true"
+                     :rows-per-page="5"
+                     :loading="loading"
+                     default-sort-column-direction="desc"
+                     table-title="TOP ACLs">
+          </rbz-table>
+        </div>
+        <div class="column is-4">
+          <rbz-table :columns="topTableColumnsTagPrefixRemoved"
+                     :data="topContentFilters"
+                     :default-sort-column-index="1"
+                     :use-scroll="true"
+                     :rows-per-page="5"
+                     :loading="loading"
+                     default-sort-column-direction="desc"
+                     table-title="TOP CONTENT FILTERS">
+          </rbz-table>
+        </div>
+      </div>
+      <!--Fourth tables row-->
+      <div class="columns">
+        <div class="column is-4">
+          <rbz-table :columns="topTableColumns"
+                     :data="topUserAgents"
+                     :default-sort-column-index="1"
+                     :use-scroll="true"
+                     :rows-per-page="5"
+                     :loading="loading"
+                     default-sort-column-direction="desc"
+                     table-title="TOP USER AGENT">
+          </rbz-table>
+        </div>
+        <div class="column is-4">
+          <rbz-table :columns="topTableColumns"
+                     :data="topTags"
+                     :default-sort-column-index="1"
+                     :use-scroll="true"
+                     :rows-per-page="5"
+                     :loading="loading"
+                     default-sort-column-direction="desc"
+                     table-title="TOP TAGS">
+          </rbz-table>
+        </div>
       </div>
     </div>
-    <!--First tables row-->
-    <div class="columns">
-      <div class="column is-4">
-        <rbz-table :columns="topTableColumns"
-                   :data="topTargetApps"
-                   :default-sort-column-index="1"
-                   :use-scroll="true"
-                   :rows-per-page="5"
-                   :loading="loading"
-                   default-sort-column-direction="desc"
-                   table-title="TOP TARGETED SERVICES/APPS">
-        </rbz-table>
-      </div>
-      <div class="column is-4">
-        <rbz-table :columns="topTableColumns"
-                   :data="topTargetUris"
-                   :default-sort-column-index="1"
-                   :use-scroll="true"
-                   :rows-per-page="5"
-                   :loading="loading"
-                   default-sort-column-direction="desc"
-                   table-title="TOP TARGETED URLs">
-        </rbz-table>
-      </div>
-      <div class="column is-4">
-        <rbz-table :columns="topTableColumnsTagPrefixRemoved"
-                   :data="topTargetRTCs"
-                   :default-sort-column-index="1"
-                   :use-scroll="true"
-                   :rows-per-page="5"
-                   :loading="loading"
-                   default-sort-column-direction="desc"
-                   table-title="TOP TARGETED RTCs">
-        </rbz-table>
-      </div>
-    </div>
-    <!--Second tables row-->
-    <div class="columns">
-      <div class="column is-4">
-        <rbz-table :columns="topTableColumnsTagPrefixRemoved"
-                   :data="topCountries"
-                   :default-sort-column-index="1"
-                   :use-scroll="true"
-                   :rows-per-page="5"
-                   :loading="loading"
-                   default-sort-column-direction="desc"
-                   table-title="TOP COUNTRIES">
-        </rbz-table>
-      </div>
-      <div class="column is-4">
-        <rbz-table :columns="topTableColumnsTagPrefixRemoved"
-                   :data="topASNumbers"
-                   :default-sort-column-index="1"
-                   :use-scroll="true"
-                   :rows-per-page="5"
-                   :loading="loading"
-                   default-sort-column-direction="desc"
-                   table-title="TOP AS NUMBERS">
-        </rbz-table>
-      </div>
-      <div class="column is-4">
-        <rbz-table :columns="topTableColumns"
-                   :data="topIPAddresses"
-                   :default-sort-column-index="1"
-                   :use-scroll="true"
-                   :rows-per-page="5"
-                   :loading="loading"
-                   default-sort-column-direction="desc"
-                   table-title="TOP IP ADDRESSES">
-        </rbz-table>
-      </div>
-    </div>
-    <!--Third tables row-->
-    <div class="columns">
-      <div class="column is-4">
-        <rbz-table :columns="topTableColumnsTagPrefixRemoved"
-                   :data="topRateLimits"
-                   :default-sort-column-index="1"
-                   :use-scroll="true"
-                   :rows-per-page="5"
-                   :loading="loading"
-                   default-sort-column-direction="desc"
-                   table-title="TOP RATE LIMITS">
-        </rbz-table>
-      </div>
-      <div class="column is-4">
-        <rbz-table :columns="topTableColumnsTagPrefixRemoved"
-                   :data="topACLs"
-                   :default-sort-column-index="1"
-                   :use-scroll="true"
-                   :rows-per-page="5"
-                   :loading="loading"
-                   default-sort-column-direction="desc"
-                   table-title="TOP ACLs">
-        </rbz-table>
-      </div>
-      <div class="column is-4">
-        <rbz-table :columns="topTableColumnsTagPrefixRemoved"
-                   :data="topContentFilters"
-                   :default-sort-column-index="1"
-                   :use-scroll="true"
-                   :rows-per-page="5"
-                   :loading="loading"
-                   default-sort-column-direction="desc"
-                   table-title="TOP CONTENT FILTERS">
-        </rbz-table>
-      </div>
-    </div>
-    <!--Fourth tables row-->
-    <div class="columns">
-      <div class="column is-4">
-        <rbz-table :columns="topTableColumns"
-                   :data="topUserAgents"
-                   :default-sort-column-index="1"
-                   :use-scroll="true"
-                   :rows-per-page="5"
-                   :loading="loading"
-                   default-sort-column-direction="desc"
-                   table-title="TOP USER AGENT">
-        </rbz-table>
-      </div>
-      <div class="column is-4">
-        <rbz-table :columns="topTableColumns"
-                   :data="topTags"
-                   :default-sort-column-index="1"
-                   :use-scroll="true"
-                   :rows-per-page="5"
-                   :loading="loading"
-                   default-sort-column-direction="desc"
-                   table-title="TOP TAGS">
-        </rbz-table>
-      </div>
-    </div>
-  </div>
     <div v-show="loading || !totalCallsInfo.amount"
          class="has-text-centered is-fullwidth">
       <div v-if="loading">

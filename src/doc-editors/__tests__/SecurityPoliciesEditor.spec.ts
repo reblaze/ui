@@ -702,7 +702,7 @@ describe.skip('SecurityPoliciesEditor.vue', () => {
       expect(entryRateLimitsRows.length).toEqual(securityPoliciesDocs[0].map[0].limit_ids.length - 1)
     })
 
-    test('should change route when create new rate limit is clicked', async () => {
+    test.skip('should change route when create new rate limit is clicked', async () => {
       const table = wrapper.find('.entries-table')
       const entryRow = table.findAll('.entry-row').at(0)
       await entryRow.trigger('click')
