@@ -55,7 +55,7 @@
                         title="Delete document"
                         data-qa="delete-document"
                         :class="{'is-loading': isDeleteLoading}"
-                        :disabled="selectedBackendService?.id === '__default__'"
+                        :disabled="selectedDocNotDeletable"
                         @click="deleteDoc()">
                   <span class="icon is-small">
                     <i class="fas fa-trash"></i>
@@ -71,207 +71,203 @@
       </div>
     </div>
     <hr/>
-    <div class="card">
-      <div class="card-content">
-        <div class="content"
-             v-if="selectedBackendService">
-          <div class="columns columns-divided">
-            <div class="column is-4">
-              <div class="field">
-                <label class="label is-small">
-                  Name
-                  <span class="has-text-grey is-pulled-right document-id"
-                        title="Rule id">
+    <div class="content"
+         v-if="selectedBackendService">
+      <div class="columns columns-divided">
+        <div class="column is-4">
+          <div class="field">
+            <label class="label is-small">
+              Name
+              <span class="has-text-grey is-pulled-right document-id"
+                    title="Rule id">
                       {{ selectedBackendService.id }}
                     </span>
-                </label>
-                <div class="control">
-                  <input class="input is-small document-name"
-                         title="Document name"
-                         placeholder="Document name"
-                         v-model="selectedBackendService.name"/>
-                </div>
-              </div>
-              <div class="field">
-                <label class="checkbox is-size-7">
-                  <input type="checkbox"
-                         data-qa="http11-checkbox"
-                         class="document-http11"
-                         v-model="selectedBackendService.http11">
-                  Use HTTP/1.1
-                </label>
-                <div class="help">
-                  Speeds up the connection with connection pooling (multiplexing).
-                </div>
-              </div>
-              <div class="field">
-                <div class="field textarea-field">
-                  <label class="label is-small">Description</label>
-                  <div class="control">
+            </label>
+            <div class="control">
+              <input class="input is-small document-name"
+                     title="Document name"
+                     placeholder="Document name"
+                     v-model="selectedBackendService.name"/>
+            </div>
+          </div>
+          <div class="field">
+            <label class="checkbox is-size-7">
+              <input type="checkbox"
+                     data-qa="http11-checkbox"
+                     class="document-http11"
+                     v-model="selectedBackendService.http11">
+              Use HTTP/1.1
+            </label>
+            <div class="help">
+              Speeds up the connection with connection pooling (multiplexing).
+            </div>
+          </div>
+          <div class="field">
+            <div class="field textarea-field">
+              <label class="label is-small">Description</label>
+              <div class="control">
                       <textarea class="is-small textarea document-description"
                                 data-qa="description-input"
                                 title="Document description"
                                 v-model="selectedBackendService.description"
                                 rows="5">
                       </textarea>
-                  </div>
-                </div>
-              </div>
-              <div class="field">
-                <label class="label is-small">
-                  Transport Protocol
-                </label>
-                <div class="control is-expanded">
-                  <div class="select is-fullwidth is-small">
-                    <select v-model="selectedBackendService.transport_mode"
-                            data-qa="transport-mode-dropdown"
-                            class="document-transport-mode-selection"
-                            title="Transport protocol">
-                      <option v-for="{name, value} in protocols"
-                              :key="value"
-                              :value="value">
-                        {{ name }}
-                      </option>
-                    </select>
-                  </div>
-                </div>
-                <div class="help">
-                  Service connectivity might follow incoming requests, will always be HTTP, or always HTTPS.
-                  Port-bridge mode means that Reblaze will target port numbers identical to incoming requests' port
-                  numbers.
-                </div>
-              </div>
-            </div>
-            <div class="column is-4">
-              <div class="field">
-                <label class="label is-small">
-                  Load Balancing Stickiness Model
-                </label>
-                <div class="control is-expanded">
-                  <div class="select is-fullwidth is-small">
-                    <select class="select"
-                            v-model="selectedBackendService.sticky">
-                      <option v-for="stickinessModel in stickinessModels"
-                              :key="stickinessModel.value"
-                              :value="stickinessModel.value">
-                        {{ stickinessModel.name }}
-                      </option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-              <div v-if="selectedBackendService.sticky === 'customcookie'"
-                   class="field">
-                <label class="label is-small">
-                  Custom Cookie Name
-                </label>
-                <div class="control">
-                  <input class="input is-small sticky-cookie-name-input"
-                         data-qa="document-sticky-cookie-name-input"
-                         title="Custom cookie name"
-                         placeholder="Custom cookie name"
-                         v-model="selectedBackendService.sticky_cookie_name">
-                </div>
               </div>
             </div>
           </div>
-          <div class="columns">
-            <div class="column is-12">
-              <table class="table is-hoverable is-fullwidth back-hosts-table">
-                <thead>
-                <tr>
-                  <th class="is-size-7">Host</th>
-                  <th class="is-size-7 width-100px">HTTP Port</th>
-                  <th class="is-size-7 width-100px">HTTPS Port</th>
-                  <th class="is-size-7 width-100px">Weight</th>
-                  <th class="is-size-7 width-100px">Max Fails</th>
-                  <th class="is-size-7 width-100px">Fail Timeout</th>
-                  <th class="has-text-centered is-size-7 width-100px">Is Down?</th>
-                  <th class="has-text-right is-vertical-middle is-size-7 width-60px">
-                    <a
-                        v-if="!isPortBridge"
-                        class="has-text-grey-dark is-small"
-                        title="Add New"
-                        @click="selectedBackendService.back_hosts.push ({ ...newBackHost })"
-                    >
+          <div class="field">
+            <label class="label is-small">
+              Transport Protocol
+            </label>
+            <div class="control is-expanded">
+              <div class="select is-fullwidth is-small">
+                <select v-model="selectedBackendService.transport_mode"
+                        data-qa="transport-mode-dropdown"
+                        class="document-transport-mode-selection"
+                        title="Transport protocol">
+                  <option v-for="{name, value} in protocols"
+                          :key="value"
+                          :value="value">
+                    {{ name }}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="help">
+              Service connectivity might follow incoming requests, will always be HTTP, or always HTTPS.
+              Port-bridge mode means that Reblaze will target port numbers identical to incoming requests' port
+              numbers.
+            </div>
+          </div>
+        </div>
+        <div class="column is-4">
+          <div class="field">
+            <label class="label is-small">
+              Load Balancing Stickiness Model
+            </label>
+            <div class="control is-expanded">
+              <div class="select is-fullwidth is-small">
+                <select class="select"
+                        v-model="selectedBackendService.sticky">
+                  <option v-for="stickinessModel in stickinessModels"
+                          :key="stickinessModel.value"
+                          :value="stickinessModel.value">
+                    {{ stickinessModel.name }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div v-if="selectedBackendService.sticky === 'customcookie'"
+               class="field">
+            <label class="label is-small">
+              Custom Cookie Name
+            </label>
+            <div class="control">
+              <input class="input is-small sticky-cookie-name-input"
+                     data-qa="document-sticky-cookie-name-input"
+                     title="Custom cookie name"
+                     placeholder="Custom cookie name"
+                     v-model="selectedBackendService.sticky_cookie_name">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="columns">
+        <div class="column is-12">
+          <table class="table is-hoverable is-fullwidth back-hosts-table">
+            <thead>
+            <tr>
+              <th class="is-size-7">Host</th>
+              <th class="is-size-7 width-100px">HTTP Port</th>
+              <th class="is-size-7 width-100px">HTTPS Port</th>
+              <th class="is-size-7 width-100px">Weight</th>
+              <th class="is-size-7 width-100px">Max Fails</th>
+              <th class="is-size-7 width-100px">Fail Timeout</th>
+              <th class="has-text-centered is-size-7 width-100px">Is Down?</th>
+              <th class="has-text-right is-vertical-middle is-size-7 width-60px">
+                <a
+                    v-if="!isPortBridge"
+                    class="has-text-grey-dark is-small"
+                    title="Add New"
+                    @click="selectedBackendService.back_hosts.push ({ ...newBackHost })"
+                >
                       <span class="icon is-small">
                         <i class="fas fa-plus"></i>
                       </span>
-                    </a>
-                  </th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr v-for="(backHost, index) in selectedBackendService.back_hosts"
-                    :key="index">
-                  <td class="is-size-7">
-                    <input class="input is-small back-host-host"
-                           v-model="backHost.host"
-                           placeholder="IP/FQDN">
-                  </td>
-                  <td class="is-size-7 width-100px">
-                    <input class="input is-small back-host-http-port"
-                           data-qa="back-host-http-port-input"
-                           type="number"
-                           title="HTTP port"
-                           placeholder="HTTP port"
-                           max="65535"
-                           v-model.number="backHost.http_port">
-                  </td>
-                  <td class="is-size-7 width-100px">
-                    <input class="input is-small back-host-https-port"
-                           data-qa="back-host-https-port-input"
-                           type="number"
-                           title="HTTPS port"
-                           placeholder="HTTPS port"
-                           max="65535"
-                           v-model.number="backHost.https_port">
-                  </td>
-                  <td class="is-size-7 width-100px">
-                    <input class="input is-small back-host-weight"
-                           data-qa="back-host-weight-input"
-                           type="number"
-                           title="Weight"
-                           placeholder="Weight"
-                           :disabled="isSingleHost"
-                           v-model.number="backHost.weight">
-                  </td>
-                  <td class="is-size-7 width-100px">
-                    <input class="input is-small back-host-max-fails"
-                           data-qa="back-host-max-fails-input"
-                           type="number"
-                           title="Max fails"
-                           placeholder="Max fails"
-                           :disabled="isSingleHost"
-                           v-model.number="backHost.max_fails">
-                  </td>
-                  <td class="is-size-7 width-100px">
-                    <input class="input is-small back-host-fail-timeout"
-                           data-qa="back-host-fail-timeout-input"
-                           title="Fail timeout"
-                           placeholder="Fail timeout"
-                           v-model="backHost.fail_timeout">
-                  </td>
-                  <td class="is-vertical-middle is-size-7 has-text-centered width-100px">
-                    <input type="checkbox"
-                           v-model="backHost.down"
-                           :disabled="!isDownable(index)"/>
-                  </td>
-                  <td class="has-text-centered is-vertical-middle is-size-7 is-60-px">
-                    <a v-if="isDownable(index)"
-                       class="is-small has-text-grey"
-                       @click="deleteHost(index)">
-                      delete
-                    </a>
-                  </td>
-                </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ documentAPIPath }}</span>
+                </a>
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="(backHost, index) in selectedBackendService.back_hosts"
+                :key="index">
+              <td class="is-size-7">
+                <input class="input is-small back-host-host"
+                       v-model="backHost.host"
+                       placeholder="IP/FQDN">
+              </td>
+              <td class="is-size-7 width-100px">
+                <input class="input is-small back-host-http-port"
+                       data-qa="back-host-http-port-input"
+                       type="number"
+                       title="HTTP port"
+                       placeholder="HTTP port"
+                       max="65535"
+                       v-model.number="backHost.http_port">
+              </td>
+              <td class="is-size-7 width-100px">
+                <input class="input is-small back-host-https-port"
+                       data-qa="back-host-https-port-input"
+                       type="number"
+                       title="HTTPS port"
+                       placeholder="HTTPS port"
+                       max="65535"
+                       v-model.number="backHost.https_port">
+              </td>
+              <td class="is-size-7 width-100px">
+                <input class="input is-small back-host-weight"
+                       data-qa="back-host-weight-input"
+                       type="number"
+                       title="Weight"
+                       placeholder="Weight"
+                       :disabled="isSingleHost"
+                       v-model.number="backHost.weight">
+              </td>
+              <td class="is-size-7 width-100px">
+                <input class="input is-small back-host-max-fails"
+                       data-qa="back-host-max-fails-input"
+                       type="number"
+                       title="Max fails"
+                       placeholder="Max fails"
+                       :disabled="isSingleHost"
+                       v-model.number="backHost.max_fails">
+              </td>
+              <td class="is-size-7 width-100px">
+                <input class="input is-small back-host-fail-timeout"
+                       data-qa="back-host-fail-timeout-input"
+                       title="Fail timeout"
+                       placeholder="Fail timeout"
+                       v-model="backHost.fail_timeout">
+              </td>
+              <td class="is-vertical-middle is-size-7 has-text-centered width-100px">
+                <input type="checkbox"
+                       v-model="backHost.down"
+                       :disabled="!isDownable(index)"/>
+              </td>
+              <td class="has-text-centered is-vertical-middle is-size-7 is-60-px">
+                <a v-if="isDownable(index)"
+                   class="is-small has-text-grey"
+                   @click="deleteHost(index)">
+                  delete
+                </a>
+              </td>
+            </tr>
+            </tbody>
+          </table>
         </div>
       </div>
+      <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ documentAPIPath }}</span>
     </div>
   </div>
 </template>
@@ -284,6 +280,7 @@ import DatasetsUtils from '@/assets/DatasetsUtils'
 import backendServicesConsts from '@/assets/backendServicesConsts'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
+import _ from 'lodash'
 
 export default defineComponent({
   name: 'BackendServiceEditor',
@@ -305,6 +302,9 @@ export default defineComponent({
         backup: false,
       },
 
+      // To prevent deletion of Backend servises referenced by Routing profiles
+      referencedIDsBackendService: [],
+
       // Loading indicators
       loadingDocCounter: 0,
       isSaveLoading: false,
@@ -320,6 +320,7 @@ export default defineComponent({
       handler: function(val, oldVal) {
         if ((this.$route.name as string).includes('BackendServices/config') && val && val !== oldVal) {
           this.setSelectedDataFromRouteParams()
+          this.loadReferencedBackendServicesIDs()
         }
       },
       immediate: true,
@@ -329,6 +330,16 @@ export default defineComponent({
     documentAPIPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
       return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/backends/e/${this.selectedBackendService.id}/`
+    },
+
+    selectedDocNotDeletable(): boolean {
+      return !this.selectedBackendService ||
+          this.selectedBackendService.id.startsWith('__') || // Default entries
+          this.selectedBackendService.id.startsWith('rl-') || // Reblaze-managed Rate Limits
+          this.selectedBackendService.id.startsWith('action-') || // Reblaze-managed Custom Responses
+          this.selectedBackendService.id.startsWith('rbz-') || // Reblaze-managed Global Filters
+          this.selectedBackendService.id.startsWith('dr_') || // Dynamic-Rule-managed Global Filters
+          this.isDocReferenced
     },
 
     isSingleHost() {
@@ -343,6 +354,10 @@ export default defineComponent({
       return backendServicesConsts.transportProtocols.filter((transportProtocol) => {
         return this.isSingleHost || transportProtocol.value !== 'port_bridge'
       })
+    },
+
+    isDocReferenced(): boolean {
+      return this.referencedIDsBackendService.includes(this.selectedBackendService.id)
     },
 
     selectedBranch(): string {
@@ -443,6 +458,21 @@ export default defineComponent({
           !this.selectedBackendService.back_hosts[0].max_fails) {
         this.selectedBackendService.back_hosts[0].max_fails = 0
       }
+    },
+
+    async loadReferencedBackendServicesIDs() {
+      const response = await RequestsUtils.sendReblazeRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/routing-profiles/`,
+      })
+      const routingProfiles = response?.data || []
+      const referencedRoutingProfiles: string[] = []
+      _.forEach(routingProfiles, (routingProfile) => {
+        _.forEach(routingProfile.locations, (location) => {
+          referencedRoutingProfiles.push(location['backend_id'])
+        })
+      })
+      this.referencedIDsBackendService = _.uniq(referencedRoutingProfiles)
     },
   },
   async created() {

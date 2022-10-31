@@ -24,10 +24,10 @@
           <div class="field">
             <label class="checkbox is-size-7">
               <input type="checkbox"
-                     :style="(reblazeManaged || dynamicRuleManaged) ? {cursor: 'not-allowed'} : {cursor: 'pointer'}"
+                     :style="dynamicRuleManaged ? {cursor: 'not-allowed'} : {cursor: 'pointer'}"
                      data-qa="active-checkbox"
                      class="document-active"
-                     :disabled="reblazeManaged || dynamicRuleManaged"
+                     :disabled="dynamicRuleManaged"
                      @change="emitDocUpdate"
                      v-model="localDoc.active">
               Active
@@ -134,7 +134,7 @@ import RequestsUtils from '@/assets/RequestsUtils'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import EntriesRelationList from '@/components/EntriesRelationList.vue'
 import {defineComponent} from 'vue'
-import {Category, CustomResponse, GlobalFilter, GlobalFilterRule, GlobalFilterRuleEntry} from '@/types'
+import {Category, CustomResponse, GlobalFilter, GlobalFilterRuleEntry} from '@/types'
 import {AxiosResponse} from 'axios'
 import DateTimeUtils from '@/assets/DateTimeUtils'
 
@@ -161,7 +161,7 @@ export default defineComponent({
 
   computed: {
     reblazeManaged(): boolean {
-      return this.localDoc.source === 'reblaze-managed'
+      return this.localDoc.id.startsWith('rbz-')
     },
 
     dynamicRuleManaged(): boolean {
@@ -169,7 +169,7 @@ export default defineComponent({
     },
 
     editable(): boolean {
-      return this.selfManaged && !this.dynamicRuleManaged
+      return this.selfManaged && !this.dynamicRuleManaged && !this.reblazeManaged
     },
 
     selfManaged(): boolean {
@@ -289,14 +289,8 @@ export default defineComponent({
           objectParser(data, entries)
         }
         if (entries.length > 0) {
-          const newSection: GlobalFilterRule = {
-            relation: 'OR',
-            entries: entries,
-          }
           this.localDoc.rule = {
-            'entries': [
-              newSection,
-            ],
+            'entries': entries,
             'relation': 'OR',
           }
           this.localDoc.mdate = (new Date).toISOString()

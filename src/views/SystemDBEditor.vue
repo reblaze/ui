@@ -167,59 +167,55 @@
 
     <div class="content"
          v-if="selectedNamespace && selectedKey">
-      <div class="card">
-        <div class="card-content">
-          <div class="content">
-            <div class="field">
-              <label class="label">Namespace</label>
-              <div class="control">
-                <input class="input is-small is-fullwidth namespace-name-input"
-                       title="Namespace name"
-                       data-qa="namespace-name-input"
-                       @input="validateInput($event, isSelectedNamespaceNewNameValid)"
-                       type="text"
-                       placeholder="Namespace name"
-                       v-model="namespaceNameInput"
-                       :disabled="selectedNamespace === defaultNamespaceName">
-              </div>
-            </div>
+      <div class="content">
+        <div class="field">
+          <label class="label">Namespace</label>
+          <div class="control">
+            <input class="input is-small is-fullwidth namespace-name-input"
+                   title="Namespace name"
+                   data-qa="namespace-name-input"
+                   @input="validateInput($event, isSelectedNamespaceNewNameValid)"
+                   type="text"
+                   placeholder="Namespace name"
+                   v-model="namespaceNameInput"
+                   :disabled="selectedNamespace === defaultNamespaceName">
           </div>
+        </div>
+      </div>
 
-          <div class="content">
-            <div class="field">
-              <label class="label">Key</label>
-              <div class="control">
-                <input class="input is-small is-fullwidth key-name-input"
-                       title="Key name"
-                       data-qa="key-name-input"
-                       @input="validateInput($event, isSelectedKeyNewNameValid)"
-                       type="text"
-                       placeholder="Key name"
-                       v-model="keyNameInput"
-                       :disabled="selectedNamespace === defaultNamespaceName && selectedKey === defaultKeyName">
-              </div>
-            </div>
+      <div class="content">
+        <div class="field">
+          <label class="label">Key</label>
+          <div class="control">
+            <input class="input is-small is-fullwidth key-name-input"
+                   title="Key name"
+                   data-qa="key-name-input"
+                   @input="validateInput($event, isSelectedKeyNewNameValid)"
+                   type="text"
+                   placeholder="Key name"
+                   v-model="keyNameInput"
+                   :disabled="selectedNamespace === defaultNamespaceName && selectedKey === defaultKeyName">
           </div>
+        </div>
+      </div>
 
-          <div class="content">
-            <div class="field">
-              <label class="label">Value</label>
-              <div class="control">
+      <div class="content">
+        <div class="field">
+          <label class="label">Value</label>
+          <div class="control">
 
-                <div v-if="isJsonEditor"
-                     class="editor">
-                </div>
-                <textarea
-                    v-else
-                    @input="validateInput($event, isNewValueValid)"
-                    title="Value"
-                    data-qa="value-input"
-                    rows="20"
-                    class="textarea value-input"
-                    v-model="selectedKeyValue">
-                  </textarea>
-              </div>
+            <div v-if="isJsonEditor"
+                 class="editor">
             </div>
+            <textarea
+                v-else
+                @input="validateInput($event, isNewValueValid)"
+                title="Value"
+                data-qa="value-input"
+                rows="20"
+                class="textarea value-input"
+                v-model="selectedKeyValue">
+              </textarea>
           </div>
         </div>
       </div>

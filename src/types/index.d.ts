@@ -197,6 +197,8 @@ declare module CuriefenseClient {
     match: string
     description: string
     tags: string[]
+    session: LimitOptionType
+    session_ids: LimitOptionType[]
     map: SecurityPolicyEntryMatch[]
   }
 
@@ -376,10 +378,15 @@ declare module CuriefenseClient {
     id: string
     name: string
     description: string
+    secret: string
+    var_name: string
     uid_header: string
     grace: string
+    grace_var_name: string
+    validator_type: string
     active_config: MobileSDKConfig[]
     signatures: MobileSDKSignature[]
+    support_legacy_sdk: boolean
   }
 
   type ConfigTemplate = {

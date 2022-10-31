@@ -1,7 +1,7 @@
 <template>
   <div class="card-content">
     <div class="content">
-      <div class="columns">
+      <div class="columns columns-divided">
         <div class="column is-4">
           <div class="field">
             <label class="label is-small">
@@ -44,9 +44,9 @@
                  data-qa="tag-input">
               <tag-autocomplete-input :initial-tag="selectedDocTags"
                                       :selection-type="'multiple'"
-                                      @tag-changed="selectedDocTags = $event" />
+                                      @tag-changed="selectedDocTags = $event"/>
               <labeled-tags title="Automatic Tag"
-                            :tags="automaticTags" />
+                            :tags="automaticTags"/>
             </div>
           </div>
           <div class="field">
@@ -63,6 +63,46 @@
                           rows="5">
                 </textarea>
               </div>
+            </div>
+          </div>
+        </div>
+        <div class="column is-8">
+          <div class="field">
+            <label class="label is-small">
+              Main Session ID
+            </label>
+            <div class="control">
+              <limit-option selected-type-column-class="is-3"
+                            v-model:option="sessionOption"
+                            :key="sessionOption.type + localDoc.id"
+                            :ignore-attributes="['session']"
+                            @change="emitDocUpdate"/>
+            </div>
+          </div>
+          <div class="field">
+            <label class="label is-small">
+              Other Session Ids
+            </label>
+            <div class="control">
+              <limit-option v-for="(option, index) in localDoc.session_ids"
+                            selected-type-column-class="is-3"
+                            show-remove
+                            @remove="removeSessionId(index)"
+                            @change="updateSessionIdOption($event, index)"
+                            :removable="localDoc.session_ids.length > 1"
+                            :ignore-attributes="['session']"
+                            :option="generateOption(option)"
+                            :key="getOptionTextKey(option, index)"/>
+              <a title="Add new session ID"
+                 class="is-text is-small is-size-7 ml-3 add-session-id-button"
+                 data-qa="add-new-session-id-btn"
+                 tabindex="0"
+                 @click="addSessionId()"
+                 @keypress.space.prevent
+                 @keypress.space="addSessionId()"
+                 @keypress.enter="addSessionId()">
+                New entry
+              </a>
             </div>
           </div>
         </div>
@@ -144,14 +184,15 @@
                             </span>
                           </label>
                           <div class="control">
-                            <input class="input is-small current-entry-name"
-                                   @input="emitDocUpdate"
+                            <input v-model="mapEntry.name"
+                                   class="input is-small current-entry-name"
                                    type="text"
                                    data-qa="expanded-path-name-input"
                                    ref="profileName"
                                    title="Name"
-                                   v-model="mapEntry.name"
-                                   required>
+                                   :disabled="isProtectedEntry(mapEntry)"
+                                   :readonly="isProtectedEntry(mapEntry)"
+                                   @input="emitDocUpdate">
                           </div>
                         </div>
                         <div class="field">
@@ -159,18 +200,17 @@
                             Match Path
                           </label>
                           <div class="control has-icons-left">
-                            <input class="input is-small current-entry-match"
+                            <input v-model="mapEntry.match"
+                                   class="input is-small current-entry-match"
                                    type="text"
-                                   @input="emitDocUpdate();
-                                               validateInput($event, isSelectedMapEntryMatchValid(mapIndex))"
                                    data-qa="expanded-path-input"
-                                   :title="matchingDomainTitle"
                                    placeholder="Matching domain(s) regex"
-                                   required
-                                   :disabled="localDoc.id === '__default__' && initialMapEntryMatch === '/'"
-                                   :readonly="localDoc.id === '__default__' && initialMapEntryMatch === '/'"
                                    ref="mapEntryMatch"
-                                   v-model="mapEntry.match">
+                                   :title="matchingDomainTitle"
+                                   :disabled="isProtectedEntry(mapEntry)"
+                                   :readonly="isProtectedEntry(mapEntry)"
+                                   @input="emitDocUpdate();
+                                               validateInput($event, isSelectedMapEntryMatchValid(mapIndex))">
                             <span class="icon is-small is-left has-text-grey">
                                   <i class="fas fa-code"></i>
                                 </span>
@@ -364,7 +404,7 @@
                                   data-qa="delete-location-btn"
                                   class="button is-small is-pulled-right is-danger is-light remove-entry-button"
                                   @click="removeMapEntry(mapIndex)"
-                                  v-if="isRemoveEntryEnabled">
+                                  v-if="!isProtectedEntry(mapEntry)">
                             Delete
                           </button>
                         </div>
@@ -387,15 +427,28 @@ import _ from 'lodash'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import {defineComponent} from 'vue'
-import {ACLProfile, ContentFilterProfile, RateLimit, SecurityPolicy, SecurityPolicyEntryMatch} from '@/types'
+import {
+  ACLProfile,
+  ContentFilterProfile,
+  LimitOptionType,
+  LimitRuleType,
+  RateLimit,
+  SecurityPolicy,
+  SecurityPolicyEntryMatch,
+} from '@/types'
 import {AxiosResponse} from 'axios'
 import Utils from '@/assets/Utils'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import LabeledTags from '@/components/LabeledTags.vue'
+import LimitOption, {OptionObject} from '@/components/LimitOption.vue'
 
 export default defineComponent({
   name: 'SecurityPoliciesEditor',
-  components: {LabeledTags, TagAutocompleteInput},
+  components: {
+    LabeledTags,
+    LimitOption,
+    TagAutocompleteInput,
+  },
   props: {
     selectedDoc: Object,
     selectedBranch: String,
@@ -423,6 +476,18 @@ export default defineComponent({
     }
   },
 
+  watch: {
+    selectedDoc: {
+      handler: function(value) {
+        if (!value['session_ids']) {
+          this.normalizeDocSessionIds()
+        }
+      },
+      immediate: true,
+      deep: true,
+    },
+  },
+
   computed: {
     localDoc(): SecurityPolicy {
       return _.cloneDeep(this.selectedDoc as SecurityPolicy)
@@ -448,17 +513,22 @@ export default defineComponent({
       return [nameTag]
     },
 
+    sessionOption: {
+      get: function(): LimitOptionType {
+        return this.generateOption(this.localDoc.session)
+      },
+      set: function(value: SecurityPolicy['session']): void {
+        this.localDoc.session = value
+        this.emitDocUpdate()
+      },
+    },
+
     isFormInvalid(): boolean {
       const isDomainMatchValid = this.isSelectedDomainMatchValid()
       // Entries are reverted to valid state on close, so if no entry is opened they are valid
       const isCurrentEntryMatchValid = this.mapEntryIndex === -1 ||
           this.isSelectedMapEntryMatchValid(this.mapEntryIndex)
       return !isDomainMatchValid || !isCurrentEntryMatchValid
-    },
-
-    isRemoveEntryEnabled(): boolean {
-      const isDefaultPath = (this.localDoc.id === '__default__' && this.initialMapEntryMatch === '/')
-      return this.localDoc.map.length > 1 && !isDefaultPath
     },
   },
   emits: ['update:selectedDoc', 'form-invalid', 'go-to-route'],
@@ -594,9 +664,14 @@ export default defineComponent({
       this.entriesMatchNames = _.map(this.localDoc.map, 'match')
     },
 
+    isProtectedEntry(mapEntry: SecurityPolicyEntryMatch): boolean {
+      return mapEntry.id.startsWith('__')
+    },
+
     removeMapEntry(index: number) {
       this.changeSelectedMapEntry(-1)
       this.localDoc.map.splice(index, 1)
+      this.emitDocUpdate()
     },
 
     referToRateLimit() {
@@ -637,6 +712,48 @@ export default defineComponent({
       }).then((response: AxiosResponse<RateLimit[]>) => {
         this.limitRuleNames = response.data
       })
+    },
+
+    normalizeDocSessionIds() {
+      this.localDoc.session_ids = []
+      this.emitDocUpdate()
+    },
+
+    getOptionTextKey(option: LimitOptionType, index: number) {
+      if (!option) {
+        return ''
+      }
+      const [type] = Object.keys(option)
+      return `${this.localDoc.id}_${type}_${index}`
+    },
+
+    generateOption(data: LimitOptionType): OptionObject {
+      if (!data) {
+        return {}
+      }
+      const [firstObjectKey] = Object.keys(data)
+      const type = firstObjectKey as LimitRuleType
+      const key = data[firstObjectKey]
+      return {type, key, value: null}
+    },
+
+    addSessionId() {
+      this.localDoc.session_ids.push({attrs: 'ip'})
+      this.emitDocUpdate()
+    },
+
+    removeSessionId(index: number) {
+      if (this.localDoc.session_ids.length > 1) {
+        this.localDoc.session_ids.splice(index, 1)
+      }
+      this.emitDocUpdate()
+    },
+
+    updateSessionIdOption(option: OptionObject, index: number) {
+      this.localDoc.session_ids.splice(index, 1, {
+        [option.type]: option.key,
+      })
+      this.emitDocUpdate()
     },
   },
 

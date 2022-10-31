@@ -1,101 +1,98 @@
 <template>
   <div class="card-content">
-    <div class="media">
-      <div class="media-content">
-        <div class="field is-grouped">
-          <div class="control search-wrapper">
-            <input class="input is-small is-fullwidth filter-input"
-                   placeholder="Filters, comma separated. Available filters: `proxy`, `appid`, and `profile`."
-                   v-model="searchFilter"/>
-          </div>
-          <p class="control">
-            <Datepicker v-model="date"
-                        range
-                        utc
-                        enableSeconds
-                        format="yyyy-MM-dd HH:mm"
-                        inputClassName="input is-small is-size-7 width-260px date-picker-input"
-                        :monthChangeOnScroll="false"
-                        :clearable="false"
-                        :presetRanges="presetRanges"
-                        @open="loadPresetRanges">
-            </Datepicker>
-          </p>
-          <p class="control">
-            <button class="button is-small search-button"
-                    :class="{'is-loading': isSearchLoading}"
-                    @click="loadData()"
-                    title="Search"
-                    data-qa="search-button">
+    <div class="tabs-wrapper mb-5">
+      <div class="tabs"
+           data-qa="dashboard-tabs">
+        <ul>
+          <li v-for="(dashboard, index) in dashboards"
+              :key="index"
+              :class="{'is-active': index === activeDashboardIndex}"
+              @click="activeDashboardIndex = index"
+              :data-qa="`dashboard-tab-${index}`">
+            <a>
+              {{ dashboard.title }}
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div v-show="dashboards[activeDashboardIndex]?.useDashboard">
+      <div class="media mb-5">
+        <div class="media-content">
+          <div class="field is-grouped">
+            <div class="control search-wrapper">
+              <input class="input is-small is-fullwidth filter-input"
+                     placeholder="Filters, comma separated. Available filters: `proxy`, `appid`, and `profile`."
+                     v-model="searchFilter"/>
+            </div>
+            <p class="control">
+              <Datepicker v-model="date"
+                          range
+                          utc
+                          enableSeconds
+                          format="yyyy-MM-dd HH:mm"
+                          inputClassName="input is-small is-size-7 width-260px date-picker-input"
+                          :monthChangeOnScroll="false"
+                          :clearable="false"
+                          :presetRanges="presetRanges"
+                          @open="loadPresetRanges">
+              </Datepicker>
+            </p>
+            <p class="control">
+              <button class="button is-small search-button"
+                      :class="{'is-loading': isSearchLoading}"
+                      @click="loadData()"
+                      title="Search"
+                      data-qa="search-button">
               <span class="icon is-small">
                 <i class="fas fa-search"></i>
               </span>
-              <span>
+                <span>
                 Search
               </span>
-            </button>
-          </p>
-          <p class="control">
-            <button class="button is-small clear-search-button"
-                    @click="clearSearch()"
-                    title="Clear filter"
-                    data-qa="clear-search-button">
+              </button>
+            </p>
+            <p class="control">
+              <button class="button is-small clear-search-button"
+                      @click="clearSearch()"
+                      title="Clear filter"
+                      data-qa="clear-search-button">
               <span class="icon is-small">
                 <i class="fas fa-times"></i>
               </span>
-              <span>
+                <span>
                 Clear
               </span>
-            </button>
-          </p>
+              </button>
+            </p>
+          </div>
         </div>
       </div>
-    </div>
-
-    <hr/>
-
-    <div class="media">
-      <div class="media-content">
-        <div class="tabs"
-             data-qa="dashboard-tabs">
-          <ul>
-            <li v-for="(dashboard, index) in dashboards"
-                :key="index"
-                :class="{'is-active': index === activeDashboardIndex}"
-                @click="activeDashboardIndex = index"
-                :data-qa="`dashboard-tab-${index}`">
-              <a>
-                {{ dashboard.title }}
-              </a>
-            </li>
-          </ul>
+      <div v-if="!data?.length"
+           class="has-text-centered is-fullwidth">
+        <div v-if="isSearchLoading">
+          <button class="button is-outlined is-text is-small is-loading dashboard-loading">
+            Loading
+          </button>
+        </div>
+        <div v-else>
+          Your search did not match any data
         </div>
       </div>
-    </div>
-    <div v-if="!data?.length"
-         class="has-text-centered is-fullwidth">
-      <div v-if="isSearchLoading">
-        <button class="button is-outlined is-text is-small is-loading dashboard-loading">
-          Loading
-        </button>
+      <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'default' && data?.length">
+        <rbz-dashboard-default :data="data"
+                               :loading="isSearchLoading">
+        </rbz-dashboard-default>
       </div>
-      <div v-else>
-        Your search did not match any data
+      <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'threats' && data?.length">
       </div>
     </div>
-    <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'default' && data?.length">
-      <rbz-dashboard-default :data="data"
-                             :loading="isSearchLoading">
-      </rbz-dashboard-default>
-    </div>
-    <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'threats' && data?.length">
-    </div>
-    <div v-if="dashboards[activeDashboardIndex]?.metabaseId && data?.length">
-      <!--        <iframe :src="getDashboardURL(dashboards[activeDashboardIndex]?.metabaseId)"-->
-      <!--                width="100%"-->
-      <!--                height="600"-->
-      <!--                allowtransparency>-->
-      <!--        </iframe>-->
+    <div v-if="dashboards[activeDashboardIndex]?.metabaseId">
+      <iframe :src="getDashboardURL(dashboards[activeDashboardIndex].metabaseId)"
+              width="100%"
+              height="600"
+              allowtransparency>
+      </iframe>
     </div>
   </div>
 </template>
@@ -107,6 +104,7 @@ import RbzDashboardDefault from '@/reblaze-dashboards/DefaultDashboard.vue'
 import Datepicker from '@vuepic/vue-datepicker'
 import {GenericObject} from '@/types'
 
+const jwt = require('jsonwebtoken')
 const MS_PER_MINUTE = 60000
 const HOUR = 60 * MS_PER_MINUTE
 
@@ -126,6 +124,7 @@ export default defineComponent({
       defaultMetabaseURL: defaultMetabaseURL,
       metabaseURL: defaultMetabaseURL,
       dashboards: [] as DashboardData[],
+      metabaseKey: '',
       activeDashboardIndex: -1,
       data: [],
       searchFilter: '',
@@ -141,9 +140,11 @@ export default defineComponent({
         url: `db/system/`,
       })
       const systemDBData = response?.data
-      this.metabaseURL = systemDBData?.links?.metabase_url || this.defaultMetabaseURL
-      this.dashboards = systemDBData?.dashboards || []
-      if (this.dashboards.length) {
+      const dashboardsInfo = systemDBData?.dashboardsinfo
+      this.metabaseURL = dashboardsInfo.metabaseURL || this.defaultMetabaseURL
+      this.metabaseKey = dashboardsInfo?.metabaseKey || ''
+      if (dashboardsInfo?.dashboards?.length) {
+        this.dashboards = dashboardsInfo.dashboards
         this.activeDashboardIndex = 0
       }
     },
@@ -194,16 +195,15 @@ export default defineComponent({
       this.isSearchLoading = false
     },
 
-    // getDashboardURL(metabaseId: number) {
-    //   const METABASE_SECRET_KEY = ''
-    //   const payload = {
-    //     resource: {dashboard: metabaseId},
-    //     params: {},
-    //     exp: Math.round(Date.now() / 1000) + (10 * 60), // 10 minute expiration
-    //   }
-    //   const token = jwt.sign(payload, METABASE_SECRET_KEY)
-    //   return `${this.metabaseURL}/embed/dashboard/${token}#theme=transparent&bordered=false&titled=true`
-    // },
+    getDashboardURL(metabaseId: number) {
+      const payload = {
+        resource: {dashboard: metabaseId},
+        params: {},
+        exp: Math.round(Date.now() / 1000) + (10 * 60), // 10 minute expiration
+      }
+      const token = jwt.sign(payload, this.metabaseKey)
+      return `${this.metabaseURL}/embed/dashboard/${token}#theme=transparent&bordered=false&titled=true`
+    },
 
     clearSearch() {
       this.searchFilter = ''

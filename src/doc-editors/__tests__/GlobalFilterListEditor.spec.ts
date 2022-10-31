@@ -392,10 +392,7 @@ describe('GlobalFiltersEditor.vue', () => {
       ]
       const wantedData: GlobalFilterRule = {
         relation: 'OR',
-        entries: [{
-          entries: wantedEntries,
-          relation: 'OR',
-        }],
+        entries: wantedEntries,
       }
       resolveData = {
         data: {
@@ -442,10 +439,7 @@ describe('GlobalFiltersEditor.vue', () => {
       ]
       const wantedData: GlobalFilterRule = {
         relation: 'OR',
-        entries: [{
-          entries: wantedEntries,
-          relation: 'OR',
-        }],
+        entries: wantedEntries,
       }
       resolveData = {
         data: {
@@ -492,10 +486,7 @@ describe('GlobalFiltersEditor.vue', () => {
       ]
       const wantedData: GlobalFilterRule = {
         relation: 'OR',
-        entries: [{
-          entries: wantedEntries,
-          relation: 'OR',
-        }],
+        entries: wantedEntries,
       }
       resolveData = {
         data: {
@@ -542,10 +533,7 @@ describe('GlobalFiltersEditor.vue', () => {
       ]
       const wantedData: GlobalFilterRule = {
         relation: 'OR',
-        entries: [{
-          entries: wantedEntries,
-          relation: 'OR',
-        }],
+        entries: wantedEntries,
       }
       resolveData = {
         data: {
@@ -583,10 +571,7 @@ describe('GlobalFiltersEditor.vue', () => {
       ]
       const wantedData: GlobalFilterRule = {
         relation: 'OR',
-        entries: [{
-          entries: wantedEntries,
-          relation: 'OR',
-        }],
+        entries: wantedEntries,
       }
       resolveData = {
         data: {
@@ -624,10 +609,7 @@ describe('GlobalFiltersEditor.vue', () => {
       ]
       const wantedData: GlobalFilterRule = {
         relation: 'OR',
-        entries: [{
-          entries: wantedEntries,
-          relation: 'OR',
-        }],
+        entries: wantedEntries,
       }
       resolveData = {
         data: {
@@ -677,10 +659,7 @@ describe('GlobalFiltersEditor.vue', () => {
       ]
       const wantedData: GlobalFilterRule = {
         relation: 'OR',
-        entries: [{
-          entries: wantedEntries,
-          relation: 'OR',
-        }],
+        entries: wantedEntries,
       }
       resolveData = {
         data: {
@@ -735,10 +714,7 @@ describe('GlobalFiltersEditor.vue', () => {
       ]
       const wantedData: GlobalFilterRule = {
         relation: 'OR',
-        entries: [{
-          entries: wantedEntries,
-          relation: 'OR',
-        }],
+        entries: wantedEntries,
       }
       resolveData = {
         data: `${wantedEntries[0][1]}#${wantedEntries[0][2]}\n` +
@@ -779,10 +755,7 @@ describe('GlobalFiltersEditor.vue', () => {
       ]
       const wantedData: GlobalFilterRule = {
         relation: 'OR',
-        entries: [{
-          entries: wantedEntries,
-          relation: 'OR',
-        }],
+        entries: wantedEntries,
       }
       resolveData = {
         data: `${wantedEntries[0][1]}#${wantedEntries[0][2]}\n` +
