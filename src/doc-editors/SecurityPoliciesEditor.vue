@@ -20,9 +20,9 @@
               <i class="fas fa-angle-up" aria-hidden="true"></i>
             </span>
           </div>
-          <div class="columns columns-divided">
-            <div class="column is-4">
-              <div class="content collapsible-content px-5 py-5">
+          <div class="content collapsible-content px-5 py-5">
+            <div class="columns columns-divided">
+              <div class="column is-4">
                 <div class="field">
                 <label class="label is-small">
                   Name
@@ -88,44 +88,42 @@
               </div>
             </div>
             <div class="column is-8">
-              <div class="content collapsible-content px-5 py-5">
-                <div class="field">
-                  <label class="label is-small">
-                    Main Session ID
-                  </label>
-                  <div class="control">
-                    <limit-option selected-type-column-class="is-3"
-                                  v-model:option="sessionOption"
-                                  :key="sessionOption.type + localDoc.id"
-                                  :ignore-attributes="['session']"
-                                  @change="emitDocUpdate"/>
-                  </div>
+              <div class="field">
+                <label class="label is-small">
+                  Main Session ID
+                </label>
+                <div class="control">
+                  <limit-option selected-type-column-class="is-3"
+                                v-model:option="sessionOption"
+                                :key="sessionOption.type + localDoc.id"
+                                :ignore-attributes="['session']"
+                                @change="emitDocUpdate"/>
                 </div>
-                <div class="field">
-                  <label class="label is-small">
-                    Other Session Ids
-                  </label>
-                  <div class="control">
-                    <limit-option v-for="(option, index) in localDoc.session_ids"
-                                  selected-type-column-class="is-3"
-                                  show-remove
-                                  @remove="removeSessionId(index)"
-                                  @change="updateSessionIdOption($event, index)"
-                                  :removable="localDoc.session_ids.length > 1"
-                                  :ignore-attributes="['session']"
-                                  :option="generateOption(option)"
-                                  :key="getOptionTextKey(option, index)"/>
-                    <a title="Add new session ID"
-                      class="is-text is-small is-size-7 ml-3 add-session-id-button"
-                      data-qa="add-new-session-id-btn"
-                      tabindex="0"
-                      @click="addSessionId()"
-                      @keypress.space.prevent
-                      @keypress.space="addSessionId()"
-                      @keypress.enter="addSessionId()">
-                      New entry
-                    </a>
-                  </div>
+              </div>
+              <div class="field">
+                <label class="label is-small">
+                  Other Session Ids
+                </label>
+                <div class="control">
+                  <limit-option v-for="(option, index) in localDoc.session_ids"
+                                selected-type-column-class="is-3"
+                                show-remove
+                                @remove="removeSessionId(index)"
+                                @change="updateSessionIdOption($event, index)"
+                                :removable="localDoc.session_ids.length > 1"
+                                :ignore-attributes="['session']"
+                                :option="generateOption(option)"
+                                :key="getOptionTextKey(option, index)"/>
+                  <a title="Add new session ID"
+                    class="is-text is-small is-size-7 ml-3 add-session-id-button"
+                    data-qa="add-new-session-id-btn"
+                    tabindex="0"
+                    @click="addSessionId()"
+                    @keypress.space.prevent
+                    @keypress.space="addSessionId()"
+                    @keypress.enter="addSessionId()">
+                    New entry
+                  </a>
                 </div>
               </div>
             </div>

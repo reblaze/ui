@@ -21,9 +21,9 @@
               <i class="fas fa-angle-up" aria-hidden="true"></i>
             </span>
             </div>
-            <div class="columns">
-              <div class="column is-4">
-                <div class="content collapsible-content px-5 py-5">
+            <div class="content collapsible-content px-5 py-5">
+              <div class="columns">
+                <div class="column is-4">
                   <div class="field">
                     <label class="label is-small">
                       Name
