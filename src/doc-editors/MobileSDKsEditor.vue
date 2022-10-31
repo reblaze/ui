@@ -97,7 +97,7 @@
                           <textarea class="is-small textarea document-description"
                                     data-qa="description-input"
                                     title="Document description"
-                                    rows="8"
+                                    rows="2"
                                     v-model="selectedMobileSDK.description">
                           </textarea>
               </div>
