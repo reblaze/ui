@@ -75,18 +75,11 @@ export default defineComponent({
           fieldNames: ['id'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-130px',
+          classes: 'width-130px ellipsis',
         },
         {
           title: 'Name',
           fieldNames: ['name'],
-          isSortable: true,
-          isSearchable: true,
-          classes: 'width-130px',
-        },
-        {
-          title: 'Description',
-          fieldNames: ['description'],
           isSortable: true,
           isSearchable: true,
           classes: 'ellipsis',
@@ -100,7 +93,7 @@ export default defineComponent({
               `<span class="width-50px is-inline-block">Burst:</span> ${item['limit_req_burst']} / second`,
             ].join('\n')
           },
-          classes: 'width-150px white-space-pre',
+          classes: 'width-200px vertical-scroll white-space-pre',
         },
         {
           title: 'Proxy Timeout',
@@ -112,7 +105,7 @@ export default defineComponent({
               `<span class="width-60px is-inline-block">Read:</span> ${item['proxy_read_timeout']}`,
             ].join('\n')
           },
-          classes: 'width-100px white-space-pre',
+          classes: 'width-150px vertical-scroll white-space-pre',
         },
       ] as ColumnOptions[],
       isNewLoading: false,
@@ -187,9 +180,13 @@ export default defineComponent({
     },
 
     async loadConfigTemplates() {
+      this.setLoadingDocStatus(true)
+      this.isDownloadLoading = true
       const url = `configs/${this.selectedBranch}/d/proxy-templates/`
       const response = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
       this.configTemplates = response?.data
+      this.isDownloadLoading = false
+      this.setLoadingDocStatus(false)
     },
 
     async switchBranch() {

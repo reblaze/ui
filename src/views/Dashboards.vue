@@ -68,23 +68,12 @@
           </div>
         </div>
       </div>
-      <div v-if="!data?.length"
-           class="has-text-centered is-fullwidth">
-        <div v-if="isSearchLoading">
-          <button class="button is-outlined is-text is-small is-loading dashboard-loading">
-            Loading
-          </button>
-        </div>
-        <div v-else>
-          Your search did not match any data
-        </div>
-      </div>
-      <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'default' && data?.length">
+      <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'default'">
         <rbz-dashboard-default :data="data"
                                :loading="isSearchLoading">
         </rbz-dashboard-default>
       </div>
-      <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'threats' && data?.length">
+      <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'threats'">
       </div>
     </div>
     <div v-if="dashboards[activeDashboardIndex]?.metabaseId">

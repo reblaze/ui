@@ -350,8 +350,7 @@ export default defineComponent({
           this.selectedDoc.id.startsWith('action-') || // Reblaze-managed Custom Responses
           this.selectedDoc.id.startsWith('rbz-') || // Reblaze-managed Global Filters
           this.selectedDoc.id.startsWith('dr_') || // Dynamic-Rule-managed Global Filters
-          this.isDocReferenced ||
-          this.docs.length <= 1
+          this.isDocReferenced
     },
 
     selectedDocIndex(): number {
@@ -535,7 +534,6 @@ export default defineComponent({
         await this.loadSelectedDocData()
       }
       this.setLoadingDocStatus(false)
-      this.isDownloadLoading = false
     },
 
     async switchDocID() {

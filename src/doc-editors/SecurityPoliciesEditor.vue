@@ -81,7 +81,7 @@
           </div>
           <div class="field">
             <label class="label is-small">
-              Other Session Ids
+              Other Session IDs
             </label>
             <div class="control">
               <limit-option v-for="(option, index) in localDoc.session_ids"
