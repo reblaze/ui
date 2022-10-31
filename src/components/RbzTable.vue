@@ -12,7 +12,7 @@
         </th>
       </tr>
       <tr class="header-row">
-        <th class="is-size-7" v-if="showCheckboxColumn">
+        <th class="is-size-7 width-50px" v-if="showCheckboxColumn">
           <div class="field is-grouped is-grouped-centered">
               <input type="checkbox"
                       title="Select all rows"
@@ -93,6 +93,11 @@
       </tr>
       <tr class="search-row header-row"
           v-if="filtersVisible">
+        <th class="is-size-7 width-50px" v-if="showCheckboxColumn">
+        <div class="field is-grouped is-grouped-centered">
+          &nbsp;
+        </div>
+        </th>
         <th class="control has-icons-right"
             v-for="(col, index) in columns"
             :key="index">
@@ -380,6 +385,7 @@ export default defineComponent({
 
     selectAll() {
       const allCheckboxes = this.dataArrayDisplay.map((item) => item.id)
+
       const length = allCheckboxes.length
       if (this.$refs['check-box'].checked) {
         for (let i = 0; i < length; i++) {
