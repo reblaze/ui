@@ -581,7 +581,7 @@ export default defineComponent({
       return !isDomainMatchValid || !isCurrentEntryMatchValid
     },
   },
-  emits: ['update:selectedDoc', 'form-invalid', 'go-to-route'],
+  emits: ['update:selectedDoc', 'form-invalid'],
   methods: {
     emitDocUpdate(): void {
       this.$emit('update:selectedDoc', this.localDoc)
@@ -725,8 +725,7 @@ export default defineComponent({
     },
 
     referToRateLimit() {
-      this.$emit('form-invalid', false)
-      this.$emit('go-to-route', `/config/${this.selectedBranch}/ratelimits`)
+      this.$router.push(`/${this.selectedBranch}/ratelimits/list`)
     },
 
     contentfilteracllimitProfileNames() {

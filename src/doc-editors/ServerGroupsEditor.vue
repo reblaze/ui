@@ -61,6 +61,9 @@
                         <span class="icon is-small">
                           <i class="fas fa-trash"></i>
                         </span>
+                        <span>
+                          Delete
+                        </span>
                       </button>
                     </span>
                     <span class="control is-expanded confirm-delete"
