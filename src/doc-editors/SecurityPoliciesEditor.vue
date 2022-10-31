@@ -1,112 +1,136 @@
 <template>
   <div class="card-content">
     <div class="content">
-      <div class="columns columns-divided">
-        <div class="column is-4">
-          <div class="field">
-            <label class="label is-small">
-              Name
-              <span class="has-text-grey is-pulled-right document-id"
-                    title="Document id">
-                {{ localDoc.id }}
-              </span>
-            </label>
-            <div class="control">
-              <input class="input is-small document-name"
-                     data-qa="security-policies-name-input"
-                     title="Document name"
-                     placeholder="Document name"
-                     @change="emitDocUpdate"
-                     v-model="localDoc.name"/>
+      <div class="card collapsible-card" :class="{ collapsed: isDataCollapsed }">
+        <div class="card-content px-0 py-0">
+          <div class="media collapsible px-5 py-5 mb-0"
+               @click="isDataCollapsed = !isDataCollapsed">
+            <div class="media-content">
+              <p v-show="!isDataCollapsed" class="title is-5"></p>
+              <p v-show="isDataCollapsed" class="is-5">
+                <span class="inline-collapsed-header"><span class="label is-small mr-1"> Name: </span>{{localDoc.name}}</span>
+                <span class="inline-collapsed-header"><span class="label is-small mr-1"> ID: </span>{{localDoc.id}}</span>
+                <span class="inline-collapsed-header"><span class="label is-small mr-1"> Tags: </span> {{localDoc.tags.join(', ')}}</span>
+              </p>
             </div>
+            <span v-show="isDataCollapsed">
+              <i class="fas fa-angle-down" aria-hidden="true"></i>
+            </span>
+            <span v-show="!isDataCollapsed">
+              <i class="fas fa-angle-up" aria-hidden="true"></i>
+            </span>
           </div>
-          <div class="field">
-            <label class="label is-small">
-              Match Host/Authority Header
-            </label>
-            <div class="control has-icons-left">
-              <input type="text"
-                     class="input is-small document-domain-name"
-                     data-qa="security-policies-match-input"
-                     placeholder="(api|service).company.(io|com)"
-                     @change="emitDocUpdate"
-                     @input="validateInput($event, isSelectedDomainMatchValid)"
-                     v-model="localDoc.match"
-                     :disabled="localDoc.id === '__default__'"
-                     :readonly="localDoc.id === '__default__'"
-                     title="Enter a regex to match hosts headers (domain names)">
-              <span class="icon is-small is-left has-text-grey"><i class="fas fa-code"></i></span>
+          <div class="content collapsible-content px-5 py-5">
+            <div class="columns columns-divided">
+              <div class="column is-4">
+                <div class="field">
+                <label class="label is-small">
+                  Name
+                  <span class="has-text-grey is-pulled-right document-id"
+                        title="Document id">
+                    {{ localDoc.id }}
+                  </span>
+                </label>
+                <div class="control">
+                  <input class="input is-small document-name"
+                         data-qa="security-policies-name-input"
+                         title="Document name"
+                         placeholder="Document name"
+                         @change="emitDocUpdate"
+                         v-model="localDoc.name"/>
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="label is-small">
+                    Match Host/Authority Header
+                  </label>
+                  <div class="control has-icons-left">
+                    <input type="text"
+                          class="input is-small document-domain-name"
+                          data-qa="security-policies-match-input"
+                          placeholder="(api|service).company.(io|com)"
+                          @change="emitDocUpdate"
+                          @input="validateInput($event, isSelectedDomainMatchValid)"
+                          v-model="localDoc.match"
+                          :disabled="localDoc.id === '__default__'"
+                          :readonly="localDoc.id === '__default__'"
+                          title="Enter a regex to match hosts headers (domain names)">
+                    <span class="icon is-small is-left has-text-grey"><i class="fas fa-code"></i></span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="label is-small">Tags</label>
+                  <div class="control"
+                      data-qa="tag-input">
+                    <tag-autocomplete-input :initial-tag="selectedDocTags"
+                                            :selection-type="'multiple'"
+                                            @tag-changed="selectedDocTags = $event"/>
+                    <labeled-tags title="Automatic Tag"
+                                  :tags="automaticTags"/>
+                  </div>
+                </div>
+                <div class="field">
+                  <div class="field textarea-field">
+                    <label class="label is-small">
+                      Description
+                    </label>
+                    <div class="control">
+                      <textarea class="is-small textarea document-description"
+                                data-qa="description-input"
+                                title="Document description"
+                                v-model="localDoc.description"
+                                @input="emitDocUpdate"
+                                rows="2">
+                      </textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-          <div class="field">
-            <label class="label is-small">Tags</label>
-            <div class="control"
-                 data-qa="tag-input">
-              <tag-autocomplete-input :initial-tag="selectedDocTags"
-                                      :selection-type="'multiple'"
-                                      @tag-changed="selectedDocTags = $event"/>
-              <labeled-tags title="Automatic Tag"
-                            :tags="automaticTags"/>
-            </div>
-          </div>
-          <div class="field">
-            <div class="field textarea-field">
-              <label class="label is-small">
-                Description
-              </label>
-              <div class="control">
-                <textarea class="is-small textarea document-description"
-                          data-qa="description-input"
-                          title="Document description"
-                          v-model="localDoc.description"
-                          @input="emitDocUpdate"
-                          rows="5">
-                </textarea>
+            <div class="column is-8">
+              <div class="field">
+                <label class="label is-small">
+                  Main Session ID
+                </label>
+                <div class="control">
+                  <limit-option selected-type-column-class="is-3"
+                                v-model:option="sessionOption"
+                                :key="sessionOption.type + localDoc.id"
+                                :ignore-attributes="['session']"
+                                @change="emitDocUpdate"/>
+                </div>
+              </div>
+              <div class="field">
+                <label class="label is-small">
+              Other Session IDs
+                </label>
+                <div class="control">
+                  <limit-option v-for="(option, index) in localDoc.session_ids"
+                                selected-type-column-class="is-3"
+                                show-remove
+                                @remove="removeSessionId(index)"
+                                @change="updateSessionIdOption($event, index)"
+                                :removable="localDoc.session_ids.length > 1"
+                                :ignore-attributes="['session']"
+                                :option="generateOption(option)"
+                                :key="getOptionTextKey(option, index)"/>
+                  <a title="Add new session ID"
+                    class="is-text is-small is-size-7 ml-3 add-session-id-button"
+                    data-qa="add-new-session-id-btn"
+                    tabindex="0"
+                    @click="addSessionId()"
+                    @keypress.space.prevent
+                    @keypress.space="addSessionId()"
+                    @keypress.enter="addSessionId()">
+                    New entry
+                  </a>
+                </div>
               </div>
             </div>
           </div>
         </div>
-        <div class="column is-8">
-          <div class="field">
-            <label class="label is-small">
-              Main Session ID
-            </label>
-            <div class="control">
-              <limit-option selected-type-column-class="is-3"
-                            v-model:option="sessionOption"
-                            :key="sessionOption.type + localDoc.id"
-                            :ignore-attributes="['session']"
-                            @change="emitDocUpdate"/>
-            </div>
-          </div>
-          <div class="field">
-            <label class="label is-small">
-              Other Session IDs
-            </label>
-            <div class="control">
-              <limit-option v-for="(option, index) in localDoc.session_ids"
-                            selected-type-column-class="is-3"
-                            show-remove
-                            @remove="removeSessionId(index)"
-                            @change="updateSessionIdOption($event, index)"
-                            :removable="localDoc.session_ids.length > 1"
-                            :ignore-attributes="['session']"
-                            :option="generateOption(option)"
-                            :key="getOptionTextKey(option, index)"/>
-              <a title="Add new session ID"
-                 class="is-text is-small is-size-7 ml-3 add-session-id-button"
-                 data-qa="add-new-session-id-btn"
-                 tabindex="0"
-                 @click="addSessionId()"
-                 @keypress.space.prevent
-                 @keypress.space="addSessionId()"
-                 @keypress.enter="addSessionId()">
-                New entry
-              </a>
-            </div>
-          </div>
-        </div>
       </div>
+
       <div class="field px-3">
         <label class="label is-small">
           Path Mapping
@@ -473,6 +497,9 @@ export default defineComponent({
 
       // titles
       matchingDomainTitle: 'A unique matching regex value, not overlapping other Security Policy definitions',
+
+      // collapsed
+      isDataCollapsed: false,
     }
   },
 
