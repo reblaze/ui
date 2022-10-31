@@ -60,7 +60,7 @@
                  id="dropdown-menu"
                  role="menubar">
               <div class="dropdown-content py-0"
-              :class="showCheckboxColumn? 'width-140px' : 'width-100px'">
+              :class="showCheckboxColumn? 'width-130px' : 'width-100px'">
                 <button class="button is-size-7 filter-toggle dropdown-item"
                         :class="{'is-active': filtersVisible }"
                         title="Filter table data"
@@ -148,7 +148,8 @@
             <p class="control"
                v-if="showRowButton">
               <button :title="rowButtonTitle"
-                      class="button is-small has-text-danger row-entity-button"
+                      class="button is-small row-entity-button"
+                      :class="rowButtonClass"
                       @click="rowButtonClicked(row.id)">
                 <span class="icon is-small">
                   <i :class="`fas ${rowButtonIcon ? rowButtonIcon : 'fa-edit'}`"></i>
@@ -213,6 +214,7 @@ export default defineComponent({
     showSecondRowButton: Boolean,
     rowButtonTitle: String,
     rowButtonIcon: String,
+    rowButtonClass: String,
     tableTitle: String,
     rowsPerPage: {
       type: Number,
@@ -347,7 +349,7 @@ export default defineComponent({
     },
 
     totalColumns(): number {
-      const extraColumns = this.showMenuColumn ? 1 : 0
+      const extraColumns = (this.showMenuColumn ? 1 : 0) + (this.showCheckboxColumn ? 1 : 0)
       return this.columns.length + extraColumns
     },
   },

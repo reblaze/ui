@@ -6,6 +6,7 @@
                  :default-sort-column-index="1"
                  :row-button-icon="'fa-trash'"
                  :row-button-title="'Delete'"
+                 :row-button-class="'has-text-danger'"
                  :show-menu-column="true"
                  :show-filter-button="true"
                  :show-row-button="true"
@@ -59,21 +60,21 @@ export default defineComponent({
           fieldNames: ['target'],
           isSortable: true,
           isSearchable: true,
-          classes: 'ellipsis',
+          classes: 'width-60px',
         },
         {
           title: 'Value',
           fieldNames: ['value'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-120px',
+          classes: 'width-60px',
         },
         {
           title: 'Count',
           fieldNames: ['count'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-100px',
+          classes: 'width-50px',
         },
         {
           title: 'First Added',
@@ -84,7 +85,7 @@ export default defineComponent({
           },
           isSortable: true,
           isSearchable: true,
-          classes: 'ellipsis',
+          classes: 'width-80px',
         },
         {
           title: 'Last Seen',
@@ -95,14 +96,14 @@ export default defineComponent({
           },
           isSortable: true,
           isSearchable: true,
-          classes: 'ellipsis',
+          classes: 'width-80px',
         },
         {
           title: 'Rules',
           fieldNames: ['rule_id'],
           isSortable: true,
           isSearchable: true,
-          classes: 'ellipsis',
+          classes: 'width-50px',
         },
         {
           title: 'Tags',
@@ -112,7 +113,7 @@ export default defineComponent({
             return item.tags?.join('\n')
           },
           isSearchable: true,
-          classes: 'ellipsis white-space-pre',
+          classes: 'width-60px white-space-pre',
         },
       ] as ColumnOptions[],
       quarantinedData: null as Quarantined[],
