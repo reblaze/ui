@@ -15,8 +15,8 @@
                  @row-button-clicked="deleteQuarantinedElement">
                 <template #menu>
                   <button class="button is-size-7 has-text-danger new-entity-button dropdown-item"
-                        title="Delete selected"
-                        @click.stop="deleteSelectedRows">
+                      title="Delete selected"
+                      @click.stop="deleteSelectedRows">
                     <span class="icon is-small">
                       <i class="fas fa-trash"></i>
                     </span>
