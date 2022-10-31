@@ -627,10 +627,10 @@ export default defineComponent({
       if (!methodName) {
         methodName = 'PUT'
       }
-      const url = `configs/${this.selectedBranch}/d/sites/e/${this.selectedDocID}/`
       if (!data) {
         data = this.selectedServerGroup
       }
+      const url = `configs/${this.selectedBranch}/d/sites/e/${data.id}/`
       const serverGroupText = this.titles['sites-singular']
       if (!successMessage) {
         successMessage = `Changes to the ${serverGroupText} were saved.`

@@ -18,10 +18,57 @@
                   </span>
                 </button>
               </p>
+              <div class="control"
+                   v-if="docIdNames.length">
+                <div class="select is-small">
+                  <select v-model="selectedDocID"
+                          title="Switch document ID"
+                          @change="switchDocID()"
+                          class="site-selection"
+                          data-qa="switch-document">
+                    <option v-for="pair in docIdNames"
+                            :key="pair[0]"
+                            :value="pair[0]">
+                      {{ pair[1] }}
+                    </option>
+                  </select>
+                </div>
+              </div>
             </div>
           </div>
           <div class="column">
             <div class="field is-grouped is-pulled-right">
+              <p class="control">
+                <button class="button is-small new-config-template-document-button"
+                        :class="{'is-loading': isNewLoading}"
+                        @click="addNewBackendService()"
+                        title="Add new document"
+                        :disabled="!selectedBranch"
+                        data-qa="add-new-document">
+                  <span class="icon is-small">
+                    <i class="fas fa-plus"></i>
+                  </span>
+                  <span>
+                    New
+                  </span>
+                </button>
+              </p>
+
+              <p class="control">
+                <button class="button is-small fork-document-button"
+                        :class="{'is-loading': isForkLoading}"
+                        @click="forkDoc()"
+                        title="Duplicate document"
+                        :disabled="!selectedBackendService"
+                        data-qa="duplicate-document">
+                  <span class="icon is-small">
+                    <i class="fas fa-clone"></i>
+                  </span>
+                  <span>
+                    Duplicate
+                  </span>
+                </button>
+              </p>
               <p class="control">
                 <button class="button is-small download-doc-button"
                         :class="{'is-loading':isDownloadLoading}"
@@ -277,7 +324,7 @@
 </template>
 <script lang="ts">
 import RequestsUtils from '@/assets/RequestsUtils'
-import {BackendService} from '@/types'
+import {BackendService, HttpRequestMethods} from '@/types'
 import Utils from '@/assets/Utils'
 import {defineComponent} from 'vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
@@ -293,6 +340,9 @@ export default defineComponent({
       titles: DatasetsUtils.titles,
       selectedBackendService: null as BackendService,
       docIdFromRoute: '',
+      docs: [] as unknown as BackendService[],
+      docIdNames: [] as unknown as [BackendService['id'], BackendService['name']][],
+      selectedDocID: null,
       stickinessModels: backendServicesConsts.stickinessModels,
       newBackHost: {
         http_port: 80,
@@ -314,6 +364,8 @@ export default defineComponent({
       isSaveLoading: false,
       isDeleteLoading: false,
       isDownloadLoading: false,
+      isNewLoading: false,
+      isForkLoading: false,
 
       apiRoot: RequestsUtils.reblazeAPIRoot,
       apiVersion: RequestsUtils.reblazeAPIVersion,
@@ -323,8 +375,11 @@ export default defineComponent({
     selectedBranch: {
       handler: function(val, oldVal) {
         if ((this.$route.name as string).includes('BackendServices/config') && val && val !== oldVal) {
+          this.loadDocs()
           this.setSelectedDataFromRouteParams()
           this.loadReferencedBackendServicesIDs()
+          this.updateDocIdNames()
+          this.loadBackendService()
         }
       },
       immediate: true,
@@ -369,8 +424,29 @@ export default defineComponent({
     },
 
     ...mapStores(useBranchesStore),
+
+    selectedDocIndex(): number {
+      if (this.selectedDocID) {
+        return _.findIndex(this.docIdNames, (doc) => {
+          return doc[0] === this.selectedDocID
+        })
+      }
+      return 0
+    },
   },
   methods: {
+
+    async goToRoute(newRoute?: string) {
+      if (!newRoute) {
+        newRoute = `/${this.selectedBranch}/backend-services/config/${this.selectedDocID}`
+      }
+      if (this.$route.path !== newRoute) {
+        console.log('Switching document, new backend services document path: ' + newRoute)
+        await this.$router.push(newRoute)
+        await this.setSelectedDataFromRouteParams()
+      }
+    },
+
     async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
       this.docIdFromRoute = this.$route.params?.doc_id?.toString()
@@ -393,6 +469,20 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
       await this.loadBackendService()
+      this.setLoadingDocStatus(false)
+    },
+
+    async switchDocID() {
+      this.setLoadingDocStatus(true)
+
+      const docName = this.docIdNames[this.selectedDocIndex][1]
+      if (docName) {
+        Utils.toast(
+            `Switched to document ${docName} with ID "${this.selectedDocID}".`,
+            'is-info',
+        )
+      }
+      this.goToRoute()
       this.setLoadingDocStatus(false)
     },
 
@@ -420,14 +510,85 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
-    async saveChanges() {
+    updateDocIdNames() {
+      this.docIdNames = _.sortBy(_.map(this.docs, (doc) => [doc.id, doc.name]), (entry) => entry[1].toLowerCase())
+    },
+
+    async loadDocs(skipDocSelection?: boolean) {
+      this.isDownloadLoading = true
+      this.setLoadingDocStatus(true)
+      const branch = this.selectedBranch
+      const url = `configs/${branch}/d/backends/`
+
+      const response = await RequestsUtils.sendReblazeRequest({
+        methodName: 'GET',
+        url,
+        config: {headers: {'x-fields': 'id, name'}},
+        onFail: () => {
+          console.log('Error while attempting to load documents')
+          this.docs = []
+          this.isDownloadLoading = false
+        },
+      })
+      this.docs = response?.data || []
+      this.updateDocIdNames()
+      if (this.docIdNames && this.docIdNames.length && this.docIdNames[0].length) {
+        if (!skipDocSelection || !_.find(this.docIdNames, (idName: [BackendService['id'], BackendService['name']]) => {
+          return idName[0] === this.selectedDocID
+        })) {
+          this.docIdFromRoute = this.docIdNames[0][0]
+        }
+        await this.loadBackendService()
+      }
+      this.setLoadingDocStatus(false)
+      this.isDownloadLoading = false
+    },
+
+    newConfigTemplate(): BackendService {
+      const factory = DatasetsUtils.newOperationEntryFactory['BackendService']
+      return factory && factory()
+    },
+
+    async addNewBackendService(configTemplateToAdd?: BackendService, successMessage?: string, failureMessage?: string) {
+      this.setLoadingDocStatus(true)
+      this.isNewLoading = true
+      if (!configTemplateToAdd) {
+        configTemplateToAdd = this.newConfigTemplate()
+      }
+      this.docs.unshift(configTemplateToAdd)
+      this.selectedDocID = configTemplateToAdd.id
+      const configTemplateText = this.titles['proxy-templates-singular']
+      if (!successMessage) {
+        successMessage = `New ${configTemplateText} was created.`
+      }
+      if (!failureMessage) {
+        failureMessage = `Failed while attempting to create the new ${configTemplateText}.`
+      }
+      const data = configTemplateToAdd
+      await this.saveChanges('POST', data, successMessage, failureMessage)
+
+      this.goToRoute()
+      this.isNewLoading = false
+      this.setLoadingDocStatus(false)
+    },
+
+    async saveChanges(methodName?: HttpRequestMethods, data?: BackendService,
+                      successMessage?: string, failureMessage?: string) {
       this.isSaveLoading = true
-      const methodName = 'PUT'
-      const url = `configs/${this.selectedBranch}/d/backends/e/${this.selectedBackendService.id}/`
-      const data = this.selectedBackendService
+      if (!methodName) {
+        methodName = 'PUT'
+      }
+      if (!data) {
+        data = this.selectedBackendService
+      }
+      const url = `configs/${this.selectedBranch}/d/backends/e/${data.id}/`
       const backendServiceText = this.titles['backends-singular']
-      const successMessage = `Changes to the ${backendServiceText} were saved.`
-      const failureMessage = `Failed while attempting to save the changes to the ${backendServiceText}.`
+      if (!successMessage) {
+        successMessage = `Changes to the ${backendServiceText} were saved.`
+      }
+      if (!failureMessage) {
+        failureMessage = `Failed while attempting to save the changes to the ${backendServiceText}.`
+      }
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
       this.isSaveLoading = false
     },
@@ -445,6 +606,21 @@ export default defineComponent({
       })
       this.selectedBackendService = response?.data || {}
       this.isDownloadLoading = false
+    },
+
+    async forkDoc() {
+      this.setLoadingDocStatus(true)
+      this.isForkLoading = true
+      const docToAdd = _.cloneDeep(this.selectedBackendService) as BackendService
+      docToAdd.name = 'copy of ' + docToAdd.name
+      docToAdd.id = DatasetsUtils.generateUUID2()
+
+      const docTypeText = this.titles['sites-singular']
+      const successMessage = `The ${docTypeText} was duplicated.`
+      const failureMessage = `Failed while attempting to duplicate the ${docTypeText}.`
+      await this.addNewBackendService(docToAdd, successMessage, failureMessage)
+      this.isForkLoading = false
+      this.setLoadingDocStatus(false)
     },
 
     isDownable(index: number) {
