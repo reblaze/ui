@@ -11,24 +11,29 @@
           {{ label }}
         </label>
       </div>
-      <div class="column">
+      <div class="column"
+           :class="selectedTypeColumnClass">
         <div class="control select is-small is-fullwidth">
           <select v-model="selectedType"
                   class="option-type-selection"
                   title="Type"
                   data-qa="countby-dropdown">
-            <option v-if="useDefaultSelf" value="self">HTTP request</option>
+            <option v-if="useDefaultSelf"
+                    value="self">HTTP request
+            </option>
             <option v-for="(value, id) in options"
-              :data-qa="`${value}`"
-              :selected="value === selectedType"
-              :value="id"
-              :key="id">
+                    :data-qa="`${value}`"
+                    :selected="value === selectedType"
+                    :value="id"
+                    :key="id">
               {{ value }}
             </option>
           </select>
         </div>
       </div>
-      <div class="column" v-if="selectedType !== 'self'">
+      <div class="column"
+           :class="selectedNameColumnClass"
+           v-if="selectedType !== 'self'">
         <div v-if="isCategoryArgsCookiesHeaders(selectedType)"
              :class="{control: true, 'is-fullwidth': true}"
              class="has-icons-left">
@@ -39,18 +44,26 @@
                  class="input is-small option-name-input">
           <span class="icon is-small is-left has-text-grey-light"><i class="fa fa-font"></i></span>
         </div>
-        <div class="control select is-small is-fullwidth" v-if="selectedType === 'attrs'">
+        <div class="control select is-small is-fullwidth"
+             :class="selectedNameColumnClass"
+             v-if="selectedType === 'attrs'">
           <div class="select is-fullwidth">
             <select v-model="selectedName"
                     class="option-attribute-selection"
                     title="Name"
                     data-qa="countby-key-dropdown">
-              <option v-for="(value, id) in attributes" :value="id" :key="id" :data-qa="value">{{ value }}</option>
+              <option v-for="(value, id) in attributes"
+                      :value="id"
+                      :key="id"
+                      :data-qa="value">{{ value }}
+              </option>
             </select>
           </div>
         </div>
       </div>
-      <div class="column" v-if="useValue">
+      <div class="column"
+           :class="selectedValueColumnClass"
+           v-if="useValue">
         <div class="control has-icons-left is-fullwidth">
           <input type="text"
                  title="Value"
@@ -149,6 +162,9 @@ export default defineComponent({
         return [] as string[]
       },
     },
+    selectedTypeColumnClass: String,
+    selectedNameColumnClass: String,
+    selectedValueColumnClass: String,
   },
   data() {
     const limitOptionsTypes = {

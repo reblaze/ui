@@ -15,24 +15,23 @@
               <i class="fas fa-angle-up" aria-hidden="true"></i>
             </span>
           </div>
-          <div class="columns">
+          <div class="columns columns-divided">
             <div class="column is-4">
-              <div class="content collapsible-content px-5 py-5">
-                <div class="field">
-                  <label class="label is-small">
-                    Name
-                    <span class="has-text-grey is-pulled-right document-id"
-                          title="Document id">
-                      {{ localDoc.id }}
-                    </span>
-                  </label>
-                  <div class="control">
-                    <input class="input is-small document-name"
-                          data-qa="security-policies-name-input"
-                          title="Document name"
-                          placeholder="Document name"
-                          @change="emitDocUpdate"
-                          v-model="localDoc.name"/>
+              <div class="field">
+                <label class="label is-small">
+                  Name
+                  <span class="has-text-grey is-pulled-right document-id"
+                        title="Document id">
+                    {{ localDoc.id }}
+                  </span>
+                </label>
+                <div class="control">
+                  <input class="input is-small document-name"
+                         data-qa="security-policies-name-input"
+                         title="Document name"
+                         placeholder="Document name"
+                         @change="emitDocUpdate"
+                         v-model="localDoc.name"/>
                   </div>
                 </div>
                 <div class="field">
@@ -81,6 +80,45 @@
                   </div>
                 </div>
               </div>
+            </div>
+        </div>
+        <div class="column is-8">
+          <div class="field">
+            <label class="label is-small">
+              Main Session ID
+            </label>
+            <div class="control">
+              <limit-option selected-type-column-class="is-3"
+                            v-model:option="sessionOption"
+                            :key="sessionOption.type + localDoc.id"
+                            :ignore-attributes="['session']"
+                            @change="emitDocUpdate"/>
+            </div>
+          </div>
+          <div class="field">
+            <label class="label is-small">
+              Other Session Ids
+            </label>
+            <div class="control">
+              <limit-option v-for="(option, index) in localDoc.session_ids"
+                            selected-type-column-class="is-3"
+                            show-remove
+                            @remove="removeSessionId(index)"
+                            @change="updateSessionIdOption($event, index)"
+                            :removable="localDoc.session_ids.length > 1"
+                            :ignore-attributes="['session']"
+                            :option="generateOption(option)"
+                            :key="getOptionTextKey(option, index)"/>
+              <a title="Add new session ID"
+                 class="is-text is-small is-size-7 ml-3 add-session-id-button"
+                 data-qa="add-new-session-id-btn"
+                 tabindex="0"
+                 @click="addSessionId()"
+                 @keypress.space.prevent
+                 @keypress.space="addSessionId()"
+                 @keypress.enter="addSessionId()">
+                New entry
+              </a>
             </div>
           </div>
         </div>
@@ -407,15 +445,28 @@ import _ from 'lodash'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import {defineComponent} from 'vue'
-import {ACLProfile, ContentFilterProfile, RateLimit, SecurityPolicy, SecurityPolicyEntryMatch} from '@/types'
+import {
+  ACLProfile,
+  ContentFilterProfile,
+  LimitOptionType,
+  LimitRuleType,
+  RateLimit,
+  SecurityPolicy,
+  SecurityPolicyEntryMatch,
+} from '@/types'
 import {AxiosResponse} from 'axios'
 import Utils from '@/assets/Utils'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import LabeledTags from '@/components/LabeledTags.vue'
+import LimitOption, {OptionObject} from '@/components/LimitOption.vue'
 
 export default defineComponent({
   name: 'SecurityPoliciesEditor',
-  components: {LabeledTags, TagAutocompleteInput},
+  components: {
+    LabeledTags,
+    LimitOption,
+    TagAutocompleteInput,
+  },
   props: {
     selectedDoc: Object,
     selectedBranch: String,
@@ -446,6 +497,18 @@ export default defineComponent({
     }
   },
 
+  watch: {
+    selectedDoc: {
+      handler: function(value) {
+        if (!value['session_ids']) {
+          this.normalizeDocSessionIds()
+        }
+      },
+      immediate: true,
+      deep: true,
+    },
+  },
+
   computed: {
     localDoc(): SecurityPolicy {
       return _.cloneDeep(this.selectedDoc as SecurityPolicy)
@@ -469,6 +532,16 @@ export default defineComponent({
     automaticTags(): string[] {
       const nameTag = `securitypolicy:${this.localDoc.name?.replace(/ /g, '-') || ''}`
       return [nameTag]
+    },
+
+    sessionOption: {
+      get: function(): LimitOptionType {
+        return this.generateOption(this.localDoc.session)
+      },
+      set: function(value: SecurityPolicy['session']): void {
+        this.localDoc.session = value
+        this.emitDocUpdate()
+      },
     },
 
     isFormInvalid(): boolean {
@@ -660,6 +733,48 @@ export default defineComponent({
       }).then((response: AxiosResponse<RateLimit[]>) => {
         this.limitRuleNames = response.data
       })
+    },
+
+    normalizeDocSessionIds() {
+      this.localDoc.session_ids = []
+      this.emitDocUpdate()
+    },
+
+    getOptionTextKey(option: LimitOptionType, index: number) {
+      if (!option) {
+        return ''
+      }
+      const [type] = Object.keys(option)
+      return `${this.localDoc.id}_${type}_${index}`
+    },
+
+    generateOption(data: LimitOptionType): OptionObject {
+      if (!data) {
+        return {}
+      }
+      const [firstObjectKey] = Object.keys(data)
+      const type = firstObjectKey as LimitRuleType
+      const key = data[firstObjectKey]
+      return {type, key, value: null}
+    },
+
+    addSessionId() {
+      this.localDoc.session_ids.push({attrs: 'ip'})
+      this.emitDocUpdate()
+    },
+
+    removeSessionId(index: number) {
+      if (this.localDoc.session_ids.length > 1) {
+        this.localDoc.session_ids.splice(index, 1)
+      }
+      this.emitDocUpdate()
+    },
+
+    updateSessionIdOption(option: OptionObject, index: number) {
+      this.localDoc.session_ids.splice(index, 1, {
+        [option.type]: option.key,
+      })
+      this.emitDocUpdate()
     },
   },
 
