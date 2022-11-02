@@ -374,8 +374,8 @@ export default defineComponent({
           this.loadDocs()
           this.setSelectedDataFromRouteParams()
           this.loadReferencedBackendServicesIDs()
-          this.updateDocIdNames()
           this.loadBackendService()
+          this.updateDocIdNames()
         }
       },
       immediate: true,
@@ -537,26 +537,26 @@ export default defineComponent({
     },
 
     newConfigTemplate(): BackendService {
-      const factory = DatasetsUtils.newOperationEntryFactory['BackendService']
+      const factory = DatasetsUtils.newOperationEntryFactory['backends']
       return factory && factory()
     },
 
-    async addNewBackendService(configTemplateToAdd?: BackendService, successMessage?: string, failureMessage?: string) {
+    async addNewBackendService(backendServiceToAdd?: BackendService, successMessage?: string, failureMessage?: string) {
       this.setLoadingDocStatus(true)
       this.isNewLoading = true
-      if (!configTemplateToAdd) {
-        configTemplateToAdd = this.newConfigTemplate()
+      if (!backendServiceToAdd) {
+        backendServiceToAdd = this.newConfigTemplate()
       }
-      this.docs.unshift(configTemplateToAdd)
-      this.selectedDocID = configTemplateToAdd.id
-      const configTemplateText = this.titles['proxy-templates-singular']
+      this.docs.unshift(backendServiceToAdd)
+      this.selectedDocID = backendServiceToAdd.id
+      const backendServiceText = this.titles['proxy-templates-singular']
       if (!successMessage) {
-        successMessage = `New ${configTemplateText} was created.`
+        successMessage = `New ${backendServiceText} was created.`
       }
       if (!failureMessage) {
-        failureMessage = `Failed while attempting to create the new ${configTemplateText}.`
+        failureMessage = `Failed while attempting to create the new ${backendServiceText}.`
       }
-      const data = configTemplateToAdd
+      const data = backendServiceToAdd
       await this.saveChanges('POST', data, successMessage, failureMessage)
 
       this.goToRoute()
@@ -607,7 +607,7 @@ export default defineComponent({
       docToAdd.name = 'copy of ' + docToAdd.name
       docToAdd.id = DatasetsUtils.generateUUID2()
 
-      const docTypeText = this.titles['sites-singular']
+      const docTypeText = this.titles['backends-singular']
       const successMessage = `The ${docTypeText} was duplicated.`
       const failureMessage = `Failed while attempting to duplicate the ${docTypeText}.`
       await this.addNewBackendService(docToAdd, successMessage, failureMessage)

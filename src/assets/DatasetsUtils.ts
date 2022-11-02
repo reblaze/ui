@@ -296,9 +296,10 @@ const newDocEntryFactory: { [key: string]: Function } = {
   },
 
   'cloud-functions'(): EdgeFunction {
+    const id = generateUUID2()
     return {
-      'id': generateUUID2(),
-      'name': 'New Edge Function',
+      'id': id,
+      'name': 'New Edge Function ' + id,
       'description': 'New Edge Function Description and Remarks',
       'phase': 'request',
       'code': `-- begin custom code
