@@ -166,11 +166,27 @@ html {
   width: 30%;
 }
 
+.width-50pct {
+  width: 50%;
+}
+
 .width-80pct {
   width: 80%;
 }
 
 /* Element height */
+
+.height-1rem {
+  height: 1rem;
+  max-height: 1rem;
+  min-height: 1rem;
+}
+
+.height-2rem {
+  height: 2rem;
+  max-height: 2rem;
+  min-height: 2rem;
+}
 
 .height-30px {
   height: 30px;
@@ -182,6 +198,18 @@ html {
   height: 50px;
   max-height: 50px;
   min-height: 50px;
+}
+
+.height-60px {
+  height: 60px;
+  max-height: 60px;
+  min-height: 60px;
+}
+
+.height-80px {
+  height: 80px;
+  max-height: 80px;
+  min-height: 80px;
 }
 
 .height-100px {
@@ -352,6 +380,40 @@ $color-light: hsl(0, 0%, 96%);
 
 .dp__input_icon { /* stylelint-disable-line */
   color: #000;
+}
+
+/* Collapsed */
+
+.collapsible {
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  justify-items: center;
+}
+
+.collapsible-card {
+  border: 1px solid #fff;
+}
+
+.collapsible-card:hover {
+  border: 1px solid #b5b5b5;
+}
+
+.card.collapsed .collapsible-content {
+  display: none;
+}
+
+.collapsed .media {
+  margin: 0;
+}
+
+.collapsible .fa-angle-down {
+  align-self: center;
+}
+
+.inline-collapsed-header {
+  align-items: center;
+  display: flex;
 }
 
 /* Other */

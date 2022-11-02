@@ -25,24 +25,22 @@
 
     <div class="content document-list-wrapper"
          v-show="!loadingDocCounter && selectedBranch">
-      <div class="card">
-        <div class="card-content">
-          <div class="content">
-            <rbz-table :columns="columns"
-                       :data="dynamicRulesData"
-                       :default-sort-column-index="1"
-                       :show-menu-column="true"
-                       :show-filter-button="true"
-                       :show-new-button="true"
-                       @new-button-clicked="addNewDynamicRule"
-                       :show-row-button="true"
-                       @row-button-clicked="editDynamicRule">
-            </rbz-table>
-            <span class="is-family-monospace has-text-grey-lighter">
-                {{ documentListAPIPath }}
-              </span>
-          </div>
-        </div>
+      <div class="content">
+        <rbz-table :columns="columns"
+                   :data="dynamicRulesData"
+                   :default-sort-column-index="1"
+                   :show-menu-column="true"
+                   :show-filter-button="true"
+                   :show-new-button="true"
+                   @new-button-clicked="addNewDynamicRule"
+                   :row-clickable="true"
+                   @row-clicked="editDynamicRule"
+                   :show-row-button="true"
+                   @row-button-clicked="editDynamicRule">
+        </rbz-table>
+        <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">
+          {{ documentListAPIPath }}
+        </span>
       </div>
     </div>
 
@@ -58,7 +56,7 @@
 import _ from 'lodash'
 import {defineComponent} from 'vue'
 import RbzTable from '@/components/RbzTable.vue'
-import {ColumnOptions, DynamicRule, GlobalFilter} from '@/types'
+import {ColumnOptions, CustomResponse, DynamicRule, GlobalFilter} from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import Utils from '@/assets/Utils'
@@ -85,27 +83,21 @@ export default defineComponent({
           fieldNames: ['id'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-130px',
+          classes: 'width-130px ellipsis',
         },
         {
           title: 'Name',
           fieldNames: ['name'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-150px',
-        },
-        {
-          title: 'Description',
-          fieldNames: ['description'],
-          isSortable: true,
-          isSearchable: true,
-          classes: 'width-100px',
+          classes: 'ellipsis',
         },
         {
           title: 'Timeframe',
           fieldNames: ['timeframe'],
           isSortable: true,
           isSearchable: true,
+          isNumber: true,
           classes: 'width-100px',
         },
         {
@@ -113,19 +105,19 @@ export default defineComponent({
           fieldNames: ['threshold'],
           isSortable: true,
           isSearchable: true,
+          isNumber: true,
           classes: 'width-100px',
         },
         {
-          title: 'Action',
+          title: 'Custom Response',
           displayFunction: (item: DynamicRule) => {
-            if (this.globalFiltersData.length > 0) {
-              const matchingGlobalFilter = _.find(this.globalFiltersData, (globalFilter: GlobalFilter) => {
-                return globalFilter.id === `dr_${item.id}`
-              })
-              return matchingGlobalFilter ? matchingGlobalFilter.action : ''
-            } else {
-              return ''
-            }
+            const matchingGlobalFilter = _.find(this.globalFiltersData, (globalFilter: GlobalFilter) => {
+              return globalFilter.id === `dr_${item.id}`
+            })
+            const customResponse = _.find(this.customResponsesNames, (customResponseName) => {
+              return customResponseName[0] === matchingGlobalFilter?.action
+            })
+            return customResponse?.[1] || ''
           },
           isSortable: false,
           isSearchable: true,
@@ -145,7 +137,7 @@ export default defineComponent({
           },
           isSortable: false,
           isSearchable: true,
-          classes: 'width-100px white-space-pre ellipsis',
+          classes: 'width-100px vertical-scroll white-space-pre ellipsis',
         },
       ] as ColumnOptions[],
       isNewLoading: false,
@@ -154,6 +146,7 @@ export default defineComponent({
       globalFiltersData: [] as MiniGlobalFilter[],
       loadingDocCounter: 0,
       isDownloadLoading: false,
+      customResponsesNames: [],
 
       apiRoot: RequestsUtils.reblazeAPIRoot,
       apiVersion: RequestsUtils.reblazeAPIVersion,
@@ -165,6 +158,7 @@ export default defineComponent({
       handler: async function(val, oldVal) {
         if ((this.$route.name as string).includes('DynamicRules/list') && val && val !== oldVal) {
           await this.loadDynamicRulesData()
+          this.loadCustomResponses()
         }
       },
       immediate: true,
@@ -185,6 +179,20 @@ export default defineComponent({
   },
 
   methods: {
+    loadCustomResponses() {
+      RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/actions/`,
+        config: {headers: {'x-fields': 'id, name'}},
+      }).then((response: AxiosResponse<CustomResponse[]>) => {
+        this.customResponsesNames = _.sortBy(_.map(response.data, (entity) => {
+          return [entity.id, entity.name]
+        }), (e) => {
+          return e[1]
+        })
+      })
+    },
+
     setLoadingDocStatus(isLoading: boolean) {
       if (isLoading) {
         this.loadingDocCounter++
@@ -202,7 +210,6 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       this.isNewLoading = true
       const docToAdd = this.newDynamicRuleDoc()
-      docToAdd.name = docToAdd.name + ' ' + docToAdd.id
       const docTypeText = this.titles['dynamic-rules-singular']
       const successMessage = `New ${docTypeText} was created.`
       const failureMessage = `Failed while attempting to create the new ${docTypeText}.`
@@ -243,7 +250,6 @@ export default defineComponent({
       const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url: url,
-        config: {headers: {'x-fields': 'id, name, description, time-frame, threshold'}},
         onFail: () => {
           console.log('Error while attempting to load documents')
           this.dynamicRulesData = []
@@ -257,7 +263,6 @@ export default defineComponent({
 
       this.dynamicRulesData.map((doc) => {
         const url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${doc.id}/`
-        // const config = {headers: {'x-fields': 'id, tags, action'}} config,
         RequestsUtils.sendRequest({methodName: 'GET', url,
           onFail: () => {
             console.log('Error while attempting to load documents')

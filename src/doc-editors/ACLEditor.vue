@@ -2,68 +2,111 @@
   <div class="card-content">
     <div class="media">
       <div class="media-content">
-        <div class="columns">
-          <div class="column is-4">
-            <div class="field">
-              <label class="label is-small">
-                Name
-                <span class="has-text-grey is-pulled-right document-id"
-                      title="Document id"
-                      data-qa="document-id">
-                    {{ localDoc.id }}
+        <div class="card collapsible-card"
+             :class="{ collapsed: isDataCollapsed }">
+          <div class="card-content px-0 py-0">
+            <div class="media collapsible px-5 py-5 mb-0"
+                 @click="isDataCollapsed = !isDataCollapsed">
+              <div class="media-content">
+                <p v-show="!isDataCollapsed"
+                   class="title is-5"></p>
+                <p v-show="isDataCollapsed"
+                   class="is-5">
+                <span class="inline-collapsed-header">
+                  <span class="label is-small mr-1">
+                    Name:
                   </span>
-              </label>
-              <div class="control">
-                <input class="input is-small document-name"
-                       title="Document name"
-                       placeholder="Document name"
-                       @change="emitDocUpdate"
-                       data-qa="acl-document-name"
-                       v-model="localDoc.name"/>
+                  {{ localDoc.name }}
+                </span>
+                  <span class="inline-collapsed-header">
+                  <span class="label is-small mr-1">
+                    ID:
+                  </span>
+                  {{ localDoc.id }}
+                </span>
+                  <span class="inline-collapsed-header">
+                  <span class="label is-small mr-1">
+                    Tags:
+                  </span>
+                  {{ selectedDocTags }}
+                </span>
+                </p>
               </div>
+              <span v-show="isDataCollapsed">
+              <i class="fas fa-angle-down"
+                 aria-hidden="true"></i>
+            </span>
+              <span v-show="!isDataCollapsed">
+              <i class="fas fa-angle-up"
+                 aria-hidden="true"></i>
+            </span>
             </div>
-            <div class="field textarea-field">
-              <label class="label is-small">Description</label>
-              <div class="control">
-                  <textarea class="is-small textarea document-description"
-                            data-qa="description-input"
-                            title="Document description"
-                            v-model="localDoc.description"
-                            @input="emitDocUpdate"
-                            rows="5">
-                  </textarea>
-              </div>
-            </div>
-            <div class="field">
-              <label class="label is-small">
-                Custom Response
-              </label>
-              <div class="control is-expanded">
-                <div class="select is-fullwidth is-small">
-                  <select v-model="localDoc.action"
-                          @change="emitDocUpdate"
-                          data-qa="action-dropdown"
-                          class="document-action-selection"
-                          title="Custom Response">
-                    <option v-for="customResponse in customResponseNames"
-                            :value="customResponse[0]"
-                            :key="customResponse[0]">
-                      {{ customResponse[1] }}
-                    </option>
-                  </select>
+            <div class="content collapsible-content px-5 py-5">
+              <div class="columns">
+                <div class="column is-4">
+                  <div class="field">
+                    <label class="label is-small">
+                      Name
+                      <span class="has-text-grey is-pulled-right document-id"
+                            title="Document id"
+                            data-qa="document-id">
+                          {{ localDoc.id }}
+                        </span>
+                    </label>
+                    <div class="control">
+                      <input class="input is-small document-name"
+                             title="Document name"
+                             placeholder="Document name"
+                             @change="emitDocUpdate"
+                             data-qa="acl-document-name"
+                             v-model="localDoc.name"/>
+                    </div>
+                  </div>
+                  <div class="field textarea-field">
+                    <label class="label is-small">Description</label>
+                    <div class="control">
+                        <textarea class="is-small textarea document-description"
+                                  data-qa="description-input"
+                                  title="Document description"
+                                  v-model="localDoc.description"
+                                  @input="emitDocUpdate"
+                                  rows="2">
+                        </textarea>
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label class="label is-small">
+                      Custom Response
+                    </label>
+                    <div class="control is-expanded">
+                      <div class="select is-fullwidth is-small">
+                        <select v-model="localDoc.action"
+                                @change="emitDocUpdate"
+                                data-qa="action-dropdown"
+                                class="document-action-selection"
+                                title="Custom Response">
+                          <option v-for="customResponse in customResponseNames"
+                                  :value="customResponse[0]"
+                                  :key="customResponse[0]">
+                            {{ customResponse[1] }}
+                          </option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label class="label is-small">Tags</label>
+                    <div class="control"
+                         data-qa="tag-input">
+                      <tag-autocomplete-input :initial-tag="selectedDocTags"
+                                              :selection-type="'multiple'"
+                                              @tag-changed="selectedDocTags = $event"/>
+                    </div>
+                    <labeled-tags title="Automatic Tags"
+                                  :tags="automaticTags"/>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="field">
-              <label class="label is-small">Tags</label>
-              <div class="control"
-                   data-qa="tag-input">
-                <tag-autocomplete-input :initial-tag="selectedDocTags"
-                                        :selection-type="'multiple'"
-                                        @tag-changed="selectedDocTags = $event" />
-              </div>
-              <labeled-tags title="Automatic Tags"
-                            :tags="automaticTags" />
             </div>
           </div>
         </div>
@@ -110,7 +153,7 @@
                                         :selection-type="'single'"
                                         :auto-focus="true"
                                         @keydown.esc="cancelAddNewTag"
-                                        @tag-submitted="addNewEntry(operation, $event)" />
+                                        @tag-submitted="addNewEntry(operation, $event)"/>
               </td>
               <td class="is-size-7 width-20px">
                 <a title="add new entry"
@@ -164,6 +207,9 @@ export default defineComponent({
       titles: DatasetsUtils.titles,
       addNewColName: null,
       customResponseNames: [] as [CustomResponse['id'], CustomResponse['name']][],
+
+      // collapsed
+      isDataCollapsed: false,
     }
   },
   computed: {
@@ -329,4 +375,5 @@ export default defineComponent({
 :deep(.tag-input) {
   font-size: 0.58rem;
 }
+
 </style>

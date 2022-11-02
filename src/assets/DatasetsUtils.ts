@@ -1,21 +1,22 @@
 import {
   ACLProfile,
   BackendService,
-  EdgeFunction,
+  ConfigTemplate,
   ContentFilterProfile,
   ContentFilterRule,
   CustomResponse,
   DynamicRule,
+  EdgeFunction,
   FlowControlPolicy,
   GlobalFilter,
   HttpRequestMethods,
   MobileSDK,
-  ConfigTemplate,
   RateLimit,
   RoutingProfile,
   SecurityPolicy,
   Site,
 } from '@/types'
+import _ from 'lodash'
 
 const titles: { [key: string]: string } = {
   'admin': 'Admin',
@@ -52,8 +53,8 @@ const titles: { [key: string]: string } = {
   'aclprofiles-singular': 'ACL Profile',
   'dynamic-rules': 'Dynamic Rules',
   'dynamic-rules-singular': 'Dynamic Rule',
-  'ratelimits': 'Rate Limits',
-  'ratelimits-singular': 'Rate Limit',
+  'ratelimits': 'Rate Limit Rules',
+  'ratelimits-singular': 'Rate Limit Rule',
   'securitypolicies': 'Security Policies',
   'securitypolicies-singular': 'Security Policy',
   'contentfilterprofiles': 'Content Filter Profiles',
@@ -214,6 +215,12 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'match': `${id}.example.com`,
       'description': 'New Security Policy Description and Remarks',
       'tags': [],
+      'session': [
+        {
+          'attrs': 'ip',
+        },
+      ],
+      'session_ids': [],
       'map': [
         {
           'id': generateUUID2(),
@@ -279,9 +286,9 @@ const newDocEntryFactory: { [key: string]: Function } = {
         },
       ],
       'sequence': [
-        {...defaultFlowControlSequenceItem},
+        _.cloneDeep(defaultFlowControlSequenceItem),
         {
-          ...defaultFlowControlSequenceItem,
+          ..._.cloneDeep(defaultFlowControlSequenceItem),
           method: 'POST' as HttpRequestMethods,
         },
       ],
@@ -378,8 +385,12 @@ const newOperationEntryFactory: { [key: string]: Function } = {
       'id': generateUUID2(),
       'name': 'New Mobile SDK ' + generateUUID2(), // TODO: Remove this random uuid once names are no longer unique
       'description': 'New Mobile SDK Description and Remarks',
+      'secret': '',
+      'var_name': '',
       'uid_header': 'authorization',
       'grace': '5',
+      'grace_var_name': '',
+      'validator_type': '',
       'active_config': [
         {
           'active': true,
@@ -388,6 +399,7 @@ const newOperationEntryFactory: { [key: string]: Function } = {
         },
       ],
       'signatures': [],
+      'support_legacy_sdk': false,
     }
   },
 

@@ -194,8 +194,16 @@ import CustomResponseEditor from '@/doc-editors/CustomResponsesEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
 import {defineComponent, shallowRef} from 'vue'
-import {Document, DocumentType, DynamicRule, GlobalFilter, HttpRequestMethods, RateLimit, ReblazeDocumentType,
-  SecurityPolicy} from '@/types'
+import {
+  Document,
+  DocumentType,
+  DynamicRule,
+  GlobalFilter,
+  HttpRequestMethods,
+  RateLimit,
+  ReblazeDocumentType,
+  SecurityPolicy,
+} from '@/types'
 import axios, {AxiosResponse} from 'axios'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
@@ -261,8 +269,8 @@ export default defineComponent({
       reblazeComponentsMap: reblazeComponentsMap,
       confAPIRoot: RequestsUtils.confAPIRoot,
       confAPIVersion: RequestsUtils.confAPIVersion,
-      reblazeAPIRoot: RequestsUtils.confAPIRoot,
-      reblazeAPIVersion: RequestsUtils.confAPIVersion,
+      reblazeAPIRoot: RequestsUtils.reblazeAPIRoot,
+      reblazeAPIVersion: RequestsUtils.reblazeAPIVersion,
     }
   },
   watch: {
@@ -288,7 +296,8 @@ export default defineComponent({
             const docMatchingGlobalFilter = DatasetsUtils.newDocEntryFactory['globalfilters']() as GlobalFilter
             docMatchingGlobalFilter.id = `dr_${this.selectedDocID}`
             docMatchingGlobalFilter.active = (this.selectedDoc as DynamicRule).active
-            docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule' + this.selectedDocID
+            docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule ' + this.selectedDocID
+            docMatchingGlobalFilter.action = 'action-dynamic-rule-block'
             this.selectedDocMatchingGlobalFilter = docMatchingGlobalFilter
           } else {
             this.setLoadingDocStatus(true)
@@ -341,8 +350,7 @@ export default defineComponent({
           this.selectedDoc.id.startsWith('action-') || // Reblaze-managed Custom Responses
           this.selectedDoc.id.startsWith('rbz-') || // Reblaze-managed Global Filters
           this.selectedDoc.id.startsWith('dr_') || // Dynamic-Rule-managed Global Filters
-          this.isDocReferenced ||
-          this.docs.length <= 1
+          this.isDocReferenced
     },
 
     selectedDocIndex(): number {
@@ -440,7 +448,11 @@ export default defineComponent({
     },
 
     updateDocIdNames() {
-      this.docIdNames = _.sortBy(_.map(this.docs, (doc) => [doc.id, doc.name]), (entry) => entry[1].toLowerCase())
+      this.docIdNames = _.sortBy(_.map(this.docs, (doc) => {
+        return [doc.id, doc.name]
+      }), (entry) => {
+        return entry[1].toLowerCase()
+      })
     },
 
     async loadSelectedDocData() {
@@ -522,7 +534,6 @@ export default defineComponent({
         await this.loadSelectedDocData()
       }
       this.setLoadingDocStatus(false)
-      this.isDownloadLoading = false
     },
 
     async switchDocID() {
@@ -747,7 +758,7 @@ export default defineComponent({
     },
 
     async loadReferencedEdgeFunctionsDocsIDs() {
-      const response = await RequestsUtils.sendRequest({
+      const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/routing-profiles/`,
       })
