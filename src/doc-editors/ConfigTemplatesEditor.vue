@@ -624,10 +624,10 @@ export default defineComponent({
       handler: function(val, oldVal) {
         if ((this.$route.name as string).includes('ConfigTemplates/config') && val && val !== oldVal) {
           this.loadDocs()
-          this.setSelectedDataFromRouteParams()
-          this.loadReferencedConfigTemplatesIDs()
           this.updateDocIdNames()
+          this.setSelectedDataFromRouteParams()
           this.loadConfigTemplate()
+          this.loadReferencedConfigTemplatesIDs()
         }
       },
       immediate: true,
@@ -636,7 +636,7 @@ export default defineComponent({
   computed: {
     documentAPIPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
-      const apiPath = `configs/${this.selectedBranch}/d/proxy-templates/e/${this.selectedConfigTemplate.id}/`
+      const apiPath = `configs/${this.selectedBranch}/d/proxy-templates/e/${this.selectedDocID}/`
       return `${apiPrefix}/reblaze/${apiPath}`
     },
 
@@ -681,6 +681,7 @@ export default defineComponent({
     async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
       this.docIdFromRoute = this.$route.params?.doc_id?.toString()
+      this.selectedDocID = this.docIdFromRoute
       await this.loadConfigTemplate()
     },
 
@@ -700,6 +701,20 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
       await this.loadConfigTemplate()
+      this.setLoadingDocStatus(false)
+    },
+
+    async switchDocID() {
+      this.setLoadingDocStatus(true)
+
+      const docName = this.docIdNames[this.selectedDocIndex][1]
+      if (docName) {
+        Utils.toast(
+            `Switched to document ${docName} with ID "${this.selectedDocID}".`,
+            'is-info',
+        )
+      }
+      this.goToRoute()
       this.setLoadingDocStatus(false)
     },
 
@@ -724,6 +739,72 @@ export default defineComponent({
       })
       this.redirectToList()
       this.isDeleteLoading = false
+      this.setLoadingDocStatus(false)
+    },
+
+    newConfigTemplate(): ConfigTemplate {
+      const factory = DatasetsUtils.newOperationEntryFactory['proxy-templates']
+      return factory && factory()
+    },
+
+    async addNewConfigTemplate(configTemplateToAdd?: ConfigTemplate, successMessage?: string, failureMessage?: string) {
+      this.setLoadingDocStatus(true)
+      this.isNewLoading = true
+      if (!configTemplateToAdd) {
+        configTemplateToAdd = this.newConfigTemplate()
+      }
+      this.docs.unshift(configTemplateToAdd)
+      this.selectedDocID = configTemplateToAdd.id
+      this.updateDocIdNames()
+      const configTemplateText = this.titles['proxy-templates-singular']
+      if (!successMessage) {
+        successMessage = `New ${configTemplateText} was created.`
+      }
+      if (!failureMessage) {
+        failureMessage = `Failed while attempting to create the new ${configTemplateText}.`
+      }
+      const data = configTemplateToAdd
+      await this.saveChanges('POST', data, successMessage, failureMessage)
+
+      this.goToRoute()
+      this.isNewLoading = false
+      this.setLoadingDocStatus(false)
+    },
+
+
+    async saveChanges(methodName?: HttpRequestMethods, data?: ConfigTemplate, successMessage?:
+      string, failureMessage?: string) {
+      this.isSaveLoading = true
+      if (!methodName) {
+        methodName = 'PUT'
+      }
+      if (!data) {
+        data = this.selectedConfigTemplate
+      }
+      const url = `configs/${this.selectedBranch}/d/proxy-templates/e/${data.id}/`
+      const configTemplateText = this.titles['proxy-templates-singular']
+      if (!successMessage) {
+        successMessage = `Changes to the ${configTemplateText} were saved.`
+      }
+      if (!failureMessage) {
+        failureMessage = `Failed while attempting to save the changes to the ${configTemplateText}.`
+      }
+      await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
+      this.isSaveLoading = false
+    },
+
+    async forkDoc() {
+      this.setLoadingDocStatus(true)
+      this.isForkLoading = true
+      const docToAdd = _.cloneDeep(this.selectedConfigTemplate) as ConfigTemplate
+      docToAdd.name = 'copy of ' + docToAdd.name
+      docToAdd.id = DatasetsUtils.generateUUID2()
+
+      const docTypeText = this.titles['proxy-templates-singular']
+      const successMessage = `The ${docTypeText} was duplicated.`
+      const failureMessage = `Failed while attempting to duplicate the ${docTypeText}.`
+      await this.addNewConfigTemplate(docToAdd, successMessage, failureMessage)
+      this.isForkLoading = false
       this.setLoadingDocStatus(false)
     },
 
@@ -761,55 +842,6 @@ export default defineComponent({
       this.isDownloadLoading = false
     },
 
-    newConfigTemplate(): ConfigTemplate {
-      const factory = DatasetsUtils.newOperationEntryFactory['proxy-templates']
-      return factory && factory()
-    },
-
-    async addNewConfigTemplate(configTemplateToAdd?: ConfigTemplate, successMessage?: string, failureMessage?: string) {
-      this.setLoadingDocStatus(true)
-      this.isNewLoading = true
-      if (!configTemplateToAdd) {
-        configTemplateToAdd = this.newConfigTemplate()
-      }
-      this.docs.unshift(configTemplateToAdd)
-      this.selectedDocID = configTemplateToAdd.id
-      const configTemplateText = this.titles['proxy-templates-singular']
-      if (!successMessage) {
-        successMessage = `New ${configTemplateText} was created.`
-      }
-      if (!failureMessage) {
-        failureMessage = `Failed while attempting to create the new ${configTemplateText}.`
-      }
-      const data = configTemplateToAdd
-      await this.saveChanges('POST', data, successMessage, failureMessage)
-
-      this.goToRoute()
-      this.isNewLoading = false
-      this.setLoadingDocStatus(false)
-    },
-
-    async saveChanges(methodName?: HttpRequestMethods, data?: ConfigTemplate, successMessage?:
-      string, failureMessage?: string) {
-      this.isSaveLoading = true
-      if (!methodName) {
-        methodName = 'PUT'
-      }
-      if (!data) {
-        data = this.selectedConfigTemplate
-      }
-      const url = `configs/${this.selectedBranch}/d/proxy-templates/e/${data.id}/`
-      const configTemplateText = this.titles['proxy-templates-singular']
-      if (!successMessage) {
-        successMessage = `Changes to the ${configTemplateText} were saved.`
-      }
-      if (!failureMessage) {
-        failureMessage = `Failed while attempting to save the changes to the ${configTemplateText}.`
-      }
-      await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
-      this.isSaveLoading = false
-    },
-
     async loadConfigTemplate() {
       this.isDownloadLoading = true
       const response = await RequestsUtils.sendReblazeRequest({
@@ -831,21 +863,6 @@ export default defineComponent({
       this.isDownloadLoading = false
     },
 
-    async forkDoc() {
-      this.setLoadingDocStatus(true)
-      this.isForkLoading = true
-      const docToAdd = _.cloneDeep(this.selectedConfigTemplate) as ConfigTemplate
-      docToAdd.name = 'copy of ' + docToAdd.name
-      docToAdd.id = DatasetsUtils.generateUUID2()
-
-      const docTypeText = this.titles['proxy-templates-singular']
-      const successMessage = `The ${docTypeText} was duplicated.`
-      const failureMessage = `Failed while attempting to duplicate the ${docTypeText}.`
-      await this.addNewConfigTemplate(docToAdd, successMessage, failureMessage)
-      this.isForkLoading = false
-      this.setLoadingDocStatus(false)
-    },
-
     async loadReferencedConfigTemplatesIDs() {
       const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
@@ -857,20 +874,6 @@ export default defineComponent({
         referencedConfigTemplates.push(serverGroup['proxy_template'])
       })
       this.referencedIDsConfigTemplate = _.uniq(referencedConfigTemplates)
-    },
-
-    async switchDocID() {
-      this.setLoadingDocStatus(true)
-
-      const docName = this.docIdNames[this.selectedDocIndex][1]
-      if (docName) {
-        Utils.toast(
-            `Switched to document ${docName} with ID "${this.selectedDocID}".`,
-            'is-info',
-        )
-      }
-      this.goToRoute()
-      this.setLoadingDocStatus(false)
     },
 
     // TODO waiting for truseted source to be implemented on backend: moved from planet to proxy-template and to have an id for each record.

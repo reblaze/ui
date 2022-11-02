@@ -464,8 +464,9 @@ export default defineComponent({
       handler: function(val, oldVal) {
         if ((this.$route.name as string).includes('ServerGroups/config') && val && val !== oldVal) {
           this.loadDocs()
-          this.setSelectedDataFromRouteParams()
           this.updateDocIdNames()
+          this.setSelectedDataFromRouteParams()
+          this.loadServerGroup()
           this.loadSecurityPolicies()
           this.loadRoutingProfiles()
           this.loadConfigTemplates()
@@ -577,7 +578,7 @@ export default defineComponent({
         })) {
           this.docIdFromRoute = this.docIdNames[0][0]
         }
-        await this.loadServerGroup() // loadSelectedDocData()
+        await this.loadServerGroup()
       }
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
@@ -588,7 +589,6 @@ export default defineComponent({
       this.docIdFromRoute = this.$route.params?.doc_id?.toString()
       this.selectedDocID = this.docIdFromRoute
       await this.loadServerGroup()
-      this.updateDocIdNames()
     },
 
     redirectToList() {
@@ -650,6 +650,7 @@ export default defineComponent({
       }
       this.docs.unshift(siteToAdd)
       this.selectedDocID = siteToAdd.id
+      this.updateDocIdNames()
       const siteText = this.titles['sites-singular']
       if (!successMessage) {
         successMessage = `New ${siteText} was created.`

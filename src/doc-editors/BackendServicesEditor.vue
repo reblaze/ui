@@ -372,10 +372,10 @@ export default defineComponent({
       handler: function(val, oldVal) {
         if ((this.$route.name as string).includes('BackendServices/config') && val && val !== oldVal) {
           this.loadDocs()
-          this.setSelectedDataFromRouteParams()
-          this.loadReferencedBackendServicesIDs()
-          this.loadBackendService()
           this.updateDocIdNames()
+          this.setSelectedDataFromRouteParams()
+          this.loadBackendService()
+          this.loadReferencedBackendServicesIDs()
         }
       },
       immediate: true,
@@ -442,6 +442,7 @@ export default defineComponent({
     async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
       this.docIdFromRoute = this.$route.params?.doc_id?.toString()
+      this.selectedDocID = this.docIdFromRoute
       await this.loadBackendService()
     },
 
@@ -549,7 +550,8 @@ export default defineComponent({
       }
       this.docs.unshift(backendServiceToAdd)
       this.selectedDocID = backendServiceToAdd.id
-      const backendServiceText = this.titles['proxy-templates-singular']
+      this.updateDocIdNames()
+      const backendServiceText = this.titles['backends-singular']
       if (!successMessage) {
         successMessage = `New ${backendServiceText} was created.`
       }

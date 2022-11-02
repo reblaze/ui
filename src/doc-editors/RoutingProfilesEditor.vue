@@ -457,7 +457,6 @@ export default defineComponent({
   computed: {
     documentAPIPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
-      // const selectedId = this.selectedRoutingProfile.id
       return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/routing-profiles/e/${this.selectedDocID}/`
     },
 
@@ -577,8 +576,6 @@ export default defineComponent({
       this.docs.unshift(profileToAdd)
       this.selectedDocID = profileToAdd.id
       this.updateDocIdNames()
-      console.log('this.selectedDocID', this.selectedDocID, 'profileToAdd',
-        profileToAdd, 'this.docs', this.docs)
       const routingProfileText = this.titles['routing-profiles-singular']
       if (!successMessage) {
         successMessage = `New ${routingProfileText} was created.`
@@ -622,7 +619,7 @@ export default defineComponent({
       docToAdd.name = 'copy of ' + docToAdd.name
       docToAdd.id = DatasetsUtils.generateUUID2()
 
-      const docTitleName = this.titles['sites-singular']
+      const docTitleName = this.titles['routing-profiles-singular']
       const successMessage = `The ${docTitleName} was duplicated.`
       const failureMessage = `Failed while attempting to duplicate the ${docTitleName}.`
       await this.addNewRoutingProfile(docToAdd, successMessage, failureMessage)
@@ -639,7 +636,7 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       const branch = this.selectedBranch
       const url = `configs/${branch}/d/routing-profiles/`
-      console.log('this.selectedDocID', this.selectedDocID)
+
       const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url,
