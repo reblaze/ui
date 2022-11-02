@@ -201,7 +201,7 @@
 
 <script lang="ts">
 import _ from 'lodash'
-import {defineComponent, PropType} from 'vue'
+import {defineComponent, isProxy, PropType} from 'vue' // , isProxy toRaw
 import {ColumnOptions, GenericObject} from '@/types'
 
 export default defineComponent({
@@ -246,6 +246,7 @@ export default defineComponent({
 
       // Pagination
       currentPage: 1,
+      slicedDataArrayDisplay: [] as GenericObject[],
 
       // checkboxes
       selectedRow: '' as string,
@@ -277,6 +278,62 @@ export default defineComponent({
       },
       immediate: true,
       deep: true,
+    },
+
+    // selectedArray: {
+    //   handler: function(val) {
+    //     if (val?.length) {
+    //       this.slicedDataArrayDisplay.forEach((item) => {
+    //         console.log('val', val, 'item.id', item.id)
+    //         if (val.includes(item.id)) {
+    //           this.$refs[item.id].checked = true
+    //         } else {
+    //           // this.$refs[item.id].checked = false
+    //         }
+    //       })
+    //     }
+    //   },
+    //   immediate: true,
+    //   deep: true,
+    // },
+    dataArrayDisplay: {
+      handler: function(val) {
+        if (val?.length) {
+          // if (isProxy(val)) {
+          //   this.dataArrayDisplay = _.cloneDeep(val)
+          // }
+          // this.computeCheckboxes()
+          // if (isProxy(this.selectedArray)) {
+          //   this.selectedArray = _.cloneDeep(this.selectedArray)
+          // }
+        }
+        console.log('this.dataArrayDisplay', this.dataArrayDisplay, 'this.selectedArray', this.selectedArray)
+      },
+    },
+
+    slicedDataArrayDisplay: {
+      handler: function(val) {
+        if (val?.length) {
+          // if (isProxy(val)) {
+          //   this.slicedDataArrayDisplay = _.cloneDeep(val)
+          // }
+          // this.computeCheckboxes()
+          // for (let i = 0; i < this.slicedDataArrayDisplay.length; i++) {
+          //   const id = this.slicedDataArrayDisplay[i].id
+          //   // this.selectedArray.includes(id)
+          //   // const isSelected = this.selectedArray.findIndex((item) => item[0] == id)
+          //   // console.log('slice id: ', id, 'selctedArray', this.selectedArray, 'this.$refs', this.$refs)
+          //   if (this.selectedArray.includes(id)) {
+          //     console.log('false .checked', this.$refs)
+          //     this.$refs[id][0].checked = true
+          //   } else {
+          //     // console.log('true .checked', this.$refs[id])
+          //     this.$refs[id][0].checked = false
+          //   }
+          //   // this.$refs['check-box'].checked
+          // }
+        }
+      },
     },
   },
   emits: ['new-button-clicked', 'row-button-clicked', 'row-clicked', 'select-array'],
@@ -337,17 +394,17 @@ export default defineComponent({
       })
     },
 
-    slicedDataArrayDisplay(): GenericObject[] {
-      if (!this.dataArrayDisplay.length) {
-        return []
-      }
-      if (this.useScroll) {
-        return this.dataArrayDisplay
-      }
-      const sliceStart = this.rowsPerPage * (this.currentPage - 1)
-      const sliceEnd = sliceStart + this.rowsPerPage
-      return this.dataArrayDisplay.slice(sliceStart, sliceEnd)
-    },
+    // slicedDataArrayDisplay(): GenericObject[] {
+    //   if (!this.dataArrayDisplay.length) {
+    //     return []
+    //   }
+    //   if (this.useScroll) {
+    //     return this.dataArrayDisplay
+    //   }
+    //   const sliceStart = this.rowsPerPage * (this.currentPage - 1)
+    //   const sliceEnd = sliceStart + this.rowsPerPage
+    //   return this.dataArrayDisplay.slice(sliceStart, sliceEnd)
+    // },
 
     totalPages(): number {
       return Math.ceil(this.dataArrayDisplay.length / this.rowsPerPage) || 1
@@ -359,6 +416,45 @@ export default defineComponent({
     },
   },
   methods: {
+    computeCheckboxes() {
+      // which checkboxes to select.
+      if (isProxy(this.slicedDataArrayDisplay)) {
+        console.log('proxy')
+        this.slicedDataArrayDisplay = _.cloneDeep(this.slicedDataArrayDisplay)
+      }
+      if (isProxy(this.selectedArray)) {
+        this.selectedArray = _.cloneDeep(this.selectedArray)
+      }
+      console.log('computeCheckboxes', this.slicedDataArrayDisplay, 'selectedArray', this.selectedArray)
+      // for (let i = 0; i < this.slicedDataArrayDisplay.length; i++) {
+      this.slicedDataArrayDisplay.every((sliceItem) => {
+        // const id = this.slicedDataArrayDisplay[i].id
+        const id = sliceItem.id
+        const included = this.selectedArray.length > 0 ? this.selectedArray.includes(id) : false
+        console.log('item.id', id, 'this.$refs', this.$refs)
+        console.log('this.$refs[635fc26f210c616ab64c9f6d]', this.$refs['635fc26f210c616ab64c9f6d'])
+        const target = this.$refs[`${id}`][0]
+        console.log('target', target)
+        if (included) {
+          target.checked = true
+        } else {
+          target.checked = false
+        }
+        return sliceItem
+      })
+    },
+    computSlicedDataArrayDisplay() {
+      if (!this.dataArrayDisplay.length) {
+        return []
+      }
+      if (this.useScroll) {
+        return this.dataArrayDisplay
+      }
+      const sliceStart = this.rowsPerPage * (this.currentPage - 1)
+      const sliceEnd = sliceStart + this.rowsPerPage
+      this.slicedDataArrayDisplay = this.dataArrayDisplay.slice(sliceStart, sliceEnd)
+    },
+
     newButtonClicked() {
       this.$emit('new-button-clicked')
     },
@@ -384,20 +480,14 @@ export default defineComponent({
     },
 
     selectAll() {
-      const allCheckboxes = this.dataArrayDisplay.map((item) => item.id)
-
-      const length = allCheckboxes.length
+      const currentCheckboxes = this.dataArrayDisplay.map((item) => item.id)
+      // const length = allCheckboxes.length
       if (this.$refs['check-box'].checked) {
-        for (let i = 0; i < length; i++) {
-          this.$refs[allCheckboxes[i]][0].checked = true // this.$refs['check-box'].checked
-        }
-        this.selectedArray = [...allCheckboxes]
+        this.selectedArray = _.cloneDeep(currentCheckboxes)
       } else {
-        for (let i = 0; i < length; i++) {
-          this.$refs[allCheckboxes[i]][0].checked = false
-        }
         this.selectedArray = []
       }
+      this.computeCheckboxes()
       this.$emit('select-array', _.cloneDeep(this.selectedArray))
     },
 
@@ -418,18 +508,25 @@ export default defineComponent({
     prevPage() {
       if (this.currentPage > 1) {
         this.currentPage--
+        this.computSlicedDataArrayDisplay()
+        this.computeCheckboxes()
       }
     },
 
     nextPage() {
       if (this.currentPage < this.totalPages) {
         this.currentPage++
+        this.computSlicedDataArrayDisplay()
+        this.computeCheckboxes()
       }
     },
 
     closeMenu() {
       this.menuVisible = false
     },
+  },
+  mounted() {
+    this.computSlicedDataArrayDisplay()
   },
   beforeMount() {
     document.addEventListener('click', this.closeMenu)
