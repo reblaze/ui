@@ -311,7 +311,7 @@ export default defineComponent({
           fieldNames: ['links'],
           // TODO: the displayFunction should check if item.links['provider'] include the gcp, if yes return true
           displayFunction: (item) => {
-            const checkGCP = _.find(item.links['provider'], (provider: any) => {
+            const checkGCP = _.find(item?.links?.provider, (provider: any) => {
               return provider === 'gcp'
             })
             return checkGCP
