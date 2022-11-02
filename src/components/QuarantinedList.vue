@@ -14,8 +14,10 @@
                  @select-array="updateSelected"
                  @row-button-clicked="deleteQuarantinedElement">
                 <template #menu>
-                  <button class="button is-size-7 has-text-danger new-entity-button dropdown-item"
+                  <button class="button is-size-7 has-text-danger delete-selected-button dropdown-item"
                       title="Delete selected"
+                      :class="{'disabled': !selectedArray || selectedArray.length === 0 }"
+                      :disabled="!selectedArray || selectedArray.length === 0"
                       @click.stop="deleteSelectedRows">
                     <span class="icon is-small">
                       <i class="fas fa-trash"></i>
@@ -211,3 +213,25 @@ export default defineComponent({
 })
 
 </script>
+
+<style scoped
+       lang="scss">
+
+    .delete-selected-button {
+      background-color: transparent;
+      border: 0 solid transparent;
+    }
+
+    .delete-selected-button.disabled {
+      font-weight: 100;
+      opacity: 0.3;
+    }
+
+    .delete-selected-button:hover {
+      background-color: transparent;
+      border: 0 solid transparent;
+      box-shadow: none;
+      font-weight: 200;
+    }
+
+</style>
