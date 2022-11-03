@@ -25,7 +25,7 @@
                 </span>
                 <span class="inline-collapsed-header">
                   <span class="label is-small mr-1">
-                    Tags:
+                    Tags
                   </span>
                   {{ selectedDocTags }}
                 </span>
@@ -258,7 +258,7 @@ export default defineComponent({
     },
   },
 
-  emits: ['update:selectedDoc', 'form-invalid'],
+  emits: ['update:selectedDoc', 'form-invalid', 'tags-invalid'],
 
   methods: {
 
@@ -273,7 +273,7 @@ export default defineComponent({
 
     emitTagsInvalid(isTagsInvalid: boolean) {
       this.isFormInvalid = this.isFormInvalid && isTagsInvalid
-      this.$emit('form-invalid', this.isFormInvalid)
+      this.$emit('tags-invalid', this.isFormInvalid)
     },
 
     tryMatch(data: string, regex: RegExp, type: Category): GlobalFilterRuleEntry[] {

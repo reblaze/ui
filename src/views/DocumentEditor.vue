@@ -91,8 +91,8 @@
                 <button class="button is-small save-document-button"
                         :class="{'is-loading': isSaveLoading}"
                         @click="saveChanges()"
-                        :title="!isValidDocWithTags ? 'Missing a tag' : 'Save changes'"
-                        :disabled="isDocumentInvalid || !selectedDoc || dynamicRuleManaged"
+                        :title="tagsInvalid ? 'Missing a tag' : 'Save changes'"
+                        :disabled="isDocumentInvalid || !selectedDoc || dynamicRuleManaged || tagsInvalid"
                         data-qa="save-changes">
                   <span class="icon is-small">
                     <i class="fas fa-save"></i>
@@ -138,6 +138,7 @@
           v-model:docs="docs"
           :apiPath="documentAPIPath"
           @form-invalid="getIsDocumentInvalid"
+          @tags-invalid="tagsInvalid=true"
           @go-to-route="goToRoute($event)"
           ref="currentComponent">
       </component>
@@ -252,6 +253,7 @@ export default defineComponent({
       cancelSource: axios.CancelToken.source(),
       isDownloadLoading: false,
       isDocumentInvalid: false,
+      tagsInvalid: false,
       selectedDocMatchingGlobalFilter: null as GlobalFilter,
       duplicatedDocMatchingGlobalFilter: null as GlobalFilter,
 
