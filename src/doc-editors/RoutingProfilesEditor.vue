@@ -487,10 +487,8 @@ export default defineComponent({
   },
   methods: {
 
-    async goToRoute(newRoute?: string) {
-      if (!newRoute) {
-        newRoute = `/${this.selectedBranch}/routing-profiles/config/${this.selectedDocID}`
-      }
+    async goToRoute() {
+      const newRoute = `/${this.selectedBranch}/routing-profiles/config/${this.selectedDocID}`
       if (this.$route.path !== newRoute) {
         console.log('Switching routing profiles document, new document path: ' + newRoute)
         await this.$router.push(newRoute)
@@ -631,7 +629,7 @@ export default defineComponent({
       this.docIdNames = _.sortBy(_.map(this.docs, (doc) => [doc.id, doc.name]), (entry) => entry[1].toLowerCase())
     },
 
-    async loadDocs(skipDocSelection?: boolean) {
+    async loadDocs() {
       this.isDownloadLoading = true
       this.setLoadingDocStatus(true)
       const branch = this.selectedBranch
@@ -650,7 +648,7 @@ export default defineComponent({
       this.docs = response?.data || []
       this.updateDocIdNames()
       if (this.docIdNames && this.docIdNames.length && this.docIdNames[0].length) {
-        if (!skipDocSelection || !_.find(this.docIdNames, (idName: [RoutingProfile['id'], RoutingProfile['name']]) => {
+        if (!_.find(this.docIdNames, (idName: [RoutingProfile['id'], RoutingProfile['name']]) => {
           return idName[0] === this.selectedDocID
         })) {
           this.docIdFromRoute = this.docIdNames[0][0]

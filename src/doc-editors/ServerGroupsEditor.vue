@@ -534,10 +534,8 @@ export default defineComponent({
   },
   methods: {
 
-    async goToRoute(newRoute?: string) {
-      if (!newRoute) {
-        newRoute = `/${this.selectedBranch}/server-groups/config/${this.selectedDocID}`
-      }
+    async goToRoute() {
+      const newRoute = `/${this.selectedBranch}/server-groups/config/${this.selectedDocID}`
       if (this.$route.path !== newRoute) {
         console.log('Switching document, new document path: ' + newRoute)
         await this.$router.push(newRoute)
@@ -554,7 +552,7 @@ export default defineComponent({
       this.docIdNames = _.sortBy(_.map(this.docs, (doc) => [doc.id, doc.name]), (entry) => entry[1].toLowerCase())
     },
 
-    async loadDocs(skipDocSelection?: boolean) {
+    async loadDocs() {
       this.isDownloadLoading = true
       this.setLoadingDocStatus(true)
       const branch = this.selectedBranch
@@ -573,7 +571,7 @@ export default defineComponent({
       this.docs = response?.data || []
       this.updateDocIdNames()
       if (this.docIdNames && this.docIdNames.length && this.docIdNames[0].length) {
-        if (!skipDocSelection || !_.find(this.docIdNames, (idName: [Site['id'], Site['name']]) => {
+        if (!_.find(this.docIdNames, (idName: [Site['id'], Site['name']]) => {
           return idName[0] === this.selectedDocID
         })) {
           this.docIdFromRoute = this.docIdNames[0][0]

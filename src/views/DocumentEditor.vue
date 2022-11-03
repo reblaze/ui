@@ -595,15 +595,16 @@ export default defineComponent({
       if (this.selectedDocType === 'dynamic-rules') {
         let docMatchingGlobalFilter
         if (this.isForkLoading) {
-          docMatchingGlobalFilter = this.duplicatedDocMatchingGlobalFilter
+          docMatchingGlobalFilter = _.cloneDeep(this.selectedDocMatchingGlobalFilter) // this.duplicatedDocMatchingGlobalFilter
         } else {
           docMatchingGlobalFilter = DatasetsUtils.newDocEntryFactory['globalfilters']() as GlobalFilter
         }
         docMatchingGlobalFilter.id = `dr_${this.selectedDocID}`
         docMatchingGlobalFilter.active = (this.selectedDoc as DynamicRule).active
         docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule ' + this.selectedDocID
-        docMatchingGlobalFilter.action = 'action-dynamic-rule-block'
-        this.selectedDocMatchingGlobalFilter = docMatchingGlobalFilter
+        docMatchingGlobalFilter.action = (this.isForkLoading) ? docMatchingGlobalFilter.action :
+          'action-dynamic-rule-block'
+        this.selectedDocMatchingGlobalFilter = _.cloneDeep(docMatchingGlobalFilter)
       }
       await this.saveChanges('POST', successMessage, failureMessage)
 
