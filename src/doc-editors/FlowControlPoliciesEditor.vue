@@ -76,9 +76,8 @@
             <div class="control"
                  data-qa="tag-input">
               <tag-autocomplete-input :initial-tag="selectedDocTags"
-                                      :selection-type="'multiple'"
-                                      @invalid="emitFormInvalid"
-                                      @tag-changed="selectedDocTags = $event" />
+                                      selection-type="multiple"
+                                      @tag-changed="selectedDocTagsChanged" />
             </div>
             <labeled-tags title="Automatic Tags"
                           :tags="automaticTags" />
@@ -592,6 +591,16 @@ export default defineComponent({
       this.localDoc[section].splice(index, 1)
       this.addNewTagColName = null
       this.emitDocUpdate()
+    },
+
+    selectedDocTagsChanged(tags: string) {
+      if (tags == '') {
+        this.selectedDocTags = tags
+        this.$emit('form-invalid', true)
+      } else {
+        this.$emit('form-invalid', false)
+        this.selectedDocTags = tags
+      }
     },
   },
 })

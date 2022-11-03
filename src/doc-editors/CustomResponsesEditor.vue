@@ -54,9 +54,8 @@
             <div class="control"
                  data-qa="tag-input">
               <tag-autocomplete-input :initial-tag="selectedDocTags"
-                                      :selection-type="'multiple'"
-                                      @invalid="emitFormInvalid"
-                                      @tag-changed="selectedDocTags = $event"
+                                      selection-type="multiple"
+                                      @tag-changed="selectedDocTagsChanged"
                                       class="document-autocomplete-input" />
             </div>
           </div>
@@ -251,6 +250,16 @@ export default defineComponent({
     normalizeParams() {
       this.localDoc.params = {}
       this.emitDocUpdate()
+    },
+
+    selectedDocTagsChanged(tags: string) {
+      if (tags.trim() == '') {
+        this.selectedDocTags = tags.trim()
+        this.$emit('form-invalid', true)
+      } else {
+        this.$emit('form-invalid', false)
+        this.selectedDocTags = tags.trim()
+      }
     },
   },
 })
