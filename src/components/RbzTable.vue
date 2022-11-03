@@ -202,7 +202,7 @@
 
 <script lang="ts">
 import _ from 'lodash'
-import {defineComponent, PropType} from 'vue' // , isProxy toRaw
+import {defineComponent, PropType} from 'vue'
 import {ColumnOptions, GenericObject} from '@/types'
 
 export default defineComponent({
