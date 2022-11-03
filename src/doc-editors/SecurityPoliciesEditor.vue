@@ -517,7 +517,7 @@ export default defineComponent({
       matchingDomainTitle: 'A unique matching regex value, not overlapping other Security Policy definitions',
 
       // collapsed
-      isDataCollapsed: false,
+      isDataCollapsed: true,
     }
   },
 
