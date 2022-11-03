@@ -345,7 +345,7 @@ const newOperationEntryFactory: { [key: string]: Function } = {
       'id': id,
       'name': 'New Site ' + id, // TODO: Remove this random uuid once names are no longer unique
       'description': 'New Site Description and Remarks',
-      'server_names': [],
+      'server_names': ['www.example.com'],
       'security_policy': '__default__',
       'routing_profile': '__default__',
       'proxy_template': '__default__',
