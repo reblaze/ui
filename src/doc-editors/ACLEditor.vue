@@ -8,38 +8,36 @@
             <div class="media collapsible px-5 py-5 mb-0"
                  @click="isDataCollapsed = !isDataCollapsed">
               <div class="media-content">
-                <p v-show="!isDataCollapsed"
-                   class="title is-5"></p>
                 <p v-show="isDataCollapsed"
                    class="is-5">
-                <span class="inline-collapsed-header">
-                  <span class="label is-small mr-1">
-                    Name:
-                  </span>
-                  {{ localDoc.name }}
-                </span>
                   <span class="inline-collapsed-header">
-                  <span class="label is-small mr-1">
-                    ID:
+                    <span class="label is-small mr-1">
+                      Name:
+                    </span>
+                    {{ localDoc.name }}
                   </span>
-                  {{ localDoc.id }}
-                </span>
-                  <span class="inline-collapsed-header">
-                  <span class="label is-small mr-1">
-                    Tags:
+                    <span class="inline-collapsed-header">
+                    <span class="label is-small mr-1">
+                      ID:
+                    </span>
+                    {{ localDoc.id }}
                   </span>
-                  {{ selectedDocTags }}
-                </span>
+                    <span class="inline-collapsed-header">
+                    <span class="label is-small mr-1">
+                      Tags:
+                    </span>
+                    {{ selectedDocTags }}
+                  </span>
                 </p>
               </div>
               <span v-show="isDataCollapsed">
-              <i class="fas fa-angle-down"
-                 aria-hidden="true"></i>
-            </span>
+                <i class="fas fa-angle-down"
+                   aria-hidden="true" />
+              </span>
               <span v-show="!isDataCollapsed">
-              <i class="fas fa-angle-up"
-                 aria-hidden="true"></i>
-            </span>
+                <i class="fas fa-angle-up"
+                   aria-hidden="true" />
+              </span>
             </div>
             <div class="content collapsible-content px-5 py-5">
               <div class="columns">

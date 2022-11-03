@@ -95,15 +95,6 @@ declare module CuriefenseClient {
 
   type ArgsCookiesHeadersType = 'headers' | 'args' | 'cookies'
 
-  type DynamicRuleTargetOptionType =
-    'remote_addr'
-    | 'organization'
-    | 'cookie'
-    | 'geoip_city_country_name'
-    | 'planet'
-    | 'request_headers'
-    | 'request_body'
-
   type NamesRegexType = 'names' | 'regex'
 
   type EdgeFunctionsPhaseType = 'request' | 'response'
@@ -218,7 +209,7 @@ declare module CuriefenseClient {
     exclude: string[]
     include: string[]
     ttl: number,
-    target: DynamicRuleTargetOptionType
+    target: string
   }
 
 
@@ -420,7 +411,7 @@ declare module CuriefenseClient {
     routing_profile: RoutingProfile['id']
     proxy_template: ConfigTemplate['id']
     mobile_sdk: MobileSDK['id']
-    ssl_certificate?: string
+    ssl_certificate: string
   }
 
   // Operation documents - END
