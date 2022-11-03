@@ -80,8 +80,8 @@
               <div class="control"
                    data-qa="tag-input">
                 <tag-autocomplete-input :initial-tag="selectedDocTags"
-                                        :selection-type="'multiple'"
-                                        @tag-changed="selectedDocTags = $event" />
+                                        selection-type="multiple"
+                                        @tag-changed="selectedDocTagsChanged" />
               </div>
               <labeled-tags title="Automatic Tags"
                             :tags="automaticTags" />
@@ -138,6 +138,12 @@ export default defineComponent({
   props: {
     selectedDoc: Object,
   },
+  data() {
+    return {
+      riskLevels: [1, 2, 3, 4, 5],
+    }
+  },
+  emits: ['update:selectedDoc', 'form-invalid'],
   computed: {
     localDoc(): ContentFilterRule {
       return _.cloneDeep(this.selectedDoc as ContentFilterRule)
@@ -166,14 +172,19 @@ export default defineComponent({
       return [ruleTag, riskTag, categoryTag, subcategoryTag]
     },
   },
-  data() {
-    return {
-      riskLevels: [1, 2, 3, 4, 5],
-    }
-  },
+
   methods: {
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
+    },
+    selectedDocTagsChanged(tags: string) {
+      if (tags.trim() == '') {
+        this.selectedDocTags = tags.trim()
+        this.$emit('form-invalid', true)
+      } else {
+        this.$emit('form-invalid', false)
+        this.selectedDocTags = tags.trim()
+      }
     },
   },
 })
