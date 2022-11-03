@@ -198,7 +198,7 @@ export default defineComponent({
       customResponseNames: [] as [CustomResponse['id'], CustomResponse['name']][],
 
       // collapsed
-      isDataCollapsed: false,
+      isDataCollapsed: true,
     }
   },
 

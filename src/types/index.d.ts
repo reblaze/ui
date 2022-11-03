@@ -95,8 +95,6 @@ declare module CuriefenseClient {
 
   type ArgsCookiesHeadersType = 'headers' | 'args' | 'cookies'
 
-  type LimitRuleType = 'headers' | 'args' | 'cookies' | 'attrs' | 'self'
-
   type NamesRegexType = 'names' | 'regex'
 
   type EdgeFunctionsPhaseType = 'request' | 'response'
