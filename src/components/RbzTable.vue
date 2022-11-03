@@ -12,11 +12,12 @@
         </th>
       </tr>
       <tr class="header-row">
-        <th class="is-size-7 width-50px" v-if="showCheckboxColumn">
+        <th class="is-size-7 width-45px" v-if="showCheckboxColumn">
           <div class="field is-grouped is-grouped-centered">
               <input type="checkbox"
                       title="Select all rows"
                       ref="check-box"
+                      :checked="selectedArray.length !== 0"
                       class="is-small header-checkbox"
                       @click="selectAll()" />
           </div>
@@ -94,9 +95,6 @@
       <tr class="search-row header-row"
           v-if="filtersVisible">
         <th class="is-size-7 width-50px" v-if="showCheckboxColumn">
-        <div class="field is-grouped is-grouped-centered">
-          &nbsp;
-        </div>
         </th>
         <th class="control has-icons-right"
             v-for="(col, index) in columns"
@@ -247,7 +245,6 @@ export default defineComponent({
 
       // Pagination
       currentPage: 1,
-      // slicedDataArrayDisplay: [] as GenericObject[],
 
       // checkboxes
       selectedRow: '' as string,
@@ -283,11 +280,12 @@ export default defineComponent({
     dataArrayDisplay: {
       handler: function(val) {
         this.currentPage = 1
-        if (val?.length) {
-          const valIdArray = val.map((row: any) => row.id)
-          if (this.selectedArray && this.selectedArray.length > 0) {
-            this.selectedArray = this.selectedArray.filter((item) => valIdArray.includes(item))
-          }
+        if (val?.length > 0 && this.selectedArray?.length > 0) {
+          this.selectedArray = _.filter(this.selectedArray, (selectedArrayItem) => {
+            return _.some(val, (dataArrayItem) => {
+              return dataArrayItem.id === selectedArrayItem
+            })
+          })
         } else {
           this.selectedArray = []
         }
@@ -400,7 +398,7 @@ export default defineComponent({
     },
 
     selectAll() {
-      const currentCheckboxes = this.dataArrayDisplay.map((item) => item.id)
+      const currentCheckboxes = _.map(this.dataArrayDisplay, 'id')
       if (this.$refs['check-box'].checked) {
         this.selectedArray = _.cloneDeep(currentCheckboxes)
       } else {

@@ -69,14 +69,14 @@ export default defineComponent({
           fieldNames: ['value'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-100px',
+          classes: 'width-90px',
         },
         {
           title: 'Count',
           fieldNames: ['count'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-100px',
+          classes: 'width-50px',
         },
         {
           title: 'First Added',
@@ -105,7 +105,7 @@ export default defineComponent({
           fieldNames: ['rule_id'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-100px',
+          classes: 'width-50px',
         },
         {
           title: 'Tags',
@@ -115,7 +115,7 @@ export default defineComponent({
             return item.tags?.join('\n')
           },
           isSearchable: true,
-          classes: 'width-100px white-space-pre',
+          classes: 'width-130px white-space-pre',
         },
       ] as ColumnOptions[],
       quarantinedData: null as Quarantined[],
@@ -217,21 +217,21 @@ export default defineComponent({
 <style scoped
        lang="scss">
 
-    .delete-selected-button {
-      background-color: transparent;
-      border: 0 solid transparent;
-    }
+  .delete-selected-button {
+    background-color: transparent;
+    border: 0 solid transparent;
+  }
 
-    .delete-selected-button.disabled {
-      font-weight: 100;
-      opacity: 0.3;
-    }
+  .delete-selected-button.disabled {
+    font-weight: 100;
+    opacity: 0.3;
+  }
 
-    .delete-selected-button:hover {
-      background-color: transparent;
-      border: 0 solid transparent;
-      box-shadow: none;
-      font-weight: 200;
-    }
+  .delete-selected-button:hover {
+    background-color: transparent;
+    border: 0 solid transparent;
+    box-shadow: none;
+    font-weight: 200;
+  }
 
 </style>
