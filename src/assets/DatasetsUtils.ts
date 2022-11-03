@@ -350,6 +350,7 @@ const newOperationEntryFactory: { [key: string]: Function } = {
       'routing_profile': '__default__',
       'proxy_template': '__default__',
       'mobile_sdk': '',
+      'ssl_certificate': 'placeholder',
     }
   },
 

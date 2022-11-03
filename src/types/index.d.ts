@@ -411,7 +411,7 @@ declare module CuriefenseClient {
     routing_profile: RoutingProfile['id']
     proxy_template: ConfigTemplate['id']
     mobile_sdk: MobileSDK['id']
-    ssl_certificate?: string
+    ssl_certificate: string
   }
 
   // Operation documents - END
