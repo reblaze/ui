@@ -106,44 +106,43 @@
                   </div>
                 </div>
               </div>
-            </div>
-            <div class="column is-8">
-              <div class="field">
-                <label class="label is-small">
-                  Main Session ID
-                </label>
-                <div class="control">
-                  <limit-option selected-type-column-class="is-3"
-                                v-model:option="sessionOption"
-                                :key="sessionOption.type + localDoc.id"
-                                :ignore-attributes="['session']"
-                                @change="emitDocUpdate"/>
+              <div class="column is-8">
+                <div class="field">
+                  <label class="label is-small">
+                    Main Session ID
+                  </label>
+                  <div class="control">
+                    <limit-option selected-type-column-class="is-3"
+                                  v-model:option="localDoc.session[0]"
+                                  :ignore-attributes="['session']"
+                                  @update:option="emitDocUpdate"/>
+                  </div>
                 </div>
-              </div>
-              <div class="field">
-                <label class="label is-small">
-                  Other Session IDs
-                </label>
-                <div class="control">
-                  <limit-option v-for="(option, index) in localDoc.session_ids"
-                                selected-type-column-class="is-3"
-                                show-remove
-                                @remove="removeSessionId(index)"
-                                @change="updateSessionIdOption($event, index)"
-                                :removable="true"
-                                :ignore-attributes="['session']"
-                                :option="generateOption(option)"
-                                :key="getOptionTextKey(option, index)"/>
-                  <a title="Add new session ID"
-                     class="is-text is-small is-size-7 ml-3 add-session-id-button"
-                     data-qa="add-new-session-id-btn"
-                     tabindex="0"
-                     @click="addSessionId()"
-                     @keypress.space.prevent
-                     @keypress.space="addSessionId()"
-                     @keypress.enter="addSessionId()">
-                    New entry
-                  </a>
+                <div class="field">
+                  <label class="label is-small">
+                    Other Session IDs
+                  </label>
+                  <div class="control">
+                    <limit-option v-for="(option, index) in localDoc.session_ids"
+                                  selected-type-column-class="is-3"
+                                  show-remove
+                                  removable
+                                  @remove="removeSessionId(index)"
+                                  @update:option="emitDocUpdate"
+                                  :ignore-attributes="['session']"
+                                  v-model:option="localDoc.session_ids[index]"
+                                  :key="getOptionTextKey(option, index)"/>
+                    <a title="Add new session ID"
+                       class="is-text is-small is-size-7 ml-3 add-session-id-button"
+                       data-qa="add-new-session-id-btn"
+                       tabindex="0"
+                       @click="addSessionId()"
+                       @keypress.space.prevent
+                       @keypress.space="addSessionId()"
+                       @keypress.enter="addSessionId()">
+                      New entry
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
@@ -475,7 +474,6 @@ import {
   ACLProfile,
   ContentFilterProfile,
   LimitOptionType,
-  LimitRuleType,
   RateLimit,
   SecurityPolicy,
   SecurityPolicyEntryMatch,
@@ -484,7 +482,7 @@ import {AxiosResponse} from 'axios'
 import Utils from '@/assets/Utils'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import LabeledTags from '@/components/LabeledTags.vue'
-import LimitOption, {OptionObject} from '@/components/LimitOption.vue'
+import LimitOption from '@/components/LimitOption.vue'
 
 export default defineComponent({
   name: 'SecurityPoliciesEditor',
@@ -519,7 +517,7 @@ export default defineComponent({
       matchingDomainTitle: 'A unique matching regex value, not overlapping other Security Policy definitions',
 
       // collapsed
-      isDataCollapsed: false,
+      isDataCollapsed: true,
     }
   },
 
@@ -561,16 +559,6 @@ export default defineComponent({
     automaticTags(): string[] {
       const nameTag = `securitypolicy:${this.localDoc.name?.replace(/ /g, '-') || ''}`
       return [nameTag]
-    },
-
-    sessionOption: {
-      get: function(): LimitOptionType {
-        return this.generateOption(this.localDoc.session[0])
-      },
-      set: function(value: LimitOptionType): void {
-        this.localDoc.session[0] = value
-        this.emitDocUpdate()
-      },
     },
 
     isFormInvalid(): boolean {
@@ -764,7 +752,7 @@ export default defineComponent({
     },
 
     normalizeDocSession() {
-      this.localDoc.session = []
+      this.localDoc.session = [{'attrs': ''}]
       this.emitDocUpdate()
     },
 
@@ -781,32 +769,13 @@ export default defineComponent({
       return `${this.localDoc.id}_${type}_${index}`
     },
 
-    generateOption(data: LimitOptionType): OptionObject {
-      if (!data) {
-        return {}
-      }
-      const [firstObjectKey] = Object.keys(data)
-      const type = firstObjectKey as LimitRuleType
-      const key = data[firstObjectKey]
-      return {type, key, value: null}
-    },
-
     addSessionId() {
       this.localDoc.session_ids.push({attrs: 'ip'})
       this.emitDocUpdate()
     },
 
     removeSessionId(index: number) {
-      if (this.localDoc.session_ids.length > 1) {
-        this.localDoc.session_ids.splice(index, 1)
-      }
-      this.emitDocUpdate()
-    },
-
-    updateSessionIdOption(option: OptionObject, index: number) {
-      this.localDoc.session_ids.splice(index, 1, {
-        [option.type]: option.key,
-      })
+      this.localDoc.session_ids.splice(index, 1)
       this.emitDocUpdate()
     },
   },

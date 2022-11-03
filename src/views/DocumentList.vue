@@ -147,7 +147,6 @@ export default defineComponent({
       cancelSource: axios.CancelToken.source(),
       // Documents
       docs: [] as GenericObject[],
-      docIdNames: [] as [Document['id'], Document['name']][],
       // To prevent deletion of docs referenced by Security Policies
       referencedIDsACL: [],
       referencedIDsContentFilter: [],
