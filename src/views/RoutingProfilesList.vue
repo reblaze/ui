@@ -25,26 +25,22 @@
 
     <div class="content document-list-wrapper"
          v-show="!loadingDocCounter && selectedBranch">
-      <div class="card">
-        <div class="card-content">
-          <div class="content">
-            <rbz-table :columns="columns"
-                       :data="routingProfiles"
-                       :default-sort-column-index="1"
-                       :show-menu-column="true"
-                       :show-filter-button="true"
-                       :show-new-button="true"
-                       @new-button-clicked="addNewProfile"
-                       :row-clickable="true"
-                       @row-clicked="editProfile"
-                       :show-row-button="true"
-                       @row-button-clicked="editProfile">
-            </rbz-table>
-            <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">
-                {{ documentListAPIPath }}
-              </span>
-          </div>
-        </div>
+      <div class="content">
+        <rbz-table :columns="columns"
+                   :data="routingProfiles"
+                   :default-sort-column-index="1"
+                   :show-menu-column="true"
+                   :show-filter-button="true"
+                   :show-new-button="true"
+                   @new-button-clicked="addNewProfile"
+                   :row-clickable="true"
+                   @row-clicked="editProfile"
+                   :show-row-button="true"
+                   @row-button-clicked="editProfile">
+        </rbz-table>
+        <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">
+          {{ documentListAPIPath }}
+        </span>
       </div>
     </div>
 
@@ -80,18 +76,11 @@ export default defineComponent({
           fieldNames: ['id'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-130px',
+          classes: 'width-130px ellipsis',
         },
         {
           title: 'Name',
           fieldNames: ['name'],
-          isSortable: true,
-          isSearchable: true,
-          classes: 'width-130px',
-        },
-        {
-          title: 'Description',
-          fieldNames: ['description'],
           isSortable: true,
           isSearchable: true,
           classes: 'ellipsis',
@@ -191,9 +180,13 @@ export default defineComponent({
     },
 
     async loadProfiles() {
+      this.setLoadingDocStatus(true)
+      this.isDownloadLoading = true
       const url = `configs/${this.selectedBranch}/d/routing-profiles/`
       const response = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
       this.routingProfiles = response?.data
+      this.isDownloadLoading = false
+      this.setLoadingDocStatus(false)
     },
 
     async switchBranch() {

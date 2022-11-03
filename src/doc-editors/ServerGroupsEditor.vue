@@ -51,19 +51,53 @@
                 </button>
               </p>
               <p class="control">
-                <button class="button is-small has-text-danger delete-document-button"
-                        title="Delete document"
-                        data-qa="delete-document"
-                        :class="{'is-loading': isDeleteLoading}"
-                        :disabled="selectedServerGroup?.id === '__default__'"
-                        @click="deleteDoc()">
-                  <span class="icon is-small">
-                    <i class="fas fa-trash"></i>
+                  <span class="field has-addons">
+                    <span class="control">
+                      <button class="button is-small has-text-danger delete-server-group"
+                              data-qa="delete-server-group-btn"
+                              :class="{'is-loading': isDeleteLoading}"
+                              :disabled="selectedDocNotDeletable"
+                              @click="toggleDeleteServerGroupDoc()">
+                        <span class="icon is-small">
+                          <i class="fas fa-trash"></i>
+                        </span>
+                        <span>
+                          Delete
+                        </span>
+                      </button>
+                    </span>
+                    <span class="control is-expanded confirm-delete"
+                          v-if="deleteServerGroupDoc">
+                      <input class="input is-small width-200px delete-server-group-input"
+                             data-qa="confirm-server-group-input"
+                             title="Server Group Name"
+                             ref="confirm-delete"
+                             placeholder="Confirm Server Group name"
+                             v-model="deleteServerGroupDocName"
+                             type="text">
+                    </span>
+                    <span class="control"
+                          v-if="deleteServerGroupDoc">
+                      <button class="button is-danger is-small delete-server-group-cancel"
+                              data-qa="cancel-delete-server-group-btn"
+                              @click="toggleDeleteServerGroupDoc">
+                        <span class="icon is-small">
+                          <i class="fas fa-times"></i>
+                        </span>
+                      </button>
+                    </span>
+                    <span class="control"
+                          v-if="deleteServerGroupDoc">
+                      <button class="button is-primary is-small delete-server-group-confirm"
+                              data-qa="confirm-delete-server-group-btn"
+                              :disabled="!isDeleteServerGroupDocNameValid"
+                              @click="deleteServerGroup">
+                        <span class="icon is-small">
+                          <i class="fas fa-check"></i>
+                        </span>
+                      </button>
+                    </span>
                   </span>
-                  <span>
-                    Delete
-                  </span>
-                </button>
               </p>
             </div>
           </div>
@@ -71,251 +105,247 @@
       </div>
     </div>
     <hr/>
-    <div class="card">
-      <div class="card-content">
-        <div class="content"
-             v-if="selectedServerGroup">
-          <div class="columns columns-divided">
-            <div class="column is-4">
-              <div class="field">
-                <label class="label is-small">
-                  Name
-                  <span class="has-text-grey is-pulled-right document-id"
-                        title="Rule id">
+    <div class="content"
+         v-if="selectedServerGroup">
+      <div class="columns columns-divided">
+        <div class="column is-4">
+          <div class="field">
+            <label class="label is-small">
+              Name
+              <span class="has-text-grey is-pulled-right document-id"
+                    title="Rule id">
                       {{ selectedServerGroup.id }}
                     </span>
-                </label>
-                <div class="control">
-                  <input class="input is-small document-name"
-                         title="Document name"
-                         placeholder="Document name"
-                         v-model="selectedServerGroup.name"/>
-                </div>
-              </div>
-              <div class="field">
-                  <label class="label is-small">
-                    Match Host/Authority Headers
-                  </label>
-                  <div class="control">
+            </label>
+            <div class="control">
+              <input class="input is-small document-name"
+                     title="Document name"
+                     placeholder="Document name"
+                     v-model="selectedServerGroup.name"/>
+            </div>
+          </div>
+          <div class="field">
+            <label class="label is-small">
+              Match Host/Authority Headers
+            </label>
+            <div class="control">
                     <textarea
-                      class="is-small textarea match-host"
-                      title="Match Host/Authority Headers"
-                      placeholder="Match Host/Authority Headers"
-                      data-qa="match-host-input"
-                      v-model="serverNames"
-                      rows="5">
+                        class="is-small textarea match-host"
+                        title="Match Host/Authority Headers"
+                        placeholder="Match Host/Authority Headers"
+                        data-qa="match-host-input"
+                        v-model="serverNames"
+                        rows="2">
                     </textarea>
-                  </div>
-                </div>
-                <!--div-- class="field">
-                  <label class="label is-small">
-                    Certificate
-                  </label>
-                  <div class="control is-expanded">
-                    <div class="select is-fullwidth is-small">
-                      <select v-model="selectedServerGroup.ssl_certificate" >
-                        <option value="" selected disabled>
-                            Select Certificate
-                        </option>
-                        <option v-for="certificate in certificatesNames"
-                            :value="certificate[0]"
-                            :key="certificate[0]">
-                            {{certificate[0] }} ({{certificate[1] }})
-                        </option>
-                      </select>
-                    </div>
-                  </div>
-                  <p class="help">
-                    (Optional) Choose a certificate for the site, or create a
-                    <a url="/new-ssl-page/certificate-store">
-                        new one
-                    </a>.
-                  </p>
-                </!--div-->
-              <div class="field">
-                <div class="field textarea-field">
-                  <label class="label is-small">Description</label>
-                  <div class="control">
+            </div>
+          </div>
+          <!--div-- class="field">
+            <label class="label is-small">
+              Certificate
+            </label>
+            <div class="control is-expanded">
+              <div class="select is-fullwidth is-small">
+                <select v-model="selectedServerGroup.ssl_certificate" >
+                  <option value="" selected disabled>
+                      Select Certificate
+                  </option>
+                  <option v-for="certificate in certificatesNames"
+                      :value="certificate[0]"
+                      :key="certificate[0]">
+                      {{certificate[0] }} ({{certificate[1] }})
+                  </option>
+                </select>
+              </div>
+            </div>
+            <p class="help">
+              (Optional) Choose a certificate for the site, or create a
+              <a url="/new-ssl-page/certificate-store">
+                  new one
+              </a>.
+            </p>
+          </!--div-->
+          <div class="field">
+            <div class="field textarea-field">
+              <label class="label is-small">Description</label>
+              <div class="control">
                       <textarea class="is-small textarea document-description"
                                 data-qa="description-input"
                                 title="Document description"
                                 v-model="selectedServerGroup.description"
                                 rows="5">
                       </textarea>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
-          <div class="columns is-multiline">
-            <div class="column is-4">
-              <div class="field">
-                <label class="label is-small">Routing Profile</label>
-                <div class="control is-expanded">
-                  <div class="select is-fullwidth is-small">
-                    <select v-model="selectedServerGroup.routing_profile"
-                            data-qa="routing-profile-dropdown"
-                            class="document-routing-profile-selection"
-                            title="Routing profile">
-                      <option v-for="routingProfile in routingProfilesNames"
-                              :value="routingProfile[0]"
-                              :key="routingProfile[0]">
-                        {{ routingProfile[1] }}
-                      </option>
-                    </select>
-                  </div>
-                </div>
+        </div>
+      </div>
+      <div class="columns is-multiline">
+        <div class="column is-4">
+          <div class="field">
+            <label class="label is-small">Routing Profile</label>
+            <div class="control is-expanded">
+              <div class="select is-fullwidth is-small">
+                <select v-model="selectedServerGroup.routing_profile"
+                        data-qa="routing-profile-dropdown"
+                        class="document-routing-profile-selection"
+                        title="Routing profile">
+                  <option v-for="routingProfile in routingProfilesNames"
+                          :value="routingProfile[0]"
+                          :key="routingProfile[0]">
+                    {{ routingProfile[1] }}
+                  </option>
+                </select>
               </div>
             </div>
-            <div v-if="selectedRoutingProfile"
-                 class="column is-12">
-              <div class="card mb-0">
-                <div class="card-content">
-                  <table class="table is-size-7">
-                    <thead>
-                    <tr>
-                      <th class="width-500px">
-                        Path
-                      </th>
-                      <th class="width-250px">
-                        Backend Service
-                      </th>
-                      <th class="width-120px">
-                        Edge Functions
-                      </th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr v-for="location in selectedRoutingProfile.locations"
-                        :key="location.path">
-                      <td class="ellipsis">
-                        {{ location.path }}
-                      </td>
-                      <td class="ellipsis">
-                        {{ referencedDocName(backendServicesNames, location.backend_id) }}
-                      </td>
-                      <td>
+          </div>
+        </div>
+        <div v-if="selectedRoutingProfile"
+             class="column is-12">
+          <div class="card mb-0">
+            <div class="card-content">
+              <table class="table is-size-7">
+                <thead>
+                <tr>
+                  <th class="width-500px">
+                    Path
+                  </th>
+                  <th class="width-250px">
+                    Backend Service
+                  </th>
+                  <th class="width-120px">
+                    Edge Functions
+                  </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="location in selectedRoutingProfile.locations"
+                    :key="location.path">
+                  <td class="ellipsis">
+                    {{ location.path }}
+                  </td>
+                  <td class="ellipsis">
+                    {{ referencedDocName(backendServicesNames, location.backend_id) }}
+                  </td>
+                  <td>
                           <span v-for="edgeFunction in location.cloud_functions"
                                 :key="edgeFunction">
                             {{ location.cloud_functions.length }}
                           </span>
-                      </td>
-                    </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
             </div>
           </div>
-          <div class="columns is-multiline">
-            <div class="column is-4">
-              <div class="field">
-                <label class="label is-small">Security Policy</label>
-                <div class="control is-expanded">
-                  <div class="select is-fullwidth is-small">
-                    <select v-model="selectedServerGroup.security_policy"
-                            data-qa="security-policy-dropdown"
-                            class="document-security-policy-selection"
-                            title="Security policy">
-                      <option v-for="securityPolicy in securityPoliciesNames"
-                              :value="securityPolicy[0]"
-                              :key="securityPolicy[0]">
-                        {{ securityPolicy[1] }}
-                      </option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div v-if="selectedSecurityPolicy"
-                 class="column is-12">
-              <div class="card mb-0">
-                <div class="card-content">
-                  <table class="table is-size-7">
-                    <thead>
-                    <tr>
-                      <th class="width-100px">Name</th>
-                      <th class="width-400px">Path</th>
-                      <th class="width-150px">Content Filter</th>
-                      <th class="width-150px">ACL</th>
-                      <th class="width-120px">Rate Limit</th>
-                    </tr>
-                    </thead>
-                    <tbody v-for="(mapEntry, mapIndex) in selectedSecurityPolicy.map"
-                           :key="mapIndex">
-                    <tr>
-                      <td class="ellipsis"
-                          :title="mapEntry.name">
-                        {{ mapEntry.name }}
-                      </td>
-                      <td class="ellipsis"
-                          :title="mapEntry.match">
-                        {{ mapEntry.match }}
-                      </td>
-                      <td class="ellipsis"
-                          :class="mapEntry.content_filter_active ? 'has-text-success' : 'has-text-danger'"
-                          :title="mapEntry.content_filter_active ? 'Active mode' : 'Learning mode'">
-                        {{ referencedDocName(contentFilterProfilesNames, mapEntry.content_filter_profile) }}
-                      </td>
-                      <td class="ellipsis"
-                          :class="mapEntry.acl_active ? 'has-text-success' : 'has-text-danger'"
-                          :title="mapEntry.acl_active ? 'Active mode' : 'Learning mode'">
-                        {{ referencedDocName(aclProfilesNames, mapEntry.acl_profile) }}
-                      </td>
-                      <td class="ellipsis">
-                        {{ mapEntry.limit_ids.length }}
-                      </td>
-                    </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="columns">
-            <div class="column is-4">
-              <div class="field">
-                <label class="label is-small">Mobile SDK</label>
-                <div class="control is-expanded">
-                  <div class="select is-fullwidth is-small">
-                    <select v-model="selectedServerGroup.mobile_sdk"
-                            data-qa="mobile-sdk-dropdown"
-                            class="document-mobile-sdk-selection"
-                            title="Mobile SDK">
-                      <option value="">
-                        None
-                      </option>
-                      <option v-for="mobileSDK in mobileSDKsNames"
-                              :value="mobileSDK[0]"
-                              :key="mobileSDK[0]">
-                        {{ mobileSDK[1] }}
-                      </option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-              <div class="field">
-                <label class="label is-small">Config Template</label>
-                <div class="control is-expanded">
-                  <div class="select is-fullwidth is-small">
-                    <select v-model="selectedServerGroup.proxy_template"
-                            data-qa="config-template-dropdown"
-                            class="document-config-template-selection"
-                            title="Config template">
-                      <option v-for="configTemplate in configTemplatesNames"
-                              :value="configTemplate[0]"
-                              :key="configTemplate[0]">
-                        {{ configTemplate[1] }}
-                      </option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ documentAPIPath }}</span>
         </div>
       </div>
+      <div class="columns is-multiline">
+        <div class="column is-4">
+          <div class="field">
+            <label class="label is-small">Security Policy</label>
+            <div class="control is-expanded">
+              <div class="select is-fullwidth is-small">
+                <select v-model="selectedServerGroup.security_policy"
+                        data-qa="security-policy-dropdown"
+                        class="document-security-policy-selection"
+                        title="Security policy">
+                  <option v-for="securityPolicy in securityPoliciesNames"
+                          :value="securityPolicy[0]"
+                          :key="securityPolicy[0]">
+                    {{ securityPolicy[1] }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div v-if="selectedSecurityPolicy"
+             class="column is-12">
+          <div class="card mb-0">
+            <div class="card-content">
+              <table class="table is-size-7">
+                <thead>
+                <tr>
+                  <th class="width-100px">Name</th>
+                  <th class="width-400px">Path</th>
+                  <th class="width-150px">Content Filter</th>
+                  <th class="width-150px">ACL</th>
+                  <th class="width-120px">Rate Limit</th>
+                </tr>
+                </thead>
+                <tbody v-for="(mapEntry, mapIndex) in selectedSecurityPolicy.map"
+                       :key="mapIndex">
+                <tr>
+                  <td class="ellipsis"
+                      :title="mapEntry.name">
+                    {{ mapEntry.name }}
+                  </td>
+                  <td class="ellipsis"
+                      :title="mapEntry.match">
+                    {{ mapEntry.match }}
+                  </td>
+                  <td class="ellipsis"
+                      :class="mapEntry.content_filter_active ? 'has-text-success' : 'has-text-danger'"
+                      :title="mapEntry.content_filter_active ? 'Active mode' : 'Learning mode'">
+                    {{ referencedDocName(contentFilterProfilesNames, mapEntry.content_filter_profile) }}
+                  </td>
+                  <td class="ellipsis"
+                      :class="mapEntry.acl_active ? 'has-text-success' : 'has-text-danger'"
+                      :title="mapEntry.acl_active ? 'Active mode' : 'Learning mode'">
+                    {{ referencedDocName(aclProfilesNames, mapEntry.acl_profile) }}
+                  </td>
+                  <td class="ellipsis">
+                    {{ mapEntry.limit_ids.length }}
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="columns">
+        <div class="column is-4">
+          <div class="field">
+            <label class="label is-small">Mobile SDK</label>
+            <div class="control is-expanded">
+              <div class="select is-fullwidth is-small">
+                <select v-model="selectedServerGroup.mobile_sdk"
+                        data-qa="mobile-sdk-dropdown"
+                        class="document-mobile-sdk-selection"
+                        title="Mobile SDK">
+                  <option value="">
+                    None
+                  </option>
+                  <option v-for="mobileSDK in mobileSDKsNames"
+                          :value="mobileSDK[0]"
+                          :key="mobileSDK[0]">
+                    {{ mobileSDK[1] }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <label class="label is-small">Config Template</label>
+            <div class="control is-expanded">
+              <div class="select is-fullwidth is-small">
+                <select v-model="selectedServerGroup.proxy_template"
+                        data-qa="config-template-dropdown"
+                        class="document-config-template-selection"
+                        title="Config template">
+                  <option v-for="configTemplate in configTemplatesNames"
+                          :value="configTemplate[0]"
+                          :key="configTemplate[0]">
+                    {{ configTemplate[1] }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ documentAPIPath }}</span>
     </div>
   </div>
 </template>
@@ -325,13 +355,13 @@ import RequestsUtils from '@/assets/RequestsUtils'
 import {
   ACLProfile,
   BackendService,
+  Certificate,
+  ConfigTemplate,
   ContentFilterProfile,
   MobileSDK,
-  ConfigTemplate,
   RoutingProfile,
   SecurityPolicy,
   Site,
-  Certificate,
 } from '@/types'
 import Utils from '@/assets/Utils'
 import {defineComponent} from 'vue'
@@ -367,6 +397,9 @@ export default defineComponent({
       contentFilterProfilesNames: [] as [ContentFilterProfile['id'], ContentFilterProfile['name']][],
       aclProfilesNames: [] as [ACLProfile['id'], ACLProfile['name']][],
 
+      deleteServerGroupDocName: '' as string,
+      deleteServerGroupDoc: false as boolean,
+
       apiRoot: RequestsUtils.reblazeAPIRoot,
       apiVersion: RequestsUtils.reblazeAPIVersion,
     }
@@ -392,6 +425,11 @@ export default defineComponent({
     documentAPIPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
       return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/sites/e/${this.selectedServerGroup.id}/`
+    },
+
+    selectedDocNotDeletable(): boolean {
+      return !this.selectedServerGroup ||
+          this.selectedServerGroup.id.startsWith('__') // Default entries
     },
 
     selectedSecurityPolicy(): SecurityPolicy {
@@ -421,6 +459,11 @@ export default defineComponent({
     },
 
     ...mapStores(useBranchesStore),
+
+    isDeleteServerGroupDocNameValid(): boolean {
+      const deleteConfirmInputName = this.deleteServerGroupDocName.trim()
+      return deleteConfirmInputName === this.selectedServerGroup.name
+    },
   },
   methods: {
     async setSelectedDataFromRouteParams() {
@@ -454,7 +497,7 @@ export default defineComponent({
       }
     },
 
-    async deleteDoc() {
+    async deleteServerGroup() {
       this.setLoadingDocStatus(true)
       this.isDeleteLoading = true
       const serverGroupText = this.titles['sites-singular']
@@ -485,22 +528,22 @@ export default defineComponent({
     },
 
     loadCertificates() {
-      RequestsUtils.sendReblazeRequest({
-        methodName: 'GET',
-        url: `configs/${this.selectedBranch}/d/certificates/`,
-        config: {headers: {'x-fields': 'id, san'}},
-      }).then((response: AxiosResponse<Certificate[]>) => {
-        if (response.data.length > 0) {
-          this.certificatesNames = _.sortBy(_.map(response.data, (entity) => {
-            return [entity.id, entity.san]
-          }), (e) => {
-            return e[1]
-          })
-        } else {
-          // TODO  get certificate to work
-          this.certificatesNames = [['need-real-data', ['www.certificate.com']]] as [string, string[]][]
-        }
-      })
+      // RequestsUtils.sendReblazeRequest({
+      //   methodName: 'GET',
+      //   url: `configs/${this.selectedBranch}/d/certificates/`,
+      //   config: {headers: {'x-fields': 'id, san'}},
+      // }).then((response: AxiosResponse<Certificate[]>) => {
+      //   if (response.data.length > 0) {
+      //     this.certificatesNames = _.sortBy(_.map(response.data, (entity) => {
+      //       return [entity.id, entity.san]
+      //     }), (e) => {
+      //       return e[1]
+      //     })
+      //   } else {
+      // TODO  get certificate to work
+      this.certificatesNames = [['need-real-data', ['www.certificate.com']]] as [string, string[]][]
+      //   }
+      // })
     },
 
     async loadServerGroup() {
@@ -619,6 +662,13 @@ export default defineComponent({
     referencedDocName(list: [string, string][], id: string): string {
       const matchedItem = _.find(list, (listItem) => listItem[0] === id)
       return matchedItem?.[1] || ''
+    },
+
+    toggleDeleteServerGroupDoc() {
+      this.deleteServerGroupDoc = !this.deleteServerGroupDoc
+      if (!this.deleteServerGroupDoc) {
+        this.deleteServerGroupDocName = ''
+      }
     },
   },
   async created() {

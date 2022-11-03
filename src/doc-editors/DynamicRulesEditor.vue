@@ -40,7 +40,7 @@
                                 title="Document description"
                                 v-model="localDoc.description"
                                 @input="emitDocUpdate"
-                                rows="5">
+                                rows="2">
                       </textarea>
             </div>
           </div>
@@ -155,7 +155,7 @@
                 <tr v-for="(tag, tagIndex) in localDoc[filter]"
                     :key="tagIndex">
                   <td class="tag-cell ellipsis"
-                      :class=" duplicateTags[tag] ? 'has-text-danger' : '' "
+                      :class="duplicateTags[tag] ? 'has-text-danger' : ''"
                       :title="tag">
                     {{ tag }}
                   </td>
@@ -180,7 +180,7 @@
                                             :selection-type="'single'"
                                             :auto-focus="true"
                                             @keydown.esc="cancelAddNewTag"
-                                            @tag-submitted="addNewTag(filter, $event)" />
+                                            @tag-submitted="addNewTag(filter, $event)"/>
                   </td>
                   <td class="is-size-7 width-20px">
                     <a title="add new entry"
