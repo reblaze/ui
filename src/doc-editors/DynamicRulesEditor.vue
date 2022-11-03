@@ -49,18 +49,31 @@
               Target
             </label>
             <div class="control is-expanded">
-              <div class="select is-fullwidth is-small">
-                <select v-model="localDoc.target"
-                        data-qa="target-dropdown"
-                        title="Target"
-                        @change="emitDocUpdate"
-                        class="target-dropdown">
-                  <option v-for="option in targetOptions"
-                          :key="option.key"
-                          :value="option.key">
-                    {{ option.title }}
-                  </option>
-                </select>
+              <div class="columns mb-0">
+                <div class="column">
+                  <div class="select is-fullwidth is-small">
+                    <select v-model="targetType"
+                            data-qa="target-dropdown"
+                            title="Target"
+                            @change="targetChanged"
+                            class="target-dropdown">
+                      <option v-for="option in targetOptions"
+                              :key="option.key"
+                              :value="option.key">
+                        {{ option.title }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+                <div class="column">
+                  <input v-if="isTargetArgsCookiesHeaders(targetType)"
+                         class="input is-small target-key-input"
+                         data-qa="dynamic-rules-target-key-input"
+                         title="Target key"
+                         placeholder="Target key"
+                         v-model="targetValue"
+                         @change="targetChanged">
+                </div>
               </div>
             </div>
           </div>
@@ -72,8 +85,8 @@
               <input class="input is-small document-threshold"
                      data-qa="dynamic-rules-threshold-input"
                      type="number"
-                     title="Dynamic Rules threshold"
-                     placeholder="Dynamic Rules Threshold"
+                     title="Dynamic Rule threshold"
+                     placeholder="Dynamic Rule threshold"
                      @change="emitDocUpdate"
                      v-model="localDoc.threshold">
             </div>
@@ -86,8 +99,8 @@
               <input class="input is-small document-timeframe"
                      data-qa="dynamic-rules-timeframe-input"
                      type="number"
-                     title="Dynamic Rules limit duration"
-                     placeholder="Rate limit duration"
+                     title="Dynamic Rule limit duration"
+                     placeholder="Dynamic Rule limit duration"
                      @change="emitDocUpdate"
                      v-model="(localDoc.timeframe)">
             </div>
@@ -118,10 +131,10 @@
             </label>
             <div class="control suffix seconds-suffix">
               <input class="input is-small document-time-span"
-                     data-qa="dynamic-rules-threshold-input"
+                     data-qa="dynamic-rules-time-span-input"
                      type="number"
-                     title="Dynamic Rules threshold"
-                     placeholder="Dynamic Rules Threshold"
+                     title="Dynamic Rule time span"
+                     placeholder="Dynamic Rule time span"
                      @change="emitDocUpdate"
                      v-model="localDoc.ttl">
             </div>
@@ -266,22 +279,44 @@ export default defineComponent({
           title: 'Organization',
         },
       ],
+      targetType: '',
+      targetValue: '',
       customResponseNames: [] as [CustomResponse['id'], CustomResponse['name']][],
     }
+  },
+  watch: {
+    selectedDoc: {
+      handler: function(val, oldVal) {
+        if (!val || !oldVal || val.target !== oldVal.target) {
+          if (this.isTargetArgsCookiesHeaders(this.localDoc.target)) {
+            this.targetType = val.target.split('_')[0] || ''
+            this.targetValue = val.target.split('_')[1] || ''
+          } else {
+            this.targetType = this.localDoc.target
+            this.targetValue = ''
+          }
+        }
+      },
+      immediate: true,
+      deep: true,
+    },
   },
   computed: {
     localDoc(): DynamicRule {
       return _.cloneDeep(this.selectedDoc as DynamicRule)
     },
+
     localGlobalFilterDoc(): GlobalFilter {
       return _.cloneDeep(this.selectedDocMatchingGlobalFilter as GlobalFilter)
     },
+
     duplicateTags(): Dictionary<string> {
       const doc = this.localDoc
       const allTags = _.concat(doc['include'], doc['exclude'])
       const dupTags = _.filter(allTags, (val, i, iteratee) => _.includes(iteratee, val, i + 1))
       return _.fromPairs(_.zip(dupTags, dupTags))
     },
+
     selectedDocTags: {
       get: function(): string {
         if (this.localGlobalFilterDoc.tags && this.localGlobalFilterDoc.tags.length > 0) {
@@ -302,13 +337,28 @@ export default defineComponent({
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
     },
+
     emitMatchDocUpdate() {
       this.$emit('update:selectedDocMatchingGlobalFilter', this.localGlobalFilterDoc)
     },
+
     emitToDocAndDocMatchUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
       this.localGlobalFilterDoc.active = this.localDoc.active
       this.$emit('update:selectedDocMatchingGlobalFilter', this.localGlobalFilterDoc)
+    },
+
+    targetChanged() {
+      if (this.isTargetArgsCookiesHeaders(this.targetType)) {
+        this.localDoc.target = `${this.targetType}_${this.targetValue}`
+      } else {
+        this.localDoc.target = this.targetType
+      }
+      this.emitDocUpdate()
+    },
+
+    isTargetArgsCookiesHeaders(target: string): boolean {
+      return (new RegExp('(arguments|cookies|headers)')).test(target)
     },
 
     addNewTag(section: IncludeExcludeType, entry: string) {

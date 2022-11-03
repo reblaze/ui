@@ -14,13 +14,13 @@
           </p>
         </div>
         <span v-show="isVersionHistoryCollapsed">
-                    <i class="fas fa-angle-down"
-                       aria-hidden="true"></i>
-                  </span>
+          <i class="fas fa-angle-down"
+             aria-hidden="true" />
+        </span>
         <span v-show="!isVersionHistoryCollapsed">
-                    <i class="fas fa-angle-up"
-                       aria-hidden="true"></i>
-                  </span>
+          <i class="fas fa-angle-up"
+             aria-hidden="true" />
+        </span>
       </div>
       <div class="content px-5 pb-5">
         <div class="collapsible-content mb-4">

@@ -453,7 +453,7 @@ const newOperationEntryFactory: { [key: string]: Function } = {
       'include': ['all'],
       'exclude': [],
       'ttl': 7200,
-      'target': 'remote_addr',
+      'target': 'ip',
     }
   },
 }
