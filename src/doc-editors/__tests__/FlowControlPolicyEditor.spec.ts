@@ -85,13 +85,10 @@ describe('FlowControlPoliciesEditor.vue', () => {
     })
 
     test('should have limit option component with correct data', () => {
-      const wantedType = Object.keys(docs[0].key[0])[0]
-      const wantedValue = Object.values(docs[0].key[0])[0]
+      const wantedOption = docs[0].key[0]
       const limitOptionComponent = wrapper.findAllComponents(LimitOption).at(0)
-      const actualType = limitOptionComponent.vm.option.type
-      const actualValue = limitOptionComponent.vm.option.key
-      expect(actualType).toEqual(wantedType)
-      expect(actualValue).toEqual(wantedValue)
+      const actualOption = limitOptionComponent.vm.option
+      expect(actualOption).toEqual(wantedOption)
     })
 
     test('should have correct description in input', () => {
@@ -165,15 +162,11 @@ describe('FlowControlPoliciesEditor.vue', () => {
     })
 
     test('should update key when change event occurs', async () => {
-      const newOption = {
-        type: 'self',
-        key: 'self',
-      }
       const wantedResult = {
-        self: 'self',
+        'self': 'self',
       }
       const limitOptionsComponent = wrapper.findComponent(LimitOption)
-      await limitOptionsComponent.vm.$emit('change', newOption, 0)
+      await limitOptionsComponent.vm.$emit('update:option', wantedResult, 0)
       expect(wrapper.vm.localDoc.key[0]).toEqual(wantedResult)
     })
   })

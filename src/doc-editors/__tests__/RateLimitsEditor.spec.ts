@@ -150,44 +150,41 @@ describe('RateLimitRulesEditor.vue', () => {
     })
 
     test('should have count-by limit option component with correct data', () => {
-      const wantedType = Object.keys(rateLimitsDocs[0].key[0])[0]
-      const wantedValue = Object.values(rateLimitsDocs[0].key[0])[0]
-      const limitOptionComponent = wrapper.findComponent(LimitOption)
-      const actualType = limitOptionComponent.vm.option.type
-      const actualValue = limitOptionComponent.vm.option.key
-      expect(actualType).toEqual(wantedType)
-      expect(actualValue).toEqual(wantedValue)
+      const wantedOption = rateLimitsDocs[0].key[0]
+      const limitOptionElement = wrapper.find('.count-by-limit-option')
+      const limitOptionComponent = limitOptionElement.findAllComponents(LimitOption).at(0)
+      const actualOption = limitOptionComponent.vm.option
+      expect(actualOption).toEqual(wantedOption)
     })
 
     test('should have event limit option component with correct data', () => {
-      const wantedType = Object.keys(rateLimitsDocs[0].pairwith)[0]
-      const wantedValue = Object.values(rateLimitsDocs[0].pairwith)[0]
-      const actualType = wrapper.vm.eventOption.type
-      const actualValue = wrapper.vm.eventOption.key
-      expect(actualValue).toEqual(wantedValue)
-      expect(actualType).toEqual(wantedType)
+      const wantedOption = rateLimitsDocs[0].pairwith
+      const limitOptionElement = wrapper.find('.event-limit-option')
+      const limitOptionComponent = limitOptionElement.findAllComponents(LimitOption).at(0)
+      const actualOption = limitOptionComponent.vm.option
+      expect(actualOption).toEqual(wantedOption)
     })
 
     test('should have limit option keys with correct data', () => {
-      const wantedType = Object.keys(rateLimitsDocs[0].key[0])[0]
-      const wantedValue = Object.values(rateLimitsDocs[0].key[0])[0]
-      const limitOptionComponent = wrapper.findComponent(LimitOption)
-      const actualType = limitOptionComponent.vm.option.type
-      const actualValue = limitOptionComponent.vm.option.key
-      expect(actualType).toEqual(wantedType)
-      expect(actualValue).toEqual(wantedValue)
+      const wantedOption = rateLimitsDocs[0].key[0]
+      const limitOptionElement = wrapper.find('.count-by-limit-option')
+      const limitOptionComponent = limitOptionElement.findAllComponents(LimitOption).at(0)
+      const actualOption = limitOptionComponent.vm.option
+      expect(actualOption).toEqual(wantedOption)
     })
 
     test('should have count-by limit option component with correct ignored attributes', () => {
       const wantedIgnoredAttributes = ['tags']
-      const limitOptionComponent = wrapper.findComponent(LimitOption)
+      const limitOptionElement = wrapper.find('.count-by-limit-option')
+      const limitOptionComponent = limitOptionElement.findComponent(LimitOption)
       const actualIgnoredAttributes = limitOptionComponent.vm.ignoreAttributes
       expect(wantedIgnoredAttributes).toEqual(actualIgnoredAttributes)
     })
 
     test('should have event limit option component with correct ignored attributes', () => {
       const wantedIgnoredAttributes = ['tags']
-      const limitOptionComponent = wrapper.findComponent(LimitOption)
+      const limitOptionElement = wrapper.find('.event-limit-option')
+      const limitOptionComponent = limitOptionElement.findComponent(LimitOption)
       const actualIgnoredAttributes = limitOptionComponent.vm.ignoreAttributes
       expect(wantedIgnoredAttributes).toEqual(actualIgnoredAttributes)
     })
@@ -252,18 +249,20 @@ describe('RateLimitRulesEditor.vue', () => {
     })
 
     test('should remove key when remove event occurs', async () => {
-      expect(wrapper.vm.localDoc.key.length).toEqual(3) // default has 3 atributes keys
+      expect(wrapper.vm.localDoc.key.length).toEqual(3) // default has 3 attributes keys
       const addKeyButton = wrapper.find('.add-key-button')
       await addKeyButton.trigger('click')
       expect(wrapper.vm.localDoc.key.length).toEqual(4) // plus 1 = 4
-      const limitOptionsComponent = wrapper.findComponent(LimitOption)
+      const limitOptionElement = wrapper.find('.count-by-limit-option')
+      const limitOptionsComponent = limitOptionElement.findComponent(LimitOption)
       limitOptionsComponent.vm.$emit('remove', 1)
       expect(wrapper.vm.localDoc.key.length).toEqual(3) // minus 1 = 3
     })
 
     test('should not be able to remove key when only one key exists', () => {
-      expect(wrapper.vm.localDoc.key.length).toEqual(3) // default has 3 atributes keys
-      const limitOptionsComponent = wrapper.findComponent(LimitOption)
+      expect(wrapper.vm.localDoc.key.length).toEqual(3) // default has 3 attributes keys
+      const limitOptionElement = wrapper.find('.count-by-limit-option')
+      const limitOptionsComponent = limitOptionElement.findComponent(LimitOption)
       limitOptionsComponent.vm.$emit('remove', 1)
       limitOptionsComponent.vm.$emit('remove', 1)
       expect(wrapper.vm.localDoc.key.length).toEqual(1) // remove 2 remain 1
@@ -272,15 +271,12 @@ describe('RateLimitRulesEditor.vue', () => {
     })
 
     test('should update key when change event occurs', async () => {
-      const newOption = {
-        type: 'self',
-        key: 'self',
-      }
       const wantedResult = {
-        self: 'self',
+        'self': 'self',
       }
-      const limitOptionsComponent = wrapper.findComponent(LimitOption)
-      limitOptionsComponent.vm.$emit('change', newOption, 0)
+      const limitOptionElement = wrapper.find('.count-by-limit-option')
+      const limitOptionsComponent = limitOptionElement.findComponent(LimitOption)
+      limitOptionsComponent.vm.$emit('update:option', wantedResult, 0)
       expect(wrapper.vm.localDoc.key[0]).toEqual(wantedResult)
     })
 
@@ -292,7 +288,6 @@ describe('RateLimitRulesEditor.vue', () => {
             selectedDoc: rateLimitsDocs[0],
           },
         })
-        // zawait nextTick()
       } catch (err) {
         // should not get here
         expect(err).not.toBeDefined()
@@ -346,15 +341,11 @@ describe('RateLimitRulesEditor.vue', () => {
     })
 
     test('should update key when change event occurs', async () => {
-      const newOption = {
-        type: 'self',
-        key: 'self',
-      }
       const wantedResult = {
-        self: 'self',
+        'self': 'self',
       }
       const limitOptionsComponent = wrapper.findAllComponents(LimitOption).at(1)
-      limitOptionsComponent.vm.$emit('change', newOption, 0)
+      limitOptionsComponent.vm.$emit('update:option', wantedResult, 0)
       expect(wrapper.vm.localDoc.pairwith).toEqual(wantedResult)
     })
 
@@ -366,7 +357,6 @@ describe('RateLimitRulesEditor.vue', () => {
             selectedDoc: rateLimitsDocs[0],
           },
         })
-        // await nextTick()
       } catch (err) {
         // Should not get here
         expect(err).not.toBeDefined()
@@ -599,8 +589,8 @@ describe('RateLimitRulesEditor.vue', () => {
 
     test('should send request to change Security Policy when removing connection was confirmed', async () => {
       const putSpy = jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
-      // eslint-disable-next-line max-len
-      const wantedUrl = `/conf/api/v3/configs/${wrapper.vm.selectedBranch}/d/securitypolicies/e/${securityPoliciesDocs[0].id}/`
+      const selectedBranch = wrapper.vm.selectedBranch
+      const wantedUrl = `/conf/api/v3/configs/${selectedBranch}/d/securitypolicies/e/${securityPoliciesDocs[0].id}/`
       const wantedDoc = JSON.parse(JSON.stringify(securityPoliciesDocs[0]))
       wantedDoc.map[0].limit_ids = []
       const removeConnectionButton = wrapper.findAll('.remove-connection-button').at(0)

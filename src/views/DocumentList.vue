@@ -104,7 +104,7 @@ import {
   SecurityPolicy,
   SecurityPolicyEntryMatch,
 } from '@/types'
-import {AxiosResponse} from 'axios'
+import axios, {AxiosResponse} from 'axios'
 
 
 export default defineComponent({
@@ -142,13 +142,11 @@ export default defineComponent({
       'dynamic-rules': shallowRef({component: DynamicRulesEditor}),
     }
     return {
-      columns: [] as ColumnOptions[],
       titles: DatasetsUtils.titles,
-
       selectedDocType: null as DocumentType,
+      cancelSource: axios.CancelToken.source(),
       // Documents
       docs: [] as GenericObject[],
-      docIdNames: [] as [Document['id'], Document['name']][],
       // To prevent deletion of docs referenced by Security Policies
       referencedIDsACL: [],
       referencedIDsContentFilter: [],
@@ -199,6 +197,10 @@ export default defineComponent({
       return `configs/${this.selectedBranch}/d/${this.selectedDocType}/v/`
     },
 
+    columns(): ColumnOptions[] {
+      return this.columnOptionMap[this.selectedDocType] || []
+    },
+
     columnOptionMap() {
       return {
         'globalfilters': [
@@ -207,18 +209,11 @@ export default defineComponent({
             fieldNames: ['id'],
             isSortable: true,
             isSearchable: true,
-            classes: 'width-130px',
+            classes: 'width-130px ellipsis',
           },
           {
             title: 'Name',
             fieldNames: ['name'],
-            isSortable: true,
-            isSearchable: true,
-            classes: 'width-130px',
-          },
-          {
-            title: 'Description',
-            fieldNames: ['description'],
             isSortable: true,
             isSearchable: true,
             classes: 'ellipsis',
@@ -230,7 +225,7 @@ export default defineComponent({
               return item?.tags?.join('\n')
             },
             isSearchable: true,
-            classes: 'width-100px white-space-pre ellipsis',
+            classes: 'width-100px vertical-scroll white-space-pre ellipsis',
           },
           {
             title: 'Active',
@@ -262,18 +257,11 @@ export default defineComponent({
             fieldNames: ['id'],
             isSortable: true,
             isSearchable: true,
-            classes: 'width-130px',
+            classes: 'width-130px ellipsis',
           },
           {
             title: 'Name',
             fieldNames: ['name'],
-            isSortable: true,
-            isSearchable: true,
-            classes: 'width-130px',
-          },
-          {
-            title: 'Description',
-            fieldNames: ['description'],
             isSortable: true,
             isSearchable: true,
             classes: 'ellipsis',
@@ -286,16 +274,17 @@ export default defineComponent({
             },
             isSortable: false,
             isSearchable: true,
-            classes: 'width-100px white-space-pre ellipsis',
+            classes: 'width-100px vertical-scroll white-space-pre ellipsis',
           },
           {
             title: 'Sequences',
             fieldNames: ['sequence'],
             displayFunction: (item: FlowControlPolicy) => {
-              return item?.sequence?.length?.toString()
+              return item?.sequence?.length
             },
             isSortable: true,
             isSearchable: true,
+            isNumber: true,
             classes: 'width-100px',
           },
           {
@@ -303,6 +292,7 @@ export default defineComponent({
             fieldNames: ['timeframe'],
             isSortable: true,
             isSearchable: true,
+            isNumber: true,
             classes: 'width-100px',
           },
         ],
@@ -312,28 +302,21 @@ export default defineComponent({
             fieldNames: ['id'],
             isSortable: true,
             isSearchable: true,
-            classes: 'width-130px',
+            classes: 'width-130px ellipsis',
           },
           {
             title: 'Name',
             fieldNames: ['name'],
             isSortable: true,
             isSearchable: true,
-            classes: 'width-130px',
-          },
-          {
-            title: 'Description',
-            fieldNames: ['description'],
-            isSortable: true,
-            isSearchable: true,
-            classes: 'ellipsis',
+            classes: 'width-130px ellipsis',
           },
           {
             title: 'Matching Names',
             fieldNames: ['match'],
             isSortable: true,
             isSearchable: true,
-            classes: 'width-150px ellipsis',
+            classes: 'ellipsis',
           },
           {
             title: 'Tags',
@@ -343,7 +326,7 @@ export default defineComponent({
             },
             isSortable: true,
             isSearchable: true,
-            classes: 'width-100px white-space-pre ellipsis',
+            classes: 'width-100px vertical-scroll white-space-pre ellipsis',
           },
           {
             title: 'Connected Profiles & Rules',
@@ -375,7 +358,7 @@ export default defineComponent({
                 getRateLimitsAmount(),
               ].join('\n')
             },
-            classes: 'width-200px white-space-pre ellipsis',
+            classes: 'width-200px vertical-scroll white-space-pre ellipsis',
           },
         ],
         'ratelimits': [
@@ -384,18 +367,11 @@ export default defineComponent({
             fieldNames: ['id'],
             isSortable: true,
             isSearchable: true,
-            classes: 'width-130px',
+            classes: 'width-130px ellipsis',
           },
           {
             title: 'Name',
             fieldNames: ['name'],
-            isSortable: true,
-            isSearchable: true,
-            classes: 'width-130px',
-          },
-          {
-            title: 'Description',
-            fieldNames: ['description'],
             isSortable: true,
             isSearchable: true,
             classes: 'ellipsis',
@@ -408,13 +384,14 @@ export default defineComponent({
             },
             isSortable: false,
             isSearchable: true,
-            classes: 'width-100px white-space-pre ellipsis',
+            classes: 'width-100px vertical-scroll white-space-pre ellipsis',
           },
           {
             title: 'Timeframe',
             fieldNames: ['timeframe'],
             isSortable: true,
             isSearchable: true,
+            isNumber: true,
             classes: 'width-100px',
           },
           {
@@ -432,7 +409,7 @@ export default defineComponent({
             },
             isSortable: true,
             isSearchable: true,
-            classes: 'width-250px white-space-pre ellipsis',
+            classes: 'width-250px vertical-scroll white-space-pre ellipsis',
           },
           {
             title: 'Event',
@@ -455,18 +432,11 @@ export default defineComponent({
             fieldNames: ['id'],
             isSortable: true,
             isSearchable: true,
-            classes: 'width-130px',
+            classes: 'width-130px ellipsis',
           },
           {
             title: 'Name',
             fieldNames: ['name'],
-            isSortable: true,
-            isSearchable: true,
-            classes: 'width-130px',
-          },
-          {
-            title: 'Description',
-            fieldNames: ['description'],
             isSortable: true,
             isSearchable: true,
             classes: 'ellipsis',
@@ -479,7 +449,7 @@ export default defineComponent({
             },
             isSortable: false,
             isSearchable: true,
-            classes: 'width-100px white-space-pre ellipsis',
+            classes: 'width-100px vertical-scroll white-space-pre ellipsis',
           },
           {
             title: 'Custom Response',
@@ -501,18 +471,11 @@ export default defineComponent({
             fieldNames: ['id'],
             isSortable: true,
             isSearchable: true,
-            classes: 'width-130px',
+            classes: 'width-130px ellipsis',
           },
           {
             title: 'Name',
             fieldNames: ['name'],
-            isSortable: true,
-            isSearchable: true,
-            classes: 'width-130px',
-          },
-          {
-            title: 'Description',
-            fieldNames: ['description'],
             isSortable: true,
             isSearchable: true,
             classes: 'ellipsis',
@@ -521,10 +484,11 @@ export default defineComponent({
             title: 'Status Code',
             fieldNames: ['params'],
             displayFunction: (item: CustomResponse) => {
-              return item?.params?.status?.toString() || ''
+              return item?.params?.status || null
             },
             isSortable: true,
             isSearchable: true,
+            isNumber: true,
             classes: 'width-100px white-space-pre ellipsis',
           },
           {
@@ -535,23 +499,13 @@ export default defineComponent({
             },
             isSortable: false,
             isSearchable: true,
-            classes: 'width-100px white-space-pre ellipsis',
+            classes: 'width-100px vertical-scroll white-space-pre ellipsis',
           },
           {
             title: 'Type',
             fieldNames: ['type'],
             displayFunction: (item: CustomResponse) => {
               return _.capitalize(item?.type)
-            },
-            isSortable: true,
-            isSearchable: true,
-            classes: 'width-130px',
-          },
-          {
-            title: 'Custom Response',
-            fieldNames: ['action'],
-            displayFunction: (item: CustomResponse) => {
-              return item?.tags?.join('\n')
             },
             isSortable: true,
             isSearchable: true,
@@ -564,18 +518,11 @@ export default defineComponent({
             fieldNames: ['id'],
             isSortable: true,
             isSearchable: true,
-            classes: 'width-130px',
+            classes: 'width-130px ellipsis',
           },
           {
             title: 'Name',
             fieldNames: ['name'],
-            isSortable: true,
-            isSearchable: true,
-            classes: 'width-130px',
-          },
-          {
-            title: 'Description',
-            fieldNames: ['description'],
             isSortable: true,
             isSearchable: true,
             classes: 'ellipsis',
@@ -588,7 +535,7 @@ export default defineComponent({
             },
             isSortable: false,
             isSearchable: true,
-            classes: 'width-100px white-space-pre ellipsis',
+            classes: 'width-100px vertical-scroll white-space-pre ellipsis',
           },
           {
             title: 'Restrict Content Type',
@@ -598,7 +545,7 @@ export default defineComponent({
             },
             isSortable: true,
             isSearchable: true,
-            classes: 'width-150px white-space-pre ellipsis',
+            classes: 'width-150px vertical-scroll white-space-pre ellipsis',
           },
           {
             title: 'Decoding',
@@ -617,7 +564,7 @@ export default defineComponent({
             },
             isSortable: true,
             isSearchable: true,
-            classes: 'width-100px white-space-pre ellipsis',
+            classes: 'width-100px vertical-scroll white-space-pre ellipsis',
           },
           {
             title: 'Custom Response',
@@ -639,18 +586,11 @@ export default defineComponent({
             fieldNames: ['id'],
             isSortable: true,
             isSearchable: true,
-            classes: 'width-130px',
+            classes: 'width-130px ellipsis',
           },
           {
             title: 'Name',
             fieldNames: ['name'],
-            isSortable: true,
-            isSearchable: true,
-            classes: 'width-130px',
-          },
-          {
-            title: 'Description',
-            fieldNames: ['description'],
             isSortable: true,
             isSearchable: true,
             classes: 'ellipsis',
@@ -667,13 +607,14 @@ export default defineComponent({
             fieldNames: ['subcategory'],
             isSortable: true,
             isSearchable: true,
-            classes: 'width-130px',
+            classes: 'width-130px ellipsis',
           },
           {
             title: 'Risk Level',
             fieldNames: ['risk'],
             isSortable: true,
             isSearchable: true,
+            isNumber: true,
             classes: 'width-100px',
           },
           {
@@ -693,18 +634,11 @@ export default defineComponent({
             fieldNames: ['id'],
             isSortable: true,
             isSearchable: true,
-            classes: 'width-130px',
+            classes: 'width-130px ellipsis',
           },
           {
             title: 'Name',
             fieldNames: ['name'],
-            isSortable: true,
-            isSearchable: true,
-            classes: 'width-150px',
-          },
-          {
-            title: 'Description',
-            fieldNames: ['description'],
             isSortable: true,
             isSearchable: true,
             classes: 'ellipsis',
@@ -762,7 +696,6 @@ export default defineComponent({
       } else {
         this.selectedDocType = Object.keys(this.componentsMap)[0] as DocumentType
       }
-      this.columns = this.columnOptionMap[this.selectedDocType]
       if (forceLoadDocs || !prevDocType || prevDocType !== this.selectedDocType) {
         await this.loadDocs()
       }
@@ -791,9 +724,23 @@ export default defineComponent({
           this.isDownloadLoading = false
         },
       })
-
       this.docs = response?.data || []
-      this.isDownloadLoading = false
+      // After we load the basic data (with x-fields) we can async load the full data for the download
+      this.cancelSource.cancel(`Operation cancelled and restarted for a new document type ${this.selectedDocType}`)
+      this.cancelSource = axios.CancelToken.source()
+      requestFunction({
+        methodName: 'GET',
+        url,
+        config: {cancelToken: this.cancelSource.token},
+        onFail: () => {
+          console.log('Error while attempting to load documents')
+          this.docs = []
+          this.isDownloadLoading = false
+        },
+      }).then((response: AxiosResponse) => {
+        this.docs = response?.data || []
+        this.isDownloadLoading = false
+      })
     },
 
     async switchBranch() {

@@ -95,17 +95,6 @@ declare module CuriefenseClient {
 
   type ArgsCookiesHeadersType = 'headers' | 'args' | 'cookies'
 
-  type LimitRuleType = 'headers' | 'args' | 'cookies' | 'attrs' | 'self'
-
-  type DynamicRuleTargetOptionType =
-    'remote_addr'
-    | 'organization'
-    | 'cookie'
-    | 'geoip_city_country_name'
-    | 'planet'
-    | 'request_headers'
-    | 'request_body'
-
   type NamesRegexType = 'names' | 'regex'
 
   type EdgeFunctionsPhaseType = 'request' | 'response'
@@ -197,7 +186,7 @@ declare module CuriefenseClient {
     match: string
     description: string
     tags: string[]
-    session: LimitOptionType
+    session: LimitOptionType[]
     session_ids: LimitOptionType[]
     map: SecurityPolicyEntryMatch[]
   }
@@ -220,7 +209,7 @@ declare module CuriefenseClient {
     exclude: string[]
     include: string[]
     ttl: number,
-    target: DynamicRuleTargetOptionType
+    target: string
   }
 
 
@@ -292,7 +281,7 @@ declare module CuriefenseClient {
   type ColumnOptions = {
     title: string
     fieldNames?: string[]
-    displayFunction?: (item: any) => string // Will be rendered as HTML
+    displayFunction?: (item: any) => string | number // Will be rendered as HTML
     isSortable?: boolean
     isSearchable?: boolean
     isNumber?: boolean // True if all values are always numbers, for sorting
@@ -422,7 +411,7 @@ declare module CuriefenseClient {
     routing_profile: RoutingProfile['id']
     proxy_template: ConfigTemplate['id']
     mobile_sdk: MobileSDK['id']
-    ssl_certificate?: string
+    ssl_certificate: string
   }
 
   // Operation documents - END

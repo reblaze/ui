@@ -98,7 +98,7 @@
                                 data-qa="description-input"
                                 title="Document description"
                                 v-model="selectedConfigTemplate.description"
-                                rows="5">
+                                rows="2">
                       </textarea>
               </div>
             </div>
@@ -588,10 +588,6 @@ export default defineComponent({
     selectedDocNotDeletable(): boolean {
       return !this.selectedConfigTemplate ||
           this.selectedConfigTemplate.id.startsWith('__') || // Default entries
-          this.selectedConfigTemplate.id.startsWith('rl-') || // Reblaze-managed Rate Limits
-          this.selectedConfigTemplate.id.startsWith('action-') || // Reblaze-managed Custom Responses
-          this.selectedConfigTemplate.id.startsWith('rbz-') || // Reblaze-managed Global Filters
-          this.selectedConfigTemplate.id.startsWith('dr_') || // Dynamic-Rule-managed Global Filters
           this.isDocReferenced
     },
 
@@ -834,30 +830,4 @@ export default defineComponent({
 </script>
 <style scoped
        lang="scss">
-.collapsible {
-  cursor: pointer;
-  display: flex;
-  flex-direction: row;
-  justify-items: center;
-}
-
-.collapsible-card {
-  border: 1px solid #fff;
-}
-
-.collapsible-card:hover {
-  border: 1px solid #b5b5b5;
-}
-
-.card.collapsed .collapsible-content {
-  display: none;
-}
-
-.rbz-content .collapsed .media {
-  margin: 0;
-}
-
-.collapsible .fa-angle-down {
-  align-self: center;
-}
 </style>

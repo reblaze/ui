@@ -1,90 +1,68 @@
 <template>
-  <div class="limit-options">
-    <label v-if="labelSeparatedLine && label"
-           class="label is-small is-size-7 has-text-left form-label">
-      {{ label }}
-    </label>
-    <div class="columns mb-0">
-      <div v-if="!labelSeparatedLine && label"
-           class="column is-2">
-        <label class="label is-small is-size-7 form-label">
-          {{ label }}
-        </label>
+  <div class="columns mb-0">
+    <div class="column"
+         :class="selectedTypeColumnClass">
+      <div class="control select is-small is-fullwidth">
+        <select :value="localOptionType"
+                @change="typeChanged($event)"
+                class="option-type-selection"
+                title="Type"
+                data-qa="countby-dropdown">
+          <option v-if="useDefaultSelf"
+                  value="self">
+            HTTP request
+          </option>
+          <option v-for="(value, id) in options"
+                  :data-qa="`${value}`"
+                  :value="id"
+                  :key="id">
+            {{ value }}
+          </option>
+        </select>
       </div>
-      <div class="column"
-           :class="selectedTypeColumnClass">
-        <div class="control select is-small is-fullwidth">
-          <select v-model="selectedType"
-                  class="option-type-selection"
-                  title="Type"
-                  data-qa="countby-dropdown">
-            <option v-if="useDefaultSelf"
-                    value="self">HTTP request
-            </option>
-            <option v-for="(value, id) in options"
-                    :data-qa="`${value}`"
-                    :selected="value === selectedType"
+    </div>
+    <div class="column"
+         :class="selectedNameColumnClass"
+         v-if="localOptionType !== 'self'">
+      <div v-if="isCategoryArgsCookiesHeaders(localOptionType)"
+           class="control is-fullwidth has-icons-left">
+        <input type="text"
+               title="Name"
+               :class="{ 'is-danger': localOption[this.localOptionType] === '' }"
+               v-model="localOption[this.localOptionType]"
+               @change="emitOptionUpdate"
+               class="input is-small option-name-input">
+        <span class="icon is-small is-left has-text-grey-light"><i class="fa fa-font"></i></span>
+      </div>
+      <div class="control select is-small is-fullwidth"
+           v-if="localOptionType === 'attrs'">
+        <div class="select is-fullwidth">
+          <select v-model="localOption[this.localOptionType]"
+                  @change="emitOptionUpdate"
+                  class="option-attribute-selection"
+                  title="Name"
+                  data-qa="countby-key-dropdown">
+            <option v-for="(value, id) in attributes"
                     :value="id"
-                    :key="id">
-              {{ value }}
+                    :key="id"
+                    :data-qa="value">{{ value }}
             </option>
           </select>
         </div>
       </div>
-      <div class="column"
-           :class="selectedNameColumnClass"
-           v-if="selectedType !== 'self'">
-        <div v-if="isCategoryArgsCookiesHeaders(selectedType)"
-             :class="{control: true, 'is-fullwidth': true}"
-             class="has-icons-left">
-          <input type="text"
-                 title="Name"
-                 :class="{ 'is-danger': selectedName === '' }"
-                 v-model="selectedName"
-                 class="input is-small option-name-input">
-          <span class="icon is-small is-left has-text-grey-light"><i class="fa fa-font"></i></span>
-        </div>
-        <div class="control select is-small is-fullwidth"
-             :class="selectedNameColumnClass"
-             v-if="selectedType === 'attrs'">
-          <div class="select is-fullwidth">
-            <select v-model="selectedName"
-                    class="option-attribute-selection"
-                    title="Name"
-                    data-qa="countby-key-dropdown">
-              <option v-for="(value, id) in attributes"
-                      :value="id"
-                      :key="id"
-                      :data-qa="value">{{ value }}
-              </option>
-            </select>
-          </div>
-        </div>
-      </div>
-      <div class="column"
-           :class="selectedValueColumnClass"
-           v-if="useValue">
-        <div class="control has-icons-left is-fullwidth">
-          <input type="text"
-                 title="Value"
-                 :class="{ 'is-danger': selectedValue === '' }"
-                 v-model="selectedValue"
-                 class="input is-small option-value-input">
-          <span class="icon is-small is-left has-text-grey-light"><i class="fa fa-code"></i></span>
-        </div>
-      </div>
-      <div class="column is-narrow"
-           v-if="!!showRemove">
-        <button
-            :class="['button', 'is-light', 'is-small', 'remove-icon', 'is-small',
-                    removable ? 'has-text-grey' : 'has-text-grey-light is-disabled']"
-            :disabled="!removable"
-            class="remove-option-button"
-            title="Click to remove"
-            @click="$emit('remove')">
-          <span class="icon is-small"><i class="fas fa-trash fa-xs"></i></span>
-        </button>
-      </div>
+    </div>
+    <div class="column is-narrow"
+         v-if="!!showRemove">
+      <button
+          :class="removable ? 'has-text-grey' : 'has-text-grey-light is-disabled'"
+          :disabled="!removable"
+          class="button is-light is-small remove-icon remove-option-button"
+          title="Click to remove"
+          @click="emitOptionRemove">
+          <span class="icon is-small">
+            <i class="fas fa-trash fa-xs"></i>
+          </span>
+      </button>
     </div>
   </div>
 </template>
@@ -92,16 +70,11 @@
 <script lang="ts">
 import _ from 'lodash'
 import {defineComponent, PropType} from 'vue'
-import {LimitRuleType} from '@/types'
+import {LimitOptionType} from '@/types'
 
-export type OptionObject = {
-  type?: LimitRuleType
-  key?: string
-  value?: string
-  oldKey?: string
-}
+type LimitRuleType = 'headers' | 'args' | 'cookies' | 'attrs' | 'self'
 
-export const limitAttributes = {
+const limitAttributes = {
   authority: 'Authority',
   company: 'Company',
   country: 'Country',
@@ -123,36 +96,23 @@ export const limitAttributes = {
 export default defineComponent({
   name: 'LimitOption',
   props: {
-    label: {
-      type: String,
-      default: '',
-    },
     option: {
-      type: Object as PropType<OptionObject>,
-      default: (): OptionObject => {
+      type: Object as PropType<LimitOptionType>,
+      default: (): LimitOptionType => {
         return {
-          type: 'attrs' as OptionObject['type'],
-          key: '',
-        } as OptionObject
+          'attrs': '',
+        } as LimitOptionType
       },
-    },
-    removable: {
-      type: Boolean,
-      default: false,
     },
     showRemove: {
       type: Boolean,
       default: false,
     },
+    removable: {
+      type: Boolean,
+      default: false,
+    },
     useDefaultSelf: {
-      type: Boolean,
-      default: false,
-    },
-    useValue: {
-      type: Boolean,
-      default: false,
-    },
-    labelSeparatedLine: {
       type: Boolean,
       default: false,
     },
@@ -164,81 +124,64 @@ export default defineComponent({
     },
     selectedTypeColumnClass: String,
     selectedNameColumnClass: String,
-    selectedValueColumnClass: String,
   },
   data() {
-    const limitOptionsTypes = {
-      'headers': 'Header',
-      'cookies': 'Cookie',
-      'args': 'Argument',
-      'attrs': 'Attribute',
-    }
-    const optionsData: { [key: string]: OptionObject } = {
-      self: {
-        type: 'self',
-        key: 'self',
-      },
-    }
-    const attributes = _.pickBy(limitAttributes, (value, key) => {
-      return !this.ignoreAttributes || !this.ignoreAttributes.includes(key)
-    })
-    Object.keys(limitOptionsTypes).forEach((ruleType) => {
-      const {type, key = '', value} = this.option
-      optionsData[ruleType] = {type, key, value}
-    })
     return {
-      optionsData,
-      options: limitOptionsTypes,
-      attributes: attributes,
-      type: this.option.type || 'attrs',
-      prevSelectedOption: null as OptionObject,
+      options: {
+        'headers': 'Header',
+        'cookies': 'Cookie',
+        'args': 'Argument',
+        'attrs': 'Attribute',
+      },
     }
   },
   computed: {
-    selectedValue: {
-      get: function(): string {
-        return this.selectedOption.value
-      },
-      set: function(value: string): void {
-        this.selectedOption.value = value
-      },
+    localOption(): LimitOptionType {
+      return _.cloneDeep(this.option as LimitOptionType)
     },
-    selectedName: {
-      get: function(): string {
-        return this.selectedOption.key
-      },
-      set: function(value: string): void {
-        this.selectedOption.oldKey = this.selectedOption.key
-        this.selectedOption.key = value
-      },
+
+    localOptionType(): LimitRuleType {
+      return Object.keys(this.localOption)[0] as LimitRuleType
     },
-    selectedType: {
-      get: function(): LimitRuleType {
-        return this.selectedOption.type
-      },
-      set: function(value: LimitRuleType): void {
-        this.type = value
-        this.selectedOption.type = value
-      },
+
+    localOptionName(): string {
+      return Object.values(this.localOption)[0]
     },
-    selectedOption(): OptionObject {
-      return this.optionsData[this.type]
+
+    attributes() {
+      return _.pickBy(limitAttributes, (value, key) => {
+        return !this.ignoreAttributes || !this.ignoreAttributes.includes(key)
+      })
     },
   },
-  updated() {
-    if (!_.isEqual(this.prevSelectedOption, this.selectedOption)) {
-      this.prevSelectedOption = {...this.selectedOption}
-      this.$emit('change', {...this.selectedOption})
-    }
-  },
-  emits: ['change', 'remove'],
+  emits: ['update:option', 'remove'],
   methods: {
-    isCategoryArgsCookiesHeaders(limitRuleType: LimitRuleType) {
-      return (new RegExp('(args|cookies|headers)')).test(limitRuleType)
+    emitOptionUpdate() {
+      this.$emit('update:option', this.localOption)
     },
-  },
-  mounted() {
-    this.prevSelectedOption = {...this.selectedOption}
+
+    emitOptionRemove() {
+      this.$emit('remove')
+    },
+
+    isCategoryArgsCookiesHeaders(type: LimitRuleType) {
+      return (new RegExp('(args|cookies|headers)')).test(type)
+    },
+
+    typeChanged(event: Event) {
+      const newType: LimitRuleType = (event.target as HTMLSelectElement).value as LimitRuleType
+      delete this.localOption[this.localOptionType]
+      if (this.isCategoryArgsCookiesHeaders(newType)) {
+        this.localOption[newType] = ''
+      }
+      if (newType === 'attrs') {
+        this.localOption[newType] = 'ip'
+      }
+      if (newType === 'self') {
+        this.localOption[newType] = 'self'
+      }
+      this.emitOptionUpdate()
+    },
   },
 })
 </script>

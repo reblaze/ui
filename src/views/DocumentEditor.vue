@@ -26,10 +26,10 @@
                           @change="switchDocID()"
                           class="doc-selection"
                           data-qa="switch-document">
-                    <option v-for="pair in docIdNames"
-                            :key="pair[0]"
-                            :value="pair[0]">
-                      {{ pair[1] }}
+                    <option v-for="doc in docIdNames"
+                            :key="doc.id"
+                            :value="doc.id">
+                      {{ doc.name }}
                     </option>
                   </select>
                 </div>
@@ -163,7 +163,7 @@
           <span v-if="!Object.keys(componentsMap).includes(selectedDocType)">
             Missing document type. Please check your URL or click a link in the menu to the side
           </span>
-          <span v-else-if="!docIdNames.find((docIdName) => docIdName[0].includes(selectedDoc?.id))">
+          <span v-else-if="!docIdNames.find((doc) => doc.id.includes(selectedDoc?.id))">
             Missing document. To create a new one, click
             <a title="Add new"
                @click="addNewDoc()">
@@ -247,7 +247,7 @@ export default defineComponent({
       selectedDocType: null as DocumentType,
 
       docs: [] as Document[],
-      docIdNames: [] as [Document['id'], Document['name']][],
+      docIdNames: [] as Document[],
       selectedDocID: null,
       cancelSource: axios.CancelToken.source(),
       isDownloadLoading: false,
@@ -317,7 +317,7 @@ export default defineComponent({
     },
 
     dynamicRuleManaged(): boolean {
-      return this.selectedDocID.startsWith('dr_')
+      return this.selectedDocID?.startsWith('dr_')
     },
 
     documentAPIPath(): string {
@@ -350,8 +350,7 @@ export default defineComponent({
           this.selectedDoc.id.startsWith('action-') || // Reblaze-managed Custom Responses
           this.selectedDoc.id.startsWith('rbz-') || // Reblaze-managed Global Filters
           this.selectedDoc.id.startsWith('dr_') || // Dynamic-Rule-managed Global Filters
-          this.isDocReferenced ||
-          this.docs.length <= 1
+          this.isDocReferenced
     },
 
     selectedDocIndex(): number {
@@ -423,10 +422,10 @@ export default defineComponent({
         await this.loadDocs()
       }
       const docIdFromRoute = this.$route.params?.doc_id?.toString()
-      if (docIdFromRoute && this.docIdNames.findIndex((idName) => idName[0] === docIdFromRoute) > -1) {
+      if (docIdFromRoute && this.docIdNames.findIndex((doc) => doc.id === docIdFromRoute) > -1) {
         this.selectedDocID = docIdFromRoute
       } else {
-        this.selectedDocID = this.docIdNames?.[0]?.[0]
+        this.selectedDocID = this.docIdNames?.[0]?.id
       }
       this.isDocumentInvalid = false
 
@@ -449,11 +448,24 @@ export default defineComponent({
     },
 
     updateDocIdNames() {
-      this.docIdNames = _.sortBy(_.map(this.docs, (doc) => {
-        return [doc.id, doc.name]
-      }), (entry) => {
-        return entry[1].toLowerCase()
-      })
+      this.docIdNames = this.docs.sort((a: Document, b: Document) => {
+        let sortValueA: string = a.name || ''
+        let sortValueB: string = b.name || ''
+        const sortValueALowerCase: string = sortValueA.toString().toLowerCase()
+        const sortValueBLowerCase: string = sortValueB.toString().toLowerCase()
+        // only ignore case if the values are different from one another
+        if (!_.isEqual(sortValueALowerCase, sortValueBLowerCase)) {
+          sortValueA = sortValueALowerCase
+          sortValueB = sortValueBLowerCase
+        }
+        if (sortValueA < sortValueB) {
+          return -1
+        }
+        if (sortValueA > sortValueB) {
+          return 1
+        }
+        return 0
+      }) as Document[]
     },
 
     async loadSelectedDocData() {
@@ -526,16 +538,15 @@ export default defineComponent({
         this.isDownloadLoading = false
       })
       this.updateDocIdNames()
-      if (this.docIdNames && this.docIdNames.length && this.docIdNames[0].length) {
-        if (!skipDocSelection || !_.find(this.docIdNames, (idName: [Document['id'], Document['name']]) => {
-          return idName[0] === this.selectedDocID
+      if (this.docIdNames && this.docIdNames.length && this.docIdNames[0].id) {
+        if (!skipDocSelection || !_.find(this.docIdNames, (doc: Document) => {
+          return doc.id === this.selectedDocID
         })) {
-          this.selectedDocID = this.docIdNames[0][0]
+          this.selectedDocID = this.docIdNames[0].id
         }
         await this.loadSelectedDocData()
       }
       this.setLoadingDocStatus(false)
-      this.isDownloadLoading = false
     },
 
     async switchDocID() {
@@ -684,9 +695,7 @@ export default defineComponent({
         })
       }
 
-      this.selectedDocID = this.docs[0].id
-      await this.loadSelectedDocData()
-      this.goToRoute()
+      this.redirectToList()
       this.isDeleteLoading = false
       this.setLoadingDocStatus(false)
     },

@@ -586,7 +586,7 @@ export default defineComponent({
       const id = 'firstAttrEmpty'
       this.clearError(id)
       const firstAttrValue = this.newEntryItem.firstAttr.trim()
-      if (!firstAttrValue && this.newEntryItemCounter.entries < this.newEntryItemCounter.annotations) {
+      if (!firstAttrValue || this.newEntryItemCounter.entries < this.newEntryItemCounter.annotations) {
         this.addError(id)
       }
     },
@@ -711,33 +711,6 @@ export default defineComponent({
   background: transparent;
   border-color: transparent;
   color: initial;
-}
-
-.collapsible {
-  cursor: pointer;
-  display: flex;
-  flex-direction: row;
-  justify-items: center;
-}
-
-.collapsible-card {
-  border: 1px solid #fff;
-}
-
-.collapsible-card:hover {
-  border: 1px solid #b5b5b5;
-}
-
-.card.collapsed .collapsible-content {
-  display: none;
-}
-
-.rbz-content .collapsed .media {
-  margin: 0;
-}
-
-.collapsible .fa-angle-down {
-  align-self: center;
 }
 
 </style>

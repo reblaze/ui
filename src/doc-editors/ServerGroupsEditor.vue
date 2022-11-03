@@ -55,9 +55,14 @@
                     <span class="control">
                       <button class="button is-small has-text-danger delete-server-group"
                               data-qa="delete-server-group-btn"
+                              :class="{'is-loading': isDeleteLoading}"
+                              :disabled="selectedDocNotDeletable"
                               @click="toggleDeleteServerGroupDoc()">
                         <span class="icon is-small">
-                          <i  class="fas fa-trash"></i>
+                          <i class="fas fa-trash"></i>
+                        </span>
+                        <span>
+                          Delete
                         </span>
                       </button>
                     </span>
@@ -93,12 +98,12 @@
                       </button>
                     </span>
                   </span>
-                </p>
-              </div>
+              </p>
             </div>
           </div>
         </div>
       </div>
+    </div>
     <hr/>
     <div class="content"
          v-if="selectedServerGroup">
@@ -130,7 +135,7 @@
                         placeholder="Match Host/Authority Headers"
                         data-qa="match-host-input"
                         v-model="serverNames"
-                        rows="5">
+                        rows="2">
                     </textarea>
             </div>
           </div>
@@ -420,6 +425,11 @@ export default defineComponent({
     documentAPIPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
       return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/sites/e/${this.selectedServerGroup.id}/`
+    },
+
+    selectedDocNotDeletable(): boolean {
+      return !this.selectedServerGroup ||
+          this.selectedServerGroup.id.startsWith('__') // Default entries
     },
 
     selectedSecurityPolicy(): SecurityPolicy {

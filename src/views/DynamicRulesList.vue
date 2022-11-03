@@ -33,6 +33,8 @@
                    :show-filter-button="true"
                    :show-new-button="true"
                    @new-button-clicked="addNewDynamicRule"
+                   :row-clickable="true"
+                   @row-clicked="editDynamicRule"
                    :show-row-button="true"
                    @row-button-clicked="editDynamicRule">
         </rbz-table>
@@ -81,27 +83,21 @@ export default defineComponent({
           fieldNames: ['id'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-130px',
+          classes: 'width-130px ellipsis',
         },
         {
           title: 'Name',
           fieldNames: ['name'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-150px',
-        },
-        {
-          title: 'Description',
-          fieldNames: ['description'],
-          isSortable: true,
-          isSearchable: true,
-          classes: 'width-100px',
+          classes: 'ellipsis',
         },
         {
           title: 'Timeframe',
           fieldNames: ['timeframe'],
           isSortable: true,
           isSearchable: true,
+          isNumber: true,
           classes: 'width-100px',
         },
         {
@@ -109,6 +105,7 @@ export default defineComponent({
           fieldNames: ['threshold'],
           isSortable: true,
           isSearchable: true,
+          isNumber: true,
           classes: 'width-100px',
         },
         {
@@ -140,7 +137,7 @@ export default defineComponent({
           },
           isSortable: false,
           isSearchable: true,
-          classes: 'width-100px white-space-pre ellipsis',
+          classes: 'width-100px vertical-scroll white-space-pre ellipsis',
         },
       ] as ColumnOptions[],
       isNewLoading: false,
@@ -225,6 +222,7 @@ export default defineComponent({
       docMatchingGlobalFilter.id = `dr_${docToAdd.id}`
       docMatchingGlobalFilter.active = (docToAdd as DynamicRule).active
       docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule ' + docToAdd.id
+      docMatchingGlobalFilter.action = 'action-dynamic-rule-block'
       const globalFiltersData = docMatchingGlobalFilter
       const globalFiltersUrl = `configs/${this.selectedBranch}/d/globalfilters/e/`
       await RequestsUtils.sendRequest({methodName: 'POST', url: globalFiltersUrl, data: globalFiltersData})
@@ -253,7 +251,6 @@ export default defineComponent({
       const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url: url,
-        config: {headers: {'x-fields': 'id, name, description, time-frame, threshold'}},
         onFail: () => {
           console.log('Error while attempting to load documents')
           this.dynamicRulesData = []
@@ -267,7 +264,6 @@ export default defineComponent({
 
       this.dynamicRulesData.map((doc) => {
         const url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${doc.id}/`
-        // const config = {headers: {'x-fields': 'id, tags, action'}} config,
         RequestsUtils.sendRequest({methodName: 'GET', url,
           onFail: () => {
             console.log('Error while attempting to load documents')

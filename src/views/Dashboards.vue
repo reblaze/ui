@@ -1,5 +1,5 @@
 <template>
-  <div class="card-content">
+  <div class="card-content is-fullheight">
     <div class="tabs-wrapper mb-5">
       <div class="tabs"
            data-qa="dashboard-tabs">
@@ -68,29 +68,20 @@
           </div>
         </div>
       </div>
-      <div v-if="!data?.length"
-           class="has-text-centered is-fullwidth">
-        <div v-if="isSearchLoading">
-          <button class="button is-outlined is-text is-small is-loading dashboard-loading">
-            Loading
-          </button>
-        </div>
-        <div v-else>
-          Your search did not match any data
-        </div>
-      </div>
-      <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'default' && data?.length">
+      <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'default'">
         <rbz-dashboard-default :data="data"
                                :loading="isSearchLoading">
         </rbz-dashboard-default>
       </div>
-      <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'threats' && data?.length">
+      <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'threats'">
       </div>
     </div>
-    <div v-if="dashboards[activeDashboardIndex]?.metabaseId">
+    <div v-if="dashboards[activeDashboardIndex]?.metabaseId"
+         class="metabase-iframe-wrapper">
       <iframe :src="getDashboardURL(dashboards[activeDashboardIndex].metabaseId)"
+              class="metabase-iframe is-fullheight is-fullwidth"
               width="100%"
-              height="600"
+              height="100%"
               allowtransparency>
       </iframe>
     </div>
@@ -259,5 +250,16 @@ export default defineComponent({
 
 .date-picker-input {
   padding-left: 33px;
+}
+
+.metabase-iframe-wrapper {
+  height: calc(100% - 50px);
+  margin: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+.metabase-iframe {
+  overflow: hidden;
 }
 </style>

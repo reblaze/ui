@@ -77,31 +77,24 @@ export default defineComponent({
           fieldNames: ['id'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-130px',
+          classes: 'width-130px ellipsis',
         },
         {
           title: 'Name',
           fieldNames: ['name'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-130px',
-        },
-        {
-          title: 'Description',
-          fieldNames: ['description'],
-          isSortable: true,
-          isSearchable: true,
-          classes: 'ellipsis',
+          classes: 'width-130px ellipsis',
         },
         {
           title: 'Hosts',
           fieldNames: ['back_hosts'],
           displayFunction: (item: BackendService) => {
-            return _.map(item.back_hosts, 'host')
+            return _.map(item.back_hosts, 'host').join('\n')
           },
           isSortable: true,
           isSearchable: true,
-          classes: 'width-150px',
+          classes: 'vertical-scroll white-space-pre ellipsis',
         },
         {
           title: 'Transport Protocol',
@@ -202,9 +195,13 @@ export default defineComponent({
     },
 
     async loadBackendServices() {
+      this.setLoadingDocStatus(true)
+      this.isDownloadLoading = true
       const url = `configs/${this.selectedBranch}/d/backends/`
       const response = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
       this.backendServices = response?.data
+      this.isDownloadLoading = false
+      this.setLoadingDocStatus(false)
     },
 
     async switchBranch() {

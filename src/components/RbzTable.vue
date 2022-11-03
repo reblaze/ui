@@ -133,8 +133,9 @@
         </td>
         <td v-for="(col, index) in columns"
             :key="index"
-            :title="row[col.title]">
-          <div class="is-size-7 vertical-scroll data-cell"
+            :title="row[col.title]"
+        class="data-cell">
+          <div class="is-size-7 data-cell-content"
                :class="col.classes">
             <span v-if="col.displayFunction"
                   v-html="col.displayFunction(row)"
@@ -304,7 +305,7 @@ export default defineComponent({
         return _.reduce(
             keys,
             (match: boolean, key: string) => {
-              let getFilterValue: (item: any) => string
+              let getFilterValue: ColumnOptions['displayFunction']
               const filterColumn = this.columns.find((column) => {
                 return column.title === key
               })
@@ -315,11 +316,11 @@ export default defineComponent({
                   return item[filterColumn?.fieldNames[0]]?.toString() || ''
                 }
               }
-              const filterValue = getFilterValue(item)?.toLowerCase() || ''
+              const filterValue = getFilterValue(item)?.toString().toLowerCase() || ''
               return (match && filterValue.includes(this.filter[key].toLowerCase()))
             }, true)
       }).sort((a: GenericObject, b: GenericObject) => {
-        let getSortValue: (item: GenericObject) => string
+        let getSortValue: ColumnOptions['displayFunction']
         if (this.sortColumnDisplayFunction) {
           getSortValue = this.sortColumnDisplayFunction
         } else {
@@ -337,8 +338,13 @@ export default defineComponent({
         let sortValueA = getSortValue(a)
         let sortValueB = getSortValue(b)
         if (!this.sortColumnIsNumber) {
-          sortValueA = sortValueA.toLowerCase()
-          sortValueB = sortValueB.toLowerCase()
+          const sortValueALowerCase = sortValueA.toString().toLowerCase()
+          const sortValueBLowerCase = sortValueB.toString().toLowerCase()
+          // only ignore case if the values are different from one another
+          if (!_.isEqual(sortValueALowerCase, sortValueBLowerCase)) {
+            sortValueA = sortValueALowerCase
+            sortValueB = sortValueBLowerCase
+          }
         }
         if (sortValueA < sortValueB) {
           return -1 * sortModifier
@@ -561,6 +567,10 @@ export default defineComponent({
 }
 
 .rbz-table .data-cell {
-  max-height: 4.5rem;
+  vertical-align: middle;
+}
+
+.rbz-table .data-cell-content {
+  max-height: 1.75rem;
 }
 </style>

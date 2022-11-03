@@ -98,7 +98,7 @@
                                       data-qa="description-input"
                                       title="Document description"
                                       v-model="selectedRoutingProfile.description"
-                                      rows="5">
+                                      rows="2">
                             </textarea>
               </div>
             </div>
@@ -409,10 +409,6 @@ export default defineComponent({
     selectedDocNotDeletable(): boolean {
       return !this.selectedRoutingProfile ||
           this.selectedRoutingProfile.id.startsWith('__') || // Default entries
-          this.selectedRoutingProfile.id.startsWith('rl-') || // Reblaze-managed Rate Limits
-          this.selectedRoutingProfile.id.startsWith('action-') || // Reblaze-managed Custom Responses
-          this.selectedRoutingProfile.id.startsWith('rbz-') || // Reblaze-managed Global Filters
-          this.selectedRoutingProfile.id.startsWith('dr_') || // Dynamic-Rule-managed Global Filters
           this.isDocReferenced
     },
 
@@ -600,7 +596,7 @@ export default defineComponent({
     },
 
     referToEdgeFunction() {
-      this.$emit('go-to-route', `/config/${this.selectedBranch}/edge-functions`)
+      this.$router.push(`/${this.selectedBranch}/cloud-functions/list`)
     },
 
     loadBackendServices() {

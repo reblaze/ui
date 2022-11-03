@@ -110,7 +110,7 @@
                                 data-qa="description-input"
                                 title="Document description"
                                 v-model="selectedBackendService.description"
-                                rows="5">
+                                rows="2">
                       </textarea>
               </div>
             </div>
@@ -335,10 +335,6 @@ export default defineComponent({
     selectedDocNotDeletable(): boolean {
       return !this.selectedBackendService ||
           this.selectedBackendService.id.startsWith('__') || // Default entries
-          this.selectedBackendService.id.startsWith('rl-') || // Reblaze-managed Rate Limits
-          this.selectedBackendService.id.startsWith('action-') || // Reblaze-managed Custom Responses
-          this.selectedBackendService.id.startsWith('rbz-') || // Reblaze-managed Global Filters
-          this.selectedBackendService.id.startsWith('dr_') || // Dynamic-Rule-managed Global Filters
           this.isDocReferenced
     },
 

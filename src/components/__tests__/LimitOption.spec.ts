@@ -3,14 +3,16 @@ import LimitOption, {OptionObject} from '@/components/LimitOption.vue'
 import {beforeEach, describe, expect, test} from '@jest/globals'
 import {mount} from '@vue/test-utils'
 import {nextTick} from 'vue'
+import {LimitOptionType} from '../../types'
 
 describe('LimitOption.vue', () => {
   let option: OptionObject
   let allAttributes = []
   let wrapper: any
+  let onUpdate: any
   beforeEach(async () => {
     option = {
-      type: 'self',
+      'self': 'self',
     }
     allAttributes = [
       'Authority',
@@ -30,11 +32,14 @@ describe('LimitOption.vue', () => {
       'Tag',
       'URI',
     ]
+    onUpdate = async (option: LimitOptionType) => {
+      await wrapper.setProps({option})
+    }
     wrapper = mount(LimitOption, {
       props: {
-        option: option,
-        useDefaultSelf: true,
-        useValue: true,
+        'option': option,
+        'useDefaultSelf': true,
+        'onUpdate:option': onUpdate,
       },
     })
     await nextTick()
@@ -61,36 +66,13 @@ describe('LimitOption.vue', () => {
     expect(options.at(3).text()).toEqual('Attribute')
   })
 
-  describe('label prop', () => {
-    test('should not render label if no label provided', () => {
-      wrapper = mount(LimitOption, {
-        props: {
-          option: option,
-        },
-      })
-      const label = wrapper.find('.form-label')
-      expect(label.exists()).toBeFalsy()
-    })
-
-    test('should render label', () => {
-      const wantedLabel = 'Test'
-      wrapper = mount(LimitOption, {
-        props: {
-          option: option,
-          label: wantedLabel,
-        },
-      })
-      const label = wrapper.find('.form-label')
-      expect(label.text()).toEqual(wantedLabel)
-    })
-  })
-
   describe('showRemove prop', () => {
     test('should show button if showRemove prop is true', async () => {
       wrapper = mount(LimitOption, {
         props: {
-          option: option,
-          showRemove: true,
+          'option': option,
+          'showRemove': true,
+          'onUpdate:option': onUpdate,
         },
       })
       await nextTick()
@@ -101,8 +83,9 @@ describe('LimitOption.vue', () => {
     test('should not show button if showRemove prop is false', async () => {
       wrapper = mount(LimitOption, {
         props: {
-          option: option,
-          showRemove: false,
+          'option': option,
+          'showRemove': false,
+          'onUpdate:option': onUpdate,
         },
       })
       await nextTick()
@@ -113,7 +96,8 @@ describe('LimitOption.vue', () => {
     test('should not show button if showRemove prop does not exist', async () => {
       wrapper = mount(LimitOption, {
         props: {
-          option: option,
+          'option': option,
+          'onUpdate:option': onUpdate,
         },
       })
       await nextTick()
@@ -128,12 +112,13 @@ describe('LimitOption.vue', () => {
         return !['Tag', 'Method'].includes(item)
       })
       option = {
-        type: 'attrs',
+        'attrs': '',
       }
       wrapper = mount(LimitOption, {
         props: {
-          option: option,
-          ignoreAttributes: ['tags', 'method'],
+          'option': option,
+          'ignoreAttributes': ['tags', 'method'],
+          'onUpdate:option': onUpdate,
         },
       })
       await nextTick()
@@ -149,12 +134,13 @@ describe('LimitOption.vue', () => {
         return !['IP Address', 'URI', 'Company'].includes(item)
       })
       option = {
-        type: 'attrs',
+        'attrs': '',
       }
       wrapper = mount(LimitOption, {
         props: {
-          option: option,
-          ignoreAttributes: ['ip', 'uri', 'company'],
+          'option': option,
+          'ignoreAttributes': ['ip', 'uri', 'company'],
+          'onUpdate:option': onUpdate,
         },
       })
       await nextTick()
@@ -167,12 +153,13 @@ describe('LimitOption.vue', () => {
 
     test('should render dropdown correctly with all types if ignore is empty array', async () => {
       option = {
-        type: 'attrs',
+        'attrs': '',
       }
       wrapper = mount(LimitOption, {
         props: {
-          option: option,
-          ignoreAttributes: [],
+          'option': option,
+          'ignoreAttributes': [],
+          'onUpdate:option': onUpdate,
         },
       })
       await nextTick()
@@ -186,82 +173,61 @@ describe('LimitOption.vue', () => {
 
   describe('emit changes', () => {
     describe('type dropdown', () => {
-      test('should not emit new option when selected type selected from dropdown again', async () => {
-        const selection = wrapper.find('.option-type-selection')
-        const options = selection.findAll('option')
-        await selection.setValue(options.at(0).element.value)
-        expect(wrapper.emitted('change')).toBeFalsy()
-      })
-
       test('should emit new option when type selected from dropdown - self - headers - self', async () => {
         const wantedEmit = {
-          type: 'self',
-          key: 'self',
+          'self': 'self',
         }
         const selection = wrapper.find('.option-type-selection')
         const options = selection.findAll('option')
         // set to not self so we would be able to change to default
         await selection.setValue(options.at(1).element.value)
         await selection.setValue(options.at(0).element.value)
-        expect(wrapper.emitted('change')).toBeTruthy()
-        expect(wrapper.emitted('change')[1]).toEqual([wantedEmit])
+        expect(wrapper.emitted('update:option')).toBeTruthy()
+        expect(wrapper.emitted('update:option')[1]).toEqual([wantedEmit])
       })
 
       test('should emit new option when type selected from dropdown - headers', async () => {
         const wantedEmit = {
-          type: 'headers',
-          key: '',
-          value: undefined as unknown as string,
+          'headers': '',
         }
         const selection = wrapper.find('.option-type-selection')
         const options = selection.findAll('option')
-        selection.setValue(options.at(1).element.value)
-        // options.at(1).setSelected()
-        await nextTick()
-        expect(wrapper.emitted('change')).toBeTruthy()
-        expect(wrapper.emitted('change')[0]).toEqual([wantedEmit])
+        await selection.setValue(options.at(1).element.value)
+        expect(wrapper.emitted('update:option')).toBeTruthy()
+        expect(wrapper.emitted('update:option')[0]).toEqual([wantedEmit])
       })
 
       test('should emit new option when type selected from dropdown - cookies', async () => {
         const wantedEmit = {
-          type: 'cookies',
-          key: '',
-          value: undefined as unknown as string,
+          'cookies': '',
         }
         const selection = wrapper.find('.option-type-selection')
         const options = selection.findAll('option')
-        options.at(2).setSelected()
-        await nextTick()
-        expect(wrapper.emitted('change')).toBeTruthy()
-        expect(wrapper.emitted('change')[0]).toEqual([wantedEmit])
+        await selection.setValue(options.at(2).element.value)
+        expect(wrapper.emitted('update:option')).toBeTruthy()
+        expect(wrapper.emitted('update:option')[0]).toEqual([wantedEmit])
       })
 
       test('should emit new option when type selected from dropdown - args', async () => {
         const wantedEmit = {
-          type: 'args',
-          key: '',
-          value: undefined as unknown as string,
+          'args': '',
         }
         const selection = wrapper.find('.option-type-selection')
         const options = selection.findAll('option')
-        options.at(3).setSelected()
-        await nextTick()
-        expect(wrapper.emitted('change')).toBeTruthy()
-        expect(wrapper.emitted('change')[0]).toEqual([wantedEmit])
+        await selection.setValue(options.at(3).element.value)
+        expect(wrapper.emitted('update:option')).toBeTruthy()
+        expect(wrapper.emitted('update:option')[0]).toEqual([wantedEmit])
       })
 
       test('should emit new option when type selected from dropdown - attrs', async () => {
         const wantedEmit = {
-          type: 'attrs',
-          key: '',
-          value: undefined as unknown as string,
+          'attrs': 'ip',
         }
         const selection = wrapper.find('.option-type-selection')
         const options = selection.findAll('option')
-        options.at(4).setSelected()
-        await nextTick()
-        expect(wrapper.emitted('change')).toBeTruthy()
-        expect(wrapper.emitted('change')[0]).toEqual([wantedEmit])
+        await selection.setValue(options.at(4).element.value)
+        expect(wrapper.emitted('update:option')).toBeTruthy()
+        expect(wrapper.emitted('update:option')[0]).toEqual([wantedEmit])
       })
     })
 
@@ -269,151 +235,57 @@ describe('LimitOption.vue', () => {
       test('should emit new option when key input changes - headers', async () => {
         const wantedKeyValue = 'foo'
         const wantedEmit = {
-          type: 'headers',
-          key: wantedKeyValue,
-          oldKey: '',
-          value: undefined as unknown as string,
+          'headers': wantedKeyValue,
         }
         const selection = wrapper.find('.option-type-selection')
         const options = selection.findAll('option')
-        options.at(1).setSelected()
-        await nextTick()
+        await selection.setValue(options.at(1).element.value)
         const input = wrapper.find('.option-name-input')
-        input.setValue(wantedKeyValue)
-        await nextTick()
-        expect(wrapper.emitted('change')).toBeTruthy()
-        expect(wrapper.emitted('change')[1]).toEqual([wantedEmit])
+        await input.setValue(wantedKeyValue)
+        expect(wrapper.emitted('update:option')).toBeTruthy()
+        expect(wrapper.emitted('update:option')[1]).toEqual([wantedEmit])
       })
 
       test('should emit new option when key selected from dropdown - cookies', async () => {
         const wantedKeyValue = 'foo'
         const wantedEmit = {
-          type: 'cookies',
-          key: wantedKeyValue,
-          oldKey: '',
-          value: undefined as unknown as string,
+          'cookies': wantedKeyValue,
         }
         const selection = wrapper.find('.option-type-selection')
         const options = selection.findAll('option')
-        options.at(2).setSelected()
-        await nextTick()
+        await selection.setValue(options.at(2).element.value)
         const input = wrapper.find('.option-name-input')
-        input.setValue(wantedKeyValue)
-        await nextTick()
-        expect(wrapper.emitted('change')).toBeTruthy()
-        expect(wrapper.emitted('change')[1]).toEqual([wantedEmit])
+        await input.setValue(wantedKeyValue)
+        expect(wrapper.emitted('update:option')).toBeTruthy()
+        expect(wrapper.emitted('update:option')[1]).toEqual([wantedEmit])
       })
 
       test('should emit new option when key input changes - args', async () => {
         const wantedKeyValue = 'foo'
         const wantedEmit = {
-          type: 'args',
-          key: wantedKeyValue,
-          oldKey: '',
-          value: undefined as unknown as string,
+          'args': wantedKeyValue,
         }
         const selection = wrapper.find('.option-type-selection')
         const options = selection.findAll('option')
-        options.at(3).setSelected()
-        await nextTick()
+        await selection.setValue(options.at(3).element.value)
         const input = wrapper.find('.option-name-input')
-        input.setValue(wantedKeyValue)
-        await nextTick()
-        expect(wrapper.emitted('change')).toBeTruthy()
-        expect(wrapper.emitted('change')[1]).toEqual([wantedEmit])
+        await input.setValue(wantedKeyValue)
+        expect(wrapper.emitted('update:option')).toBeTruthy()
+        expect(wrapper.emitted('update:option')[1]).toEqual([wantedEmit])
       })
 
       test('should emit new option when key selected from dropdown - attrs', async () => {
         const wantedEmit = {
-          type: 'attrs',
-          key: 'ip',
-          oldKey: '',
-          value: undefined as unknown as string,
+          'attrs': 'ip',
         }
         const typeSelection = wrapper.find('.option-type-selection')
         const typeOptions = typeSelection.findAll('option')
-        typeOptions.at(4).setSelected()
-        await nextTick()
+        await typeSelection.setValue(typeOptions.at(4).element.value)
         const keySelection = wrapper.find('.option-attribute-selection')
         const keyOptions = keySelection.findAll('option')
-        keyOptions.at(3).setSelected()
-        await nextTick()
-        expect(wrapper.emitted('change')).toBeTruthy()
-        expect(wrapper.emitted('change')[1]).toEqual([wantedEmit])
-      })
-    })
-
-    describe('value changes', () => {
-      test('should emit new option when value input changes - headers', async () => {
-        const wantedValue = 'bar'
-        const wantedEmit = {
-          type: 'headers',
-          key: '',
-          value: wantedValue,
-        }
-        const selection = wrapper.find('.option-type-selection')
-        const options = selection.findAll('option')
-        options.at(1).setSelected()
-        await nextTick()
-        const input = wrapper.find('.option-value-input')
-        input.setValue(wantedValue)
-        await nextTick()
-        expect(wrapper.emitted('change')).toBeTruthy()
-        expect(wrapper.emitted('change')[1]).toEqual([wantedEmit])
-      })
-
-      test('should emit new option when value selected from dropdown - cookies', async () => {
-        const wantedValue = 'bar'
-        const wantedEmit = {
-          type: 'cookies',
-          key: '',
-          value: wantedValue,
-        }
-        const selection = wrapper.find('.option-type-selection')
-        const options = selection.findAll('option')
-        options.at(2).setSelected()
-        await nextTick()
-        const input = wrapper.find('.option-value-input')
-        input.setValue(wantedValue)
-        await nextTick()
-        expect(wrapper.emitted('change')).toBeTruthy()
-        expect(wrapper.emitted('change')[1]).toEqual([wantedEmit])
-      })
-
-      test('should emit new option when value input changes - args', async () => {
-        const wantedValue = 'bar'
-        const wantedEmit = {
-          type: 'args',
-          key: '',
-          value: wantedValue,
-        }
-        const selection = wrapper.find('.option-type-selection')
-        const options = selection.findAll('option')
-        options.at(3).setSelected()
-        await nextTick()
-        const input = wrapper.find('.option-value-input')
-        input.setValue(wantedValue)
-        await nextTick()
-        expect(wrapper.emitted('change')).toBeTruthy()
-        expect(wrapper.emitted('change')[1]).toEqual([wantedEmit])
-      })
-
-      test('should emit new option when value input changes - attrs', async () => {
-        const wantedValue = 'bar'
-        const wantedEmit = {
-          type: 'attrs',
-          key: '',
-          value: wantedValue,
-        }
-        const selection = wrapper.find('.option-type-selection')
-        const options = selection.findAll('option')
-        options.at(4).setSelected()
-        await nextTick()
-        const input = wrapper.find('.option-value-input')
-        input.setValue(wantedValue)
-        await nextTick()
-        expect(wrapper.emitted('change')).toBeTruthy()
-        expect(wrapper.emitted('change')[1]).toEqual([wantedEmit])
+        await keySelection.setValue(keyOptions.at(3).element.value)
+        expect(wrapper.emitted('update:option')).toBeTruthy()
+        expect(wrapper.emitted('update:option')[1]).toEqual([wantedEmit])
       })
     })
 
@@ -422,56 +294,35 @@ describe('LimitOption.vue', () => {
         beforeEach(async () => {
           wrapper = mount(LimitOption, {
             props: {
-              option: {
-                oldKey: '',
-              },
-              useValue: true,
+              'option': {},
+              'onUpdate:option': onUpdate,
             },
           })
           await nextTick()
           const selection = wrapper.find('.option-type-selection')
           const options = selection.findAll('option')
-          options.at(2).setSelected()
+          await selection.setValue(options.at(2).element.value)
           await wrapper.vm.$forceUpdate()
         })
 
         test('should emit type change correctly', () => {
           const wantedEmit = {
-            type: 'args',
-            key: '',
-            value: undefined as unknown as string,
+            'args': '',
           }
-          expect(wrapper.emitted('change')).toBeTruthy()
-          expect(wrapper.emitted('change')[0]).toEqual([wantedEmit])
+          expect(wrapper.emitted('update:option')).toBeTruthy()
+          expect(wrapper.emitted('update:option')[0]).toEqual([wantedEmit])
         })
 
         test('should emit key change correctly', async () => {
           const wantedKeyValue = 'foo'
           const wantedEmit = {
-            type: 'args',
-            key: wantedKeyValue,
-            oldKey: '',
-            value: undefined as unknown as string,
+            'args': wantedKeyValue,
           }
           const input = wrapper.find('.option-name-input')
           input.setValue(wantedKeyValue)
           await nextTick()
-          expect(wrapper.emitted('change')).toBeTruthy()
-          expect(wrapper.emitted('change')[1]).toEqual([wantedEmit])
-        })
-
-        test('should emit value change correctly', async () => {
-          const wantedValue = 'bar'
-          const wantedEmit = {
-            type: 'args',
-            key: '',
-            value: wantedValue,
-          }
-          const input = wrapper.find('.option-value-input')
-          input.setValue(wantedValue)
-          await nextTick()
-          expect(wrapper.emitted('change')).toBeTruthy()
-          expect(wrapper.emitted('change')[1]).toEqual([wantedEmit])
+          expect(wrapper.emitted('update:option')).toBeTruthy()
+          expect(wrapper.emitted('update:option')[1]).toEqual([wantedEmit])
         })
       })
 
@@ -479,54 +330,35 @@ describe('LimitOption.vue', () => {
         beforeEach(async () => {
           wrapper = mount(LimitOption, {
             props: {
-              option: undefined,
-              useValue: true,
+              'option': undefined,
+              'onUpdate:option': onUpdate,
             },
           })
           await nextTick()
           const selection = wrapper.find('.option-type-selection')
           const options = selection.findAll('option')
-          options.at(2).setSelected()
+          await selection.setValue(options.at(2).element.value)
           await wrapper.vm.$forceUpdate()
         })
 
         test('should emit type change correctly', () => {
           const wantedEmit = {
-            type: 'args',
-            key: '',
-            value: undefined as unknown as string,
+            'args': '',
           }
-          expect(wrapper.emitted('change')).toBeTruthy()
-          expect(wrapper.emitted('change')[0]).toEqual([wantedEmit])
+          expect(wrapper.emitted('update:option')).toBeTruthy()
+          expect(wrapper.emitted('update:option')[0]).toEqual([wantedEmit])
         })
 
         test('should emit key change correctly', async () => {
           const wantedKeyValue = 'foo'
           const wantedEmit = {
-            type: 'args',
-            key: wantedKeyValue,
-            oldKey: '',
-            value: undefined as unknown as string,
+            'args': wantedKeyValue,
           }
           const input = wrapper.find('.option-name-input')
           input.setValue(wantedKeyValue)
           await nextTick()
-          expect(wrapper.emitted('change')).toBeTruthy()
-          expect(wrapper.emitted('change')[1]).toEqual([wantedEmit])
-        })
-
-        test('should emit value change correctly', async () => {
-          const wantedValue = 'bar'
-          const wantedEmit = {
-            type: 'args',
-            key: '',
-            value: wantedValue,
-          }
-          const input = wrapper.find('.option-value-input')
-          input.setValue(wantedValue)
-          await nextTick()
-          expect(wrapper.emitted('change')).toBeTruthy()
-          expect(wrapper.emitted('change')[1]).toEqual([wantedEmit])
+          expect(wrapper.emitted('update:option')).toBeTruthy()
+          expect(wrapper.emitted('update:option')[1]).toEqual([wantedEmit])
         })
       })
     })
@@ -535,9 +367,10 @@ describe('LimitOption.vue', () => {
       test('should emit remove correctly', async () => {
         wrapper = mount(LimitOption, {
           props: {
-            option: option,
-            showRemove: true,
-            removable: true,
+            'option': option,
+            'showRemove': true,
+            'removable': true,
+            'onUpdate:option': onUpdate,
           },
         })
         await nextTick()
@@ -550,9 +383,10 @@ describe('LimitOption.vue', () => {
       test('should not emit key change if removable prop is false', async () => {
         wrapper = mount(LimitOption, {
           props: {
-            option: option,
-            showRemove: true,
-            removable: false,
+            'option': option,
+            'showRemove': true,
+            'removable': false,
+            'onUpdate:option': onUpdate,
           },
         })
         await nextTick()
