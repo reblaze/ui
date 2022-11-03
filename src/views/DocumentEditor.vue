@@ -317,7 +317,7 @@ export default defineComponent({
     },
 
     dynamicRuleManaged(): boolean {
-      return this.selectedDocID.startsWith('dr_')
+      return this.selectedDocID?.startsWith('dr_')
     },
 
     documentAPIPath(): string {
@@ -448,9 +448,9 @@ export default defineComponent({
     },
 
     updateDocIdNames() {
-      this.docIdNames = _.sortBy(this.docs, (a: Document, b: Document) => {
-        let sortValueA: string = a.name
-        let sortValueB: string = b.name
+      this.docIdNames = this.docs.sort((a: Document, b: Document) => {
+        let sortValueA: string = a.name || ''
+        let sortValueB: string = b.name || ''
         const sortValueALowerCase: string = sortValueA.toString().toLowerCase()
         const sortValueBLowerCase: string = sortValueB.toString().toLowerCase()
         // only ignore case if the values are different from one another
