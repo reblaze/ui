@@ -811,8 +811,8 @@ export default defineComponent({
     },
 
     selectedDocTagsChanged(tags: string) {
-      if (tags == '') {
-        this.selectedDocTags = tags
+      if (tags.trim() == '') {
+        this.localDoc.tags = []
         this.$emit('form-invalid', true)
       } else {
         this.$emit('form-invalid', false)
