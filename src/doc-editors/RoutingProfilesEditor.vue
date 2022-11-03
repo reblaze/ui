@@ -662,7 +662,6 @@ export default defineComponent({
     },
 
     async loadProfile() {
-      console.log('selectedDocID', this.selectedDocID)
       this.isDownloadLoading = true
       const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',

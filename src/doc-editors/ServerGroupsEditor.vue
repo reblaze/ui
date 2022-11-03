@@ -482,7 +482,7 @@ export default defineComponent({
   computed: {
     documentAPIPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
-      return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/sites/e/${this.selectedServerGroup.id}/`
+      return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/sites/e/${this.selectedDocID}/`
     },
 
     selectedDocNotDeletable(): boolean {
@@ -628,7 +628,7 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       this.isDeleteLoading = true
       const serverGroupText = this.titles['sites-singular']
-      const url = `configs/${this.selectedBranch}/d/sites/e/${this.selectedServerGroup.id}/`
+      const url = `configs/${this.selectedBranch}/d/sites/e/${this.selectedDocID}/`
       const successMessage = `The ${serverGroupText} was deleted.`
       const failureMessage = `Failed while attempting to delete the ${serverGroupText}.`
       await RequestsUtils.sendReblazeRequest({
@@ -733,7 +733,6 @@ export default defineComponent({
         },
       })
       this.selectedServerGroup = response?.data || {}
-      this.selectedDocID = this.docIdFromRoute
       this.isDownloadLoading = false
     },
 
