@@ -545,7 +545,6 @@
 <script lang="ts">
 import RequestsUtils from '@/assets/RequestsUtils'
 import {ConfigTemplate, HttpRequestMethods} from '@/types'
-// import _ from 'lodash'
 import Utils from '@/assets/Utils'
 import {defineComponent} from 'vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
