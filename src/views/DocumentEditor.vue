@@ -17,7 +17,6 @@
                     Return To List
                   </span>
                 </button>
-                X {{ isDocumentInvalid }} X
               </p>
               <div class="control"
                    v-if="docIdNames.length">
