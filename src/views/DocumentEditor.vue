@@ -530,7 +530,6 @@ export default defineComponent({
       })
       this.updateDocIdNames()
       if (this.docIdNames && this.docIdNames.length && this.docIdNames[0].length && !this.isReblazeDocument) {
-        console.log('skipDocSelection', this.docIdNames[0][0], this.selectedDocID)
         if (!skipDocSelection || !_.find(this.docIdNames, (idName: [Document['id'], Document['name']]) => {
           return idName[0] === this.selectedDocID
         })) {

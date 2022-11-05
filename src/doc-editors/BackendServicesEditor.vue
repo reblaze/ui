@@ -39,7 +39,7 @@
           <div class="column">
             <div class="field is-grouped is-pulled-right">
               <p class="control">
-                <button class="button is-small new-config-template-document-button"
+                <button class="button is-small new-backends-document-button"
                         :class="{'is-loading': isNewLoading}"
                         @click="addNewBackendService()"
                         title="Add new document"
@@ -535,7 +535,7 @@ export default defineComponent({
       this.isDownloadLoading = false
     },
 
-    newConfigTemplate(): BackendService {
+    newBackends(): BackendService {
       const factory = DatasetsUtils.newOperationEntryFactory['backends']
       return factory && factory()
     },
@@ -544,7 +544,7 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       this.isNewLoading = true
       if (!backendServiceToAdd) {
-        backendServiceToAdd = this.newConfigTemplate()
+        backendServiceToAdd = this.newBackends()
       }
       this.docs.unshift(backendServiceToAdd)
       this.selectedDocID = backendServiceToAdd.id
@@ -589,7 +589,7 @@ export default defineComponent({
       this.isDownloadLoading = true
       const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
-        url: `configs/${this.selectedBranch}/d/backends/e/${this.docIdFromRoute}`,
+        url: `configs/${this.selectedBranch}/d/backends/e/${this.selectedDocID}`,
         onFail: () => {
           console.log('Error while attempting to load the Backend Service')
           this.selectedBackendService = null
