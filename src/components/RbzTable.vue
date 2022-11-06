@@ -523,7 +523,7 @@ export default defineComponent({
   border: 0;
 }
 
-.rbz-table > td {
+.rbz-table td {
   padding: 0.5em;
 }
 

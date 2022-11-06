@@ -294,14 +294,14 @@ export default defineComponent({
         if (val && val !== oldVal && this.selectedDocType === 'dynamic-rules' && !this.isForkLoading) {
           if (this.isNewLoading) {
             const docMatchingGlobalFilter = DatasetsUtils.newDocEntryFactory['globalfilters']() as GlobalFilter
-            docMatchingGlobalFilter.id = `dr_${this.selectedDocID}`
+            docMatchingGlobalFilter.id = `dr_${val}`
             docMatchingGlobalFilter.active = (this.selectedDoc as DynamicRule).active
-            docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule ' + this.selectedDocID
+            docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule ' + val
             docMatchingGlobalFilter.action = 'action-dynamic-rule-block'
             this.selectedDocMatchingGlobalFilter = docMatchingGlobalFilter
           } else {
             this.setLoadingDocStatus(true)
-            const url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${this.selectedDocID}/`
+            const url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${val}/`
             const getResponse = async () => {
               return await RequestsUtils.sendRequest({methodName: 'GET', url})
             }
@@ -474,7 +474,7 @@ export default defineComponent({
     async loadSelectedDocData() {
       this.setLoadingDocStatus(true)
       // check if the selected doc only has id and name, if it does, attempt to load the rest of the document data
-      if (this.selectedDoc && Object.keys(this.selectedDoc).length === 2 || this.isForkLoading) {
+      if (this.selectedDoc && Object.keys(this.selectedDoc).length === 2) {
         let response
         const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`
         if (this.isReblazeDocument) {
@@ -541,9 +541,9 @@ export default defineComponent({
         this.isDownloadLoading = false
       })
       this.updateDocIdNames()
-      if (this.docIdNames && this.docIdNames.length && this.docIdNames[0].id && !this.isReblazeDocument) {
-        if (!skipDocSelection || !_.find(this.docIdNames, (idName: [Document['id'], Document['name']]) => {
-          return idName[0] === this.selectedDocID
+      if (this.docIdNames && this.docIdNames.length && this.docIdNames[0].id) {
+        if (!skipDocSelection || !_.find(this.docIdNames, (doc: {id: Document['id'], name: Document['name']}) => {
+          return doc.id === this.selectedDocID
         })) {
           this.selectedDocID = this.docIdNames[0].id
         }
@@ -586,7 +586,7 @@ export default defineComponent({
         this.selectedDocID = docToAdd.id
         docToAdd.name += ' ' + docToAdd.id
         this.selectedDocMatchingGlobalFilter.id = `dr_${this.selectedDocID}`
-        this.selectedDocMatchingGlobalFilter.active = (docToAdd as DynamicRule).active // (this.selectedDoc as DynamicRule).active
+        this.selectedDocMatchingGlobalFilter.active = (docToAdd as DynamicRule).active
         this.selectedDocMatchingGlobalFilter.name = 'Global Filter for copy of Dynamic Rule ' + this.selectedDocID
         this.duplicatedDocMatchingGlobalFilter = this.selectedDocMatchingGlobalFilter
       }
