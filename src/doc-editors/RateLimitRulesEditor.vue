@@ -71,8 +71,8 @@
             <div class="control"
                  data-qa="tag-input">
               <tag-autocomplete-input :initial-tag="selectedDocTags"
-                                      selection-type="multiple"
-                                      @tag-changed="selectedDocTagsChanged" />
+                                      :selection-type="'multiple'"
+                                      @tag-changed="selectedDocTags = $event" />
             </div>
             <labeled-tags title="Automatic Tags"
                           :tags="automaticTags" />
@@ -337,7 +337,7 @@ export default defineComponent({
       },
     },
   },
-  emits: ['update:selectedDoc', 'go-to-route', 'form-invalid'],
+  emits: ['update:selectedDoc', 'go-to-route'],
   methods: {
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
@@ -453,16 +453,6 @@ export default defineComponent({
           return e[1]
         })
       })
-    },
-
-    selectedDocTagsChanged(tags: string) {
-      if (tags.trim() == '') {
-        this.selectedDocTags = tags.trim()
-        this.$emit('form-invalid', true)
-      } else {
-        this.$emit('form-invalid', false)
-        this.selectedDocTags = tags.trim()
-      }
     },
   },
 
