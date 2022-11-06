@@ -25,7 +25,7 @@
                 </span>
                 <span class="inline-collapsed-header">
                   <span class="label is-small mr-1">
-                    Tags
+                    Tags:
                   </span>
                   {{ selectedDocTags }}
                 </span>
