@@ -335,7 +335,6 @@ export default defineComponent({
     return {
       titles: DatasetsUtils.titles,
       selectedBackendService: null as BackendService,
-      docIdFromRoute: '',
       docs: [] as unknown as BackendService[],
       docIdNames: [] as unknown as [BackendService['id'], BackendService['name']][],
       selectedDocID: null,
@@ -439,8 +438,7 @@ export default defineComponent({
 
     async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
-      this.docIdFromRoute = this.$route.params?.doc_id?.toString()
-      this.selectedDocID = this.docIdFromRoute
+      this.selectedDocID = this.$route.params?.doc_id?.toString()
       await this.loadBackendService()
     },
 
@@ -502,7 +500,11 @@ export default defineComponent({
     },
 
     updateDocIdNames() {
-      this.docIdNames = _.sortBy(_.map(this.docs, (doc) => [doc.id, doc.name]), (entry) => entry[1].toLowerCase())
+      this.docIdNames = _.sortBy(_.map(this.docs, (doc) => {
+        return [doc.id, doc.name]
+      }), (entry) => {
+        return entry[1].toLowerCase()
+      })
     },
 
     async loadDocs() {
@@ -527,7 +529,7 @@ export default defineComponent({
         if (!_.find(this.docIdNames, (idName: [BackendService['id'], BackendService['name']]) => {
           return idName[0] === this.selectedDocID
         })) {
-          this.docIdFromRoute = this.docIdNames[0][0]
+          this.selectedDocID = this.docIdNames[0][0]
         }
         await this.loadBackendService()
       }

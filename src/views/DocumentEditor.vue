@@ -320,7 +320,7 @@ export default defineComponent({
     },
 
     dynamicRuleManaged(): boolean {
-      return this.selectedDocID && this.selectedDocID.startsWith('dr_')
+      return this.selectedDocID?.startsWith('dr_')
     },
 
     documentAPIPath(): string {

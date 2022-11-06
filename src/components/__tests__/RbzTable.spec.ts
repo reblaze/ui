@@ -262,7 +262,7 @@ describe('RbzTable.vue', () => {
     })
 
     test('should have the correct first asc arrow active on columns change', async () => {
-      const secondHeader = wrapper.findAll('.column-title').at(4)
+      const secondHeader = wrapper.findAll('.column-title').at(1)
       await secondHeader.trigger('click')
       columns = [
         {
