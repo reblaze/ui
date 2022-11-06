@@ -78,9 +78,10 @@
                   <div class="control"
                        data-qa="tag-input">
                     <tag-autocomplete-input :initial-tag="selectedDocTags"
+                                            v-model="selectedDocTags"
                                             selection-type="multiple"
                                             :editable="!dynamicRuleManaged"
-                                            @tag-changed="selectedDocTagsChanged"/>
+                                            @tag-changed="selectedDocTags = $event"/>
                   </div>
                 </div>
                 <div class="field">
@@ -240,6 +241,11 @@ export default defineComponent({
         this.localDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
           return tag.trim()
         }) : []
+        if (tags.trim() == '' || tags.length < 3) {
+          this.$emit('tags-invalid', true)
+        } else {
+          this.$emit('tags-invalid', false)
+        }
         this.emitDocUpdate()
       },
     },
@@ -267,16 +273,6 @@ export default defineComponent({
 
     emitFormInvalid(isFormInvalid: boolean) {
       this.$emit('form-invalid', isFormInvalid)
-    },
-
-    selectedDocTagsChanged(tags: string) {
-      if (tags.trim() == '') {
-        this.selectedDocTags = tags.trim()
-        this.$emit('form-invalid', true)
-      } else {
-        this.$emit('form-invalid', false)
-        this.selectedDocTags = tags.trim()
-      }
     },
 
     tryMatch(data: string, regex: RegExp, type: Category): GlobalFilterRuleEntry[] {

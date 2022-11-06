@@ -269,11 +269,16 @@ export default defineComponent({
         this.localGlobalFilterDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
           return tag.trim()
         }) : []
+        if (tags.trim() == '' || tags.length < 3) {
+          this.$emit('tags-invalid', true)
+        } else {
+          this.$emit('tags-invalid', false)
+        }
         this.emitMatchDocUpdate()
       },
     },
   },
-  emits: ['update:selectedDoc', 'update:selectedDocMatchingGlobalFilter', 'form-invalid'],
+  emits: ['update:selectedDoc', 'update:selectedDocMatchingGlobalFilter', 'form-invalid', 'tags-invalid'],
   methods: {
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)

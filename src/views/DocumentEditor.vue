@@ -17,7 +17,6 @@
                     Return To List
                   </span>
                 </button>
-                X {{ isDocumentInvalid }} X
               </p>
               <div class="control"
                    v-if="docIdNames.length">
@@ -139,7 +138,7 @@
           v-model:docs="docs"
           :apiPath="documentAPIPath"
           @form-invalid="getIsDocumentInvalid"
-          @tags-invalid="tagsInvalid=true"
+          @tags-invalid="tagsInvalid = $event"
           @go-to-route="goToRoute($event)"
           ref="currentComponent">
       </component>
@@ -410,9 +409,9 @@ export default defineComponent({
   methods: {
 
     getIsDocumentInvalid(isDocumentInvalid: boolean) {
-      console.log('emit InValid', isDocumentInvalid)
       this.isDocumentInvalid = isDocumentInvalid
     },
+
     async goToRoute(newRoute?: string) {
       if (!newRoute) {
         newRoute = `/${this.selectedBranch}/${this.selectedDocType}/config/${this.selectedDocID}`

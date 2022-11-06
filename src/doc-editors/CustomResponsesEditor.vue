@@ -54,8 +54,9 @@
             <div class="control"
                  data-qa="tag-input">
               <tag-autocomplete-input :initial-tag="selectedDocTags"
+                                      v-model="selectedDocTags"
                                       selection-type="multiple"
-                                      @tag-changed="selectedDocTagsChanged"
+                                      @tag-changed="selectedDocTags = $event"
                                       class="document-autocomplete-input" />
             </div>
           </div>
@@ -212,11 +213,16 @@ export default defineComponent({
         this.localDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
           return tag.trim()
         }) : []
+        if (tags.trim() == '' || tags.length < 3) {
+          this.$emit('tags-invalid', true)
+        } else {
+          this.$emit('tags-invalid', false)
+        }
         this.emitDocUpdate()
       },
     },
   },
-  emits: ['update:selectedDoc', 'form-invalid'],
+  emits: ['update:selectedDoc', 'form-invalid', 'tags-invalid'],
   methods: {
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
@@ -250,16 +256,6 @@ export default defineComponent({
     normalizeParams() {
       this.localDoc.params = {}
       this.emitDocUpdate()
-    },
-
-    selectedDocTagsChanged(tags: string) {
-      if (tags.trim() == '') {
-        this.selectedDocTags = tags.trim()
-        this.$emit('form-invalid', true)
-      } else {
-        this.$emit('form-invalid', false)
-        this.selectedDocTags = tags.trim()
-      }
     },
   },
 })
