@@ -305,6 +305,7 @@ export default defineComponent({
         if (this.localDoc.tags && this.localDoc.tags.length > 0) {
           return this.localDoc.tags.join(' ')
         }
+        this.$emit('tags-invalid', true)
         return ''
       },
       set: function(tags: string): void {

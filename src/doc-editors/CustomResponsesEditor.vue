@@ -222,14 +222,10 @@ export default defineComponent({
       },
     },
   },
-  emits: ['update:selectedDoc', 'form-invalid', 'tags-invalid'],
+  emits: ['update:selectedDoc', 'tags-invalid'],
   methods: {
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
-    },
-
-    emitFormInvalid(isFormInvalid: boolean) {
-      this.$emit('form-invalid', isFormInvalid)
     },
 
     getHeadersArray(): HeaderObject[] {

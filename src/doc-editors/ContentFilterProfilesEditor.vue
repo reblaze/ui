@@ -721,7 +721,7 @@ export default defineComponent({
       const allTags = _.concat(doc['active'], doc['report'], doc['ignore'])
       const dupTags = _.filter(allTags, (val, i, iteratee) => _.includes(iteratee, val, i + 1))
       const result = _.fromPairs(_.zip(dupTags, dupTags))
-      // this.$emit('form-invalid', !!_.size(result))
+      this.$emit('form-invalid', !!_.size(result))
       return result
     },
 

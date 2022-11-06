@@ -133,8 +133,8 @@
             <div class="control document-tags"
                  data-qa="tag-input">
               <tag-autocomplete-input :initial-tag="selectedDocTags"
-                                      :selection-type="'multiple'"
-                                      @invalid="emitFormInvalid"
+                                      selection-type="multiple"
+                                      v-model="selectedDocTags"
                                       @tag-changed="selectedDocTags = $event" />
             </div>
           </div>
@@ -263,6 +263,7 @@ export default defineComponent({
         if (this.localGlobalFilterDoc.tags && this.localGlobalFilterDoc.tags.length > 0) {
           return this.localGlobalFilterDoc.tags.join(' ')
         }
+        this.$emit('tags-invalid', true)
         return ''
       },
       set: function(tags: string): void {
