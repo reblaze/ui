@@ -344,14 +344,10 @@ export default defineComponent({
       },
     },
   },
-  emits: ['update:selectedDoc', 'go-to-route', 'form-invalid', 'tags-invalid'],
+  emits: ['update:selectedDoc', 'go-to-route', 'tags-invalid'],
   methods: {
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
-    },
-
-    emitFormInvalid(isFormInvalid: boolean) {
-      this.$emit('form-invalid', isFormInvalid)
     },
 
     emitGoToRoute(url: string) {

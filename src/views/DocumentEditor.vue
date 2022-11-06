@@ -398,13 +398,6 @@ export default defineComponent({
 
     ...mapStores(useBranchesStore),
 
-    // used only for giving feedback to user
-    isValidDocWithTags(): boolean {
-      const localDoc = (this.selectedDocType === 'dynamic-rules') ?
-        this.selectedDocMatchingGlobalFilter as GlobalFilter : this.selectedDoc as any
-      const valid = (localDoc && localDoc.tags && localDoc.tags.length === 0) ? false : true
-      return valid
-    },
   },
   methods: {
 

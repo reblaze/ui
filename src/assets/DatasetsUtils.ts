@@ -127,7 +127,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'name': 'New ACL Profile',
       'description': 'New ACL Profile Description and Remarks',
       'action': 'action-acl-block',
-      'tags': [],
+      'tags': ['all'],
       'allow': [],
       'allow_bot': [],
       'deny_bot': [],
@@ -143,7 +143,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'name': 'New Content Filter Profile',
       'description': 'New Content Filter Profile Description and Remarks',
       'action': 'action-contentfilter-block',
-      'tags': [],
+      'tags': ['all'],
       'ignore_body': true,
       'ignore_alphanum': true,
       'allsections': {
@@ -214,7 +214,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'name': 'New Security Policy',
       'match': `${id}.example.com`,
       'description': 'New Security Policy Description and Remarks',
-      'tags': [],
+      'tags': ['all'],
       'session': [
         {
           'attrs': 'ip',
@@ -244,7 +244,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'active': false,
       'description': 'New Rate Limit Rule Description and Remarks',
       'timeframe': 60,
-      'tags': [],
+      'tags': ['all'],
       'thresholds': [
         {
           'limit': 5,
@@ -279,7 +279,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'include': ['all'],
       'exclude': [],
       'timeframe': 60,
-      'tags': [],
+      'tags': ['all'],
       'key': [
         {
           'attrs': 'ip',
@@ -334,7 +334,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'risk': 1,
       'category': '',
       'subcategory': '',
-      'tags': [],
+      'tags': ['all'],
     }
   },
 
@@ -343,7 +343,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'id': generateUUID2(),
       'name': 'New Custom Response',
       'description': 'New Custom Response Rule Description and Remarks',
-      'tags': [],
+      'tags': ['all'],
       'type': 'monitor',
     }
   },

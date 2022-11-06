@@ -202,7 +202,6 @@ export default defineComponent({
 
       // collapsed
       isDataCollapsed: false,
-      isFormInvalid: false,
     }
   },
 
