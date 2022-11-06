@@ -281,15 +281,12 @@ export default defineComponent({
     dataArrayDisplay: {
       handler: function(val) {
         this.currentPage = 1
-        let selectedArrayTemp = []
         const dataIdArrayDisplay = _.map(this.dataArrayDisplay, 'id')
         if (val?.length > 0 && this.selectedArray?.length > 0) {
           // filter out whatever is NOT in dataIdArrayDisplay/dataArrayDisplay
-          selectedArrayTemp = _.filter(this.selectedArray, (selectedArrayItem) => {
-            const temp = _.includes(dataIdArrayDisplay, selectedArrayItem)
-            return temp
+          this.selectedArray = _.filter(this.selectedArray, (selectedArrayItem) => {
+            return _.includes(dataIdArrayDisplay, selectedArrayItem)
           })
-          this.selectedArray = selectedArrayTemp
           this.$emit('select-array', _.cloneDeep(this.selectedArray))
         } else {
           this.selectedArray = []
