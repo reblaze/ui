@@ -78,40 +78,45 @@
             <labeled-tags title="Automatic Tags"
                           :tags="automaticTags" />
           </div>
-          <div class="group-key mb-3">
-            <limit-option v-for="(option, index) in localDoc.key"
-                          label-separated-line
-                          :label="index === 0 ? 'Count by' : ' '"
-                          show-remove
-                          @remove="removeKey(index)"
-                          @change="updateKeyOption($event, index)"
-                          :removable="localDoc.key.length > 1"
-                          :ignore-attributes="['tags']"
-                          :option="generateOption(option)"
-                          :key="getOptionTextKey(option, index)"/>
-            <a title="Add new option rule"
-               class="is-text is-small is-size-7 ml-3 add-key-button"
-               data-qa="add-new-key-btn"
-               tabindex="0"
-               @click="addKey()"
-               @keypress.space.prevent
-               @keypress.space="addKey()"
-               @keypress.enter="addKey()">
-              New entry
-            </a>
-            <p class="has-text-danger is-size-7 ml-3 mt-3 key-invalid"
-               v-if="!keysAreValid">
-              Count-by entries must be unique
-            </p>
+          <div class="field count-by-limit-option">
+            <label class="label is-small">
+              Count by
+            </label>
+            <div class="control">
+              <limit-option v-for="(option, index) in localDoc.key"
+                            show-remove
+                            :removable="localDoc.key.length > 1"
+                            @remove="removeKey(index)"
+                            v-model:option="localDoc.key[index]"
+                            @update:option="emitDocUpdate(); checkKeysValidity()"
+                            :ignore-attributes="['tags']"
+                            :key="getOptionTextKey(option, index)"/>
+              <a title="Add new option rule"
+                 class="is-text is-small is-size-7 ml-3 add-key-button"
+                 data-qa="add-new-key-btn"
+                 tabindex="0"
+                 @click="addKey()"
+                 @keypress.space.prevent
+                 @keypress.space="addKey()"
+                 @keypress.enter="addKey()">
+                New entry
+              </a>
+              <p class="has-text-danger is-size-7 ml-3 mt-3 key-invalid"
+                 v-if="!keysAreValid">
+                Count-by entries must be unique
+              </p>
+            </div>
           </div>
-          <div class="group-event mb-3">
-            <limit-option use-default-self
-                          label-separated-line
-                          label="Event"
-                          v-model:option="eventOption"
-                          :key="eventOption.type + localDoc.id"
-                          :ignore-attributes="['tags']"
-                          @change="updateEvent"/>
+          <div class="field event-limit-option">
+            <label class="label is-small">
+              Event
+            </label>
+            <div class="control">
+              <limit-option v-model:option="localDoc.pairwith"
+                            use-default-self
+                            :ignore-attributes="['tags']"
+                            @update:option="emitDocUpdate"/>
+            </div>
           </div>
           <div class="field">
             <label class="label is-small">
@@ -254,7 +259,7 @@
 
 <script lang="ts">
 import _ from 'lodash'
-import LimitOption, {OptionObject} from '@/components/LimitOption.vue'
+import LimitOption from '@/components/LimitOption.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import SecurityPoliciesConnections from '@/components/SecurityPoliciesConnections.vue'
 import {defineComponent} from 'vue'
@@ -263,7 +268,6 @@ import {
   Dictionary,
   IncludeExcludeType,
   LimitOptionType,
-  LimitRuleType,
   RateLimit,
   ThresholdActionPair,
 } from '@/types'
@@ -333,16 +337,6 @@ export default defineComponent({
       const dupTags = _.filter(allTags, (val, i, iteratee) => _.includes(iteratee, val, i + 1))
       return _.fromPairs(_.zip(dupTags, dupTags))
     },
-
-    eventOption: {
-      get: function(): LimitOptionType {
-        return this.generateOption(this.localDoc.pairwith)
-      },
-      set: function(value: RateLimit['pairwith']): void {
-        this.localDoc.pairwith = value
-        this.emitDocUpdate()
-      },
-    },
   },
   emits: ['update:selectedDoc', 'go-to-route', 'tags-invalid'],
   methods: {
@@ -360,16 +354,6 @@ export default defineComponent({
       }
       const [type] = Object.keys(option)
       return `${this.localDoc.id}_${type}_${index}`
-    },
-
-    generateOption(data: LimitOptionType): OptionObject {
-      if (!data) {
-        return {}
-      }
-      const [firstObjectKey] = Object.keys(data)
-      const type = firstObjectKey as LimitRuleType
-      const key = data[firstObjectKey]
-      return {type, key, value: null}
     },
 
     addThreshold() {
@@ -398,14 +382,6 @@ export default defineComponent({
       this.checkKeysValidity()
     },
 
-    updateKeyOption(option: OptionObject, index: number) {
-      this.localDoc.key.splice(index, 1, {
-        [option.type]: option.key,
-      })
-      this.emitDocUpdate()
-      this.checkKeysValidity()
-    },
-
     checkKeysValidity() {
       const keysToCheck = _.countBy(this.localDoc.key, (item) => {
         if (!item) {
@@ -422,10 +398,6 @@ export default defineComponent({
         }
       }
       return this.keysAreValid
-    },
-
-    updateEvent(option: OptionObject) {
-      this.eventOption = {[option.type]: option.key}
     },
 
     addNewTag(section: IncludeExcludeType, entry: string) {
