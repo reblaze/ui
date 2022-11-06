@@ -139,7 +139,7 @@
                :class="col.classes">
             <span v-if="col.displayFunction"
                   v-html="col.displayFunction(row)"
-                  :title="col.displayFunction(row)">
+                  :title="col.displayFunction(row).toString()">
             </span>
             <span v-else
                   :title="row[col.fieldNames[0]]">
