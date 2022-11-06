@@ -279,16 +279,13 @@ export default defineComponent({
       },
     },
   },
-  emits: ['update:selectedDoc', 'update:selectedDocMatchingGlobalFilter', 'form-invalid', 'tags-invalid'],
+  emits: ['update:selectedDoc', 'update:selectedDocMatchingGlobalFilter', 'tags-invalid'],
   methods: {
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
     },
     emitMatchDocUpdate() {
       this.$emit('update:selectedDocMatchingGlobalFilter', this.localGlobalFilterDoc)
-    },
-    emitFormInvalid(isFormInvalid: boolean) {
-      this.$emit('form-invalid', isFormInvalid)
     },
     emitToDocAndDocMatchUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)

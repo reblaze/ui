@@ -768,7 +768,7 @@ export default defineComponent({
         this.localDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
           return tag.trim()
         }) : []
-        if (tags.trim() == '' || tags.length < 3) {
+        if (tags.trim() == '' || tags.length < 3 || !!_.size(this.duplicateTags)) {
           this.$emit('tags-invalid', true)
         } else {
           this.$emit('tags-invalid', false)
@@ -789,11 +789,6 @@ export default defineComponent({
   methods: {
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
-    },
-
-    emitFormInvalid(isFormInvalid: boolean) {
-      this.isFormInvalid = isFormInvalid
-      this.$emit('form-invalid', (isFormInvalid || !!_.size(this.duplicateTags)))
     },
 
     openAddNewParameter(section: ContentFilterProfileSectionType) {

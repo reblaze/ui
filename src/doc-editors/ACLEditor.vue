@@ -260,10 +260,6 @@ export default defineComponent({
       this.$emit('update:selectedDoc', this.localDoc)
     },
 
-    emitFormInvalid(isFormInvalid: boolean) {
-      this.$emit('form-invalid', isFormInvalid)
-    },
-
     // returns true if tag "all" is set in a higher priority section
     allPrior(self: ACLProfileFilter): boolean {
       // top priority, skip
