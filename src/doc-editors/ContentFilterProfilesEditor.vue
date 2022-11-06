@@ -706,8 +706,6 @@ export default defineComponent({
       ],
       customResponseNames: [] as [CustomResponse['id'], CustomResponse['name']][],
       maskingSeedHidden: true,
-
-      isFormInvalid: true,
     }
   },
 
