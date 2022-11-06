@@ -175,7 +175,7 @@ describe('DynamicRulesEditor.vue', () => {
       wantedEmit.tags.push(newTag)
       // add first
       const tagAutocompleteInput = wrapper.findAllComponents(TagAutocompleteInput).at(0)
-      tagAutocompleteInput.vm.$emit('tag-changed', newTagInputValue)
+      tagAutocompleteInput.vm.$emit('value-changed', newTagInputValue)
       expect(wrapper.emitted('update:selectedDocMatchingGlobalFilter')[0]).toEqual([wantedEmit])
     })
   })

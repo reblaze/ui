@@ -11,9 +11,8 @@
       :minimum-value-length="minimumTagLength"
       :title="inputTitle"
       :data-qa="inputTitle"
-      @value-changed="tagChanged"
-      @value-submitted="tagSubmitted"
-      @invalid="emitInvalid"
+      @value-changed="valueChanged"
+      @value-submitted="valueSubmitted"
       @keyup="bubbleEvent('keyup', $event)"
       @keydown="bubbleEvent('keydown', $event)"
       @keypress="bubbleEvent('keypress', $event)"
@@ -124,7 +123,7 @@ export default defineComponent({
       return this.selectionType === 'multiple' ? 'Space separated tags' : 'Tag'
     },
   },
-  emits: ['tag-changed', 'tag-submitted', 'invalid', 'keyup', 'keydown', 'keypress', 'focus', 'blur'],
+  emits: ['value-changed', 'value-submitted', 'keyup', 'keydown', 'keypress', 'focus', 'blur'],
   methods: {
 
     async loadAutocompleteSuggestions() {
@@ -188,20 +187,16 @@ export default defineComponent({
       this.tagsSuggestions = _.sortBy(this.tagsSuggestions, 'value') as AutocompleteSuggestion[]
     },
 
-    emitInvalid(inValid: boolean) {
-      this.$emit('invalid', inValid)
-    },
-
     bubbleEvent(eventName: AutocompleteInputEvents, event: Event) {
       this.$emit(eventName, event)
     },
 
-    tagChanged(newTag: string) {
+    valueChanged(newTag: string) {
       this.tag = Utils.removeExtraWhitespaces(newTag).trim()
-      this.$emit('tag-changed', this.tag)
+      this.$emit('value-changed', this.tag)
     },
 
-    tagSubmitted(newTag: string) {
+    valueSubmitted(newTag: string) {
       this.tag = Utils.removeExtraWhitespaces(newTag).trim()
       // if submitting a tag we don't recognize -> add it to the DB
       if (!this.tagsSuggestions.find((suggestion) => {
@@ -209,7 +204,7 @@ export default defineComponent({
       })) {
         this.addUnknownTagsToDB([this.currentTag])
       }
-      this.$emit('tag-submitted', this.tag)
+      this.$emit('value-submitted', this.tag)
     },
 
     async addUnknownTagsToDB(tags: string[]) {

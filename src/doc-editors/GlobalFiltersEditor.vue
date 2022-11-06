@@ -79,7 +79,7 @@
                                             v-model="selectedDocTags"
                                             selection-type="multiple"
                                             :editable="!dynamicRuleManaged"
-                                            @tag-changed="selectedDocTags = $event"/>
+                                            @value-changed="selectedDocTags = $event"/>
                   </div>
                 </div>
                 <div class="field">

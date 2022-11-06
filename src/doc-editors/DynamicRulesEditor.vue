@@ -148,7 +148,7 @@
               <tag-autocomplete-input :initial-tag="selectedDocTags"
                                       selection-type="multiple"
                                       v-model="selectedDocTags"
-                                      @tag-changed="selectedDocTags = $event" />
+                                      @value-changed="selectedDocTags = $event" />
             </div>
           </div>
         </div>

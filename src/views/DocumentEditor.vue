@@ -91,7 +91,7 @@
                 <button class="button is-small save-document-button"
                         :class="{'is-loading': isSaveLoading}"
                         @click="saveChanges()"
-                        :title="tagsInvalid ? 'Missing a tag' : 'Save changes'"
+                        :title="titleDisplay"
                         :disabled="isDocumentInvalid || !selectedDoc || dynamicRuleManaged || tagsInvalid"
                         data-qa="save-changes">
                   <span class="icon is-small">
@@ -137,7 +137,7 @@
           v-model:selectedDocMatchingGlobalFilter="selectedDocMatchingGlobalFilter"
           v-model:docs="docs"
           :apiPath="documentAPIPath"
-          @form-invalid="getIsDocumentInvalid"
+          @form-invalid="setIsDocumentInvalid"
           @tags-invalid="tagsInvalid = $event"
           @go-to-route="goToRoute($event)"
           ref="currentComponent">
@@ -314,6 +314,9 @@ export default defineComponent({
     },
   },
   computed: {
+    titleDisplay(): string {
+      return this.tagsInvalid ? 'Missing a tag' : 'Save changes'
+    },
     isReblazeDocument(): boolean {
       return Object.keys(this.reblazeComponentsMap).includes(this.selectedDocType)
     },
@@ -401,7 +404,7 @@ export default defineComponent({
   },
   methods: {
 
-    getIsDocumentInvalid(isDocumentInvalid: boolean) {
+    setIsDocumentInvalid(isDocumentInvalid: boolean) {
       this.isDocumentInvalid = isDocumentInvalid
     },
 

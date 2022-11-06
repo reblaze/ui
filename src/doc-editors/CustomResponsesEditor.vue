@@ -56,7 +56,7 @@
               <tag-autocomplete-input :initial-tag="selectedDocTags"
                                       v-model="selectedDocTags"
                                       selection-type="multiple"
-                                      @tag-changed="selectedDocTags = $event"
+                                      @value-changed="selectedDocTags = $event"
                                       class="document-autocomplete-input" />
             </div>
           </div>
