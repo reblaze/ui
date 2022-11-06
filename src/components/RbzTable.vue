@@ -12,6 +12,16 @@
         </th>
       </tr>
       <tr class="header-row">
+        <th class="is-size-7 width-45px" v-if="showCheckboxColumn">
+          <div class="field is-grouped is-grouped-centered">
+              <input type="checkbox"
+                      title="Select all rows"
+                      ref="check-box"
+                      :checked="selectedArray.length === dataArrayDisplay.length"
+                      class="is-small header-checkbox"
+                      @click="selectAll()" />
+          </div>
+        </th>
         <th v-for="(col, index) in columns"
             :key="index"
             class="column-header is-size-7 column-title"
@@ -40,7 +50,7 @@
                       aria-haspopup="true"
                       aria-controls="dropdown-menu"
                       :title="`${menuVisible ? 'Close' : 'Open'} menu`"
-                      v-if="showFilterButton || showNewButton"
+                      v-if="showFilterButton || showNewButton || showCheckboxColumn"
                       @click.stop="menuVisible = !menuVisible">
               <span class="icon is-small">
                 <i class="fas fa-ellipsis-v"></i>
@@ -50,7 +60,8 @@
             <div class="dropdown-menu"
                  id="dropdown-menu"
                  role="menubar">
-              <div class="dropdown-content width-100px py-0">
+              <div class="dropdown-content py-0"
+              :class="showCheckboxColumn? 'width-130px' : 'width-100px'">
                 <button class="button is-size-7 filter-toggle dropdown-item"
                         :class="{'is-active': filtersVisible }"
                         title="Filter table data"
@@ -75,6 +86,7 @@
                     New
                   </span>
                 </button>
+                <slot name="menu"></slot>
               </div>
             </div>
           </div>
@@ -82,6 +94,8 @@
       </tr>
       <tr class="search-row header-row"
           v-if="filtersVisible">
+        <th class="is-size-7 width-50px" v-if="showCheckboxColumn">
+        </th>
         <th class="control has-icons-right"
             v-for="(col, index) in columns"
             :key="index">
@@ -106,6 +120,17 @@
           @click="rowClickable && rowClicked(row.id)"
           :class="{'is-clickable': rowClickable}"
           class="data-row">
+        <td class="is-size-7" v-if="showCheckboxColumn">
+          <div class="field is-grouped is-grouped-centered">
+              <input type="checkbox"
+                      title="Checkbox"
+                      :checked="selectedArray.includes(row.id)"
+                      :id="row.id"
+                      :ref="row.id"
+                      class="is-small row-checkbox"
+                      @change="rowSelected(row.id)" />
+          </div>
+        </td>
         <td v-for="(col, index) in columns"
             :key="index"
             :title="row[col.title]"
@@ -114,7 +139,7 @@
                :class="col.classes">
             <span v-if="col.displayFunction"
                   v-html="col.displayFunction(row)"
-                  :title="col.displayFunction(row)">
+                  :title="col.displayFunction(row)?.toString()">
             </span>
             <span v-else
                   :title="row[col.fieldNames[0]]">
@@ -129,6 +154,7 @@
                v-if="showRowButton">
               <button :title="rowButtonTitle"
                       class="button is-small row-entity-button"
+                      :class="rowButtonClass"
                       @click="rowButtonClicked(row.id)">
                 <span class="icon is-small">
                   <i :class="`fas ${rowButtonIcon ? rowButtonIcon : 'fa-edit'}`"></i>
@@ -192,14 +218,39 @@ export default defineComponent({
     showRowButton: Boolean,
     showSecondRowButton: Boolean,
     rowButtonTitle: String,
+    rowButtonClass: String,
     rowButtonIcon: String,
     tableTitle: String,
     rowsPerPage: {
       type: Number,
       default: 10,
     },
+    showCheckboxColumn: Boolean,
     useScroll: Boolean,
     loading: Boolean,
+  },
+  data() {
+    return {
+      // Menu
+      menuVisible: false,
+
+      // Filtering
+      filter: {} as GenericObject,
+      filtersVisible: false,
+
+      // Sorting
+      sortDirection: 'asc',
+      sortColumnTitle: null as ColumnOptions['title'],
+      sortColumnDisplayFunction: null as ColumnOptions['displayFunction'],
+      sortColumnIsNumber: false as ColumnOptions['isNumber'],
+
+      // Pagination
+      currentPage: 1,
+
+      // checkboxes
+      selectedRow: '' as string,
+      selectedArray: [] as String[],
+    }
   },
   watch: {
     columns: {
@@ -227,27 +278,23 @@ export default defineComponent({
       immediate: true,
       deep: true,
     },
+    dataArrayDisplay: {
+      handler: function(val) {
+        this.currentPage = 1
+        const dataIdArrayDisplay = _.map(this.dataArrayDisplay, 'id')
+        if (val?.length > 0 && this.selectedArray?.length > 0) {
+          // filter out whatever is NOT in dataIdArrayDisplay/dataArrayDisplay
+          this.selectedArray = _.filter(this.selectedArray, (selectedArrayItem) => {
+            return _.includes(dataIdArrayDisplay, selectedArrayItem)
+          })
+          this.$emit('select-array', _.cloneDeep(this.selectedArray))
+        } else {
+          this.selectedArray = []
+        }
+      },
+    },
   },
-  data() {
-    return {
-      // Menu
-      menuVisible: false,
-
-      // Filtering
-      filter: {} as GenericObject,
-      filtersVisible: false,
-
-      // Sorting
-      sortDirection: 'asc',
-      sortColumnTitle: null as ColumnOptions['title'],
-      sortColumnDisplayFunction: null as ColumnOptions['displayFunction'],
-      sortColumnIsNumber: false as ColumnOptions['isNumber'],
-
-      // Pagination
-      currentPage: 1,
-    }
-  },
-  emits: ['new-button-clicked', 'row-button-clicked', 'row-clicked'],
+  emits: ['new-button-clicked', 'row-button-clicked', 'row-clicked', 'select-array'],
   computed: {
     dataArrayDisplay() {
       if (!this.data?.length || !Array.isArray(this.data)) {
@@ -327,11 +374,12 @@ export default defineComponent({
     },
 
     totalColumns(): number {
-      const extraColumns = this.showMenuColumn ? 1 : 0
+      const extraColumns = (this.showMenuColumn ? 1 : 0) + (this.showCheckboxColumn ? 1 : 0)
       return this.columns.length + extraColumns
     },
   },
   methods: {
+
     newButtonClicked() {
       this.$emit('new-button-clicked')
     },
@@ -342,6 +390,28 @@ export default defineComponent({
 
     rowClicked(id: string) {
       this.$emit('row-clicked', id)
+    },
+
+    rowSelected(id: string) {
+      const selectedIndex = this.selectedArray.findIndex((row) => row === id)
+      if (selectedIndex == -1) {
+        this.selectedArray.push(id)
+        this.$refs['check-box'].checked = false
+      } else {
+        this.selectedArray.splice(selectedIndex, 1)
+        this.$refs['check-box'].checked = false
+      }
+      this.$emit('select-array', _.cloneDeep(this.selectedArray))
+    },
+
+    selectAll() {
+      const currentCheckboxes = _.map(this.dataArrayDisplay, 'id')
+      if (this.$refs['check-box'].checked) {
+        this.selectedArray = _.cloneDeep(currentCheckboxes)
+      } else {
+        this.selectedArray = []
+      }
+      this.$emit('select-array', _.cloneDeep(this.selectedArray))
     },
 
     sortColumn(column: ColumnOptions) {
