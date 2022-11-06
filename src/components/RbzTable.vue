@@ -17,7 +17,7 @@
               <input type="checkbox"
                       title="Select all rows"
                       ref="check-box"
-                      :checked="selectedArray.length !== 0"
+                      :checked="selectedArray.length === dataArrayDisplay.length"
                       class="is-small header-checkbox"
                       @click="selectAll()" />
           </div>
@@ -281,12 +281,16 @@ export default defineComponent({
     dataArrayDisplay: {
       handler: function(val) {
         this.currentPage = 1
+        let selectedArrayTemp = []
+        const dataIdArrayDisplay = _.map(this.dataArrayDisplay, 'id')
         if (val?.length > 0 && this.selectedArray?.length > 0) {
-          this.selectedArray = _.filter(this.selectedArray, (selectedArrayItem) => {
-            return _.some(val, (dataArrayItem) => {
-              return dataArrayItem.id === selectedArrayItem
-            })
+          // filter out whatever is NOT in dataIdArrayDisplay/dataArrayDisplay
+          selectedArrayTemp = _.filter(this.selectedArray, (selectedArrayItem) => {
+            const temp = _.includes(dataIdArrayDisplay, selectedArrayItem)
+            return temp
           })
+          this.selectedArray = selectedArrayTemp
+          this.$emit('select-array', _.cloneDeep(this.selectedArray))
         } else {
           this.selectedArray = []
         }
