@@ -292,8 +292,13 @@ export default defineComponent({
         let sortValueA = getSortValue(a)
         let sortValueB = getSortValue(b)
         if (!this.sortColumnIsNumber) {
-          sortValueA = sortValueA.toString().toLowerCase()
-          sortValueB = sortValueB.toString().toLowerCase()
+          const sortValueALowerCase = sortValueA.toString().toLowerCase()
+          const sortValueBLowerCase = sortValueB.toString().toLowerCase()
+          // only ignore case if the values are different from one another
+          if (!_.isEqual(sortValueALowerCase, sortValueBLowerCase)) {
+            sortValueA = sortValueALowerCase
+            sortValueB = sortValueBLowerCase
+          }
         }
         if (sortValueA < sortValueB) {
           return -1 * sortModifier

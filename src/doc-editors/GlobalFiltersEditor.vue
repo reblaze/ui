@@ -7,8 +7,6 @@
           <div class="media collapsible px-5 py-5 mb-0"
                @click="isDataCollapsed = !isDataCollapsed">
             <div class="media-content">
-              <p v-show="!isDataCollapsed"
-                 class="title is-5"></p>
               <p v-show="isDataCollapsed"
                  class="is-5">
                 <span class="inline-collapsed-header">
@@ -200,7 +198,7 @@ export default defineComponent({
       customResponseNames: [] as [CustomResponse['id'], CustomResponse['name']][],
 
       // collapsed
-      isDataCollapsed: false,
+      isDataCollapsed: true,
     }
   },
 
