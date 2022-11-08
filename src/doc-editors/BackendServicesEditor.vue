@@ -440,6 +440,7 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       this.selectedDocID = this.$route.params?.doc_id?.toString()
       await this.loadBackendService()
+      this.setLoadingDocStatus(false)
     },
 
     redirectToList() {
@@ -588,6 +589,7 @@ export default defineComponent({
     },
 
     async loadBackendService() {
+      this.setLoadingDocStatus(true)
       this.isDownloadLoading = true
       const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
@@ -600,6 +602,7 @@ export default defineComponent({
       })
       this.selectedBackendService = response?.data || {}
       this.isDownloadLoading = false
+      this.setLoadingDocStatus(false)
     },
 
     async forkDoc() {

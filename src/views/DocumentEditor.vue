@@ -291,12 +291,12 @@ export default defineComponent({
 
     selectedDocID: {
       handler: async function(val, oldVal) {
-        if (val && val !== oldVal && this.selectedDocType === 'dynamic-rules' && !this.isForkLoading) {
+        if (val && val !== oldVal && this.selectedDocType === 'dynamic-rules') {
           if (this.isNewLoading) {
             const docMatchingGlobalFilter = DatasetsUtils.newDocEntryFactory['globalfilters']() as GlobalFilter
-            docMatchingGlobalFilter.id = `dr_${val}`
+            docMatchingGlobalFilter.id = `dr_${this.selectedDocID}`
             docMatchingGlobalFilter.active = (this.selectedDoc as DynamicRule).active
-            docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule ' + val
+            docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule ' + this.selectedDocID
             docMatchingGlobalFilter.action = 'action-dynamic-rule-block'
             this.selectedDocMatchingGlobalFilter = docMatchingGlobalFilter
           } else {
@@ -447,7 +447,6 @@ export default defineComponent({
     },
 
     updateDocIdNames() {
-      // docs sorted
       this.docIdNames = this.docs.sort((a: Document, b: Document) => {
         let sortValueA: string = a.name || ''
         let sortValueB: string = b.name || ''
@@ -472,7 +471,20 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       // check if the selected doc only has id and name, if it does, attempt to load the rest of the document data
       if (this.selectedDoc && Object.keys(this.selectedDoc).length === 2) {
-        this.selectedDoc = this.docs.find((doc) => doc.id == this.selectedDocID)
+        let response
+        const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`
+        if (this.isReblazeDocument) {
+          response = await RequestsUtils.sendReblazeRequest({
+            methodName: 'GET',
+            url,
+          })
+        } else {
+          response = await RequestsUtils.sendRequest({
+            methodName: 'GET',
+            url,
+          })
+        }
+        this.selectedDoc = response?.data || this.selectedDoc
         if (this.selectedDocType === 'dynamic-rules') {
           // get globalFilters from conf server
           const globalResponse = RequestsUtils.sendRequest({
@@ -559,18 +571,14 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       this.isForkLoading = true
       let docToAdd = _.cloneDeep(this.selectedDoc) as Document
-      docToAdd.id = DatasetsUtils.generateUUID2()
       docToAdd.name = 'copy of ' + docToAdd.name
+      docToAdd.id = DatasetsUtils.generateUUID2()
       // A special check for securitypolicies as we would want to change the domain name to be unique
       if (this.selectedDocType === 'securitypolicies') {
         docToAdd = docToAdd as SecurityPolicy
         docToAdd.match = `${docToAdd.id}.${docToAdd.match}`
       }
       if (this.selectedDocType === 'dynamic-rules') {
-        docToAdd.name += ' ' + docToAdd.id
-        this.selectedDocMatchingGlobalFilter.id = `dr_${docToAdd.id}`
-        this.selectedDocMatchingGlobalFilter.active = (docToAdd as DynamicRule).active
-        this.selectedDocMatchingGlobalFilter.name = 'Global Filter for copy of Dynamic Rule ' + docToAdd.id
         this.duplicatedDocMatchingGlobalFilter = this.selectedDocMatchingGlobalFilter
       }
       const docTypeText = this.titles[this.selectedDocType + '-singular']
@@ -599,15 +607,15 @@ export default defineComponent({
       if (this.selectedDocType === 'dynamic-rules') {
         let docMatchingGlobalFilter
         if (this.isForkLoading) {
-          docMatchingGlobalFilter = _.cloneDeep(this.duplicatedDocMatchingGlobalFilter)
+          docMatchingGlobalFilter = this.duplicatedDocMatchingGlobalFilter
         } else {
           docMatchingGlobalFilter = DatasetsUtils.newDocEntryFactory['globalfilters']() as GlobalFilter
-          docMatchingGlobalFilter.id = `dr_${this.selectedDocID}`
-          docMatchingGlobalFilter.active = (this.selectedDoc as DynamicRule).active
-          docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule ' + this.selectedDocID
-          docMatchingGlobalFilter.action = 'action-dynamic-rule-block'
         }
-        this.selectedDocMatchingGlobalFilter = _.cloneDeep(docMatchingGlobalFilter)
+        docMatchingGlobalFilter.id = `dr_${this.selectedDocID}`
+        docMatchingGlobalFilter.active = (this.selectedDoc as DynamicRule).active
+        docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule ' + this.selectedDocID
+        docMatchingGlobalFilter.action = 'action-dynamic-rule-block'
+        this.selectedDocMatchingGlobalFilter = docMatchingGlobalFilter
       }
       await this.saveChanges('POST', successMessage, failureMessage)
 
@@ -652,7 +660,7 @@ export default defineComponent({
           if (methodName !== 'POST') {
             url += `dr_${this.selectedDocID}/`
           }
-          const data = this.isForkLoading? this.duplicatedDocMatchingGlobalFilter :this.selectedDocMatchingGlobalFilter
+          const data = this.selectedDocMatchingGlobalFilter
           RequestsUtils.sendRequest({methodName, url, data: data})
         }
       })

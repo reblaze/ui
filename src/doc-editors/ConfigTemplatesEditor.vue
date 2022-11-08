@@ -19,17 +19,17 @@
                 </button>
               </p>
               <div class="control"
-                   v-if="docIdNames.length">
+                   v-if="docs.length">
                 <div class="select is-small">
                   <select v-model="selectedDocID"
                           title="Switch document ID"
                           @change="switchDocID()"
                           class="site-selection"
                           data-qa="switch-document">
-                    <option v-for="pair in docIdNames"
-                            :key="pair[0]"
-                            :value="pair[0]">
-                      {{ pair[1] }}
+                    <option v-for="doc in docs"
+                            :key="doc.id"
+                            :value="doc.id">
+                      {{ doc.name }}
                     </option>
                   </select>
                 </div>
@@ -540,6 +540,28 @@
       </div>
       <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ documentAPIPath }}</span>
     </div>
+    <div class="content no-data-wrapper"
+         v-if="loadingDocCounter || !selectedBranch || !selectedConfigTemplate">
+      <div v-if="loadingDocCounter > 0">
+        <button class="button is-outlined is-text is-small is-loading document-loading">
+          Loading
+        </button>
+      </div>
+      <div v-else
+           class="no-data-message">
+        No data found.
+        <div>
+          <!--display correct message by priority (Document type -> Document)-->
+          <span v-if="!docs.find((doc) => doc.id.includes(selectedConfigTemplate?.id))">
+            Missing document. To create a new one, click
+            <a title="Add new"
+               @click="addNewConfigTemplate()">
+              here
+            </a>
+          </span>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 <script lang="ts">
@@ -560,7 +582,7 @@ export default defineComponent({
       selectedConfigTemplate: null as ConfigTemplate,
       docIdFromRoute: '',
       docs: [] as unknown as ConfigTemplate[],
-      docIdNames: [] as unknown as [ConfigTemplate['id'], ConfigTemplate['name']][],
+
       selectedDocID: null,
 
       // Collapsible cards
@@ -623,7 +645,7 @@ export default defineComponent({
       handler: function(val, oldVal) {
         if ((this.$route.name as string).includes('ConfigTemplates/config') && val && val !== oldVal) {
           this.loadDocs()
-          this.updateDocIdNames()
+          this.sortDocs()
           this.setSelectedDataFromRouteParams()
           this.loadConfigTemplate()
           this.loadReferencedConfigTemplatesIDs()
@@ -657,8 +679,8 @@ export default defineComponent({
 
     selectedDocIndex(): number {
       if (this.selectedDocID) {
-        return _.findIndex(this.docIdNames, (doc) => {
-          return doc[0] === this.selectedDocID
+        return _.findIndex(this.docs, (doc) => {
+          return doc.id=== this.selectedDocID
         })
       }
       return 0
@@ -680,6 +702,7 @@ export default defineComponent({
       this.docIdFromRoute = this.$route.params?.doc_id?.toString()
       this.selectedDocID = this.docIdFromRoute
       await this.loadConfigTemplate()
+      this.setLoadingDocStatus(false)
     },
 
     redirectToList() {
@@ -704,7 +727,7 @@ export default defineComponent({
     async switchDocID() {
       this.setLoadingDocStatus(true)
 
-      const docName = this.docIdNames[this.selectedDocIndex][1]
+      const docName = this.docs[this.selectedDocIndex].id
       if (docName) {
         Utils.toast(
             `Switched to document ${docName} with ID "${this.selectedDocID}".`,
@@ -750,9 +773,6 @@ export default defineComponent({
       if (!configTemplateToAdd) {
         configTemplateToAdd = this.newConfigTemplate()
       }
-      this.docs.unshift(configTemplateToAdd)
-      this.selectedDocID = configTemplateToAdd.id
-      this.updateDocIdNames()
       const configTemplateText = this.titles['proxy-templates-singular']
       if (!successMessage) {
         successMessage = `New ${configTemplateText} was created.`
@@ -762,6 +782,10 @@ export default defineComponent({
       }
       const data = configTemplateToAdd
       await this.saveChanges('POST', data, successMessage, failureMessage)
+
+      this.docs.unshift(configTemplateToAdd)
+      this.selectedDocID = configTemplateToAdd.id
+      this.sortDocs()
 
       this.goToRoute()
       this.isNewLoading = false
@@ -805,8 +829,8 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
-    updateDocIdNames() {
-      this.docIdNames = _.sortBy(_.map(this.docs, (doc) => [doc.id, doc.name]), (entry) => entry[1].toLowerCase())
+    sortDocs() {
+      this.docs = _.sortBy(this.docs, [(doc) => doc.name.toLowerCase()])
     },
 
     async loadDocs() {
@@ -826,12 +850,12 @@ export default defineComponent({
         },
       })
       this.docs = response?.data || []
-      this.updateDocIdNames()
-      if (this.docIdNames && this.docIdNames.length && this.docIdNames[0].length) {
-        if (!_.find(this.docIdNames, (idName: [ConfigTemplate['id'], ConfigTemplate['name']]) => {
-          return idName[0] === this.selectedDocID
+      // this.updateDocIdNames()
+      if (this.docs && this.docs.length && this.docs[0].id) {
+        if (!_.find(this.docs, (doc: ConfigTemplate) => {
+          return doc.id === this.selectedDocID
         })) {
-          this.docIdFromRoute = this.docIdNames[0][0]
+          this.selectedDocID = this.docs[0].id
         }
         await this.loadConfigTemplate()
       }
@@ -840,6 +864,7 @@ export default defineComponent({
     },
 
     async loadConfigTemplate() {
+      this.setLoadingDocStatus(true)
       this.isDownloadLoading = true
       const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
@@ -858,6 +883,7 @@ export default defineComponent({
         this.selectedConfigTemplate.ssl_conf_specific = {value: ''}
       }
       this.isDownloadLoading = false
+      this.setLoadingDocStatus(false)
     },
 
     async loadReferencedConfigTemplatesIDs() {
