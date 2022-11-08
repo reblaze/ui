@@ -327,7 +327,7 @@
             </div>
           </div>
           <div class="field">
-            <label class="label is-small">Config Template</label>
+            <label class="label is-small">Proxy Template</label>
             <div class="control is-expanded">
               <div class="select is-fullwidth is-small">
                 <select v-model="selectedServerGroup.proxy_template"
