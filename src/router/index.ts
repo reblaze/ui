@@ -119,7 +119,7 @@ const routes: Array<RouteRecordRaw> = [
                 name: 'ProxyTemplates/list',
                 component: ProxyTemplateList,
                 meta: {
-                  title: 'Config Templates List',
+                  title: 'Proxy Templates List',
                 },
               },
               {
@@ -127,7 +127,7 @@ const routes: Array<RouteRecordRaw> = [
                 name: 'ProxyTemplates/config',
                 component: ProxyTemplateEditor,
                 meta: {
-                  title: 'Config Templates Editor',
+                  title: 'Proxy Templates Editor',
                 },
               },
             ],

@@ -75,8 +75,8 @@ const titles: { [key: string]: string } = {
   'routing-profiles-singular': 'Routing Profile',
   'mobile-sdks': 'MobileSDKs',
   'mobile-sdks-singular': 'MobileSDK',
-  'proxy-templates': 'Config Templates',
-  'proxy-templates-singular': 'Config Template',
+  'proxy-templates': 'Proxy Templates',
+  'proxy-templates-singular': 'Proxy Template',
   'sites': 'Server Groups',
   'sites-singular': 'Server Group',
   'backends': 'Backends Services',
@@ -396,8 +396,8 @@ const newOperationEntryFactory: { [key: string]: Function } = {
   'proxy-templates'(): ProxyTemplate {
     return {
       'id': generateUUID2(),
-      'name': 'New Config Template ' + generateUUID2(), // TODO: Remove this random uuid once names are no longer unique
-      'description': 'New Config Template Description and Remarks',
+      'name': 'New Proxy Template ' + generateUUID2(), // TODO: Remove this random uuid once names are no longer unique
+      'description': 'New Proxy Template Description and Remarks',
       'acao_header': false,
       'client_body_timeout': '5',
       'client_header_timeout': '5',

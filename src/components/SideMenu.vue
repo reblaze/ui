@@ -207,10 +207,10 @@ export default defineComponent({
           title: 'Mobile SDKs',
         },
         // ##############
-        // Saas Settings
+        // SaaS Settings
         // ##############
         {
-          header: 'Saas Settings',
+          header: 'SaaS Settings',
         },
         {
           href: `/${this.selectedBranch?.id}/server-groups`,
