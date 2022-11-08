@@ -147,8 +147,7 @@
                  data-qa="tag-input">
               <tag-autocomplete-input :initial-tag="selectedDocTags"
                                       selection-type="multiple"
-                                      v-model="selectedDocTags"
-                                      @value-changed="selectedDocTags = $event" />
+                                      @tag-changed="selectedDocTags = $event" />
             </div>
           </div>
         </div>

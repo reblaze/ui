@@ -123,7 +123,7 @@ export default defineComponent({
       return this.selectionType === 'multiple' ? 'Space separated tags' : 'Tag'
     },
   },
-  emits: ['value-changed', 'value-submitted', 'keyup', 'keydown', 'keypress', 'focus', 'blur'],
+  emits: ['tag-changed', 'tag-submitted', 'keyup', 'keydown', 'keypress', 'focus', 'blur'],
   methods: {
 
     async loadAutocompleteSuggestions() {
@@ -193,7 +193,7 @@ export default defineComponent({
 
     tagChanged(newTag: string) {
       this.tag = Utils.removeExtraWhitespaces(newTag).trim()
-      this.$emit('value-changed', this.tag)
+      this.$emit('tag-changed', this.tag)
     },
 
     tagSubmitted(newTag: string) {
@@ -204,7 +204,7 @@ export default defineComponent({
       })) {
         this.addUnknownTagsToDB([this.currentTag])
       }
-      this.$emit('value-submitted', this.tag)
+      this.$emit('tag-submitted', this.tag)
     },
 
     async addUnknownTagsToDB(tags: string[]) {

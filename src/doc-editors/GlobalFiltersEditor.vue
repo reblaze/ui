@@ -78,7 +78,7 @@
                     <tag-autocomplete-input :initial-tag="selectedDocTags"
                                             selection-type="multiple"
                                             :editable="!dynamicRuleManaged"
-                                            @value-changed="selectedDocTags = $event"/>
+                                            @tag-changed="selectedDocTags = $event"/>
                   </div>
                 </div>
                 <div class="field">
