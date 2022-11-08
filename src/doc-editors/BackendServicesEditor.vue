@@ -316,9 +316,8 @@
       </div>
       <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ documentAPIPath }}</span>
     </div>
-    <div class="content no-data-wrapper"
-         v-if="loadingDocCounter || !selectedBranch || isNewLoading || isForkLoading">
-      <div v-if="loadingDocCounter > 0 || isNewLoading || isForkLoading">
+    <div class="content no-data-wrapper" v-if="loadingDocCounter || !selectedBranch || !selectedBackendService">
+      <div v-if="loadingDocCounter > 0">
         <button class="button is-outlined is-text is-small is-loading document-loading">
           Loading
         </button>
@@ -393,7 +392,7 @@ export default defineComponent({
       handler: function(val, oldVal) {
         if ((this.$route.name as string).includes('BackendServices/config') && val && val !== oldVal) {
           this.loadDocs()
-          this.updateDocIdNames()
+          this.sortDocs()
           this.setSelectedDataFromRouteParams()
           this.loadBackendService()
           this.loadReferencedBackendServicesIDs()
@@ -522,12 +521,8 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
-    updateDocIdNames() {
-      this.docIdNames = _.sortBy(_.map(this.docs, (doc) => {
-        return [doc.id, doc.name]
-      }), (entry) => {
-        return entry[1].toLowerCase()
-      })
+    sortDocs() {
+      this.docs = _.sortBy(this.docs, [(doc) => doc.name.toLowerCase()])
     },
 
     async loadDocs() {
@@ -535,7 +530,7 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       const branch = this.selectedBranch
       const url = `configs/${branch}/d/backends/`
-
+      this.selectedBackendService = null
       const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url,
@@ -547,12 +542,13 @@ export default defineComponent({
         },
       })
       this.docs = response?.data || []
-      this.updateDocIdNames()
-      if (this.docIdNames && this.docIdNames.length && this.docIdNames[0].length) {
-        if (!_.find(this.docIdNames, (idName: [BackendService['id'], BackendService['name']]) => {
-          return idName[0] === this.selectedDocID
+      this.sortDocs()
+
+      if (this.docs && this.docs.length && this.docs[0].id) {
+        if (!_.find(this.docs, (doc: BackendService) => {
+          return doc.id === this.selectedDocID
         })) {
-          this.selectedDocID = this.docIdNames[0][0]
+          this.selectedDocID = this.docs[0].id
         }
         await this.loadBackendService()
       }
@@ -568,12 +564,10 @@ export default defineComponent({
     async addNewBackendService(backendServiceToAdd?: BackendService, successMessage?: string, failureMessage?: string) {
       this.setLoadingDocStatus(true)
       this.isNewLoading = true
+      this.selectedBackendService = null
       if (!backendServiceToAdd) {
         backendServiceToAdd = this.newBackends()
       }
-      this.docs.unshift(backendServiceToAdd)
-      this.selectedDocID = backendServiceToAdd.id
-      this.updateDocIdNames()
       const backendServiceText = this.titles['backends-singular']
       if (!successMessage) {
         successMessage = `New ${backendServiceText} was created.`
@@ -583,6 +577,9 @@ export default defineComponent({
       }
       const data = backendServiceToAdd
       await this.saveChanges('POST', data, successMessage, failureMessage)
+      this.docs.unshift(backendServiceToAdd)
+      this.selectedDocID = backendServiceToAdd.id
+      this.sortDocs()
 
       this.goToRoute()
       this.isNewLoading = false
@@ -613,6 +610,7 @@ export default defineComponent({
     async loadBackendService() {
       this.setLoadingDocStatus(true)
       this.isDownloadLoading = true
+      this.selectedBackendService = null
       const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/backends/e/${this.selectedDocID}`,

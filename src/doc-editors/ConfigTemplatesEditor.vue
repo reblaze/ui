@@ -770,6 +770,7 @@ export default defineComponent({
     async addNewConfigTemplate(configTemplateToAdd?: ConfigTemplate, successMessage?: string, failureMessage?: string) {
       this.setLoadingDocStatus(true)
       this.isNewLoading = true
+      this.selectedConfigTemplate = null
       if (!configTemplateToAdd) {
         configTemplateToAdd = this.newConfigTemplate()
       }
@@ -838,7 +839,7 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       const branch = this.selectedBranch
       const url = `configs/${branch}/d/proxy-templates/`
-
+      this.selectedConfigTemplate = null
       const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url,
@@ -850,7 +851,7 @@ export default defineComponent({
         },
       })
       this.docs = response?.data || []
-      // this.updateDocIdNames()
+      this.sortDocs()
       if (this.docs && this.docs.length && this.docs[0].id) {
         if (!_.find(this.docs, (doc: ConfigTemplate) => {
           return doc.id === this.selectedDocID
@@ -866,6 +867,7 @@ export default defineComponent({
     async loadConfigTemplate() {
       this.setLoadingDocStatus(true)
       this.isDownloadLoading = true
+      this.selectedConfigTemplate = null
       const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/proxy-templates/e/${this.docIdFromRoute}`,
