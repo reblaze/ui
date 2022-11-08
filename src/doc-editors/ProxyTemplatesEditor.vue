@@ -520,7 +520,7 @@ export default defineComponent({
       isAdvancedCollapsed: false,
       isTrustedCollapsed: false,
 
-      // To prevent deletion of Config templates referenced by Server Groups
+      // To prevent deletion of Proxy templates referenced by Server Groups
       referencedIDsProxyTemplate: [],
 
       // Loading indicators
