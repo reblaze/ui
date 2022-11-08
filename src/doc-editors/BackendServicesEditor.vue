@@ -316,6 +316,28 @@
       </div>
       <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ documentAPIPath }}</span>
     </div>
+    <div class="content no-data-wrapper"
+         v-if="loadingDocCounter || !selectedBranch || isNewLoading || isForkLoading">
+      <div v-if="loadingDocCounter > 0 || isNewLoading || isForkLoading">
+        <button class="button is-outlined is-text is-small is-loading document-loading">
+          Loading
+        </button>
+      </div>
+      <div v-else
+           class="no-data-message">
+        No data found.
+        <div>
+          <!--display correct message by priority (Document type -> Document)-->
+          <span v-if="!docs.find((doc) => doc.id.includes(selectedBackendService?.id))">
+            Missing document. To create a new one, click
+            <a title="Add new"
+               @click="addNewBackendService()">
+              here
+            </a>
+          </span>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 <script lang="ts">
