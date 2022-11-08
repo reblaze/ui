@@ -138,7 +138,7 @@
           v-model:docs="docs"
           :apiPath="documentAPIPath"
           @form-invalid="setIsDocumentInvalid"
-          @tags-invalid="tagsInvalid = $event"
+          @tags-invalid="setTagsInvalid"
           @go-to-route="goToRoute($event)"
           ref="currentComponent">
       </component>
@@ -406,6 +406,10 @@ export default defineComponent({
 
     setIsDocumentInvalid(isDocumentInvalid: boolean) {
       this.isDocumentInvalid = isDocumentInvalid
+    },
+
+    setTagsInvalid(tagsInvalid: boolean) {
+      this.tagsInvalid = tagsInvalid
     },
 
     async goToRoute(newRoute?: string) {

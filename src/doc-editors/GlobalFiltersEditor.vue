@@ -76,7 +76,6 @@
                   <div class="control"
                        data-qa="tag-input">
                     <tag-autocomplete-input :initial-tag="selectedDocTags"
-                                            v-model="selectedDocTags"
                                             selection-type="multiple"
                                             :editable="!dynamicRuleManaged"
                                             @value-changed="selectedDocTags = $event"/>

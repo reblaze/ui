@@ -11,8 +11,8 @@
       :minimum-value-length="minimumTagLength"
       :title="inputTitle"
       :data-qa="inputTitle"
-      @value-changed="valueChanged"
-      @value-submitted="valueSubmitted"
+      @value-changed="tagChanged"
+      @value-submitted="tagSubmitted"
       @keyup="bubbleEvent('keyup', $event)"
       @keydown="bubbleEvent('keydown', $event)"
       @keypress="bubbleEvent('keypress', $event)"
@@ -191,12 +191,12 @@ export default defineComponent({
       this.$emit(eventName, event)
     },
 
-    valueChanged(newTag: string) {
+    tagChanged(newTag: string) {
       this.tag = Utils.removeExtraWhitespaces(newTag).trim()
       this.$emit('value-changed', this.tag)
     },
 
-    valueSubmitted(newTag: string) {
+    tagSubmitted(newTag: string) {
       this.tag = Utils.removeExtraWhitespaces(newTag).trim()
       // if submitting a tag we don't recognize -> add it to the DB
       if (!this.tagsSuggestions.find((suggestion) => {

@@ -171,7 +171,7 @@ export default defineComponent({
     },
   },
 
-  emits: ['invalid', 'value-changed', 'value-submitted', 'keyup', 'keydown', 'keypress', 'focus', 'blur'],
+  emits: ['value-changed', 'value-submitted', 'keyup', 'keydown', 'keypress', 'focus', 'blur'],
 
   methods: {
 
