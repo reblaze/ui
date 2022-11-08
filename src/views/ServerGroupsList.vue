@@ -113,7 +113,7 @@ export default defineComponent({
           classes: 'width-130px ellipsis',
         },
         {
-          title: 'Config Template',
+          title: 'Proxy Template',
           fieldNames: ['proxy_template'],
           displayFunction: (item: Site) => {
             const proxyTemplate = _.find(this.proxyTemplatesNames, (proxyTemplate) => {
