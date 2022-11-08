@@ -302,11 +302,7 @@ export default defineComponent({
           } else {
             this.setLoadingDocStatus(true)
             const url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${val}/`
-            const getResponse = async () => {
-              return await RequestsUtils.sendRequest({methodName: 'GET', url})
-            }
-            const response = await getResponse()
-
+            const response = await RequestsUtils.sendRequest({methodName: 'GET', url})
             this.selectedDocMatchingGlobalFilter = response.data
             this.setLoadingDocStatus(false)
           }
@@ -451,6 +447,7 @@ export default defineComponent({
     },
 
     updateDocIdNames() {
+      // docs sorted
       this.docIdNames = this.docs.sort((a: Document, b: Document) => {
         let sortValueA: string = a.name || ''
         let sortValueB: string = b.name || ''
@@ -475,20 +472,7 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       // check if the selected doc only has id and name, if it does, attempt to load the rest of the document data
       if (this.selectedDoc && Object.keys(this.selectedDoc).length === 2) {
-        let response
-        const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`
-        if (this.isReblazeDocument) {
-          response = await RequestsUtils.sendReblazeRequest({
-            methodName: 'GET',
-            url,
-          })
-        } else {
-          response = await RequestsUtils.sendRequest({
-            methodName: 'GET',
-            url,
-          })
-        }
-        this.selectedDoc = response?.data || this.selectedDoc
+        this.selectedDoc = this.docs.find((doc) => doc.id == this.selectedDocID)
         if (this.selectedDocType === 'dynamic-rules') {
           // get globalFilters from conf server
           const globalResponse = RequestsUtils.sendRequest({
@@ -542,7 +526,7 @@ export default defineComponent({
       })
       this.updateDocIdNames()
       if (this.docIdNames && this.docIdNames.length && this.docIdNames[0].id) {
-        if (!skipDocSelection || !_.find(this.docIdNames, (doc: {id: Document['id'], name: Document['name']}) => {
+        if (!skipDocSelection || !_.find(this.docIdNames, (doc: Document) => {
           return doc.id === this.selectedDocID
         })) {
           this.selectedDocID = this.docIdNames[0].id
@@ -583,11 +567,10 @@ export default defineComponent({
         docToAdd.match = `${docToAdd.id}.${docToAdd.match}`
       }
       if (this.selectedDocType === 'dynamic-rules') {
-        this.selectedDocID = docToAdd.id
         docToAdd.name += ' ' + docToAdd.id
-        this.selectedDocMatchingGlobalFilter.id = `dr_${this.selectedDocID}`
+        this.selectedDocMatchingGlobalFilter.id = `dr_${docToAdd.id}`
         this.selectedDocMatchingGlobalFilter.active = (docToAdd as DynamicRule).active
-        this.selectedDocMatchingGlobalFilter.name = 'Global Filter for copy of Dynamic Rule ' + this.selectedDocID
+        this.selectedDocMatchingGlobalFilter.name = 'Global Filter for copy of Dynamic Rule ' + docToAdd.id
         this.duplicatedDocMatchingGlobalFilter = this.selectedDocMatchingGlobalFilter
       }
       const docTypeText = this.titles[this.selectedDocType + '-singular']
