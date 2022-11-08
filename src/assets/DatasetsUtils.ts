@@ -1,7 +1,7 @@
 import {
   ACLProfile,
   BackendService,
-  ConfigTemplate,
+  ProxyTemplate,
   ContentFilterProfile,
   ContentFilterRule,
   CustomResponse,
@@ -393,7 +393,7 @@ const newOperationEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  'proxy-templates'(): ConfigTemplate {
+  'proxy-templates'(): ProxyTemplate {
     return {
       'id': generateUUID2(),
       'name': 'New Config Template ' + generateUUID2(), // TODO: Remove this random uuid once names are no longer unique

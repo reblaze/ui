@@ -56,7 +56,7 @@
 import _ from 'lodash'
 import {defineComponent} from 'vue'
 import RbzTable from '@/components/RbzTable.vue'
-import {ColumnOptions, MobileSDK, ConfigTemplate, RoutingProfile, SecurityPolicy, Site} from '@/types'
+import {ColumnOptions, MobileSDK, ProxyTemplate, RoutingProfile, SecurityPolicy, Site} from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import Utils from '@/assets/Utils'
@@ -116,10 +116,10 @@ export default defineComponent({
           title: 'Config Template',
           fieldNames: ['proxy_template'],
           displayFunction: (item: Site) => {
-            const configTemplate = _.find(this.configTemplatesNames, (configTemplate) => {
-              return configTemplate[0] === item.proxy_template
+            const proxyTemplate = _.find(this.proxyTemplatesNames, (proxyTemplate) => {
+              return proxyTemplate[0] === item.proxy_template
             })
-            return configTemplate?.[1] || ''
+            return proxyTemplate?.[1] || ''
           },
           isSortable: true,
           isSearchable: true,
@@ -146,7 +146,7 @@ export default defineComponent({
       isDownloadLoading: false,
       securityPoliciesNames: [] as [SecurityPolicy['id'], SecurityPolicy['name']][],
       routingProfilesNames: [] as [RoutingProfile['id'], RoutingProfile['name']][],
-      configTemplatesNames: [] as [ConfigTemplate['id'], ConfigTemplate['name']][],
+      proxyTemplatesNames: [] as [ProxyTemplate['id'], ProxyTemplate['name']][],
       mobileSDKsNames: [] as [MobileSDK['id'], MobileSDK['name']][],
       apiRoot: RequestsUtils.reblazeAPIRoot,
       apiVersion: RequestsUtils.reblazeAPIVersion,
@@ -160,7 +160,7 @@ export default defineComponent({
           this.loadServerGroups()
           this.loadSecurityPolicies()
           this.loadRoutingProfiles()
-          this.loadConfigTemplates()
+          this.loadProxyTemplates()
           this.loadMobileSDKs()
         }
       },
@@ -263,13 +263,13 @@ export default defineComponent({
       })
     },
 
-    loadConfigTemplates() {
+    loadProxyTemplates() {
       RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/proxy-templates/`,
         config: {headers: {'x-fields': 'id, name'}},
-      }).then((response: AxiosResponse<ConfigTemplate[]>) => {
-        this.configTemplatesNames = _.sortBy(_.map(response.data, (entity) => {
+      }).then((response: AxiosResponse<ProxyTemplate[]>) => {
+        this.proxyTemplatesNames = _.sortBy(_.map(response.data, (entity) => {
           return [entity.id, entity.name]
         }), (e) => {
           return e[1]
