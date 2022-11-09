@@ -19,17 +19,17 @@
                 </button>
               </p>
               <div class="control"
-                   v-if="docIdNames.length">
+                   v-if="docs.length">
                 <div class="select is-small">
                   <select v-model="selectedDocID"
                           title="Switch document ID"
                           @change="switchDocID()"
                           class="site-selection"
                           data-qa="switch-document">
-                    <option v-for="pair in docIdNames"
-                            :key="pair[0]"
-                            :value="pair[0]">
-                      {{ pair[1] }}
+                    <option v-for="doc in docs"
+                            :key="doc.id"
+                            :value="doc.id">
+                      {{ doc.name }}
                     </option>
                   </select>
                 </div>
@@ -119,7 +119,7 @@
     </div>
     <hr/>
     <div class="content"
-         v-if="selectedBackendService">
+         v-if="loadingDocCounter==0 && selectedBranch && selectedBackendService">
       <div class="columns columns-divided">
         <div class="column is-4">
           <div class="field">
@@ -357,7 +357,6 @@ export default defineComponent({
       titles: DatasetsUtils.titles,
       selectedBackendService: null as BackendService,
       docs: [] as unknown as BackendService[],
-      docIdNames: [] as unknown as [BackendService['id'], BackendService['name']][],
       selectedDocID: null,
       stickinessModels: backendServicesConsts.stickinessModels,
       newBackHost: {
@@ -439,8 +438,8 @@ export default defineComponent({
 
     selectedDocIndex(): number {
       if (this.selectedDocID) {
-        return _.findIndex(this.docIdNames, (doc) => {
-          return doc[0] === this.selectedDocID
+        return _.findIndex(this.docs, (doc) => {
+          return doc.id === this.selectedDocID
         })
       }
       return 0
@@ -485,8 +484,7 @@ export default defineComponent({
 
     async switchDocID() {
       this.setLoadingDocStatus(true)
-
-      const docName = this.docIdNames[this.selectedDocIndex][1]
+      const docName = this.docs[this.selectedDocIndex].name
       if (docName) {
         Utils.toast(
             `Switched to document ${docName} with ID "${this.selectedDocID}".`,
@@ -588,6 +586,7 @@ export default defineComponent({
 
     async saveChanges(methodName?: HttpRequestMethods, data?: BackendService,
                       successMessage?: string, failureMessage?: string) {
+      this.setLoadingDocStatus(true)
       this.isSaveLoading = true
       if (!methodName) {
         methodName = 'PUT'
@@ -605,6 +604,7 @@ export default defineComponent({
       }
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
       this.isSaveLoading = false
+      this.setLoadingDocStatus(false)
     },
 
     async loadBackendService() {

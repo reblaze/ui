@@ -19,17 +19,17 @@
                 </button>
               </p>
               <div class="control"
-                   v-if="docIdNames.length">
+                   v-if="docs.length">
                 <div class="select is-small">
                   <select v-model="selectedDocID"
                           title="Switch document ID"
                           @change="switchDocID()"
                           class="site-selection"
                           data-qa="switch-document">
-                    <option v-for="pair in docIdNames"
-                            :key="pair[0]"
-                            :value="pair[0]">
-                      {{ pair[1] }}
+                          <option v-for="doc in docs"
+                            :key="doc.id"
+                            :value="doc.id">
+                      {{ doc.name }}
                     </option>
                   </select>
                 </div>
@@ -154,7 +154,7 @@
     </div>
     <hr/>
     <div class="content"
-         v-if="selectedServerGroup">
+         v-if="loadingDocCounter==0 && selectedBranch && selectedServerGroup">
       <div class="columns columns-divided">
         <div class="column is-4">
           <div class="field">
@@ -395,6 +395,28 @@
       </div>
       <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ documentAPIPath }}</span>
     </div>
+    <div class="content no-data-wrapper"
+         v-if="loadingDocCounter || !selectedBranch || !selectedServerGroup">
+      <div v-if="loadingDocCounter > 0">
+        <button class="button is-outlined is-text is-small is-loading document-loading">
+          Loading
+        </button>
+      </div>
+      <div v-else
+           class="no-data-message">
+        No data found.
+        <div>
+          <!--display correct message by priority (Document type -> Document)-->
+          <span v-if="!docs.find((doc) => doc.id.includes(selectedServerGroup?.id))">
+            Missing document. To create a new one, click
+            <a title="Add new"
+               @click="addNewDoc()">
+              here
+            </a>
+          </span>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 <script lang="ts">
@@ -426,9 +448,7 @@ export default defineComponent({
       titles: DatasetsUtils.titles,
       configs: [],
       selectedServerGroup: null as Site,
-      docIdFromRoute: '',
       docs: [] as unknown as Site[],
-      docIdNames: [] as unknown as [Site['id'], Site['name']][],
       selectedDocID: null,
 
       // Loading indicators
@@ -464,7 +484,7 @@ export default defineComponent({
       handler: function(val, oldVal) {
         if ((this.$route.name as string).includes('ServerGroups/config') && val && val !== oldVal) {
           this.loadDocs()
-          this.updateDocIdNames()
+          this.sortDocs()
           this.setSelectedDataFromRouteParams()
           this.loadServerGroup()
           this.loadSecurityPolicies()
@@ -520,8 +540,8 @@ export default defineComponent({
 
     selectedDocIndex(): number {
       if (this.selectedDocID) {
-        return _.findIndex(this.docIdNames, (doc) => {
-          return doc[0] === this.selectedDocID
+        return _.findIndex(this.docs, (doc) => {
+          return doc.id === this.selectedDocID
         })
       }
       return 0
@@ -548,8 +568,8 @@ export default defineComponent({
       return factory && factory()
     },
 
-    updateDocIdNames() {
-      this.docIdNames = _.sortBy(_.map(this.docs, (doc) => [doc.id, doc.name]), (entry) => entry[1].toLowerCase())
+    sortDocs() {
+      this.docs = _.sortBy(this.docs, [(doc) => doc.name.toLowerCase()])
     },
 
     async loadDocs() {
@@ -569,12 +589,12 @@ export default defineComponent({
         },
       })
       this.docs = response?.data || []
-      this.updateDocIdNames()
-      if (this.docIdNames && this.docIdNames.length && this.docIdNames[0].length) {
-        if (!_.find(this.docIdNames, (idName: [Site['id'], Site['name']]) => {
-          return idName[0] === this.selectedDocID
+      this.sortDocs()
+      if (this.docs && this.docs.length && this.docs[0].id) {
+        if (!_.find(this.docs, (doc: Site) => {
+          return doc.id === this.selectedDocID
         })) {
-          this.docIdFromRoute = this.docIdNames[0][0]
+          this.selectedDocID = this.docs[0].id
         }
         await this.loadServerGroup()
       }
@@ -584,9 +604,9 @@ export default defineComponent({
 
     async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
-      this.docIdFromRoute = this.$route.params?.doc_id?.toString()
-      this.selectedDocID = this.docIdFromRoute
+      this.selectedDocID = this.$route.params?.doc_id?.toString()
       await this.loadServerGroup()
+      this.setLoadingDocStatus(false)
     },
 
     redirectToList() {
@@ -605,7 +625,7 @@ export default defineComponent({
     async switchDocID() {
       this.setLoadingDocStatus(true)
 
-      const docName = this.docIdNames[this.selectedDocIndex][1]
+      const docName = this.docs[this.selectedDocIndex].name
       if (docName) {
         Utils.toast(
             `Switched to document ${docName} with ID "${this.selectedDocID}".`,
@@ -643,12 +663,11 @@ export default defineComponent({
     async addNewDoc(siteToAdd?: Site, successMessage?: string, failureMessage?: string) {
       this.setLoadingDocStatus(true)
       this.isNewLoading = true
+      this.selectedServerGroup = null
       if (!siteToAdd) {
         siteToAdd = this.newSite()
       }
-      this.docs.unshift(siteToAdd)
-      this.selectedDocID = siteToAdd.id
-      this.updateDocIdNames()
+
       const siteText = this.titles['sites-singular']
       if (!successMessage) {
         successMessage = `New ${siteText} was created.`
@@ -658,6 +677,9 @@ export default defineComponent({
       }
       const data = siteToAdd
       await this.saveChanges('POST', data, successMessage, failureMessage)
+      this.docs.unshift(siteToAdd)
+      this.selectedDocID = siteToAdd.id
+      this.sortDocs()
 
       this.goToRoute()
       this.isNewLoading = false
@@ -665,6 +687,7 @@ export default defineComponent({
     },
 
     async saveChanges(methodName?: HttpRequestMethods, data?: Site, successMessage?: string, failureMessage?: string) {
+      this.setLoadingDocStatus(true)
       this.isSaveLoading = true
       if (!methodName) {
         methodName = 'PUT'
@@ -683,6 +706,7 @@ export default defineComponent({
 
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
       this.isSaveLoading = false
+      this.setLoadingDocStatus(false)
     },
 
     async forkDoc() {
@@ -720,7 +744,9 @@ export default defineComponent({
     },
 
     async loadServerGroup() {
+      this.setLoadingDocStatus(true)
       this.isDownloadLoading = true
+      this.selectedServerGroup = null
       const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/sites/e/${this.selectedDocID}`,
@@ -732,6 +758,7 @@ export default defineComponent({
       })
       this.selectedServerGroup = response?.data || {}
       this.isDownloadLoading = false
+      this.setLoadingDocStatus(false)
     },
 
     loadSecurityPolicies() {

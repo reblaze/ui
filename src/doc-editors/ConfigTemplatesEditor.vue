@@ -119,7 +119,7 @@
     </div>
     <hr/>
     <div class="content"
-         v-if="selectedConfigTemplate">
+         v-if="loadingDocCounter==0 && selectedBranch && selectedConfigTemplate">
       <div class="columns">
         <div class="column is-4">
           <div class="field">
@@ -580,9 +580,7 @@ export default defineComponent({
     return {
       titles: DatasetsUtils.titles,
       selectedConfigTemplate: null as ConfigTemplate,
-      docIdFromRoute: '',
       docs: [] as unknown as ConfigTemplate[],
-
       selectedDocID: null,
 
       // Collapsible cards
@@ -699,8 +697,7 @@ export default defineComponent({
 
     async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
-      this.docIdFromRoute = this.$route.params?.doc_id?.toString()
-      this.selectedDocID = this.docIdFromRoute
+      this.selectedDocID = this.$route.params?.doc_id?.toString()
       await this.loadConfigTemplate()
       this.setLoadingDocStatus(false)
     },
@@ -796,6 +793,7 @@ export default defineComponent({
 
     async saveChanges(methodName?: HttpRequestMethods, data?: ConfigTemplate, successMessage?:
       string, failureMessage?: string) {
+      this.setLoadingDocStatus(true)
       this.isSaveLoading = true
       if (!methodName) {
         methodName = 'PUT'
@@ -813,6 +811,7 @@ export default defineComponent({
       }
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
       this.isSaveLoading = false
+      this.setLoadingDocStatus(false)
     },
 
     async forkDoc() {
@@ -870,7 +869,7 @@ export default defineComponent({
       this.selectedConfigTemplate = null
       const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
-        url: `configs/${this.selectedBranch}/d/proxy-templates/e/${this.docIdFromRoute}`,
+        url: `configs/${this.selectedBranch}/d/proxy-templates/e/${this.selectedDocID}`,
         onFail: () => {
           console.log(`Error while attempting to load the ${this.titles['proxy-template-singular']}`)
           this.selectedConfigTemplate = null
