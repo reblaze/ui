@@ -375,17 +375,17 @@
             </div>
           </div>
           <div class="field">
-            <label class="label is-small">Config Template</label>
+            <label class="label is-small">Proxy Template</label>
             <div class="control is-expanded">
               <div class="select is-fullwidth is-small">
                 <select v-model="selectedServerGroup.proxy_template"
-                        data-qa="config-template-dropdown"
-                        class="document-config-template-selection"
-                        title="Config template">
-                  <option v-for="configTemplate in configTemplatesNames"
-                          :value="configTemplate[0]"
-                          :key="configTemplate[0]">
-                    {{ configTemplate[1] }}
+                        data-qa="proxy-template-dropdown"
+                        class="document-proxy-template-selection"
+                        title="Proxy template">
+                  <option v-for="proxyTemplate in proxyTemplatesNames"
+                          :value="proxyTemplate[0]"
+                          :key="proxyTemplate[0]">
+                    {{ proxyTemplate[1] }}
                   </option>
                 </select>
               </div>
@@ -426,7 +426,7 @@ import {
   ACLProfile,
   BackendService,
   Certificate,
-  ConfigTemplate,
+  ProxyTemplate,
   ContentFilterProfile,
   MobileSDK,
   RoutingProfile,
@@ -464,7 +464,7 @@ export default defineComponent({
       securityPoliciesNames: [] as [SecurityPolicy['id'], SecurityPolicy['name']][],
       routingProfiles: [] as RoutingProfile[],
       routingProfilesNames: [] as [RoutingProfile['id'], RoutingProfile['name']][],
-      configTemplatesNames: [] as [ConfigTemplate['id'], ConfigTemplate['name']][],
+      proxyTemplatesNames: [] as [ProxyTemplate['id'], ProxyTemplate['name']][],
       mobileSDKsNames: [] as [MobileSDK['id'], MobileSDK['name']][],
       certificatesNames: [] as [Certificate['id'], Certificate['san']][],
       backendServicesNames: [] as [BackendService['id'], BackendService['name']][],
@@ -489,7 +489,7 @@ export default defineComponent({
           this.loadServerGroup()
           this.loadSecurityPolicies()
           this.loadRoutingProfiles()
-          this.loadConfigTemplates()
+          this.loadProxyTemplates()
           this.loadMobileSDKs()
           this.loadBackendServices()
           this.loadContentFilterProfiles()
@@ -789,13 +789,13 @@ export default defineComponent({
       })
     },
 
-    loadConfigTemplates() {
+    loadProxyTemplates() {
       RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/proxy-templates/`,
         config: {headers: {'x-fields': 'id, name'}},
-      }).then((response: AxiosResponse<ConfigTemplate[]>) => {
-        this.configTemplatesNames = _.sortBy(_.map(response.data, (entity) => {
+      }).then((response: AxiosResponse<ProxyTemplate[]>) => {
+        this.proxyTemplatesNames = _.sortBy(_.map(response.data, (entity) => {
           return [entity.id, entity.name]
         }), (e) => {
           return e[1]

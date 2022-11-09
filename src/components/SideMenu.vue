@@ -207,10 +207,10 @@ export default defineComponent({
           title: 'Mobile SDKs',
         },
         // ##############
-        // Proxy Settings
+        // SaaS Settings
         // ##############
         {
-          header: 'Proxy Settings',
+          header: 'SaaS Settings',
         },
         {
           href: `/${this.selectedBranch?.id}/server-groups`,
@@ -221,8 +221,8 @@ export default defineComponent({
           title: 'Routing Profiles',
         },
         {
-          href: `/${this.selectedBranch?.id}/config-templates`,
-          title: 'Config Templates',
+          href: `/${this.selectedBranch?.id}/proxy-templates`,
+          title: 'Proxy Templates',
         },
         {
           href: `/${this.selectedBranch?.id}/cloud-functions`,

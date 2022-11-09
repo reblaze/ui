@@ -378,7 +378,7 @@ declare module CuriefenseClient {
     support_legacy_sdk: boolean
   }
 
-  type ConfigTemplate = {
+  type ProxyTemplate = {
     name: string
     id: string
     description: string
@@ -409,7 +409,7 @@ declare module CuriefenseClient {
     server_names: string[]
     security_policy: SecurityPolicy['id']
     routing_profile: RoutingProfile['id']
-    proxy_template: ConfigTemplate['id']
+    proxy_template: ProxyTemplate['id']
     mobile_sdk: MobileSDK['id']
     ssl_certificate: string
   }
