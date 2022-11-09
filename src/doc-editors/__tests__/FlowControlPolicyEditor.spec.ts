@@ -260,7 +260,7 @@ describe('FlowControlPoliciesEditor.vue', () => {
       wantedEmit.tags.push(newTag)
       // change tags
       const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
-      tagAutocompleteInput.vm.$emit('value-changed', newTagInputValue)
+      tagAutocompleteInput.vm.$emit('tag-changed', newTagInputValue)
       // check
       expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
       expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
@@ -272,7 +272,7 @@ describe('FlowControlPoliciesEditor.vue', () => {
       wantedEmit.tags = []
       // change tags
       const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
-      tagAutocompleteInput.vm.$emit('value-changed', newTagInputValue)
+      tagAutocompleteInput.vm.$emit('tag-changed', newTagInputValue)
       // check
       expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
       expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])

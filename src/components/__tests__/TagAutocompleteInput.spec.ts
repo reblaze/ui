@@ -445,82 +445,82 @@ describe('TagAutocompleteInput.vue', () => {
       expect(prop).toEqual(propSelectionType)
     })
 
-    test('should bubble value-changed event as value-changed', async () => {
+    test('should bubble value-changed event as tag-changed', async () => {
       const emitValue = 'some-value'
       const autocompleteInput = wrapper.findComponent(AutocompleteInput)
       autocompleteInput.vm.$emit('value-changed', emitValue)
       await nextTick()
-      expect(wrapper.emitted('value-changed')).toBeTruthy()
-      expect(wrapper.emitted('value-changed')[0]).toEqual([emitValue])
+      expect(wrapper.emitted('tag-changed')).toBeTruthy()
+      expect(wrapper.emitted('tag-changed')[0]).toEqual([emitValue])
     })
 
-    test('should bubble value-submitted event as value-submitted', async () => {
+    test('should bubble value-submitted event as tag-submitted', async () => {
       const emitValue = 'some-value'
       const autocompleteInput = wrapper.findComponent(AutocompleteInput)
       autocompleteInput.vm.$emit('value-submitted', emitValue)
       await nextTick()
-      expect(wrapper.emitted('value-submitted')).toBeTruthy()
-      expect(wrapper.emitted('value-submitted')[0]).toEqual([emitValue])
+      expect(wrapper.emitted('tag-submitted')).toBeTruthy()
+      expect(wrapper.emitted('tag-submitted')[0]).toEqual([emitValue])
     })
 
-    test('should ignore multiple spaces and trim when emitting value-changed', async () => {
+    test('should ignore multiple spaces and trim when emitting tag-changed', async () => {
       const emitValue = 'some-value                    some-other-value    '
       const wantedValue = 'some-value some-other-value'
       const autocompleteInput = wrapper.findComponent(AutocompleteInput)
       autocompleteInput.vm.$emit('value-changed', emitValue)
       await nextTick()
-      expect(wrapper.emitted('value-changed')).toBeTruthy()
-      expect(wrapper.emitted('value-changed')[0]).toEqual([wantedValue])
+      expect(wrapper.emitted('tag-changed')).toBeTruthy()
+      expect(wrapper.emitted('tag-changed')[0]).toEqual([wantedValue])
     })
 
-    test('should ignore multiple spaces and trim when emitting value-submitted', async () => {
+    test('should ignore multiple spaces and trim when emitting tag-submitted', async () => {
       const emitValue = 'some-value                    some-other-value    '
       const wantedValue = 'some-value some-other-value'
       const autocompleteInput = wrapper.findComponent(AutocompleteInput)
       autocompleteInput.vm.$emit('value-submitted', emitValue)
       await nextTick()
-      expect(wrapper.emitted('value-submitted')).toBeTruthy()
-      expect(wrapper.emitted('value-submitted')[0]).toEqual([wantedValue])
+      expect(wrapper.emitted('tag-submitted')).toBeTruthy()
+      expect(wrapper.emitted('tag-submitted')[0]).toEqual([wantedValue])
     })
 
-    test('should ignore tabs and trim when emitting value-changed', async () => {
+    test('should ignore tabs and trim when emitting tag-changed', async () => {
       const emitValue = 'some-value             some-other-value        '
       const wantedValue = 'some-value some-other-value'
       const autocompleteInput = wrapper.findComponent(AutocompleteInput)
       autocompleteInput.vm.$emit('value-changed', emitValue)
       await nextTick()
-      expect(wrapper.emitted('value-changed')).toBeTruthy()
-      expect(wrapper.emitted('value-changed')[0]).toEqual([wantedValue])
+      expect(wrapper.emitted('tag-changed')).toBeTruthy()
+      expect(wrapper.emitted('tag-changed')[0]).toEqual([wantedValue])
     })
 
-    test('should ignore tabs and trim when emitting value-submitted', async () => {
+    test('should ignore tabs and trim when emitting tag-submitted', async () => {
       const emitValue = 'some-value             some-other-value        '
       const wantedValue = 'some-value some-other-value'
       const autocompleteInput = wrapper.findComponent(AutocompleteInput)
       autocompleteInput.vm.$emit('value-submitted', emitValue)
       await nextTick()
-      expect(wrapper.emitted('value-submitted')).toBeTruthy()
-      expect(wrapper.emitted('value-submitted')[0]).toEqual([wantedValue])
+      expect(wrapper.emitted('tag-submitted')).toBeTruthy()
+      expect(wrapper.emitted('tag-submitted')[0]).toEqual([wantedValue])
     })
 
-    test('should ignore new lines and trim when emitting value-changed', async () => {
+    test('should ignore new lines and trim when emitting tag-changed', async () => {
       const emitValue = 'some-value \n some-other-value \n'
       const wantedValue = 'some-value some-other-value'
       const autocompleteInput = wrapper.findComponent(AutocompleteInput)
       autocompleteInput.vm.$emit('value-changed', emitValue)
       await nextTick()
-      expect(wrapper.emitted('value-changed')).toBeTruthy()
-      expect(wrapper.emitted('value-changed')[0]).toEqual([wantedValue])
+      expect(wrapper.emitted('tag-changed')).toBeTruthy()
+      expect(wrapper.emitted('tag-changed')[0]).toEqual([wantedValue])
     })
 
-    test('should ignore new lines and trim when emitting value-submitted', async () => {
+    test('should ignore new lines and trim when emitting tag-submitted', async () => {
       const emitValue = 'some-value \n some-other-value \n'
       const wantedValue = 'some-value some-other-value'
       const autocompleteInput = wrapper.findComponent(AutocompleteInput)
       autocompleteInput.vm.$emit('value-submitted', emitValue)
       await nextTick()
-      expect(wrapper.emitted('value-submitted')).toBeTruthy()
-      expect(wrapper.emitted('value-submitted')[0]).toEqual([wantedValue])
+      expect(wrapper.emitted('tag-submitted')).toBeTruthy()
+      expect(wrapper.emitted('tag-submitted')[0]).toEqual([wantedValue])
     })
 
     test('should bubble keyup event', async () => {

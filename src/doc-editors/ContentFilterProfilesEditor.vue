@@ -853,7 +853,7 @@ export default defineComponent({
         this.localDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
           return tag.trim()
         }) : []
-        if (tags.trim() == '' || tags.length < 3 || !!_.size(this.duplicateTags)) {
+        if (tags.trim() === '' || tags.length < 3 || !!_.size(this.duplicateTags)) {
           this.$emit('tags-invalid', true)
         } else {
           this.$emit('tags-invalid', false)
