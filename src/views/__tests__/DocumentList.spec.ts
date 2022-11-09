@@ -769,7 +769,8 @@ describe.skip('DocumentList.vue', () => {
         return Promise.resolve({data: flowControlPolicyDocs})
       }
       if (path === `/conf/api/v3/configs/${branch}/d/contentfilterprofiles/`) {
-        const contentfilterprofilesXFields = _.flatMap(wrapper.vm.columnOptionMap['contentfilterprofiles'], 'fieldNames')
+        const contentfilterprofilesXFields =
+          _.flatMap(wrapper.vm.columnOptionMap['contentfilterprofiles'], 'fieldNames')
         contentfilterprofilesXFields.unshift('id')
         if (config && config.headers && config.headers['x-fields'] === contentfilterprofilesXFields.join(', ')) {
           return Promise.resolve({

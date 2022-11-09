@@ -286,9 +286,10 @@ const newDocEntryFactory: { [key: string]: Function } = {
   },
 
   'cloud-functions'(): EdgeFunction {
+    const id = generateUUID2()
     return {
-      'id': generateUUID2(),
-      'name': 'New Edge Function',
+      'id': id,
+      'name': 'New Edge Function ' + id,
       'description': 'New Edge Function Description and Remarks',
       'phase': 'request',
       'code': `-- begin custom code
@@ -355,9 +356,10 @@ const newOperationEntryFactory: { [key: string]: Function } = {
   },
 
   'routing-profiles'(): RoutingProfile {
+    const id = generateUUID2()
     return {
-      'id': generateUUID2(),
-      'name': 'New Routing Profile ' + generateUUID2(), // TODO: Remove this random uuid once names are no longer unique
+      'id': id,
+      'name': 'New Routing Profile ' + id, // TODO: Remove this random uuid once names are no longer unique
       'description': 'New Routing Profile Description and Remarks',
       'locations': [
         {
@@ -394,9 +396,10 @@ const newOperationEntryFactory: { [key: string]: Function } = {
   },
 
   'proxy-templates'(): ProxyTemplate {
+    const id = generateUUID2()
     return {
-      'id': generateUUID2(),
-      'name': 'New Proxy Template ' + generateUUID2(), // TODO: Remove this random uuid once names are no longer unique
+      'id': id,
+      'name': 'New Proxy Template ' + id, // TODO: Remove this random uuid once names are no longer unique
       'description': 'New Proxy Template Description and Remarks',
       'acao_header': false,
       'client_body_timeout': '5',
@@ -420,9 +423,10 @@ const newOperationEntryFactory: { [key: string]: Function } = {
   },
 
   'backends'(): BackendService {
+    const id = generateUUID2()
     return {
-      'id': generateUUID2(),
-      'name': 'New Backend Service ' + generateUUID2(), // TODO: Remove this random uuid once names are no longer unique
+      'id': id,
+      'name': 'New Backend Service ' + id, // TODO: Remove this random uuid once names are no longer unique
       'description': 'New Backend Service Description and Remarks',
       'least_conn': false,
       'http11': true,
