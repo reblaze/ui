@@ -1,6 +1,5 @@
 <template>
-  <div class="card-content"
-       v-if="selectedMobileSDK">
+  <div class="card-content" >
     <div class="media">
       <div class="media-content">
         <div class="columns">
@@ -386,7 +385,8 @@
       </div>
       <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ documentAPIPath }}</span>
     </div>
-    <div class="content no-data-wrapper" v-if="loadingDocCounter || !selectedBranch || !selectedMobileSDK">
+    <div class="content no-data-wrapper"
+         v-if="loadingDocCounter || !selectedBranch || !selectedMobileSDK ">
       <div v-if="loadingDocCounter > 0">
         <button class="button is-outlined is-text is-small is-loading document-loading">
           Loading
@@ -676,14 +676,16 @@ export default defineComponent({
         },
       })
       this.selectedMobileSDK = response?.data || {}
-      this.selectedMobileSDK.signatures = _.sortBy(this.selectedMobileSDK.signatures, (signature) => {
-        return !signature.active
-      }) || []
-      if (this.selectedMobileSDK.active_config) {
-        this.selectedMobileSDK.active_config = this.selectedMobileSDK.active_config.map((activeConfig) => ({
-          ...activeConfig,
-          json: JSON.stringify(JSON.parse(activeConfig.json), null, 2),
-        }))
+      if (this.selectedMobileSDK) {
+        this.selectedMobileSDK.signatures = _.sortBy(this.selectedMobileSDK.signatures, (signature) => {
+          return !signature.active
+        }) || []
+        if (this.selectedMobileSDK.active_config) {
+          this.selectedMobileSDK.active_config = this.selectedMobileSDK.active_config.map((activeConfig) => ({
+            ...activeConfig,
+            json: JSON.stringify(JSON.parse(activeConfig.json), null, 2),
+          }))
+        }
       }
       this.isDownloadLoading = false
       this.setLoadingDocStatus(false)

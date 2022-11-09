@@ -864,6 +864,7 @@ export default defineComponent({
     },
 
     async loadProxyTemplate() {
+      this.setLoadingDocStatus(true)
       this.isDownloadLoading = true
       this.selectedProxyTemplate = null
       const response = await RequestsUtils.sendReblazeRequest({
