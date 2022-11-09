@@ -492,13 +492,13 @@
               <p class="title is-5 is-uppercase">Advanced Settings</p>
             </div>
             <span v-show="isAdvancedCollapsed">
-                    <i class="fas fa-angle-down"
-                       aria-hidden="true"></i>
-                  </span>
+              <i class="fas fa-angle-down"
+                 aria-hidden="true"></i>
+            </span>
             <span v-show="!isAdvancedCollapsed">
-                    <i class="fas fa-angle-up"
-                       aria-hidden="true"></i>
-                  </span>
+              <i class="fas fa-angle-up"
+                 aria-hidden="true"></i>
+            </span>
           </div>
           <div class="content collapsible-content px-5 py-5">
             <div class="columns">
@@ -509,28 +509,32 @@
                       HTTP Listener Custom Configuration
                     </label>
                     <div class="control">
-                            <textarea
-                                rows="5"
+                      <textarea rows="5"
                                 class="is-small textarea site-conf"
-                                v-model="selectedProxyTemplate.conf_specific.value">
-                            </textarea>
+                                v-model="selectedProxyTemplate.conf_specific">
+                      </textarea>
                     </div>
-                    <p class="help has-text-danger">Unless instructed, don't touch!</p>
+                    <p class="help has-text-danger">
+                      Unless instructed, don't touch!
+                    </p>
                   </div>
                 </div>
               </div>
               <div class="column is-6">
                 <div class="field ">
                   <div class="field">
-                    <label class="label is-small">HTTPS Listener Custom Configuration</label>
+                    <label class="label is-small">
+                      HTTPS Listener Custom Configuration
+                    </label>
                     <div class="control">
-                            <textarea
-                                rows="5"
+                      <textarea rows="5"
                                 class="is-small textarea site-ssl-conf"
-                                v-model="selectedProxyTemplate.ssl_conf_specific.value">
-                            </textarea>
+                                v-model="selectedProxyTemplate.ssl_conf_specific">
+                      </textarea>
                     </div>
-                    <p class="help has-text-danger">Unless instructed, don't touch!</p>
+                    <p class="help has-text-danger">
+                      Unless instructed, don't touch!
+                    </p>
                   </div>
                 </div>
               </div>
@@ -876,12 +880,6 @@ export default defineComponent({
         },
       })
       this.selectedProxyTemplate = response?.data || {}
-      if (!this.selectedProxyTemplate.conf_specific) {
-        this.selectedProxyTemplate.conf_specific = {value: ''}
-      }
-      if (!this.selectedProxyTemplate.ssl_conf_specific) {
-        this.selectedProxyTemplate.ssl_conf_specific = {value: ''}
-      }
       this.isDownloadLoading = false
       this.setLoadingDocStatus(false)
     },
