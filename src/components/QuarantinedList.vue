@@ -40,6 +40,8 @@ import DateTimeUtils from '@/assets/DateTimeUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
+import {AxiosResponse} from 'axios'
+import _ from 'lodash'
 
 
 export default defineComponent({
@@ -50,13 +52,6 @@ export default defineComponent({
   data() {
     return {
       columns: [
-        {
-          title: 'ID',
-          fieldNames: ['id'],
-          isSortable: true,
-          isSearchable: true,
-          classes: 'ellipsis',
-        },
         {
           title: 'Key Parameter',
           fieldNames: ['target'],
@@ -103,9 +98,17 @@ export default defineComponent({
         {
           title: 'Rule',
           fieldNames: ['rule_id'],
+          displayFunction: (item: Quarantined) => {
+            console.log('item.rule_id', item.rule_id)
+            const dynamicRules: {id: string, name: string} = _.find(this.dynamicRulesNames, (dynamicRule) => {
+              return dynamicRule.id === item.rule_id
+            })
+            console.log('dynamicRules', dynamicRules)
+            return dynamicRules?.name || ''
+          },
           isSortable: true,
           isSearchable: true,
-          classes: 'width-50px',
+          classes: 'width-130px',
         },
         {
           title: 'Tags',
@@ -120,12 +123,14 @@ export default defineComponent({
       ] as ColumnOptions[],
       quarantinedData: null as Quarantined[],
       selectedArray: [] as string[],
+      dynamicRulesNames: [] as {id: string, name: string}[],
     }
   },
   watch: {
     selectedBranch: {
       handler: function(val, oldVal) {
         if ((this.$route.name as string).includes('Quarantined') && val && val !== oldVal) {
+          this.loadDynamicRules()
           this.loadQuarantinedData()
         }
       },
@@ -140,6 +145,17 @@ export default defineComponent({
     ...mapStores(useBranchesStore),
   },
   methods: {
+    loadDynamicRules() {
+      RequestsUtils.sendReblazeRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/dynamic-rules/`,
+        config: {headers: {'x-fields': 'id, name'}},
+      }).then((response: AxiosResponse<{id: string, name: string}>) => {
+        this.dynamicRulesNames = _.map(response.data, (id, name) => {
+          return {id, name}
+        })
+      })
+    },
 
     updateSelected(selectedBoxes: string[]) {
       this.selectedArray = [...selectedBoxes]
@@ -209,6 +225,8 @@ export default defineComponent({
   },
   async created() {
     await this.branchesStore.list
+    this.loadDynamicRules()
+    console.log('dynamicRulesNames', this.dynamicRulesNames)
   },
 })
 
