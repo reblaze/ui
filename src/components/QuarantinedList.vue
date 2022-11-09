@@ -101,7 +101,7 @@ export default defineComponent({
           classes: 'width-130px',
         },
         {
-          title: 'Rules',
+          title: 'Rule',
           fieldNames: ['rule_id'],
           isSortable: true,
           isSearchable: true,
@@ -115,7 +115,7 @@ export default defineComponent({
             return item.tags?.join('\n')
           },
           isSearchable: true,
-          classes: 'width-130px white-space-pre',
+          classes: 'vertical-scroll ellipsis white-space-pre',
         },
       ] as ColumnOptions[],
       quarantinedData: null as Quarantined[],
