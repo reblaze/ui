@@ -82,50 +82,50 @@
                               @input="emitDocUpdate"
                               rows="2">
                     </textarea>
-                </div>
-              </div>
-              <div class="field">
-                <label class="label is-small">
-                  Custom Response
-                </label>
-                <div class="control is-expanded">
-                  <div class="select is-fullwidth is-small">
-                    <select v-model="localDoc.action"
-                            @change="emitDocUpdate"
-                            data-qa="action-dropdown"
-                            class="document-action-selection"
-                            title="Custom Response">
-                      <option v-for="customResponse in customResponseNames"
-                              :value="customResponse[0]"
-                              :key="customResponse[0]">
-                        {{ customResponse[1] }}
-                      </option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-              <div class="field">
-                <label class="label is-small">Tags</label>
-                <div class="control"
-                     data-qa="tag-input">
-                  <tag-autocomplete-input :initial-tag="selectedDocTags"
-                                          :selection-type="'multiple'"
-                                          @tag-changed="selectedDocTags = $event"/>
-                </div>
-                <labeled-tags title="Automatic Tags"
-                              :tags="automaticTags"/>
-              </div>
-              <div class="field ignore-alphanumeric-input-field"
-                   :title="additionalInfoIgnoreAlphanumericInput">
-                <label class="checkbox is-size-7">
-                  <input type="checkbox"
-                         data-qa="ignore-alphanumeric-btn"
-                         class="checkbox-input ignore-alphanumeric-input"
-                         @change="emitDocUpdate"
-                         v-model="localDoc.ignore_alphanum"/>
-                  Ignore Alphanumeric Input
-                </label>
-                <span class="icon is-small info-icon">
+          </div>
+        </div>
+        <div class="field">
+          <label class="label is-small">
+            Custom Response
+          </label>
+          <div class="control is-expanded">
+            <div class="select is-fullwidth is-small">
+              <select v-model="localDoc.action"
+                      @change="emitDocUpdate"
+                      data-qa="action-dropdown"
+                      class="document-action-selection"
+                      title="Custom Response">
+                <option v-for="customResponse in customResponseNames"
+                        :value="customResponse[0]"
+                        :key="customResponse[0]">
+                  {{ customResponse[1] }}
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label is-small">Tags</label>
+          <div class="control"
+               data-qa="tag-input">
+            <tag-autocomplete-input :initial-tag="selectedDocTags"
+                                    selection-type="multiple"
+                                    @tag-changed="selectedDocTags = $event"/>
+          </div>
+          <labeled-tags title="Automatic Tags"
+                        :tags="automaticTags"/>
+        </div>
+        <div class="field ignore-alphanumeric-input-field"
+             :title="additionalInfoIgnoreAlphanumericInput">
+          <label class="checkbox is-size-7">
+            <input type="checkbox"
+                   data-qa="ignore-alphanumeric-btn"
+                   class="checkbox-input ignore-alphanumeric-input"
+                   @change="emitDocUpdate"
+                   v-model="localDoc.ignore_alphanum"/>
+            Ignore Alphanumeric Input
+          </label>
+          <span class="icon is-small info-icon">
                 <i class="fas fa-info-circle"></i>
               </span>
               </div>
@@ -846,12 +846,18 @@ export default defineComponent({
         if (this.localDoc.tags && this.localDoc.tags.length > 0) {
           return this.localDoc.tags.join(' ')
         }
+        this.$emit('tags-invalid', true)
         return ''
       },
       set: function(tags: string): void {
         this.localDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
           return tag.trim()
         }) : []
+        if (tags.trim() === '' || tags.length < 3 || !!_.size(this.duplicateTags)) {
+          this.$emit('tags-invalid', true)
+        } else {
+          this.$emit('tags-invalid', false)
+        }
         this.emitDocUpdate()
       },
     },
@@ -863,7 +869,7 @@ export default defineComponent({
     },
   },
 
-  emits: ['update:selectedDoc', 'form-invalid'],
+  emits: ['update:selectedDoc', 'form-invalid', 'tags-invalid'],
 
   methods: {
     emitDocUpdate() {

@@ -221,7 +221,7 @@
       </div>
       <hr/>
       <git-history :api-path="gitAPIPath"
-                   :restore-target-title="`namespace [${this.selectedNamespace}]`"
+                   :restore-target-title="`namespace [${selectedNamespace}]`"
                    @restore-version="restoreGitVersion"/>
     </div>
 

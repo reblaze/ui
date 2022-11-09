@@ -91,8 +91,8 @@
                 <button class="button is-small save-document-button"
                         :class="{'is-loading': isSaveLoading}"
                         @click="saveChanges()"
-                        title="Save changes"
-                        :disabled="isDocumentInvalid || !selectedDoc || dynamicRuleManaged"
+                        :title="titleDisplay"
+                        :disabled="isDocumentInvalid || !selectedDoc || dynamicRuleManaged || tagsInvalid"
                         data-qa="save-changes">
                   <span class="icon is-small">
                     <i class="fas fa-save"></i>
@@ -137,7 +137,8 @@
           v-model:selectedDocMatchingGlobalFilter="selectedDocMatchingGlobalFilter"
           v-model:docs="docs"
           :apiPath="documentAPIPath"
-          @form-invalid="isDocumentInvalid = $event"
+          @form-invalid="setIsDocumentInvalid"
+          @tags-invalid="setTagsInvalid"
           @go-to-route="goToRoute($event)"
           ref="currentComponent">
       </component>
@@ -252,6 +253,7 @@ export default defineComponent({
       cancelSource: axios.CancelToken.source(),
       isDownloadLoading: false,
       isDocumentInvalid: false,
+      tagsInvalid: false,
       selectedDocMatchingGlobalFilter: null as GlobalFilter,
       duplicatedDocMatchingGlobalFilter: null as GlobalFilter,
 
@@ -311,6 +313,9 @@ export default defineComponent({
     },
   },
   computed: {
+    titleDisplay(): string {
+      return this.tagsInvalid ? 'Missing a tag' : 'Save changes'
+    },
     isReblazeDocument(): boolean {
       return Object.keys(this.reblazeComponentsMap).includes(this.selectedDocType)
     },
@@ -394,8 +399,17 @@ export default defineComponent({
     },
 
     ...mapStores(useBranchesStore),
+
   },
   methods: {
+
+    setIsDocumentInvalid(isDocumentInvalid: boolean) {
+      this.isDocumentInvalid = isDocumentInvalid
+    },
+
+    setTagsInvalid(tagsInvalid: boolean) {
+      this.tagsInvalid = tagsInvalid
+    },
 
     async goToRoute(newRoute?: string) {
       if (!newRoute) {
