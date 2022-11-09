@@ -406,8 +406,7 @@
            class="no-data-message">
         No data found.
         <div>
-          <!--display correct message by priority (Document type -> Document)-->
-          <span v-if="!docs.find((doc) => doc.id.includes(selectedServerGroup?.id))">
+          <span v-if="!selectedServerGroup?.id">
             Missing document. To create a new one, click
             <a title="Add new"
                @click="addNewDoc()">

@@ -160,7 +160,6 @@
            class="no-data-message">
         No data found.
         <div>
-          <!--display correct message by priority (Document type -> Document)-->
           <span v-if="!Object.keys(componentsMap).includes(selectedDocType)">
             Missing document type. Please check your URL or click a link in the menu to the side
           </span>

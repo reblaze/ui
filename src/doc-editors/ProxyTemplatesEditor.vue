@@ -551,8 +551,7 @@
            class="no-data-message">
         No data found.
         <div>
-          <!--display correct message by priority (Document type -> Document)-->
-          <span v-if="!docs.find((doc) => doc.id.includes(selectedProxyTemplate?.id))">
+          <span v-if="!selectedProxyTemplate?.id">
             Missing document. To create a new one, click
             <a title="Add new"
                @click="addNewProxyTemplate()">
