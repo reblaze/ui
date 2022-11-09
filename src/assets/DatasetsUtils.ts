@@ -377,12 +377,8 @@ const newOperationEntryFactory: { [key: string]: Function } = {
       'id': generateUUID2(),
       'name': 'New Mobile SDK ' + generateUUID2(), // TODO: Remove this random uuid once names are no longer unique
       'description': 'New Mobile SDK Description and Remarks',
-      'secret': '',
-      'var_name': '',
       'uid_header': 'authorization',
       'grace': '5',
-      'grace_var_name': '',
-      'validator_type': '',
       'active_config': [
         {
           'active': true,
@@ -391,7 +387,6 @@ const newOperationEntryFactory: { [key: string]: Function } = {
         },
       ],
       'signatures': [],
-      'support_legacy_sdk': false,
     }
   },
 
@@ -405,7 +400,7 @@ const newOperationEntryFactory: { [key: string]: Function } = {
       'client_body_timeout': '5',
       'client_header_timeout': '5',
       'client_max_body_size': '150',
-      'conf_specific': {'value': ''},
+      'conf_specific': '',
       'custom_listener': false,
       'keepalive_timeout': '660',
       'limit_req_rate': '1200',
@@ -415,7 +410,7 @@ const newOperationEntryFactory: { [key: string]: Function } = {
       'proxy_read_timeout': '60',
       'proxy_send_timeout': '30',
       'send_timeout': '5',
-      'ssl_conf_specific': {'value': ''},
+      'ssl_conf_specific': '',
       'upstream_host': '$host',
       'xff_header_name': 'X-Forwarded-For',
       'xrealip_header_name': 'X-Real-IP',
@@ -436,7 +431,7 @@ const newOperationEntryFactory: { [key: string]: Function } = {
         'http_port': 80,
         'https_port': 443,
         'weight': 1,
-        'fail_timeout': '10s',
+        'fail_timeout': 10,
         'monitor_state': '',
         'down': false,
         'host': '127.0.0.1',

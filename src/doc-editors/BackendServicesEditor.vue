@@ -363,7 +363,7 @@ export default defineComponent({
         http_port: 80,
         https_port: 443,
         weight: 1,
-        fail_timeout: '10s',
+        fail_timeout: 10,
         down: false,
         host: '',
         max_fails: 0,
