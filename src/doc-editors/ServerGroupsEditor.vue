@@ -154,7 +154,7 @@
     </div>
     <hr/>
     <div class="content"
-         v-if="loadingDocCounter==0 && selectedBranch && selectedServerGroup">
+         v-if="!loadingDocCounter && selectedBranch && selectedServerGroup">
       <div class="columns columns-divided">
         <div class="column is-4">
           <div class="field">

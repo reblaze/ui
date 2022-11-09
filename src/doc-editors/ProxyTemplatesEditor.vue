@@ -119,7 +119,7 @@
     </div>
     <hr/>
     <div class="content"
-         v-if="loadingDocCounter==0 && selectedBranch && selectedProxyTemplate">
+         v-if="!loadingDocCounter && selectedBranch && selectedProxyTemplate">
       <div class="columns">
         <div class="column is-4">
           <div class="field">

@@ -119,7 +119,7 @@
     </div>
     <hr/>
     <div class="content"
-         v-if="loadingDocCounter==0 && selectedBranch && selectedBackendService">
+         v-if="!loadingDocCounter && selectedBranch && selectedBackendService">
       <div class="columns columns-divided">
         <div class="column is-4">
           <div class="field">
