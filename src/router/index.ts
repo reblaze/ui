@@ -10,8 +10,8 @@ import RoutingProfileList from '@/views/RoutingProfilesList.vue'
 import RoutingProfileEditor from '@/doc-editors/RoutingProfilesEditor.vue'
 import MobileSDKList from '@/views/MobileSDKsList.vue'
 import MobileSDKEditor from '@/doc-editors/MobileSDKsEditor.vue'
-import ConfigTemplateList from '@/views/ConfigTemplatesList.vue'
-import ConfigTemplateEditor from '@/doc-editors/ConfigTemplatesEditor.vue'
+import ProxyTemplateList from '@/views/ProxyTemplatesList.vue'
+import ProxyTemplateEditor from '@/doc-editors/ProxyTemplatesEditor.vue'
 import ServerGroupsList from '@/views/ServerGroupsList.vue'
 import ServerGroupsEditor from '@/doc-editors/ServerGroupsEditor.vue'
 import BackendServiceList from '@/views/BackendServicesList.vue'
@@ -108,26 +108,26 @@ const routes: Array<RouteRecordRaw> = [
             ],
           },
           {
-            path: 'config-templates',
-            name: 'ConfigTemplates',
+            path: 'proxy-templates',
+            name: 'ProxyTemplates',
             redirect: (route) => {
-              return `/${route.params.branch}/config-templates/list`
+              return `/${route.params.branch}/proxy-templates/list`
             },
             children: [
               {
                 path: 'list',
-                name: 'ConfigTemplates/list',
-                component: ConfigTemplateList,
+                name: 'ProxyTemplates/list',
+                component: ProxyTemplateList,
                 meta: {
-                  title: 'Config Templates List',
+                  title: 'Proxy Templates List',
                 },
               },
               {
                 path: 'config/:doc_id',
-                name: 'ConfigTemplates/config',
-                component: ConfigTemplateEditor,
+                name: 'ProxyTemplates/config',
+                component: ProxyTemplateEditor,
                 meta: {
-                  title: 'Config Templates Editor',
+                  title: 'Proxy Templates Editor',
                 },
               },
             ],
