@@ -146,8 +146,8 @@
             <div class="control document-tags"
                  data-qa="tag-input">
               <tag-autocomplete-input :initial-tag="selectedDocTags"
-                                      :selection-type="'multiple'"
-                                      @tag-changed="selectedDocTags = $event"/>
+                                      selection-type="multiple"
+                                      @tag-changed="selectedDocTags = $event" />
             </div>
           </div>
         </div>
@@ -322,17 +322,23 @@ export default defineComponent({
         if (this.localGlobalFilterDoc.tags && this.localGlobalFilterDoc.tags.length > 0) {
           return this.localGlobalFilterDoc.tags.join(' ')
         }
+        this.$emit('tags-invalid', true)
         return ''
       },
       set: function(tags: string): void {
         this.localGlobalFilterDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
           return tag.trim()
         }) : []
+        if (tags.trim() === '' || tags.length < 3) {
+          this.$emit('tags-invalid', true)
+        } else {
+          this.$emit('tags-invalid', false)
+        }
         this.emitMatchDocUpdate()
       },
     },
   },
-  emits: ['update:selectedDoc', 'update:selectedDocMatchingGlobalFilter'],
+  emits: ['update:selectedDoc', 'update:selectedDocMatchingGlobalFilter', 'tags-invalid'],
   methods: {
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)

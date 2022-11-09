@@ -97,7 +97,7 @@
                     <div class="control"
                          data-qa="tag-input">
                       <tag-autocomplete-input :initial-tag="selectedDocTags"
-                                              :selection-type="'multiple'"
+                                              selection-type="multiple"
                                               @tag-changed="selectedDocTags = $event"/>
                     </div>
                     <labeled-tags title="Automatic Tags"
@@ -198,7 +198,7 @@ export default defineComponent({
     selectedDoc: Object,
     apiPath: String,
   },
-  emits: ['update:selectedDoc', 'form-invalid'],
+  emits: ['update:selectedDoc', 'form-invalid', 'tags-invalid'],
   data() {
     return {
       operations: ['force_deny', 'passthrough', 'allow_bot', 'deny_bot', 'allow', 'deny'] as ACLProfileFilter[],
@@ -230,12 +230,18 @@ export default defineComponent({
         if (this.localDoc.tags && this.localDoc.tags.length > 0) {
           return this.localDoc.tags.join(' ')
         }
+        this.$emit('tags-invalid', true)
         return ''
       },
       set: function(tags: string): void {
         this.localDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
           return tag.trim()
         }) : []
+        if (tags.trim() === '' || tags.length < 3) {
+          this.$emit('tags-invalid', true)
+        } else {
+          this.$emit('tags-invalid', false)
+        }
         this.emitDocUpdate()
       },
     },

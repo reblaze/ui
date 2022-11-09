@@ -417,21 +417,21 @@ describe('Utils.ts', () => {
   })
 
   describe('removeExtraWhitespaces function', () => {
-    test('should ignore multiple spaces when emitting tag-changed', async () => {
+    test('should ignore multiple spaces when emitting value-changed', async () => {
       const inputValue = 'some-value                    some-other-value'
       const wantedValue = 'some-value some-other-value'
       const actualResult = Utils.removeExtraWhitespaces(inputValue)
       expect(actualResult).toEqual(wantedValue)
     })
 
-    test('should ignore tabs when emitting tag-changed', async () => {
+    test('should ignore tabs when emitting value-changed', async () => {
       const inputValue = 'some-value             some-other-value'
       const wantedValue = 'some-value some-other-value'
       const actualResult = Utils.removeExtraWhitespaces(inputValue)
       expect(actualResult).toEqual(wantedValue)
     })
 
-    test('should ignore new lines when emitting tag-changed', async () => {
+    test('should ignore new lines when emitting value-changed', async () => {
       const inputValue = 'some-value \n\n\n some-other-value'
       const wantedValue = 'some-value some-other-value'
       const actualResult = Utils.removeExtraWhitespaces(inputValue)

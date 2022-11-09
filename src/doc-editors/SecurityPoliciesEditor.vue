@@ -81,7 +81,7 @@
                   <div class="control"
                        data-qa="tag-input">
                     <tag-autocomplete-input :initial-tag="selectedDocTags"
-                                            :selection-type="'multiple'"
+                                            selection-type="multiple"
                                             @tag-changed="selectedDocTags = $event"/>
                     <labeled-tags title="Automatic Tag"
                                   :tags="automaticTags"/>
@@ -544,12 +544,18 @@ export default defineComponent({
         if (this.localDoc.tags && this.localDoc.tags.length > 0) {
           return this.localDoc.tags.join(' ')
         }
+        this.$emit('tags-invalid', true)
         return ''
       },
       set: function(tags: string): void {
         this.localDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
           return tag.trim()
         }) : []
+        if (tags.trim() === '' || tags.length < 3) {
+          this.$emit('tags-invalid', true)
+        } else {
+          this.$emit('tags-invalid', false)
+        }
         this.emitDocUpdate()
       },
     },
@@ -567,7 +573,7 @@ export default defineComponent({
       return !isDomainMatchValid || !isCurrentEntryMatchValid
     },
   },
-  emits: ['update:selectedDoc', 'form-invalid'],
+  emits: ['update:selectedDoc', 'form-invalid', 'tags-invalid'],
   methods: {
     emitDocUpdate(): void {
       this.$emit('update:selectedDoc', this.localDoc)
