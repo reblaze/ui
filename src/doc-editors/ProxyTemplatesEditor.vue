@@ -18,10 +18,57 @@
                   </span>
                 </button>
               </p>
+              <div class="control"
+                   v-if="docs.length">
+                <div class="select is-small">
+                  <select v-model="selectedDocID"
+                          title="Switch document ID"
+                          @change="switchDocID()"
+                          class="site-selection"
+                          data-qa="switch-document">
+                    <option v-for="doc in docs"
+                            :key="doc.id"
+                            :value="doc.id">
+                      {{ doc.name }}
+                    </option>
+                  </select>
+                </div>
+              </div>
             </div>
           </div>
           <div class="column">
             <div class="field is-grouped is-pulled-right">
+              <p class="control">
+                <button class="button is-small new-proxy-template-document-button"
+                        :class="{'is-loading': isNewLoading}"
+                        @click="addNewProxyTemplate()"
+                        title="Add new document"
+                        :disabled="!selectedBranch"
+                        data-qa="add-new-document">
+                  <span class="icon is-small">
+                    <i class="fas fa-plus"></i>
+                  </span>
+                  <span>
+                    New
+                  </span>
+                </button>
+              </p>
+
+              <p class="control">
+                <button class="button is-small fork-document-button"
+                        :class="{'is-loading': isForkLoading}"
+                        @click="forkDoc()"
+                        title="Duplicate document"
+                        :disabled="!selectedProxyTemplate"
+                        data-qa="duplicate-document">
+                  <span class="icon is-small">
+                    <i class="fas fa-clone"></i>
+                  </span>
+                  <span>
+                    Duplicate
+                  </span>
+                </button>
+              </p>
               <p class="control">
                 <button class="button is-small download-doc-button"
                         :class="{'is-loading':isDownloadLoading}"
@@ -72,7 +119,7 @@
     </div>
     <hr/>
     <div class="content"
-         v-if="selectedProxyTemplate">
+         v-if="!loadingDocCounter && selectedBranch && selectedProxyTemplate">
       <div class="columns">
         <div class="column is-4">
           <div class="field">
@@ -445,13 +492,13 @@
               <p class="title is-5 is-uppercase">Advanced Settings</p>
             </div>
             <span v-show="isAdvancedCollapsed">
-                    <i class="fas fa-angle-down"
-                       aria-hidden="true"></i>
-                  </span>
+              <i class="fas fa-angle-down"
+                 aria-hidden="true"></i>
+            </span>
             <span v-show="!isAdvancedCollapsed">
-                    <i class="fas fa-angle-up"
-                       aria-hidden="true"></i>
-                  </span>
+              <i class="fas fa-angle-up"
+                 aria-hidden="true"></i>
+            </span>
           </div>
           <div class="content collapsible-content px-5 py-5">
             <div class="columns">
@@ -462,28 +509,32 @@
                       HTTP Listener Custom Configuration
                     </label>
                     <div class="control">
-                            <textarea
-                                rows="5"
+                      <textarea rows="5"
                                 class="is-small textarea site-conf"
-                                v-model="selectedProxyTemplate.conf_specific.value">
-                            </textarea>
+                                v-model="selectedProxyTemplate.conf_specific">
+                      </textarea>
                     </div>
-                    <p class="help has-text-danger">Unless instructed, don't touch!</p>
+                    <p class="help has-text-danger">
+                      Unless instructed, don't touch!
+                    </p>
                   </div>
                 </div>
               </div>
               <div class="column is-6">
                 <div class="field ">
                   <div class="field">
-                    <label class="label is-small">HTTPS Listener Custom Configuration</label>
+                    <label class="label is-small">
+                      HTTPS Listener Custom Configuration
+                    </label>
                     <div class="control">
-                            <textarea
-                                rows="5"
+                      <textarea rows="5"
                                 class="is-small textarea site-ssl-conf"
-                                v-model="selectedProxyTemplate.ssl_conf_specific.value">
-                            </textarea>
+                                v-model="selectedProxyTemplate.ssl_conf_specific">
+                      </textarea>
                     </div>
-                    <p class="help has-text-danger">Unless instructed, don't touch!</p>
+                    <p class="help has-text-danger">
+                      Unless instructed, don't touch!
+                    </p>
                   </div>
                 </div>
               </div>
@@ -493,12 +544,32 @@
       </div>
       <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ documentAPIPath }}</span>
     </div>
+    <div class="content no-data-wrapper"
+         v-if="loadingDocCounter || !selectedBranch || !selectedProxyTemplate">
+      <div v-if="loadingDocCounter > 0">
+        <button class="button is-outlined is-text is-small is-loading document-loading">
+          Loading
+        </button>
+      </div>
+      <div v-else
+           class="no-data-message">
+        No data found.
+        <div>
+          <span v-if="!selectedProxyTemplate?.id">
+            Missing document. To create a new one, click
+            <a title="Add new"
+               @click="addNewProxyTemplate()">
+              here
+            </a>
+          </span>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 <script lang="ts">
 import RequestsUtils from '@/assets/RequestsUtils'
-import {ProxyTemplate} from '@/types'
-// import _ from 'lodash'
+import {ProxyTemplate, HttpRequestMethods} from '@/types'
 import Utils from '@/assets/Utils'
 import {defineComponent} from 'vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
@@ -512,7 +583,8 @@ export default defineComponent({
     return {
       titles: DatasetsUtils.titles,
       selectedProxyTemplate: null as ProxyTemplate,
-      docIdFromRoute: '',
+      docs: [] as unknown as ProxyTemplate[],
+      selectedDocID: null,
 
       // Collapsible cards
       isFrontendCollapsed: false,
@@ -528,6 +600,8 @@ export default defineComponent({
       isSaveLoading: false,
       isDeleteLoading: false,
       isDownloadLoading: false,
+      isNewLoading: false,
+      isForkLoading: false,
 
       apiRoot: RequestsUtils.reblazeAPIRoot,
       apiVersion: RequestsUtils.reblazeAPIVersion,
@@ -571,7 +645,10 @@ export default defineComponent({
     selectedBranch: {
       handler: function(val, oldVal) {
         if ((this.$route.name as string).includes('ProxyTemplates/config') && val && val !== oldVal) {
+          this.loadDocs()
+          this.sortDocs()
           this.setSelectedDataFromRouteParams()
+          this.loadProxyTemplate()
           this.loadReferencedProxyTemplatesIDs()
         }
       },
@@ -601,12 +678,31 @@ export default defineComponent({
 
     ...mapStores(useBranchesStore),
 
+    selectedDocIndex(): number {
+      if (this.selectedDocID) {
+        return _.findIndex(this.docs, (doc) => {
+          return doc.id=== this.selectedDocID
+        })
+      }
+      return 0
+    },
   },
   methods: {
+
+    async goToRoute() {
+      const newRoute = `/${this.selectedBranch}/proxy-templates/config/${this.selectedDocID}`
+      if (this.$route.path !== newRoute) {
+        console.log('Switching document, new proxy templates document path: ' + newRoute)
+        await this.$router.push(newRoute)
+        await this.setSelectedDataFromRouteParams()
+      }
+    },
+
     async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
-      this.docIdFromRoute = this.$route.params?.doc_id?.toString()
+      this.selectedDocID = this.$route.params?.doc_id?.toString()
       await this.loadProxyTemplate()
+      this.setLoadingDocStatus(false)
     },
 
     redirectToList() {
@@ -625,6 +721,20 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
       await this.loadProxyTemplate()
+      this.setLoadingDocStatus(false)
+    },
+
+    async switchDocID() {
+      this.setLoadingDocStatus(true)
+
+      const docName = this.docs[this.selectedDocIndex].id
+      if (docName) {
+        Utils.toast(
+            `Switched to document ${docName} with ID "${this.selectedDocID}".`,
+            'is-info',
+        )
+      }
+      this.goToRoute()
       this.setLoadingDocStatus(false)
     },
 
@@ -652,23 +762,117 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
-    async saveChanges() {
-      this.isSaveLoading = true
-      const methodName = 'PUT'
-      const url = `configs/${this.selectedBranch}/d/proxy-templates/e/${this.selectedProxyTemplate.id}/`
-      const data = this.selectedProxyTemplate
+    newProxyTemplate(): ProxyTemplate {
+      const factory = DatasetsUtils.newOperationEntryFactory['proxy-templates']
+      return factory && factory()
+    },
+
+    async addNewProxyTemplate(proxyTemplateToAdd?: ProxyTemplate, successMessage?: string, failureMessage?: string) {
+      this.setLoadingDocStatus(true)
+      this.isNewLoading = true
+      this.selectedProxyTemplate = null
+      if (!proxyTemplateToAdd) {
+        proxyTemplateToAdd = this.newProxyTemplate()
+      }
       const proxyTemplateText = this.titles['proxy-templates-singular']
-      const successMessage = `Changes to the ${proxyTemplateText} were saved.`
-      const failureMessage = `Failed while attempting to save the changes to the ${proxyTemplateText}.`
+      if (!successMessage) {
+        successMessage = `New ${proxyTemplateText} was created.`
+      }
+      if (!failureMessage) {
+        failureMessage = `Failed while attempting to create the new ${proxyTemplateText}.`
+      }
+      const data = proxyTemplateToAdd
+      await this.saveChanges('POST', data, successMessage, failureMessage)
+
+      this.docs.unshift(proxyTemplateToAdd)
+      this.selectedDocID = proxyTemplateToAdd.id
+      this.sortDocs()
+
+      this.goToRoute()
+      this.isNewLoading = false
+      this.setLoadingDocStatus(false)
+    },
+
+
+    async saveChanges(methodName?: HttpRequestMethods, data?: ProxyTemplate, successMessage?:
+      string, failureMessage?: string) {
+      this.setLoadingDocStatus(true)
+      this.isSaveLoading = true
+      if (!methodName) {
+        methodName = 'PUT'
+      }
+      if (!data) {
+        data = this.selectedProxyTemplate
+      }
+      const url = `configs/${this.selectedBranch}/d/proxy-templates/e/${data.id}/`
+      const proxyTemplateText = this.titles['proxy-templates-singular']
+      if (!successMessage) {
+        successMessage = `Changes to the ${proxyTemplateText} were saved.`
+      }
+      if (!failureMessage) {
+        failureMessage = `Failed while attempting to save the changes to the ${proxyTemplateText}.`
+      }
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
       this.isSaveLoading = false
+      this.setLoadingDocStatus(false)
+    },
+
+    async forkDoc() {
+      this.setLoadingDocStatus(true)
+      this.isForkLoading = true
+      const docToAdd = _.cloneDeep(this.selectedProxyTemplate) as ProxyTemplate
+      docToAdd.name = 'copy of ' + docToAdd.name
+      docToAdd.id = DatasetsUtils.generateUUID2()
+
+      const docTypeText = this.titles['proxy-templates-singular']
+      const successMessage = `The ${docTypeText} was duplicated.`
+      const failureMessage = `Failed while attempting to duplicate the ${docTypeText}.`
+      await this.addNewProxyTemplate(docToAdd, successMessage, failureMessage)
+      this.isForkLoading = false
+      this.setLoadingDocStatus(false)
+    },
+
+    sortDocs() {
+      this.docs = _.sortBy(this.docs, [(doc) => doc.name.toLowerCase()])
+    },
+
+    async loadDocs() {
+      this.isDownloadLoading = true
+      this.setLoadingDocStatus(true)
+      const branch = this.selectedBranch
+      const url = `configs/${branch}/d/proxy-templates/`
+      this.selectedProxyTemplate = null
+      const response = await RequestsUtils.sendReblazeRequest({
+        methodName: 'GET',
+        url,
+        config: {headers: {'x-fields': 'id, name'}},
+        onFail: () => {
+          console.log('Error while attempting to load documents')
+          this.docs = []
+          this.isDownloadLoading = false
+        },
+      })
+      this.docs = response?.data || []
+      this.sortDocs()
+      if (this.docs && this.docs.length && this.docs[0].id) {
+        if (!_.find(this.docs, (doc: ProxyTemplate) => {
+          return doc.id === this.selectedDocID
+        })) {
+          this.selectedDocID = this.docs[0].id
+        }
+        await this.loadProxyTemplate()
+      }
+      this.setLoadingDocStatus(false)
+      this.isDownloadLoading = false
     },
 
     async loadProxyTemplate() {
+      this.setLoadingDocStatus(true)
       this.isDownloadLoading = true
+      this.selectedProxyTemplate = null
       const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
-        url: `configs/${this.selectedBranch}/d/proxy-templates/e/${this.docIdFromRoute}`,
+        url: `configs/${this.selectedBranch}/d/proxy-templates/e/${this.selectedDocID}`,
         onFail: () => {
           console.log(`Error while attempting to load the ${this.titles['proxy-template-singular']}`)
           this.selectedProxyTemplate = null
@@ -676,13 +880,8 @@ export default defineComponent({
         },
       })
       this.selectedProxyTemplate = response?.data || {}
-      if (!this.selectedProxyTemplate.conf_specific) {
-        this.selectedProxyTemplate.conf_specific = {value: ''}
-      }
-      if (!this.selectedProxyTemplate.ssl_conf_specific) {
-        this.selectedProxyTemplate.ssl_conf_specific = {value: ''}
-      }
       this.isDownloadLoading = false
+      this.setLoadingDocStatus(false)
     },
 
     async loadReferencedProxyTemplatesIDs() {

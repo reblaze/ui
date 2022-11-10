@@ -18,10 +18,56 @@
                   </span>
                 </button>
               </p>
+              <div class="control" v-if="docs.length">
+                <div class="select is-small">
+                  <select v-model="selectedDocID"
+                          title="Switch routing profiles document ID"
+                          @change="switchDocID()"
+                          class="routing-profiles-selection"
+                          data-qa="switch-routing-profiles-document">
+                          <option v-for="doc in docs"
+                            :key="doc.id"
+                            :value="doc.id">
+                      {{ doc.name }}
+                    </option>
+                  </select>
+                </div>
+              </div>
             </div>
           </div>
           <div class="column">
             <div class="field is-grouped is-pulled-right">
+              <p class="control">
+                <button class="button is-small new-routing-profile-button"
+                        :class="{'is-loading': isNewLoading}"
+                        @click="addNewRoutingProfile()"
+                        title="Add new routing profile document"
+                        :disabled="!selectedBranch"
+                        data-qa="add-new-document">
+                  <span class="icon is-small">
+                    <i class="fas fa-plus"></i>
+                  </span>
+                  <span>
+                    New
+                  </span>
+                </button>
+              </p>
+
+              <p class="control">
+                <button class="button is-small fork-document-button"
+                        :class="{'is-loading': isForkLoading}"
+                        @click="forkDoc()"
+                        title="Duplicate document"
+                        :disabled="!selectedRoutingProfile"
+                        data-qa="duplicate-document">
+                  <span class="icon is-small">
+                    <i class="fas fa-clone"></i>
+                  </span>
+                  <span>
+                    Duplicate
+                  </span>
+                </button>
+              </p>
               <p class="control">
                 <button class="button is-small download-doc-button"
                         :class="{'is-loading':isDownloadLoading}"
@@ -72,7 +118,7 @@
     </div>
     <hr/>
     <div class="content"
-         v-if="selectedRoutingProfile">
+         v-if="!loadingDocCounter && selectedBranch && selectedRoutingProfile">
       <div class="columns columns-divided">
         <div class="column is-4">
           <div class="field">
@@ -343,12 +389,33 @@
       </div>
       <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ documentAPIPath }}</span>
     </div>
+    <div class="content no-data-wrapper"
+         v-if="loadingDocCounter || !selectedBranch || !selectedRoutingProfile">
+      <div v-if="loadingDocCounter > 0">
+        <button class="button is-outlined is-text is-small is-loading document-loading">
+          Loading
+        </button>
+      </div>
+      <div v-else
+           class="no-data-message">
+        No data found.
+        <div>
+          <span v-if="!selectedRoutingProfile?.id">
+            Missing document. To create a new one, click
+            <a title="Add new"
+               @click="addNewRoutingProfile()">
+              here
+            </a>
+          </span>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 <script lang="ts">
 import _ from 'lodash'
 import RequestsUtils from '@/assets/RequestsUtils'
-import {BackendService, EdgeFunction, RoutingProfile, RoutingProfileEntryLocation} from '@/types'
+import {BackendService, EdgeFunction, HttpRequestMethods, RoutingProfile, RoutingProfileEntryLocation} from '@/types'
 import Utils from '@/assets/Utils'
 import {defineComponent} from 'vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
@@ -361,11 +428,15 @@ export default defineComponent({
   data() {
     return {
       loadingDocCounter: 0,
-      docIdFromRoute: '',
       isDownloadLoading: false,
       selectedRoutingProfile: null as RoutingProfile,
+      docs: [] as unknown as RoutingProfile[],
+      selectedDocID: null,
+
       isSaveLoading: false,
       isDeleteLoading: false,
+      isForkLoading: false,
+      isNewLoading: false,
       titles: DatasetsUtils.titles,
       formValid: true,
 
@@ -390,9 +461,12 @@ export default defineComponent({
     selectedBranch: {
       handler: function(val, oldVal) {
         if ((this.$route.name as string).includes('RoutingProfiles/config') && val && val !== oldVal) {
+          this.loadDocs()
+          this.sortDocs()
+          this.setSelectedDataFromRouteParams()
+          this.loadProfile()
           this.loadBackendServices()
           this.loadEdgeFunctions()
-          this.setSelectedDataFromRouteParams()
           this.loadReferencedRoutingProfilesIDs()
         }
       },
@@ -402,8 +476,7 @@ export default defineComponent({
   computed: {
     documentAPIPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
-      const selectedId = this.selectedRoutingProfile.id
-      return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/routing-profiles/e/${selectedId}/`
+      return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/routing-profiles/e/${this.selectedDocID}/`
     },
 
     selectedDocNotDeletable(): boolean {
@@ -421,12 +494,32 @@ export default defineComponent({
     },
 
     ...mapStores(useBranchesStore),
+
+    selectedDocIndex(): number {
+      if (this.selectedDocID) {
+        return _.findIndex(this.docs, (doc) => {
+          return doc.id=== this.selectedDocID
+        })
+      }
+      return 0
+    },
   },
   methods: {
+
+    async goToRoute() {
+      const newRoute = `/${this.selectedBranch}/routing-profiles/config/${this.selectedDocID}`
+      if (this.$route.path !== newRoute) {
+        console.log('Switching routing profiles document, new document path: ' + newRoute)
+        await this.$router.push(newRoute)
+        await this.setSelectedDataFromRouteParams()
+      }
+    },
+
     async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
-      this.docIdFromRoute = this.$route.params?.doc_id?.toString()
+      this.selectedDocID = this.$route.params?.doc_id?.toString()
       await this.loadProfile()
+      this.setLoadingDocStatus(false)
     },
 
     redirectToList() {
@@ -448,6 +541,20 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
+    async switchDocID() {
+      this.setLoadingDocStatus(true)
+
+      const docName = this.docs[this.selectedDocIndex].id
+      if (docName) {
+        Utils.toast(
+            `Switched to document ${docName} with ID "${this.selectedDocID}".`,
+            'is-info',
+        )
+      }
+      this.goToRoute()
+      this.setLoadingDocStatus(false)
+    },
+
     downloadDoc() {
       if (!this.isDownloadLoading) {
         Utils.downloadFile('routing-profile', 'json', this.selectedRoutingProfile)
@@ -458,7 +565,7 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       this.isDeleteLoading = true
       const routingProfileText = this.titles['routing-profiles-singular']
-      const url = `configs/${this.selectedBranch}/d/routing-profiles/e/${this.selectedRoutingProfile.id}/`
+      const url = `configs/${this.selectedBranch}/d/routing-profiles/e/${this.selectedDocID}/`
       const successMessage = `The ${routingProfileText} was deleted.`
       const failureMessage = `Failed while attempting to delete the ${routingProfileText}.`
       await RequestsUtils.sendReblazeRequest({
@@ -472,31 +579,126 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
-    async saveChanges() {
-      this.isSaveLoading = true
-      const methodName = 'PUT'
-      const url = `configs/${this.selectedBranch}/d/routing-profiles/e/${this.selectedRoutingProfile.id}/`
-      const data = this.selectedRoutingProfile
+    newRoutingProfile(): RoutingProfile {
+      const factory = DatasetsUtils.newOperationEntryFactory['routing-profiles']
+      return factory && factory()
+    },
+
+    async addNewRoutingProfile(profileToAdd?: RoutingProfile, successMessage?: string, failureMessage?: string) {
+      this.setLoadingDocStatus(true)
+      this.isNewLoading = true
+      this.selectedRoutingProfile = null
+      if (!profileToAdd) {
+        profileToAdd = this.newRoutingProfile()
+      }
+      this.docs.unshift(profileToAdd)
+      this.selectedDocID = profileToAdd.id
+      this.sortDocs()
       const routingProfileText = this.titles['routing-profiles-singular']
-      const successMessage = `Changes to the ${routingProfileText} were saved.`
-      const failureMessage = `Failed while attempting to save the changes to the ${routingProfileText}.`
+      if (!successMessage) {
+        successMessage = `New ${routingProfileText} was created.`
+      }
+      if (!failureMessage) {
+        failureMessage = `Failed while attempting to create the new ${routingProfileText}.`
+      }
+      const data = profileToAdd
+      await this.saveChanges('POST', data, successMessage, failureMessage)
+
+      this.goToRoute()
+      this.isNewLoading = false
+      this.setLoadingDocStatus(false)
+    },
+
+    async saveChanges(methodName?: HttpRequestMethods, data?: RoutingProfile,
+                      successMessage?: string, failureMessage?: string) {
+      this.setLoadingDocStatus(true)
+      this.isSaveLoading = true
+      if (!methodName) {
+        methodName = 'PUT'
+      }
+      if (!data) {
+        data = this.selectedRoutingProfile
+      }
+      const url = `configs/${this.selectedBranch}/d/routing-profiles/e/${data.id}/`
+      const routingProfileText = this.titles['routing-profiles-singular']
+      if (!successMessage) {
+        successMessage = `Changes to the ${routingProfileText} were saved.`
+      }
+      if (!failureMessage) {
+        failureMessage = `Failed while attempting to save the changes to the ${routingProfileText}.`
+      }
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
       this.isSaveLoading = false
+      this.setLoadingDocStatus(false)
+    },
+
+    async forkDoc() {
+      this.setLoadingDocStatus(true)
+      this.isForkLoading = true
+      const docToAdd = _.cloneDeep(this.selectedRoutingProfile) as RoutingProfile
+      docToAdd.name = 'copy of ' + docToAdd.name
+      docToAdd.id = DatasetsUtils.generateUUID2()
+
+      const docTitleName = this.titles['routing-profiles-singular']
+      const successMessage = `The ${docTitleName} was duplicated.`
+      const failureMessage = `Failed while attempting to duplicate the ${docTitleName}.`
+      await this.addNewRoutingProfile(docToAdd, successMessage, failureMessage)
+      this.isForkLoading = false
+      this.setLoadingDocStatus(false)
+    },
+
+    sortDocs() {
+      this.docs = _.sortBy(this.docs, [(doc) => doc.name.toLowerCase()])
+    },
+
+    async loadDocs() {
+      this.isDownloadLoading = true
+      this.setLoadingDocStatus(true)
+      this.selectedRoutingProfile = null
+      const branch = this.selectedBranch
+      const url = `configs/${branch}/d/routing-profiles/`
+
+      const response = await RequestsUtils.sendReblazeRequest({
+        methodName: 'GET',
+        url,
+        config: {headers: {'x-fields': 'id, name'}},
+        onFail: () => {
+          console.log('Error while attempting to load documents')
+          this.docs = []
+          this.isDownloadLoading = false
+        },
+      })
+      this.docs = response?.data || []
+      this.sortDocs()
+      if (this.docs && this.docs.length && this.docs[0].id) {
+        if (!_.find(this.docs, (doc: RoutingProfile) => {
+          return doc.id === this.selectedDocID
+        })) {
+          this.selectedDocID = this.docs[0].id
+        }
+        await this.loadProfile()
+      }
+      this.setLoadingDocStatus(false)
+      this.isDownloadLoading = false
     },
 
     async loadProfile() {
+      this.setLoadingDocStatus(true)
       this.isDownloadLoading = true
+      this.selectedRoutingProfile = null
       const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
-        url: `configs/${this.selectedBranch}/d/routing-profiles/e/${this.docIdFromRoute}`,
+        url: `configs/${this.selectedBranch}/d/routing-profiles/e/${this.selectedDocID}`,
         onFail: () => {
           console.log('Error while attempting to load the Routing Profile')
           this.selectedRoutingProfile = null
           this.isDownloadLoading = false
+          this.setLoadingDocStatus(false)
         },
       })
       this.selectedRoutingProfile = response?.data || {}
       this.isDownloadLoading = false
+      this.setLoadingDocStatus(false)
     },
 
     validateInput(event: Event, validator: Function | boolean) {
@@ -552,6 +754,9 @@ export default defineComponent({
     },
 
     addNewProfile(mapEntry: RoutingProfileEntryLocation, idx: number) {
+      this.setLoadingDocStatus(true)
+      this.isNewLoading = true
+      this.selectedRoutingProfile = null
       const newMapEntry = _.cloneDeep(mapEntry)
       const newMapEntryId = DatasetsUtils.generateUUID2()
       newMapEntry.id = newMapEntryId

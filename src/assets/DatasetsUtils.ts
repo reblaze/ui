@@ -286,9 +286,10 @@ const newDocEntryFactory: { [key: string]: Function } = {
   },
 
   'cloud-functions'(): EdgeFunction {
+    const id = generateUUID2()
     return {
-      'id': generateUUID2(),
-      'name': 'New Edge Function',
+      'id': id,
+      'name': 'New Edge Function ' + id,
       'description': 'New Edge Function Description and Remarks',
       'phase': 'request',
       'code': `-- begin custom code
@@ -355,9 +356,10 @@ const newOperationEntryFactory: { [key: string]: Function } = {
   },
 
   'routing-profiles'(): RoutingProfile {
+    const id = generateUUID2()
     return {
-      'id': generateUUID2(),
-      'name': 'New Routing Profile ' + generateUUID2(), // TODO: Remove this random uuid once names are no longer unique
+      'id': id,
+      'name': 'New Routing Profile ' + id, // TODO: Remove this random uuid once names are no longer unique
       'description': 'New Routing Profile Description and Remarks',
       'locations': [
         {
@@ -375,12 +377,8 @@ const newOperationEntryFactory: { [key: string]: Function } = {
       'id': generateUUID2(),
       'name': 'New Mobile SDK ' + generateUUID2(), // TODO: Remove this random uuid once names are no longer unique
       'description': 'New Mobile SDK Description and Remarks',
-      'secret': '',
-      'var_name': '',
       'uid_header': 'authorization',
       'grace': '5',
-      'grace_var_name': '',
-      'validator_type': '',
       'active_config': [
         {
           'active': true,
@@ -389,20 +387,20 @@ const newOperationEntryFactory: { [key: string]: Function } = {
         },
       ],
       'signatures': [],
-      'support_legacy_sdk': false,
     }
   },
 
   'proxy-templates'(): ProxyTemplate {
+    const id = generateUUID2()
     return {
-      'id': generateUUID2(),
-      'name': 'New Proxy Template ' + generateUUID2(), // TODO: Remove this random uuid once names are no longer unique
+      'id': id,
+      'name': 'New Proxy Template ' + id, // TODO: Remove this random uuid once names are no longer unique
       'description': 'New Proxy Template Description and Remarks',
       'acao_header': false,
       'client_body_timeout': '5',
       'client_header_timeout': '5',
       'client_max_body_size': '150',
-      'conf_specific': {'value': ''},
+      'conf_specific': '',
       'custom_listener': false,
       'keepalive_timeout': '660',
       'limit_req_rate': '1200',
@@ -412,7 +410,7 @@ const newOperationEntryFactory: { [key: string]: Function } = {
       'proxy_read_timeout': '60',
       'proxy_send_timeout': '30',
       'send_timeout': '5',
-      'ssl_conf_specific': {'value': ''},
+      'ssl_conf_specific': '',
       'upstream_host': '$host',
       'xff_header_name': 'X-Forwarded-For',
       'xrealip_header_name': 'X-Real-IP',
@@ -420,9 +418,10 @@ const newOperationEntryFactory: { [key: string]: Function } = {
   },
 
   'backends'(): BackendService {
+    const id = generateUUID2()
     return {
-      'id': generateUUID2(),
-      'name': 'New Backend Service ' + generateUUID2(), // TODO: Remove this random uuid once names are no longer unique
+      'id': id,
+      'name': 'New Backend Service ' + id, // TODO: Remove this random uuid once names are no longer unique
       'description': 'New Backend Service Description and Remarks',
       'least_conn': false,
       'http11': true,
@@ -432,7 +431,7 @@ const newOperationEntryFactory: { [key: string]: Function } = {
         'http_port': 80,
         'https_port': 443,
         'weight': 1,
-        'fail_timeout': '10s',
+        'fail_timeout': 10,
         'monitor_state': '',
         'down': false,
         'host': '127.0.0.1',
