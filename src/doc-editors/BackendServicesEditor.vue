@@ -293,6 +293,7 @@
               <td class="is-size-7 width-100px">
                 <input class="input is-small back-host-fail-timeout"
                        data-qa="back-host-fail-timeout-input"
+                       type="number"
                        title="Fail timeout"
                        placeholder="Fail timeout"
                        v-model="backHost.fail_timeout">
