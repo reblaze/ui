@@ -29,13 +29,21 @@
                 </template>
       </rbz-table>
     </div>
+    <div class="content no-data-wrapper"
+         v-if="!selectedBranch || !quarantinedData">
+      <div v-if="loadingDocCounter > 0">
+        <button class="button is-outlined is-text is-small is-loading document-loading">
+          Loading
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import {defineComponent} from 'vue'
 import RbzTable from '@/components/RbzTable.vue'
-import {ColumnOptions, Quarantined} from '@/types'
+import {ColumnOptions, Quarantined, DynamicRule} from '@/types'
 import DateTimeUtils from '@/assets/DateTimeUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import {mapStores} from 'pinia'
@@ -96,19 +104,32 @@ export default defineComponent({
           classes: 'width-130px',
         },
         {
-          title: 'Rule',
+          title: 'Expires',
+          fieldNames: ['expires'],
+          displayFunction: (item: Quarantined) => {
+            const dynamicRules: {id: string, name: string, ttl: number} =
+              _.find(this.dynamicRulesNames, (dynamicRule) => {
+                return dynamicRule.id === item.rule_id
+              })
+            const newDate = new Date((item['last_seen'] + dynamicRules?.ttl) * 1000)
+            return newDate || ''
+          },
+          isSortable: true,
+          isSearchable: true,
+          classes: 'width-140px vertical-scroll',
+        },
+        {
+          title: 'Dynamic Rule',
           fieldNames: ['rule_id'],
           displayFunction: (item: Quarantined) => {
-            console.log('item.rule_id', item.rule_id)
             const dynamicRules: {id: string, name: string} = _.find(this.dynamicRulesNames, (dynamicRule) => {
               return dynamicRule.id === item.rule_id
             })
-            console.log('dynamicRules', dynamicRules)
             return dynamicRules?.name || ''
           },
           isSortable: true,
           isSearchable: true,
-          classes: 'width-130px',
+          classes: 'width-140px vertical-scroll',
         },
         {
           title: 'Tags',
@@ -118,12 +139,13 @@ export default defineComponent({
             return item.tags?.join('\n')
           },
           isSearchable: true,
-          classes: 'vertical-scroll ellipsis white-space-pre',
+          classes: 'vertical-scroll width-140px white-space-pre',
         },
       ] as ColumnOptions[],
       quarantinedData: null as Quarantined[],
       selectedArray: [] as string[],
       dynamicRulesNames: [] as {id: string, name: string}[],
+      loadingDocCounter: 0,
     }
   },
   watch: {
@@ -139,28 +161,40 @@ export default defineComponent({
   },
   computed: {
     selectedBranch(): string {
-      return this.branchesStore.selectedBranchId
+      return this.branchesStore.selectedBranchId || 'prod'
     },
 
     ...mapStores(useBranchesStore),
   },
   methods: {
+
+    setLoadingDocStatus(isLoading: boolean) {
+      if (isLoading) {
+        this.loadingDocCounter++
+      } else {
+        this.loadingDocCounter--
+      }
+    },
+
     loadDynamicRules() {
+      this.setLoadingDocStatus(true)
       RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/dynamic-rules/`,
-        config: {headers: {'x-fields': 'id, name'}},
-      }).then((response: AxiosResponse<{id: string, name: string}>) => {
-        this.dynamicRulesNames = _.map(response.data, (id, name) => {
-          return {id, name}
+        config: {headers: {'x-fields': 'id, name, ttl'}},
+      }).then((response: AxiosResponse<DynamicRule[]>) => {
+        this.dynamicRulesNames = _.map(response.data, (rule) => {
+          return {id: rule.id, name: rule.name, ttl: rule.ttl}
         })
       })
+      this.setLoadingDocStatus(false)
     },
 
     updateSelected(selectedBoxes: string[]) {
       this.selectedArray = [...selectedBoxes]
     },
     async loadQuarantinedData() {
+      this.setLoadingDocStatus(true)
       const url = 'query'
       const config = {headers: {'provider': 'mongodb'}}
       const data = {
@@ -181,6 +215,7 @@ export default defineComponent({
         return {...result, id: result._id}
       })
       this.selectedArray = []
+      this.setLoadingDocStatus(false)
     },
 
     async deleteQuarantinedElement(id?: string) {
@@ -202,6 +237,7 @@ export default defineComponent({
       this.loadQuarantinedData()
     },
     async deleteSelectedRows() {
+      this.setLoadingDocStatus(true)
       const toDeleteArray = this.selectedArray.map((rowId) => {
         return {'$oid': rowId}
       })
@@ -221,12 +257,12 @@ export default defineComponent({
       }
       await RequestsUtils.sendDataLayerRequest({methodName: 'POST', url, data, config})
       this.loadQuarantinedData()
+      this.setLoadingDocStatus(false)
     },
   },
   async created() {
     await this.branchesStore.list
     this.loadDynamicRules()
-    console.log('dynamicRulesNames', this.dynamicRulesNames)
   },
 })
 
