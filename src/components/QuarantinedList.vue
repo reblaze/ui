@@ -65,7 +65,7 @@ export default defineComponent({
           fieldNames: ['target'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-130px',
+          classes: 'width-130px ellipsis',
         },
         {
           title: 'Value',
@@ -111,12 +111,14 @@ export default defineComponent({
               _.find(this.dynamicRulesNames, (dynamicRule) => {
                 return dynamicRule.id === item.rule_id
               })
-            const newDate = new Date((item['last_seen'] + dynamicRules?.ttl) * 1000)
-            return newDate || ''
+            const lastSeen = item['last_seen'] ? item['last_seen'] : 0
+            const ttl = dynamicRules?.ttl ? dynamicRules?.ttl : 0
+            const newDate = new Date((lastSeen + ttl) * 1000)
+            return DateTimeUtils.isoToNowCuriefenseFormat(newDate) || ''
           },
           isSortable: true,
           isSearchable: true,
-          classes: 'width-140px vertical-scroll',
+          classes: 'width-130px',
         },
         {
           title: 'Dynamic Rule',
@@ -125,11 +127,11 @@ export default defineComponent({
             const dynamicRules: {id: string, name: string} = _.find(this.dynamicRulesNames, (dynamicRule) => {
               return dynamicRule.id === item.rule_id
             })
-            return dynamicRules?.name || ''
+            return dynamicRules?.name.trim() || ''
           },
           isSortable: true,
           isSearchable: true,
-          classes: 'width-140px vertical-scroll',
+          classes: 'width-130px ellipsis',
         },
         {
           title: 'Tags',
@@ -139,7 +141,7 @@ export default defineComponent({
             return item.tags?.join('\n')
           },
           isSearchable: true,
-          classes: 'vertical-scroll width-140px white-space-pre',
+          classes: 'vertical-scroll ellipsis width-120px',
         },
       ] as ColumnOptions[],
       quarantinedData: null as Quarantined[],
