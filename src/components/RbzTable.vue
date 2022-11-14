@@ -17,7 +17,7 @@
               <input type="checkbox"
                       title="Select all rows"
                       ref="check-box"
-                      :checked="selectedArray.length === dataArrayDisplay.length"
+                      :checked="(selectedArray.length === dataArrayDisplay.length) && !!dataArrayDisplay.length"
                       class="is-small header-checkbox"
                       @click="selectAll()" />
           </div>

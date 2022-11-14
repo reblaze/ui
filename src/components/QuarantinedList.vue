@@ -1,6 +1,7 @@
 <template>
   <div class="card-content">
-    <div class="content">
+    <div class="content"
+          v-if="quarantinedData && !loadingDocCounter">
       <rbz-table :columns="columns"
                  :data="quarantinedData"
                  :default-sort-column-index="1"
@@ -29,6 +30,14 @@
                 </template>
       </rbz-table>
     </div>
+    <div class="content no-data-wrapper"
+         v-if="!selectedBranch || !quarantinedData">
+      <div v-if="loadingDocCounter > 0">
+        <button class="button is-outlined is-text is-small is-loading document-loading">
+          Loading
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -40,6 +49,7 @@ import DateTimeUtils from '@/assets/DateTimeUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
+import _ from 'lodash'
 
 
 export default defineComponent({
@@ -51,18 +61,11 @@ export default defineComponent({
     return {
       columns: [
         {
-          title: 'ID',
-          fieldNames: ['id'],
-          isSortable: true,
-          isSearchable: true,
-          classes: 'ellipsis',
-        },
-        {
           title: 'Key Parameter',
           fieldNames: ['target'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-130px',
+          classes: 'width-110px ellipsis',
         },
         {
           title: 'Value',
@@ -101,11 +104,34 @@ export default defineComponent({
           classes: 'width-130px',
         },
         {
-          title: 'Rules',
-          fieldNames: ['rule_id'],
+          title: 'Expires',
+          fieldNames: ['expires'],
+          displayFunction: (item: Quarantined) => {
+            const dynamicRules: {id: string, name: string, ttl: number} =
+              _.find(this.dynamicRulesNames, (dynamicRule) => {
+                return dynamicRule.id === item.rule_id
+              })
+            const lastSeen = item['last_seen'] ? item['last_seen'] : 0
+            const ttl = dynamicRules?.ttl ? dynamicRules?.ttl : 0
+            const newDate = new Date((lastSeen + ttl) * 1000)
+            return DateTimeUtils.isoToNowCuriefenseFormat(newDate) || ''
+          },
           isSortable: true,
           isSearchable: true,
-          classes: 'width-50px',
+          classes: 'width-130px',
+        },
+        {
+          title: 'Dynamic Rule',
+          fieldNames: ['rule_id'],
+          displayFunction: (item: Quarantined) => {
+            const dynamicRules: {id: string, name: string} = _.find(this.dynamicRulesNames, (dynamicRule) => {
+              return dynamicRule.id === item.rule_id
+            })
+            return dynamicRules?.name.trim() || ''
+          },
+          isSortable: true,
+          isSearchable: true,
+          classes: 'width-130px ellipsis',
         },
         {
           title: 'Tags',
@@ -115,17 +141,20 @@ export default defineComponent({
             return item.tags?.join('\n')
           },
           isSearchable: true,
-          classes: 'width-130px white-space-pre',
+          classes: 'vertical-scroll ellipsis width-100px white-space-pre',
         },
       ] as ColumnOptions[],
       quarantinedData: null as Quarantined[],
       selectedArray: [] as string[],
+      dynamicRulesNames: [] as {id: string, name: string}[],
+      loadingDocCounter: 0,
     }
   },
   watch: {
     selectedBranch: {
       handler: function(val, oldVal) {
         if ((this.$route.name as string).includes('Quarantined') && val && val !== oldVal) {
+          this.loadDynamicRules()
           this.loadQuarantinedData()
         }
       },
@@ -141,10 +170,34 @@ export default defineComponent({
   },
   methods: {
 
+    setLoadingDocStatus(isLoading: boolean) {
+      if (isLoading) {
+        this.loadingDocCounter++
+      } else {
+        this.loadingDocCounter--
+      }
+    },
+
+    async loadDynamicRules() {
+      this.setLoadingDocStatus(true)
+      const response = await RequestsUtils.sendReblazeRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/dynamic-rules/`,
+        config: {headers: {'x-fields': 'id, name, ttl'}},
+      })
+      if (response?.data?.length) {
+        this.dynamicRulesNames = _.map(response.data, (rule) => {
+          return {id: rule.id, name: rule.name, ttl: rule.ttl}
+        })
+      }
+      this.setLoadingDocStatus(false)
+    },
+
     updateSelected(selectedBoxes: string[]) {
       this.selectedArray = [...selectedBoxes]
     },
     async loadQuarantinedData() {
+      this.setLoadingDocStatus(true)
       const url = 'query'
       const config = {headers: {'provider': 'mongodb'}}
       const data = {
@@ -165,6 +218,7 @@ export default defineComponent({
         return {...result, id: result._id}
       })
       this.selectedArray = []
+      this.setLoadingDocStatus(false)
     },
 
     async deleteQuarantinedElement(id?: string) {
@@ -186,6 +240,7 @@ export default defineComponent({
       this.loadQuarantinedData()
     },
     async deleteSelectedRows() {
+      this.setLoadingDocStatus(true)
       const toDeleteArray = this.selectedArray.map((rowId) => {
         return {'$oid': rowId}
       })
@@ -205,6 +260,7 @@ export default defineComponent({
       }
       await RequestsUtils.sendDataLayerRequest({methodName: 'POST', url, data, config})
       this.loadQuarantinedData()
+      this.setLoadingDocStatus(false)
     },
   },
   async created() {
