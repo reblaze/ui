@@ -146,6 +146,11 @@ export default defineComponent({
           title: 'Prometheus',
           external: true,
         },
+        {
+          href: '/premium',
+          title: 'Premium',
+          external: true,
+        },
         // {
         //   href: '/events-log',
         //   title: 'Events Log',

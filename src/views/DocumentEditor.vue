@@ -302,7 +302,7 @@ export default defineComponent({
             this.selectedDocMatchingGlobalFilter = docMatchingGlobalFilter
           } else {
             this.setLoadingDocStatus(true)
-            const url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${val}/`
+            const url = `configs/${this.selectedBranch}/d/global-filters/e/dr_${val}/`
             const response = await RequestsUtils.sendRequest({methodName: 'GET', url})
             this.selectedDocMatchingGlobalFilter = response.data
             this.setLoadingDocStatus(false)

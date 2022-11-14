@@ -158,7 +158,7 @@ export default defineComponent({
       handler: async function(val, oldVal) {
         if ((this.$route.name as string).includes('DynamicRules/list') && val && val !== oldVal) {
           await this.loadDynamicRulesData()
-          this.loadCustomResponses()
+          // this.loadCustomResponses()
         }
       },
       immediate: true,
