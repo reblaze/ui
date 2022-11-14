@@ -9,7 +9,7 @@
         <div class="column width-220px">
           <side-menu></side-menu>
         </div>
-        <div class="column">
+        <div class="column width-200">
           <div class="card is-fullheight has-overflow-y-auto"
           ref="viewCardScroll">
             <router-view></router-view>
@@ -65,4 +65,7 @@ html {
   width: 100%;
 }
 
+.width-220 {
+  width: calc(100% - 220px);
+}
 </style>

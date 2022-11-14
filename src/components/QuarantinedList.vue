@@ -65,7 +65,7 @@ export default defineComponent({
           fieldNames: ['target'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-130px ellipsis',
+          classes: 'width-110px ellipsis',
         },
         {
           title: 'Value',
@@ -141,7 +141,7 @@ export default defineComponent({
             return item.tags?.join('\n')
           },
           isSearchable: true,
-          classes: 'vertical-scroll ellipsis width-120px white-space-pre',
+          classes: 'vertical-scroll ellipsis width-100px white-space-pre',
         },
       ] as ColumnOptions[],
       quarantinedData: null as Quarantined[],
@@ -185,7 +185,6 @@ export default defineComponent({
         url: `configs/${this.selectedBranch}/d/dynamic-rules/`,
         config: {headers: {'x-fields': 'id, name, ttl'}},
       })
-      // .then((response: AxiosResponse<DynamicRule[]>) => {
       this.dynamicRulesNames = _.map(response.data, (rule) => {
         return {id: rule.id, name: rule.name, ttl: rule.ttl}
       })
