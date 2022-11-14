@@ -6,10 +6,10 @@
     <br/>
     <div class="content-container is-fullheight">
       <div class="columns">
-        <div class="column width-220px">
+        <div class="column side-menu-column">
           <side-menu></side-menu>
         </div>
-        <div class="column width-200">
+        <div class="column router-view-column">
           <div class="card is-fullheight has-overflow-y-auto"
           ref="viewCardScroll">
             <router-view></router-view>
@@ -50,6 +50,9 @@ export default defineComponent({
 })
 </script>
 <style scoped lang="scss">
+$side-menu-width: 220px;
+$router-view-width: calc(100% - #{$side-menu-width});
+
 html {
   background: hsl(206, 23%, 94%);
 }
@@ -65,7 +68,16 @@ html {
   width: 100%;
 }
 
-.width-220 {
-  width: calc(100% - 220px);
+.side-menu-column {
+  max-width: $side-menu-width;
+  min-width: $side-menu-width;
+  width: $side-menu-width;
 }
+
+.router-view-column {
+  max-width: $router-view-width;
+  min-width: $router-view-width;
+  width: $router-view-width;
+}
+
 </style>

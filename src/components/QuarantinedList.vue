@@ -185,7 +185,7 @@ export default defineComponent({
         url: `configs/${this.selectedBranch}/d/dynamic-rules/`,
         config: {headers: {'x-fields': 'id, name, ttl'}},
       })
-      if (response.data && response.data.length > 0) {
+      if (response?.data?.length) {
         this.dynamicRulesNames = _.map(response.data, (rule) => {
           return {id: rule.id, name: rule.name, ttl: rule.ttl}
         })
