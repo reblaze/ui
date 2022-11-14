@@ -1,6 +1,7 @@
 <template>
   <div class="card-content">
-    <div class="content">
+    <div class="content"
+          v-if="quarantinedData && !loadingDocCounter">
       <rbz-table :columns="columns"
                  :data="quarantinedData"
                  :default-sort-column-index="1"
@@ -43,12 +44,11 @@
 <script lang="ts">
 import {defineComponent} from 'vue'
 import RbzTable from '@/components/RbzTable.vue'
-import {ColumnOptions, Quarantined, DynamicRule} from '@/types'
+import {ColumnOptions, Quarantined} from '@/types'
 import DateTimeUtils from '@/assets/DateTimeUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
-import {AxiosResponse} from 'axios'
 import _ from 'lodash'
 
 
@@ -141,7 +141,7 @@ export default defineComponent({
             return item.tags?.join('\n')
           },
           isSearchable: true,
-          classes: 'vertical-scroll ellipsis width-120px',
+          classes: 'vertical-scroll ellipsis width-120px white-space-pre',
         },
       ] as ColumnOptions[],
       quarantinedData: null as Quarantined[],
@@ -163,7 +163,7 @@ export default defineComponent({
   },
   computed: {
     selectedBranch(): string {
-      return this.branchesStore.selectedBranchId || 'prod'
+      return this.branchesStore.selectedBranchId
     },
 
     ...mapStores(useBranchesStore),
@@ -178,16 +178,16 @@ export default defineComponent({
       }
     },
 
-    loadDynamicRules() {
+    async loadDynamicRules() {
       this.setLoadingDocStatus(true)
-      RequestsUtils.sendReblazeRequest({
+      const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/dynamic-rules/`,
         config: {headers: {'x-fields': 'id, name, ttl'}},
-      }).then((response: AxiosResponse<DynamicRule[]>) => {
-        this.dynamicRulesNames = _.map(response.data, (rule) => {
-          return {id: rule.id, name: rule.name, ttl: rule.ttl}
-        })
+      })
+      // .then((response: AxiosResponse<DynamicRule[]>) => {
+      this.dynamicRulesNames = _.map(response.data, (rule) => {
+        return {id: rule.id, name: rule.name, ttl: rule.ttl}
       })
       this.setLoadingDocStatus(false)
     },
@@ -264,7 +264,6 @@ export default defineComponent({
   },
   async created() {
     await this.branchesStore.list
-    this.loadDynamicRules()
   },
 })
 
