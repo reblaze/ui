@@ -1,5 +1,5 @@
 <template>
-<div class="modal is-active" v-if="deleteShown">
+<div class="modal is-active">
     <div class="modal-background">
         <div class="modal-card modal-location">
             <header class="modal-card-head">
@@ -24,8 +24,8 @@
                     </button>
                     <button
                         class="button is-small is-light is-outlined is-danger"
-                        :class="{'is-loading': is_loading}"
-                        @click="deleteCertificate(clickedRow)">
+                        :class="{'is-loading': isLoading}"
+                        @click="deleteCertificate()">
                         Delete
                     </button>
                 </div>
@@ -35,6 +35,8 @@
 </div>
 </template>
 <script lang="ts">
+import DatasetsUtils from '@/assets/DatasetsUtils'
+import RequestsUtils from '@/assets/RequestsUtils'
 import {defineComponent} from 'vue'
 // import RequestsUtils from '@/assets/RequestsUtils'
 export default defineComponent({
@@ -43,20 +45,31 @@ export default defineComponent({
     clickedRow: String,
     selectedBranch: String,
   },
+
+  emits: ['deleteShownChanged', 'callLoadCertificate'],
+
   data() {
     return {
       attachedApps: '',
-      is_loading: false,
+      isLoading: false,
+      titles: DatasetsUtils.titles,
     }
   },
 
   methods: {
-    async deleteCertificate(clickedRow:any) {
-      /* TODO: after the backend finish - const url = `configs/${this.selectedBranch}/d/certificates/e/${clickedRow}`
-      await RequestsUtils.sendReblazeRequest({methodName: 'DELETE', url}).then(() => {
-        this.$emit('deleteShownChanged', false)
-      }) */
-      this.$emit('deleteClickedChanged', clickedRow)
+    async deleteCertificate() {
+      const certificateText = this.titles['certificate-singular']
+      const url = `configs/${this.selectedBranch}/d/certificates/e/${this.clickedRow}/`
+      const successMessage = `The ${certificateText} was deleted.`
+      const failureMessage = `Failed while attempting to delete the ${certificateText}.`
+      await RequestsUtils.sendReblazeRequest({
+        methodName: 'DELETE',
+        url: url,
+        successMessage,
+        failureMessage,
+      })
+      this.$emit('callLoadCertificate')
+      this.$emit('deleteShownChanged', false)
     },
   },
 })

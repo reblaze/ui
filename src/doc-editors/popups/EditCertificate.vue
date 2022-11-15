@@ -1,10 +1,7 @@
 <template>
-    <div class="modal is-active is-large" v-if="editShown">
-
+    <div class="modal is-active is-large">
         <div class="modal-background">
-
             <div class="modal-card is-size-7">
-
                 <header class="modal-card-head">
                     <h5 class="modal-card-title is-size-6 mb-0" :title="clickedRow">
                         Edit certificate - {{ clickedRow }}
@@ -12,7 +9,7 @@
                     <button class="delete" aria-label="close" @click="resetEditModal"></button>
                 </header>
                 <section class="modal-card-body">
-                    <loader v-if="is_loading"></loader>
+                    <!-- <loader v-if="isLoading"></loader> -->
                     <div v-if="getConnectedSitesForEditCert" class="control content is-small mb-2">
                         Connected sites:
                         <input :value="getConnectedSitesForEditCert"
@@ -25,34 +22,34 @@
                     <div class="control content is-small mb-2">
                       Certificate subject:
                       <input
-                        :value="subject"
+                        :value="localCert.subject"
                         class="input is-small"
-                        :title="subject"
+                        :title="localCert.subject"
                         type="text"
                         disabled />
                     </div>
                     <div class="control content is-small mb-2">
                       Certificate issuer:
                       <input
-                        :value="issuer"
+                        :value="localCert.issuer"
                         class="input is-small"
-                        :title="issuer"
+                        :title="localCert.issuer"
                         type="text"
                         disabled />
                     </div>
                     <div class="control content is-small mb-2">
                       SAN:
                       <input
-                        :value="san.toString()"
+                        :value="localCert.san.toString()"
                         class="input is-small"
-                        :title="san.toString()"
+                        :title="localCert.san.toString()"
                         type="text"
                         disabled />
                     </div>
                     <div class="control content is-small mb-2">
                       Certificate body:
                       <textarea
-                        v-html="cert_body"
+                        v-html="localCert.cert_body"
                         class="textarea is-small cert-body"
                         disabled />
                     </div>
@@ -60,8 +57,8 @@
                         <label class="checkbox is-align-items-center is-inline-flex">
                             <input
                                 type="checkbox"
-                                v-model="le_auto_replace"
-                                @click="changeUpdateLE"
+                                v-model="localCert.le_auto_replace"
+                                @change="updateLetsEncrypt = !updateLetsEncrypt"
                                 class="mr-1" />
                             Auto Replacement by&nbsp;
                             <a href="https://letsencrypt.org" target="_blank">Let's Encrypt</a>
@@ -79,45 +76,24 @@
                                 :class="{'is-active': isReplaceSelectedOnEdit}">
                                 <a>Replace existing certificates</a>
                             </li>
-                            <!-- TODO: don't sure what the porpuse of this code?
-                            {#
-                                <li
-                                    @click="certAction='pem'"
-                                    :class="{'is-active': isPem}">
-                                    <a>PEM</a>
-                                </li>
-                            #} -->
                         </ul>
                     </div>
                     <div class="edit-cert-action-container">
                         <div v-if="isAttachSelectedOnEdit">
                             <div class="field">
-                                <div class="is-size-7 pl-1">{{ selectedAppsLabel }}</div> <!-- TODO: ask Aviv what is this function -->
+                                <div class="is-size-7 pl-1">{{ selectedAppsLabel }}</div>
                                  <select v-model="selectedApps"
                                         class="select-apps"
                                         multiple
                                         title="Select links"
-                                        :loading="is_loading"
-                                        :option-height="25"> <!-- TODO: need to move it to style section style="width: 400px;" -->
-                                  <option v-for="name in sites.server_names"
-                                          :key="name"
-                                          :value="name">
-                                    {{ name }}
+                                        :loading="isLoading"
+                                        :option-height="10">
+                                  <option v-for="site in sites"
+                                          :key="site.id"
+                                          :value="site">
+                                    {{ site.name }}
                                   </option>
                                 </select>
-                                    <!-- TODO: ask Aviv about this section - what about the scope and slot atters <span class="option-wrapper" slot="option" slot-scope="scope">
-                                        <span
-                                            class="checkbox-label"
-                                            @click="scope.option.checked = !scope.option.checked; changeOption(scope.option.checked, scope.option.label)">
-                                            {{ scope.option.label }}
-                                        </span>
-                                        <input
-                                            type="checkbox"
-                                            :checked="scope.option.checked"
-                                            @change="changeOption($event.target.checked, scope.option.label)" />
-                                    </span>
-                                    <span slot="noResult">No apps found</span>
-                                    <span slot="noOptions">There are no apps to select</span>-->
                             </div>
                         </div>
                         <div v-if="isReplaceSelectedOnEdit">
@@ -125,14 +101,13 @@
                                 <div class="control">
                                     <div class="select is-small">
                                         <select v-model="selectedCertId" id="selectCert" style="width: 400px;">
-                                            <!-- TODO: add instead aaa the {{ assignedCertsNamesExceptCurrent.length ? 'Select certificate' : '-- No certificates to replace --' }} -->
                                             <option value='' disabled key='no_value'>
-                                                aaaa
+                                              {{ assignedCertsNamesExceptCurrent.length ? 'Select certificate' : '-- No certificates to replace --' }}
                                             </option>
                                             <option
-                                                v-for="(index, certId) in assignedCertsNamesExceptCurrent"
+                                                v-for="(certId, index) in assignedCertsNamesExceptCurrent"
                                                 :value="certId"
-                                                :key="certId">
+                                                :key="index">
                                                 {{ certId }}
                                             </option>
                                         </select>
@@ -140,37 +115,26 @@
                                 </div>
                             </div>
                         </div>
-                        <div v-if="isPem">
-                            <!-- TODO: need to add v-model="cert.cert_body" instead v-model="cert" -->
-                            <textarea
-                                    class="edit-pem"
-                                    v-model="cert">
-                            </textarea>
-                        </div>
                     </div>
                 </section>
                 <footer class="modal-card-foot columns">
                     <div class="column is-9">
-                        <!-- TODO write instead the corrent :action this :action="`/ssl/get/pfx/${cert._id}`" -->
-                        <form v-if="!is_loading" method="get" :action="`/ssl/get/pfx/`">
-                            <button class="button is-light has-text-info is-small" type="submit">
-                                Download PFX
-                            </button>
-                        </form>
+                      <button class="button is-light has-text-info is-small" type="submit" @click="downloadPFX">
+                          Download PFX
+                      </button>
                     </div>
                     <div class="column is-3 has-text-right">
                         <button
                             class="button is-small"
                             @click="resetEditModal"
-                            v-if="!is_loading">
+                            v-if="!isLoading">
                             Cancel
                         </button>
-                        <!-- TODO: add to button below in saveEditorCertificate(cert._id) -->
                         <button
-                            @click="saveEditCertificate()"
+                            @click="saveChanges"
                             :disabled="isSaveEditDisabled"
                             class="button is-small"
-                            :class="{ 'is-loading': is_loading }">
+                            :class="{ 'is-loading': isLoading }">
                             Save
                         </button>
                     </div>
@@ -180,18 +144,32 @@
     </div>
 </template>
 <script lang="ts">
-import {defineComponent} from 'vue'
+import RequestsUtils from '@/assets/RequestsUtils'
+import Utils from '@/assets/Utils'
+import {Certificate, GenericObject, Site} from '@/types'
+import _ from 'lodash'
+import {defineComponent, PropType} from 'vue'
 export default defineComponent({
   props: {
-    editShown: Boolean,
     clickedRow: String,
-    subject: String,
-    issuer: String,
-    san: Array<string>,
-    cert_body: String,
-    // TODO: needs to add this le_auto_replace: Boolean and remove this.le_auto_replace
-    sites: Object,
+    certificate: Object,
+    loadBalancer: Object,
+    sites: Array as PropType<Site[]>,
+    selectedBranch: String,
   },
+
+  emits: ['editShownChanged', 'callLoadCertificate'],
+
+  watch: {
+    assignedApps: {
+      handler: function(val) {
+        this.selectedApps = _.cloneDeep(val)
+      },
+      deep: true,
+      immediate: true,
+    },
+  },
+
   data() {
     return {
       CERT_FIELDS_LABELS: {
@@ -201,24 +179,24 @@ export default defineComponent({
         cert_body: 'Certificate body:',
       },
       cert: '',
-      selectedApps: [],
-      assignedApps: [],
+      selectedApps: [] as Site[],
       selectedCertId: '',
       certAction: 'attach_to_application',
-      is_loading: false,
-      update_le: false,
-      sites_by_cert_name_map: {},
+      isLoading: false,
+      updateLetsEncrypt: false,
       cnamesForSelect: [],
       searchMultiselect: '',
       multiselectOpen: false,
       balancers: [],
-      link_to_certificates_map: {},
-      test: false,
-      testArr: [] as string[],
-      le_auto_replace: false,
+      linkToCertificatesMap: {} as GenericObject,
+      headerResponse: {},
     }
   },
   computed: {
+    localCert(): Certificate {
+      return _.cloneDeep(this.certificate as Certificate)
+    },
+
     isAttachSelectedOnEdit() {
       return this.certAction === 'attach_to_application'
     },
@@ -227,21 +205,15 @@ export default defineComponent({
       return this.certAction === 'replace_certificate'
     },
 
-    isPem() {
-      return this.certAction === 'pem'
-    },
-
     isSaveEditDisabled() {
-      return !this.update_le && (!this.certActionSelected || this.isEditOptionNotSelected || this.is_loading)
+      return !this.updateLetsEncrypt && !this.isActiveEditOptionChanged
     },
 
-    isAttachedAppsChanged() {
-      return (this.assignedApps.some((app) => {
-        return !this.selectedApps.some((selected) => selected === app)
-      }) ||
-                this.selectedApps.some((app) => {
-                  return !this.assignedApps.some((assigned) => assigned === app)
-                }))
+    isActiveEditOptionChanged() {
+      const isAttachChanged = (_.differenceBy(this.selectedApps, this.assignedApps, 'id').length > 0) || (_.differenceBy(this.assignedApps, this.selectedApps, 'id').length > 0)
+      const isAttachActiveAndChanged = this.isAttachSelectedOnEdit && isAttachChanged
+      const isReplaceActiveAndChanged = this.isReplaceSelectedOnEdit && this.selectedCertId
+      return isAttachActiveAndChanged || isReplaceActiveAndChanged
     },
 
     selectedAppsLabel() {
@@ -250,53 +222,46 @@ export default defineComponent({
       return selectedLen + ' app' + s + ' selected'
     },
 
+    sitesByCertNameMap() {
+      const returnValue : {[key: string]: string[]} = {}
+      this.sites?.forEach((site: Site) => {
+        const certId = site.ssl_certificate
+        if (certId) {
+          if (!returnValue[certId]) {
+            returnValue[certId] = []
+          }
+          returnValue[certId].push(site.name)
+        }
+      })
+      return returnValue
+    },
+
     assignedCertsNames() {
-      const certs = new Set(Object.keys(this.sites_by_cert_name_map))
+      const certs = new Set(Object.keys(this.sitesByCertNameMap))
       this.balancers.forEach((bal) => bal.certificates.forEach(
-        /* TODO: (cert:any) => certs.add(this.link_to_certificates_map[cert]) */
+        (cert:string) => certs.add(this.linkToCertificatesMap[cert]),
       ))
       return [...certs]
     },
 
     assignedCertsNamesExceptCurrent() {
-      // TODO: return this.assignedCertsNames.filter(cert => cert !== this.cert._id)
-      return true
+      return this.assignedCertsNames.filter((cert) => cert !== this.localCert.id)
     },
 
     certCanReplaceByLE():any {
-      return !this.san || !this.san.toString().includes('*')
+      return !this.localCert.san || !this.localCert.san.toString().includes('*')
     },
 
     getConnectedSitesForEditCert():string {
-      /* TODO: if (this.sites_by_cert_name_map[this.cert._id]) {
-                return this.sites_by_cert_name_map[this.cert._id].join(' , ')
-            } */
+      if (this.sitesByCertNameMap[this.localCert.id]) {
+        return this.sitesByCertNameMap[this.localCert.id].join(' , ')
+      }
       return ''
     },
 
-    optionsMultiselect() {
-      const options = this.cnamesForSelect.map(
-                (opt) => ({label: opt, checked: this.assignedApps.includes(opt)}),
-      )
-      const filterCb = (re:any) => ({label}:any) => String(label).match(re)
-      return this.filterGrid(this.searchMultiselect, options, filterCb)
-    },
-
-    // TODO: this is really importent pice of code
-    isEditOptionNotSelected() {
-      const isAttachOptionNotSelected = this.isAttachSelectedOnEdit &&
-                                              this.selectedApps.length === this.assignedApps.length &&
-                                              !this.isAttachedAppsChanged
-      const isReplaceOptionNotSelected = this.isReplaceSelectedOnEdit && !this.selectedCertId
-      return isAttachOptionNotSelected || isReplaceOptionNotSelected
-    },
-    isEditOptionSelected() {
-      return !this.isEditOptionNotSelected
-    },
-
-    isRemovedAppsFromCert() {
-      return this.assignedApps.some((app) => {
-        return !this.selectedApps.includes(app)
+    assignedApps(): Site[] {
+      return _.filter(this.sites, (site: Site) => {
+        return site?.ssl_certificate === this.localCert.id
       })
     },
   },
@@ -305,132 +270,62 @@ export default defineComponent({
       this.$emit('editShownChanged', false)
       this.cert = ''
       this.selectedApps = []
-      this.assignedApps = []
       this.selectedCertId = ''
       this.certAction = 'attach_to_application'
-      this.update_le = false
     },
 
-    testF(event:any) {
-      if (!(this.testArr.find((item) => item === event.target.value)) && (event.target.value !== '')) {
-        this.testArr.push(event.target.value)
-      } else {
-        console.log('object')
+    // TODO: add type to providerLink as loadbalancer[link.certificate]
+    findLocalCertificateNameWithLink(providerLink:any) {
+      const gcpLink = _.find(this.certificate.links, (link) => {
+        return link.provider === 'gcp'
+      })
+      if (gcpLink?.link === providerLink) {
+        return this.certificate.id
       }
-      console.log(this.testArr.length)
-    },
-
-    changeUpdateLE() {
-      this.update_le = !this.update_le
-    },
-
-    filteredCertFields() {
-      return Object.keys(this.CERT_FIELDS_LABELS)
-    },
-
-    onSearchMultiselect(search:any) {
-      this.searchMultiselect = search
-    },
-
-    certActionSelected() {
-      return this.certAction !== ''
-    },
-
-    filterGrid(str:any, data:any, filterCallback:any) {
-      let result = data
-      const search = str.trim()
-      if (search) {
-        const doSearch = (s:any) => {
-          const re = new RegExp(s.replaceAll('.', '\\.'), 'i')
-          return result.filter(filterCallback(re))
-        }
-        try {
-          result = doSearch(search)
-        } catch (err) {
-          try {
-            result = doSearch(search.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'))
-          } catch (e) {
-            console.log(e)
-          }
-        }
+      const awsLink = _.find(this.certificate.links, (link) => {
+        return link.provider === 'aws'
+      })
+      if (awsLink?.link === providerLink) {
+        return this.certificate.id
       }
-      return result
+      const defaultCertName = providerLink.split('/')
+      return defaultCertName[defaultCertName.length - 1] + '(*)'
     },
 
-    async saveEditCertificate() { // TODO: add certId:any to the args
-      /* this.is_loading = true;
-            const getError = (err:any) => ([
-                `Failed to update certificate ${typeof err === 'string' ? `with error: ${err}` : ''}`,
-                true
-            ]);
-            let msg = [ `${certId} updated successfully`, false, false ];
-            if(this.isEditOptionSelected || this.update_le ) {
-                try {
-                    let newCertName =  certId
-                    let certCase = 'edit_certificate'
-                    let applicationNames
-                    let removedApps
-                    if ( this.isAttachSelectedOnEdit ) {
-                        // TODO: certData.applicationNames = this.selectedApps;
-                        if ( this.isRemovedAppsFromCert ) {
-                            removedApps = this.assignedApps.reduce (( apps, app ) => {
-                                if(!this.selectedApps.includes(app)) {
-                                    apps.push(app)
-                                }
-                                return apps
-                            }, []);
-                        }
-                    }
-                    if ( this.isReplaceSelectedOnEdit ) {
-                        certData.newCert = cert;
-                        certData.cert_to_replace_name = selectedCertId;
-                        certData.cert_to_replace = this.certificates.find (({ _id }: any) => _id === selectedCertId );
-                        certData.cert_to_replace.sites = this.sites_by_cert_name_map [ selectedCertId ];
-                    }
+    async downloadPFX() {
+      const url = `/configs/${this.selectedBranch}/d/certificates/e/${this.localCert.id}/pfx/`
+      const response = await RequestsUtils.sendReblazeRequest({
+        methodName: 'GET',
+        url: url,
+      })
+      console.log('response.data', response.data)
+      Utils.downloadFile('certificate', 'pfx', response.data)
+    },
 
-                    if ( this.isPem ) {
-                        certData.cert_body = cert.cert_body
-                    }
-
-                    const formData = new FormData();
-                    formData.append ( 'action', certAction );
-                    formData.append ( '_xsrf', _xsrf() );
-                    formData.append ( 'data', btoa ( JSON.stringify ( certData )));
-
-                    if ( this.update_le ) {
-                        formData.append ( 'update_le', true );
-                        formData.append ( 'le_auto_replace', cert.le_auto_replace );
-                        if ( cert.issuer.includes ( "Let's Encrypt" )) {
-                            cert.le_auto_renew = true;
-                        }
-                        formData.append ( 'le_auto_renew', cert.le_auto_renew );
-                    }
-
-                    const { data } = await axios ({
-                        method: 'post',
-                        url: '/ssl-gcp',
-                        data: formData,
-                        headers: { 'Content-Type': 'multipart/form-data' }
-                    });
-                    if ( data.error ) {
-                        msg = getError ( data.error );
-                    }
-                    else {
-                        this.certificatesList = [];
-                        this.resetEditModal();
-                        await this.getLoadBalancers();
-                    }
-                }
-                catch ( e ) {
-                    msg = getError();
-                }
-            }
-            this.notify ( ...msg );
-            this.is_loading = false; */
+    async saveChanges() {
+      const sitesToRemove = _.differenceBy(this.assignedApps, this.selectedApps, 'id')
+      const sitesToAdd = _.differenceBy(this.selectedApps, this.assignedApps, 'id')
+      const methodName = 'PUT'
+      sitesToRemove.forEach(async (site: Site) => {
+        const url = `configs/${this.selectedBranch}/d/sites/e/${site.id}/`
+        site.ssl_certificate = ''
+        await RequestsUtils.sendReblazeRequest({methodName: methodName, url, data: site})
+      })
+      sitesToAdd.forEach(async (site: Site) => {
+        const url = `configs/${this.selectedBranch}/d/sites/e/${site.id}/`
+        site.ssl_certificate = this.localCert.id
+        await RequestsUtils.sendReblazeRequest({methodName: methodName, url, data: site})
+      })
+      const urlArgs = `?le_auto_renew=${this.localCert.le_auto_renew}&le_auto_replace=${this.localCert.le_auto_replace}`
+      const url = `configs/${this.selectedBranch}/d/certificates/e/${this.localCert.id}${urlArgs}`
+      const data = this.localCert
+      await RequestsUtils.sendReblazeRequest({methodName: methodName, url, data})
+      this.$emit('editShownChanged', false)
+      this.$emit('callLoadCertificate')
     },
   },
   created() {
-    this.certCanReplaceByLE = this.le_auto_replace
+    this.linkToCertificatesMap = this.findLocalCertificateNameWithLink(this.loadBalancer?.default_certificate)
   },
 })
 </script>

@@ -15,6 +15,7 @@ import {
   RoutingProfile,
   SecurityPolicy,
   Site,
+  Certificate,
 } from '@/types'
 
 const titles: { [key: string]: string } = {
@@ -80,6 +81,8 @@ const titles: { [key: string]: string } = {
   'sites-singular': 'Server Group',
   'backends': 'Backends Services',
   'backends-singular': 'Backend Service',
+  'certificates': 'Certificates',
+  'certificate-singular': 'Certificate',
   'report': 'Report',
   'ignore': 'Ignore',
   'request': 'Request',
@@ -443,6 +446,15 @@ const newOperationEntryFactory: { [key: string]: Function } = {
         'max_fails': 0,
         'backup': false,
       }],
+    }
+  },
+
+  'certificate'(): Certificate {
+    const id = generateUUID2()
+    return {
+      'id': id,
+      'private_key': '',
+      'cert_body': '',
     }
   },
 }

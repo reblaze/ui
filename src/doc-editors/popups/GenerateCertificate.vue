@@ -1,14 +1,13 @@
 <template>
-<div class="modal is-active is-large" v-if="generateShown">
+<div class="modal is-active is-large">
   <div class="modal-background">
     <div class="modal-card is-size-7">
           <header class="modal-card-head">
-            <!-- TODO: ask Aviv about the h5 and h3 weight -->
               <h5 class="modal-card-title is-size-6 mb-0">Generate certificate</h5>
               <button class="delete" aria-label="close" @click="closeAndResetUploadModal"></button>
           </header>
           <section class="modal-card-body">
-              <loader v-if="is_loading"></loader>
+              <!-- <loader v-if="is_loading"></loader> -->
               <div class="tile is-3">
                   <div class="control modal-location">
                       <label for="manual" class="radio is-size-7">
@@ -130,13 +129,18 @@
 </div>
 </template>
 <script lang="ts">
-import axios from 'axios'
+import DatasetsUtils from '@/assets/DatasetsUtils'
+import RequestsUtils from '@/assets/RequestsUtils'
+import {Certificate} from '@/types'
 import {defineComponent} from 'vue'
 
 export default defineComponent({
   props: {
-    generateShown: Boolean,
+    selectedBranch: String,
   },
+
+  emits: ['generateShownChanged', 'callLoadCertificate'],
+
   data() {
     return {
       EMPTY_CERTIFICATE_FIELD: '-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----',
@@ -150,6 +154,7 @@ export default defineComponent({
       isExtracting: false,
       isManualInput: true,
       new_cert_name: '',
+      titles: DatasetsUtils.titles,
     }
   },
   computed: {
@@ -202,7 +207,7 @@ export default defineComponent({
     },
 
     loadFile({target}:any) {
-      const file = target.files[0]
+      const file: File = target.files[0]
       const extension = file.name.split('.').pop()
       if (extension === 'pfx') {
         this.certFile = file
@@ -217,73 +222,44 @@ export default defineComponent({
       if (this.certFile != null) {
         this.isExtracting = true
         const file = this.certFile
-        const fileName = this.certFile.name
+        const url = 'tools/certificates/extractpfx/'
         const formData = new FormData()
-        formData.append('action', 'extract')
-        formData.append('pfx_file', file, fileName)
-        formData.append('pfx_password', this.password)
-        try {
-          // TODO: requestUtiles call
-          const {data} = await axios({
-            method: 'post',
-            url: '/ssl-gcp',
-            data: formData,
-            headers: {'Content-Type': 'multipart/form-data'},
-          })
-          if (data.error) {
-            if (data.error.includes('invalid password')) {
-              if (!this.password) {
-                this.passwordMessage = 'Please provide password for pfx file'
-              } else {
-                this.passwordMessage = 'Invalid password'
-              }
-            } else {
-              throw new Error('Failed to extract certificate from file')
-            }
-          }
-          // success
-          this.private_key = data.private_key
-          this.certificate = data.cert_body
-          this.password = ''
-        } catch (err) {
-          console.log(err)
-        } finally {
-          this.isExtracting = false
-        }
+        formData.append('fileName', file, this.certFile.name)
+        formData.append('password', this.password)
+        const response = await RequestsUtils.sendReblazeRequest({
+          methodName: 'POST',
+          url,
+          data: formData,
+          config: {headers: {'Content-Type': 'multipart/form-data'}},
+        })
+        this.private_key = response?.data.private_key
+        this.certificate = response?.data.certificate_body
+        this.isExtracting = false
       }
+    },
+
+    newManualCertificate(): Certificate {
+      const factory = DatasetsUtils.newOperationEntryFactory['certificate']
+      return factory && factory()
     },
 
     async uploadManualInputCert() {
       this.is_loading = true
-      // get cert key and body
-      const data = {
-        certKey: this.private_key,
-        certBody: this.certificate,
-        case: 'new_certificate',
-      }
-      const formData = new FormData()
-      formData.append('action', 'upload_certificate')
-      formData.append('data', btoa(JSON.stringify(data)))
-      console.log(formData)
       try {
-        /* TODO: const {data} = await axios({
-          method: 'post',
-          url: '/ssl-gcp',
-          data: formData,
-          headers: {'Content-Type': 'multipart/form-data'},
+        const manualCertificateToAdd = this.newManualCertificate()
+        const siteText = this.titles['certificate-singular']
+        const successMessage = `New ${siteText} was created.`
+        const failureMessage = `Failed while attempting to create the new ${siteText}.`
+        const url = `configs/${this.selectedBranch}/d/certificates/e/${manualCertificateToAdd.id}`
+        manualCertificateToAdd['private_key'] = this.private_key
+        manualCertificateToAdd['cert_body'] = this.certificate
+        const data = manualCertificateToAdd
+        await RequestsUtils.sendReblazeRequest({methodName: 'POST', url, data, successMessage, failureMessage}).then(() => {
+          this.$emit('generateShownChanged', false)
+          this.$emit('callLoadCertificate')
         })
-        if (data.error) {
-          const msg = typeof data.error === 'string' ? data.error : 'unable to upload certificate'
-          throw new Error(msg)
-        }*/
-        // success
-        this.new_cert_name = ''
-        // TODO: emit the parent to load loadBalancers and loadCerteficates again
-        this.$emit('callLoaders')
-        this.closeAndResetUploadModal()
-        // this.new_cert_name = data.new_cert_name
-      } catch ({message}) {
-        console.log(message)
+      } catch (err) {
+        console.log(err)
       } finally {
         this.is_loading = false
       }

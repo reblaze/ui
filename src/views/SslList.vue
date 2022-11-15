@@ -106,25 +106,23 @@
         Loading
       </button>
     </div>
-  <generate-certificate :generateShown="generateShown"
+  <generate-certificate v-if="generateShown"
                         @generateShownChanged="generateShown = false"
-                        @callLoaders="callLoaders"/>
-  <delete-certificate :deleteShown="deleteShown"
+                        :selectedBranch="selectedBranch"
+                        @callLoadCertificate="callLoadCertificate"/>
+  <delete-certificate v-if="deleteShown"
                       @deleteShownChanged="deleteShown = false"
-                      @deleteClickedChanged="deleteCertificate"
                       :clickedRow="clickedRow"
                       :selectedBranch="selectedBranch"
-                      @callLoaders="callLoaders"/>
-  <edit-certificate :editShown="editShown"
+                      @callLoadCertificate="callLoadCertificate"/>
+  <edit-certificate v-if="editShown"
                       @editShownChanged="editShown = false"
                       :clickedRow="clickedRow"
-                      :subject="certificateByID.subject"
-                      :issuer="certificateByID.issuer"
-                      :san="certificateByID.san"
-                      :cert_body="certificateByID.cert_body"
-                      :le_auto_replace="certificateByID.le_auto_replace"
+                      :certificate="certificateByID"
+                      :certificates="certificates"
                       :sites="sites"
-                      @callLoaders="callLoaders"/>
+                      :selectedBranch="selectedBranch"
+                      @callLoadCertificate="callLoadCertificate"/>
   </div>
 
 </template>
@@ -216,46 +214,8 @@ export default defineComponent({
       apiRoot: RequestsUtils.reblazeAPIRoot,
       apiVersion: RequestsUtils.reblazeAPIVersion,
       clickedRow: null,
-      certificatesMock:
-        [
-          {
-            'cert_body': 'Cert body test',
-            'expires': '2022-10-18',
-            'id': 'planet-www-example.com-4a5b',
-            'issuer': 'Lets Encrypt',
-            'le_auto_renew': true,
-            'le_auto_replace': true,
-            'le_hash': '344ACF178F22A6CD086300EE37E4C0E21C5668E1',
-            'provider_links': {
-              'link': 'www.test.com',
-              'provider': 'test provider',
-              'region': 'test region',
-            },
-            'san': ['www.example.com', 'www.csccjhj.com'],
-            'subject': 'www.example.com',
-            'uploaded': '2017-07-21T17:32:28Z',
-          },
-          {
-            'cert_body': 'Cert body test2',
-            'expires': '2022-10-18 2',
-            'id': 'planet-www-example.com-4a5b 2',
-            'issuer': 'Lets Encrypt 2',
-            'le_auto_renew': true,
-            'le_auto_replace': true,
-            'le_hash': '344ACF178F22A6CD086300EE37E4C0E21C5668E1 2',
-            'provider_links': {
-              'link': 'www.test.com 2',
-              'provider': 'test provider 2',
-              'region': 'test region 2',
-            },
-            'san': ['www.example.com 2', 'www.csccjhj.com 2'],
-            'subject': 'www.example.com 2',
-            'uploaded': '2017-07-21T17:32:28Z 2',
-          },
-        ] as Certificate[],
-      sitesMock: ['www.test.com', 'www.example.com'],
       certificateByID: {} as Certificate,
-      sites: [],
+      sites: [] as Site[],
     }
   },
 
@@ -287,7 +247,7 @@ export default defineComponent({
           title: 'Linked To',
           displayFunction: (item: Certificate) => {
             if (this.sites?.length > 0) {
-              const matchingSite = _.find(this.sites, (site: Site) => {
+              const matchingSite: Site = _.find(this.sites, (site: Site) => {
                 return site.ssl_certificate === item.id
               })
               return matchingSite ? matchingSite.server_names.join('\n') : ''
@@ -302,6 +262,9 @@ export default defineComponent({
         {
           title: 'AWS',
           fieldNames: ['links'],
+          displayFunction: (item) => {
+            return item?.links?.provider === 'aws' ? true : false
+          },
           isSortable: true,
           isSearchable: true,
           classes: 'width-100px white-space-pre',
@@ -309,12 +272,8 @@ export default defineComponent({
         {
           title: 'GCP',
           fieldNames: ['links'],
-          // TODO: the displayFunction should check if item.links['provider'] include the gcp, if yes return true
           displayFunction: (item) => {
-            const checkGCP = _.find(item?.links?.provider, (provider: any) => {
-              return provider === 'gcp'
-            })
-            return checkGCP
+            return item?.links?.provider === 'gcp' ? true : false
           },
           isSortable: true,
           isSearchable: true,
@@ -322,9 +281,11 @@ export default defineComponent({
         },
         {
           title: 'Load Balancers',
-          fieldNames: ['links'],
           displayFunction: (item) => {
-            return item?.items?.join('\n')
+            const sitesLinks = _.find(this.sites, (site: Site) => {
+              return item.id == site.ssl_certificate
+            })
+            return sitesLinks?.server_names.join('\n')
           },
           isSortable: true,
           isSearchable: true,
@@ -355,13 +316,17 @@ export default defineComponent({
 
   methods: {
     getCertificateByID(id:string) {
-      this.certificateByID = this.certificates.find((certificate:any) => certificate.id === id)
+      this.certificateByID = this.certificates.find((certificate:Certificate) => certificate.id === id)
     },
 
-    async callLoaders() {
-      // TODO: add await this.loadBalancers()
+    async callLoadCertificate() {
       await this.loadCertificates()
     },
+
+    async callLoadBalancer() {
+      await this.loadBalancer()
+    },
+
     setLoadingDocStatus(isLoading: boolean) {
       if (isLoading) {
         this.loadingDocCounter++
@@ -412,7 +377,6 @@ export default defineComponent({
       const url = `configs/${this.selectedBranch}/d/certificates/`
       const certificatesResponse = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
       this.certificates = certificatesResponse?.data || []
-      console.log('this.certificates', certificatesResponse)
       // this.certificates = this.certificatesMock
     },
 
@@ -444,12 +408,6 @@ export default defineComponent({
       await this.loadBalancers()
       await this.loadCertificates()
       this.setLoadingDocStatus(false)
-    },
-
-    deleteCertificate(id:string) {
-      this.certificatesMock = this.certificatesMock.filter((certificate) => certificate.id !== id)
-      this.loadCertificates()
-      this.deleteShown = false
     },
   },
   async created() {
