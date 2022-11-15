@@ -221,16 +221,19 @@ export default defineComponent({
     async extractCertFile() {
       if (this.certFile != null) {
         this.isExtracting = true
+        const siteText = this.titles['certificate-singular']
         const file = this.certFile
         const url = 'tools/certificates/extractpfx/'
         const formData = new FormData()
         formData.append('fileName', file, this.certFile.name)
         formData.append('password', this.password)
+        const failureMessage = `Failed while attempting to extract the new ${siteText} PFX file.`
         const response = await RequestsUtils.sendReblazeRequest({
           methodName: 'POST',
           url,
           data: formData,
           config: {headers: {'Content-Type': 'multipart/form-data'}},
+          failureMessage,
         })
         this.private_key = response?.data.private_key
         this.certificate = response?.data.certificate_body

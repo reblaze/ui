@@ -293,12 +293,12 @@ export default defineComponent({
     },
 
     async downloadPFX() {
-      const url = `/configs/${this.selectedBranch}/d/certificates/e/${this.localCert.id}/pfx/`
+      const url = `configs/${this.selectedBranch}/d/certificates/e/${this.localCert.id}/pfx/`
       const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url: url,
+        config: {responseType: 'blob'},
       })
-      console.log('response.data', response.data)
       Utils.downloadFile('certificate', 'pfx', response.data)
     },
 
