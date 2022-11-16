@@ -223,9 +223,8 @@ export default defineComponent({
       docMatchingGlobalFilter.active = (docToAdd as DynamicRule).active
       docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule ' + docToAdd.id
       docMatchingGlobalFilter.action = 'action-dynamic-rule-block'
-      const globalFiltersData = docMatchingGlobalFilter
       const globalFiltersUrl = `configs/${this.selectedBranch}/d/globalfilters/e/`
-      await RequestsUtils.sendRequest({methodName: 'POST', url: globalFiltersUrl, data: globalFiltersData})
+      await RequestsUtils.sendRequest({methodName: 'POST', url: globalFiltersUrl, data: docMatchingGlobalFilter})
 
       this.editDynamicRule(docToAdd.id)
 

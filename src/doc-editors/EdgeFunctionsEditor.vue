@@ -181,6 +181,28 @@
           </div>
         </div>
       </div>
+      <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ documentAPIPath }}</span>
+    </div>
+    <div class="content no-data-wrapper"
+         v-if="loadingDocCounter || !selectedBranch || !selectedEdgeFunction || !docs">
+      <div v-if="loadingDocCounter > 0">
+        <button class="button is-outlined is-text is-small is-loading document-loading">
+          Loading
+        </button>
+      </div>
+      <div v-else
+           class="no-data-message">
+        No data found.
+        <div>
+          <span v-if="!selectedEdgeFunction?.id">
+            Missing document. To create a new one, click
+            <a title="Add new"
+               @click="addNewEdgeFunction()">
+              here
+            </a>
+          </span>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -215,16 +237,21 @@ export default defineComponent({
       isForkLoading: false,
       isNewLoading: false,
 
+      // To prevent deletion of docs referenced by Security Policies
+      referencedIDsEdgeFunctions: [],
+      apiRoot: RequestsUtils.reblazeAPIRoot,
+      apiVersion: RequestsUtils.reblazeAPIVersion,
     }
   },
   watch: {
     selectedBranch: {
-      handler: function(val, oldVal) {
+      handler: async function(val, oldVal) {
         if ((this.$route.name as string).includes('EdgeFunctions/config') && val && val !== oldVal) {
-          this.loadDocs()
-          this.sortDocs()
-          this.setSelectedDataFromRouteParams()
-          this.loadEdgeFunction()
+          await this.loadDocs()
+          await this.sortDocs()
+          await this.setSelectedDataFromRouteParams()
+          await this.loadEdgeFunction()
+          await this.loadReferencedEdgeFunctionsDocsIDs()
         }
       },
       immediate: true,
@@ -248,6 +275,21 @@ export default defineComponent({
         })
       }
       return 0
+    },
+
+    isDocReferenced(): boolean {
+      return JSON.stringify(this.referencedIDsEdgeFunctions).includes(this.selectedDocID)
+    },
+
+    selectedDocNotDeletable(): boolean {
+      return !this.selectedEdgeFunction ||
+          this.selectedEdgeFunction.id.startsWith('__') || // Default entries
+          this.isDocReferenced
+    },
+
+    documentAPIPath(): string {
+      const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
+      return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/cloud-functions/e/${this.selectedDocID}/`
     },
   },
   emits: ['update:selectedDoc'],
@@ -297,11 +339,6 @@ export default defineComponent({
       if (!this.isDownloadLoading) {
         Utils.downloadFile('cloud-function', 'json', this.selectedEdgeFunction)
       }
-    },
-
-    selectedDocNotDeletable(): boolean {
-      return !this.selectedEdgeFunction ||
-          this.selectedEdgeFunction.id.startsWith('__') // Default entries
     },
 
     async deleteDoc() {
@@ -429,6 +466,27 @@ export default defineComponent({
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
       this.isSaveLoading = false
       this.setLoadingDocStatus(false)
+    },
+
+
+    async loadReferencedEdgeFunctionsDocsIDs() {
+      const response = await RequestsUtils.sendReblazeRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/routing-profiles/`,
+      })
+      const routingProfiles = response?.data || []
+      console.log('routingProfiles', routingProfiles)
+      const referencedRoutingProfiles: string[] = []
+
+      _.forEach(routingProfiles, (routingProfile) => {
+        _.forEach(routingProfile.locations, (location) => {
+          referencedRoutingProfiles.push(location['cloud_functions'])
+        })
+      })
+      this.referencedIDsEdgeFunctions = _.uniq(referencedRoutingProfiles)
+
+      console.log('referencedRoutingProfiles=',
+        JSON.stringify(this.referencedIDsEdgeFunctions).includes(this.selectedDocID))
     },
   },
 })

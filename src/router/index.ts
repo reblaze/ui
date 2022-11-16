@@ -28,11 +28,10 @@ import RequestsUtils from '@/assets/RequestsUtils'
 
 async function premiumServerIsLive(to: any, from: any) {
   let isLive = true
-  const url = `configs/prod/d/backends/`
+  const url = `health/`
   const response = await RequestsUtils.sendReblazeRequest({
     methodName: 'GET',
     url,
-    config: {headers: {'x-fields': 'id, name'}},
     onFail: () => {
       console.log('Error while attempting to load documents')
       isLive = false

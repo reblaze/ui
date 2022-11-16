@@ -25,6 +25,7 @@
                           title="Switch document ID"
                           @change="switchDocID()"
                           class="site-selection"
+                          :class="{'is-loading': isNewLoading}"
                           data-qa="switch-document">
                           <option v-for="doc in docs"
                             :key="doc.id"
@@ -103,7 +104,6 @@
                         title="Delete document"
                         data-qa="delete-document"
                         :class="{'is-loading': isDeleteLoading}"
-                        :disabled="selectedDocNotDeletable"
                         @click="deleteDoc()">
                   <span class="icon is-small">
                     <i class="fas fa-trash"></i>
@@ -120,7 +120,7 @@
     </div>
     <hr/>
     <div class="content"
-         v-if="!loadingDocCounter && selectedBranch && selectedDynamicRule">
+         v-if="!loadingDocCounter && selectedBranch && selectedDynamicRule && localGlobalFilterDoc && docs">
       <div class="columns columns-divided">
         <div class="column is-5">
           <div class="field">
@@ -211,7 +211,7 @@
             <label class="label is-small">
               Time Frame
             </label>
-            <div class="control suffix seconds-suffix">
+            <div class="control suffix minute-suffix">
               <input class="input is-small document-timeframe"
                      data-qa="dynamic-rules-timeframe-input"
                      type="number"
@@ -325,8 +325,29 @@
           </div>
         </div>
       </div>
+      <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ documentAPIPath }}</span>
     </div>
-    <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ documentAPIPath }}</span>
+    <div class="content no-data-wrapper"
+         v-if="loadingDocCounter || !selectedBranch || !selectedDynamicRule || !docs">
+      <div v-if="loadingDocCounter > 0">
+        <button class="button is-outlined is-text is-small is-loading document-loading">
+          Loading
+        </button>
+      </div>
+      <div v-else
+           class="no-data-message">
+        No data found.
+        <div>
+          <span v-if="!selectedDynamicRule?.id">
+            Missing document. To create a new one, click
+            <a title="Add new"
+               @click="addNewDynamicRule()">
+              here
+            </a>
+          </span>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 <script lang="ts">
@@ -346,8 +367,6 @@ import {useBranchesStore} from '@/stores/BranchesStore'
 import RequestsUtils from '@/assets/RequestsUtils'
 import Utils from '@/assets/Utils'
 import DatasetsUtils from '@/assets/DatasetsUtils'
-import {AxiosResponse} from 'axios'
-
 
 export default defineComponent({
   name: 'DynamicRulesEditor',
@@ -395,10 +414,11 @@ export default defineComponent({
       targetType: '',
       targetValue: '',
       customResponseNames: [] as [CustomResponse['id'], CustomResponse['name']][],
-      selectedDynamicRule: null as DynamicRule,
+
       localGlobalFilterDoc: null as GlobalFilter,
       duplicatedGlobalFilter: null as GlobalFilter,
       docs: [] as unknown as DynamicRule[],
+      globalFiltersDocs: [] as unknown as GlobalFilter[],
       selectedDocID: null,
 
       apiRoot: RequestsUtils.reblazeAPIRoot,
@@ -412,19 +432,56 @@ export default defineComponent({
       isForkLoading: false,
       isNewLoading: false,
       tagsInvalid: false,
+
     }
   },
   watch: {
     selectedBranch: {
-      handler: function(val, oldVal) {
+      handler: async function(val, oldVal) {
         if ((this.$route.name as string).includes('DynamicRules/config') && val && val !== oldVal) {
-          this.loadDocs()
-          this.setSelectedDataFromRouteParams()
-          this.loadDynamicRule()
+          await this.loadCustomResponses()
+          await this.loadDocs()
+          await this.setSelectedDataFromRouteParams()
+          await this.loadGlobalFilter()
         }
       },
       immediate: true,
     },
+    selectedDynamicRule: {
+      handler: async function(val, oldVal) {
+      // display target
+        if (val && val !== oldVal) {
+          if (this.selectedDynamicRule?.target.includes('_')) {
+            const targets = this.selectedDynamicRule.target.split('_')
+            this.targetType = targets[0]
+            this.targetValue = targets[1]
+          } else {
+            this.targetType = this.selectedDynamicRule?.target
+          }
+          await this.loadGlobalFilter()
+        }
+      },
+    },
+    // selectedDocID: {
+    //   handler: async function(val, oldVal) {
+    //     if (val && val !== oldVal) {
+    //       if (this.isNewLoading) {
+    //         const docMatchingGlobalFilter = DatasetsUtils.newDocEntryFactory['globalfilters']() as GlobalFilter
+    //         docMatchingGlobalFilter.id = `dr_${this.selectedDocID}`
+    //         docMatchingGlobalFilter.active = (this.selectedDoc as DynamicRule).active
+    //         docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule ' + this.selectedDocID
+    //         docMatchingGlobalFilter.action = 'action-dynamic-rule-block'
+    //         this.selectedDocMatchingGlobalFilter = docMatchingGlobalFilter
+    //       } else {
+    //         this.setLoadingDocStatus(true)
+    //         const url = `configs/${this.selectedBranch}/d/global-filters/e/dr_${val}/`
+    //         const response = await RequestsUtils.sendRequest({methodName: 'GET', url})
+    //         this.selectedDocMatchingGlobalFilter = response.data
+    //         this.setLoadingDocStatus(false)
+    //       }
+    //     }
+    //   },
+    // },
   },
   computed: {
 
@@ -445,7 +502,6 @@ export default defineComponent({
         if (this.localGlobalFilterDoc.tags && this.localGlobalFilterDoc.tags.length > 0) {
           return this.localGlobalFilterDoc.tags.join(' ')
         }
-        // this.tagsInvalid = true
         return ''
       },
       set: function(tags: string): void {
@@ -466,16 +522,24 @@ export default defineComponent({
 
     ...mapStores(useBranchesStore),
 
+    selectedDynamicRule: {
+      get(): DynamicRule {
+        return this.docs[this.selectedDocIndex]
+      },
+      set(newDoc: DynamicRule): void {
+        this.docs[this.selectedDocIndex] = newDoc
+      },
+    },
+
     selectedDocIndex(): number {
-      if (this.selectedDocID) {
+      if (this.selectedDocID && this.docs) {
         return _.findIndex(this.docs, (doc) => {
-          return doc.id === this.selectedDocID
+          return doc?.id === this.selectedDocID
         })
       }
       return 0
     },
   },
-  emits: ['update:selectedDoc', 'update:selectedDocMatchingGlobalFilter', 'tags-invalid'],
   methods: {
 
     async goToRoute() {
@@ -490,13 +554,8 @@ export default defineComponent({
     async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
       this.selectedDocID = this.$route.params?.doc_id?.toString()
-      await this.loadDynamicRule()
+      await this.loadGlobalFilter()
       this.setLoadingDocStatus(false)
-    },
-
-    selectedDocNotDeletable(): boolean {
-      return !this.selectedDynamicRule ||
-          this.selectedDynamicRule.id.startsWith('__') // Default entries
     },
 
     async deleteDoc() {
@@ -518,41 +577,30 @@ export default defineComponent({
     },
 
     sortDocs() {
-      this.docs = _.sortBy(this.docs, [(doc) => doc.name.toLowerCase()])
+      this.docs = this.docs?.length && _.sortBy(this.docs, [(doc) => doc.name.toLowerCase()])
     },
 
     async loadDocs() {
       this.isDownloadLoading = true
       this.setLoadingDocStatus(true)
       const url = `configs/${this.selectedBranch}/d/dynamic-rules/`
-
       const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url,
-        onFail: () => {
-          console.log('Error while attempting to load documents')
+        onFail: (error: any) => {
+          console.log('Error while attempting to load documents', error)
           this.docs = []
           this.isDownloadLoading = false
         },
       })
-      this.docs = response?.data || []
+      this.docs = (response?.data) ? _.cloneDeep(response.data) : []
       this.sortDocs()
-
-      this.docs.every(async (doc) => {
-        const data = this.newGlobalFilter()
-        data.id = `dr_${doc.id}`
-        data.name = `GlobalFilter for DynamicRule ${doc.id}`
-        const url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${doc.id}`
-        await RequestsUtils.sendRequest({methodName: 'POST', data, url})
-      })
-
-      if (this.docs && this.docs.length && this.docs[0].id) {
+      if (this.docs && this.docs?.length && this.docs[0]?.id) {
         if (!_.find(this.docs, (doc: DynamicRule) => {
-          return doc.id === this.selectedDocID
+          return doc?.id === this.selectedDocID
         })) {
           this.selectedDocID = this.docs[0].id
         }
-        this.loadDynamicRule()
       }
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
@@ -568,24 +616,26 @@ export default defineComponent({
       return factory && factory()
     },
 
-    async loadDynamicRule() {
-      this.setLoadingDocStatus(true)
-      this.isDownloadLoading = true
-      this.selectedDynamicRule = null
-      this.selectedDynamicRule = this.docs.find((doc: DynamicRule) => doc.id === this.selectedDocID)
-      console.log('this.selectedDynamicRule', this.selectedDynamicRule)
-      const url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${this.selectedDocID}`
-      this.localGlobalFilterDoc = await RequestsUtils.sendRequest({methodName: 'GET', url})
-      this.isDownloadLoading = false
-      this.setLoadingDocStatus(false)
+    async loadGlobalFilter() {
+      this.localGlobalFilterDoc = this.globalFiltersDocs?.find((doc: any) => {
+        return doc?.id === `dr_${this.selectedDocID}`
+      })
+      if (!this.localGlobalFilterDoc) {
+        const url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${this.selectedDocID}/`
+        const response = await RequestsUtils.sendRequest({methodName: 'GET', url})
+        if (response?.data) {
+          this.localGlobalFilterDoc = response.data
+          this.globalFiltersDocs.push(this.localGlobalFilterDoc)
+        }
+      }
     },
 
     async forkDoc() {
       this.setLoadingDocStatus(true)
       this.isForkLoading = true
       const docToAdd = _.cloneDeep(this.selectedDynamicRule) as DynamicRule
-      docToAdd.name = 'copy of ' + docToAdd.name
       docToAdd.id = DatasetsUtils.generateUUID2()
+      docToAdd.name = 'copy of ' + docToAdd.name + ' ' + docToAdd.id
       this.duplicatedGlobalFilter = this.localGlobalFilterDoc
 
       const docTypeText = this.titles['dynamic-rules-singular']
@@ -600,7 +650,6 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       this.isNewLoading = true
 
-      this.selectedDynamicRule = null
       if (!dynamicRuleToAdd) {
         dynamicRuleToAdd = this.newDynamicRule()
         this.duplicatedGlobalFilter = this.newGlobalFilter()
@@ -618,9 +667,10 @@ export default defineComponent({
         failureMessage = `Failed while attempting to create the new ${dynamicRuleText}.`
       }
       const data = dynamicRuleToAdd
+      this.selectedDocID = dynamicRuleToAdd.id // data.id
+
       await this.saveChanges('POST', data, successMessage, failureMessage)
-      this.docs.unshift(dynamicRuleToAdd)
-      this.selectedDocID = dynamicRuleToAdd.id
+      this.docs.push(dynamicRuleToAdd)
       this.sortDocs()
 
       this.goToRoute()
@@ -635,13 +685,11 @@ export default defineComponent({
 
       if (!methodName) {
         methodName = 'PUT'
-      } else {
-        this.duplicatedGlobalFilter
       }
 
       if (!data) {
         data = this.selectedDynamicRule
-        const url = `configs/${this.selectedBranch}/d/dynamic-Rules/e/${data.id}/`
+        const url = `configs/${this.selectedBranch}/d/dynamic-rules/e/${data.id}/`
         const dynamicRulesText = this.titles['dynamic-rules-singular']
         if (!successMessage) {
           successMessage = `Changes to the ${dynamicRulesText} were saved.`
@@ -653,7 +701,10 @@ export default defineComponent({
 
         // globalData
         data = this.localGlobalFilterDoc
-        const urlGlobal = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${data.id}/`
+        let urlGlobal = `configs/${this.selectedBranch}/d/globalfilters/e/`
+        if (methodName !== 'POST') {
+          urlGlobal += `${data.id}/`
+        }
         const globalFilterText = this.titles['global-filters-singular']
         if (!successMessage) {
           successMessage = `Changes to the ${globalFilterText} were saved.`
@@ -663,10 +714,13 @@ export default defineComponent({
         }
         await RequestsUtils.sendRequest({methodName, url: urlGlobal, data, successMessage, failureMessage})
 
+        // if (this.selectedDynamicRule.name !== old.name) {
+        //   this.loadDocs()
+        // }
 
         // globalData = this.localGlobalFilterDoc
       } else {
-        const url = `configs/${this.selectedBranch}/d/dynamic-Rules/e/${data.id}/`
+        const url = `configs/${this.selectedBranch}/d/dynamic-rules/e/${data.id}/`
         const dynamicRulesText = this.titles['dynamic-rules-singular']
         if (!successMessage) {
           successMessage = `Changes to the ${dynamicRulesText} were saved.`
@@ -677,7 +731,10 @@ export default defineComponent({
         await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
 
         data = this.duplicatedGlobalFilter
-        const urlGlobal = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${data.id}/`
+        let urlGlobal = `configs/${this.selectedBranch}/d/globalfilters/e/`
+        if (methodName !== 'POST') {
+          urlGlobal += `${data.id}/`
+        }
         const globalFilterText = this.titles['global-filters-singular']
         if (!successMessage) {
           successMessage = `Changes to the ${globalFilterText} were saved.`
@@ -688,7 +745,6 @@ export default defineComponent({
         await RequestsUtils.sendRequest({methodName, url: urlGlobal, data,
           successMessage, failureMessage})
       }
-
       this.isSaveLoading = false
       this.setLoadingDocStatus(false)
     },
@@ -724,16 +780,6 @@ export default defineComponent({
       }
     },
 
-    emitMatchDocUpdate() {
-      this.$emit('update:selectedDocMatchingGlobalFilter', this.localGlobalFilterDoc)
-    },
-
-    // emitToDocAndDocMatchUpdate() {
-    //   this.$emit('update:selectedDoc', this.localDoc)
-    //   this.localGlobalFilterDoc.active = this.localDoc.active
-    //   this.$emit('update:selectedDocMatchingGlobalFilter', this.localGlobalFilterDoc)
-    // },
-
     targetChanged() {
       if (this.isTargetArgsCookiesHeaders(this.targetType)) {
         this.selectedDynamicRule.target = `${this.targetType}_${this.targetValue}`
@@ -765,22 +811,23 @@ export default defineComponent({
       this.addNewTagColName = null
     },
 
-    loadCustomResponses() {
-      RequestsUtils.sendRequest({
+    async loadCustomResponses() {
+      const response = await RequestsUtils.sendRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/actions/`,
         config: {headers: {'x-fields': 'id, name'}},
-      }).then((response: AxiosResponse<CustomResponse[]>) => {
-        this.customResponseNames = _.sortBy(_.map(response.data, (entity) => {
-          return [entity.id, entity.name]
-        }), (e) => {
-          return e[1]
-        })
+      })
+      // .then((response: AxiosResponse<CustomResponse[]>) => {
+      const customResponse = response?.data
+      this.customResponseNames = _.sortBy(_.map(customResponse, (entity) => {
+        return [entity.id, entity.name]
+      }), (e) => {
+        return e[1]
       })
     },
   },
-  created() {
-    this.loadCustomResponses()
+  async created() {
+    await this.branchesStore.list
   },
 })
 </script>

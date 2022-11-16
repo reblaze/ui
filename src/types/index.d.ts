@@ -113,7 +113,6 @@ declare module CuriefenseClient {
     | 'contentfilterprofiles'
     | 'contentfilterrules'
     | 'actions'
-    | ReblazeDocumentType
 
   type ReblazeDocumentType =
     'cloud-functions'

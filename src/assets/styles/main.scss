@@ -312,6 +312,17 @@ html {
   }
 }
 
+.minute-suffix::after {
+  @extend .is-size-7;
+  content: 'minutes';
+}
+
+.minute-suffix {
+  input {
+    padding-right: 60px;
+  }
+}
+
 .mb-suffix::after {
   @extend .is-size-7;
   content: 'MB';
