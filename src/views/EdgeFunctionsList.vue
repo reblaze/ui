@@ -198,7 +198,6 @@ export default defineComponent({
   },
   async created() {
     await this.branchesStore.list
-    console.log('created edge')
   },
 })
 </script>
