@@ -202,12 +202,12 @@ export default defineComponent({
       isNewLoading: false,
       titles: DatasetsUtils.titles,
       loadBalancer: null, // TODO: need to add LoadBalancer entity
-      certificates: null, // TODO: need to add Certificate entity
+      certificates: null as Certificate[],
       selectedBranch: null,
       configs: [],
       loadingDocCounter: 0,
       isDownloadLoading: false,
-      tab: 'Certificates',
+      tab: 'Load balancers',
       generateShown: false,
       deleteShown: false,
       editShown: false,
@@ -377,15 +377,12 @@ export default defineComponent({
       const url = `configs/${this.selectedBranch}/d/certificates/`
       const certificatesResponse = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
       this.certificates = certificatesResponse?.data || []
-      // this.certificates = this.certificatesMock
     },
 
     async loadSites() {
       const url = `configs/${this.selectedBranch}/d/sites/`
       const sitesResponse = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
       this.sites = sitesResponse?.data || []
-      console.log('this.sites', this.sites)
-      // this.sites = this.sitesMock
     },
 
     async loadConfigs() {
