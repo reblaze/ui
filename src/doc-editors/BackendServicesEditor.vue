@@ -400,6 +400,16 @@ export default defineComponent({
       },
       immediate: true,
     },
+    selectedBackendService: {
+      handler: function(val, oldVal) {
+        if (val && val !== oldVal) {
+          const docIndex = this.docs.findIndex((doc: BackendService) => {
+            return doc.id === val.id
+          })
+          this.docs[docIndex] = val
+        }
+      },
+    },
   },
   computed: {
     documentAPIPath(): string {
@@ -529,7 +539,7 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       const branch = this.selectedBranch
       const url = `configs/${branch}/d/backends/`
-      this.selectedBackendService = null
+
       const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url,

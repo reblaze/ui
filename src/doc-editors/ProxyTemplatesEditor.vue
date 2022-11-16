@@ -654,6 +654,16 @@ export default defineComponent({
       },
       immediate: true,
     },
+    selectedProxyTemplate: {
+      handler: function(val, oldVal) {
+        if (val && val !== oldVal) {
+          const docIndex = this.docs.findIndex((doc: ProxyTemplate) => {
+            return doc.id === val.id
+          })
+          this.docs[docIndex] = val
+        }
+      },
+    },
   },
   computed: {
     documentAPIPath(): string {
