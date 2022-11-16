@@ -462,26 +462,6 @@ export default defineComponent({
         }
       },
     },
-    // selectedDocID: {
-    //   handler: async function(val, oldVal) {
-    //     if (val && val !== oldVal) {
-    //       if (this.isNewLoading) {
-    //         const docMatchingGlobalFilter = DatasetsUtils.newDocEntryFactory['globalfilters']() as GlobalFilter
-    //         docMatchingGlobalFilter.id = `dr_${this.selectedDocID}`
-    //         docMatchingGlobalFilter.active = (this.selectedDoc as DynamicRule).active
-    //         docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule ' + this.selectedDocID
-    //         docMatchingGlobalFilter.action = 'action-dynamic-rule-block'
-    //         this.selectedDocMatchingGlobalFilter = docMatchingGlobalFilter
-    //       } else {
-    //         this.setLoadingDocStatus(true)
-    //         const url = `configs/${this.selectedBranch}/d/global-filters/e/dr_${val}/`
-    //         const response = await RequestsUtils.sendRequest({methodName: 'GET', url})
-    //         this.selectedDocMatchingGlobalFilter = response.data
-    //         this.setLoadingDocStatus(false)
-    //       }
-    //     }
-    //   },
-    // },
   },
   computed: {
 
@@ -701,6 +681,7 @@ export default defineComponent({
 
         // globalData
         data = this.localGlobalFilterDoc
+        data.active = this.selectedDynamicRule.active
         let urlGlobal = `configs/${this.selectedBranch}/d/globalfilters/e/`
         if (methodName !== 'POST') {
           urlGlobal += `${data.id}/`
@@ -713,12 +694,6 @@ export default defineComponent({
           failureMessage = `Failed while attempting to save the changes to the ${globalFilterText}.`
         }
         await RequestsUtils.sendRequest({methodName, url: urlGlobal, data, successMessage, failureMessage})
-
-        // if (this.selectedDynamicRule.name !== old.name) {
-        //   this.loadDocs()
-        // }
-
-        // globalData = this.localGlobalFilterDoc
       } else {
         const url = `configs/${this.selectedBranch}/d/dynamic-rules/e/${data.id}/`
         const dynamicRulesText = this.titles['dynamic-rules-singular']
@@ -729,8 +704,9 @@ export default defineComponent({
           failureMessage = `Failed while attempting to save the changes to the ${dynamicRulesText}.`
         }
         await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
-
+        const active = data.active
         data = this.duplicatedGlobalFilter
+        data.active = active
         let urlGlobal = `configs/${this.selectedBranch}/d/globalfilters/e/`
         if (methodName !== 'POST') {
           urlGlobal += `${data.id}/`
@@ -817,7 +793,6 @@ export default defineComponent({
         url: `configs/${this.selectedBranch}/d/actions/`,
         config: {headers: {'x-fields': 'id, name'}},
       })
-      // .then((response: AxiosResponse<CustomResponse[]>) => {
       const customResponse = response?.data
       this.customResponseNames = _.sortBy(_.map(customResponse, (entity) => {
         return [entity.id, entity.name]

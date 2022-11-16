@@ -24,7 +24,7 @@ import EdgeFunctionsList from '@/views/EdgeFunctionsList.vue'
 import EdgeFunctionsEditor from '@/doc-editors/EdgeFunctionsEditor.vue'
 import PremiumPage from '@/views/PremiumPage.vue'
 import RequestsUtils from '@/assets/RequestsUtils'
-// import {AxiosError} from 'axios'
+
 
 async function premiumServerIsLive(to: any, from: any) {
   let isLive = true

@@ -65,7 +65,7 @@ const processRequest = (methodName: HttpRequestMethods, apiUrl: string, data: an
       Utils.toast(failureMessage, 'is-danger', undoFunction)
     }
     if (typeof onFail === 'function') {
-      onFail(error)
+      onFail()
     }
     console.error(error)
   })
