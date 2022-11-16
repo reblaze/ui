@@ -18,10 +18,58 @@
                   </span>
                 </button>
               </p>
+              <div class="control"
+                   v-if="docs.length">
+                <div class="select is-small">
+                  <select v-model="selectedDocID"
+                          title="Switch document ID"
+                          @change="switchDocID()"
+                          class="site-selection"
+                          data-qa="switch-document">
+                          <option v-for="doc in docs"
+                            :key="doc.id"
+                            :value="doc.id">
+                      {{ doc.name }}
+                    </option>
+                  </select>
+                </div>
+              </div>
             </div>
           </div>
           <div class="column">
             <div class="field is-grouped is-pulled-right">
+              <p class="control">
+                <button class="button is-small new-document-button"
+                        :class="{'is-loading': isNewLoading}"
+                        @click="addNewDoc()"
+                        title="Add new document"
+                        :disabled="!selectedBranch"
+                        data-qa="add-new-document">
+                  <span class="icon is-small">
+                    <i class="fas fa-plus"></i>
+                  </span>
+                  <span>
+                    New
+                  </span>
+                </button>
+              </p>
+
+              <p class="control">
+                <button class="button is-small fork-document-button"
+                        :class="{'is-loading': isForkLoading}"
+                        @click="forkDoc()"
+                        title="Duplicate document"
+                        :disabled="!selectedServerGroup"
+                        data-qa="duplicate-document">
+                  <span class="icon is-small">
+                    <i class="fas fa-clone"></i>
+                  </span>
+                  <span>
+                    Duplicate
+                  </span>
+                </button>
+              </p>
+
               <p class="control">
                 <button class="button is-small download-doc-button"
                         :class="{'is-loading':isDownloadLoading}"
@@ -106,7 +154,7 @@
     </div>
     <hr/>
     <div class="content"
-         v-if="selectedServerGroup">
+         v-if="!loadingDocCounter && selectedBranch && selectedServerGroup">
       <div class="columns columns-divided">
         <div class="column is-4">
           <div class="field">
@@ -327,17 +375,17 @@
             </div>
           </div>
           <div class="field">
-            <label class="label is-small">Config Template</label>
+            <label class="label is-small">Proxy Template</label>
             <div class="control is-expanded">
               <div class="select is-fullwidth is-small">
                 <select v-model="selectedServerGroup.proxy_template"
-                        data-qa="config-template-dropdown"
-                        class="document-config-template-selection"
-                        title="Config template">
-                  <option v-for="configTemplate in configTemplatesNames"
-                          :value="configTemplate[0]"
-                          :key="configTemplate[0]">
-                    {{ configTemplate[1] }}
+                        data-qa="proxy-template-dropdown"
+                        class="document-proxy-template-selection"
+                        title="Proxy template">
+                  <option v-for="proxyTemplate in proxyTemplatesNames"
+                          :value="proxyTemplate[0]"
+                          :key="proxyTemplate[0]">
+                    {{ proxyTemplate[1] }}
                   </option>
                 </select>
               </div>
@@ -346,6 +394,27 @@
         </div>
       </div>
       <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ documentAPIPath }}</span>
+    </div>
+    <div class="content no-data-wrapper"
+         v-if="loadingDocCounter || !selectedBranch || !selectedServerGroup">
+      <div v-if="loadingDocCounter > 0">
+        <button class="button is-outlined is-text is-small is-loading document-loading">
+          Loading
+        </button>
+      </div>
+      <div v-else
+           class="no-data-message">
+        No data found.
+        <div>
+          <span v-if="!selectedServerGroup?.id">
+            Missing document. To create a new one, click
+            <a title="Add new"
+               @click="addNewDoc()">
+              here
+            </a>
+          </span>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -356,12 +425,13 @@ import {
   ACLProfile,
   BackendService,
   Certificate,
-  ConfigTemplate,
+  ProxyTemplate,
   ContentFilterProfile,
   MobileSDK,
   RoutingProfile,
   SecurityPolicy,
   Site,
+  HttpRequestMethods,
 } from '@/types'
 import Utils from '@/assets/Utils'
 import {defineComponent} from 'vue'
@@ -377,20 +447,23 @@ export default defineComponent({
       titles: DatasetsUtils.titles,
       configs: [],
       selectedServerGroup: null as Site,
-      docIdFromRoute: '',
+      docs: [] as unknown as Site[],
+      selectedDocID: null,
 
       // Loading indicators
       loadingDocCounter: 0,
       isSaveLoading: false,
       isDeleteLoading: false,
       isDownloadLoading: false,
+      isNewLoading: false,
+      isForkLoading: false,
 
       // Referenced docs
       securityPolicies: [] as SecurityPolicy[],
       securityPoliciesNames: [] as [SecurityPolicy['id'], SecurityPolicy['name']][],
       routingProfiles: [] as RoutingProfile[],
       routingProfilesNames: [] as [RoutingProfile['id'], RoutingProfile['name']][],
-      configTemplatesNames: [] as [ConfigTemplate['id'], ConfigTemplate['name']][],
+      proxyTemplatesNames: [] as [ProxyTemplate['id'], ProxyTemplate['name']][],
       mobileSDKsNames: [] as [MobileSDK['id'], MobileSDK['name']][],
       certificatesNames: [] as [Certificate['id'], Certificate['san']][],
       backendServicesNames: [] as [BackendService['id'], BackendService['name']][],
@@ -402,16 +475,20 @@ export default defineComponent({
 
       apiRoot: RequestsUtils.reblazeAPIRoot,
       apiVersion: RequestsUtils.reblazeAPIVersion,
+
     }
   },
   watch: {
     selectedBranch: {
       handler: function(val, oldVal) {
         if ((this.$route.name as string).includes('ServerGroups/config') && val && val !== oldVal) {
+          this.loadDocs()
+          this.sortDocs()
           this.setSelectedDataFromRouteParams()
+          this.loadServerGroup()
           this.loadSecurityPolicies()
           this.loadRoutingProfiles()
-          this.loadConfigTemplates()
+          this.loadProxyTemplates()
           this.loadMobileSDKs()
           this.loadBackendServices()
           this.loadContentFilterProfiles()
@@ -424,7 +501,7 @@ export default defineComponent({
   computed: {
     documentAPIPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
-      return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/sites/e/${this.selectedServerGroup.id}/`
+      return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/sites/e/${this.selectedDocID}/`
     },
 
     selectedDocNotDeletable(): boolean {
@@ -460,16 +537,75 @@ export default defineComponent({
 
     ...mapStores(useBranchesStore),
 
+    selectedDocIndex(): number {
+      if (this.selectedDocID) {
+        return _.findIndex(this.docs, (doc) => {
+          return doc.id === this.selectedDocID
+        })
+      }
+      return 0
+    },
+
     isDeleteServerGroupDocNameValid(): boolean {
       const deleteConfirmInputName = this.deleteServerGroupDocName.trim()
       return deleteConfirmInputName === this.selectedServerGroup.name
     },
   },
   methods: {
+
+    async goToRoute() {
+      const newRoute = `/${this.selectedBranch}/server-groups/config/${this.selectedDocID}`
+      if (this.$route.path !== newRoute) {
+        console.log('Switching document, new document path: ' + newRoute)
+        await this.$router.push(newRoute)
+        await this.setSelectedDataFromRouteParams()
+      }
+    },
+
+    newSite(): Site {
+      const factory = DatasetsUtils.newOperationEntryFactory['sites']
+      return factory && factory()
+    },
+
+    sortDocs() {
+      this.docs = _.sortBy(this.docs, [(doc) => doc.name.toLowerCase()])
+    },
+
+    async loadDocs() {
+      this.isDownloadLoading = true
+      this.setLoadingDocStatus(true)
+      const branch = this.selectedBranch
+      const url = `configs/${branch}/d/sites/`
+
+      const response = await RequestsUtils.sendReblazeRequest({
+        methodName: 'GET',
+        url,
+        config: {headers: {'x-fields': 'id, name'}},
+        onFail: () => {
+          console.log('Error while attempting to load documents')
+          this.docs = []
+          this.isDownloadLoading = false
+        },
+      })
+      this.docs = response?.data || []
+      this.sortDocs()
+      if (this.docs && this.docs.length && this.docs[0].id) {
+        if (!_.find(this.docs, (doc: Site) => {
+          return doc.id === this.selectedDocID
+        })) {
+          this.selectedDocID = this.docs[0].id
+        }
+        await this.loadServerGroup()
+      }
+      this.setLoadingDocStatus(false)
+      this.isDownloadLoading = false
+    },
+
     async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
-      this.docIdFromRoute = this.$route.params?.doc_id?.toString()
+      this.selectedDocID = this.$route.params?.doc_id?.toString()
       await this.loadServerGroup()
+      this.setLoadingDocStatus(false)
     },
 
     redirectToList() {
@@ -484,10 +620,18 @@ export default defineComponent({
       }
     },
 
-    async switchBranch() {
+
+    async switchDocID() {
       this.setLoadingDocStatus(true)
-      Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
-      await this.loadServerGroup()
+
+      const docName = this.docs[this.selectedDocIndex].name
+      if (docName) {
+        Utils.toast(
+            `Switched to document ${docName} with ID "${this.selectedDocID}".`,
+            'is-info',
+        )
+      }
+      this.goToRoute()
       this.setLoadingDocStatus(false)
     },
 
@@ -501,7 +645,7 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       this.isDeleteLoading = true
       const serverGroupText = this.titles['sites-singular']
-      const url = `configs/${this.selectedBranch}/d/sites/e/${this.selectedServerGroup.id}/`
+      const url = `configs/${this.selectedBranch}/d/sites/e/${this.selectedDocID}/`
       const successMessage = `The ${serverGroupText} was deleted.`
       const failureMessage = `Failed while attempting to delete the ${serverGroupText}.`
       await RequestsUtils.sendReblazeRequest({
@@ -515,16 +659,68 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
-    async saveChanges() {
+    async addNewDoc(siteToAdd?: Site, successMessage?: string, failureMessage?: string) {
+      this.setLoadingDocStatus(true)
+      this.isNewLoading = true
+      this.selectedServerGroup = null
+      if (!siteToAdd) {
+        siteToAdd = this.newSite()
+      }
+
+      const siteText = this.titles['sites-singular']
+      if (!successMessage) {
+        successMessage = `New ${siteText} was created.`
+      }
+      if (!failureMessage) {
+        failureMessage = `Failed while attempting to create the new ${siteText}.`
+      }
+      const data = siteToAdd
+      await this.saveChanges('POST', data, successMessage, failureMessage)
+      this.docs.unshift(siteToAdd)
+      this.selectedDocID = siteToAdd.id
+      this.sortDocs()
+
+      this.goToRoute()
+      this.isNewLoading = false
+      this.setLoadingDocStatus(false)
+    },
+
+    async saveChanges(methodName?: HttpRequestMethods, data?: Site, successMessage?: string, failureMessage?: string) {
+      this.setLoadingDocStatus(true)
       this.isSaveLoading = true
-      const methodName = 'PUT'
-      const url = `configs/${this.selectedBranch}/d/sites/e/${this.selectedServerGroup.id}/`
-      const data = this.selectedServerGroup
+      if (!methodName) {
+        methodName = 'PUT'
+      }
+      if (!data) {
+        data = this.selectedServerGroup
+      }
+      const url = `configs/${this.selectedBranch}/d/sites/e/${data.id}/`
       const serverGroupText = this.titles['sites-singular']
-      const successMessage = `Changes to the ${serverGroupText} were saved.`
-      const failureMessage = `Failed while attempting to save the changes to the ${serverGroupText}.`
+      if (!successMessage) {
+        successMessage = `Changes to the ${serverGroupText} were saved.`
+      }
+      if (!failureMessage) {
+        failureMessage = `Failed while attempting to save the changes to the ${serverGroupText}.`
+      }
+
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
       this.isSaveLoading = false
+      this.setLoadingDocStatus(false)
+    },
+
+    async forkDoc() {
+      this.setLoadingDocStatus(true)
+      this.isForkLoading = true
+      const docToAdd = _.cloneDeep(this.selectedServerGroup) as Site
+      docToAdd.name = 'copy of ' + docToAdd.name
+      docToAdd.id = DatasetsUtils.generateUUID2()
+
+      const docTypeText = this.titles['sites-singular']
+      const successMessage = `The ${docTypeText} was duplicated.`
+      const failureMessage = `Failed while attempting to duplicate the ${docTypeText}.`
+      await this.addNewDoc(docToAdd, successMessage, failureMessage)
+      this.isForkLoading = false
+      this.setLoadingDocStatus(false)
     },
 
     loadCertificates() {
@@ -547,10 +743,12 @@ export default defineComponent({
     },
 
     async loadServerGroup() {
+      this.setLoadingDocStatus(true)
       this.isDownloadLoading = true
+      this.selectedServerGroup = null
       const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
-        url: `configs/${this.selectedBranch}/d/sites/e/${this.docIdFromRoute}`,
+        url: `configs/${this.selectedBranch}/d/sites/e/${this.selectedDocID}`,
         onFail: () => {
           console.log(`Error while attempting to load the ${this.titles['sites-singular']}`)
           this.selectedServerGroup = null
@@ -559,6 +757,7 @@ export default defineComponent({
       })
       this.selectedServerGroup = response?.data || {}
       this.isDownloadLoading = false
+      this.setLoadingDocStatus(false)
     },
 
     loadSecurityPolicies() {
@@ -589,13 +788,13 @@ export default defineComponent({
       })
     },
 
-    loadConfigTemplates() {
+    loadProxyTemplates() {
       RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/proxy-templates/`,
         config: {headers: {'x-fields': 'id, name'}},
-      }).then((response: AxiosResponse<ConfigTemplate[]>) => {
-        this.configTemplatesNames = _.sortBy(_.map(response.data, (entity) => {
+      }).then((response: AxiosResponse<ProxyTemplate[]>) => {
+        this.proxyTemplatesNames = _.sortBy(_.map(response.data, (entity) => {
           return [entity.id, entity.name]
         }), (e) => {
           return e[1]

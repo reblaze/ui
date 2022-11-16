@@ -1,7 +1,7 @@
 import {
   ACLProfile,
   BackendService,
-  ConfigTemplate,
+  ProxyTemplate,
   ContentFilterProfile,
   ContentFilterRule,
   CustomResponse,
@@ -76,8 +76,8 @@ const titles: { [key: string]: string } = {
   'routing-profiles-singular': 'Routing Profile',
   'mobile-sdks': 'MobileSDKs',
   'mobile-sdks-singular': 'MobileSDK',
-  'proxy-templates': 'Config Templates',
-  'proxy-templates-singular': 'Config Template',
+  'proxy-templates': 'Proxy Templates',
+  'proxy-templates-singular': 'Proxy Template',
   'sites': 'Server Groups',
   'sites-singular': 'Server Group',
   'backends': 'Backends Services',
@@ -88,16 +88,6 @@ const titles: { [key: string]: string } = {
   'ignore': 'Ignore',
   'request': 'Request',
   'response': 'Response',
-}
-
-const dynamicRuleTargets = {
-  'organization': 'ASN',
-  'remote_addr': 'IP',
-  'cookie': 'Cookie',
-  'geoip_city_country_name': 'Country',
-  'planet': 'Planet',
-  'request_headers': 'Request Header',
-  'request_body': 'Request Body',
 }
 
 function generateUUID(): string {
@@ -130,7 +120,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'name': 'New ACL Profile',
       'description': 'New ACL Profile Description and Remarks',
       'action': 'action-acl-block',
-      'tags': [],
+      'tags': ['all'],
       'allow': [],
       'allow_bot': [],
       'deny_bot': [],
@@ -146,7 +136,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'name': 'New Content Filter Profile',
       'description': 'New Content Filter Profile Description and Remarks',
       'action': 'action-contentfilter-block',
-      'tags': [],
+      'tags': ['all'],
       'ignore_body': true,
       'ignore_alphanum': true,
       'allsections': {
@@ -217,7 +207,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'name': 'New Security Policy',
       'match': `${id}.example.com`,
       'description': 'New Security Policy Description and Remarks',
-      'tags': [],
+      'tags': ['all'],
       'session': [
         {
           'attrs': 'ip',
@@ -247,7 +237,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'active': false,
       'description': 'New Rate Limit Rule Description and Remarks',
       'timeframe': 60,
-      'tags': [],
+      'tags': ['all'],
       'thresholds': [
         {
           'limit': 5,
@@ -282,7 +272,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'include': ['all'],
       'exclude': [],
       'timeframe': 60,
-      'tags': [],
+      'tags': ['all'],
       'key': [
         {
           'attrs': 'ip',
@@ -299,9 +289,10 @@ const newDocEntryFactory: { [key: string]: Function } = {
   },
 
   'cloud-functions'(): EdgeFunction {
+    const id = generateUUID2()
     return {
-      'id': generateUUID2(),
-      'name': 'New Edge Function',
+      'id': id,
+      'name': 'New Edge Function ' + id,
       'description': 'New Edge Function Description and Remarks',
       'phase': 'request',
       'code': `-- begin custom code
@@ -322,7 +313,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'include': ['all'],
       'exclude': [],
       'ttl': 7200,
-      'target': 'remote_addr',
+      'target': 'ip',
     }
   },
 
@@ -337,7 +328,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'risk': 1,
       'category': '',
       'subcategory': '',
-      'tags': [],
+      'tags': ['all'],
     }
   },
 
@@ -346,7 +337,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'id': generateUUID2(),
       'name': 'New Custom Response',
       'description': 'New Custom Response Rule Description and Remarks',
-      'tags': [],
+      'tags': ['all'],
       'type': 'monitor',
     }
   },
@@ -358,18 +349,20 @@ const newOperationEntryFactory: { [key: string]: Function } = {
       'id': id,
       'name': 'New Site ' + id, // TODO: Remove this random uuid once names are no longer unique
       'description': 'New Site Description and Remarks',
-      'server_names': [],
+      'server_names': ['www.example.com'],
       'security_policy': '__default__',
       'routing_profile': '__default__',
       'proxy_template': '__default__',
       'mobile_sdk': '',
+      'ssl_certificate': 'placeholder',
     }
   },
 
   'routing-profiles'(): RoutingProfile {
+    const id = generateUUID2()
     return {
-      'id': generateUUID2(),
-      'name': 'New Routing Profile ' + generateUUID2(), // TODO: Remove this random uuid once names are no longer unique
+      'id': id,
+      'name': 'New Routing Profile ' + id, // TODO: Remove this random uuid once names are no longer unique
       'description': 'New Routing Profile Description and Remarks',
       'locations': [
         {
@@ -387,12 +380,8 @@ const newOperationEntryFactory: { [key: string]: Function } = {
       'id': generateUUID2(),
       'name': 'New Mobile SDK ' + generateUUID2(), // TODO: Remove this random uuid once names are no longer unique
       'description': 'New Mobile SDK Description and Remarks',
-      'secret': '',
-      'var_name': '',
       'uid_header': 'authorization',
       'grace': '5',
-      'grace_var_name': '',
-      'validator_type': '',
       'active_config': [
         {
           'active': true,
@@ -401,20 +390,20 @@ const newOperationEntryFactory: { [key: string]: Function } = {
         },
       ],
       'signatures': [],
-      'support_legacy_sdk': false,
     }
   },
 
-  'proxy-templates'(): ConfigTemplate {
+  'proxy-templates'(): ProxyTemplate {
+    const id = generateUUID2()
     return {
-      'id': generateUUID2(),
-      'name': 'New Config Template ' + generateUUID2(), // TODO: Remove this random uuid once names are no longer unique
-      'description': 'New Config Template Description and Remarks',
+      'id': id,
+      'name': 'New Proxy Template ' + id, // TODO: Remove this random uuid once names are no longer unique
+      'description': 'New Proxy Template Description and Remarks',
       'acao_header': false,
       'client_body_timeout': '5',
       'client_header_timeout': '5',
       'client_max_body_size': '150',
-      'conf_specific': {'value': ''},
+      'conf_specific': '',
       'custom_listener': false,
       'keepalive_timeout': '660',
       'limit_req_rate': '1200',
@@ -424,7 +413,7 @@ const newOperationEntryFactory: { [key: string]: Function } = {
       'proxy_read_timeout': '60',
       'proxy_send_timeout': '30',
       'send_timeout': '5',
-      'ssl_conf_specific': {'value': ''},
+      'ssl_conf_specific': '',
       'upstream_host': '$host',
       'xff_header_name': 'X-Forwarded-For',
       'xrealip_header_name': 'X-Real-IP',
@@ -432,9 +421,10 @@ const newOperationEntryFactory: { [key: string]: Function } = {
   },
 
   'backends'(): BackendService {
+    const id = generateUUID2()
     return {
-      'id': generateUUID2(),
-      'name': 'New Backend Service ' + generateUUID2(), // TODO: Remove this random uuid once names are no longer unique
+      'id': id,
+      'name': 'New Backend Service ' + id, // TODO: Remove this random uuid once names are no longer unique
       'description': 'New Backend Service Description and Remarks',
       'least_conn': false,
       'http11': true,
@@ -444,7 +434,7 @@ const newOperationEntryFactory: { [key: string]: Function } = {
         'http_port': 80,
         'https_port': 443,
         'weight': 1,
-        'fail_timeout': '10s',
+        'fail_timeout': 10,
         'monitor_state': '',
         'down': false,
         'host': '127.0.0.1',
@@ -466,7 +456,7 @@ const newOperationEntryFactory: { [key: string]: Function } = {
       'include': ['all'],
       'exclude': [],
       'ttl': 7200,
-      'target': 'remote_addr',
+      'target': 'ip',
     }
   },
 
@@ -484,7 +474,6 @@ const newOperationEntryFactory: { [key: string]: Function } = {
 export default {
   name: 'DatasetsUtils',
   titles,
-  dynamicRuleTargets,
   generateUUID,
   generateUUID2,
   newDocEntryFactory,

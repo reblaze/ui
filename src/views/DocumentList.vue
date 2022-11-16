@@ -36,8 +36,8 @@
                    :row-clickable="true"
                    @row-clicked="editDoc"
                    :show-row-button="true"
-                   :row-button-title="rowButtonTitle"
-                   :row-button-icon="rowButtonIcon"
+                   row-button-title="Edit"
+                   row-button-icon="fa-edit"
                    @row-button-clicked="editDoc">
         </rbz-table>
         <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">
@@ -147,15 +147,10 @@ export default defineComponent({
       cancelSource: axios.CancelToken.source(),
       // Documents
       docs: [] as GenericObject[],
-      docIdNames: [] as [Document['id'], Document['name']][],
       // To prevent deletion of docs referenced by Security Policies
       referencedIDsACL: [],
       referencedIDsContentFilter: [],
       referencedIDsLimits: [],
-
-      // table button icon and tooltip
-      rowButtonIcon: 'fa-edit',
-      rowButtonTitle: 'Edit',
 
       // Loading indicators
       isNewLoading: false,

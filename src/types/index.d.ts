@@ -95,17 +95,6 @@ declare module CuriefenseClient {
 
   type ArgsCookiesHeadersType = 'headers' | 'args' | 'cookies'
 
-  type LimitRuleType = 'headers' | 'args' | 'cookies' | 'attrs' | 'self'
-
-  type DynamicRuleTargetOptionType =
-    'remote_addr'
-    | 'organization'
-    | 'cookie'
-    | 'geoip_city_country_name'
-    | 'planet'
-    | 'request_headers'
-    | 'request_body'
-
   type NamesRegexType = 'names' | 'regex'
 
   type EdgeFunctionsPhaseType = 'request' | 'response'
@@ -220,7 +209,7 @@ declare module CuriefenseClient {
     exclude: string[]
     include: string[]
     ttl: number,
-    target: DynamicRuleTargetOptionType
+    target: string
   }
 
 
@@ -320,7 +309,7 @@ declare module CuriefenseClient {
       http_port: number
       https_port: number
       weight: number
-      fail_timeout: string
+      fail_timeout: number
       monitor_state: string
       down: boolean
       host: string
@@ -359,18 +348,13 @@ declare module CuriefenseClient {
     id: string
     name: string
     description: string
-    secret: string
-    var_name: string
     uid_header: string
     grace: string
-    grace_var_name: string
-    validator_type: string
     active_config: MobileSDKConfig[]
     signatures: MobileSDKSignature[]
-    support_legacy_sdk: boolean
   }
 
-  type ConfigTemplate = {
+  type ProxyTemplate = {
     name: string
     id: string
     description: string
@@ -378,7 +362,7 @@ declare module CuriefenseClient {
     client_body_timeout: string
     client_header_timeout: string
     client_max_body_size: string
-    conf_specific: {value: string}
+    conf_specific: string
     custom_listener: boolean
     keepalive_timeout: string
     limit_req_rate: string
@@ -388,7 +372,7 @@ declare module CuriefenseClient {
     proxy_read_timeout: string
     proxy_send_timeout: string
     send_timeout: string
-    ssl_conf_specific: {value: string}
+    ssl_conf_specific: string
     upstream_host: string
     xff_header_name: string
     xrealip_header_name: string
@@ -401,9 +385,9 @@ declare module CuriefenseClient {
     server_names: string[]
     security_policy: SecurityPolicy['id']
     routing_profile: RoutingProfile['id']
-    proxy_template: ConfigTemplate['id']
+    proxy_template: ProxyTemplate['id']
     mobile_sdk: MobileSDK['id']
-    ssl_certificate?: string
+    ssl_certificate: string
   }
 
   type Link = {
@@ -452,6 +436,7 @@ declare module CuriefenseClient {
 
   type Quarantined = {
     id: string
+    config: string
     count: number
     first_added: number
     last_seen: number

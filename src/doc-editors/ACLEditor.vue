@@ -8,38 +8,36 @@
             <div class="media collapsible px-5 py-5 mb-0"
                  @click="isDataCollapsed = !isDataCollapsed">
               <div class="media-content">
-                <p v-show="!isDataCollapsed"
-                   class="title is-5"></p>
                 <p v-show="isDataCollapsed"
                    class="is-5">
-                <span class="inline-collapsed-header">
-                  <span class="label is-small mr-1">
-                    Name:
-                  </span>
-                  {{ localDoc.name }}
-                </span>
                   <span class="inline-collapsed-header">
-                  <span class="label is-small mr-1">
-                    ID:
+                    <span class="label is-small mr-1">
+                      Name:
+                    </span>
+                    {{ localDoc.name }}
                   </span>
-                  {{ localDoc.id }}
-                </span>
-                  <span class="inline-collapsed-header">
-                  <span class="label is-small mr-1">
-                    Tags:
+                    <span class="inline-collapsed-header">
+                    <span class="label is-small mr-1">
+                      ID:
+                    </span>
+                    {{ localDoc.id }}
                   </span>
-                  {{ selectedDocTags }}
-                </span>
+                    <span class="inline-collapsed-header">
+                    <span class="label is-small mr-1">
+                      Tags:
+                    </span>
+                    {{ selectedDocTags }}
+                  </span>
                 </p>
               </div>
               <span v-show="isDataCollapsed">
-              <i class="fas fa-angle-down"
-                 aria-hidden="true"></i>
-            </span>
+                <i class="fas fa-angle-down"
+                   aria-hidden="true" />
+              </span>
               <span v-show="!isDataCollapsed">
-              <i class="fas fa-angle-up"
-                 aria-hidden="true"></i>
-            </span>
+                <i class="fas fa-angle-up"
+                   aria-hidden="true" />
+              </span>
             </div>
             <div class="content collapsible-content px-5 py-5">
               <div class="columns">
@@ -99,7 +97,7 @@
                     <div class="control"
                          data-qa="tag-input">
                       <tag-autocomplete-input :initial-tag="selectedDocTags"
-                                              :selection-type="'multiple'"
+                                              selection-type="multiple"
                                               @tag-changed="selectedDocTags = $event"/>
                     </div>
                     <labeled-tags title="Automatic Tags"
@@ -200,7 +198,7 @@ export default defineComponent({
     selectedDoc: Object,
     apiPath: String,
   },
-  emits: ['update:selectedDoc', 'form-invalid'],
+  emits: ['update:selectedDoc', 'form-invalid', 'tags-invalid'],
   data() {
     return {
       operations: ['force_deny', 'passthrough', 'allow_bot', 'deny_bot', 'allow', 'deny'] as ACLProfileFilter[],
@@ -209,7 +207,7 @@ export default defineComponent({
       customResponseNames: [] as [CustomResponse['id'], CustomResponse['name']][],
 
       // collapsed
-      isDataCollapsed: false,
+      isDataCollapsed: true,
     }
   },
   computed: {
@@ -232,12 +230,18 @@ export default defineComponent({
         if (this.localDoc.tags && this.localDoc.tags.length > 0) {
           return this.localDoc.tags.join(' ')
         }
+        this.$emit('tags-invalid', true)
         return ''
       },
       set: function(tags: string): void {
         this.localDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
           return tag.trim()
         }) : []
+        if (tags.trim() === '' || tags.length < 3) {
+          this.$emit('tags-invalid', true)
+        } else {
+          this.$emit('tags-invalid', false)
+        }
         this.emitDocUpdate()
       },
     },

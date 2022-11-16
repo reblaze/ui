@@ -7,8 +7,6 @@
           <div class="media collapsible px-5 py-5 mb-0"
                @click="isDataCollapsed = !isDataCollapsed">
             <div class="media-content">
-              <p v-show="!isDataCollapsed"
-                 class="title is-5"></p>
               <p v-show="isDataCollapsed"
                  class="is-5">
                 <span class="inline-collapsed-header">
@@ -78,7 +76,7 @@
                   <div class="control"
                        data-qa="tag-input">
                     <tag-autocomplete-input :initial-tag="selectedDocTags"
-                                            :selection-type="'multiple'"
+                                            selection-type="multiple"
                                             :editable="!dynamicRuleManaged"
                                             @tag-changed="selectedDocTags = $event"/>
                   </div>
@@ -200,7 +198,7 @@ export default defineComponent({
       customResponseNames: [] as [CustomResponse['id'], CustomResponse['name']][],
 
       // collapsed
-      isDataCollapsed: false,
+      isDataCollapsed: true,
     }
   },
 
@@ -230,6 +228,7 @@ export default defineComponent({
         if (this.localDoc.tags && this.localDoc.tags.length > 0) {
           return this.localDoc.tags.join(' ')
         }
+        this.$emit('tags-invalid', true)
         return ''
       },
       set: function(tags: string): void {
@@ -239,6 +238,11 @@ export default defineComponent({
         this.localDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
           return tag.trim()
         }) : []
+        if (tags.trim() === '' || tags.length < 3) {
+          this.$emit('tags-invalid', true)
+        } else {
+          this.$emit('tags-invalid', false)
+        }
         this.emitDocUpdate()
       },
     },
@@ -256,7 +260,7 @@ export default defineComponent({
     },
   },
 
-  emits: ['update:selectedDoc', 'form-invalid'],
+  emits: ['update:selectedDoc', 'form-invalid', 'tags-invalid'],
 
   methods: {
 

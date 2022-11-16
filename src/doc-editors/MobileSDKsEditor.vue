@@ -1,6 +1,5 @@
 <template>
-  <div class="card-content"
-       v-if="selectedMobileSDK">
+  <div class="card-content" >
     <div class="media">
       <div class="media-content">
         <div class="columns">
@@ -19,10 +18,57 @@
                   </span>
                 </button>
               </p>
+              <div class="control"
+                   v-if="docs.length">
+                <div class="select is-small">
+                  <select v-model="selectedDocID"
+                          title="Switch document ID"
+                          @change="switchDocID()"
+                          class="site-selection"
+                          data-qa="switch-document">
+                          <option v-for="doc in docs"
+                            :key="doc.id"
+                            :value="doc.id">
+                      {{ doc.name }}
+                    </option>
+                  </select>
+                </div>
+              </div>
             </div>
           </div>
           <div class="column">
             <div class="field is-grouped is-pulled-right">
+              <p class="control">
+                <button class="button is-small new-mobile-sdks-document-button"
+                        :class="{'is-loading': isNewLoading}"
+                        @click="addNewMobileSDK()"
+                        title="Add new document"
+                        :disabled="!selectedBranch"
+                        data-qa="add-new-document">
+                  <span class="icon is-small">
+                    <i class="fas fa-plus"></i>
+                  </span>
+                  <span>
+                    New
+                  </span>
+                </button>
+              </p>
+
+              <p class="control">
+                <button class="button is-small fork-document-button"
+                        :class="{'is-loading': isForkLoading}"
+                        @click="forkDoc()"
+                        title="Duplicate document"
+                        :disabled="!selectedMobileSDK"
+                        data-qa="duplicate-document">
+                  <span class="icon is-small">
+                    <i class="fas fa-clone"></i>
+                  </span>
+                  <span>
+                    Duplicate
+                  </span>
+                </button>
+              </p>
               <p class="control">
                 <button class="button is-small download-doc-button"
                         :class="{'is-loading':isDownloadLoading}"
@@ -72,7 +118,8 @@
       </div>
     </div>
     <hr/>
-    <div class="content">
+    <div class="content"
+         v-if="!loadingDocCounter && selectedBranch && selectedMobileSDK">
       <div class="columns columns-divided">
         <div class="column is-4">
           <div class="field">
@@ -338,6 +385,27 @@
       </div>
       <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ documentAPIPath }}</span>
     </div>
+    <div class="content no-data-wrapper"
+         v-if="loadingDocCounter || !selectedBranch || !selectedMobileSDK ">
+      <div v-if="loadingDocCounter > 0">
+        <button class="button is-outlined is-text is-small is-loading document-loading">
+          Loading
+        </button>
+      </div>
+      <div v-else
+           class="no-data-message">
+        No data found.
+        <div>
+            <span v-if="!selectedMobileSDK?.id">
+            Missing document. To create a new one, click
+            <a title="Add new"
+               @click="addNewMobileSDK()">
+              here
+            </a>
+          </span>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -347,7 +415,7 @@ import RequestsUtils from '@/assets/RequestsUtils'
 import Utils from '@/assets/Utils'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import {defineComponent} from 'vue'
-import {MobileSDK} from '@/types'
+import {MobileSDK, HttpRequestMethods} from '@/types'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
 
@@ -359,7 +427,8 @@ export default defineComponent({
     return {
       titles: DatasetsUtils.titles,
       selectedMobileSDK: null as MobileSDK,
-      docIdFromRoute: '',
+      docs: [] as unknown as MobileSDK[],
+      selectedDocID: null,
 
       // App Signatures
       addSignatureMode: false,
@@ -380,6 +449,8 @@ export default defineComponent({
       isSaveLoading: false,
       isDeleteLoading: false,
       isDownloadLoading: false,
+      isForkLoading: false,
+      isNewLoading: false,
 
       apiRoot: RequestsUtils.reblazeAPIRoot,
       apiVersion: RequestsUtils.reblazeAPIVersion,
@@ -389,7 +460,10 @@ export default defineComponent({
     selectedBranch: {
       handler: function(val, oldVal) {
         if ((this.$route.name as string).includes('MobileSDKs/config') && val && val !== oldVal) {
+          this.loadDocs()
+          this.sortDocs()
           this.setSelectedDataFromRouteParams()
+          this.loadMobileSDK()
           this.loadReferencedMobileSDKsIDs()
         }
       },
@@ -417,11 +491,29 @@ export default defineComponent({
     },
 
     ...mapStores(useBranchesStore),
+
+    selectedDocIndex(): number {
+      if (this.selectedDocID) {
+        return _.findIndex(this.docs, (doc) => {
+          return doc.id === this.selectedDocID
+        })
+      }
+      return 0
+    },
   },
   methods: {
+    async goToRoute() {
+      const newRoute = `/${this.selectedBranch}/mobile-sdks/config/${this.selectedDocID}`
+      if (this.$route.path !== newRoute) {
+        console.log('Switching document, new mobile sdk document path: ' + newRoute)
+        await this.$router.push(newRoute)
+        await this.setSelectedDataFromRouteParams()
+      }
+    },
+
     async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
-      this.docIdFromRoute = this.$route.params?.doc_id?.toString()
+      this.selectedDocID = this.$route.params?.doc_id?.toString()
       await this.loadMobileSDK()
       this.setLoadingDocStatus(false)
     },
@@ -442,6 +534,19 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
       await this.loadMobileSDK()
+      this.setLoadingDocStatus(false)
+    },
+
+    async switchDocID() {
+      this.setLoadingDocStatus(true)
+      const docName = this.docs[this.selectedDocIndex].name
+      if (docName) {
+        Utils.toast(
+            `Switched to document ${docName} with ID "${this.selectedDocID}".`,
+            'is-info',
+        )
+      }
+      this.goToRoute()
       this.setLoadingDocStatus(false)
     },
 
@@ -469,23 +574,100 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
-    async saveChanges() {
+    sortDocs() {
+      this.docs = _.sortBy(this.docs, [(doc) => doc.name.toLowerCase()])
+    },
+
+    async loadDocs() {
+      this.isDownloadLoading = true
+      this.setLoadingDocStatus(true)
+      const branch = this.selectedBranch
+      const url = `configs/${branch}/d/mobile-sdks/`
+
+      const response = await RequestsUtils.sendReblazeRequest({
+        methodName: 'GET',
+        url,
+        config: {headers: {'x-fields': 'id, name'}},
+        onFail: () => {
+          console.log('Error while attempting to load documents')
+          this.docs = []
+          this.isDownloadLoading = false
+        },
+      })
+      this.docs = response?.data || []
+      this.sortDocs()
+      if (this.docs && this.docs.length && this.docs[0].id) {
+        if (!_.find(this.docs, (doc: MobileSDK) => {
+          return doc.id === this.selectedDocID
+        })) {
+          this.selectedDocID = this.docs[0].id
+        }
+        await this.loadMobileSDK()
+      }
+      this.setLoadingDocStatus(false)
+      this.isDownloadLoading = false
+    },
+
+    newMobileSDK(): MobileSDK {
+      const factory = DatasetsUtils.newOperationEntryFactory['mobile-sdks']
+      return factory && factory()
+    },
+
+    async addNewMobileSDK(mobilesdksToAdd?: MobileSDK, successMessage?: string, failureMessage?: string) {
+      this.setLoadingDocStatus(true)
+      this.isNewLoading = true
+      this.selectedMobileSDK = null
+      if (!mobilesdksToAdd) {
+        mobilesdksToAdd = this.newMobileSDK()
+      }
+      const mobilesdksText = this.titles['mobile-sdks-singular']
+      if (!successMessage) {
+        successMessage = `New ${mobilesdksText} was created.`
+      }
+      if (!failureMessage) {
+        failureMessage = `Failed while attempting to create the new ${mobilesdksText}.`
+      }
+      const data = mobilesdksToAdd
+      await this.saveChanges('POST', data, successMessage, failureMessage)
+      this.docs.unshift(mobilesdksToAdd)
+      this.selectedDocID = mobilesdksToAdd.id
+      this.sortDocs()
+
+      this.goToRoute()
+      this.isNewLoading = false
+      this.setLoadingDocStatus(false)
+    },
+
+    async saveChanges(methodName?: HttpRequestMethods, data?: MobileSDK,
+                      successMessage?: string, failureMessage?: string) {
+      this.setLoadingDocStatus(true)
       this.isSaveLoading = true
-      const methodName = 'PUT'
-      const url = `configs/${this.selectedBranch}/d/mobile-sdks/e/${this.selectedMobileSDK.id}/`
-      const data = this.selectedMobileSDK
+      if (!methodName) {
+        methodName = 'PUT'
+      }
+      if (!data) {
+        data = this.selectedMobileSDK
+      }
+      const url = `configs/${this.selectedBranch}/d/mobile-sdks/e/${data.id}/`
       const mobileSDKText = this.titles['mobile-sdks-singular']
-      const successMessage = `Changes to the ${mobileSDKText} were saved.`
-      const failureMessage = `Failed while attempting to save the changes to the ${mobileSDKText}.`
+      if (!successMessage) {
+        successMessage = `Changes to the ${mobileSDKText} were saved.`
+      }
+      if (!failureMessage) {
+        failureMessage = `Failed while attempting to save the changes to the ${mobileSDKText}.`
+      }
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
       this.isSaveLoading = false
+      this.setLoadingDocStatus(false)
     },
 
     async loadMobileSDK() {
+      this.setLoadingDocStatus(true)
       this.isDownloadLoading = true
+      this.selectedMobileSDK = null
       const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
-        url: `configs/${this.selectedBranch}/d/mobile-sdks/e/${this.docIdFromRoute}`,
+        url: `configs/${this.selectedBranch}/d/mobile-sdks/e/${this.selectedDocID}`,
         onFail: () => {
           console.log('Error while attempting to load the Mobile SDK')
           this.selectedMobileSDK = null
@@ -493,16 +675,34 @@ export default defineComponent({
         },
       })
       this.selectedMobileSDK = response?.data || {}
-      this.selectedMobileSDK.signatures = _.sortBy(this.selectedMobileSDK.signatures, (signature) => {
-        return !signature.active
-      }) || []
-      if (this.selectedMobileSDK.active_config) {
-        this.selectedMobileSDK.active_config = this.selectedMobileSDK.active_config.map((activeConfig) => ({
-          ...activeConfig,
-          json: JSON.stringify(JSON.parse(activeConfig.json), null, 2),
-        }))
+      if (this.selectedMobileSDK) {
+        this.selectedMobileSDK.signatures = _.sortBy(this.selectedMobileSDK.signatures, (signature) => {
+          return !signature.active
+        }) || []
+        if (this.selectedMobileSDK.active_config) {
+          this.selectedMobileSDK.active_config = this.selectedMobileSDK.active_config.map((activeConfig) => ({
+            ...activeConfig,
+            json: JSON.stringify(JSON.parse(activeConfig.json), null, 2),
+          }))
+        }
       }
       this.isDownloadLoading = false
+      this.setLoadingDocStatus(false)
+    },
+
+    async forkDoc() {
+      this.setLoadingDocStatus(true)
+      this.isForkLoading = true
+      const docToAdd = _.cloneDeep(this.selectedMobileSDK) as MobileSDK
+      docToAdd.name = 'copy of ' + docToAdd.name
+      docToAdd.id = DatasetsUtils.generateUUID2()
+
+      const docTypeText = this.titles['mobile-sdks-singular']
+      const successMessage = `The ${docTypeText} was duplicated.`
+      const failureMessage = `Failed while attempting to duplicate the ${docTypeText}.`
+      await this.addNewMobileSDK(docToAdd, successMessage, failureMessage)
+      this.isForkLoading = false
+      this.setLoadingDocStatus(false)
     },
 
     // App Signatures
@@ -572,7 +772,7 @@ export default defineComponent({
       this.configAdditionalInfoIndex = this.configAdditionalInfoIndex === index ? null : index
     },
 
-    editConfigName(event: InputEvent, index?: number) {
+    editConfigName(event: Event, index?: number) {
       const value = (event.target as HTMLInputElement)?.value
       if (_.isNil(index)) {
         this.newConfig.name = value
@@ -581,7 +781,7 @@ export default defineComponent({
       }
     },
 
-    editConfig(event: InputEvent, index?: number) {
+    editConfig(event: Event, index?: number) {
       const value = (event.target as HTMLTextAreaElement)?.value
       if (_.isNil(index)) {
         this.newConfig.json = value

@@ -18,10 +18,57 @@
                   </span>
                 </button>
               </p>
+              <div class="control"
+                   v-if="docs.length">
+                <div class="select is-small">
+                  <select v-model="selectedDocID"
+                          title="Switch document ID"
+                          @change="switchDocID()"
+                          class="site-selection"
+                          data-qa="switch-document">
+                    <option v-for="doc in docs"
+                            :key="doc.id"
+                            :value="doc.id">
+                      {{ doc.name }}
+                    </option>
+                  </select>
+                </div>
+              </div>
             </div>
           </div>
           <div class="column">
             <div class="field is-grouped is-pulled-right">
+              <p class="control">
+                <button class="button is-small new-proxy-template-document-button"
+                        :class="{'is-loading': isNewLoading}"
+                        @click="addNewProxyTemplate()"
+                        title="Add new document"
+                        :disabled="!selectedBranch"
+                        data-qa="add-new-document">
+                  <span class="icon is-small">
+                    <i class="fas fa-plus"></i>
+                  </span>
+                  <span>
+                    New
+                  </span>
+                </button>
+              </p>
+
+              <p class="control">
+                <button class="button is-small fork-document-button"
+                        :class="{'is-loading': isForkLoading}"
+                        @click="forkDoc()"
+                        title="Duplicate document"
+                        :disabled="!selectedProxyTemplate"
+                        data-qa="duplicate-document">
+                  <span class="icon is-small">
+                    <i class="fas fa-clone"></i>
+                  </span>
+                  <span>
+                    Duplicate
+                  </span>
+                </button>
+              </p>
               <p class="control">
                 <button class="button is-small download-doc-button"
                         :class="{'is-loading':isDownloadLoading}"
@@ -72,7 +119,7 @@
     </div>
     <hr/>
     <div class="content"
-         v-if="selectedConfigTemplate">
+         v-if="!loadingDocCounter && selectedBranch && selectedProxyTemplate">
       <div class="columns">
         <div class="column is-4">
           <div class="field">
@@ -80,14 +127,14 @@
               Name
               <span class="has-text-grey is-pulled-right document-id"
                     title="Rule id">
-                      {{ selectedConfigTemplate.id }}
+                      {{ selectedProxyTemplate.id }}
                     </span>
             </label>
             <div class="control">
               <input class="input is-small document-name"
                      title="Document name"
                      placeholder="Document name"
-                     v-model="selectedConfigTemplate.name"/>
+                     v-model="selectedProxyTemplate.name"/>
             </div>
           </div>
           <div class="field">
@@ -97,7 +144,7 @@
                       <textarea class="is-small textarea document-description"
                                 data-qa="description-input"
                                 title="Document description"
-                                v-model="selectedConfigTemplate.description"
+                                v-model="selectedProxyTemplate.description"
                                 rows="2">
                       </textarea>
               </div>
@@ -133,7 +180,7 @@
                     <input class="input is-small document-ip-header-name"
                            title="Client IP header name"
                            placeholder="Client IP header name"
-                           v-model="selectedConfigTemplate.xff_header_name">
+                           v-model="selectedProxyTemplate.xff_header_name">
                   </div>
                   <div class="help">
                     The header name which Reblaze will use to extract the client's IP address
@@ -147,7 +194,7 @@
                     <input class="input is-small document-limit-req-rate"
                            title="Requests per second per IP address"
                            placeholder="Requests per second per IP address"
-                           v-model="selectedConfigTemplate.limit_req_rate">
+                           v-model="selectedProxyTemplate.limit_req_rate">
                   </div>
                   <div class="help">
                     Static rate limiting for each IP address: the requests per second per IP address for this
@@ -165,7 +212,7 @@
                     <input class="input is-small document-client-body-timeout"
                            title="Client body timeout"
                            placeholder="Client body timeout"
-                           v-model="selectedConfigTemplate.client_body_timeout">
+                           v-model="selectedProxyTemplate.client_body_timeout">
                   </div>
                   <div class="help height-50px">
                     Defines a timeout for reading client request body, for a period between two successive read
@@ -184,7 +231,7 @@
                     <input class="input is-small document-client-header-timeout"
                            title="Client header timeout"
                            placeholder="Client header timeout"
-                           v-model="selectedConfigTemplate.client_header_timeout">
+                           v-model="selectedProxyTemplate.client_header_timeout">
                   </div>
                   <div class="help">
                     Defines a timeout for reading client request header. If a client does not transmit the entire
@@ -206,7 +253,7 @@
                     <input class="input is-small document-client-max-body-size"
                            title="Client max body size"
                            placeholder="Client max body size"
-                           v-model="selectedConfigTemplate.client_max_body_size">
+                           v-model="selectedProxyTemplate.client_max_body_size">
                   </div>
                   <div class="help">
                     Sets the maximum allowed size of the client request body, based on “Content-Length” request
@@ -226,7 +273,7 @@
                     <input class="input is-small document-limit-req-burst"
                            title="Burst of requests per second per IP address"
                            placeholder="Burst of requests per second per IP address"
-                           v-model="selectedConfigTemplate.limit_req_burst">
+                           v-model="selectedProxyTemplate.limit_req_burst">
                   </div>
                   <div class="help">
                     The burst parameter defines how many requests a client can make in excess of the rate
@@ -246,7 +293,7 @@
                     <input class="input is-small document-keepalive-timeout"
                            title="Keepalive timeout"
                            placeholder="Keepalive timeout"
-                           v-model="selectedConfigTemplate.keepalive_timeout">
+                           v-model="selectedProxyTemplate.keepalive_timeout">
                   </div>
                   <div class="help">
                     Defines a timeout during which a keep-alive client connection will stay open on the server
@@ -266,7 +313,7 @@
                     <input class="input is-small document-send-timeout"
                            title="Send timeout"
                            placeholder="Send timeout"
-                           v-model="selectedConfigTemplate.send_timeout">
+                           v-model="selectedProxyTemplate.send_timeout">
                   </div>
                   <div class="help">
                     Defines a timeout for transmitting a response to the client between two successive write
@@ -311,7 +358,7 @@
                     <input class="input is-small document-proxy-connect-timeout"
                            title="Proxy connect timeout"
                            placeholder="Proxy connect timeout"
-                           v-model="selectedConfigTemplate.proxy_connect_timeout">
+                           v-model="selectedProxyTemplate.proxy_connect_timeout">
                   </div>
                   <div class="help height-50px">
                     Defines a timeout for establishing a connection with a proxied server. It should be noted that
@@ -330,7 +377,7 @@
                     <input class="input is-small document-proxy-sen-timeout"
                            title="Proxy send timeout"
                            placeholder="Proxy send timeout"
-                           v-model="selectedConfigTemplate.proxy_send_timeout">
+                           v-model="selectedProxyTemplate.proxy_send_timeout">
                   </div>
                   <div class="help height-140px">
                     Sets a timeout for transmitting a request to the proxied server. The timeout is set only
@@ -350,7 +397,7 @@
                     <input class="input is-small document-proxy-read-timeout"
                            title="Proxy read timeout"
                            placeholder="Proxy read timeout"
-                           v-model="selectedConfigTemplate.proxy_read_timeout">
+                           v-model="selectedProxyTemplate.proxy_read_timeout">
                   </div>
                   <div class="help height-140px">
                     Defines a timeout for reading a response from the proxied server. The timeout is set only
@@ -372,7 +419,7 @@
                     <input class="input is-small document-upstream-host"
                            title="Backend service host header"
                            placeholder="Backend service host header"
-                           v-model="selectedConfigTemplate.upstream_host">
+                           v-model="selectedProxyTemplate.upstream_host">
                   </div>
                   <div class="help height-50px">
                     The Host header Reblaze will present to the backend service.<br/>Setting value to $host means
@@ -387,7 +434,7 @@
                     <input class="input is-small document-real-ip-header-name"
                            title="Real IP header name"
                            placeholder="Real IP header name"
-                           v-model="selectedConfigTemplate.xrealip_header_name">
+                           v-model="selectedProxyTemplate.xrealip_header_name">
                   </div>
                   <div class="help">
                     The Host header Reblaze will present to the backend service.<br/>X-Real-IP is the default
@@ -445,13 +492,13 @@
               <p class="title is-5 is-uppercase">Advanced Settings</p>
             </div>
             <span v-show="isAdvancedCollapsed">
-                    <i class="fas fa-angle-down"
-                       aria-hidden="true"></i>
-                  </span>
+              <i class="fas fa-angle-down"
+                 aria-hidden="true"></i>
+            </span>
             <span v-show="!isAdvancedCollapsed">
-                    <i class="fas fa-angle-up"
-                       aria-hidden="true"></i>
-                  </span>
+              <i class="fas fa-angle-up"
+                 aria-hidden="true"></i>
+            </span>
           </div>
           <div class="content collapsible-content px-5 py-5">
             <div class="columns">
@@ -462,28 +509,32 @@
                       HTTP Listener Custom Configuration
                     </label>
                     <div class="control">
-                            <textarea
-                                rows="5"
+                      <textarea rows="5"
                                 class="is-small textarea site-conf"
-                                v-model="selectedConfigTemplate.conf_specific.value">
-                            </textarea>
+                                v-model="selectedProxyTemplate.conf_specific">
+                      </textarea>
                     </div>
-                    <p class="help has-text-danger">Unless instructed, don't touch!</p>
+                    <p class="help has-text-danger">
+                      Unless instructed, don't touch!
+                    </p>
                   </div>
                 </div>
               </div>
               <div class="column is-6">
                 <div class="field ">
                   <div class="field">
-                    <label class="label is-small">HTTPS Listener Custom Configuration</label>
+                    <label class="label is-small">
+                      HTTPS Listener Custom Configuration
+                    </label>
                     <div class="control">
-                            <textarea
-                                rows="5"
+                      <textarea rows="5"
                                 class="is-small textarea site-ssl-conf"
-                                v-model="selectedConfigTemplate.ssl_conf_specific.value">
-                            </textarea>
+                                v-model="selectedProxyTemplate.ssl_conf_specific">
+                      </textarea>
                     </div>
-                    <p class="help has-text-danger">Unless instructed, don't touch!</p>
+                    <p class="help has-text-danger">
+                      Unless instructed, don't touch!
+                    </p>
                   </div>
                 </div>
               </div>
@@ -493,12 +544,32 @@
       </div>
       <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ documentAPIPath }}</span>
     </div>
+    <div class="content no-data-wrapper"
+         v-if="loadingDocCounter || !selectedBranch || !selectedProxyTemplate">
+      <div v-if="loadingDocCounter > 0">
+        <button class="button is-outlined is-text is-small is-loading document-loading">
+          Loading
+        </button>
+      </div>
+      <div v-else
+           class="no-data-message">
+        No data found.
+        <div>
+          <span v-if="!selectedProxyTemplate?.id">
+            Missing document. To create a new one, click
+            <a title="Add new"
+               @click="addNewProxyTemplate()">
+              here
+            </a>
+          </span>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 <script lang="ts">
 import RequestsUtils from '@/assets/RequestsUtils'
-import {ConfigTemplate} from '@/types'
-// import _ from 'lodash'
+import {ProxyTemplate, HttpRequestMethods} from '@/types'
 import Utils from '@/assets/Utils'
 import {defineComponent} from 'vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
@@ -507,12 +578,13 @@ import {useBranchesStore} from '@/stores/BranchesStore'
 import _ from 'lodash'
 
 export default defineComponent({
-  name: 'ConfigTemplateEditor',
+  name: 'ProxyTemplateEditor',
   data() {
     return {
       titles: DatasetsUtils.titles,
-      selectedConfigTemplate: null as ConfigTemplate,
-      docIdFromRoute: '',
+      selectedProxyTemplate: null as ProxyTemplate,
+      docs: [] as unknown as ProxyTemplate[],
+      selectedDocID: null,
 
       // Collapsible cards
       isFrontendCollapsed: false,
@@ -520,14 +592,16 @@ export default defineComponent({
       isAdvancedCollapsed: false,
       isTrustedCollapsed: false,
 
-      // To prevent deletion of Config templates referenced by Server Groups
-      referencedIDsConfigTemplate: [],
+      // To prevent deletion of Proxy templates referenced by Server Groups
+      referencedIDsProxyTemplate: [],
 
       // Loading indicators
       loadingDocCounter: 0,
       isSaveLoading: false,
       isDeleteLoading: false,
       isDownloadLoading: false,
+      isNewLoading: false,
+      isForkLoading: false,
 
       apiRoot: RequestsUtils.reblazeAPIRoot,
       apiVersion: RequestsUtils.reblazeAPIVersion,
@@ -570,9 +644,12 @@ export default defineComponent({
   watch: {
     selectedBranch: {
       handler: function(val, oldVal) {
-        if ((this.$route.name as string).includes('ConfigTemplates/config') && val && val !== oldVal) {
+        if ((this.$route.name as string).includes('ProxyTemplates/config') && val && val !== oldVal) {
+          this.loadDocs()
+          this.sortDocs()
           this.setSelectedDataFromRouteParams()
-          this.loadReferencedConfigTemplatesIDs()
+          this.loadProxyTemplate()
+          this.loadReferencedProxyTemplatesIDs()
         }
       },
       immediate: true,
@@ -581,18 +658,18 @@ export default defineComponent({
   computed: {
     documentAPIPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
-      const apiPath = `configs/${this.selectedBranch}/d/proxy-templates/e/${this.selectedConfigTemplate.id}/`
+      const apiPath = `configs/${this.selectedBranch}/d/proxy-templates/e/${this.selectedProxyTemplate.id}/`
       return `${apiPrefix}/reblaze/${apiPath}`
     },
 
     selectedDocNotDeletable(): boolean {
-      return !this.selectedConfigTemplate ||
-          this.selectedConfigTemplate.id.startsWith('__') || // Default entries
+      return !this.selectedProxyTemplate ||
+          this.selectedProxyTemplate.id.startsWith('__') || // Default entries
           this.isDocReferenced
     },
 
     isDocReferenced(): boolean {
-      return this.referencedIDsConfigTemplate.includes(this.selectedConfigTemplate.id)
+      return this.referencedIDsProxyTemplate.includes(this.selectedProxyTemplate.id)
     },
 
     selectedBranch(): string {
@@ -601,16 +678,35 @@ export default defineComponent({
 
     ...mapStores(useBranchesStore),
 
+    selectedDocIndex(): number {
+      if (this.selectedDocID) {
+        return _.findIndex(this.docs, (doc) => {
+          return doc.id=== this.selectedDocID
+        })
+      }
+      return 0
+    },
   },
   methods: {
+
+    async goToRoute() {
+      const newRoute = `/${this.selectedBranch}/proxy-templates/config/${this.selectedDocID}`
+      if (this.$route.path !== newRoute) {
+        console.log('Switching document, new proxy templates document path: ' + newRoute)
+        await this.$router.push(newRoute)
+        await this.setSelectedDataFromRouteParams()
+      }
+    },
+
     async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
-      this.docIdFromRoute = this.$route.params?.doc_id?.toString()
-      await this.loadConfigTemplate()
+      this.selectedDocID = this.$route.params?.doc_id?.toString()
+      await this.loadProxyTemplate()
+      this.setLoadingDocStatus(false)
     },
 
     redirectToList() {
-      this.$router.push(`/${this.selectedBranch}/config-templates/list`)
+      this.$router.push(`/${this.selectedBranch}/proxy-templates/list`)
     },
 
     setLoadingDocStatus(isLoading: boolean) {
@@ -624,23 +720,37 @@ export default defineComponent({
     async switchBranch() {
       this.setLoadingDocStatus(true)
       Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
-      await this.loadConfigTemplate()
+      await this.loadProxyTemplate()
+      this.setLoadingDocStatus(false)
+    },
+
+    async switchDocID() {
+      this.setLoadingDocStatus(true)
+
+      const docName = this.docs[this.selectedDocIndex].id
+      if (docName) {
+        Utils.toast(
+            `Switched to document ${docName} with ID "${this.selectedDocID}".`,
+            'is-info',
+        )
+      }
+      this.goToRoute()
       this.setLoadingDocStatus(false)
     },
 
     downloadDoc() {
       if (!this.isDownloadLoading) {
-        Utils.downloadFile(this.titles['proxy-templates-singular'], 'json', this.selectedConfigTemplate)
+        Utils.downloadFile(this.titles['proxy-templates-singular'], 'json', this.selectedProxyTemplate)
       }
     },
 
     async deleteDoc() {
       this.setLoadingDocStatus(true)
       this.isDeleteLoading = true
-      const configTemplateText = this.titles['proxy-templates-singular']
-      const url = `configs/${this.selectedBranch}/d/proxy-templates/e/${this.selectedConfigTemplate.id}/`
-      const successMessage = `The ${configTemplateText} was deleted.`
-      const failureMessage = `Failed while attempting to delete the ${configTemplateText}.`
+      const proxyTemplateText = this.titles['proxy-templates-singular']
+      const url = `configs/${this.selectedBranch}/d/proxy-templates/e/${this.selectedProxyTemplate.id}/`
+      const successMessage = `The ${proxyTemplateText} was deleted.`
+      const failureMessage = `Failed while attempting to delete the ${proxyTemplateText}.`
       await RequestsUtils.sendReblazeRequest({
         methodName: 'DELETE',
         url: url,
@@ -652,50 +762,139 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
-    async saveChanges() {
-      this.isSaveLoading = true
-      const methodName = 'PUT'
-      const url = `configs/${this.selectedBranch}/d/proxy-templates/e/${this.selectedConfigTemplate.id}/`
-      const data = this.selectedConfigTemplate
-      const configTemplateText = this.titles['proxy-templates-singular']
-      const successMessage = `Changes to the ${configTemplateText} were saved.`
-      const failureMessage = `Failed while attempting to save the changes to the ${configTemplateText}.`
-      await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
-      this.isSaveLoading = false
+    newProxyTemplate(): ProxyTemplate {
+      const factory = DatasetsUtils.newOperationEntryFactory['proxy-templates']
+      return factory && factory()
     },
 
-    async loadConfigTemplate() {
+    async addNewProxyTemplate(proxyTemplateToAdd?: ProxyTemplate, successMessage?: string, failureMessage?: string) {
+      this.setLoadingDocStatus(true)
+      this.isNewLoading = true
+      this.selectedProxyTemplate = null
+      if (!proxyTemplateToAdd) {
+        proxyTemplateToAdd = this.newProxyTemplate()
+      }
+      const proxyTemplateText = this.titles['proxy-templates-singular']
+      if (!successMessage) {
+        successMessage = `New ${proxyTemplateText} was created.`
+      }
+      if (!failureMessage) {
+        failureMessage = `Failed while attempting to create the new ${proxyTemplateText}.`
+      }
+      const data = proxyTemplateToAdd
+      await this.saveChanges('POST', data, successMessage, failureMessage)
+
+      this.docs.unshift(proxyTemplateToAdd)
+      this.selectedDocID = proxyTemplateToAdd.id
+      this.sortDocs()
+
+      this.goToRoute()
+      this.isNewLoading = false
+      this.setLoadingDocStatus(false)
+    },
+
+
+    async saveChanges(methodName?: HttpRequestMethods, data?: ProxyTemplate, successMessage?:
+      string, failureMessage?: string) {
+      this.setLoadingDocStatus(true)
+      this.isSaveLoading = true
+      if (!methodName) {
+        methodName = 'PUT'
+      }
+      if (!data) {
+        data = this.selectedProxyTemplate
+      }
+      const url = `configs/${this.selectedBranch}/d/proxy-templates/e/${data.id}/`
+      const proxyTemplateText = this.titles['proxy-templates-singular']
+      if (!successMessage) {
+        successMessage = `Changes to the ${proxyTemplateText} were saved.`
+      }
+      if (!failureMessage) {
+        failureMessage = `Failed while attempting to save the changes to the ${proxyTemplateText}.`
+      }
+      await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
+      this.isSaveLoading = false
+      this.setLoadingDocStatus(false)
+    },
+
+    async forkDoc() {
+      this.setLoadingDocStatus(true)
+      this.isForkLoading = true
+      const docToAdd = _.cloneDeep(this.selectedProxyTemplate) as ProxyTemplate
+      docToAdd.name = 'copy of ' + docToAdd.name
+      docToAdd.id = DatasetsUtils.generateUUID2()
+
+      const docTypeText = this.titles['proxy-templates-singular']
+      const successMessage = `The ${docTypeText} was duplicated.`
+      const failureMessage = `Failed while attempting to duplicate the ${docTypeText}.`
+      await this.addNewProxyTemplate(docToAdd, successMessage, failureMessage)
+      this.isForkLoading = false
+      this.setLoadingDocStatus(false)
+    },
+
+    sortDocs() {
+      this.docs = _.sortBy(this.docs, [(doc) => doc.name.toLowerCase()])
+    },
+
+    async loadDocs() {
       this.isDownloadLoading = true
+      this.setLoadingDocStatus(true)
+      const branch = this.selectedBranch
+      const url = `configs/${branch}/d/proxy-templates/`
+      this.selectedProxyTemplate = null
       const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
-        url: `configs/${this.selectedBranch}/d/proxy-templates/e/${this.docIdFromRoute}`,
+        url,
+        config: {headers: {'x-fields': 'id, name'}},
         onFail: () => {
-          console.log(`Error while attempting to load the ${this.titles['proxy-template-singular']}`)
-          this.selectedConfigTemplate = null
+          console.log('Error while attempting to load documents')
+          this.docs = []
           this.isDownloadLoading = false
         },
       })
-      this.selectedConfigTemplate = response?.data || {}
-      if (!this.selectedConfigTemplate.conf_specific) {
-        this.selectedConfigTemplate.conf_specific = {value: ''}
+      this.docs = response?.data || []
+      this.sortDocs()
+      if (this.docs && this.docs.length && this.docs[0].id) {
+        if (!_.find(this.docs, (doc: ProxyTemplate) => {
+          return doc.id === this.selectedDocID
+        })) {
+          this.selectedDocID = this.docs[0].id
+        }
+        await this.loadProxyTemplate()
       }
-      if (!this.selectedConfigTemplate.ssl_conf_specific) {
-        this.selectedConfigTemplate.ssl_conf_specific = {value: ''}
-      }
+      this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
     },
 
-    async loadReferencedConfigTemplatesIDs() {
+    async loadProxyTemplate() {
+      this.setLoadingDocStatus(true)
+      this.isDownloadLoading = true
+      this.selectedProxyTemplate = null
+      const response = await RequestsUtils.sendReblazeRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/proxy-templates/e/${this.selectedDocID}`,
+        onFail: () => {
+          console.log(`Error while attempting to load the ${this.titles['proxy-template-singular']}`)
+          this.selectedProxyTemplate = null
+          this.isDownloadLoading = false
+        },
+      })
+      this.selectedProxyTemplate = response?.data || {}
+      this.isDownloadLoading = false
+      this.setLoadingDocStatus(false)
+    },
+
+    async loadReferencedProxyTemplatesIDs() {
       const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/sites/`,
       })
       const serverGroups = response?.data || []
-      const referencedConfigTemplates: string[] = []
+      const referencedProxyTemplates: string[] = []
       _.forEach(serverGroups, (serverGroup) => {
-        referencedConfigTemplates.push(serverGroup['proxy_template'])
+        referencedProxyTemplates.push(serverGroup['proxy_template'])
       })
-      this.referencedIDsConfigTemplate = _.uniq(referencedConfigTemplates)
+      this.referencedIDsProxyTemplate = _.uniq(referencedProxyTemplates)
     },
 
     // TODO waiting for truseted source to be implemented on backend: moved from planet to proxy-template and to have an id for each record.

@@ -45,16 +45,16 @@
             </div>
           </div>
           <div class="field">
+            <label class="label is-small">
+              Count by
+            </label>
             <limit-option v-for="(option, index) in localDoc.key"
-                          label-separated-line
-                          :label="index === 0 ? 'Count by' : ''"
                           show-remove
-                          @remove="removeKey(index)"
-                          @change="updateKeyOption($event, index)"
-                          :ignore-attributes="['securitypolicyid', 'securitypolicyentryid']"
                           :removable="localDoc.key.length > 1"
-                          :index="index"
-                          :option="generateOption(option)"
+                          @remove="removeKey(index)"
+                          v-model:option="localDoc.key[index]"
+                          @update:option="emitDocUpdate(); checkKeysValidity()"
+                          :ignore-attributes="['securitypolicyid', 'securitypolicyentryid']"
                           :key="getOptionTextKey(option, index)"/>
             <a title="Add new option rule"
                class="is-text is-small is-size-7 ml-3 add-key-button"
@@ -76,7 +76,7 @@
             <div class="control"
                  data-qa="tag-input">
               <tag-autocomplete-input :initial-tag="selectedDocTags"
-                                      :selection-type="'multiple'"
+                                      selection-type="multiple"
                                       @tag-changed="selectedDocTags = $event" />
             </div>
             <labeled-tags title="Automatic Tags"
@@ -355,7 +355,7 @@
 
 <script lang="ts">
 import _ from 'lodash'
-import LimitOption, {OptionObject} from '@/components/LimitOption.vue'
+import LimitOption from '@/components/LimitOption.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import {defineComponent} from 'vue'
@@ -365,7 +365,6 @@ import {
   FlowControlPolicy,
   IncludeExcludeType,
   LimitOptionType,
-  LimitRuleType,
 } from '@/types'
 import {httpRequestMethods} from '@/types/const'
 import LabeledTags from '@/components/LabeledTags.vue'
@@ -424,12 +423,18 @@ export default defineComponent({
         if (this.localDoc.tags && this.localDoc.tags.length > 0) {
           return this.localDoc.tags.join(' ')
         }
+        this.$emit('tags-invalid', true)
         return ''
       },
       set: function(tags: string): void {
         this.localDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
           return tag.trim()
         }) : []
+        if (tags.trim() === '' || tags.length < 3) {
+          this.$emit('tags-invalid', true)
+        } else {
+          this.$emit('tags-invalid', false)
+        }
         this.emitDocUpdate()
       },
     },
@@ -441,7 +446,7 @@ export default defineComponent({
     },
   },
 
-  emits: ['update:selectedDoc'],
+  emits: ['update:selectedDoc', 'tags-invalid'],
 
   methods: {
     getListEntryTitle(seqEntry: ArgsCookiesHeadersType): ArgsCookiesHeadersType {
@@ -459,13 +464,6 @@ export default defineComponent({
       return `${this.localDoc.id}_${type}_${index}`
     },
 
-    generateOption(data: LimitOptionType): OptionObject {
-      const [firstObjectKey] = Object.keys(data)
-      const type = firstObjectKey as LimitRuleType
-      const key = (data[firstObjectKey] || null)
-      return {type, key, value: null}
-    },
-
     addKey() {
       this.localDoc.key.push({attrs: 'ip'})
       this.emitDocUpdate()
@@ -476,14 +474,6 @@ export default defineComponent({
       if (this.localDoc.key.length > 1) {
         this.localDoc.key.splice(index, 1)
       }
-      this.emitDocUpdate()
-      this.checkKeysValidity()
-    },
-
-    updateKeyOption(option: OptionObject, index: number) {
-      this.localDoc.key.splice(index, 1, {
-        [option.type]: option.key,
-      })
       this.emitDocUpdate()
       this.checkKeysValidity()
     },
