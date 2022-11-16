@@ -366,8 +366,8 @@
                                   @click="addNewProfile(mapEntry, mapIndex)">
                             <span class="icon"><i class="fas fa-code-branch"></i></span>
                             <span>
-                                Fork profile
-                              </span>
+                                Fork path mapping
+                            </span>
                           </button>
                           <button title="Delete this profile"
                                   data-qa="delete-location-btn"
@@ -584,6 +584,21 @@ export default defineComponent({
       return factory && factory()
     },
 
+    async forkDoc() {
+      this.setLoadingDocStatus(true)
+      this.isForkLoading = true
+      const docToAdd = _.cloneDeep(this.selectedRoutingProfile) as RoutingProfile
+      docToAdd.id = DatasetsUtils.generateUUID2()
+      docToAdd.name = 'copy of ' + docToAdd.name + ' ' + docToAdd.id
+
+      const docTitleName = this.titles['routing-profiles-singular']
+      const successMessage = `The ${docTitleName} was duplicated.`
+      const failureMessage = `Failed while attempting to duplicate the ${docTitleName}.`
+      await this.addNewRoutingProfile(docToAdd, successMessage, failureMessage)
+      this.isForkLoading = false
+      this.setLoadingDocStatus(false)
+    },
+
     async addNewRoutingProfile(profileToAdd?: RoutingProfile, successMessage?: string, failureMessage?: string) {
       this.setLoadingDocStatus(true)
       this.isNewLoading = true
@@ -629,21 +644,6 @@ export default defineComponent({
       }
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
       this.isSaveLoading = false
-      this.setLoadingDocStatus(false)
-    },
-
-    async forkDoc() {
-      this.setLoadingDocStatus(true)
-      this.isForkLoading = true
-      const docToAdd = _.cloneDeep(this.selectedRoutingProfile) as RoutingProfile
-      docToAdd.name = 'copy of ' + docToAdd.name
-      docToAdd.id = DatasetsUtils.generateUUID2()
-
-      const docTitleName = this.titles['routing-profiles-singular']
-      const successMessage = `The ${docTitleName} was duplicated.`
-      const failureMessage = `Failed while attempting to duplicate the ${docTitleName}.`
-      await this.addNewRoutingProfile(docToAdd, successMessage, failureMessage)
-      this.isForkLoading = false
       this.setLoadingDocStatus(false)
     },
 
@@ -754,9 +754,6 @@ export default defineComponent({
     },
 
     addNewProfile(mapEntry: RoutingProfileEntryLocation, idx: number) {
-      this.setLoadingDocStatus(true)
-      this.isNewLoading = true
-      this.selectedRoutingProfile = null
       const newMapEntry = _.cloneDeep(mapEntry)
       const newMapEntryId = DatasetsUtils.generateUUID2()
       newMapEntry.id = newMapEntryId
