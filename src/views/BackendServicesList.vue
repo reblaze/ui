@@ -25,25 +25,22 @@
 
     <div class="content document-list-wrapper"
          v-show="!loadingDocCounter && selectedBranch">
-      <div class="card">
-        <div class="card-content">
-          <div class="content">
-            <rbz-table :columns="columns"
-                       :data="backendServices"
-                       :show-menu-column="true"
-                       :show-filter-button="true"
-                       :show-new-button="true"
-                       @new-button-clicked="addNewBackendService"
-                       :row-clickable="true"
-                       @row-clicked="editBackendService"
-                       :show-row-button="true"
-                       @row-button-clicked="editBackendService">
-            </rbz-table>
-            <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">
-                {{ documentListAPIPath }}
-              </span>
-          </div>
-        </div>
+      <div class="content">
+        <rbz-table :columns="columns"
+                   :data="backendServices"
+                   :default-sort-column-index="1"
+                   :show-menu-column="true"
+                   :show-filter-button="true"
+                   :show-new-button="true"
+                   @new-button-clicked="addNewBackendService"
+                   :row-clickable="true"
+                   @row-clicked="editBackendService"
+                   :show-row-button="true"
+                   @row-button-clicked="editBackendService">
+        </rbz-table>
+        <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">
+          {{ documentListAPIPath }}
+        </span>
       </div>
     </div>
 
@@ -80,31 +77,24 @@ export default defineComponent({
           fieldNames: ['id'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-130px',
+          classes: 'width-130px ellipsis',
         },
         {
           title: 'Name',
           fieldNames: ['name'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-130px',
-        },
-        {
-          title: 'Description',
-          fieldNames: ['description'],
-          isSortable: true,
-          isSearchable: true,
-          classes: 'ellipsis',
+          classes: 'width-130px ellipsis',
         },
         {
           title: 'Hosts',
           fieldNames: ['back_hosts'],
           displayFunction: (item: BackendService) => {
-            return _.map(item.back_hosts, 'host')
+            return _.map(item.back_hosts, 'host').join('\n')
           },
           isSortable: true,
           isSearchable: true,
-          classes: 'width-150px',
+          classes: 'vertical-scroll white-space-pre ellipsis',
         },
         {
           title: 'Transport Protocol',
@@ -205,9 +195,13 @@ export default defineComponent({
     },
 
     async loadBackendServices() {
+      this.setLoadingDocStatus(true)
+      this.isDownloadLoading = true
       const url = `configs/${this.selectedBranch}/d/backends/`
       const response = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
       this.backendServices = response?.data
+      this.isDownloadLoading = false
+      this.setLoadingDocStatus(false)
     },
 
     async switchBranch() {

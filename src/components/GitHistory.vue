@@ -109,7 +109,7 @@ export default defineComponent({
 
   props: {
     apiPath: String,
-    docTitle: String,
+    restoreTargetTitle: String,
     isCollapsedInitialState: {
       type: Boolean,
       default: true,
@@ -171,8 +171,8 @@ export default defineComponent({
       await RequestsUtils.sendRequest({
         methodName: 'PUT',
         url: `${url}${versionId}/revert/`,
-        successMessage: `Document [${this.docTitle}] restored to version [${versionId}]!`,
-        failureMessage: `Failed restoring document [${this.docTitle}] to version [${versionId}]!`,
+        successMessage: `The ${this.restoreTargetTitle} restored to version [${versionId}]!`,
+        failureMessage: `Failed restoring ${this.restoreTargetTitle} to version [${versionId}]!`,
       })
       this.loadGitLog()
       this.$emit('restore-version')
@@ -211,33 +211,6 @@ export default defineComponent({
 </script>
 <style scoped
        lang="scss">
-.collapsible {
-  cursor: pointer;
-  display: flex;
-  flex-direction: row;
-  justify-items: center;
-}
-
-.collapsible-card {
-  border: 1px solid #fff;
-}
-
-.collapsible-card:hover {
-  border: 1px solid #b5b5b5;
-}
-
-.card.collapsed .collapsible-content {
-  display: none;
-}
-
-.rbz-content .collapsed .media {
-  margin: 0;
-}
-
-.collapsible .fa-angle-down {
-  align-self: center;
-}
-
 .version-history-title {
   line-height: 30px;
 }

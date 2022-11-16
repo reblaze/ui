@@ -42,7 +42,7 @@
                               title="Document description"
                               v-model="localDoc.description"
                               @input="emitDocUpdate"
-                              rows="5">
+                              rows="2">
                     </textarea>
           </div>
         </div>
@@ -72,10 +72,10 @@
                data-qa="tag-input">
             <tag-autocomplete-input :initial-tag="selectedDocTags"
                                     :selection-type="'multiple'"
-                                    @tag-changed="selectedDocTags = $event" />
+                                    @tag-changed="selectedDocTags = $event"/>
           </div>
           <labeled-tags title="Automatic Tags"
-                        :tags="automaticTags" />
+                        :tags="automaticTags"/>
         </div>
         <div class="field ignore-alphanumeric-input-field"
              :title="additionalInfoIgnoreAlphanumericInput">
@@ -156,7 +156,7 @@
     <div class="tag-lists-wrapper pb-6">
       <div class="columns mb-0">
         <div class="column is-4"
-             v-for="section in sections"
+             v-for="section in tagSections"
              :key="section">
           <p class="title is-7 is-uppercase"
              :data-qa="`tag-${section}`">{{ titles[section] }}</p>
@@ -221,443 +221,345 @@
         </p>
       </div>
     </div>
-    <div class="tile is-ancestor px-3 py-3 mx-0 my-0">
-      <div class="tile is-12">
-        <table class="table is-fullwidth">
-          <thead>
-          <tr>
-            <th></th>
-            <th class="has-text-centered">All</th>
-            <th class="has-text-centered">Headers</th>
-            <th class="has-text-centered">Cookies</th>
-            <th class="has-text-centered">Arguments</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr>
-            <td>Max Length</td>
-            <td>
-              <input required
-                     class="input is-small max-allsections-length-input"
-                     data-qa="max-allsections-length-input"
-                     type="number"
-                     @change="emitDocUpdate"
-                     title="Max length for all sections"
-                     v-model.number="localDoc.allsections.max_length"/>
-            </td>
-            <td>
-              <input required
-                     class="input is-small max-header-length-input"
-                     data-qa="max-header-length-input"
-                     type="number"
-                     @change="emitDocUpdate"
-                     title="Max header length"
-                     v-model.number="localDoc.headers.max_length"/>
-            </td>
-            <td>
-              <input required
-                     class="input is-small max-cookie-length-input"
-                     data-qa="max-cookies-length-input"
-                     type="number"
-                     @change="emitDocUpdate"
-                     title="Max cookie length"
-                     v-model.number="localDoc.cookies.max_length"/>
-            </td>
-            <td>
-              <input required
-                     class="input is-small max-arg-length-input"
-                     data-qa="max-argument-length-input"
-                     type="number"
-                     @change="emitDocUpdate"
-                     title="Max argument length"
-                     v-model.number="localDoc.args.max_length"/>
-            </td>
-          </tr>
-          <tr>
-            <td>Max Count</td>
-            <td>
-              <input required
-                     class="input is-small max-allsections-count-input"
-                     data-qa="max-allsections-count-input"
-                     type="number"
-                     @change="emitDocUpdate"
-                     title="Max count for all sections"
-                     v-model.number="localDoc.allsections.max_count"/>
-            </td>
-            <td>
-              <input required
-                     class="input is-small max-headers-count-input"
-                     data-qa="max-header-count-input"
-                     type="number"
-                     @change="emitDocUpdate"
-                     title="Max headers count"
-                     v-model.number="localDoc.headers.max_count"/>
-            </td>
-            <td>
-              <input required
-                     class="input is-small max-cookies-count-input"
-                     data-qa="max-cookies-count-input"
-                     type="number"
-                     @change="emitDocUpdate"
-                     title="Max cookies count"
-                     v-model.number="localDoc.cookies.max_count"/>
-            </td>
-            <td>
-              <input required
-                     class="input is-small max-args-count-input"
-                     data-qa="max-argument-count-input"
-                     type="number"
-                     @change="emitDocUpdate"
-                     title="Max arguments count"
-                     v-model.number="localDoc.args.max_count"/>
-            </td>
-          </tr>
-          </tbody>
-        </table>
+    <div class="sections-wrapper">
+      <div class="tabs is-centered is-fullwidth">
+        <ul class="mx-5">
+          <li v-for="section in sections"
+              :key="section.sectionType"
+              :class="`${section.sectionType}-tab ${currentSection === section.sectionType ? 'is-active' : ''}`"
+              :data-qa="`${section.sectionType}-tab-btn`">
+            <a tabindex="0"
+               @click="currentSection = section.sectionType"
+               @keypress.space.prevent
+               @keypress.space="currentSection = section.sectionType"
+               @keypress.enter="currentSection = section.sectionType">
+              {{ section.title }}
+            </a>
+          </li>
+        </ul>
       </div>
-    </div>
-    <div class="tile is-ancestor px-3 py-3 mx-0 my-0">
-      <div class="tile is-parent">
-        <div class="tile is-12">
-          <table class="table is-fullwidth">
-            <tr>
-              <td>
-                <div class="tabs is-centered">
-                  <ul>
-                        <li :class=" tab === 'allsections' ? 'is-active' : '' "
-                            class="allsections-tab"
-                            data-qa="allsections-tab-btn">
-                          <a tabindex="0"
-                             @click='tab="allsections"'
-                             @keypress.space.prevent
-                             @keypress.space='tab="allsections"'
-                             @keypress.enter='tab="allsections"'>
-                            All
-                          </a>
-                        </li>
-                    <li :class=" tab === 'headers' ? 'is-active' : '' "
-                        class="headers-tab"
-                        data-qa="headers-tab-btn">
-                      <a tabindex="0"
-                         @click='tab="headers"'
-                         @keypress.space.prevent
-                         @keypress.space='tab="headers"'
-                         @keypress.enter='tab="headers"'>
-                        Headers
-                      </a>
-                    </li>
-                    <li :class=" tab === 'cookies' ? 'is-active' : '' "
-                        class="cookies-tab"
-                        data-qa="cookies-tab-btn">
-                      <a tabindex="0"
-                         @click='tab="cookies"'
-                         @keypress.space.prevent
-                         @keypress.space='tab="cookies"'
-                         @keypress.enter='tab="cookies"'>
-                        Cookies
-                      </a>
-                    </li>
-                    <li :class=" tab === 'args' ? 'is-active' : '' "
-                        class="args-tab"
-                        data-qa="arguments-tab-btn">
-                      <a tabindex="0"
-                         @click='tab="args"'
-                         @keypress.space.prevent
-                         @keypress.space='tab="args"'
-                         @keypress.enter='tab="args"'>
-                        Arguments
-                      </a>
-                    </li>
-                  </ul>
+      <div v-for="section in sections"
+           :key="section.sectionType"
+           :class="`card ${section.sectionType}-section`"
+           v-show="currentSection === section.sectionType">
+        <div class="card-content">
+          <div class="content">
+            <div class="columns section-inputs-wrapper">
+              <div class="column is-4">
+                <div class="field">
+                  <label class="label is-small">Max Length</label>
+                  <div class="control">
+                    <input class="input is-small section-max-length"
+                           type="number"
+                           v-model.number="localDoc[section.sectionType].max_length"
+                           :placeholder="`Max length for ${section.title.toLowerCase()}`"
+                           :title="`Max length for ${section.title.toLowerCase()}`"
+                           :class="`max-${section.sectionType}-length-input`"
+                           :data-qa="`max-${section.sectionType}-length-input`"
+                           @change="emitDocUpdate"/>
+                  </div>
                 </div>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <table class="table is-fullwidth is-hoverable"
-                       v-if="localDoc && localDoc[tab]">
-                  <thead>
-                  <tr>
-                    <th class="has-text-centered width-30pct">Parameter</th>
-                    <th class="has-text-centered width-25pct">Matching Value</th>
-                    <th class="has-text-centered width-5pct">Restrict?</th>
-                    <th class="has-text-centered width-5pct">Mask?</th>
-                    <th class="has-text-centered width-30pct">Ignore Content Filter Tags</th>
-                    <th class="has-text-centered width-5pct">
-                      <a v-show="newContentFilterLine !== tab"
-                         class="has-text-grey-dark is-small new-parameter-button"
-                         data-qa="add-new-parameter-btn"
-                         title="Add new parameter"
-                         tabindex="0"
-                         @click="openAddNewParameter(tab)"
-                         @keypress.space.prevent
-                         @keypress.space="openAddNewParameter(tab)"
-                         @keypress.enter="openAddNewParameter(tab)">
-                        <span class="icon is-small"><i class="fas fa-plus"></i></span>
-                      </a>
-                      <a v-show="newContentFilterLine === tab"
-                         class="has-text-grey-dark is-small cancel-new-parameter"
-                         title="Cancel adding new parameter"
-                         data-qa="cancel-new-parameter-btn"
-                         tabindex="0"
-                         @click="cancelNewParameter"
-                         @keypress.space.prevent
-                         @keypress.space="cancelNewParameter"
-                         @keypress.enter="cancelNewParameter">
-                        <span class="icon is-small"><i class="fas fa-minus"></i></span>
-                      </a>
-                    </th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr v-if="newContentFilterLine === tab"
-                      class="has-background-warning-light new-parameter-row">
-                    <td class="px-0 py-0 width-30pct">
-                      <table class="table is-fullwidth has-background-warning-light">
-                        <tr>
-                          <td class="is-fullwidth">
-                            <div class="field">
-                              <div class="control">
-                                <div class="select is-small">
-                                  <select v-model="newEntry.type"
-                                          data-qa="add-new-entry-btn"
-                                          class="new-entry-type"
-                                          title="Type">
-                                    <option value="names"
-                                            data-qa="parameter-name-dropdown">
-                                      {{ titles.names }}
-                                    </option>
-                                    <option value="regex"
-                                            data-qa="paramater-regex-dropdown">
-                                      {{ titles.regex }}
-                                    </option>
-                                  </select>
-                                </div>
+                <div class="field">
+                  <label class="label is-small">Max Count</label>
+                  <div class="control">
+                    <input class="input is-small section-max-count"
+                           type="number"
+                           v-model.number="localDoc[section.sectionType].max_count"
+                           :placeholder="`Max count for ${section.title.toLowerCase()}`"
+                           :title="`Max count for ${section.title.toLowerCase()}`"
+                           :class="`max-${section.sectionType}-count-input`"
+                           :data-qa="`max-${section.sectionType}-count-input`"
+                           @change="emitDocUpdate"/>
+                  </div>
+                </div>
+              </div>
+              <div class="column is-4">
+              </div>
+            </div>
+            <div class="section-constraints-wrapper my-5">
+              <table class="table is-fullwidth is-hoverable"
+                     v-if="localDoc && localDoc[currentSection]">
+                <thead>
+                <tr>
+                  <th class="has-text-centered width-30pct">Parameter</th>
+                  <th class="has-text-centered width-25pct">Matching Value</th>
+                  <th class="has-text-centered width-5pct">Restrict?</th>
+                  <th class="has-text-centered width-5pct">Mask?</th>
+                  <th class="has-text-centered width-30pct">Ignore Content Filter Tags</th>
+                  <th class="has-text-centered width-5pct">
+                    <a v-show="newContentFilterLine !== currentSection"
+                       class="has-text-grey-dark is-small new-parameter-button"
+                       data-qa="add-new-parameter-btn"
+                       title="Add new parameter"
+                       tabindex="0"
+                       @click="openAddNewParameter(currentSection)"
+                       @keypress.space.prevent
+                       @keypress.space="openAddNewParameter(currentSection)"
+                       @keypress.enter="openAddNewParameter(currentSection)">
+                      <span class="icon is-small"><i class="fas fa-plus"></i></span>
+                    </a>
+                    <a v-show="newContentFilterLine === currentSection"
+                       class="has-text-grey-dark is-small cancel-new-parameter"
+                       title="Cancel adding new parameter"
+                       data-qa="cancel-new-parameter-btn"
+                       tabindex="0"
+                       @click="cancelNewParameter"
+                       @keypress.space.prevent
+                       @keypress.space="cancelNewParameter"
+                       @keypress.enter="cancelNewParameter">
+                      <span class="icon is-small"><i class="fas fa-minus"></i></span>
+                    </a>
+                  </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-if="newContentFilterLine === currentSection"
+                    class="has-background-warning-light new-parameter-row">
+                  <td class="px-0 py-0 width-30pct">
+                    <table class="table is-fullwidth has-background-warning-light">
+                      <tr>
+                        <td>
+                          <div class="field">
+                            <div class="control">
+                              <div class="select is-small">
+                                <select v-model="newEntry.type"
+                                        data-qa="add-new-entry-btn"
+                                        class="new-entry-type"
+                                        title="Type">
+                                  <option value="names"
+                                          data-qa="parameter-name-dropdown">
+                                    {{ titles.names }}
+                                  </option>
+                                  <option value="regex"
+                                          data-qa="paramater-regex-dropdown">
+                                    {{ titles.regex }}
+                                  </option>
+                                </select>
                               </div>
                             </div>
-                          </td>
-                          <td>
-                            <div class="field">
-                              <div class="control">
-                                <div>
-                                  <input required
-                                         class="input is-small new-entry-key"
-                                         data-qa="new-key-input"
-                                         :class="{ 'is-danger': !newEntry.key && newEntry.keyDirty }"
-                                         @input="newEntry.keyDirty = true"
-                                         type="text"
-                                         v-model="newEntry.key"
-                                         placeholder="Key"
-                                         title="Key"/>
-                                </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="field">
+                            <div class="control">
+                              <div>
+                                <input required
+                                       class="input is-small new-entry-key"
+                                       data-qa="new-key-input"
+                                       :class="{ 'is-danger': !newEntry.key && newEntry.keyDirty }"
+                                       @input="newEntry.keyDirty = true"
+                                       type="text"
+                                       v-model="newEntry.key"
+                                       placeholder="Key"
+                                       title="Key"/>
                               </div>
                             </div>
-                          </td>
-                        </tr>
-                      </table>
-                    </td>
-                    <td class="width-25pct">
-                      <p class="control has-icons-left">
-                        <input required
-                               class="input is-small new-entry-reg"
-                               data-qa="new-value-input"
-                               type="text"
-                               v-model="newEntry.reg"
-                               :class="{ 'is-danger': entryMatchingValueInvalid(newEntry) && newEntry.regDirty }"
-                               @input="newEntry.regDirty = true"
-                               placeholder="Value"
-                               title="Value regex"/>
-                        <span class="icon is-small is-left has-text-grey">
+                          </div>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                  <td class="width-25pct">
+                    <p class="control has-icons-left">
+                      <input required
+                             class="input is-small new-entry-reg"
+                             data-qa="new-value-input"
+                             type="text"
+                             v-model="newEntry.reg"
+                             :class="{ 'is-danger': entryMatchingValueInvalid(newEntry) && newEntry.regDirty }"
+                             @input="newEntry.regDirty = true"
+                             placeholder="Value"
+                             title="Value regex"/>
+                      <span class="icon is-small is-left has-text-grey">
                               <i class="fas fa-code"></i>
                             </span>
-                      </p>
-                    </td>
-                    <td class="has-text-centered width-5pct">
-                      <label class="checkbox">
-                        <input type="checkbox"
-                               data-qa="restrict-checkbox"
-                               class="new-entry-restrict"
-                               v-model="newEntry.restrict"/>
-                      </label>
-                    </td>
-                    <td class="has-text-centered width-5pct">
-                      <label class="checkbox">
-                        <input type="checkbox"
-                               data-qa="masking-checkbox"
-                               class="new-entry-mask"
-                               v-model="newEntry.mask"/>
-                      </label>
-                    </td>
-                    <td class="width-30pct">
-                      <autocomplete-input
-                          :clear-input-after-selection="false"
-                          :auto-focus="false"
-                          class="new-entry-exclusions"
-                          :data-qa="autocompleteTitle"
-                          selection-type="multiple"
-                          :title="autocompleteTitle"
-                          @value-submitted="updateEntryExclusions(newEntry, $event)"/>
-                    </td>
-                    <td class="has-text-centered width-5pct">
-                      <button class="button is-light is-small confirm-add-new-parameter"
-                              data-qa="confirm-add-new-parameter-btn"
-                              :disabled="!newEntry.key || entryMatchingValueInvalid(newEntry)"
-                              :title="addNewParameterTitle"
-                              @click="addNewParameter">
-                        <span class="icon is-small"><i class="fas fa-plus fa-xs"></i></span>
-                      </button>
-                    </td>
-                  </tr>
-                  <tr v-for="(entry, idx) in localDoc[tab].names"
-                      class="entry-row"
-                      :key="genRowKey(tab, 'names', idx)">
-                    <td class="width-30pct">
-                      <div class="field">
-                        <p class="control has-icons-left">
-                          <input required
-                                 class="input is-small entry-key"
-                                 :class="{ 'is-danger': !entry.key }"
-                                 type="text"
-                                 @change="emitDocUpdate"
-                                 v-model="entry.key"
-                                 placeholder="Key"
-                                 title="Key name"/>
-                          <span class="icon is-small is-left has-text-grey">
+                    </p>
+                  </td>
+                  <td class="has-text-centered width-5pct">
+                    <label class="checkbox">
+                      <input type="checkbox"
+                             data-qa="restrict-checkbox"
+                             class="new-entry-restrict"
+                             v-model="newEntry.restrict"/>
+                    </label>
+                  </td>
+                  <td class="has-text-centered width-5pct">
+                    <label class="checkbox">
+                      <input type="checkbox"
+                             data-qa="masking-checkbox"
+                             class="new-entry-mask"
+                             v-model="newEntry.mask"/>
+                    </label>
+                  </td>
+                  <td class="width-30pct">
+                    <autocomplete-input
+                        :clear-input-after-selection="false"
+                        :auto-focus="false"
+                        class="new-entry-exclusions"
+                        :data-qa="autocompleteTitle"
+                        selection-type="multiple"
+                        :title="autocompleteTitle"
+                        @value-submitted="updateEntryExclusions(newEntry, $event)"/>
+                  </td>
+                  <td class="has-text-centered width-5pct">
+                    <button class="button is-light is-small confirm-add-new-parameter"
+                            data-qa="confirm-add-new-parameter-btn"
+                            :disabled="!newEntry.key || entryMatchingValueInvalid(newEntry)"
+                            :title="addNewParameterTitle"
+                            @click="addNewParameter">
+                      <span class="icon is-small"><i class="fas fa-plus fa-xs"></i></span>
+                    </button>
+                  </td>
+                </tr>
+                <tr v-for="(entry, idx) in localDoc[currentSection].names"
+                    class="entry-row"
+                    :key="genRowKey(currentSection, 'names', idx)">
+                  <td class="width-30pct">
+                    <div class="field">
+                      <p class="control has-icons-left">
+                        <input required
+                               class="input is-small entry-key"
+                               :class="{ 'is-danger': !entry.key }"
+                               type="text"
+                               @change="emitDocUpdate"
+                               v-model="entry.key"
+                               placeholder="Key"
+                               title="Key name"/>
+                        <span class="icon is-small is-left has-text-grey">
                                 <i class="fas fa-font"></i>
                               </span>
-                        </p>
-                      </div>
-                    </td>
-                    <td class="width-25pct">
-                      <p class="control has-icons-left">
-                        <input required
-                               class="input is-small entry-reg"
-                               :class="{ 'is-danger': entryMatchingValueInvalid(entry) }"
-                               type="text"
-                               @change="emitDocUpdate"
-                               v-model="entry.reg"
-                               placeholder="Value"
-                               title="Value regex"/>
-                        <span class="icon is-small is-left has-text-grey">
+                      </p>
+                    </div>
+                  </td>
+                  <td class="width-25pct">
+                    <p class="control has-icons-left">
+                      <input required
+                             class="input is-small entry-reg"
+                             :class="{ 'is-danger': entryMatchingValueInvalid(entry) }"
+                             type="text"
+                             @change="emitDocUpdate"
+                             v-model="entry.reg"
+                             placeholder="Value"
+                             title="Value regex"/>
+                      <span class="icon is-small is-left has-text-grey">
                               <i class="fas fa-code"></i>
                             </span>
-                      </p>
-                    </td>
-                    <td class="has-text-centered width-5pct">
-                      <label class="checkbox">
-                        <input type="checkbox"
-                               class="entry-restrict"
-                               @change="emitDocUpdate"
-                               v-model="entry.restrict"/>
-                      </label>
-                    </td>
-                    <td class="has-text-centered width-5pct">
-                      <label class="checkbox">
-                        <input type="checkbox"
-                               class="entry-mask"
-                               @change="emitDocUpdate"
-                               v-model="entry.mask"/>
-                      </label>
-                    </td>
-                    <td class="width-30pct">
-                      <autocomplete-input
-                          :clear-input-after-selection="false"
-                          :initial-value="exclusionsToString(entry.exclusions)"
-                          :auto-focus="false"
-                          class="entry-exclusions"
-                          selection-type="multiple"
-                          :title="autocompleteTitle"
-                          @value-submitted="updateEntryExclusions(entry, $event)"/>
-                    </td>
-                    <td class="has-text-centered width-5pct">
-                      <button title="Delete entry"
-                              data-qa="remove-entry-btn"
-                              :data-curie="genRowKey(tab, 'names', idx)"
-                              @click="deleteEntryRow(tab, 'names', idx)"
-                              class="button is-light is-small remove-entry-button">
+                    </p>
+                  </td>
+                  <td class="has-text-centered width-5pct">
+                    <label class="checkbox">
+                      <input type="checkbox"
+                             class="entry-restrict"
+                             @change="emitDocUpdate"
+                             v-model="entry.restrict"/>
+                    </label>
+                  </td>
+                  <td class="has-text-centered width-5pct">
+                    <label class="checkbox">
+                      <input type="checkbox"
+                             class="entry-mask"
+                             @change="emitDocUpdate"
+                             v-model="entry.mask"/>
+                    </label>
+                  </td>
+                  <td class="width-30pct">
+                    <autocomplete-input
+                        :clear-input-after-selection="false"
+                        :initial-value="exclusionsToString(entry.exclusions)"
+                        :auto-focus="false"
+                        class="entry-exclusions"
+                        selection-type="multiple"
+                        :title="autocompleteTitle"
+                        @value-submitted="updateEntryExclusions(entry, $event)"/>
+                  </td>
+                  <td class="has-text-centered width-5pct">
+                    <button title="Delete entry"
+                            data-qa="remove-entry-btn"
+                            :data-curie="genRowKey(currentSection, 'names', idx)"
+                            @click="deleteEntryRow(currentSection, 'names', idx)"
+                            class="button is-light is-small remove-entry-button">
                               <span class="icon is-small">
                                 <i class="fas fa-trash fa-xs"></i>
                               </span>
-                      </button>
-                    </td>
-                  </tr>
-                  <tr v-for="(entry, idx) in localDoc[tab].regex"
-                      class="entry-row"
-                      :key="genRowKey(tab, 'regex', idx)">
-                    <td class="width-30pct">
-                      <div class="field">
-                        <p class="control has-icons-left">
-                          <input required
-                                 class="input is-small entry-key"
-                                 :class="{ 'is-danger': !entry.key }"
-                                 type="text"
-                                 @change="emitDocUpdate"
-                                 v-model="entry.key"
-                                 placeholder="Key"
-                                 title="Key regex"/>
-                          <span class="icon is-small is-left has-text-grey">
-                                <i class="fas fa-code"></i>
-                              </span>
-                        </p>
-                      </div>
-                    </td>
-                    <td class="width-25pct">
+                    </button>
+                  </td>
+                </tr>
+                <tr v-for="(entry, idx) in localDoc[currentSection].regex"
+                    class="entry-row"
+                    :key="genRowKey(currentSection, 'regex', idx)">
+                  <td class="width-30pct">
+                    <div class="field">
                       <p class="control has-icons-left">
                         <input required
-                               class="input is-small entry-reg"
-                               :class="{ 'is-danger': entryMatchingValueInvalid(entry) }"
+                               class="input is-small entry-key"
+                               :class="{ 'is-danger': !entry.key }"
                                type="text"
                                @change="emitDocUpdate"
-                               v-model="entry.reg"
-                               placeholder="Value"
-                               title="Value regex"/>
+                               v-model="entry.key"
+                               placeholder="Key"
+                               title="Key regex"/>
                         <span class="icon is-small is-left has-text-grey">
+                                <i class="fas fa-code"></i>
+                              </span>
+                      </p>
+                    </div>
+                  </td>
+                  <td class="width-25pct">
+                    <p class="control has-icons-left">
+                      <input required
+                             class="input is-small entry-reg"
+                             :class="{ 'is-danger': entryMatchingValueInvalid(entry) }"
+                             type="text"
+                             @change="emitDocUpdate"
+                             v-model="entry.reg"
+                             placeholder="Value"
+                             title="Value regex"/>
+                      <span class="icon is-small is-left has-text-grey">
                                   <i class="fas fa-code"></i>
                             </span>
-                      </p>
-                    </td>
-                    <td class="has-text-centered width-5pct">
-                      <label class="checkbox">
-                        <input type="checkbox"
-                               class="entry-restrict"
-                               @change="emitDocUpdate"
-                               v-model="entry.restrict"/>
-                      </label>
-                    </td>
-                    <td class="has-text-centered width-5pct">
-                      <label class="checkbox">
-                        <input type="checkbox"
-                               class="entry-mask"
-                               @change="emitDocUpdate"
-                               v-model="entry.mask"/>
-                      </label>
-                    </td>
-                    <td class="width-30pct">
-                      <autocomplete-input
-                          :clear-input-after-selection="false"
-                          :initial-value="exclusionsToString(entry.exclusions)"
-                          :auto-focus="false"
-                          class="entry-exclusions"
-                          selection-type="multiple"
-                          :title="autocompleteTitle"
-                          @value-submitted="updateEntryExclusions(entry, $event)"/>
-                    </td>
-                    <td class="has-text-centered width-5pct">
-                      <button title="Delete entry"
-                              :data-curie="genRowKey(tab, 'regex', idx)"
-                              @click="deleteEntryRow(tab, 'regex', idx)"
-                              class="button is-light is-small remove-entry-button">
+                    </p>
+                  </td>
+                  <td class="has-text-centered width-5pct">
+                    <label class="checkbox">
+                      <input type="checkbox"
+                             class="entry-restrict"
+                             @change="emitDocUpdate"
+                             v-model="entry.restrict"/>
+                    </label>
+                  </td>
+                  <td class="has-text-centered width-5pct">
+                    <label class="checkbox">
+                      <input type="checkbox"
+                             class="entry-mask"
+                             @change="emitDocUpdate"
+                             v-model="entry.mask"/>
+                    </label>
+                  </td>
+                  <td class="width-30pct">
+                    <autocomplete-input
+                        :clear-input-after-selection="false"
+                        :initial-value="exclusionsToString(entry.exclusions)"
+                        :auto-focus="false"
+                        class="entry-exclusions"
+                        selection-type="multiple"
+                        :title="autocompleteTitle"
+                        @value-submitted="updateEntryExclusions(entry, $event)"/>
+                  </td>
+                  <td class="has-text-centered width-5pct">
+                    <button title="Delete entry"
+                            :data-curie="genRowKey(currentSection, 'regex', idx)"
+                            @click="deleteEntryRow(currentSection, 'regex', idx)"
+                            class="button is-light is-small remove-entry-button">
                               <span class="icon is-small">
                                 <i class="fas fa-trash fa-xs"></i>
                               </span>
-                      </button>
-                    </td>
-                  </tr>
-                  </tbody>
-                </table>
-              </td>
-            </tr>
-          </table>
+                    </button>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -729,9 +631,30 @@ export default defineComponent({
       unicode: false,
     }
     return {
-      sections: ['ignore', 'active', 'report'] as ContentFilterProfileTagLists[],
+      tagSections: ['ignore', 'active', 'report'] as ContentFilterProfileTagLists[],
       addNewColName: null,
-      tab: 'args' as ContentFilterProfileSectionType,
+      sections: [
+        {
+          title: 'All',
+          sectionType: 'allsections',
+        },
+        {
+          title: 'Headers',
+          sectionType: 'headers',
+        },
+        {
+          title: 'Cookies',
+          sectionType: 'cookies',
+        },
+        {
+          title: 'Arguments',
+          sectionType: 'args',
+        },
+      ] as {
+        title: string,
+        sectionType: ContentFilterProfileSectionType
+      }[],
+      currentSection: 'allsections' as ContentFilterProfileSectionType,
       newContentFilterLine: null as ContentFilterProfileSectionType,
       newEntry: defaultNewEntry,
       titles: DatasetsUtils.titles,
@@ -859,8 +782,8 @@ export default defineComponent({
       this.$emit('update:selectedDoc', this.localDoc)
     },
 
-    openAddNewParameter(tab: ContentFilterProfileSectionType) {
-      this.newContentFilterLine = tab
+    openAddNewParameter(section: ContentFilterProfileSectionType) {
+      this.newContentFilterLine = section
       this.newEntry = {...this.defaultNewEntry}
     },
 
@@ -877,16 +800,16 @@ export default defineComponent({
       delete newEntry.type
       delete newEntry.keyDirty
       delete newEntry.regDirty
-      this.localDoc[this.tab][type].unshift(newEntry)
+      this.localDoc[this.currentSection][type].unshift(newEntry)
       this.emitDocUpdate()
     },
 
-    genRowKey(tab: string, type: string, idx: number) {
-      return `${tab}-${type}-${idx}`
+    genRowKey(section: ContentFilterProfileSectionType, type: string, idx: number) {
+      return `${section}-${type}-${idx}`
     },
 
-    deleteEntryRow(tab: ContentFilterProfileSectionType, type: NamesRegexType, index: number) {
-      this.localDoc[tab][type].splice(index, 1)
+    deleteEntryRow(section: ContentFilterProfileSectionType, type: NamesRegexType, index: number) {
+      this.localDoc[section][type].splice(index, 1)
       this.emitDocUpdate()
     },
 

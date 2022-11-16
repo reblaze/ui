@@ -144,7 +144,7 @@
       <hr/>
       <git-history v-if="selectedDocID && !isReblazeDocument"
                    :api-path="gitAPIPath"
-                   :doc-title="titles[selectedDocType]"
+                   :restore-target-title="`document [${titles[selectedDocType]}]`"
                    @restore-version="restoreGitVersion"/>
     </div>
 
@@ -194,7 +194,16 @@ import CustomResponseEditor from '@/doc-editors/CustomResponsesEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
 import {defineComponent, shallowRef} from 'vue'
-import {Document, DocumentType, DynamicRule, GlobalFilter, HttpRequestMethods, SecurityPolicy} from '@/types'
+import {
+  Document,
+  DocumentType,
+  DynamicRule,
+  GlobalFilter,
+  HttpRequestMethods,
+  RateLimit,
+  ReblazeDocumentType,
+  SecurityPolicy,
+} from '@/types'
 import axios, {AxiosResponse} from 'axios'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
@@ -229,6 +238,11 @@ export default defineComponent({
       referencedIDsLimits: [],
       referencedIDsEdgeFunctions: [],
       referencedIDsDynamicRules: [],
+      referencedIDsGlobalFilter: [],
+      referencedIDsRateLimit: [],
+      referencedIDsCustomResponse: [],
+      referencedIDsRoutingProfiles: [],
+      referencedIDsSecurityPolicy: [],
 
       selectedDocType: null as DocumentType,
 
@@ -255,8 +269,8 @@ export default defineComponent({
       reblazeComponentsMap: reblazeComponentsMap,
       confAPIRoot: RequestsUtils.confAPIRoot,
       confAPIVersion: RequestsUtils.confAPIVersion,
-      reblazeAPIRoot: RequestsUtils.confAPIRoot,
-      reblazeAPIVersion: RequestsUtils.confAPIVersion,
+      reblazeAPIRoot: RequestsUtils.reblazeAPIRoot,
+      reblazeAPIVersion: RequestsUtils.reblazeAPIVersion,
     }
   },
   watch: {
@@ -265,7 +279,10 @@ export default defineComponent({
         if ((this.$route.name as string).includes('DocumentEditor') && val && val !== oldVal) {
           this.setLoadingDocStatus(true)
           await this.setSelectedDataFromRouteParams(true)
-          await this.loadReferencedDocsIDs()
+          await this.loadReferencedSecurityPoliciesDocsIDs()
+          await this.loadReferencedCustomResponsesDocsIDs()
+          await this.loadReferencedEdgeFunctionsDocsIDs()
+          await this.loadReferencedSecurityPoliciesIDs()
           this.setLoadingDocStatus(false)
         }
       },
@@ -279,7 +296,8 @@ export default defineComponent({
             const docMatchingGlobalFilter = DatasetsUtils.newDocEntryFactory['globalfilters']() as GlobalFilter
             docMatchingGlobalFilter.id = `dr_${this.selectedDocID}`
             docMatchingGlobalFilter.active = (this.selectedDoc as DynamicRule).active
-            docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule' + this.selectedDocID
+            docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule ' + this.selectedDocID
+            docMatchingGlobalFilter.action = 'action-dynamic-rule-block'
             this.selectedDocMatchingGlobalFilter = docMatchingGlobalFilter
           } else {
             this.setLoadingDocStatus(true)
@@ -332,8 +350,7 @@ export default defineComponent({
           this.selectedDoc.id.startsWith('action-') || // Reblaze-managed Custom Responses
           this.selectedDoc.id.startsWith('rbz-') || // Reblaze-managed Global Filters
           this.selectedDoc.id.startsWith('dr_') || // Dynamic-Rule-managed Global Filters
-          this.isDocReferenced ||
-          this.docs.length <= 1
+          this.isDocReferenced
     },
 
     selectedDocIndex(): number {
@@ -360,6 +377,15 @@ export default defineComponent({
       }
       if (this.selectedDocType === 'dynamic-rules') {
         return this.referencedIDsDynamicRules.includes(this.selectedDocID)
+      }
+      if (this.selectedDocType === 'actions') {
+        return this.referencedIDsCustomResponse.includes(this.selectedDocID)
+      }
+      if (this.selectedDocType as ReblazeDocumentType === 'cloud-functions') {
+        return this.referencedIDsRoutingProfiles.includes(this.selectedDocID)
+      }
+      if (this.selectedDocType === 'securitypolicies') {
+        return this.referencedIDsSecurityPolicy.includes(this.selectedDocID)
       }
       return false
     },
@@ -422,7 +448,11 @@ export default defineComponent({
     },
 
     updateDocIdNames() {
-      this.docIdNames = _.sortBy(_.map(this.docs, (doc) => [doc.id, doc.name]), (entry) => entry[1])
+      this.docIdNames = _.sortBy(_.map(this.docs, (doc) => {
+        return [doc.id, doc.name]
+      }), (entry) => {
+        return entry[1].toLowerCase()
+      })
     },
 
     async loadSelectedDocData() {
@@ -504,7 +534,6 @@ export default defineComponent({
         await this.loadSelectedDocData()
       }
       this.setLoadingDocStatus(false)
-      this.isDownloadLoading = false
     },
 
     async switchDocID() {
@@ -613,10 +642,6 @@ export default defineComponent({
 
       await requestFunction({methodName, url, data, successMessage, failureMessage}).then(() => {
         this.updateDocIdNames()
-        // If the saved doc was a security policy, refresh the referenced IDs lists
-        if (this.selectedDocType === 'securitypolicies') {
-          this.loadReferencedDocsIDs()
-        }
         // If the saved doc was a dynamic rule, also save the matching global filter
         if (this.selectedDocType === 'dynamic-rules') {
           let url = `configs/${this.selectedBranch}/d/globalfilters/e/`
@@ -664,7 +689,7 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
-    async loadReferencedDocsIDs() {
+    async loadReferencedSecurityPoliciesDocsIDs() {
       const response = await RequestsUtils.sendRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/securitypolicies/`,
@@ -673,7 +698,6 @@ export default defineComponent({
       const referencedACL: string[] = []
       const referencedContentFilter: string[] = []
       const referencedLimit: string[] = []
-      const referencedEdgeFunctions: string[] = []
       _.forEach(docs, (doc) => {
         _.forEach(doc.map, (mapEntry) => {
           referencedACL.push(mapEntry['acl_profile'])
@@ -684,7 +708,81 @@ export default defineComponent({
       this.referencedIDsACL = _.uniq(referencedACL)
       this.referencedIDsContentFilter = _.uniq(referencedContentFilter)
       this.referencedIDsLimits = _.uniq(_.flatten(referencedLimit))
-      this.referencedIDsEdgeFunctions = _.uniq(_.flatten(referencedEdgeFunctions))
+    },
+
+    async loadReferencedCustomResponsesDocsIDs() {
+      let response
+      response = await RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/aclprofiles/`,
+        config: {headers: {'x-fields': 'action'}},
+      })
+      const aclDocs = response?.data || []
+      response = await RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/globalfilters/`,
+        config: {headers: {'x-fields': 'action'}},
+      })
+      const globalFilterDocs = response?.data || []
+      response = await RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/ratelimits/`,
+        config: {headers: {'x-fields': 'thresholds'}},
+      })
+      const rateLimitDocs = response?.data || []
+      const ratelimitCustomResponses = [] as RateLimit[]
+      _.forEach(rateLimitDocs, (doc) => {
+        _.forEach(doc.thresholds, (threshold) => {
+          ratelimitCustomResponses.push(threshold.action)
+        })
+      })
+      response = await RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/contentfilterprofiles/`,
+        config: {headers: {'x-fields': 'action'}},
+      })
+      const contentFilterProfilesDocs = response?.data || []
+      response = await RequestsUtils.sendReblazeRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/dynamic-rules/`,
+        config: {headers: {'x-fields': 'action'}},
+      })
+      const dynamicRulesDocs = response?.data || []
+      this.referencedIDsCustomResponse = _.uniq([
+        ..._.map(aclDocs, 'action'),
+        ..._.map(globalFilterDocs, 'action'),
+        ...ratelimitCustomResponses,
+        ..._.map(contentFilterProfilesDocs, 'action'),
+        ..._.map(dynamicRulesDocs, 'action'),
+      ])
+    },
+
+    async loadReferencedEdgeFunctionsDocsIDs() {
+      const response = await RequestsUtils.sendReblazeRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/routing-profiles/`,
+      })
+      const routingProfiles = response?.data || []
+      const referencedRoutingProfiles: string[] = []
+      _.forEach(routingProfiles, (routingProfile) => {
+        _.forEach(routingProfile.locations, (location) => {
+          referencedRoutingProfiles.push(location['cloud_functions'])
+        })
+      })
+      this.referencedIDsRoutingProfiles = _.uniq(referencedRoutingProfiles)
+    },
+
+    async loadReferencedSecurityPoliciesIDs() {
+      const response = await RequestsUtils.sendReblazeRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/sites/`,
+      })
+      const serverGroups = response?.data || []
+      const referencedSecurityPolicies: string[] = []
+      _.forEach(serverGroups, (serverGroup) => {
+        referencedSecurityPolicies.push(serverGroup['security_policy'])
+      })
+      this.referencedIDsSecurityPolicy = _.uniq(referencedSecurityPolicies)
     },
 
     restoreGitVersion() {

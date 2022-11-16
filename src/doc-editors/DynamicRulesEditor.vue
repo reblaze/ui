@@ -40,7 +40,7 @@
                                 title="Document description"
                                 v-model="localDoc.description"
                                 @input="emitDocUpdate"
-                                rows="5">
+                                rows="2">
                       </textarea>
             </div>
           </div>
@@ -53,7 +53,6 @@
                 <select v-model="localDoc.target"
                         data-qa="target-dropdown"
                         title="Target"
-                        :value="localDoc.target"
                         @change="emitDocUpdate"
                         class="target-dropdown">
                   <option v-for="key in options"
@@ -135,7 +134,7 @@
                  data-qa="tag-input">
               <tag-autocomplete-input :initial-tag="selectedDocTags"
                                       :selection-type="'multiple'"
-                                      @tag-changed="selectedDocTags = $event" />
+                                      @tag-changed="selectedDocTags = $event"/>
             </div>
           </div>
         </div>
@@ -155,7 +154,7 @@
                 <tr v-for="(tag, tagIndex) in localDoc[filter]"
                     :key="tagIndex">
                   <td class="tag-cell ellipsis"
-                      :class=" duplicateTags[tag] ? 'has-text-danger' : '' "
+                      :class="duplicateTags[tag] ? 'has-text-danger' : ''"
                       :title="tag">
                     {{ tag }}
                   </td>
@@ -180,7 +179,7 @@
                                             :selection-type="'single'"
                                             :auto-focus="true"
                                             @keydown.esc="cancelAddNewTag"
-                                            @tag-submitted="addNewTag(filter, $event)" />
+                                            @tag-submitted="addNewTag(filter, $event)"/>
                   </td>
                   <td class="is-size-7 width-20px">
                     <a title="add new entry"

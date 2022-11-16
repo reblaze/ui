@@ -1,6 +1,7 @@
 import axios, {AxiosRequestConfig, AxiosResponse} from 'axios'
 import Utils from '@/assets/Utils'
 import {HttpRequestMethods} from '@/types'
+import {useBranchesStore} from '@/stores/BranchesStore'
 
 const confAPIRoot = '/conf/api'
 const confAPIVersion = 'v3'
@@ -51,6 +52,11 @@ const processRequest = (methodName: HttpRequestMethods, apiUrl: string, data: an
     // Toast message
     if (successMessage) {
       Utils.toast(successMessage, 'is-success', undoFunction)
+    }
+    // Update commit counters
+    if (methodName !== 'GET') {
+      const store = useBranchesStore()
+      store.increaseCommitsCounter()
     }
     return response
   }).catch((error: Error) => {

@@ -3,7 +3,7 @@
     <div class="branch-management-wrapper mb-3">
       <div class="control">
         <div class="select is-small is-fullwidth">
-          <select :value="selectedBranch"
+          <select :value="selectedBranch?.id"
                   data-qa="switch-branch-dropdown"
                   title="Switch branch"
                   @change="switchBranch($event)"
@@ -54,7 +54,6 @@
 </template>
 
 <script lang="ts">
-// import RequestsUtils from '@/assets/RequestsUtils'
 import {defineComponent} from 'vue'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
@@ -108,8 +107,8 @@ export default defineComponent({
       return this.branches?.length ? _.sortBy(_.map(this.branches, 'id')) : []
     },
 
-    selectedBranch(): string {
-      return this.branchesStore.selectedBranchId
+    selectedBranch(): Branch {
+      return this.branchesStore.selectedBranch
     },
 
     branchesCounter(): number {
@@ -158,35 +157,35 @@ export default defineComponent({
           header: 'Security',
         },
         {
-          href: `/${this.selectedBranch}/globalfilters`,
+          href: `/${this.selectedBranch?.id}/globalfilters`,
           title: 'Global Filters',
         },
         {
-          href: `/${this.selectedBranch}/flowcontrol`,
+          href: `/${this.selectedBranch?.id}/flowcontrol`,
           title: 'Flow Control Policies',
         },
         {
-          href: `/${this.selectedBranch}/securitypolicies`,
+          href: `/${this.selectedBranch?.id}/securitypolicies`,
           title: 'Security Policies',
         },
         {
-          href: `/${this.selectedBranch}/ratelimits`,
+          href: `/${this.selectedBranch?.id}/ratelimits`,
           title: 'Rate Limit Rules',
         },
         {
-          href: `/${this.selectedBranch}/aclprofiles`,
+          href: `/${this.selectedBranch?.id}/aclprofiles`,
           title: 'ACL Profiles',
         },
         {
-          href: `/${this.selectedBranch}/contentfilterprofiles`,
+          href: `/${this.selectedBranch?.id}/contentfilterprofiles`,
           title: 'Content Filter Profiles',
         },
         {
-          href: `/${this.selectedBranch}/contentfilterrules`,
+          href: `/${this.selectedBranch?.id}/contentfilterrules`,
           title: 'Content Filter Rules',
         },
         {
-          href: `/${this.selectedBranch}/actions`,
+          href: `/${this.selectedBranch?.id}/actions`,
           title: 'Custom Responses',
         },
         // ################
@@ -196,7 +195,7 @@ export default defineComponent({
           header: 'Premium Security',
         },
         {
-          href: `/${this.selectedBranch}/dynamic-rules`,
+          href: `/${this.selectedBranch?.id}/dynamic-rules`,
           title: 'Dynamic Rules',
         },
         {
@@ -204,7 +203,7 @@ export default defineComponent({
           title: 'Quarantined',
         },
         {
-          href: `/${this.selectedBranch}/mobile-sdks`,
+          href: `/${this.selectedBranch?.id}/mobile-sdks`,
           title: 'Mobile SDKs',
         },
         // ##############
@@ -214,23 +213,23 @@ export default defineComponent({
           header: 'Proxy Settings',
         },
         {
-          href: `/${this.selectedBranch}/server-groups`,
+          href: `/${this.selectedBranch?.id}/server-groups`,
           title: 'Server Groups',
         },
         {
-          href: `/${this.selectedBranch}/routing-profiles`,
+          href: `/${this.selectedBranch?.id}/routing-profiles`,
           title: 'Routing Profiles',
         },
         {
-          href: `/${this.selectedBranch}/config-templates`,
+          href: `/${this.selectedBranch?.id}/config-templates`,
           title: 'Config Templates',
         },
         {
-          href: `/${this.selectedBranch}/cloud-functions`,
+          href: `/${this.selectedBranch?.id}/cloud-functions`,
           title: 'Edge Functions',
         },
         {
-          href: `/${this.selectedBranch}/backend-services`,
+          href: `/${this.selectedBranch?.id}/backend-services`,
           title: 'Backend Services',
         },
         {
@@ -244,7 +243,7 @@ export default defineComponent({
           header: 'System',
         },
         {
-          href: `/${this.selectedBranch}/version-control`,
+          href: `/${this.selectedBranch?.id}/version-control`,
           title: 'Version Control',
         },
         {
@@ -252,7 +251,7 @@ export default defineComponent({
           title: 'System DB',
         },
         {
-          href: `/${this.selectedBranch}/publish`,
+          href: `/${this.selectedBranch?.id}/publish`,
           title: 'Publish Changes',
         },
         // ####
@@ -323,7 +322,7 @@ export default defineComponent({
 }
 
 .menu-wrapper {
-  height: calc(100% - 200px);
+  height: calc(100% - 150px);
 }
 
 .menu-wrapper .v-sidebar-menu .vsm--scroll-bar {

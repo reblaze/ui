@@ -70,7 +70,26 @@ declare module CuriefenseClient {
 
   type Relation = 'OR' | 'AND'
 
-  type Category = 'path' | 'query' | 'uri' | 'method' | 'ip' | 'asn' | 'country' | 'headers' | 'args' | 'cookies'
+  type Category =
+    'args'
+    | 'authority'
+    | 'company'
+    | 'cookies'
+    | 'country'
+    | 'headers'
+    | 'ip'
+    | 'method'
+    | 'network'
+    | 'path'
+    | 'securitypolicyentryid'
+    | 'asn'
+    | 'query'
+    | 'region'
+    | 'securitypolicyid'
+    | 'session'
+    | 'subregion'
+    | 'uri'
+    | ArgsCookiesHeadersType
 
   type ContentFilterProfileSectionType = 'headers' | 'args' | 'cookies' | 'path' | 'allsections'
 
@@ -78,7 +97,14 @@ declare module CuriefenseClient {
 
   type LimitRuleType = 'headers' | 'args' | 'cookies' | 'attrs' | 'self'
 
-  type DynamicRuleTargetOptionType = 'remote_addr' | 'organization' | 'cookie' | 'geoip_city_country_name' | 'planet' | 'request_headers' | 'request_body'
+  type DynamicRuleTargetOptionType =
+    'remote_addr'
+    | 'organization'
+    | 'cookie'
+    | 'geoip_city_country_name'
+    | 'planet'
+    | 'request_headers'
+    | 'request_body'
 
   type NamesRegexType = 'names' | 'regex'
 
@@ -87,7 +113,7 @@ declare module CuriefenseClient {
   type Document =
     BasicDocument
     & (ACLProfile | EdgeFunction | ContentFilterProfile | ContentFilterRule | CustomResponse |
-      DynamicRule | FlowControlPolicy | GlobalFilter | RateLimit | SecurityPolicy)
+    DynamicRule | FlowControlPolicy | GlobalFilter | RateLimit | SecurityPolicy)
 
   type DocumentType =
     'aclprofiles'
@@ -171,6 +197,8 @@ declare module CuriefenseClient {
     match: string
     description: string
     tags: string[]
+    session: LimitOptionType[]
+    session_ids: LimitOptionType[]
     map: SecurityPolicyEntryMatch[]
   }
 
@@ -192,9 +220,9 @@ declare module CuriefenseClient {
     exclude: string[]
     include: string[]
     ttl: number,
-    tags: string[],
     target: DynamicRuleTargetOptionType
   }
+
 
   type RateLimit = {
     id: string
@@ -264,7 +292,7 @@ declare module CuriefenseClient {
   type ColumnOptions = {
     title: string
     fieldNames?: string[]
-    displayFunction?: (item: any) => string // Will be rendered as HTML
+    displayFunction?: (item: any) => string | number // Will be rendered as HTML
     isSortable?: boolean
     isSearchable?: boolean
     isNumber?: boolean // True if all values are always numbers, for sorting
@@ -347,30 +375,29 @@ declare module CuriefenseClient {
     id: string
     description: string
     acao_header: boolean
-    xff_header_name: string
-    post_private_args: string
-    proxy_connect_timeout: string
-    proxy_send_timeout: string
-    proxy_read_timeout: string
-    upstream_host: string
     client_body_timeout: string
     client_header_timeout: string
-    keepalive_timeout: string
-    send_timeout: string
     client_max_body_size: string
+    conf_specific: {value: string}
+    custom_listener: boolean
+    keepalive_timeout: string
     limit_req_rate: string
     limit_req_burst: string
-    session_key: string
     mask_headers: string
+    proxy_connect_timeout: string
+    proxy_read_timeout: string
+    proxy_send_timeout: string
+    send_timeout: string
+    ssl_conf_specific: {value: string}
+    upstream_host: string
+    xff_header_name: string
     xrealip_header_name: string
-    custom_listener: boolean
   }
 
   type Site = {
     name: string
     id: string
     description: string
-    canonical_name: string
     server_names: string[]
     security_policy: SecurityPolicy['id']
     routing_profile: RoutingProfile['id']
@@ -428,7 +455,7 @@ declare module CuriefenseClient {
     count: number
     first_added: number
     last_seen: number
-    rule_id : string
+    rule_id: string
     tags: string[]
     target: string
     value: string

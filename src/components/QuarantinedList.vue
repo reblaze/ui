@@ -3,6 +3,7 @@
     <div class="content">
       <rbz-table :columns="columns"
                  :data="quarantinedData"
+                 :default-sort-column-index="1"
                  :row-button-icon="'fa-trash'"
                  :row-button-title="'Delete'"
                  :show-menu-column="true"
@@ -55,6 +56,7 @@ export default defineComponent({
           fieldNames: ['count'],
           isSortable: true,
           isSearchable: true,
+          isNumber: true,
           classes: 'width-100px',
         },
         {

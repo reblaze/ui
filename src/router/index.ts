@@ -18,6 +18,7 @@ import BackendServiceList from '@/views/BackendServicesList.vue'
 import BackendServiceEditor from '@/doc-editors/BackendServicesEditor.vue'
 import HelpAndSupport from '@/views/HelpAndSupport.vue'
 import DashboardDisplay from '@/views/Dashboards.vue'
+import DynamicRulesList from '@/views/DynamicRulesList.vue'
 import SslList from '@/views/SslList.vue'
 
 const routes: Array<RouteRecordRaw> = [
@@ -43,11 +44,17 @@ const routes: Array<RouteRecordRaw> = [
                 path: 'list',
                 name: 'ServerGroups/list',
                 component: ServerGroupsList,
+                meta: {
+                  title: 'Server Groups List',
+                },
               },
               {
                 path: 'config/:doc_id',
                 name: 'ServerGroups/config',
                 component: ServerGroupsEditor,
+                meta: {
+                  title: 'Server Groups Editor',
+                },
               },
             ],
           },
@@ -62,11 +69,17 @@ const routes: Array<RouteRecordRaw> = [
                 path: 'list',
                 name: 'RoutingProfiles/list',
                 component: RoutingProfileList,
+                meta: {
+                  title: 'Routing Profiles List',
+                },
               },
               {
                 path: 'config/:doc_id',
                 name: 'RoutingProfiles/config',
                 component: RoutingProfileEditor,
+                meta: {
+                  title: 'Routing Profiles Editor',
+                },
               },
             ],
           },
@@ -81,11 +94,17 @@ const routes: Array<RouteRecordRaw> = [
                 path: 'list',
                 name: 'MobileSDKs/list',
                 component: MobileSDKList,
+                meta: {
+                  title: 'Mobile SDKs List',
+                },
               },
               {
                 path: 'config/:doc_id',
                 name: 'MobileSDKs/config',
                 component: MobileSDKEditor,
+                meta: {
+                  title: 'Mobile SDKs Editor',
+                },
               },
             ],
           },
@@ -100,11 +119,42 @@ const routes: Array<RouteRecordRaw> = [
                 path: 'list',
                 name: 'ConfigTemplates/list',
                 component: ConfigTemplateList,
+                meta: {
+                  title: 'Config Templates List',
+                },
               },
               {
                 path: 'config/:doc_id',
                 name: 'ConfigTemplates/config',
                 component: ConfigTemplateEditor,
+                meta: {
+                  title: 'Config Templates Editor',
+                },
+              },
+            ],
+          },
+          {
+            path: 'dynamic-rules',
+            name: 'DynamicRules',
+            redirect: (route) => {
+              return `/${route.params.branch}/dynamic-rules/list`
+            },
+            children: [
+              {
+                path: 'list',
+                name: 'DynamicRules/list',
+                component: DynamicRulesList,
+                meta: {
+                  title: 'Dynamic Rules List',
+                },
+              },
+              {
+                path: 'config/:doc_id',
+                name: 'DocumentEditor/DocType/config/DocID',
+                component: DocumentEditor,
+                meta: {
+                  title: 'Dynamic Rules Editor',
+                },
               },
             ],
           },
@@ -119,11 +169,17 @@ const routes: Array<RouteRecordRaw> = [
                 path: 'list',
                 name: 'BackendServices/list',
                 component: BackendServiceList,
+                meta: {
+                  title: 'Backend Services List',
+                },
               },
               {
                 path: 'config/:doc_id',
                 name: 'BackendServices/config',
                 component: BackendServiceEditor,
+                meta: {
+                  title: 'Backend Services Editor',
+                },
               },
             ],
           },
@@ -152,22 +208,70 @@ const routes: Array<RouteRecordRaw> = [
                 path: 'list',
                 name: 'DocumentList/DocType/list',
                 component: DocumentList,
+                meta: {
+                  title: ':docType: List',
+                },
               },
               {
                 path: 'config/:doc_id',
                 name: 'DocumentEditor/DocType/config/DocID',
                 component: DocumentEditor,
+                meta: {
+                  title: ':docType: Editor',
+                },
               },
             ],
           },
-          {path: 'version-control', name: 'VersionControl', component: VersionControl},
-          {path: 'publish', name: 'PublishChanges', component: PublishChanges},
+          {
+            path: 'version-control',
+            name: 'VersionControl',
+            component: VersionControl,
+            meta: {
+              title: 'Version Control',
+            },
+          },
+          {
+            path: 'publish',
+            name: 'PublishChanges',
+            component: PublishChanges,
+            meta: {
+              title: 'Publish Changes',
+            },
+          },
         ],
       },
-      {path: 'dashboard', name: 'DashboardDisplay', component: DashboardDisplay},
-      {path: 'quarantined', name: 'Quarantined', component: QuarantinedList},
-      {path: 'system-db', name: 'SystemDBEditor', component: SystemDBEditor},
-      {path: 'support', name: 'Support', component: HelpAndSupport},
+      {
+        path: 'dashboard',
+        name: 'DashboardDisplay',
+        component: DashboardDisplay,
+        meta: {
+          title: 'Dashboard',
+        },
+      },
+      {
+        path: 'quarantined',
+        name: 'Quarantined',
+        component: QuarantinedList,
+        meta: {
+          title: 'Quarantined',
+        },
+      },
+      {
+        path: 'system-db',
+        name: 'SystemDBEditor',
+        component: SystemDBEditor,
+        meta: {
+          title: 'System DB',
+        },
+      },
+      {
+        path: 'support',
+        name: 'Support',
+        component: HelpAndSupport,
+        meta: {
+          title: 'Help And Support',
+        },
+      },
     ],
   },
   {

@@ -25,25 +25,22 @@
 
     <div class="content document-list-wrapper"
          v-show="!loadingDocCounter && selectedBranch">
-      <div class="card">
-        <div class="card-content">
-          <div class="content">
-            <rbz-table :columns="columns"
-                       :data="sites"
-                       :show-menu-column="true"
-                       :show-filter-button="true"
-                       :show-new-button="true"
-                       @new-button-clicked="addNewSite"
-                       :row-clickable="true"
-                       @row-clicked="editSite"
-                       :show-row-button="true"
-                       @row-button-clicked="editSite">
-            </rbz-table>
-            <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">
-                {{ documentListAPIPath }}
-              </span>
-          </div>
-        </div>
+      <div class="content">
+        <rbz-table :columns="columns"
+                   :data="serverGroups"
+                   :default-sort-column-index="1"
+                   :show-menu-column="true"
+                   :show-filter-button="true"
+                   :show-new-button="true"
+                   @new-button-clicked="addNewServerGroup"
+                   :row-clickable="true"
+                   @row-clicked="editServerGroup"
+                   :show-row-button="true"
+                   @row-button-clicked="editServerGroup">
+        </rbz-table>
+        <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">
+            {{ documentListAPIPath }}
+          </span>
       </div>
     </div>
 
@@ -80,18 +77,11 @@ export default defineComponent({
           fieldNames: ['id'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-130px',
+          classes: 'width-130px ellipsis',
         },
         {
           title: 'Name',
           fieldNames: ['name'],
-          isSortable: true,
-          isSearchable: true,
-          classes: 'width-130px',
-        },
-        {
-          title: 'Description',
-          fieldNames: ['description'],
           isSortable: true,
           isSearchable: true,
           classes: 'ellipsis',
@@ -151,7 +141,7 @@ export default defineComponent({
       ] as ColumnOptions[],
       isNewLoading: false,
       titles: DatasetsUtils.titles,
-      sites: [],
+      serverGroups: [],
       loadingDocCounter: 0,
       isDownloadLoading: false,
       securityPoliciesNames: [] as [SecurityPolicy['id'], SecurityPolicy['name']][],
@@ -167,7 +157,7 @@ export default defineComponent({
     selectedBranch: {
       handler: function(val, oldVal) {
         if ((this.$route.name as string).includes('ServerGroups/list') && val && val !== oldVal) {
-          this.loadSites()
+          this.loadServerGroups()
           this.loadSecurityPolicies()
           this.loadRoutingProfiles()
           this.loadConfigTemplates()
@@ -200,44 +190,48 @@ export default defineComponent({
       }
     },
 
-    newSite(): Site {
+    newServerGroup(): Site {
       const factory = DatasetsUtils.newOperationEntryFactory['sites']
       return factory && factory()
     },
 
-    editSite(id: string) {
+    editServerGroup(id: string) {
       this.$router.push(`/${this.selectedBranch}/server-groups/config/${id}`)
     },
 
-    async addNewSite() {
+    async addNewServerGroup() {
       this.isNewLoading = true
-      const siteToAdd = this.newSite()
-      const siteText = this.titles['sites-singular']
-      const successMessage = `New ${siteText} was created.`
-      const failureMessage = `Failed while attempting to create the new ${siteText}.`
-      const url = `configs/${this.selectedBranch}/d/sites/e/${siteToAdd.id}`
-      const data = siteToAdd
+      const serverGroupToAdd = this.newServerGroup()
+      const serverGroupText = this.titles['sites-singular']
+      const successMessage = `New ${serverGroupText} was created.`
+      const failureMessage = `Failed while attempting to create the new ${serverGroupText}.`
+      const url = `configs/${this.selectedBranch}/d/sites/e/${serverGroupToAdd.id}`
+      const data = serverGroupToAdd
       await RequestsUtils.sendReblazeRequest({methodName: 'POST', url, data, successMessage, failureMessage})
-      this.editSite(siteToAdd.id)
+      this.editServerGroup(serverGroupToAdd.id)
       this.isNewLoading = false
     },
 
     downloadDoc() {
       if (!this.isDownloadLoading) {
-        Utils.downloadFile('sites', 'json', this.sites)
+        Utils.downloadFile('sites', 'json', this.serverGroups)
       }
     },
 
-    async loadSites() {
+    async loadServerGroups() {
+      this.setLoadingDocStatus(true)
+      this.isDownloadLoading = true
       const url = `configs/${this.selectedBranch}/d/sites/`
       const response = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
-      this.sites = response?.data
+      this.serverGroups = response?.data
+      this.isDownloadLoading = false
+      this.setLoadingDocStatus(false)
     },
 
     async switchBranch() {
       this.setLoadingDocStatus(true)
       Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
-      await this.loadSites()
+      await this.loadServerGroups()
       this.setLoadingDocStatus(false)
     },
 

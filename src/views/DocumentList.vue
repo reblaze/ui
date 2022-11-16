@@ -28,6 +28,7 @@
       <div class="content">
         <rbz-table :columns="columns"
                    :data="docs"
+                   :default-sort-column-index="1"
                    :show-menu-column="true"
                    :show-filter-button="true"
                    :show-new-button="true"
@@ -46,7 +47,7 @@
       <hr/>
       <git-history v-if="!isReblazeDocument"
                    :api-path="gitAPIPath"
-                   :doc-title="titles[selectedDocType]"
+                   :restore-target-title="`document [${titles[selectedDocType]}]`"
                    @restore-version="restoreGitVersion"/>
     </div>
 
@@ -87,11 +88,24 @@ import CustomResponseEditor from '@/doc-editors/CustomResponsesEditor.vue'
 import DynamicRulesEditor from '@/doc-editors/DynamicRulesEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {defineComponent, shallowRef} from 'vue'
-import {ColumnOptions, Document, DocumentType, DynamicRule, GenericObject, GlobalFilter} from '@/types'
-import {COLUMN_OPTIONS_MAP} from './documentListConst'
+import {ColumnOptions, Document, DocumentType, GenericObject, GlobalFilter} from '@/types'
 import RbzTable from '@/components/RbzTable.vue'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
+import {
+  ACLProfile,
+  EdgeFunction,
+  ColumnOptionsMap,
+  ContentFilterProfile,
+  ContentFilterRule,
+  CustomResponse,
+  FlowControlPolicy,
+  RateLimit,
+  SecurityPolicy,
+  SecurityPolicyEntryMatch,
+} from '@/types'
+import axios, {AxiosResponse} from 'axios'
+
 
 export default defineComponent({
   watch: {
@@ -100,6 +114,7 @@ export default defineComponent({
         if ((this.$route.name as string).includes('DocumentList') && val && val !== oldVal) {
           this.setLoadingDocStatus(true)
           await this.setSelectedDataFromRouteParams(true)
+          this.loadCustomResponses()
           this.setLoadingDocStatus(false)
         }
       },
@@ -127,10 +142,9 @@ export default defineComponent({
       'dynamic-rules': shallowRef({component: DynamicRulesEditor}),
     }
     return {
-      columns: [] as ColumnOptions[],
       titles: DatasetsUtils.titles,
-
       selectedDocType: null as DocumentType,
+      cancelSource: axios.CancelToken.source(),
       // Documents
       docs: [] as GenericObject[],
       docIdNames: [] as [Document['id'], Document['name']][],
@@ -164,6 +178,9 @@ export default defineComponent({
         ...reblazeComponentsMap,
       },
       reblazeComponentsMap: reblazeComponentsMap,
+      selectedDocMatchingGlobalFilter: null as GlobalFilter,
+      matchedDocsData: null as any,
+      customResponsesNames: [] as [CustomResponse['id'], CustomResponse['name']][],
     }
   },
   computed: {
@@ -185,6 +202,467 @@ export default defineComponent({
       return `configs/${this.selectedBranch}/d/${this.selectedDocType}/v/`
     },
 
+    columns(): ColumnOptions[] {
+      return this.columnOptionMap[this.selectedDocType] || []
+    },
+
+    columnOptionMap() {
+      return {
+        'globalfilters': [
+          {
+            title: 'ID',
+            fieldNames: ['id'],
+            isSortable: true,
+            isSearchable: true,
+            classes: 'width-130px ellipsis',
+          },
+          {
+            title: 'Name',
+            fieldNames: ['name'],
+            isSortable: true,
+            isSearchable: true,
+            classes: 'ellipsis',
+          },
+          {
+            title: 'Tags',
+            fieldNames: ['tags'],
+            displayFunction: (item: GlobalFilter) => {
+              return item?.tags?.join('\n')
+            },
+            isSearchable: true,
+            classes: 'width-100px vertical-scroll white-space-pre ellipsis',
+          },
+          {
+            title: 'Active',
+            fieldNames: ['active'],
+            displayFunction: (item: GlobalFilter) => {
+              return item?.active ? 'yes' : 'no'
+            },
+            isSortable: true,
+            isSearchable: true,
+            classes: 'width-80px',
+          },
+          {
+            title: 'Custom Response',
+            fieldNames: ['action'],
+            isSortable: true,
+            displayFunction: (item: GlobalFilter) => {
+              const customResponse = _.find(this.customResponsesNames, (customResponseName) => {
+                return customResponseName[0] === item.action
+              })
+              return customResponse?.[1] || ''
+            },
+            isSearchable: true,
+            classes: 'width-130px',
+          },
+        ],
+        'flowcontrol': [
+          {
+            title: 'ID',
+            fieldNames: ['id'],
+            isSortable: true,
+            isSearchable: true,
+            classes: 'width-130px ellipsis',
+          },
+          {
+            title: 'Name',
+            fieldNames: ['name'],
+            isSortable: true,
+            isSearchable: true,
+            classes: 'ellipsis',
+          },
+          {
+            title: 'Tags',
+            fieldNames: ['tags'],
+            displayFunction: (item: FlowControlPolicy) => {
+              return item?.tags?.join('\n')
+            },
+            isSortable: false,
+            isSearchable: true,
+            classes: 'width-100px vertical-scroll white-space-pre ellipsis',
+          },
+          {
+            title: 'Sequences',
+            fieldNames: ['sequence'],
+            displayFunction: (item: FlowControlPolicy) => {
+              return item?.sequence?.length
+            },
+            isSortable: true,
+            isSearchable: true,
+            isNumber: true,
+            classes: 'width-100px',
+          },
+          {
+            title: 'Timeframe',
+            fieldNames: ['timeframe'],
+            isSortable: true,
+            isSearchable: true,
+            isNumber: true,
+            classes: 'width-100px',
+          },
+        ],
+        'securitypolicies': [
+          {
+            title: 'ID',
+            fieldNames: ['id'],
+            isSortable: true,
+            isSearchable: true,
+            classes: 'width-130px ellipsis',
+          },
+          {
+            title: 'Name',
+            fieldNames: ['name'],
+            isSortable: true,
+            isSearchable: true,
+            classes: 'width-130px ellipsis',
+          },
+          {
+            title: 'Matching Names',
+            fieldNames: ['match'],
+            isSortable: true,
+            isSearchable: true,
+            classes: 'ellipsis',
+          },
+          {
+            title: 'Tags',
+            fieldNames: ['tags'],
+            displayFunction: (item: SecurityPolicy) => {
+              return item?.tags?.join('\n')
+            },
+            isSortable: true,
+            isSearchable: true,
+            classes: 'width-100px vertical-scroll white-space-pre ellipsis',
+          },
+          {
+            title: 'Connected Profiles & Rules',
+            fieldNames: ['map'],
+            displayFunction: (item: SecurityPolicy) => {
+              const getRateLimitsAmount = () => {
+                const amount = _.sumBy(item?.map, (mapEntry: SecurityPolicyEntryMatch) => {
+                  return mapEntry.limit_ids.length
+                })
+                return `Rate Limit: ${amount} total`
+              }
+              const getActiveACLs = () => {
+                const active = item?.map?.filter((mapEntry: SecurityPolicyEntryMatch) => {
+                  return mapEntry.acl_active
+                }).length
+                const total = item?.map?.length
+                return `ACL: ${active} out of ${total} active`
+              }
+              const getActiveContentFilters = () => {
+                const active = item?.map?.filter((mapEntry: SecurityPolicyEntryMatch) => {
+                  return mapEntry.content_filter_active
+                }).length
+                const total = item?.map?.length
+                return `Content Filter: ${active} out of ${total} active`
+              }
+              return [
+                getActiveContentFilters(),
+                getActiveACLs(),
+                getRateLimitsAmount(),
+              ].join('\n')
+            },
+            classes: 'width-200px vertical-scroll white-space-pre ellipsis',
+          },
+        ],
+        'ratelimits': [
+          {
+            title: 'ID',
+            fieldNames: ['id'],
+            isSortable: true,
+            isSearchable: true,
+            classes: 'width-130px ellipsis',
+          },
+          {
+            title: 'Name',
+            fieldNames: ['name'],
+            isSortable: true,
+            isSearchable: true,
+            classes: 'ellipsis',
+          },
+          {
+            title: 'Tags',
+            fieldNames: ['tags'],
+            displayFunction: (item: RateLimit) => {
+              return item?.tags?.join('\n')
+            },
+            isSortable: false,
+            isSearchable: true,
+            classes: 'width-100px vertical-scroll white-space-pre ellipsis',
+          },
+          {
+            title: 'Timeframe',
+            fieldNames: ['timeframe'],
+            isSortable: true,
+            isSearchable: true,
+            isNumber: true,
+            classes: 'width-100px',
+          },
+          {
+            title: 'Thresholds',
+            fieldNames: ['thresholds'],
+            displayFunction: (item: RateLimit) => {
+              return _.map(item.thresholds, (threshold) =>{
+                const customResponse = _.find(this.customResponsesNames, (customResponseName) => {
+                  return customResponseName[0] === threshold.action
+                })
+                const customResponseName = customResponse?.[1] || ''
+                return `Limit:${threshold.limit}\n` +
+                        `Custom Response: ${customResponseName}`
+              }).join('\n')
+            },
+            isSortable: true,
+            isSearchable: true,
+            classes: 'width-250px vertical-scroll white-space-pre ellipsis',
+          },
+          {
+            title: 'Event',
+            fieldNames: ['pairwith'],
+            displayFunction: (item: RateLimit) => {
+              if (!item.pairwith) {
+                return ''
+              }
+              return _.isEqual(item.pairwith, {'self': 'self'}) ? 'HTTP request' :
+                `${Object.keys(item.pairwith)[0]}: ${Object.values(item.pairwith)[0]}`
+            },
+            isSortable: true,
+            isSearchable: true,
+            classes: 'width-80px',
+          },
+        ],
+        'aclprofiles': [
+          {
+            title: 'ID',
+            fieldNames: ['id'],
+            isSortable: true,
+            isSearchable: true,
+            classes: 'width-130px ellipsis',
+          },
+          {
+            title: 'Name',
+            fieldNames: ['name'],
+            isSortable: true,
+            isSearchable: true,
+            classes: 'ellipsis',
+          },
+          {
+            title: 'Tags',
+            fieldNames: ['tags'],
+            displayFunction: (item: ACLProfile) => {
+              return item?.tags?.join('\n')
+            },
+            isSortable: false,
+            isSearchable: true,
+            classes: 'width-100px vertical-scroll white-space-pre ellipsis',
+          },
+          {
+            title: 'Custom Response',
+            fieldNames: ['action'],
+            displayFunction: (item: GlobalFilter) => {
+              const customResponse = _.find(this.customResponsesNames, (customResponseName) => {
+                return customResponseName[0] === item.action
+              })
+              return customResponse?.[1] || ''
+            },
+            isSortable: true,
+            isSearchable: true,
+            classes: 'width-130px',
+          },
+        ],
+        'actions': [
+          {
+            title: 'ID',
+            fieldNames: ['id'],
+            isSortable: true,
+            isSearchable: true,
+            classes: 'width-130px ellipsis',
+          },
+          {
+            title: 'Name',
+            fieldNames: ['name'],
+            isSortable: true,
+            isSearchable: true,
+            classes: 'ellipsis',
+          },
+          {
+            title: 'Status Code',
+            fieldNames: ['params'],
+            displayFunction: (item: CustomResponse) => {
+              return item?.params?.status || null
+            },
+            isSortable: true,
+            isSearchable: true,
+            isNumber: true,
+            classes: 'width-100px white-space-pre ellipsis',
+          },
+          {
+            title: 'Tags',
+            fieldNames: ['tags'],
+            displayFunction: (item: CustomResponse) => {
+              return item?.tags?.join('\n')
+            },
+            isSortable: false,
+            isSearchable: true,
+            classes: 'width-100px vertical-scroll white-space-pre ellipsis',
+          },
+          {
+            title: 'Type',
+            fieldNames: ['type'],
+            displayFunction: (item: CustomResponse) => {
+              return _.capitalize(item?.type)
+            },
+            isSortable: true,
+            isSearchable: true,
+            classes: 'width-130px',
+          },
+        ],
+        'contentfilterprofiles': [
+          {
+            title: 'ID',
+            fieldNames: ['id'],
+            isSortable: true,
+            isSearchable: true,
+            classes: 'width-130px ellipsis',
+          },
+          {
+            title: 'Name',
+            fieldNames: ['name'],
+            isSortable: true,
+            isSearchable: true,
+            classes: 'ellipsis',
+          },
+          {
+            title: 'Tags',
+            fieldNames: ['tags'],
+            displayFunction: (item: ContentFilterProfile) => {
+              return item?.tags?.join('\n')
+            },
+            isSortable: false,
+            isSearchable: true,
+            classes: 'width-100px vertical-scroll white-space-pre ellipsis',
+          },
+          {
+            title: 'Restrict Content Type',
+            fieldNames: ['content_type'],
+            displayFunction: (item: ContentFilterProfile) => {
+              return item['content_type']?.join('\n')
+            },
+            isSortable: true,
+            isSearchable: true,
+            classes: 'width-150px vertical-scroll white-space-pre ellipsis',
+          },
+          {
+            title: 'Decoding',
+            fieldNames: ['decoding'],
+            displayFunction: (item: ContentFilterProfile) => {
+              if (!item.decoding) {
+                return ''
+              }
+              const displayValues: string[] = []
+              Object.keys(item.decoding).forEach((decodingKey: string) => {
+                if (item.decoding[decodingKey as keyof ContentFilterProfile['decoding']]) {
+                  displayValues.push(decodingKey)
+                }
+              })
+              return displayValues.join('\n')
+            },
+            isSortable: true,
+            isSearchable: true,
+            classes: 'width-100px vertical-scroll white-space-pre ellipsis',
+          },
+          {
+            title: 'Custom Response',
+            fieldNames: ['action'],
+            displayFunction: (item: GlobalFilter) => {
+              const customResponse = _.find(this.customResponsesNames, (customResponseName) => {
+                return customResponseName[0] === item.action
+              })
+              return customResponse?.[1] || ''
+            },
+            isSortable: true,
+            isSearchable: true,
+            classes: 'width-130px',
+          },
+        ],
+        'contentfilterrules': [
+          {
+            title: 'ID',
+            fieldNames: ['id'],
+            isSortable: true,
+            isSearchable: true,
+            classes: 'width-130px ellipsis',
+          },
+          {
+            title: 'Name',
+            fieldNames: ['name'],
+            isSortable: true,
+            isSearchable: true,
+            classes: 'ellipsis',
+          },
+          {
+            title: 'Category',
+            fieldNames: ['category'],
+            isSortable: true,
+            isSearchable: true,
+            classes: 'width-100px',
+          },
+          {
+            title: 'Subcategory',
+            fieldNames: ['subcategory'],
+            isSortable: true,
+            isSearchable: true,
+            classes: 'width-130px ellipsis',
+          },
+          {
+            title: 'Risk Level',
+            fieldNames: ['risk'],
+            isSortable: true,
+            isSearchable: true,
+            isNumber: true,
+            classes: 'width-100px',
+          },
+          {
+            title: 'Tags',
+            fieldNames: ['tags'],
+            displayFunction: (item: ContentFilterRule) => {
+              return item?.tags?.join('\n')
+            },
+            isSortable: true,
+            isSearchable: true,
+            classes: 'width-100px white-space-pre ellipsis',
+          },
+        ],
+        'cloud-functions': [
+          {
+            title: 'ID',
+            fieldNames: ['id'],
+            isSortable: true,
+            isSearchable: true,
+            classes: 'width-130px ellipsis',
+          },
+          {
+            title: 'Name',
+            fieldNames: ['name'],
+            isSortable: true,
+            isSearchable: true,
+            classes: 'ellipsis',
+          },
+          {
+            title: 'Phase',
+            fieldNames: ['phase'],
+            displayFunction: (item: EdgeFunction) => {
+              const titles = DatasetsUtils.titles
+              return titles[item.phase]
+            },
+            isSortable: true,
+            isSearchable: true,
+            classes: 'width-150px',
+          },
+        ],
+      } as ColumnOptionsMap
+    },
+
     selectedBranch(): string {
       return this.branchesStore.selectedBranchId
     },
@@ -192,6 +670,20 @@ export default defineComponent({
     ...mapStores(useBranchesStore),
   },
   methods: {
+    loadCustomResponses() {
+      RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/actions/`,
+        config: {headers: {'x-fields': 'id, name'}},
+      }).then((response: AxiosResponse<CustomResponse[]>) => {
+        this.customResponsesNames = _.sortBy(_.map(response.data, (entity) => {
+          return [entity.id, entity.name]
+        }), (e) => {
+          return e[1]
+        })
+      })
+    },
+
     goToRoute() {
       const currentRoute = `/${this.selectedBranch}/${this.selectedDocType}/list`
       if (this.$route.path !== currentRoute) {
@@ -209,7 +701,6 @@ export default defineComponent({
       } else {
         this.selectedDocType = Object.keys(this.componentsMap)[0] as DocumentType
       }
-      this.columns = COLUMN_OPTIONS_MAP[this.selectedDocType]
       if (forceLoadDocs || !prevDocType || prevDocType !== this.selectedDocType) {
         await this.loadDocs()
       }
@@ -238,9 +729,23 @@ export default defineComponent({
           this.isDownloadLoading = false
         },
       })
-
       this.docs = response?.data || []
-      this.isDownloadLoading = false
+      // After we load the basic data (with x-fields) we can async load the full data for the download
+      this.cancelSource.cancel(`Operation cancelled and restarted for a new document type ${this.selectedDocType}`)
+      this.cancelSource = axios.CancelToken.source()
+      requestFunction({
+        methodName: 'GET',
+        url,
+        config: {cancelToken: this.cancelSource.token},
+        onFail: () => {
+          console.log('Error while attempting to load documents')
+          this.docs = []
+          this.isDownloadLoading = false
+        },
+      }).then((response: AxiosResponse) => {
+        this.docs = response?.data || []
+        this.isDownloadLoading = false
+      })
     },
 
     async switchBranch() {
@@ -271,13 +776,11 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       this.isNewLoading = true
       const docToAdd = this.newDoc()
-      if (this.selectedDocType === 'dynamic-rules') {
-        docToAdd.name = docToAdd.name + ' ' + docToAdd.id
-      }
+
       const docTypeText = this.titles[this.selectedDocType + '-singular']
       const successMessage = `New ${docTypeText} was created.`
       const failureMessage = `Failed while attempting to create the new ${docTypeText}.`
-      let data = docToAdd
+      const data = docToAdd
       if (this.isReblazeDocument) {
         const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${docToAdd.id}`
         console.log('add new doc function', url, data, successMessage)
@@ -301,16 +804,6 @@ export default defineComponent({
         }).then(() => {
           this.editDoc(docToAdd.id)
         })
-      }
-
-      if (this.selectedDocType === 'dynamic-rules') {
-        const docMatchingGlobalFilter = DatasetsUtils.newDocEntryFactory['globalfilters']() as GlobalFilter
-        docMatchingGlobalFilter.id = `dr_${docToAdd.id}`
-        docMatchingGlobalFilter.active = (docToAdd as DynamicRule).active
-        docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule ' + docToAdd.id
-        data = docMatchingGlobalFilter
-        const url = `configs/${this.selectedBranch}/d/globalfilters/e/`
-        await RequestsUtils.sendRequest({methodName: 'POST', url, data})
       }
 
       this.isNewLoading = false

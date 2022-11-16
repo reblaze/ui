@@ -1,22 +1,23 @@
 import {
   ACLProfile,
   BackendService,
-  EdgeFunction,
+  ConfigTemplate,
   ContentFilterProfile,
   ContentFilterRule,
   CustomResponse,
   DynamicRule,
+  EdgeFunction,
   FlowControlPolicy,
   GlobalFilter,
   HttpRequestMethods,
   MobileSDK,
-  ConfigTemplate,
   RateLimit,
   RoutingProfile,
   SecurityPolicy,
   Site,
   Certificate,
 } from '@/types'
+import _ from 'lodash'
 
 const titles: { [key: string]: string } = {
   'admin': 'Admin',
@@ -53,8 +54,8 @@ const titles: { [key: string]: string } = {
   'aclprofiles-singular': 'ACL Profile',
   'dynamic-rules': 'Dynamic Rules',
   'dynamic-rules-singular': 'Dynamic Rule',
-  'ratelimits': 'Rate Limits',
-  'ratelimits-singular': 'Rate Limit',
+  'ratelimits': 'Rate Limit Rules',
+  'ratelimits-singular': 'Rate Limit Rule',
   'securitypolicies': 'Security Policies',
   'securitypolicies-singular': 'Security Policy',
   'contentfilterprofiles': 'Content Filter Profiles',
@@ -217,13 +218,19 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'match': `${id}.example.com`,
       'description': 'New Security Policy Description and Remarks',
       'tags': [],
+      'session': [
+        {
+          'attrs': 'ip',
+        },
+      ],
+      'session_ids': [],
       'map': [
         {
           'id': generateUUID2(),
           'match': '/',
           'name': 'default',
           'acl_profile': '__acldefault__',
-          'content_filter_profile': '__default__',
+          'content_filter_profile': '__defaultcontentfilter__',
           'acl_active': false,
           'content_filter_active': false,
           'limit_ids': [],
@@ -282,9 +289,9 @@ const newDocEntryFactory: { [key: string]: Function } = {
         },
       ],
       'sequence': [
-        {...defaultFlowControlSequenceItem},
+        _.cloneDeep(defaultFlowControlSequenceItem),
         {
-          ...defaultFlowControlSequenceItem,
+          ..._.cloneDeep(defaultFlowControlSequenceItem),
           method: 'POST' as HttpRequestMethods,
         },
       ],
@@ -315,7 +322,6 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'include': ['all'],
       'exclude': [],
       'ttl': 7200,
-      'tags': [],
       'target': 'remote_addr',
     }
   },
@@ -352,7 +358,6 @@ const newOperationEntryFactory: { [key: string]: Function } = {
       'id': id,
       'name': 'New Site ' + id, // TODO: Remove this random uuid once names are no longer unique
       'description': 'New Site Description and Remarks',
-      'canonical_name': 'New.Site.' + id,
       'server_names': [],
       'security_policy': '__default__',
       'routing_profile': '__default__',
@@ -383,10 +388,10 @@ const newOperationEntryFactory: { [key: string]: Function } = {
       'name': 'New Mobile SDK ' + generateUUID2(), // TODO: Remove this random uuid once names are no longer unique
       'description': 'New Mobile SDK Description and Remarks',
       'secret': '',
-      'var_name': 'authorization',
+      'var_name': '',
       'uid_header': 'authorization',
       'grace': '5',
-      'grace_var_name': 'timestamp',
+      'grace_var_name': '',
       'validator_type': '',
       'active_config': [
         {
@@ -406,23 +411,23 @@ const newOperationEntryFactory: { [key: string]: Function } = {
       'name': 'New Config Template ' + generateUUID2(), // TODO: Remove this random uuid once names are no longer unique
       'description': 'New Config Template Description and Remarks',
       'acao_header': false,
-      'xff_header_name': 'X-Forwarded-For',
-      'post_private_args': '(cc_number|password)',
-      'proxy_connect_timeout': '5',
-      'proxy_send_timeout': '30',
-      'proxy_read_timeout': '60',
-      'upstream_host': '$host',
       'client_body_timeout': '5',
       'client_header_timeout': '5',
-      'keepalive_timeout': '660',
-      'send_timeout': '5',
       'client_max_body_size': '150',
+      'conf_specific': {'value': ''},
+      'custom_listener': false,
+      'keepalive_timeout': '660',
       'limit_req_rate': '1200',
       'limit_req_burst': '400',
-      'session_key': 'cookie_jsessionid',
       'mask_headers': '',
+      'proxy_connect_timeout': '5',
+      'proxy_read_timeout': '60',
+      'proxy_send_timeout': '30',
+      'send_timeout': '5',
+      'ssl_conf_specific': {'value': ''},
+      'upstream_host': '$host',
+      'xff_header_name': 'X-Forwarded-For',
       'xrealip_header_name': 'X-Real-IP',
-      'custom_listener': false,
     }
   },
 
@@ -449,6 +454,22 @@ const newOperationEntryFactory: { [key: string]: Function } = {
     }
   },
 
+  'dynamic-rules'(): DynamicRule {
+    const id = generateUUID2()
+    return {
+      'id': id,
+      'name': 'New Dynamic Rule ' + id,
+      'description': 'New Dynamic Rule Description and Remarks',
+      'timeframe': 60,
+      'threshold': 9999,
+      'active': false,
+      'include': ['all'],
+      'exclude': [],
+      'ttl': 7200,
+      'target': 'remote_addr',
+    }
+  },
+
   'certificate'(): Certificate {
     const id = generateUUID2()
     return {
@@ -458,6 +479,7 @@ const newOperationEntryFactory: { [key: string]: Function } = {
     }
   },
 }
+
 
 export default {
   name: 'DatasetsUtils',
