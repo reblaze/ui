@@ -258,9 +258,6 @@ export default defineComponent({
     },
   },
   computed: {
-    localDoc(): EdgeFunction {
-      return _.cloneDeep(this.selectedEdgeFunction as EdgeFunction)
-    },
 
     selectedBranch(): string {
       return this.branchesStore.selectedBranchId
@@ -399,8 +396,7 @@ export default defineComponent({
     async loadEdgeFunction() {
       this.setLoadingDocStatus(true)
       this.isDownloadLoading = true
-      this.selectedEdgeFunction = null
-      this.selectedEdgeFunction = this.docs.find((cloud: EdgeFunction) => cloud.id === this.selectedDocID) // response?.data || {}
+      this.selectedEdgeFunction = this.docs.find((cloud: EdgeFunction) => cloud.id === this.selectedDocID)
       this.isDownloadLoading = false
       this.setLoadingDocStatus(false)
     },

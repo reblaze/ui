@@ -356,7 +356,6 @@ export default defineComponent({
   data() {
     return {
       titles: DatasetsUtils.titles,
-      selectedBackendService: null as BackendService,
       docs: [] as unknown as BackendService[],
       selectedDocID: null,
       stickinessModels: backendServicesConsts.stickinessModels,
@@ -392,24 +391,22 @@ export default defineComponent({
       handler: function(val, oldVal) {
         if ((this.$route.name as string).includes('BackendServices/config') && val && val !== oldVal) {
           this.loadDocs()
-          this.sortDocs()
           this.setSelectedDataFromRouteParams()
-          this.loadBackendService()
           this.loadReferencedBackendServicesIDs()
         }
       },
       immediate: true,
     },
-    selectedBackendService: {
-      handler: function(val, oldVal) {
-        if (val && val !== oldVal) {
-          const docIndex = this.docs.findIndex((doc: BackendService) => {
-            return doc.id === val.id
-          })
-          this.docs[docIndex] = val
-        }
-      },
-    },
+    // selectedBackendService: {
+    //   handler: function(val, oldVal) {
+    //     if (val && val !== oldVal) {
+    //       const docIndex = this.docs.findIndex((doc: BackendService) => {
+    //         return doc.id === val.id
+    //       })
+    //       this.docs[docIndex] = val
+    //     }
+    //   },
+    // },
   },
   computed: {
     documentAPIPath(): string {
@@ -423,15 +420,15 @@ export default defineComponent({
           this.isDocReferenced
     },
 
-    isSingleHost() {
+    isSingleHost(): boolean {
       return this.selectedBackendService.id && this.selectedBackendService.back_hosts.length === 1
     },
 
-    isPortBridge() {
+    isPortBridge(): boolean {
       return this.selectedBackendService.transport_mode === 'port_bridge'
     },
 
-    protocols() {
+    protocols(): {name: string; value: string;}[] {
       return backendServicesConsts.transportProtocols.filter((transportProtocol) => {
         return this.isSingleHost || transportProtocol.value !== 'port_bridge'
       })
@@ -455,6 +452,15 @@ export default defineComponent({
       }
       return 0
     },
+
+    selectedBackendService: {
+      get(): BackendService {
+        return this.docs[this.selectedDocIndex]
+      },
+      set(newDoc: BackendService): void {
+        this.docs[this.selectedDocIndex] = newDoc
+      },
+    },
   },
   methods: {
 
@@ -470,7 +476,6 @@ export default defineComponent({
     async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
       this.selectedDocID = this.$route.params?.doc_id?.toString()
-      await this.loadBackendService()
       this.setLoadingDocStatus(false)
     },
 
@@ -489,7 +494,7 @@ export default defineComponent({
     async switchBranch() {
       this.setLoadingDocStatus(true)
       Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
-      await this.loadBackendService()
+
       this.setLoadingDocStatus(false)
     },
 
@@ -559,7 +564,6 @@ export default defineComponent({
         })) {
           this.selectedDocID = this.docs[0].id
         }
-        await this.loadBackendService()
       }
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
@@ -573,7 +577,6 @@ export default defineComponent({
     async addNewBackendService(backendServiceToAdd?: BackendService, successMessage?: string, failureMessage?: string) {
       this.setLoadingDocStatus(true)
       this.isNewLoading = true
-      this.selectedBackendService = null
       if (!backendServiceToAdd) {
         backendServiceToAdd = this.newBackends()
       }
@@ -618,30 +621,30 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
-    async loadBackendService() {
-      this.setLoadingDocStatus(true)
-      this.isDownloadLoading = true
-      this.selectedBackendService = null
-      const response = await RequestsUtils.sendReblazeRequest({
-        methodName: 'GET',
-        url: `configs/${this.selectedBranch}/d/backends/e/${this.selectedDocID}`,
-        onFail: () => {
-          console.log('Error while attempting to load the Backend Service')
-          this.selectedBackendService = null
-          this.isDownloadLoading = false
-        },
-      })
-      this.selectedBackendService = response?.data || {}
-      this.isDownloadLoading = false
-      this.setLoadingDocStatus(false)
-    },
+    // async loadBackendService() {
+    //   this.setLoadingDocStatus(true)
+    //   this.isDownloadLoading = true
+    //   this.selectedBackendService = null
+    //   const response = await RequestsUtils.sendReblazeRequest({
+    //     methodName: 'GET',
+    //     url: `configs/${this.selectedBranch}/d/backends/e/${this.selectedDocID}`,
+    //     onFail: () => {
+    //       console.log('Error while attempting to load the Backend Service')
+    //       this.selectedBackendService = null
+    //       this.isDownloadLoading = false
+    //     },
+    //   })
+    //   this.selectedBackendService = response?.data || {}
+    //   this.isDownloadLoading = false
+    //   this.setLoadingDocStatus(false)
+    // },
 
     async forkDoc() {
       this.setLoadingDocStatus(true)
       this.isForkLoading = true
-      const docToAdd = _.cloneDeep(this.selectedBackendService) as BackendService
-      docToAdd.name = 'copy of ' + docToAdd.name
+      const docToAdd = this.selectedBackendService as BackendService
       docToAdd.id = DatasetsUtils.generateUUID2()
+      docToAdd.name = 'Backend Service copy no.' + docToAdd.id
 
       const docTypeText = this.titles['backends-singular']
       const successMessage = `The ${docTypeText} was duplicated.`

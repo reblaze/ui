@@ -149,7 +149,6 @@ export default defineComponent({
         {
           href: '/premium',
           title: 'Premium',
-          external: true,
         },
         // {
         //   href: '/events-log',

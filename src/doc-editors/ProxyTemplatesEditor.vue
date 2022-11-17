@@ -582,7 +582,7 @@ export default defineComponent({
   data() {
     return {
       titles: DatasetsUtils.titles,
-      selectedProxyTemplate: null as ProxyTemplate,
+      // selectedProxyTemplate: null as ProxyTemplate,
       docs: [] as unknown as ProxyTemplate[],
       selectedDocID: null,
 
@@ -645,27 +645,25 @@ export default defineComponent({
     selectedBranch: {
       handler: function(val, oldVal) {
         if ((this.$route.name as string).includes('ProxyTemplates/config') && val && val !== oldVal) {
-          this.loadDocs()
-          this.sortDocs()
+          // this.loadDocs()
           this.setSelectedDataFromRouteParams()
-          this.loadProxyTemplate()
+          // this.loadProxyTemplate()
           this.loadReferencedProxyTemplatesIDs()
         }
       },
       immediate: true,
     },
-    selectedProxyTemplate: {
-      handler: function(val, oldVal) {
-        if (val && val !== oldVal) {
-          const docIndex = this.docs.findIndex((doc: ProxyTemplate) => {
-            return doc.id === val.id
-          })
-          this.docs[docIndex] = val
-        }
-      },
-    },
   },
   computed: {
+    selectedProxyTemplate: {
+      get(): ProxyTemplate {
+        return this.docs[this.selectedDocIndex]
+      },
+      set(newDoc: ProxyTemplate): void {
+        this.docs[this.selectedDocIndex] = newDoc
+      },
+    },
+
     documentAPIPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
       const apiPath = `configs/${this.selectedBranch}/d/proxy-templates/e/${this.selectedProxyTemplate.id}/`
@@ -710,8 +708,14 @@ export default defineComponent({
 
     async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
-      this.selectedDocID = this.$route.params?.doc_id?.toString()
-      await this.loadProxyTemplate()
+      const docIdFromRoute = this.$route.params?.doc_id?.toString()
+      await this.loadDocs()
+      if (docIdFromRoute && this.docs && this.docs.findIndex((doc) => doc.id === docIdFromRoute) > -1) {
+        this.selectedDocID = docIdFromRoute
+      } else {
+        console.log('docIdFromRoute', docIdFromRoute, this.docs)
+        this.selectedDocID = this.docs?.[0]?.id
+      }
       this.setLoadingDocStatus(false)
     },
 
@@ -730,7 +734,7 @@ export default defineComponent({
     async switchBranch() {
       this.setLoadingDocStatus(true)
       Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
-      await this.loadProxyTemplate()
+      // await this.loadProxyTemplate()
       this.setLoadingDocStatus(false)
     },
 
@@ -777,10 +781,26 @@ export default defineComponent({
       return factory && factory()
     },
 
+    async forkDoc() {
+      this.setLoadingDocStatus(true)
+      this.isForkLoading = true
+      const docToAdd = _.cloneDeep(this.selectedProxyTemplate) as ProxyTemplate
+      const oldId = docToAdd.id
+      docToAdd.id = DatasetsUtils.generateUUID2()
+      docToAdd.name = 'copy of Proxy Template no. ' + oldId + ' ' + docToAdd.id
+
+      const docTypeText = this.titles['proxy-templates-singular']
+      const successMessage = `The ${docTypeText} was duplicated.`
+      const failureMessage = `Failed while attempting to duplicate the ${docTypeText}.`
+      await this.addNewProxyTemplate(docToAdd, successMessage, failureMessage)
+      this.isForkLoading = false
+      this.setLoadingDocStatus(false)
+    },
+
     async addNewProxyTemplate(proxyTemplateToAdd?: ProxyTemplate, successMessage?: string, failureMessage?: string) {
       this.setLoadingDocStatus(true)
       this.isNewLoading = true
-      this.selectedProxyTemplate = null
+
       if (!proxyTemplateToAdd) {
         proxyTemplateToAdd = this.newProxyTemplate()
       }
@@ -793,10 +813,10 @@ export default defineComponent({
       }
       const data = proxyTemplateToAdd
       await this.saveChanges('POST', data, successMessage, failureMessage)
-
-      this.docs.unshift(proxyTemplateToAdd)
+      this.loadDocs()
+      // this.docs.unshift(proxyTemplateToAdd)
+      // this.sortDocs()
       this.selectedDocID = proxyTemplateToAdd.id
-      this.sortDocs()
 
       this.goToRoute()
       this.isNewLoading = false
@@ -827,21 +847,6 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
-    async forkDoc() {
-      this.setLoadingDocStatus(true)
-      this.isForkLoading = true
-      const docToAdd = _.cloneDeep(this.selectedProxyTemplate) as ProxyTemplate
-      docToAdd.name = 'copy of ' + docToAdd.name
-      docToAdd.id = DatasetsUtils.generateUUID2()
-
-      const docTypeText = this.titles['proxy-templates-singular']
-      const successMessage = `The ${docTypeText} was duplicated.`
-      const failureMessage = `Failed while attempting to duplicate the ${docTypeText}.`
-      await this.addNewProxyTemplate(docToAdd, successMessage, failureMessage)
-      this.isForkLoading = false
-      this.setLoadingDocStatus(false)
-    },
-
     sortDocs() {
       this.docs = _.sortBy(this.docs, [(doc) => doc.name.toLowerCase()])
     },
@@ -851,7 +856,7 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       const branch = this.selectedBranch
       const url = `configs/${branch}/d/proxy-templates/`
-      this.selectedProxyTemplate = null
+
       const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url,
@@ -870,28 +875,10 @@ export default defineComponent({
         })) {
           this.selectedDocID = this.docs[0].id
         }
-        await this.loadProxyTemplate()
+        // await this.loadProxyTemplate()
       }
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
-    },
-
-    async loadProxyTemplate() {
-      this.setLoadingDocStatus(true)
-      this.isDownloadLoading = true
-      this.selectedProxyTemplate = null
-      const response = await RequestsUtils.sendReblazeRequest({
-        methodName: 'GET',
-        url: `configs/${this.selectedBranch}/d/proxy-templates/e/${this.selectedDocID}`,
-        onFail: () => {
-          console.log(`Error while attempting to load the ${this.titles['proxy-template-singular']}`)
-          this.selectedProxyTemplate = null
-          this.isDownloadLoading = false
-        },
-      })
-      this.selectedProxyTemplate = response?.data || {}
-      this.isDownloadLoading = false
-      this.setLoadingDocStatus(false)
     },
 
     async loadReferencedProxyTemplatesIDs() {
