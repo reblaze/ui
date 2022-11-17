@@ -438,8 +438,8 @@
                                   @click="addNewProfile(mapEntry, mapIndex)">
                             <span class="icon"><i class="fas fa-code-branch"></i></span>
                             <span>
-                                  Fork profile
-                                </span>
+                                  Fork path mapping
+                            </span>
                           </button>
                           <button title="Delete this profile"
                                   data-qa="delete-location-btn"

@@ -491,13 +491,6 @@ export default defineComponent({
       }
     },
 
-    async switchBranch() {
-      this.setLoadingDocStatus(true)
-      Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
-
-      this.setLoadingDocStatus(false)
-    },
-
     async switchDocID() {
       this.setLoadingDocStatus(true)
       const docName = this.docs[this.selectedDocIndex].name
