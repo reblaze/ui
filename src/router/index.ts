@@ -32,14 +32,12 @@ async function premiumServerIsLive() {
     methodName: 'GET',
     url,
     onFail: () => {
-      console.log('Error while attempting to load documents')
-      // isLive = false
+      console.log('Reblaze server not found, redirecting to Premium info page')
     },
   })
 
   const isLive = response?.status === 200
   if (!isLive) {
-    console.log('premium')
     return {path: '/premium'}
   }
 }
