@@ -582,7 +582,6 @@ export default defineComponent({
   data() {
     return {
       titles: DatasetsUtils.titles,
-      // selectedProxyTemplate: null as ProxyTemplate,
       docs: [] as unknown as ProxyTemplate[],
       selectedDocID: null,
 
@@ -645,9 +644,8 @@ export default defineComponent({
     selectedBranch: {
       handler: function(val, oldVal) {
         if ((this.$route.name as string).includes('ProxyTemplates/config') && val && val !== oldVal) {
-          // this.loadDocs()
+          this.loadDocs()
           this.setSelectedDataFromRouteParams()
-          // this.loadProxyTemplate()
           this.loadReferencedProxyTemplatesIDs()
         }
       },
@@ -731,13 +729,6 @@ export default defineComponent({
       }
     },
 
-    async switchBranch() {
-      this.setLoadingDocStatus(true)
-      Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
-      // await this.loadProxyTemplate()
-      this.setLoadingDocStatus(false)
-    },
-
     async switchDocID() {
       this.setLoadingDocStatus(true)
 
@@ -814,8 +805,6 @@ export default defineComponent({
       const data = proxyTemplateToAdd
       await this.saveChanges('POST', data, successMessage, failureMessage)
       this.loadDocs()
-      // this.docs.unshift(proxyTemplateToAdd)
-      // this.sortDocs()
       this.selectedDocID = proxyTemplateToAdd.id
 
       this.goToRoute()
