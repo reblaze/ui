@@ -426,7 +426,6 @@ export default defineComponent({
     const getInitConfig = () => ({name: '', json: '', active: true})
     return {
       titles: DatasetsUtils.titles,
-      selectedMobileSDK: null as MobileSDK,
       docs: [] as unknown as MobileSDK[],
       selectedDocID: null,
 
@@ -461,9 +460,7 @@ export default defineComponent({
       handler: function(val, oldVal) {
         if ((this.$route.name as string).includes('MobileSDKs/config') && val && val !== oldVal) {
           this.loadDocs()
-          this.sortDocs()
           this.setSelectedDataFromRouteParams()
-          this.loadMobileSDK()
           this.loadReferencedMobileSDKsIDs()
         }
       },
@@ -500,6 +497,14 @@ export default defineComponent({
       }
       return 0
     },
+    selectedMobileSDK: {
+      get(): MobileSDK {
+        return this.docs[this.selectedDocIndex]
+      },
+      set(newDoc: MobileSDK): void {
+        this.docs[this.selectedDocIndex] = newDoc
+      },
+    },
   },
   methods: {
     async goToRoute() {
@@ -514,7 +519,6 @@ export default defineComponent({
     async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
       this.selectedDocID = this.$route.params?.doc_id?.toString()
-      await this.loadMobileSDK()
       this.setLoadingDocStatus(false)
     },
 
@@ -528,13 +532,6 @@ export default defineComponent({
       } else {
         this.loadingDocCounter--
       }
-    },
-
-    async switchBranch() {
-      this.setLoadingDocStatus(true)
-      Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
-      await this.loadMobileSDK()
-      this.setLoadingDocStatus(false)
     },
 
     async switchDocID() {
@@ -602,7 +599,6 @@ export default defineComponent({
         })) {
           this.selectedDocID = this.docs[0].id
         }
-        await this.loadMobileSDK()
       }
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
@@ -613,10 +609,25 @@ export default defineComponent({
       return factory && factory()
     },
 
+    async forkDoc() {
+      this.setLoadingDocStatus(true)
+      this.isForkLoading = true
+      const docToAdd = _.cloneDeep(this.selectedMobileSDK) as MobileSDK
+      docToAdd.id = DatasetsUtils.generateUUID2()
+      docToAdd.name = 'copy of ' + docToAdd.name + ' ' + docToAdd.id
+
+      const docTypeText = this.titles['mobile-sdks-singular']
+      const successMessage = `The ${docTypeText} was duplicated.`
+      const failureMessage = `Failed while attempting to duplicate the ${docTypeText}.`
+      await this.addNewMobileSDK(docToAdd, successMessage, failureMessage)
+      this.isForkLoading = false
+      this.setLoadingDocStatus(false)
+    },
+
     async addNewMobileSDK(mobilesdksToAdd?: MobileSDK, successMessage?: string, failureMessage?: string) {
       this.setLoadingDocStatus(true)
       this.isNewLoading = true
-      this.selectedMobileSDK = null
+
       if (!mobilesdksToAdd) {
         mobilesdksToAdd = this.newMobileSDK()
       }
@@ -629,9 +640,9 @@ export default defineComponent({
       }
       const data = mobilesdksToAdd
       await this.saveChanges('POST', data, successMessage, failureMessage)
-      this.docs.unshift(mobilesdksToAdd)
+      // this.docs.unshift(mobilesdksToAdd)
+      this.loadDocs()
       this.selectedDocID = mobilesdksToAdd.id
-      this.sortDocs()
 
       this.goToRoute()
       this.isNewLoading = false
@@ -661,49 +672,34 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
-    async loadMobileSDK() {
-      this.setLoadingDocStatus(true)
-      this.isDownloadLoading = true
-      this.selectedMobileSDK = null
-      const response = await RequestsUtils.sendReblazeRequest({
-        methodName: 'GET',
-        url: `configs/${this.selectedBranch}/d/mobile-sdks/e/${this.selectedDocID}`,
-        onFail: () => {
-          console.log('Error while attempting to load the Mobile SDK')
-          this.selectedMobileSDK = null
-          this.isDownloadLoading = false
-        },
-      })
-      this.selectedMobileSDK = response?.data || {}
-      if (this.selectedMobileSDK) {
-        this.selectedMobileSDK.signatures = _.sortBy(this.selectedMobileSDK.signatures, (signature) => {
-          return !signature.active
-        }) || []
-        if (this.selectedMobileSDK.active_config) {
-          this.selectedMobileSDK.active_config = this.selectedMobileSDK.active_config.map((activeConfig) => ({
-            ...activeConfig,
-            json: JSON.stringify(JSON.parse(activeConfig.json), null, 2),
-          }))
-        }
-      }
-      this.isDownloadLoading = false
-      this.setLoadingDocStatus(false)
-    },
-
-    async forkDoc() {
-      this.setLoadingDocStatus(true)
-      this.isForkLoading = true
-      const docToAdd = _.cloneDeep(this.selectedMobileSDK) as MobileSDK
-      docToAdd.name = 'copy of ' + docToAdd.name
-      docToAdd.id = DatasetsUtils.generateUUID2()
-
-      const docTypeText = this.titles['mobile-sdks-singular']
-      const successMessage = `The ${docTypeText} was duplicated.`
-      const failureMessage = `Failed while attempting to duplicate the ${docTypeText}.`
-      await this.addNewMobileSDK(docToAdd, successMessage, failureMessage)
-      this.isForkLoading = false
-      this.setLoadingDocStatus(false)
-    },
+    // async loadMobileSDK() {
+    //   this.setLoadingDocStatus(true)
+    //   this.isDownloadLoading = true
+    //   this.selectedMobileSDK = null
+    //   const response = await RequestsUtils.sendReblazeRequest({
+    //     methodName: 'GET',
+    //     url: `configs/${this.selectedBranch}/d/mobile-sdks/e/${this.selectedDocID}`,
+    //     onFail: () => {
+    //       console.log('Error while attempting to load the Mobile SDK')
+    //       this.selectedMobileSDK = null
+    //       this.isDownloadLoading = false
+    //     },
+    //   })
+    //   this.selectedMobileSDK = response?.data || {}
+    //   if (this.selectedMobileSDK) {
+    //     this.selectedMobileSDK.signatures = _.sortBy(this.selectedMobileSDK.signatures, (signature) => {
+    //       return !signature.active
+    //     }) || []
+    //     if (this.selectedMobileSDK.active_config) {
+    //       this.selectedMobileSDK.active_config = this.selectedMobileSDK.active_config.map((activeConfig) => ({
+    //         ...activeConfig,
+    //         json: JSON.stringify(JSON.parse(activeConfig.json), null, 2),
+    //       }))
+    //     }
+    //   }
+    //   this.isDownloadLoading = false
+    //   this.setLoadingDocStatus(false)
+    // },
 
     // App Signatures
 

@@ -397,16 +397,6 @@ export default defineComponent({
       },
       immediate: true,
     },
-    // selectedBackendService: {
-    //   handler: function(val, oldVal) {
-    //     if (val && val !== oldVal) {
-    //       const docIndex = this.docs.findIndex((doc: BackendService) => {
-    //         return doc.id === val.id
-    //       })
-    //       this.docs[docIndex] = val
-    //     }
-    //   },
-    // },
   },
   computed: {
     documentAPIPath(): string {
@@ -567,6 +557,22 @@ export default defineComponent({
       return factory && factory()
     },
 
+
+    async forkDoc() {
+      this.setLoadingDocStatus(true)
+      this.isForkLoading = true
+      const docToAdd = this.selectedBackendService as BackendService
+      docToAdd.id = DatasetsUtils.generateUUID2()
+      docToAdd.name = 'Backend Service copy no.' + docToAdd.id
+
+      const docTypeText = this.titles['backends-singular']
+      const successMessage = `The ${docTypeText} was duplicated.`
+      const failureMessage = `Failed while attempting to duplicate the ${docTypeText}.`
+      await this.addNewBackendService(docToAdd, successMessage, failureMessage)
+      this.isForkLoading = false
+      this.setLoadingDocStatus(false)
+    },
+
     async addNewBackendService(backendServiceToAdd?: BackendService, successMessage?: string, failureMessage?: string) {
       this.setLoadingDocStatus(true)
       this.isNewLoading = true
@@ -582,9 +588,10 @@ export default defineComponent({
       }
       const data = backendServiceToAdd
       await this.saveChanges('POST', data, successMessage, failureMessage)
-      this.docs.unshift(backendServiceToAdd)
+      // this.docs.unshift(backendServiceToAdd)
+
+      this.loadDocs()
       this.selectedDocID = backendServiceToAdd.id
-      this.sortDocs()
 
       this.goToRoute()
       this.isNewLoading = false
@@ -631,21 +638,6 @@ export default defineComponent({
     //   this.isDownloadLoading = false
     //   this.setLoadingDocStatus(false)
     // },
-
-    async forkDoc() {
-      this.setLoadingDocStatus(true)
-      this.isForkLoading = true
-      const docToAdd = this.selectedBackendService as BackendService
-      docToAdd.id = DatasetsUtils.generateUUID2()
-      docToAdd.name = 'Backend Service copy no.' + docToAdd.id
-
-      const docTypeText = this.titles['backends-singular']
-      const successMessage = `The ${docTypeText} was duplicated.`
-      const failureMessage = `Failed while attempting to duplicate the ${docTypeText}.`
-      await this.addNewBackendService(docToAdd, successMessage, failureMessage)
-      this.isForkLoading = false
-      this.setLoadingDocStatus(false)
-    },
 
     isDownable(index: number) {
       const backHosts = this.selectedBackendService.back_hosts

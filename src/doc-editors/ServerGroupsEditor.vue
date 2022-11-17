@@ -211,7 +211,6 @@
                   new one
               </a>.
             </p>
-          </!--div-->
           <div class="field">
             <div class="field textarea-field">
               <label class="label is-small">Description</label>
@@ -225,6 +224,7 @@
               </div>
             </div>
           </div>
+          </-div-->
         </div>
       </div>
       <div class="columns is-multiline">
@@ -483,6 +483,7 @@ export default defineComponent({
         if ((this.$route.name as string).includes('ServerGroups/config') && val && val !== oldVal) {
           this.loadDocs()
           this.setSelectedDataFromRouteParams()
+          // this.loadCertificates()
           this.loadSecurityPolicies()
           this.loadRoutingProfiles()
           this.loadProxyTemplates()
@@ -708,6 +709,7 @@ export default defineComponent({
     async saveChanges(methodName?: HttpRequestMethods, data?: Site, successMessage?: string, failureMessage?: string) {
       this.setLoadingDocStatus(true)
       this.isSaveLoading = true
+
       if (!methodName) {
         methodName = 'PUT'
       }
@@ -722,30 +724,32 @@ export default defineComponent({
       if (!failureMessage) {
         failureMessage = `Failed while attempting to save the changes to the ${serverGroupText}.`
       }
-      data.ssl_certificate = 'lets encript certificate' // TODO delete after we have UI for ssl certificate as it is a required sting in schema
+
+      // data.ssl_certificate = 'lets encript certificate'
+      // TODO delete after we have UI for ssl certificate as it is a required string in schema
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
       this.isSaveLoading = false
       this.setLoadingDocStatus(false)
     },
 
-    loadCertificates() {
-      // RequestsUtils.sendReblazeRequest({
-      //   methodName: 'GET',
-      //   url: `configs/${this.selectedBranch}/d/certificates/`,
-      //   config: {headers: {'x-fields': 'id, san'}},
-      // }).then((response: AxiosResponse<Certificate[]>) => {
-      //   if (response.data.length > 0) {
-      //     this.certificatesNames = _.sortBy(_.map(response.data, (entity) => {
-      //       return [entity.id, entity.san]
-      //     }), (e) => {
-      //       return e[1]
-      //     })
-      //   } else {
-      // TODO  get certificate to work
-      this.certificatesNames = [['need-real-data', ['www.certificate.com']]] as [string, string[]][]
-      //   }
-      // })
-    },
+    // loadCertificates() {
+    //   RequestsUtils.sendReblazeRequest({
+    //     methodName: 'GET',
+    //     url: `configs/${this.selectedBranch}/d/certificates/`,
+    //     config: {headers: {'x-fields': 'id, san'}},
+    //   }).then((response: AxiosResponse<Certificate[]>) => {
+    //     if (response.data.length > 0) {
+    //       this.certificatesNames = _.sortBy(_.map(response.data, (entity) => {
+    //         return [entity.id, entity.san]
+    //       }), (e) => {
+    //         return e[1]
+    //       })
+    //     } else {
+    //       // TODO  get certificate to work
+    //       this.certificatesNames = [['need-real-data', ['www.certificate.com']]] as [string, string[]][]
+    //     }
+    //   })
+    // },
 
     // async loadServerGroup() {
     //   this.setLoadingDocStatus(true)
@@ -877,7 +881,6 @@ export default defineComponent({
   },
   async created() {
     await this.branchesStore.list
-    this.loadCertificates()
   },
 })
 </script>

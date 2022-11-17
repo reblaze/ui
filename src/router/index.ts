@@ -26,19 +26,18 @@ import PremiumPage from '@/views/PremiumPage.vue'
 import RequestsUtils from '@/assets/RequestsUtils'
 
 
-async function premiumServerIsLive(to: any, from: any) {
-  let isLive = true
+async function premiumServerIsLive() {
   const url = `health/`
   const response = await RequestsUtils.sendReblazeRequest({
     methodName: 'GET',
     url,
     onFail: () => {
       console.log('Error while attempting to load documents')
-      isLive = false
+      // isLive = false
     },
   })
-  isLive = response?.status === 200
 
+  const isLive = response?.status === 200
   if (!isLive) {
     console.log('premium')
     return {path: '/premium'}
