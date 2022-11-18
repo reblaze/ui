@@ -18,7 +18,7 @@
                   </span>
                 </button>
               </p>
-              <div class="control"
+              <div class="control docs-selection"
                    v-if="docIdNames.length">
                 <div class="select is-small">
                   <select v-model="selectedDocID"

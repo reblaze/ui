@@ -18,13 +18,13 @@
                   </span>
                 </button>
               </p>
-              <div class="control"
+              <div class="control docs-selection"
                    v-if="docs.length">
                 <div class="select is-small">
                   <select v-model="selectedDocID"
                           title="Switch document ID"
                           @change="switchDocID()"
-                          class="site-selection"
+                          class="doc-selection"
                           :class="{'is-loading': isNewLoading}"
                           data-qa="switch-document">
                           <option v-for="doc in docs"

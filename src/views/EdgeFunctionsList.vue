@@ -54,7 +54,6 @@
 </template>
 <script lang="ts">
 import {defineComponent} from 'vue'
-import _ from 'lodash'
 import RbzTable from '@/components/RbzTable.vue'
 import {ColumnOptions, EdgeFunction} from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
@@ -132,9 +131,6 @@ export default defineComponent({
   },
 
   methods: {
-    sortDocs() {
-      this.docs = _.sortBy(this.docs, [(doc) => doc.name.toLowerCase()])
-    },
 
     async loadDocs() {
       this.isDownloadLoading = true
@@ -142,7 +138,6 @@ export default defineComponent({
       const url = `configs/${this.selectedBranch}/d/cloud-functions/`
       const response = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
       this.docs = response?.data || []
-      this.sortDocs()
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
     },

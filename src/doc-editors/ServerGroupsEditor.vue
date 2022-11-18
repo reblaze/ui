@@ -24,7 +24,7 @@
                   <select v-model="selectedDocID"
                           title="Switch document ID"
                           @change="switchDocID()"
-                          class="site-selection"
+                          class="doc-selection"
                           data-qa="switch-document">
                           <option v-for="doc in docs"
                             :key="doc.id"

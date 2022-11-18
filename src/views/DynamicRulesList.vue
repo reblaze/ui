@@ -24,7 +24,8 @@
     <hr/>
 
     <div class="content document-list-wrapper"
-         v-show="!loadingDocCounter && selectedBranch">
+                   :data="dynamicRulesData"
+         v-show="!loadingDocCounter && selectedBranch && globalFiltersData">
       <div class="content">
         <rbz-table :columns="columns"
                    :data="dynamicRulesData"
@@ -45,7 +46,7 @@
     </div>
 
     <div class="content no-data-wrapper"
-         v-if="loadingDocCounter || !selectedBranch">
+         v-if="loadingDocCounter || !selectedBranch || !selectedBranch || !globalFiltersData">
       <button class="button is-outlined is-text is-small is-loading document-loading">
         Loading
       </button>
@@ -56,11 +57,11 @@
 import _ from 'lodash'
 import {defineComponent} from 'vue'
 import RbzTable from '@/components/RbzTable.vue'
-import {ColumnOptions, CustomResponse, DynamicRule, GlobalFilter} from '@/types'
+import {ColumnOptions, DynamicRule, GlobalFilter} from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import Utils from '@/assets/Utils'
-import {AxiosResponse} from 'axios'
+// import {AxiosResponse} from 'axios'CustomResponse
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
 
@@ -90,7 +91,7 @@ export default defineComponent({
           fieldNames: ['name'],
           isSortable: true,
           isSearchable: true,
-          classes: 'ellipsis',
+          classes: 'ellipsis name-table',
         },
         {
           title: 'Timeframe',
@@ -114,14 +115,11 @@ export default defineComponent({
             const matchingGlobalFilter = _.find(this.globalFiltersData, (globalFilter: GlobalFilter) => {
               return globalFilter.id === `dr_${item.id}`
             })
-            const customResponse = _.find(this.customResponsesNames, (customResponseName) => {
-              return customResponseName[0] === matchingGlobalFilter?.action
-            })
-            return customResponse?.[1] || ''
+            return matchingGlobalFilter?.action || 'X'
           },
           isSortable: false,
           isSearchable: true,
-          classes: 'width-100px white-space-pre ellipsis',
+          classes: 'width-120px white-space-pre ellipsis',
         },
         {
           title: 'Tags',
@@ -137,7 +135,7 @@ export default defineComponent({
           },
           isSortable: false,
           isSearchable: true,
-          classes: 'width-100px vertical-scroll white-space-pre ellipsis',
+          classes: 'width-100px min-height-40 vertical-scroll white-space-pre ellipsis',
         },
       ] as ColumnOptions[],
       isNewLoading: false,
@@ -158,6 +156,7 @@ export default defineComponent({
       handler: async function(val, oldVal) {
         if ((this.$route.name as string).includes('DynamicRules/list') && val && val !== oldVal) {
           await this.loadDynamicRulesData()
+          await this.loadGlobalFilters()
         }
       },
       immediate: true,
@@ -178,18 +177,29 @@ export default defineComponent({
   },
 
   methods: {
-    loadCustomResponses() {
-      RequestsUtils.sendRequest({
+    async loadDynamicRulesData() {
+      this.isDownloadLoading = true
+      this.setLoadingDocStatus(true)
+      const url = `configs/${this.selectedBranch}/d/dynamic-rules/`
+      const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
-        url: `configs/${this.selectedBranch}/d/actions/`,
-        config: {headers: {'x-fields': 'id, name'}},
-      }).then((response: AxiosResponse<CustomResponse[]>) => {
-        this.customResponsesNames = _.sortBy(_.map(response.data, (entity) => {
-          return [entity.id, entity.name]
-        }), (e) => {
-          return e[1]
-        })
+        url,
+        onFail: (error: any) => {
+          console.log('Error while attempting to load documents', error)
+          this.dynamicRulesData = []
+          this.isDownloadLoading = false
+        },
       })
+      this.dynamicRulesData = (response?.data) ? _.cloneDeep(response.data) : []
+      this.setLoadingDocStatus(false)
+      this.isDownloadLoading = false
+    },
+
+    async loadGlobalFilters() {
+      const url = `configs/${this.selectedBranch}/d/globalfilters/`
+      const config = {headers: {'x-fields': 'id, action, tags'}}
+      const response = await RequestsUtils.sendRequest({methodName: 'GET', url, config})
+      this.globalFiltersData = response?.data.filter((doc: MiniGlobalFilter) => doc.id.startsWith('dr_'))
     },
 
     setLoadingDocStatus(isLoading: boolean) {
@@ -241,41 +251,6 @@ export default defineComponent({
         Utils.downloadFile('dynamic-rules', 'json', this.dynamicRulesData)
       }
     },
-
-    async loadDynamicRulesData() {
-      this.setLoadingDocStatus(true)
-      this.isDownloadLoading = true
-      const url = `configs/${this.selectedBranch}/d/dynamic-rules/`
-      const response = await RequestsUtils.sendReblazeRequest({
-        methodName: 'GET',
-        url: url,
-        onFail: () => {
-          console.log('Error while attempting to load documents')
-          this.dynamicRulesData = []
-          this.isDownloadLoading = false
-        },
-      })
-      this.dynamicRulesData = response?.data || []
-
-      // bring Tags from GlobalFilters
-      this.globalFiltersData = [] as MiniGlobalFilter[]
-
-      this.dynamicRulesData.map((doc) => {
-        const url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${doc.id}/`
-        RequestsUtils.sendRequest({methodName: 'GET', url,
-          onFail: () => {
-            console.log('Error while attempting to load documents')
-            this.isDownloadLoading = false
-          },
-        }).then((responseGlobal: AxiosResponse<GlobalFilter>) => {
-          this.globalFiltersData.push({id: responseGlobal.data.id, tags: responseGlobal.data.tags,
-            action: responseGlobal.data.action})
-        })
-      })
-      this.isDownloadLoading = false
-      this.setLoadingDocStatus(false)
-    },
-
   },
   async created() {
     await this.branchesStore.list
