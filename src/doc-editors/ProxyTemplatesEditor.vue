@@ -469,21 +469,22 @@
                                 :data="trustedData"
                                 :row-button-icon="'fa-trash'"
                                 :row-button-title="'Delete'"
-                                :second-row-button-icon="'fa-edit'"
-                                :second-row-button-title="'Edit'"
+                                :second-button-row-icon="'fa-edit'"
+                                :second-button-row-title="'Edit'"
                                 :show-menu-column="true"
                                 :show-filter-button="true"
                                 :show-row-button="true"
                                 :show-new-button="true"
-                                :show-second-row-button="true"
+                                :show-second-button-row="true"
                                 @row-button-clicked="deleteTrustedElement"
                                 @new-button-clicked="toggleAddingNewTrustedSource"
-                                @second-row-button-clicked="toggleEditTrustedElement"
+                                @second-button-row-clicked="toggleEditTrustedElement"
                                 >
                     </rbz-table>
                 </div>
             </div>
-            <div class="trusted-modal-input-container ml-30" >
+            <div class="trusted-modal-input-container ml-30"
+                 v-if="showEditTrustedSource || isAddModalVisible" >
               <input type="text"
                     class="ip-input is-size-7 ellipsis"
                     v-model="newAddress"
@@ -492,8 +493,11 @@
                       class="comment-input is-size-7 ellipsis"
                       v-model="newComment"
               />
-              <div class="submit-changes" >
-                <button class="btn" ><i class="fas fa-plus"></i></button>
+              <div class="submit-changes" v-if="isAddModalVisible">
+                <button class="btn" @click="addNewTrustedSource" ><i class="fas fa-plus"></i></button>
+              </div>
+              <div class="submit-changes" v-if="showEditTrustedSource">
+                <button class="btn" @click="editTrustedSource" ><i class="fas fa-edit"></i></button>
               </div>
             </div>
           </div>
@@ -652,9 +656,6 @@ export default defineComponent({
       tagRule: '',
       newAddress: '127.0.0.0/8',
       newComment: 'Private subnet',
-      editAddress: '',
-      editComment: '',
-      isEdit: false,
       entryType: 'cidr',
       isError: false,
       errors: [] as string[],
@@ -926,16 +927,17 @@ export default defineComponent({
       console.log('trusted_nets', response?.data)
       this.planetID = response.data.id
       this.planetName = response.data.name
-      this.trustedData = response?.data?.trusted_nets || []
+      this.trustedData = response?.data?.trusted_nets?.map(
+        (trusted: {address: string, comment: string}, index: number)=> {
+          return {id: index, address: trusted.address, comment: trusted.comment}
+        })
       console.log('trusted_nets', this.trustedData)
-      // ?.map(
-      //   (trusted: {address: string, comment: string}, index: number)=> {
-      //     return {id: index, address: trusted.address, comment: trusted.comment}
-      //   })
     },
 
     toggleAddingNewTrustedSource() {
       this.isAddModalVisible=true
+      this.newAddress = ''
+      this.newComment = ''
       console.log('this.isAddModalVisible', this.isAddModalVisible)
     },
 
@@ -943,28 +945,20 @@ export default defineComponent({
       const id = this.trustedData.length
       const newTrustedElement = {id: id, address: this.newAddress, comment: this.newComment}
       this.trustedData.push(newTrustedElement)
-      this.newAddress = '127.0.0.0/8'
-      this.newComment = 'Private subnet'
       this.isAddModalVisible=false
     },
-    openAddModal(id: string) {
-      // if (id) {
-      //   this.sourceToAdd = {...this.findSource(id), isValid: true}
-      //   const tagRule = this.tagRules.find(tr => tr.id === id)
-      //   if (tagRule) {
-      //     this.entryType = 'tag',
-      //     this.sourceToAdd.tagRule = tagRule.name
-      //   }
-      //   this.isEdit = true
-      // } else {
-      this.sourceToAdd = {
-        address: '',
-        comment: '',
-      }
-      this.isEdit = false
 
-      this.isAddModalVisible = true
-      this.$nextTick(() => this.$refs.address?.focus())
+    // openEditTrustedSource(idx: number) {
+    //   this.currentEditIndex = idx
+    //   this.newAddress = this.trustedData[idx].address
+    //   this.newComment = this.trustedData[idx].comment
+    //   this.editModalVisible=true
+    // },
+
+    editTrustedSource() {
+      this.trustedData[this.currentEditIndex].address = this.newAddress
+      this.trustedData[this.currentEditIndex].comment = this.newComment
+      this.showEditTrustedSource = false
     },
 
     onChangeEntryType() {
@@ -1010,19 +1004,10 @@ export default defineComponent({
     },
 
     toggleEditTrustedElement(id: number) {
-      this.showEditTrustedSource=true
-
       this.currentEditIndex = this.trustedData.findIndex((trusted) => trusted.id ===id)
-      this.editAddress = this.trustedData[this.currentEditIndex].address
-      this.editComment = this.trustedData[this.currentEditIndex].comment
-    },
-
-    editTrustedSource() {
-      this.isEdit = true
-      this.trustedData[this.currentEditIndex].address = this.editAddress
-      this.trustedData[this.currentEditIndex].comment = this.editComment
-
-      this.showEditTrustedSource = false
+      this.newAddress = this.trustedData[this.currentEditIndex].address
+      this.newComment = this.trustedData[this.currentEditIndex].comment
+      this.showEditTrustedSource=true
     },
 
     async deleteTrustedElement(id: number) {
