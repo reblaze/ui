@@ -18,7 +18,7 @@
                   </span>
                 </button>
               </p>
-              <div class="control docs-selection" v-if="docs.length">
+              <div class="control doc-selection-wrapper" v-if="docs.length">
                 <div class="select is-small">
                   <select v-model="selectedDocID"
                           title="Switch routing profiles document ID"

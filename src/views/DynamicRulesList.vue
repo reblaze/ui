@@ -24,8 +24,7 @@
     <hr/>
 
     <div class="content document-list-wrapper"
-                   :data="dynamicRulesData"
-         v-show="!loadingDocCounter && selectedBranch && globalFiltersData">
+         v-show="!loadingDocCounter && selectedBranch && dynamicRulesData && globalFiltersData">
       <div class="content">
         <rbz-table :columns="columns"
                    :data="dynamicRulesData"
@@ -46,7 +45,7 @@
     </div>
 
     <div class="content no-data-wrapper"
-         v-if="loadingDocCounter || !selectedBranch || !selectedBranch || !globalFiltersData">
+         v-if="loadingDocCounter || !selectedBranch || !dynamicRulesData || !globalFiltersData">
       <button class="button is-outlined is-text is-small is-loading document-loading">
         Loading
       </button>
@@ -61,7 +60,6 @@ import {ColumnOptions, DynamicRule, GlobalFilter} from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import Utils from '@/assets/Utils'
-// import {AxiosResponse} from 'axios'CustomResponse
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
 
@@ -91,7 +89,7 @@ export default defineComponent({
           fieldNames: ['name'],
           isSortable: true,
           isSearchable: true,
-          classes: 'ellipsis name-table',
+          classes: 'ellipsis',
         },
         {
           title: 'Timeframe',
@@ -115,7 +113,7 @@ export default defineComponent({
             const matchingGlobalFilter = _.find(this.globalFiltersData, (globalFilter: GlobalFilter) => {
               return globalFilter.id === `dr_${item.id}`
             })
-            return matchingGlobalFilter?.action || 'X'
+            return matchingGlobalFilter?.action
           },
           isSortable: false,
           isSearchable: true,
@@ -135,7 +133,7 @@ export default defineComponent({
           },
           isSortable: false,
           isSearchable: true,
-          classes: 'width-100px min-height-40 vertical-scroll white-space-pre ellipsis',
+          classes: 'width-100px vertical-scroll white-space-pre ellipsis',
         },
       ] as ColumnOptions[],
       isNewLoading: false,
@@ -190,7 +188,7 @@ export default defineComponent({
           this.isDownloadLoading = false
         },
       })
-      this.dynamicRulesData = (response?.data) ? _.cloneDeep(response.data) : []
+      this.dynamicRulesData = response.data || []
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
     },
