@@ -162,13 +162,13 @@
               </button>
             </p>
             <p class="control"
-               v-if="showSecondButtonRow">
-              <button :title="secondButtonRowTitle"
+               v-if="showSecondRowButton">
+              <button :title="secondRowButtonTitle"
                       class="button is-small row-entity-button"
-                      :class="secondButtonRowClass"
-                      @click="secondButtonRowClicked(row.id)">
+                      :class="secondRowButtonClass"
+                      @click="secondRowButtonClicked(row.id)">
                 <span class="icon is-small">
-                  <i :class="`fas ${secondButtonRowIcon ? secondButtonRowIcon : 'fa-edit'}`"></i>
+                  <i :class="`fas ${secondRowButtonIcon ? secondRowButtonIcon : 'fa-edit'}`"></i>
                 </span>
               </button>
             </p>
@@ -227,13 +227,13 @@ export default defineComponent({
     showNewButton: Boolean,
     rowClickable: Boolean,
     showRowButton: Boolean,
-    showSecondButtonRow: Boolean,
+    showSecondRowButton: Boolean,
     rowButtonTitle: String,
     rowButtonClass: String,
     rowButtonIcon: String,
-    secondButtonRowTitle: String,
-    secondButtonRowClass: String,
-    secondButtonRowIcon: String,
+    secondRowButtonTitle: String,
+    secondRowButtonClass: String,
+    secondRowButtonIcon: String,
     tableTitle: String,
     rowsPerPage: {
       type: Number,
@@ -308,7 +308,7 @@ export default defineComponent({
       },
     },
   },
-  emits: ['new-button-clicked', 'row-button-clicked', 'row-clicked', 'select-array', 'second-button-row-clicked'],
+  emits: ['new-button-clicked', 'row-button-clicked', 'row-clicked', 'select-array', 'second-row-button-clicked'],
   computed: {
     dataArrayDisplay() {
       if (!this.data?.length || !Array.isArray(this.data)) {
@@ -402,8 +402,8 @@ export default defineComponent({
       this.$emit('row-button-clicked', id)
     },
 
-    secondButtonRowClicked(id: string) {
-      this.$emit('second-button-row-clicked', id)
+    secondRowButtonClicked(id: string) {
+      this.$emit('second-row-button-clicked', id)
     },
 
     rowClicked(id: string) {

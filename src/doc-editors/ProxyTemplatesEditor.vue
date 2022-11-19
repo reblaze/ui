@@ -447,18 +447,18 @@
         </div>
       </div>
       <div class="card collapsible-card"
-             :class="{ collapsed: isTrustedCollapsed }">
+             :class="{ collapsed: isTrustedSourcesCollapsed }">
           <div class="card-content px-0 py-0">
             <div class="media collapsible px-5 py-5 mb-0"
-                 @click="isTrustedCollapsed = !isTrustedCollapsed">
+                 @click="isTrustedSourcesCollapsed = !isTrustedSourcesCollapsed">
               <div class="media-content">
                 <p class="title is-5 is-uppercase">Trusted Sources</p>
               </div>
-              <span v-show="isTrustedCollapsed">
+              <span v-show="isTrustedSourcesCollapsed">
                 <i class="fas fa-angle-down"
                    aria-hidden="true"></i>
               </span>
-              <span v-show="!isTrustedCollapsed">
+              <span v-show="!isTrustedSourcesCollapsed">
                 <i class="fas fa-angle-up"
                    aria-hidden="true"></i>
               </span>
@@ -469,35 +469,41 @@
                                 :data="trustedData"
                                 :row-button-icon="'fa-trash'"
                                 :row-button-title="'Delete'"
-                                :second-button-row-icon="'fa-edit'"
-                                :second-button-row-title="'Edit'"
+                                :second-row-button-icon="'fa-edit'"
+                                :second-row-button-title="'Edit'"
                                 :show-menu-column="true"
                                 :show-filter-button="true"
                                 :show-row-button="true"
                                 :show-new-button="true"
-                                :show-second-button-row="true"
+                                :show-second-row-button="true"
                                 @row-button-clicked="deleteTrustedElement"
                                 @new-button-clicked="toggleAddingNewTrustedSource"
-                                @second-button-row-clicked="toggleEditTrustedElement"
+                                @second-row-button-clicked="toggleEditTrustedElement"
                                 >
                     </rbz-table>
                 </div>
             </div>
-            <div class="trusted-modal-input-container ml-30"
+            <div class="trusted-modal-input-container"
                  v-if="showEditTrustedSource || isAddModalVisible" >
               <input type="text"
-                    class="ip-input is-size-7 ellipsis"
-                    v-model="newAddress"
-              />
-              <input  type="text"
-                      class="comment-input is-size-7 ellipsis"
-                      v-model="newComment"
-              />
+                     class="ip-input is-size-7 ellipsis"
+                     v-model="newAddress" />
+              <input type="text"
+                     class="comment-input is-size-7 ellipsis"
+                     v-model="newComment" />
               <div class="submit-changes" v-if="isAddModalVisible">
-                <button class="btn" @click="addNewTrustedSource" ><i class="fas fa-plus"></i></button>
+                <button class="button is-small submit-changes-button" @click="addNewTrustedSource" >
+                  <span class="icon is-small">
+                    <i class="fas fa-plus"></i>
+                  </span>
+                </button>
               </div>
               <div class="submit-changes" v-if="showEditTrustedSource">
-                <button class="btn" @click="editTrustedSource" ><i class="fas fa-edit"></i></button>
+                <button class="button is-small submit-changes-button" @click="editTrustedSource" >
+                  <span class="icon is-small">
+                    <i class="fas fa-edit"></i>
+                  </span>
+                </button>
               </div>
             </div>
           </div>
@@ -613,7 +619,7 @@ export default defineComponent({
       isFrontendCollapsed: false,
       isBackendCollapsed: false,
       isAdvancedCollapsed: false,
-      isTrustedCollapsed: false,
+      isTrustedSourcesCollapsed: false,
 
       // To prevent deletion of Proxy templates referenced by Server Groups
       referencedIDsProxyTemplate: [],
@@ -657,16 +663,9 @@ export default defineComponent({
       newAddress: '127.0.0.0/8',
       newComment: 'Private subnet',
       entryType: 'cidr',
-      isError: false,
       errors: [] as string[],
       currentEditIndex: 0,
       sources: [],
-      sourceToDelete: '',
-      redis: [],
-      notificationSettings: {},
-      activeTab: 'site-settings',
-      tagRules: [],
-      isTagRulePopup: false,
     }
   },
   watch: {
@@ -924,21 +923,19 @@ export default defineComponent({
       const url = `configs/${this.selectedBranch}/d/planet/`
       const methodName = 'GET'
       const response = await RequestsUtils.sendReblazeRequest({methodName, url})
-      console.log('trusted_nets', response?.data)
       this.planetID = response.data.id
       this.planetName = response.data.name
       this.trustedData = response?.data?.trusted_nets?.map(
         (trusted: {address: string, comment: string}, index: number)=> {
           return {id: index, address: trusted.address, comment: trusted.comment}
         })
-      console.log('trusted_nets', this.trustedData)
     },
 
     toggleAddingNewTrustedSource() {
-      this.isAddModalVisible=true
+      this.isAddModalVisible = true
+      this.showEditTrustedSource = false
       this.newAddress = ''
       this.newComment = ''
-      console.log('this.isAddModalVisible', this.isAddModalVisible)
     },
 
     addNewTrustedSource() {
@@ -947,13 +944,6 @@ export default defineComponent({
       this.trustedData.push(newTrustedElement)
       this.isAddModalVisible=false
     },
-
-    // openEditTrustedSource(idx: number) {
-    //   this.currentEditIndex = idx
-    //   this.newAddress = this.trustedData[idx].address
-    //   this.newComment = this.trustedData[idx].comment
-    //   this.editModalVisible=true
-    // },
 
     editTrustedSource() {
       this.trustedData[this.currentEditIndex].address = this.newAddress
@@ -1004,6 +994,7 @@ export default defineComponent({
     },
 
     toggleEditTrustedElement(id: number) {
+      this.isAddModalVisible = false
       this.currentEditIndex = this.trustedData.findIndex((trusted) => trusted.id ===id)
       this.newAddress = this.trustedData[this.currentEditIndex].address
       this.newComment = this.trustedData[this.currentEditIndex].comment
@@ -1021,7 +1012,6 @@ export default defineComponent({
         name: this.planetName,
         trusted_nets: dataTrusted,
       }
-      console.log('delete id', id, 'data', data)
       const url = `configs/${this.selectedBranch}/d/planet/`
       const methodName = 'PUT'
       await RequestsUtils.sendReblazeRequest({methodName, url, data})
@@ -1043,21 +1033,23 @@ export default defineComponent({
 
   .ip-input {
     height: 40px;
-    width: 47%;
+    width: 45%;
   }
 
   .comment-input {
     height: 40px;
-    width: 47%;
+    width: 46%;
   }
 
   .submit-changes {
-    width: 30px;
+    text-align: center;
+    width: 100px;
+  }
 
-    button {
-      margin: 5px;
-      width: 30px;
-    }
+  .submit-changes-button {
+    height: 40px;
+    margin: 0;
+    width: 100px;
   }
 
 </style>
