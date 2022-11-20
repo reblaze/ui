@@ -486,10 +486,10 @@
             <div class="trusted-modal-input-container"
                  v-if="showEditTrustedSource || isAddModalVisible" >
               <input type="text"
-                     class="input is-small ip-input data-cell is-size-7 data-cell-content ellipsis"
+                     class="input is-small ip-input is-size-7 ellipsis"
                      v-model="newAddress" />
               <input type="text"
-                     class="input is-small comment-input data-cell is-size-7 data-cell-content ellipsis"
+                     class="input is-small comment-input is-size-7 data-cell-content ellipsis"
                      v-model="newComment" />
               <div class="submit-changes" v-if="isAddModalVisible">
                 <button class="button is-small submit-changes-button" @click="addNewTrustedSource" >
