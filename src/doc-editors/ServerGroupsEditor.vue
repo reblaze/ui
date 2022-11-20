@@ -275,10 +275,9 @@
                     {{ referencedDocName(backendServicesNames, location.backend_id) }}
                   </td>
                   <td>
-                          <span v-for="edgeFunction in location.cloud_functions"
-                                :key="edgeFunction">
-                            {{ location.cloud_functions.length }}
-                          </span>
+                    <span >
+                      {{ location?.cloud_functions?.length || 0}}
+                    </span>
                   </td>
                 </tr>
                 </tbody>
