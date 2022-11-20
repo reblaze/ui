@@ -486,10 +486,10 @@
             <div class="trusted-modal-input-container"
                  v-if="showEditTrustedSource || isAddModalVisible" >
               <input type="text"
-                     class="ip-input is-size-7 ellipsis"
+                     class="input is-small ip-input data-cell is-size-7 data-cell-content ellipsis"
                      v-model="newAddress" />
               <input type="text"
-                     class="comment-input is-size-7 ellipsis"
+                     class="input is-small comment-input data-cell is-size-7 data-cell-content ellipsis"
                      v-model="newComment" />
               <div class="submit-changes" v-if="isAddModalVisible">
                 <button class="button is-small submit-changes-button" @click="addNewTrustedSource" >
@@ -1033,22 +1033,26 @@ export default defineComponent({
 
   .ip-input {
     height: 40px;
-    width: 45%;
+    padding: 0.5em;
+    vertical-align: middle;
   }
 
   .comment-input {
     height: 40px;
-    width: 46%;
+    padding: 0.5em;
+    vertical-align: middle;
   }
 
   .submit-changes {
     text-align: center;
+    vertical-align: middle;
     width: 100px;
   }
 
   .submit-changes-button {
     height: 40px;
     margin: 0;
+    vertical-align: middle;
     width: 100px;
   }
 
