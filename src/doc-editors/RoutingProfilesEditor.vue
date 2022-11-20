@@ -301,10 +301,10 @@
                                     <select class="select is-small new-edge-function-selection"
                                             title="Edge Function ID"
                                             v-model="edgeFunctionMapEntryId">
-                                      <option v-for="edgeFunction in newEdgeFunctions(mapEntry.cloud_functions)"
+                                            <option v-for="edgeFunction in newEdgeFunctions(mapEntry.cloud_functions)"
                                               :key="edgeFunction.id"
                                               :value="edgeFunction.id">
-                                        {{ edgeFunction.name + ' ' + edgeFunction.description }}
+                                        {{ edgeFunction.name + ' - ' + edgeFunction.description }}
                                       </option>
                                     </select>
                                   </div>

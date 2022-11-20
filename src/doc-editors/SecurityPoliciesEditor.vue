@@ -334,7 +334,7 @@
                                             v-model="limitMapEntryId">
                                       <option v-for="rule in newLimitRules(mapEntry.limit_ids)"
                                               :key="rule.id"
-                                              :value="rule.id">{{ rule.name + ' ' + rule.description }}
+                                              :value="rule.id">{{ rule.name + ' - ' + rule.description }}
                                       </option>
                                     </select>
                                   </div>
