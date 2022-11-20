@@ -481,30 +481,30 @@
                                 @second-row-button-clicked="toggleEditTrustedElement"
                                 >
                     </rbz-table>
+                    <div class="trusted-modal-input-container"
+                    v-if="showEditTrustedSource || isAddModalVisible" >
+                      <input type="text"
+                            class="input is-small ip-input is-size-7 ellipsis"
+                            v-model="newAddress" />
+                      <input type="text"
+                            class="input is-small comment-input is-size-7 data-cell-content ellipsis"
+                            v-model="newComment" />
+                      <div class="submit-changes" v-if="isAddModalVisible">
+                        <button class="button is-small submit-changes-button" @click="addNewTrustedSource" >
+                          <span class="icon is-small">
+                            <i class="fas fa-plus"></i>
+                          </span>
+                        </button>
+                      </div>
+                      <div class="submit-changes" v-if="showEditTrustedSource">
+                        <button class="button is-small submit-changes-button" @click="editTrustedSource" >
+                          <span class="icon is-small">
+                            <i class="fas fa-edit"></i>
+                          </span>
+                        </button>
+                      </div>
+                    </div>
                 </div>
-            </div>
-            <div class="trusted-modal-input-container"
-                 v-if="showEditTrustedSource || isAddModalVisible" >
-              <input type="text"
-                     class="input is-small ip-input is-size-7 ellipsis"
-                     v-model="newAddress" />
-              <input type="text"
-                     class="input is-small comment-input is-size-7 data-cell-content ellipsis"
-                     v-model="newComment" />
-              <div class="submit-changes" v-if="isAddModalVisible">
-                <button class="button is-small submit-changes-button" @click="addNewTrustedSource" >
-                  <span class="icon is-small">
-                    <i class="fas fa-plus"></i>
-                  </span>
-                </button>
-              </div>
-              <div class="submit-changes" v-if="showEditTrustedSource">
-                <button class="button is-small submit-changes-button" @click="editTrustedSource" >
-                  <span class="icon is-small">
-                    <i class="fas fa-edit"></i>
-                  </span>
-                </button>
-              </div>
             </div>
           </div>
         </div>
@@ -1028,32 +1028,34 @@ export default defineComponent({
   .trusted-modal-input-container {
     display: flex;
     height: 55px;
-    margin: 10px 20px;
+    margin: 0;
   }
 
   .ip-input {
     height: 40px;
     padding: 0.5em;
     vertical-align: middle;
+    width: 42%;
   }
 
   .comment-input {
     height: 40px;
     padding: 0.5em;
     vertical-align: middle;
+    width: 58%;
   }
 
   .submit-changes {
     text-align: center;
     vertical-align: middle;
-    width: 100px;
+    width: 85px;
   }
 
   .submit-changes-button {
     height: 40px;
     margin: 0;
     vertical-align: middle;
-    width: 100px;
+    width: 85px;
   }
 
 </style>
