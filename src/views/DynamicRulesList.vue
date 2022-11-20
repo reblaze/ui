@@ -24,7 +24,7 @@
     <hr/>
 
     <div class="content document-list-wrapper"
-         v-show="!loadingDocCounter && selectedBranch">
+         v-show="!loadingDocCounter && selectedBranch && dynamicRulesData && globalFiltersData">
       <div class="content">
         <rbz-table :columns="columns"
                    :data="dynamicRulesData"
@@ -45,7 +45,7 @@
     </div>
 
     <div class="content no-data-wrapper"
-         v-if="loadingDocCounter || !selectedBranch">
+         v-if="loadingDocCounter || !selectedBranch || !dynamicRulesData || !globalFiltersData">
       <button class="button is-outlined is-text is-small is-loading document-loading">
         Loading
       </button>
@@ -114,14 +114,14 @@ export default defineComponent({
             const matchingGlobalFilter = _.find(this.globalFiltersData, (globalFilter: GlobalFilter) => {
               return globalFilter.id === `dr_${item.id}`
             })
-            const customResponse = _.find(this.customResponsesNames, (customResponseName) => {
-              return customResponseName[0] === matchingGlobalFilter?.action
+            const customResponse = _.find(this.customResponses, (customResponse) => {
+              return customResponse.id === matchingGlobalFilter?.action
             })
-            return customResponse?.[1] || ''
+            return customResponse?.name || ''
           },
           isSortable: false,
           isSearchable: true,
-          classes: 'width-100px white-space-pre ellipsis',
+          classes: 'width-120px white-space-pre ellipsis',
         },
         {
           title: 'Tags',
@@ -146,7 +146,7 @@ export default defineComponent({
       globalFiltersData: [] as MiniGlobalFilter[],
       loadingDocCounter: 0,
       isDownloadLoading: false,
-      customResponsesNames: [],
+      customResponses: [],
 
       apiRoot: RequestsUtils.reblazeAPIRoot,
       apiVersion: RequestsUtils.reblazeAPIVersion,
@@ -158,6 +158,7 @@ export default defineComponent({
       handler: async function(val, oldVal) {
         if ((this.$route.name as string).includes('DynamicRules/list') && val && val !== oldVal) {
           await this.loadDynamicRulesData()
+          await this.loadGlobalFilters()
           this.loadCustomResponses()
         }
       },
@@ -179,17 +180,38 @@ export default defineComponent({
   },
 
   methods: {
+    async loadDynamicRulesData() {
+      this.isDownloadLoading = true
+      this.setLoadingDocStatus(true)
+      const url = `configs/${this.selectedBranch}/d/dynamic-rules/`
+      const response = await RequestsUtils.sendReblazeRequest({
+        methodName: 'GET',
+        url,
+        onFail: (error: any) => {
+          console.log('Error while attempting to load documents', error)
+          this.dynamicRulesData = []
+          this.isDownloadLoading = false
+        },
+      })
+      this.dynamicRulesData = response.data || []
+      this.setLoadingDocStatus(false)
+      this.isDownloadLoading = false
+    },
+
+    async loadGlobalFilters() {
+      const url = `configs/${this.selectedBranch}/d/globalfilters/`
+      const config = {headers: {'x-fields': 'id, action, tags'}}
+      const response = await RequestsUtils.sendRequest({methodName: 'GET', url, config})
+      this.globalFiltersData = response?.data.filter((doc: MiniGlobalFilter) => doc.id.startsWith('dr_'))
+    },
+
     loadCustomResponses() {
       RequestsUtils.sendRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/actions/`,
         config: {headers: {'x-fields': 'id, name'}},
       }).then((response: AxiosResponse<CustomResponse[]>) => {
-        this.customResponsesNames = _.sortBy(_.map(response.data, (entity) => {
-          return [entity.id, entity.name]
-        }), (e) => {
-          return e[1]
-        })
+        this.customResponses = response?.data || []
       })
     },
 
@@ -223,9 +245,8 @@ export default defineComponent({
       docMatchingGlobalFilter.active = (docToAdd as DynamicRule).active
       docMatchingGlobalFilter.name = 'Global Filter for Dynamic Rule ' + docToAdd.id
       docMatchingGlobalFilter.action = 'action-dynamic-rule-block'
-      const globalFiltersData = docMatchingGlobalFilter
       const globalFiltersUrl = `configs/${this.selectedBranch}/d/globalfilters/e/`
-      await RequestsUtils.sendRequest({methodName: 'POST', url: globalFiltersUrl, data: globalFiltersData})
+      await RequestsUtils.sendRequest({methodName: 'POST', url: globalFiltersUrl, data: docMatchingGlobalFilter})
 
       this.editDynamicRule(docToAdd.id)
 
@@ -243,41 +264,6 @@ export default defineComponent({
         Utils.downloadFile('dynamic-rules', 'json', this.dynamicRulesData)
       }
     },
-
-    async loadDynamicRulesData() {
-      this.setLoadingDocStatus(true)
-      this.isDownloadLoading = true
-      const url = `configs/${this.selectedBranch}/d/dynamic-rules/`
-      const response = await RequestsUtils.sendReblazeRequest({
-        methodName: 'GET',
-        url: url,
-        onFail: () => {
-          console.log('Error while attempting to load documents')
-          this.dynamicRulesData = []
-          this.isDownloadLoading = false
-        },
-      })
-      this.dynamicRulesData = response?.data || []
-
-      // bring Tags from GlobalFilters
-      this.globalFiltersData = [] as MiniGlobalFilter[]
-
-      this.dynamicRulesData.map((doc) => {
-        const url = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${doc.id}/`
-        RequestsUtils.sendRequest({methodName: 'GET', url,
-          onFail: () => {
-            console.log('Error while attempting to load documents')
-            this.isDownloadLoading = false
-          },
-        }).then((responseGlobal: AxiosResponse<GlobalFilter>) => {
-          this.globalFiltersData.push({id: responseGlobal.data.id, tags: responseGlobal.data.tags,
-            action: responseGlobal.data.action})
-        })
-      })
-      this.isDownloadLoading = false
-      this.setLoadingDocStatus(false)
-    },
-
   },
   async created() {
     await this.branchesStore.list

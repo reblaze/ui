@@ -45,8 +45,7 @@
         </span>
       </div>
       <hr/>
-      <git-history v-if="!isReblazeDocument"
-                   :api-path="gitAPIPath"
+      <git-history :api-path="gitAPIPath"
                    :restore-target-title="`document [${titles[selectedDocType]}]`"
                    @restore-version="restoreGitVersion"/>
     </div>
@@ -83,9 +82,7 @@ import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
 import RateLimitsEditor from '@/doc-editors/RateLimitRulesEditor.vue'
 import GlobalFilterListEditor from '@/doc-editors/GlobalFiltersEditor.vue'
 import FlowControlPolicyEditor from '@/doc-editors/FlowControlPoliciesEditor.vue'
-import EdgeFunctionsEditor from '@/doc-editors/EdgeFunctionsEditor.vue'
 import CustomResponseEditor from '@/doc-editors/CustomResponsesEditor.vue'
-import DynamicRulesEditor from '@/doc-editors/DynamicRulesEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {defineComponent, shallowRef} from 'vue'
 import {ColumnOptions, Document, DocumentType, GenericObject, GlobalFilter} from '@/types'
@@ -94,7 +91,6 @@ import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
 import {
   ACLProfile,
-  EdgeFunction,
   ColumnOptionsMap,
   ContentFilterProfile,
   ContentFilterRule,
@@ -137,10 +133,6 @@ export default defineComponent({
     GitHistory,
   },
   data() {
-    const reblazeComponentsMap = {
-      'cloud-functions': shallowRef({component: EdgeFunctionsEditor}),
-      'dynamic-rules': shallowRef({component: DynamicRulesEditor}),
-    }
     return {
       titles: DatasetsUtils.titles,
       selectedDocType: null as DocumentType,
@@ -170,26 +162,15 @@ export default defineComponent({
         'contentfilterprofiles': shallowRef({component: ContentFilterEditor}),
         'contentfilterrules': shallowRef({component: ContentFilterRulesEditor}),
         'actions': shallowRef({component: CustomResponseEditor}),
-        ...reblazeComponentsMap,
       },
-      reblazeComponentsMap: reblazeComponentsMap,
       selectedDocMatchingGlobalFilter: null as GlobalFilter,
       matchedDocsData: null as any,
       customResponsesNames: [] as [CustomResponse['id'], CustomResponse['name']][],
     }
   },
   computed: {
-    isReblazeDocument(): boolean {
-      return Object.keys(this.reblazeComponentsMap).includes(this.selectedDocType)
-    },
-
     documentListAPIPath(): string {
-      let apiPrefix
-      if (this.isReblazeDocument) {
-        apiPrefix = `${this.reblazeAPIRoot}/${this.reblazeAPIVersion}`
-      } else {
-        apiPrefix = `${this.confAPIRoot}/${this.confAPIVersion}`
-      }
+      const apiPrefix = `${this.confAPIRoot}/${this.confAPIVersion}`
       return `${apiPrefix}/configs/${this.selectedBranch}/d/${this.selectedDocType}/`
     },
 
@@ -628,33 +609,6 @@ export default defineComponent({
             classes: 'width-100px white-space-pre ellipsis',
           },
         ],
-        'cloud-functions': [
-          {
-            title: 'ID',
-            fieldNames: ['id'],
-            isSortable: true,
-            isSearchable: true,
-            classes: 'width-130px ellipsis',
-          },
-          {
-            title: 'Name',
-            fieldNames: ['name'],
-            isSortable: true,
-            isSearchable: true,
-            classes: 'ellipsis',
-          },
-          {
-            title: 'Phase',
-            fieldNames: ['phase'],
-            displayFunction: (item: EdgeFunction) => {
-              const titles = DatasetsUtils.titles
-              return titles[item.phase]
-            },
-            isSortable: true,
-            isSearchable: true,
-            classes: 'width-150px',
-          },
-        ],
       } as ColumnOptionsMap
     },
 
@@ -706,15 +660,8 @@ export default defineComponent({
     async loadDocs() {
       this.isDownloadLoading = true
       const fieldNames = _.flatMap(this.columns, 'fieldNames')
-
-      let requestFunction
       const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/`
-      if (this.isReblazeDocument) {
-        requestFunction = RequestsUtils.sendReblazeRequest
-      } else {
-        requestFunction = RequestsUtils.sendRequest
-      }
-      const response = await requestFunction({
+      const response = await RequestsUtils.sendRequest({
         methodName: 'GET',
         url: url,
         config: {headers: {'x-fields': `id, ${_.uniq(fieldNames).join(', ')}`}},
@@ -728,7 +675,7 @@ export default defineComponent({
       // After we load the basic data (with x-fields) we can async load the full data for the download
       this.cancelSource.cancel(`Operation cancelled and restarted for a new document type ${this.selectedDocType}`)
       this.cancelSource = axios.CancelToken.source()
-      requestFunction({
+      RequestsUtils.sendRequest({
         methodName: 'GET',
         url,
         config: {cancelToken: this.cancelSource.token},
@@ -776,30 +723,16 @@ export default defineComponent({
       const successMessage = `New ${docTypeText} was created.`
       const failureMessage = `Failed while attempting to create the new ${docTypeText}.`
       const data = docToAdd
-      if (this.isReblazeDocument) {
-        const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${docToAdd.id}`
-        console.log('add new doc function', url, data, successMessage)
-        await RequestsUtils.sendReblazeRequest({
-          methodName: 'POST',
-          url,
-          data,
-          successMessage,
-          failureMessage,
-        }).then(() => {
-          this.editDoc(docToAdd.id)
-        })
-      } else {
-        const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/`
-        await RequestsUtils.sendRequest({
-          methodName: 'POST',
-          url,
-          data,
-          successMessage,
-          failureMessage,
-        }).then(() => {
-          this.editDoc(docToAdd.id)
-        })
-      }
+      const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/`
+      await RequestsUtils.sendRequest({
+        methodName: 'POST',
+        url,
+        data,
+        successMessage,
+        failureMessage,
+      }).then(() => {
+        this.editDoc(docToAdd.id)
+      })
 
       this.isNewLoading = false
       this.setLoadingDocStatus(false)

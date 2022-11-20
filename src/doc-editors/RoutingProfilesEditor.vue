@@ -18,12 +18,12 @@
                   </span>
                 </button>
               </p>
-              <div class="control" v-if="docs.length">
+              <div class="control doc-selection-wrapper" v-if="docs.length">
                 <div class="select is-small">
                   <select v-model="selectedDocID"
                           title="Switch routing profiles document ID"
                           @change="switchDocID()"
-                          class="routing-profiles-selection"
+                          class="doc-selection"
                           data-qa="switch-routing-profiles-document">
                           <option v-for="doc in docs"
                             :key="doc.id"

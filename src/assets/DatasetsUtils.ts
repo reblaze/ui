@@ -304,7 +304,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'id': id,
       'name': 'New Dynamic Rule ' + id,
       'description': 'New Dynamic Rule Description and Remarks',
-      'timeframe': 60,
+      'timeframe': 1,
       'threshold': 9999,
       'active': false,
       'include': ['all'],

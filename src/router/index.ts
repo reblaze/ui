@@ -19,6 +19,28 @@ import BackendServiceEditor from '@/doc-editors/BackendServicesEditor.vue'
 import HelpAndSupport from '@/views/HelpAndSupport.vue'
 import DashboardDisplay from '@/views/Dashboards.vue'
 import DynamicRulesList from '@/views/DynamicRulesList.vue'
+import DynamicRulesEditor from '@/doc-editors/DynamicRulesEditor.vue'
+import EdgeFunctionsList from '@/views/EdgeFunctionsList.vue'
+import EdgeFunctionsEditor from '@/doc-editors/EdgeFunctionsEditor.vue'
+import PremiumPage from '@/views/PremiumPage.vue'
+import RequestsUtils from '@/assets/RequestsUtils'
+
+
+async function premiumServerIsLive() {
+  const url = `health/`
+  const response = await RequestsUtils.sendReblazeRequest({
+    methodName: 'GET',
+    url,
+    onFail: () => {
+      console.log('Reblaze server not found, redirecting to Premium info page')
+    },
+  })
+
+  const isLive = response?.status === 200
+  if (!isLive) {
+    return {path: '/premium'}
+  }
+}
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -35,6 +57,7 @@ const routes: Array<RouteRecordRaw> = [
           {
             path: 'server-groups',
             name: 'ServerGroups',
+            beforeEnter: [premiumServerIsLive],
             redirect: (route) => {
               return `/${route.params.branch}/server-groups/list`
             },
@@ -60,6 +83,7 @@ const routes: Array<RouteRecordRaw> = [
           {
             path: 'routing-profiles',
             name: 'RoutingProfiles',
+            beforeEnter: [premiumServerIsLive],
             redirect: (route) => {
               return `/${route.params.branch}/routing-profiles/list`
             },
@@ -85,6 +109,7 @@ const routes: Array<RouteRecordRaw> = [
           {
             path: 'mobile-sdks',
             name: 'MobileSDKs',
+            beforeEnter: [premiumServerIsLive],
             redirect: (route) => {
               return `/${route.params.branch}/mobile-sdks/list`
             },
@@ -110,6 +135,7 @@ const routes: Array<RouteRecordRaw> = [
           {
             path: 'proxy-templates',
             name: 'ProxyTemplates',
+            beforeEnter: [premiumServerIsLive],
             redirect: (route) => {
               return `/${route.params.branch}/proxy-templates/list`
             },
@@ -135,6 +161,7 @@ const routes: Array<RouteRecordRaw> = [
           {
             path: 'dynamic-rules',
             name: 'DynamicRules',
+            beforeEnter: [premiumServerIsLive],
             redirect: (route) => {
               return `/${route.params.branch}/dynamic-rules/list`
             },
@@ -149,8 +176,8 @@ const routes: Array<RouteRecordRaw> = [
               },
               {
                 path: 'config/:doc_id',
-                name: 'DocumentEditor/DocType/config/DocID',
-                component: DocumentEditor,
+                name: 'DynamicRules/config',
+                component: DynamicRulesEditor,
                 meta: {
                   title: 'Dynamic Rules Editor',
                 },
@@ -160,6 +187,7 @@ const routes: Array<RouteRecordRaw> = [
           {
             path: 'backend-services',
             name: 'BackendServices',
+            beforeEnter: [premiumServerIsLive],
             redirect: (route) => {
               return `/${route.params.branch}/backend-services/list`
             },
@@ -178,6 +206,32 @@ const routes: Array<RouteRecordRaw> = [
                 component: BackendServiceEditor,
                 meta: {
                   title: 'Backend Services Editor',
+                },
+              },
+            ],
+          },
+          {
+            path: 'cloud-functions',
+            name: 'EdgeFunctions',
+            beforeEnter: [premiumServerIsLive],
+            redirect: (route) => {
+              return `/${route.params.branch}/cloud-functions/list`
+            },
+            children: [
+              {
+                path: 'list',
+                name: 'EdgeFunctions/list',
+                component: EdgeFunctionsList,
+                meta: {
+                  title: 'Edge Functions List',
+                },
+              },
+              {
+                path: 'config/:doc_id',
+                name: 'EdgeFunctions/config',
+                component: EdgeFunctionsEditor,
+                meta: {
+                  title: 'Edge Functions Editor',
                 },
               },
             ],
@@ -234,6 +288,14 @@ const routes: Array<RouteRecordRaw> = [
         },
       },
       {
+        path: 'premium',
+        name: 'Premium',
+        component: PremiumPage,
+        meta: {
+          title: 'Premium',
+        },
+      },
+      {
         path: 'quarantined',
         name: 'Quarantined',
         component: QuarantinedList,
@@ -269,6 +331,7 @@ const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
 })
+
 
 export {routes}
 

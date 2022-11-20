@@ -18,13 +18,13 @@
                   </span>
                 </button>
               </p>
-              <div class="control"
+              <div class="control doc-selection-wrapper"
                    v-if="docs.length">
                 <div class="select is-small">
                   <select v-model="selectedDocID"
                           title="Switch document ID"
                           @change="switchDocID()"
-                          class="site-selection"
+                          class="doc-selection"
                           data-qa="switch-document">
                     <option v-for="doc in docs"
                             :key="doc.id"
@@ -356,7 +356,6 @@ export default defineComponent({
   data() {
     return {
       titles: DatasetsUtils.titles,
-      selectedBackendService: null as BackendService,
       docs: [] as unknown as BackendService[],
       selectedDocID: null,
       stickinessModels: backendServicesConsts.stickinessModels,
@@ -392,9 +391,7 @@ export default defineComponent({
       handler: function(val, oldVal) {
         if ((this.$route.name as string).includes('BackendServices/config') && val && val !== oldVal) {
           this.loadDocs()
-          this.sortDocs()
           this.setSelectedDataFromRouteParams()
-          this.loadBackendService()
           this.loadReferencedBackendServicesIDs()
         }
       },
@@ -413,15 +410,15 @@ export default defineComponent({
           this.isDocReferenced
     },
 
-    isSingleHost() {
+    isSingleHost(): boolean {
       return this.selectedBackendService.id && this.selectedBackendService.back_hosts.length === 1
     },
 
-    isPortBridge() {
+    isPortBridge(): boolean {
       return this.selectedBackendService.transport_mode === 'port_bridge'
     },
 
-    protocols() {
+    protocols(): {name: string; value: string;}[] {
       return backendServicesConsts.transportProtocols.filter((transportProtocol) => {
         return this.isSingleHost || transportProtocol.value !== 'port_bridge'
       })
@@ -445,6 +442,15 @@ export default defineComponent({
       }
       return 0
     },
+
+    selectedBackendService: {
+      get(): BackendService {
+        return this.docs[this.selectedDocIndex]
+      },
+      set(newDoc: BackendService): void {
+        this.docs[this.selectedDocIndex] = newDoc
+      },
+    },
   },
   methods: {
 
@@ -460,7 +466,6 @@ export default defineComponent({
     async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
       this.selectedDocID = this.$route.params?.doc_id?.toString()
-      await this.loadBackendService()
       this.setLoadingDocStatus(false)
     },
 
@@ -522,7 +527,7 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       const branch = this.selectedBranch
       const url = `configs/${branch}/d/backends/`
-      this.selectedBackendService = null
+
       const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url,
@@ -542,7 +547,6 @@ export default defineComponent({
         })) {
           this.selectedDocID = this.docs[0].id
         }
-        await this.loadBackendService()
       }
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
@@ -553,10 +557,25 @@ export default defineComponent({
       return factory && factory()
     },
 
+
+    async forkDoc() {
+      this.setLoadingDocStatus(true)
+      this.isForkLoading = true
+      const docToAdd = this.selectedBackendService as BackendService
+      docToAdd.id = DatasetsUtils.generateUUID2()
+      docToAdd.name = 'Backend Service copy no.' + docToAdd.id
+
+      const docTypeText = this.titles['backends-singular']
+      const successMessage = `The ${docTypeText} was duplicated.`
+      const failureMessage = `Failed while attempting to duplicate the ${docTypeText}.`
+      await this.addNewBackendService(docToAdd, successMessage, failureMessage)
+      this.isForkLoading = false
+      this.setLoadingDocStatus(false)
+    },
+
     async addNewBackendService(backendServiceToAdd?: BackendService, successMessage?: string, failureMessage?: string) {
       this.setLoadingDocStatus(true)
       this.isNewLoading = true
-      this.selectedBackendService = null
       if (!backendServiceToAdd) {
         backendServiceToAdd = this.newBackends()
       }
@@ -569,9 +588,10 @@ export default defineComponent({
       }
       const data = backendServiceToAdd
       await this.saveChanges('POST', data, successMessage, failureMessage)
-      this.docs.unshift(backendServiceToAdd)
+      // this.docs.unshift(backendServiceToAdd)
+
+      this.loadDocs()
       this.selectedDocID = backendServiceToAdd.id
-      this.sortDocs()
 
       this.goToRoute()
       this.isNewLoading = false
@@ -601,38 +621,23 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
-    async loadBackendService() {
-      this.setLoadingDocStatus(true)
-      this.isDownloadLoading = true
-      this.selectedBackendService = null
-      const response = await RequestsUtils.sendReblazeRequest({
-        methodName: 'GET',
-        url: `configs/${this.selectedBranch}/d/backends/e/${this.selectedDocID}`,
-        onFail: () => {
-          console.log('Error while attempting to load the Backend Service')
-          this.selectedBackendService = null
-          this.isDownloadLoading = false
-        },
-      })
-      this.selectedBackendService = response?.data || {}
-      this.isDownloadLoading = false
-      this.setLoadingDocStatus(false)
-    },
-
-    async forkDoc() {
-      this.setLoadingDocStatus(true)
-      this.isForkLoading = true
-      const docToAdd = _.cloneDeep(this.selectedBackendService) as BackendService
-      docToAdd.name = 'copy of ' + docToAdd.name
-      docToAdd.id = DatasetsUtils.generateUUID2()
-
-      const docTypeText = this.titles['backends-singular']
-      const successMessage = `The ${docTypeText} was duplicated.`
-      const failureMessage = `Failed while attempting to duplicate the ${docTypeText}.`
-      await this.addNewBackendService(docToAdd, successMessage, failureMessage)
-      this.isForkLoading = false
-      this.setLoadingDocStatus(false)
-    },
+    // async loadBackendService() {
+    //   this.setLoadingDocStatus(true)
+    //   this.isDownloadLoading = true
+    //   this.selectedBackendService = null
+    //   const response = await RequestsUtils.sendReblazeRequest({
+    //     methodName: 'GET',
+    //     url: `configs/${this.selectedBranch}/d/backends/e/${this.selectedDocID}`,
+    //     onFail: () => {
+    //       console.log('Error while attempting to load the Backend Service')
+    //       this.selectedBackendService = null
+    //       this.isDownloadLoading = false
+    //     },
+    //   })
+    //   this.selectedBackendService = response?.data || {}
+    //   this.isDownloadLoading = false
+    //   this.setLoadingDocStatus(false)
+    // },
 
     isDownable(index: number) {
       const backHosts = this.selectedBackendService.back_hosts

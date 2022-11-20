@@ -194,6 +194,10 @@ html {
   min-height: 30px;
 }
 
+.min-height-40 {
+  min-height: 40px;
+}
+
 .height-50px {
   height: 50px;
   max-height: 50px;
@@ -307,6 +311,17 @@ html {
 }
 
 .seconds-suffix {
+  input {
+    padding-right: 60px;
+  }
+}
+
+.minute-suffix::after {
+  @extend .is-size-7;
+  content: 'minutes';
+}
+
+.minute-suffix {
   input {
     padding-right: 60px;
   }
@@ -444,4 +459,10 @@ $color-light: hsl(0, 0%, 96%);
 
 .white-space-pre {
   white-space: pre;
+}
+
+/* editor dropdown width */
+.doc-selection-wrapper {
+  max-width: 450px;
+  min-width: 300px;
 }

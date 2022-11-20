@@ -24,7 +24,7 @@
                   <select v-model="selectedDocID"
                           title="Switch document ID"
                           @change="switchDocID()"
-                          class="site-selection"
+                          class="doc-selection"
                           data-qa="switch-document">
                           <option v-for="doc in docs"
                             :key="doc.id"
@@ -211,7 +211,6 @@
                   new one
               </a>.
             </p>
-          </!--div-->
           <div class="field">
             <div class="field textarea-field">
               <label class="label is-small">Description</label>
@@ -225,6 +224,7 @@
               </div>
             </div>
           </div>
+          </-div-->
         </div>
       </div>
       <div class="columns is-multiline">
@@ -446,7 +446,6 @@ export default defineComponent({
     return {
       titles: DatasetsUtils.titles,
       configs: [],
-      selectedServerGroup: null as Site,
       docs: [] as unknown as Site[],
       selectedDocID: null,
 
@@ -483,9 +482,8 @@ export default defineComponent({
       handler: function(val, oldVal) {
         if ((this.$route.name as string).includes('ServerGroups/config') && val && val !== oldVal) {
           this.loadDocs()
-          this.sortDocs()
           this.setSelectedDataFromRouteParams()
-          this.loadServerGroup()
+          // this.loadCertificates()
           this.loadSecurityPolicies()
           this.loadRoutingProfiles()
           this.loadProxyTemplates()
@@ -521,9 +519,27 @@ export default defineComponent({
       })
     },
 
+    selectedServerGroup: {
+      get(): Site {
+        return this.docs[this.selectedDocIndex]
+      },
+      set(newDoc: Site): void {
+        this.docs[this.selectedDocIndex] = newDoc
+      },
+    },
+
+    selectedDocIndex(): number {
+      if (this.selectedDocID) {
+        return _.findIndex(this.docs, (doc) => {
+          return doc.id === this.selectedDocID
+        })
+      }
+      return 0
+    },
+
     serverNames: {
-      get() {
-        return Array.from(this.selectedServerGroup.server_names || '').join('\n')
+      get(): string {
+        return Array.from(this.selectedServerGroup?.server_names || '').join('\n')
       },
       set(newValue: string) {
         const value = newValue.replaceAll(' ', '')
@@ -536,15 +552,6 @@ export default defineComponent({
     },
 
     ...mapStores(useBranchesStore),
-
-    selectedDocIndex(): number {
-      if (this.selectedDocID) {
-        return _.findIndex(this.docs, (doc) => {
-          return doc.id === this.selectedDocID
-        })
-      }
-      return 0
-    },
 
     isDeleteServerGroupDocNameValid(): boolean {
       const deleteConfirmInputName = this.deleteServerGroupDocName.trim()
@@ -595,7 +602,6 @@ export default defineComponent({
         })) {
           this.selectedDocID = this.docs[0].id
         }
-        await this.loadServerGroup()
       }
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
@@ -604,7 +610,6 @@ export default defineComponent({
     async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
       this.selectedDocID = this.$route.params?.doc_id?.toString()
-      await this.loadServerGroup()
       this.setLoadingDocStatus(false)
     },
 
@@ -659,10 +664,25 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
+    async forkDoc() {
+      this.setLoadingDocStatus(true)
+      this.isForkLoading = true
+      const docToAdd = this.selectedServerGroup as Site
+      docToAdd.id = DatasetsUtils.generateUUID2()
+      docToAdd.name = 'Proxy Template copy no. ' + docToAdd.id
+
+      const docTypeText = this.titles['sites-singular']
+      const successMessage = `The ${docTypeText} was duplicated.`
+      const failureMessage = `Failed while attempting to duplicate the ${docTypeText}.`
+      await this.addNewDoc(docToAdd, successMessage, failureMessage)
+      this.isForkLoading = false
+      this.setLoadingDocStatus(false)
+    },
+
     async addNewDoc(siteToAdd?: Site, successMessage?: string, failureMessage?: string) {
       this.setLoadingDocStatus(true)
       this.isNewLoading = true
-      this.selectedServerGroup = null
+
       if (!siteToAdd) {
         siteToAdd = this.newSite()
       }
@@ -676,9 +696,10 @@ export default defineComponent({
       }
       const data = siteToAdd
       await this.saveChanges('POST', data, successMessage, failureMessage)
-      this.docs.unshift(siteToAdd)
+      // this.docs.unshift(siteToAdd)
+      // this.sortDocs()
+      this.loadDocs()
       this.selectedDocID = siteToAdd.id
-      this.sortDocs()
 
       this.goToRoute()
       this.isNewLoading = false
@@ -688,6 +709,7 @@ export default defineComponent({
     async saveChanges(methodName?: HttpRequestMethods, data?: Site, successMessage?: string, failureMessage?: string) {
       this.setLoadingDocStatus(true)
       this.isSaveLoading = true
+
       if (!methodName) {
         methodName = 'PUT'
       }
@@ -703,62 +725,49 @@ export default defineComponent({
         failureMessage = `Failed while attempting to save the changes to the ${serverGroupText}.`
       }
 
+      // data.ssl_certificate = 'lets encript certificate'
+      // TODO delete after we have UI for ssl certificate as it is a required string in schema
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
       this.isSaveLoading = false
       this.setLoadingDocStatus(false)
     },
 
-    async forkDoc() {
-      this.setLoadingDocStatus(true)
-      this.isForkLoading = true
-      const docToAdd = _.cloneDeep(this.selectedServerGroup) as Site
-      docToAdd.name = 'copy of ' + docToAdd.name
-      docToAdd.id = DatasetsUtils.generateUUID2()
+    // loadCertificates() {
+    //   RequestsUtils.sendReblazeRequest({
+    //     methodName: 'GET',
+    //     url: `configs/${this.selectedBranch}/d/certificates/`,
+    //     config: {headers: {'x-fields': 'id, san'}},
+    //   }).then((response: AxiosResponse<Certificate[]>) => {
+    //     if (response.data.length > 0) {
+    //       this.certificatesNames = _.sortBy(_.map(response.data, (entity) => {
+    //         return [entity.id, entity.san]
+    //       }), (e) => {
+    //         return e[1]
+    //       })
+    //     } else {
+    //       // TODO  get certificate to work
+    //       this.certificatesNames = [['need-real-data', ['www.certificate.com']]] as [string, string[]][]
+    //     }
+    //   })
+    // },
 
-      const docTypeText = this.titles['sites-singular']
-      const successMessage = `The ${docTypeText} was duplicated.`
-      const failureMessage = `Failed while attempting to duplicate the ${docTypeText}.`
-      await this.addNewDoc(docToAdd, successMessage, failureMessage)
-      this.isForkLoading = false
-      this.setLoadingDocStatus(false)
-    },
-
-    loadCertificates() {
-      // RequestsUtils.sendReblazeRequest({
-      //   methodName: 'GET',
-      //   url: `configs/${this.selectedBranch}/d/certificates/`,
-      //   config: {headers: {'x-fields': 'id, san'}},
-      // }).then((response: AxiosResponse<Certificate[]>) => {
-      //   if (response.data.length > 0) {
-      //     this.certificatesNames = _.sortBy(_.map(response.data, (entity) => {
-      //       return [entity.id, entity.san]
-      //     }), (e) => {
-      //       return e[1]
-      //     })
-      //   } else {
-      // TODO  get certificate to work
-      this.certificatesNames = [['need-real-data', ['www.certificate.com']]] as [string, string[]][]
-      //   }
-      // })
-    },
-
-    async loadServerGroup() {
-      this.setLoadingDocStatus(true)
-      this.isDownloadLoading = true
-      this.selectedServerGroup = null
-      const response = await RequestsUtils.sendReblazeRequest({
-        methodName: 'GET',
-        url: `configs/${this.selectedBranch}/d/sites/e/${this.selectedDocID}`,
-        onFail: () => {
-          console.log(`Error while attempting to load the ${this.titles['sites-singular']}`)
-          this.selectedServerGroup = null
-          this.isDownloadLoading = false
-        },
-      })
-      this.selectedServerGroup = response?.data || {}
-      this.isDownloadLoading = false
-      this.setLoadingDocStatus(false)
-    },
+    // async loadServerGroup() {
+    //   this.setLoadingDocStatus(true)
+    //   this.isDownloadLoading = true
+    //   this.selectedServerGroup = null
+    //   const response = await RequestsUtils.sendReblazeRequest({
+    //     methodName: 'GET',
+    //     url: `configs/${this.selectedBranch}/d/sites/e/${this.selectedDocID}`,
+    //     onFail: () => {
+    //       console.log(`Error while attempting to load the ${this.titles['sites-singular']}`)
+    //       this.selectedServerGroup = null
+    //       this.isDownloadLoading = false
+    //     },
+    //   })
+    //   this.selectedServerGroup = response?.data || {}
+    //   this.isDownloadLoading = false
+    //   this.setLoadingDocStatus(false)
+    // },
 
     loadSecurityPolicies() {
       RequestsUtils.sendRequest({
@@ -872,7 +881,6 @@ export default defineComponent({
   },
   async created() {
     await this.branchesStore.list
-    this.loadCertificates()
   },
 })
 </script>
