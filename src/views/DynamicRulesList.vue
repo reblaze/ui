@@ -56,10 +56,11 @@
 import _ from 'lodash'
 import {defineComponent} from 'vue'
 import RbzTable from '@/components/RbzTable.vue'
-import {ColumnOptions, DynamicRule, GlobalFilter} from '@/types'
+import {ColumnOptions, CustomResponse, DynamicRule, GlobalFilter} from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import Utils from '@/assets/Utils'
+import {AxiosResponse} from 'axios'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
 
@@ -113,7 +114,10 @@ export default defineComponent({
             const matchingGlobalFilter = _.find(this.globalFiltersData, (globalFilter: GlobalFilter) => {
               return globalFilter.id === `dr_${item.id}`
             })
-            return matchingGlobalFilter?.action
+            const customResponse = _.find(this.customResponses, (customResponse) => {
+              return customResponse.id === matchingGlobalFilter?.action
+            })
+            return customResponse?.name || ''
           },
           isSortable: false,
           isSearchable: true,
@@ -142,7 +146,7 @@ export default defineComponent({
       globalFiltersData: [] as MiniGlobalFilter[],
       loadingDocCounter: 0,
       isDownloadLoading: false,
-      customResponsesNames: [],
+      customResponses: [],
 
       apiRoot: RequestsUtils.reblazeAPIRoot,
       apiVersion: RequestsUtils.reblazeAPIVersion,
@@ -155,6 +159,7 @@ export default defineComponent({
         if ((this.$route.name as string).includes('DynamicRules/list') && val && val !== oldVal) {
           await this.loadDynamicRulesData()
           await this.loadGlobalFilters()
+          this.loadCustomResponses()
         }
       },
       immediate: true,
@@ -198,6 +203,16 @@ export default defineComponent({
       const config = {headers: {'x-fields': 'id, action, tags'}}
       const response = await RequestsUtils.sendRequest({methodName: 'GET', url, config})
       this.globalFiltersData = response?.data.filter((doc: MiniGlobalFilter) => doc.id.startsWith('dr_'))
+    },
+
+    loadCustomResponses() {
+      RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/actions/`,
+        config: {headers: {'x-fields': 'id, name'}},
+      }).then((response: AxiosResponse<CustomResponse[]>) => {
+        this.customResponses = response?.data || []
+      })
     },
 
     setLoadingDocStatus(isLoading: boolean) {
