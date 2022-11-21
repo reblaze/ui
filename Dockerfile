@@ -25,4 +25,5 @@ COPY --from=builder ./dist /app
 
 EXPOSE 80
 
-ENTRYPOINT ["/usr/sbin/nginx", "-g", "'daemon off;'"]
+CMD ["nginx", "-g", "daemon off;"]
+
