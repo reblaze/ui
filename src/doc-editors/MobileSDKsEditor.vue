@@ -392,7 +392,7 @@
           Loading
         </button>
       </div>
-      <div v-else
+      <div v-else @load="redirectToList()"
            class="no-data-message">
         No data found.
         <div>
@@ -457,10 +457,23 @@ export default defineComponent({
   },
   watch: {
     selectedBranch: {
-      handler: function(val, oldVal) {
+      handler: async function(val, oldVal) {
         if ((this.$route.name as string).includes('MobileSDKs/config') && val && val !== oldVal) {
-          this.loadDocs()
-          this.setSelectedDataFromRouteParams()
+          await this.loadDocs()
+          //  setSelectedDataFromRouteParams()
+          this.selectedDocID = this.$route.params?.doc_id?.toString()
+          let idx = 0
+          if (this.selectedDocID) {
+            idx = _.findIndex(this.docs, (doc) => {
+              return doc.id === this.selectedDocID
+            })
+          }
+          // redirect to list if no data found
+          if (idx >= 0) {
+            return idx
+          } else {
+            this.redirectToList()
+          }
           this.loadReferencedMobileSDKsIDs()
         }
       },

@@ -327,7 +327,7 @@
                  :key="section.sectionType"
                  :class="`${section.sectionType}-section`"
                  v-show="currentSection === section.sectionType">
-              <div class="columns section-inputs-wrapper">
+              <div class="columns section-inputs-wrapper" v-if="(section.sectionType !== 'allsections')">
                 <div class="column is-4">
                   <div class="field">
                     <label class="label is-small">Max Length</label>
@@ -355,8 +355,6 @@
                              @change="emitDocUpdate"/>
                     </div>
                   </div>
-                </div>
-                <div class="column is-4">
                 </div>
               </div>
               <div class="section-constraints-wrapper my-5">
