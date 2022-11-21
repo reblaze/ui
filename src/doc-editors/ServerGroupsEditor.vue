@@ -669,7 +669,7 @@ export default defineComponent({
       this.isForkLoading = true
       const docToAdd = this.selectedServerGroup as Site
       docToAdd.id = DatasetsUtils.generateUUID2()
-      docToAdd.name = 'Proxy Template copy no. ' + docToAdd.id
+      docToAdd.name = 'copy of ' + docToAdd.name + ' ' + docToAdd.id
 
       const docTypeText = this.titles['sites-singular']
       const successMessage = `The ${docTypeText} was duplicated.`

@@ -405,7 +405,7 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       this.isForkLoading = true
       const docToAdd = _.cloneDeep(this.selectedEdgeFunction) as EdgeFunction
-      docToAdd.name = 'copy of ' + docToAdd.name
+      docToAdd.name = 'copy of ' + docToAdd.name + ' ' + docToAdd.id
       docToAdd.id = DatasetsUtils.generateUUID2()
 
       const docTypeText = this.titles['cloud-functions-singular']

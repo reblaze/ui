@@ -563,7 +563,7 @@ export default defineComponent({
       this.isForkLoading = true
       const docToAdd = this.selectedBackendService as BackendService
       docToAdd.id = DatasetsUtils.generateUUID2()
-      docToAdd.name = 'Backend Service copy no.' + docToAdd.id
+      docToAdd.name = 'copy of ' + docToAdd.name + ' ' + docToAdd.id
 
       const docTypeText = this.titles['backends-singular']
       const successMessage = `The ${docTypeText} was duplicated.`

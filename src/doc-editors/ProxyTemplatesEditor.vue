@@ -776,9 +776,8 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       this.isForkLoading = true
       const docToAdd = _.cloneDeep(this.selectedProxyTemplate) as ProxyTemplate
-      const oldId = docToAdd.id
       docToAdd.id = DatasetsUtils.generateUUID2()
-      docToAdd.name = 'copy of Proxy Template no. ' + oldId + ' ' + docToAdd.id
+      docToAdd.name = 'copy of ' + docToAdd.name + ' ' + docToAdd.id
 
       const docTypeText = this.titles['proxy-templates-singular']
       const successMessage = `The ${docTypeText} was duplicated.`
