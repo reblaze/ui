@@ -383,7 +383,8 @@ export default defineComponent({
       if (docIdFromRoute && this.docIdNames.findIndex((doc) => doc.id === docIdFromRoute) > -1) {
         this.selectedDocID = docIdFromRoute
       } else {
-        this.selectedDocID = this.docIdNames?.[0]?.id
+        console.log('redirectToList')
+        this.redirectToList()
       }
       this.isDocumentInvalid = false
 
@@ -478,7 +479,7 @@ export default defineComponent({
         if (!skipDocSelection || !_.find(this.docIdNames, (doc: Document) => {
           return doc.id === this.selectedDocID
         })) {
-          this.selectedDocID = this.docIdNames[0].id
+          // this.selectedDocID = this.docIdNames[0].id
         }
         await this.loadSelectedDocData()
       }

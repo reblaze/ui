@@ -474,7 +474,7 @@ export default defineComponent({
           } else {
             this.redirectToList()
           }
-          this.loadReferencedMobileSDKsIDs()
+          await this.loadReferencedMobileSDKsIDs()
         }
       },
       immediate: true,

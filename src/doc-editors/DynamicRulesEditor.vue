@@ -441,7 +441,20 @@ export default defineComponent({
         if ((this.$route.name as string).includes('DynamicRules/config') && val && val !== oldVal) {
           await this.loadCustomResponses()
           await this.loadDocs()
-          await this.setSelectedDataFromRouteParams()
+          //  setSelectedDataFromRouteParams()
+          this.selectedDocID = this.$route.params?.doc_id?.toString()
+          let idx = 0
+          if (this.selectedDocID) {
+            idx = _.findIndex(this.docs, (doc) => {
+              return doc.id === this.selectedDocID
+            })
+          }
+          // redirect to list if no data found
+          if (idx >= 0) {
+            return idx
+          } else {
+            this.redirectToList()
+          }
           await this.loadGlobalFilter()
         }
       },

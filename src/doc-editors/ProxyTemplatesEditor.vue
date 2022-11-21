@@ -642,11 +642,24 @@ export default defineComponent({
   },
   watch: {
     selectedBranch: {
-      handler: function(val, oldVal) {
+      handler: async function(val, oldVal) {
         if ((this.$route.name as string).includes('ProxyTemplates/config') && val && val !== oldVal) {
-          this.loadDocs()
-          this.setSelectedDataFromRouteParams()
-          this.loadReferencedProxyTemplatesIDs()
+          await this.loadDocs()
+          //  setSelectedDataFromRouteParams()
+          this.selectedDocID = this.$route.params?.doc_id?.toString()
+          let idx = 0
+          if (this.selectedDocID) {
+            idx = _.findIndex(this.docs, (doc) => {
+              return doc.id === this.selectedDocID
+            })
+          }
+          // redirect to list if no data found
+          if (idx >= 0) {
+            return idx
+          } else {
+            this.redirectToList()
+          }
+          await this.loadReferencedProxyTemplatesIDs()
         }
       },
       immediate: true,

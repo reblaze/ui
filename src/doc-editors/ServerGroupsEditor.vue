@@ -435,7 +435,6 @@ import {
 import Utils from '@/assets/Utils'
 import {defineComponent} from 'vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
-import {AxiosResponse} from 'axios'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
 
@@ -478,18 +477,31 @@ export default defineComponent({
   },
   watch: {
     selectedBranch: {
-      handler: function(val, oldVal) {
+      handler: async function(val, oldVal) {
         if ((this.$route.name as string).includes('ServerGroups/config') && val && val !== oldVal) {
-          this.loadDocs()
-          this.setSelectedDataFromRouteParams()
-          // this.loadCertificates()
-          this.loadSecurityPolicies()
-          this.loadRoutingProfiles()
-          this.loadProxyTemplates()
-          this.loadMobileSDKs()
-          this.loadBackendServices()
-          this.loadContentFilterProfiles()
-          this.loadACLProfiles()
+          await this.loadDocs()
+          //  setSelectedDataFromRouteParams()
+          this.selectedDocID = this.$route.params?.doc_id?.toString()
+          let idx = 0
+          if (this.selectedDocID) {
+            idx = _.findIndex(this.docs, (doc) => {
+              return doc.id === this.selectedDocID
+            })
+          }
+          // redirect to list if no data found
+          if (idx >= 0) {
+            return idx
+          } else {
+            this.redirectToList()
+          }
+          // await this.loadCertificates()
+          await this.loadSecurityPolicies()
+          await this.loadRoutingProfiles()
+          await this.loadProxyTemplates()
+          await this.loadMobileSDKs()
+          await this.loadBackendServices()
+          await this.loadContentFilterProfiles()
+          await this.loadACLProfiles()
         }
       },
       immediate: true,
@@ -696,8 +708,6 @@ export default defineComponent({
       }
       const data = siteToAdd
       await this.saveChanges('POST', data, successMessage, failureMessage)
-      // this.docs.unshift(siteToAdd)
-      // this.sortDocs()
       this.loadDocs()
       this.selectedDocID = siteToAdd.id
 
@@ -751,119 +761,107 @@ export default defineComponent({
     //   })
     // },
 
-    // async loadServerGroup() {
-    //   this.setLoadingDocStatus(true)
-    //   this.isDownloadLoading = true
-    //   this.selectedServerGroup = null
-    //   const response = await RequestsUtils.sendReblazeRequest({
-    //     methodName: 'GET',
-    //     url: `configs/${this.selectedBranch}/d/sites/e/${this.selectedDocID}`,
-    //     onFail: () => {
-    //       console.log(`Error while attempting to load the ${this.titles['sites-singular']}`)
-    //       this.selectedServerGroup = null
-    //       this.isDownloadLoading = false
-    //     },
-    //   })
-    //   this.selectedServerGroup = response?.data || {}
-    //   this.isDownloadLoading = false
-    //   this.setLoadingDocStatus(false)
-    // },
-
-    loadSecurityPolicies() {
-      RequestsUtils.sendRequest({
+    async loadSecurityPolicies() {
+      const response = await RequestsUtils.sendRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/securitypolicies/`,
-      }).then((response: AxiosResponse<SecurityPolicy[]>) => {
-        this.securityPolicies = response.data
-        this.securityPoliciesNames = _.sortBy(_.map(response.data, (entity) => {
-          return [entity.id, entity.name]
-        }), (e) => {
-          return e[1]
-        })
+      })
+      this.securityPolicies = response?.data
+      this.securityPoliciesNames = _.sortBy(_.map(response.data, (entity) => {
+        return [entity.id, entity.name]
+      }), (e) => {
+        return e[1]
       })
     },
+    // loadSecurityPolicies() {
+    //   RequestsUtils.sendRequest({
+    //     methodName: 'GET',
+    //     url: `configs/${this.selectedBranch}/d/securitypolicies/`,
+    //   }).then((response: AxiosResponse<SecurityPolicy[]>) => {
+    //     this.securityPolicies = response.data
+    //     this.securityPoliciesNames = _.sortBy(_.map(response.data, (entity) => {
+    //       return [entity.id, entity.name]
+    //     }), (e) => {
+    //       return e[1]
+    //     })
+    //   })
+    // },
 
-    loadRoutingProfiles() {
-      RequestsUtils.sendReblazeRequest({
+    async loadRoutingProfiles() {
+      const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/routing-profiles/`,
-      }).then((response: AxiosResponse<RoutingProfile[]>) => {
-        this.routingProfiles = response.data
-        this.routingProfilesNames = _.sortBy(_.map(response.data, (entity) => {
-          return [entity.id, entity.name]
-        }), (e) => {
-          return e[1]
-        })
+      })
+      this.routingProfiles = response?.data
+      this.routingProfilesNames = _.sortBy(_.map(response.data, (entity) => {
+        return [entity.id, entity.name]
+      }), (e) => {
+        return e[1]
       })
     },
 
-    loadProxyTemplates() {
-      RequestsUtils.sendReblazeRequest({
+    async loadProxyTemplates() {
+      const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/proxy-templates/`,
         config: {headers: {'x-fields': 'id, name'}},
-      }).then((response: AxiosResponse<ProxyTemplate[]>) => {
-        this.proxyTemplatesNames = _.sortBy(_.map(response.data, (entity) => {
-          return [entity.id, entity.name]
-        }), (e) => {
-          return e[1]
-        })
+      })
+      this.proxyTemplatesNames = _.sortBy(_.map(response.data, (entity) => {
+        return [entity.id, entity.name]
+      }), (e) => {
+        return e[1]
       })
     },
 
-    loadMobileSDKs() {
-      RequestsUtils.sendReblazeRequest({
+    async loadMobileSDKs() {
+      const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/mobile-sdks/`,
         config: {headers: {'x-fields': 'id, name'}},
-      }).then((response: AxiosResponse<MobileSDK[]>) => {
-        this.mobileSDKsNames = _.sortBy(_.map(response.data, (entity) => {
-          return [entity.id, entity.name]
-        }), (e) => {
-          return e[1]
-        })
+      })
+      this.mobileSDKsNames = _.sortBy(_.map(response.data, (entity) => {
+        return [entity.id, entity.name]
+      }), (e) => {
+        return e[1]
       })
     },
 
-    loadBackendServices() {
-      RequestsUtils.sendReblazeRequest({
+    async loadBackendServices() {
+      const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/backends/`,
         config: {headers: {'x-fields': 'id, name'}},
-      }).then((response: AxiosResponse<BackendService[]>) => {
-        this.backendServicesNames = _.sortBy(_.map(response.data, (entity) => {
-          return [entity.id, entity.name]
-        }), (e) => {
-          return e[1]
-        })
+      })
+      this.backendServicesNames = _.sortBy(_.map(response.data, (entity) => {
+        return [entity.id, entity.name]
+      }), (e) => {
+        return e[1]
       })
     },
 
-    loadContentFilterProfiles() {
-      RequestsUtils.sendRequest({
+    async loadContentFilterProfiles() {
+      const response = await RequestsUtils.sendRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/contentfilterprofiles/`,
         config: {headers: {'x-fields': 'id, name'}},
-      }).then((response: AxiosResponse<ContentFilterProfile[]>) => {
-        this.contentFilterProfilesNames = _.sortBy(_.map(response.data, (entity) => {
-          return [entity.id, entity.name]
-        }), (e) => {
-          return e[1]
-        })
+      })
+      this.contentFilterProfilesNames = _.sortBy(_.map(response.data, (entity) => {
+        return [entity.id, entity.name]
+      }), (e) => {
+        return e[1]
       })
     },
 
-    loadACLProfiles() {
-      RequestsUtils.sendRequest({
+    async loadACLProfiles() {
+      const response = await RequestsUtils.sendRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/aclprofiles/`,
         config: {headers: {'x-fields': 'id, name'}},
-      }).then((response: AxiosResponse<ACLProfile[]>) => {
-        this.aclProfilesNames = _.sortBy(_.map(response.data, (entity) => {
-          return [entity.id, entity.name]
-        }), (e) => {
-          return e[1]
-        })
+      })
+      this.aclProfilesNames = _.sortBy(_.map(response.data, (entity) => {
+        return [entity.id, entity.name]
+      }), (e) => {
+        return e[1]
       })
     },
 

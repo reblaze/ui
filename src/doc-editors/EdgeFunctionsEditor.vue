@@ -225,7 +225,6 @@ export default defineComponent({
     return {
       cloudPhases: ['request', 'response'] as EdgeFunctionsPhaseType[],
       titles: DatasetsUtils.titles,
-      selectedEdgeFunction: null as EdgeFunction,
       docs: [] as unknown as EdgeFunction[],
       selectedDocID: null,
 
@@ -248,9 +247,21 @@ export default defineComponent({
       handler: async function(val, oldVal) {
         if ((this.$route.name as string).includes('EdgeFunctions/config') && val && val !== oldVal) {
           await this.loadDocs()
-          await this.sortDocs()
-          await this.setSelectedDataFromRouteParams()
-          await this.loadEdgeFunction()
+          //  setSelectedDataFromRouteParams()
+          this.selectedDocID = this.$route.params?.doc_id?.toString()
+          let idx = 0
+          if (this.selectedDocID) {
+            idx = _.findIndex(this.docs, (doc) => {
+              return doc.id === this.selectedDocID
+            })
+          }
+          // redirect to list if no data found
+          if (idx >= 0) {
+            return idx
+          } else {
+            this.redirectToList()
+          }
+          // await this.loadEdgeFunction()
           await this.loadReferencedEdgeFunctionsDocsIDs()
         }
       },
@@ -288,6 +299,11 @@ export default defineComponent({
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
       return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/cloud-functions/e/${this.selectedDocID}/`
     },
+
+    selectedEdgeFunction(): EdgeFunction {
+      return this.docs.find((cloud: EdgeFunction) => cloud.id === this.selectedDocID)
+    },
+
   },
   emits: ['update:selectedDoc'],
   methods: {
@@ -303,7 +319,6 @@ export default defineComponent({
     async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
       this.selectedDocID = this.$route.params?.doc_id?.toString()
-      await this.loadEdgeFunction()
       this.setLoadingDocStatus(false)
     },
 
@@ -382,7 +397,6 @@ export default defineComponent({
         })) {
           this.selectedDocID = this.docs[0].id
         }
-        this.loadEdgeFunction()
       }
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
@@ -391,14 +405,6 @@ export default defineComponent({
     newEdgeFunction(): EdgeFunction {
       const factory = DatasetsUtils.newDocEntryFactory['cloud-functions']
       return factory && factory()
-    },
-
-    async loadEdgeFunction() {
-      this.setLoadingDocStatus(true)
-      this.isDownloadLoading = true
-      this.selectedEdgeFunction = this.docs.find((cloud: EdgeFunction) => cloud.id === this.selectedDocID)
-      this.isDownloadLoading = false
-      this.setLoadingDocStatus(false)
     },
 
     async forkDoc() {
