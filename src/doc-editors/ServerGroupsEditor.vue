@@ -591,6 +591,7 @@ export default defineComponent({
           console.log('Error while attempting to load documents')
           this.docs = []
           this.isDownloadLoading = false
+          this.setLoadingDocStatus(false)
         },
       })
       this.docs = response?.data || []

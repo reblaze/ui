@@ -541,8 +541,8 @@ export default defineComponent({
     async deleteDoc() {
       this.setLoadingDocStatus(true)
       this.isDeleteLoading = true
-      const dynamicRuleText = this.titles['cloud-functions-singular']
-      const url = `configs/${this.selectedBranch}/d/dynamic-functions/e/${this.selectedDynamicRule.id}/`
+      const dynamicRuleText = this.titles['dynamic-rules-singular']
+      const url = `configs/${this.selectedBranch}/d/dynamic-rules/e/${this.selectedDynamicRule.id}/`
       const successMessage = `The ${dynamicRuleText} was deleted.`
       const failureMessage = `Failed while attempting to delete the ${dynamicRuleText}.`
       await RequestsUtils.sendReblazeRequest({
@@ -686,14 +686,10 @@ export default defineComponent({
         if (methodName !== 'POST') {
           urlGlobal += `${data.id}/`
         }
-        const globalFilterText = this.titles['global-filters-singular']
-        if (!successMessage) {
-          successMessage = `Changes to the ${globalFilterText} were saved.`
-        }
-        if (!failureMessage) {
-          failureMessage = `Failed while attempting to save the changes to the ${globalFilterText}.`
-        }
-        await RequestsUtils.sendRequest({methodName, url: urlGlobal, data, successMessage, failureMessage})
+        // const globalFilterText = this.titles['globalfilters-singular']
+        // successMessage = `Changes to the ${globalFilterText} were saved.`
+        // failureMessage = `Failed while attempting to save the changes to the ${globalFilterText}.`
+        await RequestsUtils.sendRequest({methodName, url: urlGlobal, data})
       } else {
         const url = `configs/${this.selectedBranch}/d/dynamic-rules/e/${data.id}/`
         const dynamicRulesText = this.titles['dynamic-rules-singular']
@@ -711,15 +707,10 @@ export default defineComponent({
         if (methodName !== 'POST') {
           urlGlobal += `${data.id}/`
         }
-        const globalFilterText = this.titles['global-filters-singular']
-        if (!successMessage) {
-          successMessage = `Changes to the ${globalFilterText} were saved.`
-        }
-        if (!failureMessage) {
-          failureMessage = `Failed while attempting to save the changes to the ${globalFilterText}.`
-        }
-        await RequestsUtils.sendRequest({methodName, url: urlGlobal, data,
-          successMessage, failureMessage})
+        // const globalFilterText = this.titles['globalfilters-singular']
+        // successMessage = `Changes to the ${globalFilterText} were saved.`
+        // failureMessage = `Failed while attempting to save the changes to the ${globalFilterText}.`
+        await RequestsUtils.sendRequest({methodName, url: urlGlobal, data})
       }
       this.isSaveLoading = false
       this.setLoadingDocStatus(false)
