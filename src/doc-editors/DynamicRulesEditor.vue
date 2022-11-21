@@ -699,9 +699,6 @@ export default defineComponent({
         if (methodName !== 'POST') {
           urlGlobal += `${data.id}/`
         }
-        // const globalFilterText = this.titles['globalfilters-singular']
-        // successMessage = `Changes to the ${globalFilterText} were saved.`
-        // failureMessage = `Failed while attempting to save the changes to the ${globalFilterText}.`
         await RequestsUtils.sendRequest({methodName, url: urlGlobal, data})
       } else {
         const url = `configs/${this.selectedBranch}/d/dynamic-rules/e/${data.id}/`
@@ -720,9 +717,6 @@ export default defineComponent({
         if (methodName !== 'POST') {
           urlGlobal += `${data.id}/`
         }
-        // const globalFilterText = this.titles['globalfilters-singular']
-        // successMessage = `Changes to the ${globalFilterText} were saved.`
-        // failureMessage = `Failed while attempting to save the changes to the ${globalFilterText}.`
         await RequestsUtils.sendRequest({methodName, url: urlGlobal, data})
       }
       this.isSaveLoading = false
