@@ -475,14 +475,7 @@ export default defineComponent({
         this.isDownloadLoading = false
       })
       this.updateDocIdNames()
-      if (this.docIdNames && this.docIdNames.length && this.docIdNames[0].id) {
-        if (!skipDocSelection || !_.find(this.docIdNames, (doc: Document) => {
-          return doc.id === this.selectedDocID
-        })) {
-          // this.selectedDocID = this.docIdNames[0].id
-        }
-        await this.loadSelectedDocData()
-      }
+      await this.loadSelectedDocData()
       this.setLoadingDocStatus(false)
     },
 

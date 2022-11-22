@@ -154,9 +154,9 @@ describe('ContentFilterProfilesEditor.vue', () => {
       expect(element.value).toEqual(docs[0].name)
     })
 
-    test('should have correct max allsections length in input', () => {
-      const element = wrapper.find('.max-allsections-length-input').element as HTMLInputElement
-      expect(element.value).toEqual(docs[0].allsections.max_length.toString())
+    test('allsections should not have max length input', () => {
+      const element = wrapper.findAll('.max-allsections-length-input')
+      expect(element.length).toEqual(0)
     })
 
     test('should have correct max header length in input', () => {
@@ -174,9 +174,9 @@ describe('ContentFilterProfilesEditor.vue', () => {
       expect(element.value).toEqual(docs[0].args.max_length.toString())
     })
 
-    test('should have correct max allsections count in input', () => {
-      const element = wrapper.find('.max-allsections-count-input').element as HTMLInputElement
-      expect(element.value).toEqual(docs[0].allsections.max_count.toString())
+    test('allsections should not have max count input', () => {
+      const element = wrapper.findAll('.max-allsections-count-input')
+      expect(element.length).toEqual(0)
     })
 
     test('should have correct max headers count in input', () => {
