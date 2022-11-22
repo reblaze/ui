@@ -248,20 +248,10 @@ export default defineComponent({
         if ((this.$route.name as string).includes('EdgeFunctions/config') && val && val !== oldVal) {
           await this.loadDocs()
           await this.setSelectedDataFromRouteParams()
-          // selectedDocIndex modified with redirect
-          let idx = 0
-          if (this.selectedDocID) {
-            idx = _.findIndex(this.docs, (doc) => {
-              return doc.id === this.selectedDocID
-            })
-          }
           // redirect to list if no data found
-          if (idx >= 0) {
-            return idx
-          } else {
+          if (!this.docs?.[0]?.id || !this.selectedEdgeFunction) {
             this.redirectToList()
           }
-          // await this.loadEdgeFunction()
           await this.loadReferencedEdgeFunctionsDocsIDs()
         }
       },
@@ -277,12 +267,9 @@ export default defineComponent({
     ...mapStores(useBranchesStore),
 
     selectedDocIndex(): number {
-      if (this.selectedDocID) {
-        return _.findIndex(this.docs, (doc) => {
-          return doc.id === this.selectedDocID
-        })
-      }
-      return 0
+      return _.findIndex(this.docs, (doc) => {
+        return doc.id === this.selectedDocID
+      })
     },
 
     isDocReferenced(): boolean {
@@ -394,13 +381,7 @@ export default defineComponent({
       })
       this.docs = response?.data || []
       this.sortDocs()
-      if (this.docs && this.docs.length && this.docs[0].id) {
-        if (!_.find(this.docs, (doc: EdgeFunction) => {
-          return doc.id === this.selectedDocID
-        })) {
-          this.selectedDocID = this.docs[0].id
-        }
-      }
+
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
     },

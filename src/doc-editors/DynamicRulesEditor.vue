@@ -7,11 +7,10 @@
             <div class="field is-grouped">
               <p class="control">
                 <button
-                  class="button is-small redirect-list-button"
-                  @click="redirectToList()"
-                  title="Return to list"
-                  data-qa="redirect-to-list"
-                >
+                    class="button is-small redirect-list-button"
+                    @click="redirectToList()"
+                    title="Return to list"
+                    data-qa="redirect-to-list">
                   <span class="icon is-small">
                     <i class="fas fa-arrow-left"></i>
                   </span>
@@ -21,13 +20,12 @@
               <div class="control doc-selection-wrapper" v-if="docs.length">
                 <div class="select is-small">
                   <select
-                    v-model="selectedDocID"
-                    title="Switch document ID"
-                    @change="switchDocID()"
-                    class="doc-selection"
-                    :class="{'is-loading': isNewLoading}"
-                    data-qa="switch-document"
-                  >
+                      v-model="selectedDocID"
+                      title="Switch document ID"
+                      @change="switchDocID()"
+                      class="doc-selection"
+                      :class="{'is-loading': isNewLoading}"
+                      data-qa="switch-document">
                     <option v-for="doc in docs" :key="doc.id" :value="doc.id">
                       {{ doc.name }}
                     </option>
@@ -40,13 +38,12 @@
             <div class="field is-grouped is-pulled-right">
               <p class="control">
                 <button
-                  class="button is-small new-dynamic-rule-document-button"
-                  :class="{'is-loading': isNewLoading}"
-                  @click="addNewDynamicRule()"
-                  title="Add new document"
-                  :disabled="!selectedBranch"
-                  data-qa="add-new-document"
-                >
+                    class="button is-small new-dynamic-rule-document-button"
+                    :class="{'is-loading': isNewLoading}"
+                    @click="addNewDynamicRule()"
+                    title="Add new document"
+                    :disabled="!selectedBranch"
+                    data-qa="add-new-document">
                   <span class="icon is-small">
                     <i class="fas fa-plus"></i>
                   </span>
@@ -56,13 +53,12 @@
 
               <p class="control">
                 <button
-                  class="button is-small fork-document-button"
-                  :class="{'is-loading': isForkLoading}"
-                  @click="forkDoc()"
-                  title="Duplicate document"
-                  :disabled="!selectedDynamicRule"
-                  data-qa="duplicate-document"
-                >
+                    class="button is-small fork-document-button"
+                    :class="{'is-loading': isForkLoading}"
+                    @click="forkDoc()"
+                    title="Duplicate document"
+                    :disabled="!selectedDynamicRule"
+                    data-qa="duplicate-document">
                   <span class="icon is-small">
                     <i class="fas fa-clone"></i>
                   </span>
@@ -71,12 +67,11 @@
               </p>
               <p class="control">
                 <button
-                  class="button is-small download-doc-button"
-                  :class="{'is-loading': isDownloadLoading}"
-                  @click="downloadDoc()"
-                  title="Download document"
-                  data-qa="download-document"
-                >
+                    class="button is-small download-doc-button"
+                    :class="{'is-loading': isDownloadLoading}"
+                    @click="downloadDoc()"
+                    title="Download document"
+                    data-qa="download-document">
                   <span class="icon is-small">
                     <i class="fas fa-download"></i>
                   </span>
@@ -85,13 +80,12 @@
               </p>
               <p class="control">
                 <button
-                  class="button is-small save-document-button"
-                  :class="{'is-loading': isSaveLoading}"
-                  title="Save changes"
-                  data-qa="save-changes"
-                  :disabled="!selectedDynamicRule || !localGlobalFilterDoc || tagsInvalid"
-                  @click="saveChanges()"
-                >
+                    class="button is-small save-document-button"
+                    :class="{'is-loading': isSaveLoading}"
+                    title="Save changes"
+                    data-qa="save-changes"
+                    :disabled="!selectedDynamicRule || !localGlobalFilterDoc || tagsInvalid"
+                    @click="saveChanges()">
                   <span class="icon is-small">
                     <i class="fas fa-save"></i>
                   </span>
@@ -100,12 +94,11 @@
               </p>
               <p class="control">
                 <button
-                  class="button is-small has-text-danger delete-document-button"
-                  title="Delete document"
-                  data-qa="delete-document"
-                  :class="{'is-loading': isDeleteLoading}"
-                  @click="deleteDoc()"
-                >
+                    class="button is-small has-text-danger delete-document-button"
+                    title="Delete document"
+                    data-qa="delete-document"
+                    :class="{'is-loading': isDeleteLoading}"
+                    @click="deleteDoc()" >
                   <span class="icon is-small">
                     <i class="fas fa-trash"></i>
                   </span>
@@ -120,14 +113,7 @@
     <hr />
     <div
       class="content"
-      v-if="
-        !loadingDocCounter &&
-        selectedBranch &&
-        selectedDynamicRule &&
-        localGlobalFilterDoc &&
-        docs
-      "
-    >
+      v-if="!loadingDocCounter && selectedBranch && selectedDynamicRule && localGlobalFilterDoc && docs">
       <div class="columns columns-divided">
         <div class="column is-5">
           <div class="field">
@@ -143,8 +129,7 @@
                 data-qa="dynamic-rules-name-input"
                 title="Document name"
                 placeholder="Document name"
-                v-model="selectedDynamicRule.name"
-              />
+                v-model="selectedDynamicRule.name" />
             </div>
             <div class="field">
               <label class="checkbox is-size-7">
@@ -152,8 +137,7 @@
                   type="checkbox"
                   data-qa="active-checkbox"
                   class="document-active"
-                  v-model="selectedDynamicRule.active"
-                />
+                  v-model="selectedDynamicRule.active"/>
                 Active
               </label>
             </div>
@@ -166,8 +150,7 @@
                 data-qa="description-input"
                 title="Document description"
                 v-model="selectedDynamicRule.description"
-                rows="2"
-              >
+                rows="2">
               </textarea>
             </div>
           </div>
@@ -182,13 +165,11 @@
                       data-qa="target-dropdown"
                       title="Target"
                       @change="targetDropDownChanged"
-                      class="target-dropdown"
-                    >
+                      class="target-dropdown">
                       <option
                         v-for="option in targetOptions"
                         :key="option.key"
-                        :value="option.key"
-                      >
+                        :value="option.key" >
                         {{ option.title }}
                       </option>
                     </select>
@@ -202,8 +183,7 @@
                     title="Target key"
                     placeholder="Target key"
                     v-model="targetValue"
-                    @change="targetChanged"
-                  />
+                    @change="targetChanged"/>
                 </div>
               </div>
             </div>
@@ -217,8 +197,7 @@
                 type="number"
                 title="Dynamic Rule threshold"
                 placeholder="Dynamic Rule threshold"
-                v-model="selectedDynamicRule.threshold"
-              />
+                v-model="selectedDynamicRule.threshold" />
             </div>
           </div>
           <div class="field">
@@ -230,8 +209,7 @@
                 type="number"
                 title="Dynamic Rule limit duration"
                 placeholder="Dynamic Rule limit duration"
-                v-model="selectedDynamicRule.timeframe"
-              />
+                v-model="selectedDynamicRule.timeframe" />
             </div>
           </div>
           <div class="field">
@@ -242,13 +220,11 @@
                   v-model="localGlobalFilterDoc.action"
                   data-qa="action-dropdown"
                   class="document-action-selection"
-                  title="Custom Response"
-                >
+                  title="Custom Response" >
                   <option
                     v-for="customResponse in customResponseNames"
                     :value="customResponse[0]"
-                    :key="customResponse[0]"
-                  >
+                    :key="customResponse[0]" >
                     {{ customResponse[1] }}
                   </option>
                 </select>
@@ -264,8 +240,7 @@
                 type="number"
                 title="Dynamic Rule time span"
                 placeholder="Dynamic Rule time span"
-                v-model="selectedDynamicRule.ttl"
-              />
+                v-model="selectedDynamicRule.ttl" />
             </div>
           </div>
           <div class="field">
@@ -274,8 +249,7 @@
               <tag-autocomplete-input
                 :initial-tag="selectedDocTags"
                 selection-type="multiple"
-                @tag-changed="selectedDocTags = $event"
-              />
+                @tag-changed="selectedDocTags = $event" />
             </div>
           </div>
         </div>
@@ -285,8 +259,7 @@
               class="column is-6 filter-column"
               v-for="filter in filters"
               :key="filter"
-              :class="filter + '-filter-column'"
-            >
+              :class="filter + '-filter-column'" >
               <p class="title is-7">
                 {{ titles[filter] }}
               </p>
@@ -295,13 +268,11 @@
                 <tbody>
                   <tr
                     v-for="(tag, tagIndex) in selectedDynamicRule[filter]"
-                    :key="tagIndex"
-                  >
+                    :key="tagIndex" >
                     <td
                       class="tag-cell ellipsis"
                       :class="duplicateTags[tag] ? 'has-text-danger' : ''"
-                      :title="tag"
-                    >
+                      :title="tag" >
                       {{ tag }}
                     </td>
                     <td class="is-size-7 width-20px">
@@ -313,35 +284,30 @@
                         @click="removeTag(filter, tagIndex)"
                         @keypress.space.prevent
                         @keypress.space="removeTag(filter, tagIndex)"
-                        @keypress.enter="removeTag(filter, tagIndex)"
-                      >
+                        @keypress.enter="removeTag(filter, tagIndex)" >
                         &ndash;
                       </a>
                     </td>
                   </tr>
                   <tr>
                     <td>
-                      <tag-autocomplete-input
-                        v-if="addNewTagColName === filter"
+                      <tag-autocomplete-input v-if="addNewTagColName === filter"
                         ref="tagAutocompleteInput"
                         :clear-input-after-selection="true"
                         :selection-type="'single'"
                         :auto-focus="true"
                         @keydown.esc="cancelAddNewTag"
-                        @tag-submitted="addNewTag(filter, $event)"
-                      />
+                        @tag-submitted="addNewTag(filter, $event)" />
                     </td>
                     <td class="is-size-7 width-20px">
-                      <a
-                        title="add new entry"
-                        class="is-size-7 width-20px is-small has-text-grey add-new-filter-entry-button"
-                        tabindex="0"
-                        @click="openTagInput(filter)"
-                        @keypress.space.prevent
-                        @keypress.space="openTagInput(filter)"
-                        @keypress.enter="openTagInput(filter)"
-                      >
-                        +
+                      <a title="add new entry"
+                          class="is-size-7 width-20px is-small has-text-grey add-new-filter-entry-button"
+                          tabindex="0"
+                          @click="openTagInput(filter)"
+                          @keypress.space.prevent
+                          @keypress.space="openTagInput(filter)"
+                          @keypress.enter="openTagInput(filter)" >
+                          +
                       </a>
                     </td>
                   </tr>
@@ -357,8 +323,7 @@
     </div>
     <div
       class="content no-data-wrapper"
-      v-if="loadingDocCounter || !selectedBranch || !selectedDynamicRule || !docs"
-    >
+      v-if="loadingDocCounter || !selectedBranch || !selectedDynamicRule || !docs" >
       <div v-if="loadingDocCounter > 0">
         <button class="button is-outlined is-text is-small is-loading document-loading">
           Loading
@@ -442,8 +407,8 @@ export default defineComponent({
 
       localGlobalFilterDoc: null as GlobalFilter,
       duplicatedGlobalFilter: null as GlobalFilter,
-      docs: ([] as unknown) as DynamicRule[],
-      globalFiltersDocs: ([] as unknown) as GlobalFilter[],
+      docs: [] as DynamicRule[],
+      globalFiltersDocs: [] as GlobalFilter[],
       selectedDocID: null,
 
       apiRoot: RequestsUtils.reblazeAPIRoot,
@@ -462,21 +427,12 @@ export default defineComponent({
   watch: {
     selectedBranch: {
       handler: async function(val, oldVal) {
-        if (
-          (this.$route.name as string).includes('DynamicRules/config') && val && val !== oldVal
-        ) {
+        if ((this.$route.name as string).includes('DynamicRules/config') && val && val !== oldVal) {
           await this.loadCustomResponses()
           await this.loadDocs()
           await this.setSelectedDataFromRouteParams()
-          // selectedDocIndex modified with redirect
-          let idx = 0
-          if (this.selectedDocID) {
-            idx = _.findIndex(this.docs, (doc) => {
-              return doc.id === this.selectedDocID
-            })
-          }
           // redirect to list if no data found
-          if (idx === -1) {
+          if (!this.docs?.[0]?.id || !this.selectedDynamicRule) {
             this.redirectToList()
           }
         }
@@ -486,15 +442,12 @@ export default defineComponent({
     selectedDynamicRule: {
       handler: async function(val, oldVal) {
         // display target
-        if (val && val !== oldVal) {
-          if (this.selectedDynamicRule?.target.includes('_')) {
-            const targets = this.selectedDynamicRule.target.split('_')
-            this.targetType = targets[0]
-            this.targetValue = targets[1]
-          } else {
-            this.targetType = this.selectedDynamicRule?.target
-          }
-          // await this.loadGlobalFilter()
+        if (val && val !== oldVal && this.selectedDynamicRule?.target.includes('_')) {
+          const targets = this.selectedDynamicRule.target.split('_')
+          this.targetType = targets[0]
+          this.targetValue = targets[1]
+        } else {
+          this.targetType = this.selectedDynamicRule?.target
         }
       },
     },
@@ -508,9 +461,9 @@ export default defineComponent({
     duplicateTags(): Dictionary<string> {
       const doc = this.selectedDynamicRule
       const allTags = _.concat(doc['include'], doc['exclude'])
-      const dupTags = _.filter(allTags, (val, i, iteratee) =>
-        _.includes(iteratee, val, i + 1),
-      )
+      const dupTags = _.filter(allTags, (val, i, iteratee) => {
+        return _.includes(iteratee, val, i + 1)
+      })
       return _.fromPairs(_.zip(dupTags, dupTags))
     },
 
@@ -523,10 +476,9 @@ export default defineComponent({
       },
       set: function(tags: string): void {
         this.localGlobalFilterDoc.tags =
-          tags.length > 0 ?
-            _.map(tags.split(' '), (tag) => {
-              return tag.trim()
-            }) : []
+          tags.length > 0 ? _.map(tags.split(' '), (tag) => {
+            return tag.trim()
+          }) : []
         if (tags.trim() === '' || tags.length < 3) {
           this.tagsInvalid = true
         } else {
@@ -543,20 +495,19 @@ export default defineComponent({
 
     selectedDynamicRule: {
       get(): DynamicRule {
-        return this.docs[this.selectedDocIndex]
+        return (this.selectedDocIndex > -1) ? this.docs[this.selectedDocIndex] : null
       },
       set(newDoc: DynamicRule): void {
-        this.docs[this.selectedDocIndex] = newDoc
+        if (this.selectedDocIndex > -1) {
+          this.docs[this.selectedDocIndex] = newDoc
+        }
       },
     },
 
     selectedDocIndex(): number {
-      if (this.selectedDocID && this.docs) {
-        return _.findIndex(this.docs, (doc) => {
-          return doc?.id === this.selectedDocID
-        })
-      }
-      return 0
+      return _.findIndex(this.docs, (doc) => {
+        return doc.id === this.selectedDocID
+      })
     },
   },
   methods: {
@@ -614,15 +565,9 @@ export default defineComponent({
       })
       this.docs = response?.data ? _.cloneDeep(response.data) : []
       this.sortDocs()
-      if (this.docs && this.docs?.length && this.docs[0]?.id) {
-        if (
-          !_.find(this.docs, (doc: DynamicRule) => {
-            return doc?.id === this.selectedDocID
-          })
-        ) {
-          this.selectedDocID = this.docs[0].id
-        }
-      }
+      // if (!this.docs?.[0]?.id || !this.selectedDynamicRule) {
+      //   this.redirectToList()
+      // }
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
     },
@@ -742,7 +687,13 @@ export default defineComponent({
         if (methodName !== 'POST') {
           urlGlobal += `${data.id}/`
         }
-        await RequestsUtils.sendRequest({methodName, url: urlGlobal, data})
+        failureMessage = `Failed while attempting to save the changes to the Global Filter.`
+        await RequestsUtils.sendRequest({
+          methodName,
+          url: urlGlobal,
+          data,
+          failureMessage,
+        })
       } else {
         const url = `configs/${this.selectedBranch}/d/dynamic-rules/e/${data.id}/`
         const dynamicRulesText = this.titles['dynamic-rules-singular']
@@ -766,13 +717,11 @@ export default defineComponent({
         if (methodName !== 'POST') {
           urlGlobal += `${data.id}/`
         }
-        successMessage = ''
-        failureMessage = `Failed while attempting to save the changes to the global filters.`
+        failureMessage = `Failed while attempting to save the changes to the Global Filter.`
         await RequestsUtils.sendRequest({
           methodName,
           url: urlGlobal,
           data,
-          successMessage,
           failureMessage,
         })
       }

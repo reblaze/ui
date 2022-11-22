@@ -481,20 +481,10 @@ export default defineComponent({
         if ((this.$route.name as string).includes('ServerGroups/config') && val && val !== oldVal) {
           await this.loadDocs()
           await this.setSelectedDataFromRouteParams()
-          // selectedDocIndex modified with redirect
-          let idx = 0
-          if (this.selectedDocID) {
-            idx = _.findIndex(this.docs, (doc) => {
-              return doc.id === this.selectedDocID
-            })
-          }
           // redirect to list if no data found
-          if (idx >= 0) {
-            return idx
-          } else {
+          if (!this.docs?.[0]?.id || !this.selectedServerGroup) {
             this.redirectToList()
           }
-          // await this.loadCertificates()
           await this.loadSecurityPolicies()
           await this.loadRoutingProfiles()
           await this.loadProxyTemplates()
@@ -532,20 +522,19 @@ export default defineComponent({
 
     selectedServerGroup: {
       get(): Site {
-        return this.docs[this.selectedDocIndex]
+        return (this.selectedDocIndex > -1) ? this.docs[this.selectedDocIndex] : null
       },
       set(newDoc: Site): void {
-        this.docs[this.selectedDocIndex] = newDoc
+        if (this.selectedDocIndex > -1) {
+          this.docs[this.selectedDocIndex] = newDoc
+        }
       },
     },
 
     selectedDocIndex(): number {
-      if (this.selectedDocID) {
-        return _.findIndex(this.docs, (doc) => {
-          return doc.id === this.selectedDocID
-        })
-      }
-      return 0
+      return _.findIndex(this.docs, (doc) => {
+        return doc.id === this.selectedDocID
+      })
     },
 
     serverNames: {
@@ -608,13 +597,7 @@ export default defineComponent({
       })
       this.docs = response?.data || []
       this.sortDocs()
-      if (this.docs && this.docs.length && this.docs[0].id) {
-        if (!_.find(this.docs, (doc: Site) => {
-          return doc.id === this.selectedDocID
-        })) {
-          this.selectedDocID = this.docs[0].id
-        }
-      }
+
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
     },

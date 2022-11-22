@@ -646,17 +646,8 @@ export default defineComponent({
         if ((this.$route.name as string).includes('ProxyTemplates/config') && val && val !== oldVal) {
           await this.loadDocs()
           await this.setSelectedDataFromRouteParams()
-          // selectedDocIndex modified with redirect
-          let idx = 0
-          if (this.selectedDocID) {
-            idx = _.findIndex(this.docs, (doc) => {
-              return doc.id === this.selectedDocID
-            })
-          }
           // redirect to list if no data found
-          if (idx >= 0) {
-            return idx
-          } else {
+          if (!this.docs?.[0]?.id || !this.selectedProxyTemplate) {
             this.redirectToList()
           }
           await this.loadReferencedProxyTemplatesIDs()
@@ -668,10 +659,12 @@ export default defineComponent({
   computed: {
     selectedProxyTemplate: {
       get(): ProxyTemplate {
-        return this.docs[this.selectedDocIndex]
+        return (this.selectedDocIndex > -1) ? this.docs[this.selectedDocIndex] : null
       },
       set(newDoc: ProxyTemplate): void {
-        this.docs[this.selectedDocIndex] = newDoc
+        if (this.selectedDocIndex > -1) {
+          this.docs[this.selectedDocIndex] = newDoc
+        }
       },
     },
 
@@ -698,12 +691,9 @@ export default defineComponent({
     ...mapStores(useBranchesStore),
 
     selectedDocIndex(): number {
-      if (this.selectedDocID) {
-        return _.findIndex(this.docs, (doc) => {
-          return doc.id=== this.selectedDocID
-        })
-      }
-      return 0
+      return _.findIndex(this.docs, (doc) => {
+        return doc.id === this.selectedDocID
+      })
     },
   },
   methods: {
@@ -863,14 +853,7 @@ export default defineComponent({
       })
       this.docs = response?.data || []
       this.sortDocs()
-      if (this.docs && this.docs.length && this.docs[0].id) {
-        if (!_.find(this.docs, (doc: ProxyTemplate) => {
-          return doc.id === this.selectedDocID
-        })) {
-          this.selectedDocID = this.docs[0].id
-        }
-        // await this.loadProxyTemplate()
-      }
+
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
     },
