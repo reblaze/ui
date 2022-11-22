@@ -50,7 +50,7 @@ const processRequest = (methodName: HttpRequestMethods, apiUrl: string, data: an
   }
   request = request.then((response: AxiosResponse) => {
     // Toast message
-    if (successMessage) {
+    if (successMessage && successMessage !== '') {
       Utils.toast(successMessage, 'is-success', undoFunction)
     }
     // Update commit counters

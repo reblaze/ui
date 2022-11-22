@@ -430,7 +430,7 @@ export default defineComponent({
     async loadSelectedDocData() {
       this.setLoadingDocStatus(true)
       // check if the selected doc only has id and name, if it does, attempt to load the rest of the document data
-      if (this.selectedDoc && Object.keys(this.selectedDoc).length === 2) {
+      if (this.selectedDoc && Object.keys(this.selectedDoc).length === 2 && this.selectedDocID) {
         const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`
         const response = await RequestsUtils.sendRequest({
           methodName: 'GET',
@@ -637,10 +637,14 @@ export default defineComponent({
         config: {headers: {'x-fields': 'action'}},
       })
       const contentFilterProfilesDocs = response?.data || []
+
       response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/dynamic-rules/`,
         config: {headers: {'x-fields': 'action'}},
+        onFail: () => {
+          console.log('Error while attempting to load dynamic-rules action documents')
+        },
       })
       const dynamicRulesDocs = response?.data || []
       this.referencedIDsCustomResponse = _.uniq([
