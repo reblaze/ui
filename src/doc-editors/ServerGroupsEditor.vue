@@ -187,7 +187,7 @@
                     </textarea>
             </div>
           </div>
-          <!--div-- class="field">
+          <!--div class="field">
             <label class="label is-small">
               Certificate
             </label>
@@ -210,7 +210,7 @@
               <a url="/new-ssl-page/certificate-store">
                   new one
               </a>.
-            </p>
+            </p /-->
           <div class="field">
             <div class="field textarea-field">
               <label class="label is-small">Description</label>
@@ -224,7 +224,6 @@
               </div>
             </div>
           </div>
-          </-div-->
         </div>
       </div>
       <div class="columns is-multiline">

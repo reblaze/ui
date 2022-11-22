@@ -464,7 +464,7 @@
               </span>
             </div>
             <div class="content collapsible-content px-5 py-5">
-                  <div class="content" v-if="trustedData">
+                  <div class="content" >
                     <rbz-table :columns="trusted_sources_columns"
                                 :data="trustedData"
                                 :row-button-icon="'fa-trash'"
@@ -550,16 +550,18 @@
       <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ documentAPIPath }}</span>
     </div>
     <div class="modal add-source is-active"
-      v-if="isAddModalVisible || isEditTrustedSource || isDeleteModalVisible">
-      <div class="modal-background">
+      v-if="isAddModalVisible">
+      <div class="modal-background"
+            tabindex="0"
+            @keydown.esc="closeModal">
         <div class="modal-card modal-position">
           <div class="modal-card-head">
             <h5 class="modal-card-title is-size-6 mb-0">
-                {{ isDeleteModalVisible ? 'Delete' : isEditTrustedSource ? 'Edit' : 'Add' }} Trusted Source
+                Add Trusted Source
             </h5>
-            <button class="delete" @click="closeModal"></button>
+            <button class="button is-small" @click="closeModal"></button>
           </div>
-          <div class="modal-card-body" v-if="isEditTrustedSource || isAddModalVisible">
+          <div class="modal-card-body">
               <div class="field">
                   <div class="is-small is-size-7 is-fullwidth mb-1">
                     <span value="cidr" key="cidr">IP address</span>
@@ -588,7 +590,92 @@
                   </div>
               </div>
           </div>
-          <div class="modal-card-body delete-modal" v-if="isDeleteModalVisible">
+          <div class="modal-card-foot modal-footer-buttons">
+            <div class="buttons is-right is-fullwidth">
+              <button class="button is-small" @click="closeModal">
+                  Cancel
+              </button>
+              <button
+                  :disabled="!ipToAddIsValid"
+                  class="button is-small"
+                  @click="saveTrustedSource">
+                  Save
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal add-source is-active"
+      v-if="isEditTrustedSource">
+      <div class="modal-background"
+            tabindex="0"
+            @keydown.esc="closeModal">
+        <div class="modal-card modal-position">
+          <div class="modal-card-head">
+            <h5 class="modal-card-title is-size-6 mb-0">
+                Edit Trusted Source
+            </h5>
+            <button class="delete" @click="closeModal"></button>
+          </div>
+          <div class="modal-card-body">
+              <div class="field">
+                  <div class="is-small is-size-7 is-fullwidth mb-1">
+                    <span value="cidr" key="cidr">IP address</span>
+                  </div>
+                  <input
+                      class="input is-small"
+                      :class="{'is-danger': isError('ip')}"
+                      placeholder="Enter IP address"
+                      v-model="sourceToAdd.address"
+                      @input="validateIp"
+                      ref="address" />
+                  <p class="help is-danger" v-if="isError('ip')">
+                      Incorrect value: expected IP address
+                  </p>
+                  <p class="help is-danger" v-else-if="isError('duplicate')">
+                      A source with this ip address is already in the trusted sources list
+                  </p>
+              </div>
+              <div class="field">
+                  <label class="label is-small mb-1">Comment</label>
+                  <div class="control">
+                      <input
+                          class="input is-small"
+                          placeholder="Enter comment"
+                          v-model="sourceToAdd.comment" />
+                  </div>
+              </div>
+          </div>
+          <div class="modal-card-foot modal-footer-buttons">
+            <div class="buttons is-right is-fullwidth">
+              <button class="button is-small" @click="closeModal">
+                  Cancel
+              </button>
+              <button
+                  :disabled="!ipToAddIsValid"
+                  class="button is-small"
+                  @click="saveTrustedSource">
+                  Save
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal add-source is-active"
+      v-if="isDeleteModalVisible">
+      <div class="modal-background"
+            tabindex="0"
+            @keydown.esc="closeModal">
+        <div class="modal-card modal-position">
+          <div class="modal-card-head">
+            <h5 class="modal-card-title is-size-6 mb-0">
+                Delete Trusted Source
+            </h5>
+            <button class="button is-small" @click="closeModal">X</button>
+          </div>
+          <div class="modal-card-body delete-modal" >
             <span class="warning-delete">Are you sure you want to delete this trusted source?</span>
           </div>
           <div class="modal-card-foot modal-footer-buttons">
@@ -597,11 +684,9 @@
                   Cancel
               </button>
               <button
-                  :disabled="!sourceToAdd.isValid"
                   class="button is-small"
-                  :class="{'is-loading': isProcessing}"
                   @click="saveTrustedSource">
-                  {{isDeleteModalVisible ? 'OK' : 'Save'}}
+                  OK
               </button>
             </div>
           </div>
@@ -647,11 +732,7 @@ type TrustedSource = {
   address: string,
   comment: string,
 }
-type SourceToAdd = {
-  address: string,
-  comment: string,
-  isValid?: boolean
-}
+
 export default defineComponent({
   name: 'ProxyTemplateEditor',
   components: {
@@ -687,7 +768,6 @@ export default defineComponent({
       isAddModalVisible: false,
       isEditTrustedSource: false,
       isDeleteModalVisible: false,
-      isProcessing: false,
 
       planetID: null as string,
       planetName: null as string,
@@ -708,7 +788,8 @@ export default defineComponent({
           classes: 'ellipsis',
         },
       ],
-      sourceToAdd: {address: '', comment: '', isValid: false} as SourceToAdd,
+      sourceToAdd: {id: 0, address: '', comment: ''} as TrustedSource,
+      ipToAddIsValid: false as boolean,
       sourceToDelete: null as number,
       currentEditIndex: 0 as number,
       errors: [],
@@ -906,6 +987,22 @@ export default defineComponent({
         failureMessage = `Failed while attempting to save the changes to the ${proxyTemplateText}.`
       }
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
+
+      // save trusted sources
+      const trustedUrl = `configs/${this.selectedBranch}/d/planet/`
+      const trustedArr = this.trustedData.map((trusted) => {
+        return {
+          address: trusted.address,
+          comment: trusted.comment,
+        }
+      })
+      const planetData = {
+        id: this.planetID,
+        name: this.planetName,
+        trusted_nets: trustedArr,
+      }
+      await RequestsUtils.sendReblazeRequest({methodName: 'PUT', data: planetData, url: trustedUrl})
+
       this.isSaveLoading = false
       this.setLoadingDocStatus(false)
     },
@@ -956,12 +1053,6 @@ export default defineComponent({
       this.referencedIDsProxyTemplate = _.uniq(referencedProxyTemplates)
     },
 
-    onChangeEntryType() {
-      this.sourceToAdd.address = ''
-      this.sourceToAdd.isValid = false
-      this.clearError()
-    },
-
     isError(error: string): boolean {
       return this.errors.find((item) => item === error)
     },
@@ -970,8 +1061,8 @@ export default defineComponent({
       this.clearError('ip')
       // eslint-disable-next-line max-len
       const ipPattern = /((^\s*((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))\s*(:([0-9]|[1-8][0-9]|9[0-9]|[1-8][0-9]{2}|9[0-8][0-9]|99[0-9]|[1-8][0-9]{3}|9[0-8][0-9]{2}|99[0-8][0-9]|999[0-9]|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])|(\/[0-9]|\/[1-2][0-9]|\/[1-3][0-2]))?(\s?)?$)|(^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f] {1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d |1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*(:([0-9]|[1-8][0-9]|9[0-9]|[1-8][0-9]{2}|9[0-8][0-9]|99[0-9]|[1-8][0-9]{3}|9[0-8][0-9]{2}|99[0-8][0-9]|999[0-9]|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])|(\/[0-9] |\/[1-2][0-9]|\/[1-3][0-2]))?(\s?)?$))/
-      this.sourceToAdd.isValid = ipPattern.test(this.sourceToAdd.address)
-      if (this.sourceToAdd.isValid) {
+      this.ipToAddIsValid = ipPattern.test(this.sourceToAdd.address)
+      if (this.ipToAddIsValid) {
         this.validateDuplication()
       } else {
         this.errors.push('ip')
@@ -979,22 +1070,20 @@ export default defineComponent({
     },
     validateDuplication() {
       this.clearError('duplicate')
-      this.sourceToAdd.isValid = !this.findSource(this.sourceToAdd.address)
-      if (!this.sourceToAdd.isValid) {
+      this.ipToAddIsValid = !this.trustedData.find((trustedSource) => {
+        return trustedSource.address === this.sourceToAdd.address
+      })
+      if (!this.ipToAddIsValid) {
         this.errors.push('duplicate')
       }
-    },
-
-    findSource(id: string) {
-      return this.trustedData.find(({address}) => address === id)
     },
 
     clearError(field: string = '') {
       this.errors = field ? this.errors.filter((err: string) => err !== field) : []
     },
 
-    // TODO waiting for truseted source to be implemented on backend: moved from planet to proxy-template and to have an id for each record.
-    // also need to complete the modal for editing and adding trusted sources.
+    // TODO to switch this, truseted source, to the correct path under Proxy Template later on
+    // and to have an id for each record of the trusted_nets.
     async loadTrustedSources() {
       const url = `configs/${this.selectedBranch}/d/planet/`
       const methodName = 'GET'
@@ -1012,42 +1101,18 @@ export default defineComponent({
       this.isEditTrustedSource = false
       this.isDeleteModalVisible = false
       this.currentEditIndex = 0
-      this.sourceToAdd = {} as SourceToAdd
+      this.sourceToAdd = {} as TrustedSource
       this.errors = []
     },
 
     async saveTrustedSource() {
-      let successMessage = ''
-      let failureMessage = ''
       if (this.isEditTrustedSource) {
         this.editTrustedSource()
-        successMessage = 'The trusted source has been successfully saved!'
-        failureMessage = 'Failed to save trusted source'
       } else if (this.isAddModalVisible) {
         this.addTrustedSource()
-        successMessage = 'The trusted source has been successfully added!'
-        failureMessage = 'Failed to add trusted source'
       } else {
         this.deleteTrustedElement()
-        successMessage = 'The trusted source was successfully deleted!'
-        failureMessage = 'Failed to delete the trusted source'
       }
-
-      const url = `configs/${this.selectedBranch}/d/planet/`
-      const methodName = 'PUT'
-      const trustedArr = this.trustedData.map((trusted) => {
-        return {
-          address: trusted.address,
-          comment: trusted.comment,
-        }
-      })
-      const data = {
-        id: this.planetID,
-        name: this.planetName,
-        trusted_nets: trustedArr,
-      }
-
-      await RequestsUtils.sendReblazeRequest({methodName, data, url, successMessage, failureMessage})
     },
 
     openAddNewTrustedSourceModal() {
@@ -1065,7 +1130,7 @@ export default defineComponent({
       this.currentEditIndex = id
       this.sourceToAdd.address = this.trustedData[id].address
       this.sourceToAdd.comment = this.trustedData[id].comment
-      this.sourceToAdd.isValid = true
+      this.ipToAddIsValid = true
       this.isEditTrustedSource = true
     },
 
@@ -1084,18 +1149,11 @@ export default defineComponent({
     openDeleteModal(id: number) {
       this.sourceToDelete = id
       this.isDeleteModalVisible = true
-      document.addEventListener('keyup', this.escEventListener)
     },
 
     deleteTrustedElement() {
       this.trustedData = this.trustedData.filter((trusted) => trusted.id !== this.sourceToDelete)
       this.isDeleteModalVisible = false
-    },
-
-    escEventListener(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        this.closeModal()
-      }
     },
   },
   async created() {
