@@ -645,8 +645,8 @@ export default defineComponent({
       handler: async function(val, oldVal) {
         if ((this.$route.name as string).includes('ProxyTemplates/config') && val && val !== oldVal) {
           await this.loadDocs()
-          //  setSelectedDataFromRouteParams()
-          this.selectedDocID = this.$route.params?.doc_id?.toString()
+          await this.setSelectedDataFromRouteParams()
+          // selectedDocIndex modified with redirect
           let idx = 0
           if (this.selectedDocID) {
             idx = _.findIndex(this.docs, (doc) => {
@@ -719,14 +719,7 @@ export default defineComponent({
 
     async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
-      const docIdFromRoute = this.$route.params?.doc_id?.toString()
-      await this.loadDocs()
-      if (docIdFromRoute && this.docs && this.docs.findIndex((doc) => doc.id === docIdFromRoute) > -1) {
-        this.selectedDocID = docIdFromRoute
-      } else {
-        console.log('docIdFromRoute', docIdFromRoute, this.docs)
-        this.selectedDocID = this.docs?.[0]?.id
-      }
+      this.selectedDocID = this.$route.params?.doc_id?.toString()
       this.setLoadingDocStatus(false)
     },
 

@@ -460,8 +460,8 @@ export default defineComponent({
       handler: async function(val, oldVal) {
         if ((this.$route.name as string).includes('MobileSDKs/config') && val && val !== oldVal) {
           await this.loadDocs()
-          //  setSelectedDataFromRouteParams()
-          this.selectedDocID = this.$route.params?.doc_id?.toString()
+          await this.setSelectedDataFromRouteParams()
+          // selectedDocIndex modified with redirect
           let idx = 0
           if (this.selectedDocID) {
             idx = _.findIndex(this.docs, (doc) => {

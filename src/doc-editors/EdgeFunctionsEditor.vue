@@ -247,8 +247,8 @@ export default defineComponent({
       handler: async function(val, oldVal) {
         if ((this.$route.name as string).includes('EdgeFunctions/config') && val && val !== oldVal) {
           await this.loadDocs()
-          //  setSelectedDataFromRouteParams()
-          this.selectedDocID = this.$route.params?.doc_id?.toString()
+          await this.setSelectedDataFromRouteParams()
+          // selectedDocIndex modified with redirect
           let idx = 0
           if (this.selectedDocID) {
             idx = _.findIndex(this.docs, (doc) => {
@@ -300,12 +300,15 @@ export default defineComponent({
       return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/cloud-functions/e/${this.selectedDocID}/`
     },
 
-    selectedEdgeFunction(): EdgeFunction {
-      return this.docs.find((cloud: EdgeFunction) => cloud.id === this.selectedDocID)
+    selectedEdgeFunction: {
+      get(): EdgeFunction {
+        return (this.docs && this.selectedDocIndex) ? this.docs[this.selectedDocIndex] : null
+      },
+      set(newDoc: EdgeFunction): void {
+        this.docs[this.selectedDocIndex] = newDoc
+      },
     },
-
   },
-  emits: ['update:selectedDoc'],
   methods: {
     async goToRoute() {
       const newRoute = `/${this.selectedBranch}/cloud-functions/config/${this.selectedDocID}`
@@ -411,8 +414,8 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       this.isForkLoading = true
       const docToAdd = _.cloneDeep(this.selectedEdgeFunction) as EdgeFunction
-      docToAdd.name = 'copy of ' + docToAdd.name + ' ' + docToAdd.id
       docToAdd.id = DatasetsUtils.generateUUID2()
+      docToAdd.name = 'copy of ' + docToAdd.name + ' ' + docToAdd.id
 
       const docTypeText = this.titles['cloud-functions-singular']
       const successMessage = `The ${docTypeText} was duplicated.`
@@ -425,7 +428,7 @@ export default defineComponent({
     async addNewEdgeFunction(cloudFunctionToAdd?: EdgeFunction, successMessage?: string, failureMessage?: string) {
       this.setLoadingDocStatus(true)
       this.isNewLoading = true
-      this.selectedEdgeFunction = null
+
       if (!cloudFunctionToAdd) {
         cloudFunctionToAdd = this.newEdgeFunction()
       }
@@ -438,9 +441,8 @@ export default defineComponent({
       }
       const data = cloudFunctionToAdd
       await this.saveChanges('POST', data, successMessage, failureMessage)
-      this.docs.unshift(cloudFunctionToAdd)
+      this.loadDocs()
       this.selectedDocID = cloudFunctionToAdd.id
-      this.sortDocs()
 
       this.goToRoute()
       this.isNewLoading = false

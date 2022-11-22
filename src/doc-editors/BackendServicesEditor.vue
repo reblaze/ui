@@ -391,8 +391,8 @@ export default defineComponent({
       handler: async function(val, oldVal) {
         if ((this.$route.name as string).includes('BackendServices/config') && val && val !== oldVal) {
           await this.loadDocs()
-          //  setSelectedDataFromRouteParams()
-          this.selectedDocID = this.$route.params?.doc_id?.toString()
+          await this.setSelectedDataFromRouteParams()
+          // selectedDocIndex modified with redirect
           let idx = 0
           if (this.selectedDocID) {
             idx = _.findIndex(this.docs, (doc) => {
@@ -601,7 +601,6 @@ export default defineComponent({
       }
       const data = backendServiceToAdd
       await this.saveChanges('POST', data, successMessage, failureMessage)
-      // this.docs.unshift(backendServiceToAdd)
 
       this.loadDocs()
       this.selectedDocID = backendServiceToAdd.id

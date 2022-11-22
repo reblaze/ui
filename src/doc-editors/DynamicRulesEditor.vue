@@ -172,7 +172,7 @@
                     <select v-model="targetType"
                             data-qa="target-dropdown"
                             title="Target"
-                            @change="targetChanged"
+                            @change="targetDropDownChanged"
                             class="target-dropdown">
                       <option v-for="option in targetOptions"
                               :key="option.key"
@@ -441,8 +441,8 @@ export default defineComponent({
         if ((this.$route.name as string).includes('DynamicRules/config') && val && val !== oldVal) {
           await this.loadCustomResponses()
           await this.loadDocs()
-          //  setSelectedDataFromRouteParams()
-          this.selectedDocID = this.$route.params?.doc_id?.toString()
+          await this.setSelectedDataFromRouteParams()
+          // selectedDocIndex modified with redirect
           let idx = 0
           if (this.selectedDocID) {
             idx = _.findIndex(this.docs, (doc) => {
@@ -646,6 +646,7 @@ export default defineComponent({
       if (!dynamicRuleToAdd) {
         dynamicRuleToAdd = this.newDynamicRule()
         this.duplicatedGlobalFilter = this.newGlobalFilter()
+        this.duplicatedGlobalFilter.action = 'action-dynamic-rule-block'
         this.duplicatedGlobalFilter.id = `dr_${dynamicRuleToAdd.id}`
         this.duplicatedGlobalFilter.name = `GlobalFilter for DynamicRule ${dynamicRuleToAdd.id}`
       } else {
@@ -752,6 +753,11 @@ export default defineComponent({
       if (!this.isDownloadLoading) {
         Utils.downloadFile('dynamic-rules', 'json', this.selectedDynamicRule)
       }
+    },
+
+    targetDropDownChanged() {
+      this.targetValue = ''
+      this.targetChanged()
     },
 
     targetChanged() {
