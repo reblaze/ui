@@ -187,7 +187,7 @@
                     </textarea>
             </div>
           </div>
-          <!--div-- class="field">
+          <div class="field">
             <label class="label is-small">
               Certificate
             </label>
@@ -211,6 +211,7 @@
                   new one
               </a>.
             </p>
+          </div>
           <div class="field">
             <div class="field textarea-field">
               <label class="label is-small">Description</label>
@@ -224,7 +225,6 @@
               </div>
             </div>
           </div>
-          </-div-->
         </div>
       </div>
       <div class="columns is-multiline">
@@ -488,6 +488,7 @@ export default defineComponent({
           await this.loadSecurityPolicies()
           await this.loadRoutingProfiles()
           await this.loadProxyTemplates()
+          await this.loadCertificates()
           await this.loadMobileSDKs()
           await this.loadBackendServices()
           await this.loadContentFilterProfiles()
@@ -717,7 +718,7 @@ export default defineComponent({
       if (!failureMessage) {
         failureMessage = `Failed while attempting to save the changes to the ${serverGroupText}.`
       }
-
+      console.log('data.ssl_certificate', data.ssl_certificate)
       // data.ssl_certificate = 'lets encript certificate'
       // TODO delete after we have UI for ssl certificate as it is a required string in schema
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
@@ -725,24 +726,24 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
-    // loadCertificates() {
-    //   RequestsUtils.sendReblazeRequest({
-    //     methodName: 'GET',
-    //     url: `configs/${this.selectedBranch}/d/certificates/`,
-    //     config: {headers: {'x-fields': 'id, san'}},
-    //   }).then((response: AxiosResponse<Certificate[]>) => {
-    //     if (response.data.length > 0) {
-    //       this.certificatesNames = _.sortBy(_.map(response.data, (entity) => {
-    //         return [entity.id, entity.san]
-    //       }), (e) => {
-    //         return e[1]
-    //       })
-    //     } else {
-    //       // TODO  get certificate to work
-    //       this.certificatesNames = [['need-real-data', ['www.certificate.com']]] as [string, string[]][]
-    //     }
-    //   })
-    // },
+    async loadCertificates() {
+      const response = await RequestsUtils.sendReblazeRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/certificates/`,
+        config: {headers: {'x-fields': 'id, san'}},
+      })
+      if (response.data.length > 0) {
+        this.certificatesNames = _.sortBy(_.map(response.data, (entity) => {
+          return [entity.id, entity.san]
+        }), (e) => {
+          return e[1]
+        })
+      } else {
+        // TODO  get certificate to work
+        this.certificatesNames = [['need-real-data', ['www.certificate.com']]] as [string, string[]][]
+      }
+      console.log('certificates', this.certificatesNames)
+    },
 
     async loadSecurityPolicies() {
       const response = await RequestsUtils.sendRequest({
@@ -750,25 +751,13 @@ export default defineComponent({
         url: `configs/${this.selectedBranch}/d/securitypolicies/`,
       })
       this.securityPolicies = response?.data
+      console.log('polic', this.securityPolicies)
       this.securityPoliciesNames = _.sortBy(_.map(response.data, (entity) => {
         return [entity.id, entity.name]
       }), (e) => {
         return e[1]
       })
     },
-    // loadSecurityPolicies() {
-    //   RequestsUtils.sendRequest({
-    //     methodName: 'GET',
-    //     url: `configs/${this.selectedBranch}/d/securitypolicies/`,
-    //   }).then((response: AxiosResponse<SecurityPolicy[]>) => {
-    //     this.securityPolicies = response.data
-    //     this.securityPoliciesNames = _.sortBy(_.map(response.data, (entity) => {
-    //       return [entity.id, entity.name]
-    //     }), (e) => {
-    //       return e[1]
-    //     })
-    //   })
-    // },
 
     async loadRoutingProfiles() {
       const response = await RequestsUtils.sendReblazeRequest({
