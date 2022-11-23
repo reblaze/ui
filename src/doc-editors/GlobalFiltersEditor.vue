@@ -226,10 +226,12 @@ export default defineComponent({
     selectedDocTags: {
       get: function(): string {
         if (this.localDoc.tags && this.localDoc.tags.length > 0) {
+          this.$emit('tags-invalid', false)
           return this.localDoc.tags.join(' ')
+        } else {
+          this.$emit('tags-invalid', true)
+          return ''
         }
-        this.$emit('tags-invalid', true)
-        return ''
       },
       set: function(tags: string): void {
         if (this.localDoc.id.startsWith('dr_')) {

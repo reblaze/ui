@@ -480,9 +480,12 @@ export default defineComponent({
     selectedDocTags: {
       get: function(): string {
         if (this.localGlobalFilterDoc.tags && this.localGlobalFilterDoc.tags.length > 0) {
+          this.$emit('tags-invalid', false)
           return this.localGlobalFilterDoc.tags.join(' ')
+        } else {
+          this.$emit('tags-invalid', true)
+          return ''
         }
-        return ''
       },
       set: function(tags: string): void {
         this.localGlobalFilterDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
