@@ -12,7 +12,11 @@ jobs:
       - name: Build image
         uses: ./.github/actions/build/image/
         with:
+          AWS_ACCESS_KEY_ID:      "${{ secrets.AWS_ACCESS_KEY_ID }}"
+          AWS_ACCOUNT_ID:         "${{ secrets.AWS_ACCOUNT_ID }}"
+          AWS_SECRET_ACCESS_KEY:  "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
           GCP_PROJECT_ID:         "${{ secrets.GCP_PROJECT_ID }}"
           GCP_SA_KEY:             "${{ secrets.GCP_SA_KEY }}"
           GH_ENV:                 "dev"
+          SERVICE:                "uiserver"
           REGION:                 "eu-central-1"
