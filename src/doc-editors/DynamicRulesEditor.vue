@@ -706,7 +706,7 @@ export default defineComponent({
         await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
         const active = data.active
         data = this.duplicatedGlobalFilter
-        data.active = active
+        data.active = active // copy active from DynamicRule to GlobalFilter
         let urlGlobal = `configs/${this.selectedBranch}/d/globalfilters/e/`
         if (methodName !== 'POST') {
           urlGlobal += `${data.id}/`
