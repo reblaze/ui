@@ -559,7 +559,7 @@
             <h5 class="modal-card-title is-size-6 mb-0">
                 Add Trusted Source
             </h5>
-            <button class="button is-small" @click="closeModal"></button>
+            <button class="button is-small" @click="closeModal">X</button>
           </div>
           <div class="modal-card-body">
               <div class="field">
@@ -616,7 +616,7 @@
             <h5 class="modal-card-title is-size-6 mb-0">
                 Edit Trusted Source
             </h5>
-            <button class="delete" @click="closeModal"></button>
+            <button class="button is-small" @click="closeModal">X</button>
           </div>
           <div class="modal-card-body">
               <div class="field">
