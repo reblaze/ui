@@ -220,7 +220,7 @@
                                 data-qa="description-input"
                                 title="Document description"
                                 v-model="selectedServerGroup.description"
-                                rows="5">
+                                rows="2">
                       </textarea>
               </div>
             </div>
