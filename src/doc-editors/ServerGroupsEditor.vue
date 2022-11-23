@@ -718,7 +718,6 @@ export default defineComponent({
       if (!failureMessage) {
         failureMessage = `Failed while attempting to save the changes to the ${serverGroupText}.`
       }
-      console.log('data.ssl_certificate', data.ssl_certificate)
       // TODO delete after we have UI for ssl certificate as it is a required string in schema
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
       this.isSaveLoading = false
@@ -741,7 +740,6 @@ export default defineComponent({
         // TODO  get certificate to work
         this.certificatesNames = [['need-real-data', ['www.certificate.com']]] as [string, string[]][]
       }
-      console.log('certificates', this.certificatesNames)
     },
 
     async loadSecurityPolicies() {
@@ -750,7 +748,6 @@ export default defineComponent({
         url: `configs/${this.selectedBranch}/d/securitypolicies/`,
       })
       this.securityPolicies = response?.data
-      console.log('polic', this.securityPolicies)
       this.securityPoliciesNames = _.sortBy(_.map(response.data, (entity) => {
         return [entity.id, entity.name]
       }), (e) => {
