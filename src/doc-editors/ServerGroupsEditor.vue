@@ -187,7 +187,7 @@
                     </textarea>
             </div>
           </div>
-          <!--div-- class="field">
+          <!-- <div class="field">
             <label class="label is-small">
               Certificate
             </label>
@@ -211,6 +211,7 @@
                   new one
               </a>.
             </p>
+          </div> -->
           <div class="field">
             <div class="field textarea-field">
               <label class="label is-small">Description</label>
@@ -219,12 +220,11 @@
                                 data-qa="description-input"
                                 title="Document description"
                                 v-model="selectedServerGroup.description"
-                                rows="5">
+                                rows="2">
                       </textarea>
               </div>
             </div>
           </div>
-          </-div-->
         </div>
       </div>
       <div class="columns is-multiline">
