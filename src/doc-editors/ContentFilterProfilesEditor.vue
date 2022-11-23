@@ -844,10 +844,8 @@ export default defineComponent({
     selectedDocTags: {
       get: function(): string {
         if (this.localDoc.tags && this.localDoc.tags.length > 0) {
-          this.$emit('tags-invalid', false)
           return this.localDoc.tags.join(' ')
         } else {
-          this.$emit('tags-invalid', true)
           return ''
         }
       },
@@ -855,11 +853,6 @@ export default defineComponent({
         this.localDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
           return tag.trim()
         }) : []
-        if (tags.trim() === '' || tags.length < 3 || !!_.size(this.duplicateTags)) {
-          this.$emit('tags-invalid', true)
-        } else {
-          this.$emit('tags-invalid', false)
-        }
         this.emitDocUpdate()
       },
     },

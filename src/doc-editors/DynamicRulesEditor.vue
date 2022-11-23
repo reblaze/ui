@@ -89,7 +89,7 @@
                         :class="{'is-loading': isSaveLoading}"
                         title="Save changes"
                         data-qa="save-changes"
-                        :disabled="!selectedDynamicRule || !localGlobalFilterDoc || tagsInvalid"
+                        :disabled="!selectedDynamicRule || !localGlobalFilterDoc"
                         @click="saveChanges()">
                   <span class="icon is-small">
                     <i class="fas fa-save"></i>
@@ -431,7 +431,6 @@ export default defineComponent({
       isDownloadLoading: false,
       isForkLoading: false,
       isNewLoading: false,
-      tagsInvalid: false,
 
     }
   },
@@ -480,10 +479,8 @@ export default defineComponent({
     selectedDocTags: {
       get: function(): string {
         if (this.localGlobalFilterDoc.tags && this.localGlobalFilterDoc.tags.length > 0) {
-          this.$emit('tags-invalid', false)
           return this.localGlobalFilterDoc.tags.join(' ')
         } else {
-          this.$emit('tags-invalid', true)
           return ''
         }
       },
@@ -491,11 +488,6 @@ export default defineComponent({
         this.localGlobalFilterDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
           return tag.trim()
         }) : []
-        if (tags.trim() === '' || tags.length < 3) {
-          this.tagsInvalid = true
-        } else {
-          this.tagsInvalid = false
-        }
       },
     },
 
