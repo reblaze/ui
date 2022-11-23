@@ -719,7 +719,6 @@ export default defineComponent({
         failureMessage = `Failed while attempting to save the changes to the ${serverGroupText}.`
       }
       console.log('data.ssl_certificate', data.ssl_certificate)
-      // data.ssl_certificate = 'lets encript certificate'
       // TODO delete after we have UI for ssl certificate as it is a required string in schema
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
       this.isSaveLoading = false
