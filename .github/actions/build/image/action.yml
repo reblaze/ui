@@ -64,7 +64,7 @@ runs:
         echo "IMAGE_NAME = $IMAGE_NAME"
       shell: bash
     - name: Build, tag, and push docker image to Amazon ECR
-      working-directory: ./services/${{ inputs.SERVICE }}/
+      working-directory: ./
       env:
         REGISTRY:   "${{ steps.login-ecr.outputs.registry }}"
         REPOSITORY: "${{ steps.reformat-image-name.outputs.IMAGE_NAME }}"
@@ -74,7 +74,7 @@ runs:
         docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
       shell: bash
     - name: Tag with branch name
-      working-directory: ./services/${{ inputs.SERVICE }}/
+      working-directory: ./
       env:
         REGISTRY:   "${{ steps.login-ecr.outputs.registry }}"
         REPOSITORY: "${{ steps.reformat-image-name.outputs.IMAGE_NAME }}"
