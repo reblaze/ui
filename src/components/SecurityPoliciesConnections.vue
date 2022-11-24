@@ -309,6 +309,7 @@ export default defineComponent({
         this.setEntryDeleteIndex(-1)
         this.getConnectedSecurityPoliciesEntries()
       })
+      // const mapEntrySize = _.filter
       console.log('cInput del', mapEntry['limit_ids'].length > 1)
       this.$emit('connected', mapEntry['limit_ids'].length > 1)
     },
