@@ -21,14 +21,17 @@ const isoToNowCuriefenseFormat = (date: string | Date) => {
     date = new Date(date)
   }
   const currentDate = new Date()
+  // if ( date < currentDate ) {
   // @ts-ignore
-  const dateDiff = currentDate - date
+  const dateDiff = (currentDate - date) >= 0 ? currentDate - date : date - currentDate
+  // @ts-ignore
+  const isFutureDate = (currentDate - date) < 0
   const minutesDiff = dateDiff / 6e4
   const hoursDiff = dateDiff / 36e5
   const daysDiff = dateDiff / 864e5
   // if less than 1 minute ago
   if (minutesDiff < 1) {
-    return 'Less than a minute ago'
+    return isFutureDate ? 'Less than a minute left' : 'Less than a minute ago'
   }
   // if less than 24 hours ago
   if (hoursDiff < 24) {
@@ -49,7 +52,7 @@ const isoToNowCuriefenseFormat = (date: string | Date) => {
       }
       returnString += ' '
     }
-    returnString += 'ago'
+    returnString = returnString + isFutureDate ? 'later' : 'ago'
     return returnString
   }
   // if less than 1 year ago
