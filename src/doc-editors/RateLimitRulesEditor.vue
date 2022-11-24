@@ -307,19 +307,14 @@ export default defineComponent({
       get: function(): string {
         if (this.localDoc.tags && this.localDoc.tags.length > 0) {
           return this.localDoc.tags.join(' ')
+        } else {
+          return ''
         }
-        this.$emit('tags-invalid', true)
-        return ''
       },
       set: function(tags: string): void {
         this.localDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
           return tag.trim()
         }) : []
-        if (tags.trim() === '' || tags.length < 3) {
-          this.$emit('tags-invalid', true)
-        } else {
-          this.$emit('tags-invalid', false)
-        }
         this.emitDocUpdate()
       },
     },

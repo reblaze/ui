@@ -79,13 +79,12 @@
                 </button>
               </p>
               <p class="control">
-                <button
-                    class="button is-small save-document-button"
-                    :class="{'is-loading': isSaveLoading}"
-                    title="Save changes"
-                    data-qa="save-changes"
-                    :disabled="!selectedDynamicRule || !localGlobalFilterDoc || tagsInvalid"
-                    @click="saveChanges()">
+                <button class="button is-small save-document-button"
+                        :class="{'is-loading': isSaveLoading}"
+                        title="Save changes"
+                        data-qa="save-changes"
+                        :disabled="!selectedDynamicRule || !localGlobalFilterDoc"
+                        @click="saveChanges()">
                   <span class="icon is-small">
                     <i class="fas fa-save"></i>
                   </span>
@@ -421,7 +420,7 @@ export default defineComponent({
       isDownloadLoading: false,
       isForkLoading: false,
       isNewLoading: false,
-      tagsInvalid: false,
+
     }
   },
   watch: {
@@ -471,19 +470,14 @@ export default defineComponent({
       get: function(): string {
         if (this.localGlobalFilterDoc.tags && this.localGlobalFilterDoc.tags.length > 0) {
           return this.localGlobalFilterDoc.tags.join(' ')
+        } else {
+          return ''
         }
-        return ''
       },
       set: function(tags: string): void {
-        this.localGlobalFilterDoc.tags =
-          tags.length > 0 ? _.map(tags.split(' '), (tag) => {
-            return tag.trim()
-          }) : []
-        if (tags.trim() === '' || tags.length < 3) {
-          this.tagsInvalid = true
-        } else {
-          this.tagsInvalid = false
-        }
+        this.localGlobalFilterDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
+          return tag.trim()
+        }) : []
       },
     },
 
@@ -712,7 +706,7 @@ export default defineComponent({
         })
         const active = data.active
         data = this.duplicatedGlobalFilter
-        data.active = active
+        data.active = active // copy active from DynamicRule to GlobalFilter
         let urlGlobal = `configs/${this.selectedBranch}/d/globalfilters/e/`
         if (methodName !== 'POST') {
           urlGlobal += `${data.id}/`
