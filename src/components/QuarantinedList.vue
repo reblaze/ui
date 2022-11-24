@@ -65,14 +65,14 @@ export default defineComponent({
           fieldNames: ['target'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-110px ellipsis',
+          classes: 'ellipsis width-110px ',
         },
         {
           title: 'Value',
           fieldNames: ['value'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-90px',
+          classes: 'ellipsis width-90px',
         },
         {
           title: 'Count',
@@ -131,7 +131,7 @@ export default defineComponent({
           },
           isSortable: true,
           isSearchable: true,
-          classes: 'width-130px ellipsis',
+          classes: 'width-110px ellipsis',
         },
         {
           title: 'Tags',
@@ -141,7 +141,7 @@ export default defineComponent({
             return item.tags?.join('\n')
           },
           isSearchable: true,
-          classes: 'vertical-scroll ellipsis width-100px white-space-pre',
+          classes: 'vertical-scroll ellipsis width-110px',
         },
       ] as ColumnOptions[],
       quarantinedData: null as Quarantined[],
