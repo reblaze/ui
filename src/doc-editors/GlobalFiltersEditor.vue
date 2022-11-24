@@ -1,14 +1,20 @@
 <template>
   <div class="card-content">
     <div class="content">
-      <div class="card collapsible-card"
-           :class="{ collapsed: isDataCollapsed }">
+      <div
+        class="card collapsible-card"
+        :class="{ collapsed: isDataCollapsed }"
+      >
         <div class="card-content px-0 py-0">
-          <div class="media collapsible px-5 py-5 mb-0"
-               @click="isDataCollapsed = !isDataCollapsed">
+          <div
+            class="media collapsible px-5 py-5 mb-0"
+            @click="isDataCollapsed = !isDataCollapsed"
+          >
             <div class="media-content">
-              <p v-show="isDataCollapsed"
-                 class="is-5">
+              <p
+                v-show="isDataCollapsed"
+                class="is-5"
+              >
                 <span class="inline-collapsed-header">
                   <span class="label is-small mr-1">
                     Name:
@@ -30,12 +36,16 @@
               </p>
             </div>
             <span v-show="isDataCollapsed">
-              <i class="fas fa-angle-down"
-                 aria-hidden="true"></i>
+              <i
+                class="fas fa-angle-down"
+                aria-hidden="true"
+              />
             </span>
             <span v-show="!isDataCollapsed">
-              <i class="fas fa-angle-up"
-                 aria-hidden="true"></i>
+              <i
+                class="fas fa-angle-up"
+                aria-hidden="true"
+              />
             </span>
           </div>
           <div class="content collapsible-content px-5 py-5">
@@ -44,68 +54,84 @@
                 <div class="field">
                   <label class="label is-small">
                     Name
-                    <span class="has-text-grey is-pulled-right document-id"
-                          title="Rule id">
+                    <span
+                      class="has-text-grey is-pulled-right document-id"
+                      title="Rule id"
+                    >
                       {{ localDoc.id }}
                     </span>
                   </label>
                   <div class="control">
-                    <input class="input is-small document-name"
-                           data-qa="list-name-input"
-                           title="List name"
-                           placeholder="List name"
-                           @change="emitDocUpdate"
-                           v-model="localDoc.name"
-                           :disabled="reblazeManaged || dynamicRuleManaged"/>
+                    <input
+                      class="input is-small document-name"
+                      data-qa="list-name-input"
+                      title="List name"
+                      placeholder="List name"
+                      @change="emitDocUpdate"
+                      v-model="localDoc.name"
+                      :disabled="reblazeManaged || dynamicRuleManaged"
+                    >
                   </div>
                 </div>
                 <div class="field">
                   <label class="checkbox is-size-7">
-                    <input type="checkbox"
-                           :style="dynamicRuleManaged ? {cursor: 'not-allowed'} : {cursor: 'pointer'}"
-                           data-qa="active-checkbox"
-                           class="document-active"
-                           :disabled="dynamicRuleManaged"
-                           @change="emitDocUpdate"
-                           v-model="localDoc.active">
+                    <input
+                      type="checkbox"
+                      :style="dynamicRuleManaged ? {cursor: 'not-allowed'} : {cursor: 'pointer'}"
+                      data-qa="active-checkbox"
+                      class="document-active"
+                      :disabled="dynamicRuleManaged"
+                      @change="emitDocUpdate"
+                      v-model="localDoc.active"
+                    >
                     Active
                   </label>
                 </div>
                 <div class="field">
                   <label class="label is-small">Tags</label>
-                  <div class="control"
-                       data-qa="tag-input">
-                    <tag-autocomplete-input :initial-tag="selectedDocTags"
-                                            selection-type="multiple"
-                                            :editable="!dynamicRuleManaged"
-                                            @tag-changed="selectedDocTags = $event"/>
+                  <div
+                    class="control"
+                    data-qa="tag-input"
+                  >
+                    <tag-autocomplete-input
+                      :initial-tag="selectedDocTags"
+                      selection-type="multiple"
+                      :editable="!dynamicRuleManaged"
+                      @tag-changed="selectedDocTags = $event"
+                    />
                   </div>
                 </div>
                 <div class="field">
-                  <a v-if="externalSource"
-                     class="is-small has-text-grey is-size-7 is-pulled-right update-now-button"
-                     data-qa="update-now-btn"
-                     tabindex="0"
-                     disabled="dynamicRuleManaged"
-                     @click="fetchList"
-                     @keypress.space.prevent
-                     @keypress.space="fetchList"
-                     @keypress.enter="fetchList">
+                  <a
+                    v-if="externalSource"
+                    class="is-small has-text-grey is-size-7 is-pulled-right update-now-button"
+                    data-qa="update-now-btn"
+                    tabindex="0"
+                    disabled="dynamicRuleManaged"
+                    @click="fetchList"
+                    @keypress.space.prevent
+                    @keypress.space="fetchList"
+                    @keypress.enter="fetchList"
+                  >
                     Update now
                   </a>
                   <label class="label is-small">Source</label>
                   <div class="control">
-                    <input class="input is-small document-source"
-                           data-qa="source-input"
-                           title="List source"
-                           placeholder="List source"
-                           @change="emitDocUpdate"
-                           v-model="localDoc.source"
-                           :disabled="reblazeManaged || dynamicRuleManaged"/>
+                    <input
+                      class="input is-small document-source"
+                      data-qa="source-input"
+                      title="List source"
+                      placeholder="List source"
+                      @change="emitDocUpdate"
+                      v-model="localDoc.source"
+                      :disabled="reblazeManaged || dynamicRuleManaged"
+                    >
                   </div>
-                  <p class="help"
-                     v-if="externalSource && !dynamicRuleManaged"
-                     :title="fullFormattedModifiedDate">
+                  <p
+                    class="help"
+                    v-if="externalSource && !dynamicRuleManaged"
+                    :title="fullFormattedModifiedDate"
+                  >
                     Updated @ {{ formattedModifiedDate }}
                   </p>
                 </div>
@@ -116,16 +142,20 @@
                     </label>
                     <div class="control is-expanded">
                       <div class="select is-fullwidth is-small">
-                        <select v-model="localDoc.action"
-                                @change="emitDocUpdate"
-                                data-qa="action-dropdown"
-                                class="document-action-selection"
-                                :defaultValue="localDoc.action"
-                                :disabled="dynamicRuleManaged"
-                                title="Custom Response">
-                          <option v-for="customResponse in customResponseNames"
-                                  :value="customResponse[0]"
-                                  :key="customResponse[0]">
+                        <select
+                          v-model="localDoc.action"
+                          @change="emitDocUpdate"
+                          data-qa="action-dropdown"
+                          class="document-action-selection"
+                          :defaultValue="localDoc.action"
+                          :disabled="dynamicRuleManaged"
+                          title="Custom Response"
+                        >
+                          <option
+                            v-for="customResponse in customResponseNames"
+                            :value="customResponse[0]"
+                            :key="customResponse[0]"
+                          >
                             {{ customResponse[1] }}
                           </option>
                         </select>
@@ -136,14 +166,15 @@
                 <div class="field textarea-field">
                   <label class="label is-small">Description</label>
                   <div class="control">
-                      <textarea class="is-small textarea document-description"
-                                data-qa="description-input"
-                                title="Document description"
-                                v-model="localDoc.description"
-                                @input="emitDocUpdate"
-                                :disabled="dynamicRuleManaged"
-                                rows="2">
-                      </textarea>
+                    <textarea
+                      class="is-small textarea document-description"
+                      data-qa="description-input"
+                      title="Document description"
+                      v-model="localDoc.description"
+                      @input="emitDocUpdate"
+                      :disabled="dynamicRuleManaged"
+                      rows="2"
+                    />
                   </div>
                 </div>
               </div>
@@ -155,11 +186,12 @@
         <div class="column is-12">
           <div class="field">
             <label class="label is-small">Rule</label>
-            <entries-relation-list v-model:rule="localDoc.rule"
-                                   @update:rule="emitDocUpdate"
-                                   @invalid="emitFormInvalid"
-                                   :editable="editable">
-            </entries-relation-list>
+            <entries-relation-list
+              v-model:rule="localDoc.rule"
+              @update:rule="emitDocUpdate"
+              @invalid="emitFormInvalid"
+              :editable="editable"
+            />
           </div>
         </div>
       </div>

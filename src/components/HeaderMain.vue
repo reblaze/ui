@@ -1,11 +1,15 @@
 <template>
   <div class="container is-fluid">
     <div class="navbar-brand">
-      <a class="navbar-item"
-         href="/">
-        <img :src="require('@/assets/logo.png')"
-             class="logo"
-             alt="logo">
+      <a
+        class="navbar-item"
+        href="/"
+      >
+        <img
+          :src="require('@/assets/logo.png')"
+          class="logo"
+          alt="logo"
+        >
       </a>
     </div>
     <div class="page-title height-60px is-size-4">

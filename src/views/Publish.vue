@@ -13,15 +13,16 @@
               </div>
               <p class="control">
                 <button
-                    data-qa="publish-changes"
-                    class="button is-small publish-button"
-                    :class="{'is-loading': isPublishLoading}"
-                    @click="publish"
-                    :title="selectedBucketNames.length > 0 ? 'Publish configuration': 'Select one or more buckets'"
-                    :disabled="selectedBucketNames.length === 0">
-                    <span class="icon is-small">
-                      <i class="fas fa-cloud-upload-alt"></i>
-                    </span>
+                  data-qa="publish-changes"
+                  class="button is-small publish-button"
+                  :class="{'is-loading': isPublishLoading}"
+                  @click="publish"
+                  :title="selectedBucketNames.length > 0 ? 'Publish configuration': 'Select one or more buckets'"
+                  :disabled="selectedBucketNames.length === 0"
+                >
+                  <span class="icon is-small">
+                    <i class="fas fa-cloud-upload-alt" />
+                  </span>
                   <span>Publish configuration</span>
                 </button>
               </p>
@@ -32,81 +33,102 @@
     </div>
 
     <div class="content">
-      <hr/>
+      <hr>
       <div class="columns">
         <div class="column">
-          <p class="title is-6 is-expanded">Version History</p>
-          <table class="table"
-                 v-if="gitLog && gitLog.length > 0">
+          <p class="title is-6 is-expanded">
+            Version History
+          </p>
+          <table
+            class="table"
+            v-if="gitLog && gitLog.length > 0"
+          >
             <tbody>
-            <tr @click="selectCommit(commit)"
+              <tr
+                @click="selectCommit(commit)"
                 class="commit-row"
                 data-qa="commit-row-btn"
                 v-for="commit in commitLines"
                 :key="commit.version"
-                :class="getVersionRowClass(commit.version)">
-              <td class="is-size-7">
-                {{ formatDate(commit.date) }} {{ commit.version }}
-                <br/>
-                {{ commit.message }}
-                <br/>
-                <strong>{{ commit.author }}</strong> <i>{{ commit.email }}</i>
-              </td>
-            </tr>
-            <tr v-if="!expanded && gitLog.length > init_max_rows">
-              <td>
-                <a class="has-text-grey view-more-button"
-                   @click="expanded = true">
-                  View More
-                </a>
-              </td>
-            </tr>
-            <tr v-if="expanded && gitLog.length > init_max_rows">
-              <td>
-                <a class="has-text-grey view-less-button"
-                   @click="expanded = false">
-                  View Less
-                </a>
-              </td>
-            </tr>
+                :class="getVersionRowClass(commit.version)"
+              >
+                <td class="is-size-7">
+                  {{ formatDate(commit.date) }} {{ commit.version }}
+                  <br>
+                  {{ commit.message }}
+                  <br>
+                  <strong>{{ commit.author }}</strong> <i>{{ commit.email }}</i>
+                </td>
+              </tr>
+              <tr v-if="!expanded && gitLog.length > init_max_rows">
+                <td>
+                  <a
+                    class="has-text-grey view-more-button"
+                    @click="expanded = true"
+                  >
+                    View More
+                  </a>
+                </td>
+              </tr>
+              <tr v-if="expanded && gitLog.length > init_max_rows">
+                <td>
+                  <a
+                    class="has-text-grey view-less-button"
+                    @click="expanded = false"
+                  >
+                    View Less
+                  </a>
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
         <div class="column">
-          <p class="title is-6 is-expanded">Target Buckets</p>
-          <table class="table"
-                 v-if="gitLog && gitLog.length > 0">
+          <p class="title is-6 is-expanded">
+            Target Buckets
+          </p>
+          <table
+            class="table"
+            v-if="gitLog && gitLog.length > 0"
+          >
             <tbody>
-            <tr
+              <tr
                 v-for="bucket in buckets"
                 :key="bucket.name"
                 :data-qa="bucket.name"
                 class="bucket-row"
                 :class="{'has-background-warning-light': !publishMode && selectedBucketNames.includes(bucket.name)}"
-                @click="bucketNameClicked(bucket.name)">
-              <td class="is-size-7">
+                @click="bucketNameClicked(bucket.name)"
+              >
+                <td class="is-size-7">
                   <span class="icon is-small is-vcentered">
-                    <svg :width="14"
-                         :height="14"
-                         :viewBox="'0 0 24 24'">
-                      <path :d="mdiBucketPath"/>
+                    <svg
+                      :width="14"
+                      :height="14"
+                      :viewBox="'0 0 24 24'"
+                    >
+                      <path :d="mdiBucketPath" />
                     </svg>
                   </span>
                 &nbsp;
-                <span class="is-vcentered">{{ bucket.name }}</span>
-              </td>
-              <td class="is-size-7">
-                {{ bucket.url }}
-                <p class="has-text-danger"
-                   v-if="bucket.publishStatus && !bucket.publishStatus.ok">
-                  Error publishing to this bucket: {{ bucket.publishStatus.message }}!
-                </p>
-                <p class="has-text-success"
-                   v-if="bucket.publishStatus && bucket.publishStatus.ok">
-                  Publish to this bucket has been done successfully!
-                </p>
-              </td>
-            </tr>
+                  <span class="is-vcentered">{{ bucket.name }}</span>
+                </td>
+                <td class="is-size-7">
+                  {{ bucket.url }}
+                  <p
+                    class="has-text-danger"
+                    v-if="bucket.publishStatus && !bucket.publishStatus.ok"
+                  >
+                    Error publishing to this bucket: {{ bucket.publishStatus.message }}!
+                  </p>
+                  <p
+                    class="has-text-success"
+                    v-if="bucket.publishStatus && bucket.publishStatus.ok"
+                  >
+                    Publish to this bucket has been done successfully!
+                  </p>
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>

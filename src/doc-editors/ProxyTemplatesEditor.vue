@@ -6,29 +6,37 @@
           <div class="column">
             <div class="field is-grouped">
               <p class="control">
-                <button class="button is-small redirect-list-button"
-                        @click="redirectToList()"
-                        title="Return to list"
-                        data-qa="redirect-to-list">
+                <button
+                  class="button is-small redirect-list-button"
+                  @click="redirectToList()"
+                  title="Return to list"
+                  data-qa="redirect-to-list"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-arrow-left"></i>
+                    <i class="fas fa-arrow-left" />
                   </span>
                   <span>
                     Return To List
                   </span>
                 </button>
               </p>
-              <div class="control"
-                   v-if="docs.length">
+              <div
+                class="control"
+                v-if="docs.length"
+              >
                 <div class="select is-small">
-                  <select v-model="selectedDocID"
-                          title="Switch document ID"
-                          @change="switchDocID()"
-                          class="site-selection"
-                          data-qa="switch-document">
-                    <option v-for="doc in docs"
-                            :key="doc.id"
-                            :value="doc.id">
+                  <select
+                    v-model="selectedDocID"
+                    title="Switch document ID"
+                    @change="switchDocID()"
+                    class="site-selection"
+                    data-qa="switch-document"
+                  >
+                    <option
+                      v-for="doc in docs"
+                      :key="doc.id"
+                      :value="doc.id"
+                    >
                       {{ doc.name }}
                     </option>
                   </select>
@@ -39,14 +47,16 @@
           <div class="column">
             <div class="field is-grouped is-pulled-right">
               <p class="control">
-                <button class="button is-small new-proxy-template-document-button"
-                        :class="{'is-loading': isNewLoading}"
-                        @click="addNewProxyTemplate()"
-                        title="Add new document"
-                        :disabled="!selectedBranch"
-                        data-qa="add-new-document">
+                <button
+                  class="button is-small new-proxy-template-document-button"
+                  :class="{'is-loading': isNewLoading}"
+                  @click="addNewProxyTemplate()"
+                  title="Add new document"
+                  :disabled="!selectedBranch"
+                  data-qa="add-new-document"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-plus"></i>
+                    <i class="fas fa-plus" />
                   </span>
                   <span>
                     New
@@ -55,14 +65,16 @@
               </p>
 
               <p class="control">
-                <button class="button is-small fork-document-button"
-                        :class="{'is-loading': isForkLoading}"
-                        @click="forkDoc()"
-                        title="Duplicate document"
-                        :disabled="!selectedProxyTemplate"
-                        data-qa="duplicate-document">
+                <button
+                  class="button is-small fork-document-button"
+                  :class="{'is-loading': isForkLoading}"
+                  @click="forkDoc()"
+                  title="Duplicate document"
+                  :disabled="!selectedProxyTemplate"
+                  data-qa="duplicate-document"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-clone"></i>
+                    <i class="fas fa-clone" />
                   </span>
                   <span>
                     Duplicate
@@ -70,13 +82,15 @@
                 </button>
               </p>
               <p class="control">
-                <button class="button is-small download-doc-button"
-                        :class="{'is-loading':isDownloadLoading}"
-                        @click="downloadDoc()"
-                        title="Download document"
-                        data-qa="download-document">
+                <button
+                  class="button is-small download-doc-button"
+                  :class="{'is-loading':isDownloadLoading}"
+                  @click="downloadDoc()"
+                  title="Download document"
+                  data-qa="download-document"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-download"></i>
+                    <i class="fas fa-download" />
                   </span>
                   <span>
                     Download
@@ -84,13 +98,15 @@
                 </button>
               </p>
               <p class="control">
-                <button class="button is-small save-document-button"
-                        :class="{'is-loading': isSaveLoading}"
-                        title="Save changes"
-                        data-qa="save-changes"
-                        @click="saveChanges()">
+                <button
+                  class="button is-small save-document-button"
+                  :class="{'is-loading': isSaveLoading}"
+                  title="Save changes"
+                  data-qa="save-changes"
+                  @click="saveChanges()"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-save"></i>
+                    <i class="fas fa-save" />
                   </span>
                   <span>
                     Save
@@ -98,14 +114,16 @@
                 </button>
               </p>
               <p class="control">
-                <button class="button is-small has-text-danger delete-document-button"
-                        title="Delete document"
-                        data-qa="delete-document"
-                        :class="{'is-loading': isDeleteLoading}"
-                        :disabled="selectedDocNotDeletable"
-                        @click="deleteDoc()">
+                <button
+                  class="button is-small has-text-danger delete-document-button"
+                  title="Delete document"
+                  data-qa="delete-document"
+                  :class="{'is-loading': isDeleteLoading}"
+                  :disabled="selectedDocNotDeletable"
+                  @click="deleteDoc()"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-trash"></i>
+                    <i class="fas fa-trash" />
                   </span>
                   <span>
                     Delete
@@ -117,57 +135,74 @@
         </div>
       </div>
     </div>
-    <hr/>
-    <div class="content"
-         v-if="!loadingDocCounter && selectedBranch && selectedProxyTemplate">
+    <hr>
+    <div
+      class="content"
+      v-if="!loadingDocCounter && selectedBranch && selectedProxyTemplate"
+    >
       <div class="columns">
         <div class="column is-4">
           <div class="field">
             <label class="label is-small">
               Name
-              <span class="has-text-grey is-pulled-right document-id"
-                    title="Rule id">
-                      {{ selectedProxyTemplate.id }}
-                    </span>
+              <span
+                class="has-text-grey is-pulled-right document-id"
+                title="Rule id"
+              >
+                {{ selectedProxyTemplate.id }}
+              </span>
             </label>
             <div class="control">
-              <input class="input is-small document-name"
-                     title="Document name"
-                     placeholder="Document name"
-                     v-model="selectedProxyTemplate.name"/>
+              <input
+                class="input is-small document-name"
+                title="Document name"
+                placeholder="Document name"
+                v-model="selectedProxyTemplate.name"
+              >
             </div>
           </div>
           <div class="field">
             <div class="field textarea-field">
               <label class="label is-small">Description</label>
               <div class="control">
-                      <textarea class="is-small textarea document-description"
-                                data-qa="description-input"
-                                title="Document description"
-                                v-model="selectedProxyTemplate.description"
-                                rows="2">
-                      </textarea>
+                <textarea
+                  class="is-small textarea document-description"
+                  data-qa="description-input"
+                  title="Document description"
+                  v-model="selectedProxyTemplate.description"
+                  rows="2"
+                />
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div class="card collapsible-card"
-           :class="{ collapsed: isFrontendCollapsed }">
+      <div
+        class="card collapsible-card"
+        :class="{ collapsed: isFrontendCollapsed }"
+      >
         <div class="card-content px-0 py-0">
-          <div class="media collapsible px-5 py-5 mb-0"
-               @click="isFrontendCollapsed = !isFrontendCollapsed">
+          <div
+            class="media collapsible px-5 py-5 mb-0"
+            @click="isFrontendCollapsed = !isFrontendCollapsed"
+          >
             <div class="media-content">
-              <p class="title is-5 is-uppercase">Frontend Settings</p>
+              <p class="title is-5 is-uppercase">
+                Frontend Settings
+              </p>
             </div>
             <span v-show="isFrontendCollapsed">
-                    <i class="fas fa-angle-down"
-                       aria-hidden="true"></i>
-                  </span>
+              <i
+                class="fas fa-angle-down"
+                aria-hidden="true"
+              />
+            </span>
             <span v-show="!isFrontendCollapsed">
-                    <i class="fas fa-angle-up"
-                       aria-hidden="true"></i>
-                  </span>
+              <i
+                class="fas fa-angle-up"
+                aria-hidden="true"
+              />
+            </span>
           </div>
           <div class="content collapsible-content px-5 py-5">
             <div class="columns">
@@ -177,10 +212,12 @@
                     Client IP Header Name
                   </label>
                   <div class="control">
-                    <input class="input is-small document-ip-header-name"
-                           title="Client IP header name"
-                           placeholder="Client IP header name"
-                           v-model="selectedProxyTemplate.xff_header_name">
+                    <input
+                      class="input is-small document-ip-header-name"
+                      title="Client IP header name"
+                      placeholder="Client IP header name"
+                      v-model="selectedProxyTemplate.xff_header_name"
+                    >
                   </div>
                   <div class="help">
                     The header name which Reblaze will use to extract the client's IP address
@@ -191,16 +228,20 @@
                     Requests per second per IP address
                   </label>
                   <div class="control">
-                    <input class="input is-small document-limit-req-rate"
-                           title="Requests per second per IP address"
-                           placeholder="Requests per second per IP address"
-                           v-model="selectedProxyTemplate.limit_req_rate">
+                    <input
+                      class="input is-small document-limit-req-rate"
+                      title="Requests per second per IP address"
+                      placeholder="Requests per second per IP address"
+                      v-model="selectedProxyTemplate.limit_req_rate"
+                    >
                   </div>
                   <div class="help">
                     Static rate limiting for each IP address: the requests per second per IP address for this
                     application
-                    <a href="https://www.nginx.com/blog/rate-limiting-nginx/"
-                       target="_blank">(more info)</a>.
+                    <a
+                      href="https://www.nginx.com/blog/rate-limiting-nginx/"
+                      target="_blank"
+                    >(more info)</a>.
                     Use the <strong>Rate Limits</strong> section for granular, dynamic rate limiting
                   </div>
                 </div>
@@ -209,16 +250,20 @@
                     Client Body Timeout
                   </label>
                   <div class="control suffix seconds-suffix">
-                    <input class="input is-small document-client-body-timeout"
-                           title="Client body timeout"
-                           placeholder="Client body timeout"
-                           v-model="selectedProxyTemplate.client_body_timeout">
+                    <input
+                      class="input is-small document-client-body-timeout"
+                      title="Client body timeout"
+                      placeholder="Client body timeout"
+                      v-model="selectedProxyTemplate.client_body_timeout"
+                    >
                   </div>
                   <div class="help height-50px">
                     Defines a timeout for reading client request body, for a period between two successive read
                     operations, not for the transmission of the whole request body
-                    <a href="https://nginx.org/en/docs/http/ngx_http_core_module.html#client_body_timeout"
-                       target="_blank">
+                    <a
+                      href="https://nginx.org/en/docs/http/ngx_http_core_module.html#client_body_timeout"
+                      target="_blank"
+                    >
                       (more info)
                     </a>
                   </div>
@@ -228,17 +273,21 @@
                     Client Header Timeout
                   </label>
                   <div class="control suffix seconds-suffix">
-                    <input class="input is-small document-client-header-timeout"
-                           title="Client header timeout"
-                           placeholder="Client header timeout"
-                           v-model="selectedProxyTemplate.client_header_timeout">
+                    <input
+                      class="input is-small document-client-header-timeout"
+                      title="Client header timeout"
+                      placeholder="Client header timeout"
+                      v-model="selectedProxyTemplate.client_header_timeout"
+                    >
                   </div>
                   <div class="help">
                     Defines a timeout for reading client request header. If a client does not transmit the entire
                     header
                     within this time, the request is terminated with the 408 (Request Time-out) error
-                    <a href="https://nginx.org/en/docs/http/ngx_http_core_module.html#client_header_timeout"
-                       target="_blank">
+                    <a
+                      href="https://nginx.org/en/docs/http/ngx_http_core_module.html#client_header_timeout"
+                      target="_blank"
+                    >
                       (more info)
                     </a>
                   </div>
@@ -250,17 +299,21 @@
                     Client Max Body Size
                   </label>
                   <div class="control suffix mb-suffix">
-                    <input class="input is-small document-client-max-body-size"
-                           title="Client max body size"
-                           placeholder="Client max body size"
-                           v-model="selectedProxyTemplate.client_max_body_size">
+                    <input
+                      class="input is-small document-client-max-body-size"
+                      title="Client max body size"
+                      placeholder="Client max body size"
+                      v-model="selectedProxyTemplate.client_max_body_size"
+                    >
                   </div>
                   <div class="help">
                     Sets the maximum allowed size of the client request body, based on “Content-Length” request
                     header
                     field in MB
-                    <a href="https://nginx.org/en/docs/http/ngx_http_core_module.html#client_max_body_size"
-                       target="_blank">
+                    <a
+                      href="https://nginx.org/en/docs/http/ngx_http_core_module.html#client_max_body_size"
+                      target="_blank"
+                    >
                       (more info)
                     </a>
                   </div>
@@ -270,17 +323,21 @@
                     Burst of requests per second per IP address
                   </label>
                   <div class="control">
-                    <input class="input is-small document-limit-req-burst"
-                           title="Burst of requests per second per IP address"
-                           placeholder="Burst of requests per second per IP address"
-                           v-model="selectedProxyTemplate.limit_req_burst">
+                    <input
+                      class="input is-small document-limit-req-burst"
+                      title="Burst of requests per second per IP address"
+                      placeholder="Burst of requests per second per IP address"
+                      v-model="selectedProxyTemplate.limit_req_burst"
+                    >
                   </div>
                   <div class="help">
                     The burst parameter defines how many requests a client can make in excess of the rate
                     specified
                     above that will be put in a queue
-                    <a href="https://www.nginx.com/blog/rate-limiting-nginx/"
-                       target="_blank">
+                    <a
+                      href="https://www.nginx.com/blog/rate-limiting-nginx/"
+                      target="_blank"
+                    >
                       (more info)
                     </a>
                   </div>
@@ -290,17 +347,21 @@
                     Keepalive Timeout
                   </label>
                   <div class="control suffix seconds-suffix">
-                    <input class="input is-small document-keepalive-timeout"
-                           title="Keepalive timeout"
-                           placeholder="Keepalive timeout"
-                           v-model="selectedProxyTemplate.keepalive_timeout">
+                    <input
+                      class="input is-small document-keepalive-timeout"
+                      title="Keepalive timeout"
+                      placeholder="Keepalive timeout"
+                      v-model="selectedProxyTemplate.keepalive_timeout"
+                    >
                   </div>
                   <div class="help">
                     Defines a timeout during which a keep-alive client connection will stay open on the server
                     side. A
                     value of zero disables keep-alive client connections
-                    <a href="https://nginx.org/en/docs/http/ngx_http_core_module.html#keepalive_timeout"
-                       target="_blank">
+                    <a
+                      href="https://nginx.org/en/docs/http/ngx_http_core_module.html#keepalive_timeout"
+                      target="_blank"
+                    >
                       (more info)
                     </a>
                   </div>
@@ -310,17 +371,21 @@
                     Send Timeout
                   </label>
                   <div class="control suffix seconds-suffix">
-                    <input class="input is-small document-send-timeout"
-                           title="Send timeout"
-                           placeholder="Send timeout"
-                           v-model="selectedProxyTemplate.send_timeout">
+                    <input
+                      class="input is-small document-send-timeout"
+                      title="Send timeout"
+                      placeholder="Send timeout"
+                      v-model="selectedProxyTemplate.send_timeout"
+                    >
                   </div>
                   <div class="help">
                     Defines a timeout for transmitting a response to the client between two successive write
                     operations,
                     not for the transmission of the whole response
-                    <a href="https://nginx.org/en/docs/http/ngx_http_core_module.html#send_timeout"
-                       target="_blank">
+                    <a
+                      href="https://nginx.org/en/docs/http/ngx_http_core_module.html#send_timeout"
+                      target="_blank"
+                    >
                       (more info)
                     </a>
                   </div>
@@ -330,22 +395,32 @@
           </div>
         </div>
       </div>
-      <div class="card collapsible-card"
-           :class="{ collapsed: isBackendCollapsed }">
+      <div
+        class="card collapsible-card"
+        :class="{ collapsed: isBackendCollapsed }"
+      >
         <div class="card-content px-0 py-0">
-          <div class="media collapsible px-5 py-5 mb-0"
-               @click="isBackendCollapsed = !isBackendCollapsed">
+          <div
+            class="media collapsible px-5 py-5 mb-0"
+            @click="isBackendCollapsed = !isBackendCollapsed"
+          >
             <div class="media-content">
-              <p class="title is-5 is-uppercase">Backend Settings</p>
+              <p class="title is-5 is-uppercase">
+                Backend Settings
+              </p>
             </div>
             <span v-show="isBackendCollapsed">
-                    <i class="fas fa-angle-down"
-                       aria-hidden="true"></i>
-                  </span>
+              <i
+                class="fas fa-angle-down"
+                aria-hidden="true"
+              />
+            </span>
             <span v-show="!isBackendCollapsed">
-                    <i class="fas fa-angle-up"
-                       aria-hidden="true"></i>
-                  </span>
+              <i
+                class="fas fa-angle-up"
+                aria-hidden="true"
+              />
+            </span>
           </div>
           <div class="content collapsible-content px-5 py-5">
             <div class="columns">
@@ -355,16 +430,20 @@
                     Proxy Connect Timeout
                   </label>
                   <div class="control suffix seconds-suffix">
-                    <input class="input is-small document-proxy-connect-timeout"
-                           title="Proxy connect timeout"
-                           placeholder="Proxy connect timeout"
-                           v-model="selectedProxyTemplate.proxy_connect_timeout">
+                    <input
+                      class="input is-small document-proxy-connect-timeout"
+                      title="Proxy connect timeout"
+                      placeholder="Proxy connect timeout"
+                      v-model="selectedProxyTemplate.proxy_connect_timeout"
+                    >
                   </div>
                   <div class="help height-50px">
                     Defines a timeout for establishing a connection with a proxied server. It should be noted that
                     this timeout cannot usually exceed 75 seconds
-                    <a href="https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_connect_timeout"
-                       target="_blank">
+                    <a
+                      href="https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_connect_timeout"
+                      target="_blank"
+                    >
                       (more info)
                     </a>
                   </div>
@@ -374,17 +453,21 @@
                     Proxy Send Timeout
                   </label>
                   <div class="control suffix seconds-suffix">
-                    <input class="input is-small document-proxy-sen-timeout"
-                           title="Proxy send timeout"
-                           placeholder="Proxy send timeout"
-                           v-model="selectedProxyTemplate.proxy_send_timeout">
+                    <input
+                      class="input is-small document-proxy-sen-timeout"
+                      title="Proxy send timeout"
+                      placeholder="Proxy send timeout"
+                      v-model="selectedProxyTemplate.proxy_send_timeout"
+                    >
                   </div>
                   <div class="help height-140px">
                     Sets a timeout for transmitting a request to the proxied server. The timeout is set only
                     between two successive write operations, not for the transmission of the whole request. If the
                     proxied server does not receive anything within this time, the connection is closed
-                    <a href="https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_send_timeout"
-                       target="_blank">
+                    <a
+                      href="https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_send_timeout"
+                      target="_blank"
+                    >
                       (more info)
                     </a>
                   </div>
@@ -394,17 +477,21 @@
                     Proxy Read Timeout
                   </label>
                   <div class="control suffix seconds-suffix">
-                    <input class="input is-small document-proxy-read-timeout"
-                           title="Proxy read timeout"
-                           placeholder="Proxy read timeout"
-                           v-model="selectedProxyTemplate.proxy_read_timeout">
+                    <input
+                      class="input is-small document-proxy-read-timeout"
+                      title="Proxy read timeout"
+                      placeholder="Proxy read timeout"
+                      v-model="selectedProxyTemplate.proxy_read_timeout"
+                    >
                   </div>
                   <div class="help height-140px">
                     Defines a timeout for reading a response from the proxied server. The timeout is set only
                     between two successive read operations, not for the transmission of the whole response. If the
                     proxied server does not transmit anything within this time, the connection is closed
-                    <a href="https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_read_timeout"
-                       target="_blank">
+                    <a
+                      href="https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_read_timeout"
+                      target="_blank"
+                    >
                       (more info)
                     </a>
                   </div>
@@ -416,13 +503,15 @@
                     Backend Service Host Header
                   </label>
                   <div class="control">
-                    <input class="input is-small document-upstream-host"
-                           title="Backend service host header"
-                           placeholder="Backend service host header"
-                           v-model="selectedProxyTemplate.upstream_host">
+                    <input
+                      class="input is-small document-upstream-host"
+                      title="Backend service host header"
+                      placeholder="Backend service host header"
+                      v-model="selectedProxyTemplate.upstream_host"
+                    >
                   </div>
                   <div class="help height-50px">
-                    The Host header Reblaze will present to the backend service.<br/>Setting value to $host means
+                    The Host header Reblaze will present to the backend service.<br>Setting value to $host means
                     client's header is passed as is
                   </div>
                 </div>
@@ -431,13 +520,15 @@
                     Real IP Header Name
                   </label>
                   <div class="control">
-                    <input class="input is-small document-real-ip-header-name"
-                           title="Real IP header name"
-                           placeholder="Real IP header name"
-                           v-model="selectedProxyTemplate.xrealip_header_name">
+                    <input
+                      class="input is-small document-real-ip-header-name"
+                      title="Real IP header name"
+                      placeholder="Real IP header name"
+                      v-model="selectedProxyTemplate.xrealip_header_name"
+                    >
                   </div>
                   <div class="help">
-                    The Host header Reblaze will present to the backend service.<br/>X-Real-IP is the default
+                    The Host header Reblaze will present to the backend service.<br>X-Real-IP is the default
                     value
                   </div>
                 </div>
@@ -483,21 +574,31 @@
             </div>
           </div>
         </div-->
-      <div class="card collapsible-card"
-           :class="{ collapsed: isAdvancedCollapsed }">
+      <div
+        class="card collapsible-card"
+        :class="{ collapsed: isAdvancedCollapsed }"
+      >
         <div class="card-content px-0 py-0">
-          <div class="media collapsible px-5 py-5 mb-0"
-               @click="isAdvancedCollapsed = !isAdvancedCollapsed">
+          <div
+            class="media collapsible px-5 py-5 mb-0"
+            @click="isAdvancedCollapsed = !isAdvancedCollapsed"
+          >
             <div class="media-content">
-              <p class="title is-5 is-uppercase">Advanced Settings</p>
+              <p class="title is-5 is-uppercase">
+                Advanced Settings
+              </p>
             </div>
             <span v-show="isAdvancedCollapsed">
-              <i class="fas fa-angle-down"
-                 aria-hidden="true"></i>
+              <i
+                class="fas fa-angle-down"
+                aria-hidden="true"
+              />
             </span>
             <span v-show="!isAdvancedCollapsed">
-              <i class="fas fa-angle-up"
-                 aria-hidden="true"></i>
+              <i
+                class="fas fa-angle-up"
+                aria-hidden="true"
+              />
             </span>
           </div>
           <div class="content collapsible-content px-5 py-5">
@@ -509,10 +610,11 @@
                       HTTP Listener Custom Configuration
                     </label>
                     <div class="control">
-                      <textarea rows="5"
-                                class="is-small textarea site-conf"
-                                v-model="selectedProxyTemplate.conf_specific">
-                      </textarea>
+                      <textarea
+                        rows="5"
+                        class="is-small textarea site-conf"
+                        v-model="selectedProxyTemplate.conf_specific"
+                      />
                     </div>
                     <p class="help has-text-danger">
                       Unless instructed, don't touch!
@@ -527,10 +629,11 @@
                       HTTPS Listener Custom Configuration
                     </label>
                     <div class="control">
-                      <textarea rows="5"
-                                class="is-small textarea site-ssl-conf"
-                                v-model="selectedProxyTemplate.ssl_conf_specific">
-                      </textarea>
+                      <textarea
+                        rows="5"
+                        class="is-small textarea site-ssl-conf"
+                        v-model="selectedProxyTemplate.ssl_conf_specific"
+                      />
                     </div>
                     <p class="help has-text-danger">
                       Unless instructed, don't touch!
@@ -544,21 +647,27 @@
       </div>
       <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ documentAPIPath }}</span>
     </div>
-    <div class="content no-data-wrapper"
-         v-if="loadingDocCounter || !selectedBranch || !selectedProxyTemplate">
+    <div
+      class="content no-data-wrapper"
+      v-if="loadingDocCounter || !selectedBranch || !selectedProxyTemplate"
+    >
       <div v-if="loadingDocCounter > 0">
         <button class="button is-outlined is-text is-small is-loading document-loading">
           Loading
         </button>
       </div>
-      <div v-else
-           class="no-data-message">
+      <div
+        v-else
+        class="no-data-message"
+      >
         No data found.
         <div>
           <span v-if="!selectedProxyTemplate?.id">
             Missing document. To create a new one, click
-            <a title="Add new"
-               @click="addNewProxyTemplate()">
+            <a
+              title="Add new"
+              @click="addNewProxyTemplate()"
+            >
               here
             </a>
           </span>

@@ -1,91 +1,137 @@
 <template>
-  <div class="card collapsible-card"
-       :class="{ collapsed: isVersionHistoryCollapsed }">
+  <div
+    class="card collapsible-card"
+    :class="{ collapsed: isVersionHistoryCollapsed }"
+  >
     <div class="card-content px-0 py-0">
-      <div class="media collapsible px-5 py-5 mb-0"
-           @click="toggleVersionHistoryCollapsed">
+      <div
+        class="media collapsible px-5 py-5 mb-0"
+        @click="toggleVersionHistoryCollapsed"
+      >
         <div class="media-content">
           <p class="title is-6 version-history-title">
             Version History
-            <button class="button is-outlined is-text is-small is-loading"
-                    v-if="loading">
+            <button
+              class="button is-outlined is-text is-small is-loading"
+              v-if="loading"
+            >
               Loading
             </button>
           </p>
         </div>
         <span v-show="isVersionHistoryCollapsed">
-          <i class="fas fa-angle-down"
-             aria-hidden="true" />
+          <i
+            class="fas fa-angle-down"
+            aria-hidden="true"
+          />
         </span>
         <span v-show="!isVersionHistoryCollapsed">
-          <i class="fas fa-angle-up"
-             aria-hidden="true" />
+          <i
+            class="fas fa-angle-up"
+            aria-hidden="true"
+          />
         </span>
       </div>
       <div class="content px-5 pb-5">
         <div class="collapsible-content mb-4">
-          <table class="table"
-                 v-if="gitLog && gitLog.length">
+          <table
+            class="table"
+            v-if="gitLog && gitLog.length"
+          >
             <thead>
-            <tr>
-              <th class="is-size-7 width-120px">Date</th>
-              <th class="is-size-7 width-70px">Version</th>
-              <th class="is-size-7 width-70px">Parents</th>
-              <th class="is-size-7">Message</th>
-              <th class="is-size-7 width-150px">Author</th>
-              <th class="is-size-7 width-200px">Email</th>
-              <th class="is-size-7"></th>
-            </tr>
+              <tr>
+                <th class="is-size-7 width-120px">
+                  Date
+                </th>
+                <th class="is-size-7 width-70px">
+                  Version
+                </th>
+                <th class="is-size-7 width-70px">
+                  Parents
+                </th>
+                <th class="is-size-7">
+                  Message
+                </th>
+                <th class="is-size-7 width-150px">
+                  Author
+                </th>
+                <th class="is-size-7 width-200px">
+                  Email
+                </th>
+                <th class="is-size-7" />
+              </tr>
             </thead>
             <tbody>
-            <tr v-for="(commit, index) in commits"
+              <tr
+                v-for="(commit, index) in commits"
                 :key="commit.version"
                 @mouseleave="mouseLeave()"
-                @mouseover="mouseOver(index)">
-              <td class="is-size-7 is-vcentered py-3"
-                  :title="fullFormatDate(commit.date)">
-                {{ formatDate(commit.date) }}
-              </td>
-              <td class="is-size-7 is-vcentered py-3"
-                  :title="commit.version">
-                {{ commit.version.substr(0, 7) }}
-              </td>
-              <td class="is-size-7 is-vcentered py-3">
-                <p v-for="parent in commit.parents"
-                   :key="parent"
-                   :title="parent">
-                  {{ parent.substr(0, 7) }}
-                </p>
-              </td>
-              <td class="is-size-7 is-vcentered py-3">{{ commit.message }}</td>
-              <td class="is-size-7 is-vcentered py-3">{{ commit.author }}</td>
-              <td class="is-size-7 is-vcentered py-3">{{ commit.email }}</td>
-              <td class="is-size-7 is-vcentered restore-cell">
-                <p class="control has-text-centered"
-                   v-if="commitOverIndex === index">
-                  <button class="button is-small restore-button"
-                          @click="restoreVersion(commit)"
-                          tabindex="1"
-                          title="Restore version">
-                    <span class="icon is-small">
-                      <i class="fas fa-history"></i>
-                    </span>
-                  </button>
-                </p>
-              </td>
-            </tr>
-            <tr v-if="!expanded && gitLog.length > maxRows">
-              <td colspan="6">
-                <a class="has-text-grey"
-                   @click="expanded = true">View More</a>
-              </td>
-            </tr>
-            <tr v-if="expanded && gitLog.length > maxRows">
-              <td colspan="6">
-                <a class="has-text-grey"
-                   @click="expanded = false">View Less</a>
-              </td>
-            </tr>
+                @mouseover="mouseOver(index)"
+              >
+                <td
+                  class="is-size-7 is-vcentered py-3"
+                  :title="fullFormatDate(commit.date)"
+                >
+                  {{ formatDate(commit.date) }}
+                </td>
+                <td
+                  class="is-size-7 is-vcentered py-3"
+                  :title="commit.version"
+                >
+                  {{ commit.version.substr(0, 7) }}
+                </td>
+                <td class="is-size-7 is-vcentered py-3">
+                  <p
+                    v-for="parent in commit.parents"
+                    :key="parent"
+                    :title="parent"
+                  >
+                    {{ parent.substr(0, 7) }}
+                  </p>
+                </td>
+                <td class="is-size-7 is-vcentered py-3">
+                  {{ commit.message }}
+                </td>
+                <td class="is-size-7 is-vcentered py-3">
+                  {{ commit.author }}
+                </td>
+                <td class="is-size-7 is-vcentered py-3">
+                  {{ commit.email }}
+                </td>
+                <td class="is-size-7 is-vcentered restore-cell">
+                  <p
+                    class="control has-text-centered"
+                    v-if="commitOverIndex === index"
+                  >
+                    <button
+                      class="button is-small restore-button"
+                      @click="restoreVersion(commit)"
+                      tabindex="1"
+                      title="Restore version"
+                    >
+                      <span class="icon is-small">
+                        <i class="fas fa-history" />
+                      </span>
+                    </button>
+                  </p>
+                </td>
+              </tr>
+              <tr v-if="!expanded && gitLog.length > maxRows">
+                <td colspan="6">
+                  <a
+                    class="has-text-grey"
+                    @click="expanded = true"
+                  >View More</a>
+                </td>
+              </tr>
+              <tr v-if="expanded && gitLog.length > maxRows">
+                <td colspan="6">
+                  <a
+                    class="has-text-grey"
+                    @click="expanded = false"
+                  >View Less</a>
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>

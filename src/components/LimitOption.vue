@@ -1,67 +1,91 @@
 <template>
   <div class="columns mb-0">
-    <div class="column"
-         :class="selectedTypeColumnClass">
+    <div
+      class="column"
+      :class="selectedTypeColumnClass"
+    >
       <div class="control select is-small is-fullwidth">
-        <select :value="localOptionType"
-                @change="typeChanged($event)"
-                class="option-type-selection"
-                title="Type"
-                data-qa="countby-dropdown">
-          <option v-if="useDefaultSelf"
-                  value="self">
+        <select
+          :value="localOptionType"
+          @change="typeChanged($event)"
+          class="option-type-selection"
+          title="Type"
+          data-qa="countby-dropdown"
+        >
+          <option
+            v-if="useDefaultSelf"
+            value="self"
+          >
             HTTP request
           </option>
-          <option v-for="(value, id) in options"
-                  :data-qa="`${value}`"
-                  :value="id"
-                  :key="id">
+          <option
+            v-for="(value, id) in options"
+            :data-qa="`${value}`"
+            :value="id"
+            :key="id"
+          >
             {{ value }}
           </option>
         </select>
       </div>
     </div>
-    <div class="column"
-         :class="selectedNameColumnClass"
-         v-if="localOptionType !== 'self'">
-      <div v-if="isCategoryArgsCookiesHeaders(localOptionType)"
-           class="control is-fullwidth has-icons-left">
-        <input type="text"
-               title="Name"
-               :class="{ 'is-danger': localOption[this.localOptionType] === '' }"
-               v-model="localOption[this.localOptionType]"
-               @change="emitOptionUpdate"
-               class="input is-small option-name-input">
-        <span class="icon is-small is-left has-text-grey-light"><i class="fa fa-font"></i></span>
+    <div
+      class="column"
+      :class="selectedNameColumnClass"
+      v-if="localOptionType !== 'self'"
+    >
+      <div
+        v-if="isCategoryArgsCookiesHeaders(localOptionType)"
+        class="control is-fullwidth has-icons-left"
+      >
+        <input
+          type="text"
+          title="Name"
+          :class="{ 'is-danger': localOption[this.localOptionType] === '' }"
+          v-model="localOption[this.localOptionType]"
+          @change="emitOptionUpdate"
+          class="input is-small option-name-input"
+        >
+        <span class="icon is-small is-left has-text-grey-light"><i class="fa fa-font" /></span>
       </div>
-      <div class="control select is-small is-fullwidth"
-           v-if="localOptionType === 'attrs'">
+      <div
+        class="control select is-small is-fullwidth"
+        v-if="localOptionType === 'attrs'"
+      >
         <div class="select is-fullwidth">
-          <select v-model="localOption[this.localOptionType]"
-                  @change="emitOptionUpdate"
-                  class="option-attribute-selection"
-                  title="Name"
-                  data-qa="countby-key-dropdown">
-            <option v-for="(value, id) in attributes"
-                    :value="id"
-                    :key="id"
-                    :data-qa="value">{{ value }}
+          <select
+            v-model="localOption[this.localOptionType]"
+            @change="emitOptionUpdate"
+            class="option-attribute-selection"
+            title="Name"
+            data-qa="countby-key-dropdown"
+          >
+            <option
+              v-for="(value, id) in attributes"
+              :value="id"
+              :key="id"
+              :data-qa="value"
+            >
+              {{ value }}
             </option>
           </select>
         </div>
       </div>
     </div>
-    <div class="column is-narrow"
-         v-if="!!showRemove">
+    <div
+      class="column is-narrow"
+      v-if="!!showRemove"
+    >
       <button
-          :class="removable ? 'has-text-grey' : 'has-text-grey-light is-disabled'"
-          :disabled="!removable"
-          class="button is-light is-small remove-icon remove-option-button"
-          title="Click to remove"
-          @click="emitOptionRemove">
-          <span class="icon is-small">
-            <i class="fas fa-trash fa-xs"></i>
-          </span>
+        :class="removable ? 'has-text-grey' : 'has-text-grey-light is-disabled'"
+        :disabled="!removable"
+        class="button is-light is-small remove-icon remove-option-button"
+        title="Click to remove"
+        @click="emitOptionRemove"
+      >
+        <span class="icon is-small">
+          <i class="fas fa-trash fa-xs" />
+        </span>
       </button>
     </div>
   </div>

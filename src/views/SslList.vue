@@ -162,8 +162,10 @@
         </div>
       </div>
     </div>
-    <div class="content no-data-wrapper"
-         v-if="loadingDocCounter || !selectedBranch">
+    <div
+      class="content no-data-wrapper"
+      v-if="loadingDocCounter || !selectedBranch"
+    >
       <div v-if="loadingDocCounter > 0">
         <button class="button is-outlined is-text is-small is-loading document-loading">
           Loading
@@ -196,10 +198,11 @@
     />
     <attach-certificate
       v-if="attachCertPopupShown"
-      :selectedBalancer="selectedBalancer"
+      :selected-balancer="selectedBalancer"
       :certificates="certificates"
       @attach-shown-changed="attachCertPopupShown = false"
-      :attachCertificateToLoadBalancer="attachCertificateToLoadBalancer"/>
+      :attach-certificate-to-load-balancer="attachCertificateToLoadBalancer"
+    />
   </div>
 </template>
 <script lang="ts">

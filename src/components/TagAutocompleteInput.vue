@@ -1,24 +1,23 @@
 <template>
-
   <autocomplete-input
-      :suggestions="tagsSuggestions"
-      :initial-value="tag"
-      :filterFunction="filterTag"
-      :clear-input-after-selection="clearInputAfterSelection"
-      :auto-focus="autoFocus"
-      :selection-type="selectionType"
-      :editable="editable"
-      :minimum-value-length="minimumTagLength"
-      :title="inputTitle"
-      :data-qa="inputTitle"
-      @value-changed="tagChanged"
-      @value-submitted="tagSubmitted"
-      @keyup="bubbleEvent('keyup', $event)"
-      @keydown="bubbleEvent('keydown', $event)"
-      @keypress="bubbleEvent('keypress', $event)"
-      @focus="bubbleEvent('focus', $event)"
-      @blur="bubbleEvent('blur', $event)"/>
-
+    :suggestions="tagsSuggestions"
+    :initial-value="tag"
+    :filter-function="filterTag"
+    :clear-input-after-selection="clearInputAfterSelection"
+    :auto-focus="autoFocus"
+    :selection-type="selectionType"
+    :editable="editable"
+    :minimum-value-length="minimumTagLength"
+    :title="inputTitle"
+    :data-qa="inputTitle"
+    @value-changed="tagChanged"
+    @value-submitted="tagSubmitted"
+    @keyup="bubbleEvent('keyup', $event)"
+    @keydown="bubbleEvent('keydown', $event)"
+    @keypress="bubbleEvent('keypress', $event)"
+    @focus="bubbleEvent('focus', $event)"
+    @blur="bubbleEvent('blur', $event)"
+  />
 </template>
 
 <script lang="ts">

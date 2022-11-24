@@ -3,8 +3,10 @@
     <div class="modal-background">
       <div class="modal-card is-size-7">
         <header class="modal-card-head">
-          <h5 class="modal-card-title is-size-6 mb-0"
-            :title="selectedBalancer.name">
+          <h5
+            class="modal-card-title is-size-6 mb-0"
+            :title="selectedBalancer.name"
+          >
             Select certificate to attach to {{ selectedBalancer.name }}
           </h5>
           <button
@@ -18,7 +20,7 @@
             <div
               class="mb-1 certificate-search"
             >
-            <!-- TODO: should to implement the search -->
+              <!-- TODO: should to implement the search -->
               <input
                 v-model="certsSearch"
                 type="text"
@@ -41,8 +43,10 @@
                   </tr>
                 </thead>
                 <tbody v-if="filteredCertificatesToAttach.length">
-                  <tr v-for="(certificate, idx) in filteredCertificatesToAttach"
-                      :key="idx">
+                  <tr
+                    v-for="(certificate, idx) in filteredCertificatesToAttach"
+                    :key="idx"
+                  >
                     <td class="is-size-7 is-vcentered is-60">
                       {{ certificate.id }}
                     </td>
@@ -50,8 +54,11 @@
                       {{ certificate.exp_date }}
                     </td>
                     <td class="is-size-7 is-vcentered is-20 has-text-right">
-                      <button class="button is-small is-outlined"
-                      @click="attachCertificateToLoadBalancer(selectedBalancer, certificate.id, false)"> <!-- TODO: :class="{ 'is-loading': selectedBalancer.loading === certificate.id }" and :disabled="!!selectedBalancer.loading" -->
+                      <button
+                        class="button is-small is-outlined"
+                        @click="attachCertificateToLoadBalancer(selectedBalancer, certificate.id, false)"
+                      >
+                        <!-- TODO: :class="{ 'is-loading': selectedBalancer.loading === certificate.id }" and :disabled="!!selectedBalancer.loading" -->
                         Attach
                       </button>
                     </td>
@@ -74,8 +81,10 @@
         </section>
         <footer class="modal-card-foot">
           <div class="buttons is-right is-fullwidth">
-            <button class="button is-small"
-                    @click="closeAttachCertPopup">
+            <button
+              class="button is-small"
+              @click="closeAttachCertPopup"
+            >
               Close
             </button>
           </div>

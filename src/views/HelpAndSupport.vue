@@ -7,8 +7,10 @@
         </h4>
         <p>
           For standard support issues, please send mail to:
-          <a href="mailto:support@reblaze.com"
-             class="email">
+          <a
+            href="mailto:support@reblaze.com"
+            class="email"
+          >
             support@reblaze.com
           </a>
         </p>
@@ -17,20 +19,26 @@
         </p>
         <div>
           <div>
-            <a href="tel:+18886155996"
-               class="phone">
+            <a
+              href="tel:+18886155996"
+              class="phone"
+            >
               + 1 (888) 6155996
             </a> (US Toll Free)
           </div>
           <div>
-            <a href="tel:+972732005230"
-               class="phone">
+            <a
+              href="tel:+972732005230"
+              class="phone"
+            >
               + 972 (73) 2005230
             </a> (Reblaze HQ)
           </div>
           <div>
-            <a href="tel:+448081751950"
-               class="phone">
+            <a
+              href="tel:+448081751950"
+              class="phone"
+            >
               + 44 (808) 1751950
             </a> (UK Toll Free)
           </div>
@@ -44,11 +52,13 @@
         </h4>
         <p>
           For management escalation please send email to:
-          <a href="mailto:manager.escalation@reblaze.com"
-             class="email">
+          <a
+            href="mailto:manager.escalation@reblaze.com"
+            class="email"
+          >
             manager.escalation@reblaze.com
           </a>
-          <br/>
+          <br>
           Please allow up to 48 business hours for a reply.
           For urgent matters please call the support number above.
         </p>

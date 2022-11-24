@@ -1,43 +1,52 @@
 <template>
-
-  <div class="dropdown"
-       :class="{'is-active': suggestionsVisible}">
+  <div
+    class="dropdown"
+    :class="{'is-active': suggestionsVisible}"
+  >
     <div class="dropdown-trigger">
-      <input v-model="autocompleteValue"
-             :title="title"
-             :placeholder="title"
-             :data-qa="title"
-             :disabled="!editable"
-             type="text"
-             class="autocomplete-input input is-small"
-             aria-haspopup="true"
-             aria-controls="dropdown-menu"
-             @keyup.enter="selectValue()"
-             @keyup.space="selectValue()"
-             @keyup.down="focusNextSuggestion"
-             @keyup.up="focusPreviousSuggestion"
-             @keyup.esc="closeDropdown"
-             @input="openDropdown(); valueChanged()"
-             @blur="inputBlurred"
-             ref="autocompleteInput" />
+      <input
+        v-model="autocompleteValue"
+        :title="title"
+        :placeholder="title"
+        :data-qa="title"
+        :disabled="!editable"
+        type="text"
+        class="autocomplete-input input is-small"
+        aria-haspopup="true"
+        aria-controls="dropdown-menu"
+        @keyup.enter="selectValue()"
+        @keyup.space="selectValue()"
+        @keyup.down="focusNextSuggestion"
+        @keyup.up="focusPreviousSuggestion"
+        @keyup.esc="closeDropdown"
+        @input="openDropdown(); valueChanged()"
+        @blur="inputBlurred"
+        ref="autocompleteInput"
+      >
     </div>
-    <div class="dropdown-menu"
-         id="dropdown-menu"
-         role="menu">
+    <div
+      class="dropdown-menu"
+      id="dropdown-menu"
+      role="menu"
+    >
       <div class="dropdown-content">
-        <a v-for="(suggestion, index) in matches"
-           :class="{'is-active': isSuggestionFocused(index)}"
-           @mousedown="suggestionClick(index)"
-           :key="index"
-           :title="suggestion.value"
-           class="dropdown-item ellipsis">
-          <span v-if="suggestion.prefix" v-html="suggestion.prefix"></span>
+        <a
+          v-for="(suggestion, index) in matches"
+          :class="{'is-active': isSuggestionFocused(index)}"
+          @mousedown="suggestionClick(index)"
+          :key="index"
+          :title="suggestion.value"
+          class="dropdown-item ellipsis"
+        >
+          <span
+            v-if="suggestion.prefix"
+            v-html="suggestion.prefix"
+          />
           {{ suggestion.value }}
         </a>
       </div>
     </div>
   </div>
-
 </template>
 
 <script lang="ts">

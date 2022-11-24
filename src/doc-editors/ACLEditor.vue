@@ -2,27 +2,33 @@
   <div class="card-content">
     <div class="media">
       <div class="media-content">
-        <div class="card collapsible-card"
-             :class="{ collapsed: isDataCollapsed }">
+        <div
+          class="card collapsible-card"
+          :class="{ collapsed: isDataCollapsed }"
+        >
           <div class="card-content px-0 py-0">
-            <div class="media collapsible px-5 py-5 mb-0"
-                 @click="isDataCollapsed = !isDataCollapsed">
+            <div
+              class="media collapsible px-5 py-5 mb-0"
+              @click="isDataCollapsed = !isDataCollapsed"
+            >
               <div class="media-content">
-                <p v-show="isDataCollapsed"
-                   class="is-5">
+                <p
+                  v-show="isDataCollapsed"
+                  class="is-5"
+                >
                   <span class="inline-collapsed-header">
                     <span class="label is-small mr-1">
                       Name:
                     </span>
                     {{ localDoc.name }}
                   </span>
-                    <span class="inline-collapsed-header">
+                  <span class="inline-collapsed-header">
                     <span class="label is-small mr-1">
                       ID:
                     </span>
                     {{ localDoc.id }}
                   </span>
-                    <span class="inline-collapsed-header">
+                  <span class="inline-collapsed-header">
                     <span class="label is-small mr-1">
                       Tags:
                     </span>
@@ -31,12 +37,16 @@
                 </p>
               </div>
               <span v-show="isDataCollapsed">
-                <i class="fas fa-angle-down"
-                   aria-hidden="true" />
+                <i
+                  class="fas fa-angle-down"
+                  aria-hidden="true"
+                />
               </span>
               <span v-show="!isDataCollapsed">
-                <i class="fas fa-angle-up"
-                   aria-hidden="true" />
+                <i
+                  class="fas fa-angle-up"
+                  aria-hidden="true"
+                />
               </span>
             </div>
             <div class="content collapsible-content px-5 py-5">
@@ -45,31 +55,36 @@
                   <div class="field">
                     <label class="label is-small">
                       Name
-                      <span class="has-text-grey is-pulled-right document-id"
-                            title="Document id"
-                            data-qa="document-id">
-                          {{ localDoc.id }}
-                        </span>
+                      <span
+                        class="has-text-grey is-pulled-right document-id"
+                        title="Document id"
+                        data-qa="document-id"
+                      >
+                        {{ localDoc.id }}
+                      </span>
                     </label>
                     <div class="control">
-                      <input class="input is-small document-name"
-                             title="Document name"
-                             placeholder="Document name"
-                             @change="emitDocUpdate"
-                             data-qa="acl-document-name"
-                             v-model="localDoc.name"/>
+                      <input
+                        class="input is-small document-name"
+                        title="Document name"
+                        placeholder="Document name"
+                        @change="emitDocUpdate"
+                        data-qa="acl-document-name"
+                        v-model="localDoc.name"
+                      >
                     </div>
                   </div>
                   <div class="field textarea-field">
                     <label class="label is-small">Description</label>
                     <div class="control">
-                        <textarea class="is-small textarea document-description"
-                                  data-qa="description-input"
-                                  title="Document description"
-                                  v-model="localDoc.description"
-                                  @input="emitDocUpdate"
-                                  rows="2">
-                        </textarea>
+                      <textarea
+                        class="is-small textarea document-description"
+                        data-qa="description-input"
+                        title="Document description"
+                        v-model="localDoc.description"
+                        @input="emitDocUpdate"
+                        rows="2"
+                      />
                     </div>
                   </div>
                   <div class="field">
@@ -78,14 +93,18 @@
                     </label>
                     <div class="control is-expanded">
                       <div class="select is-fullwidth is-small">
-                        <select v-model="localDoc.action"
-                                @change="emitDocUpdate"
-                                data-qa="action-dropdown"
-                                class="document-action-selection"
-                                title="Custom Response">
-                          <option v-for="customResponse in customResponseNames"
-                                  :value="customResponse[0]"
-                                  :key="customResponse[0]">
+                        <select
+                          v-model="localDoc.action"
+                          @change="emitDocUpdate"
+                          data-qa="action-dropdown"
+                          class="document-action-selection"
+                          title="Custom Response"
+                        >
+                          <option
+                            v-for="customResponse in customResponseNames"
+                            :value="customResponse[0]"
+                            :key="customResponse[0]"
+                          >
                             {{ customResponse[1] }}
                           </option>
                         </select>
@@ -94,14 +113,20 @@
                   </div>
                   <div class="field">
                     <label class="label is-small">Tags</label>
-                    <div class="control"
-                         data-qa="tag-input">
-                      <tag-autocomplete-input :initial-tag="selectedDocTags"
-                                              selection-type="multiple"
-                                              @tag-changed="selectedDocTags = $event"/>
+                    <div
+                      class="control"
+                      data-qa="tag-input"
+                    >
+                      <tag-autocomplete-input
+                        :initial-tag="selectedDocTags"
+                        selection-type="multiple"
+                        @tag-changed="selectedDocTags = $event"
+                      />
                     </div>
-                    <labeled-tags title="Automatic Tags"
-                                  :tags="automaticTags"/>
+                    <labeled-tags
+                      title="Automatic Tags"
+                      :tags="automaticTags"
+                    />
                   </div>
                 </div>
               </div>
@@ -112,60 +137,78 @@
     </div>
 
     <div class="content">
-      <hr/>
+      <hr>
       <div class="columns operation-tags">
-        <div class="column is-2"
-             v-for="operation in operations"
-             :key="operation">
-          <p class="title is-7 is-uppercase"
-             :data-qa="titles[operation]">{{ titles[operation] }}</p>
-          <hr class="bar"
-              :class="`bar-${operationClassName(operation)}`"/>
+        <div
+          class="column is-2"
+          v-for="operation in operations"
+          :key="operation"
+        >
+          <p
+            class="title is-7 is-uppercase"
+            :data-qa="titles[operation]"
+          >
+            {{ titles[operation] }}
+          </p>
+          <hr
+            class="bar"
+            :class="`bar-${operationClassName(operation)}`"
+          >
           <table class="table is-narrow is-fullwidth">
             <tbody>
-            <tr v-for="(tag, idx) in localDoc[operation]"
-                :key="idx">
-              <td class="tag-cell ellipsis"
+              <tr
+                v-for="(tag, idx) in localDoc[operation]"
+                :key="idx"
+              >
+                <td
+                  class="tag-cell ellipsis"
                   :class=" { 'has-text-danger': duplicateTags[tag], 'tag-crossed': allPrior(operation) }"
-                  :title="tagMessage(tag, operation) || tag">
-                {{ tag }}
-              </td>
-              <td class="is-size-7 width-20px">
-                <a title="remove entry"
-                   tabindex="0"
-                   data-qa="acl-btn-remove-tag"
-                   class="is-small has-text-grey remove-entry-button"
-                   @click="removeTag(operation, idx)"
-                   @keypress.space.prevent
-                   @keypress.space="removeTag(operation, idx)"
-                   @keypress.enter="removeTag(operation, idx)">
-                  &ndash;
-                </a>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <tag-autocomplete-input v-if="addNewColName === operation"
-                                        ref="tagAutocompleteInput"
-                                        :clear-input-after-selection="true"
-                                        :selection-type="'single'"
-                                        :auto-focus="true"
-                                        @keydown.esc="cancelAddNewTag"
-                                        @tag-submitted="addNewEntry(operation, $event)"/>
-              </td>
-              <td class="is-size-7 width-20px">
-                <a title="add new entry"
-                   data-qa="acl-btn-new-tag"
-                   tabindex="0"
-                   class="is-size-7 width-20px is-small has-text-grey add-new-entry-button"
-                   @click="openTagInput(operation)"
-                   @keypress.space.prevent
-                   @keypress.space="openTagInput(operation)"
-                   @keypress.enter="openTagInput(operation)">
-                  +
-                </a>
-              </td>
-            </tr>
+                  :title="tagMessage(tag, operation) || tag"
+                >
+                  {{ tag }}
+                </td>
+                <td class="is-size-7 width-20px">
+                  <a
+                    title="remove entry"
+                    tabindex="0"
+                    data-qa="acl-btn-remove-tag"
+                    class="is-small has-text-grey remove-entry-button"
+                    @click="removeTag(operation, idx)"
+                    @keypress.space.prevent
+                    @keypress.space="removeTag(operation, idx)"
+                    @keypress.enter="removeTag(operation, idx)"
+                  >
+                    &ndash;
+                  </a>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <tag-autocomplete-input
+                    v-if="addNewColName === operation"
+                    ref="tagAutocompleteInput"
+                    :clear-input-after-selection="true"
+                    :selection-type="'single'"
+                    :auto-focus="true"
+                    @keydown.esc="cancelAddNewTag"
+                    @tag-submitted="addNewEntry(operation, $event)"
+                  />
+                </td>
+                <td class="is-size-7 width-20px">
+                  <a
+                    title="add new entry"
+                    data-qa="acl-btn-new-tag"
+                    tabindex="0"
+                    class="is-size-7 width-20px is-small has-text-grey add-new-entry-button"
+                    @click="openTagInput(operation)"
+                    @keypress.space.prevent
+                    @keypress.space="openTagInput(operation)"
+                    @keypress.enter="openTagInput(operation)"
+                  >
+                    +
+                  </a>
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>

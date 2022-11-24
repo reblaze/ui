@@ -6,29 +6,37 @@
           <div class="column">
             <div class="field is-grouped">
               <p class="control">
-                <button class="button is-small redirect-list-button"
-                        @click="redirectToList()"
-                        title="Return to list"
-                        data-qa="redirect-to-list">
+                <button
+                  class="button is-small redirect-list-button"
+                  @click="redirectToList()"
+                  title="Return to list"
+                  data-qa="redirect-to-list"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-arrow-left"></i>
+                    <i class="fas fa-arrow-left" />
                   </span>
                   <span>
                     Return To List
                   </span>
                 </button>
               </p>
-              <div class="control"
-                   v-if="docIdNames.length">
+              <div
+                class="control"
+                v-if="docIdNames.length"
+              >
                 <div class="select is-small">
-                  <select v-model="selectedDocID"
-                          title="Switch document ID"
-                          @change="switchDocID()"
-                          class="doc-selection"
-                          data-qa="switch-document">
-                    <option v-for="doc in docIdNames"
-                            :key="doc.id"
-                            :value="doc.id">
+                  <select
+                    v-model="selectedDocID"
+                    title="Switch document ID"
+                    @change="switchDocID()"
+                    class="doc-selection"
+                    data-qa="switch-document"
+                  >
+                    <option
+                      v-for="doc in docIdNames"
+                      :key="doc.id"
+                      :value="doc.id"
+                    >
                       {{ doc.name }}
                     </option>
                   </select>
@@ -40,14 +48,16 @@
           <div class="column">
             <div class="field is-grouped is-pulled-right">
               <p class="control">
-                <button class="button is-small new-document-button"
-                        :class="{'is-loading': isNewLoading}"
-                        @click="addNewDoc()"
-                        title="Add new document"
-                        :disabled="!selectedBranch || !selectedDocType"
-                        data-qa="add-new-document">
+                <button
+                  class="button is-small new-document-button"
+                  :class="{'is-loading': isNewLoading}"
+                  @click="addNewDoc()"
+                  title="Add new document"
+                  :disabled="!selectedBranch || !selectedDocType"
+                  data-qa="add-new-document"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-plus"></i>
+                    <i class="fas fa-plus" />
                   </span>
                   <span>
                     New
@@ -56,14 +66,16 @@
               </p>
 
               <p class="control">
-                <button class="button is-small fork-document-button"
-                        :class="{'is-loading': isForkLoading}"
-                        @click="forkDoc()"
-                        title="Duplicate document"
-                        :disabled="!selectedDoc || dynamicRuleManaged"
-                        data-qa="duplicate-document">
+                <button
+                  class="button is-small fork-document-button"
+                  :class="{'is-loading': isForkLoading}"
+                  @click="forkDoc()"
+                  title="Duplicate document"
+                  :disabled="!selectedDoc || dynamicRuleManaged"
+                  data-qa="duplicate-document"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-clone"></i>
+                    <i class="fas fa-clone" />
                   </span>
                   <span>
                     Duplicate
@@ -72,14 +84,16 @@
               </p>
 
               <p class="control">
-                <button class="button is-small download-doc-button"
-                        :class="{'is-loading': isDownloadLoading}"
-                        :disabled="!selectedDoc"
-                        @click="downloadDoc()"
-                        title="Download document"
-                        data-qa="download-document">
+                <button
+                  class="button is-small download-doc-button"
+                  :class="{'is-loading': isDownloadLoading}"
+                  :disabled="!selectedDoc"
+                  @click="downloadDoc()"
+                  title="Download document"
+                  data-qa="download-document"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-download"></i>
+                    <i class="fas fa-download" />
                   </span>
                   <span>
                     Download
@@ -88,14 +102,16 @@
               </p>
 
               <p class="control">
-                <button class="button is-small save-document-button"
-                        :class="{'is-loading': isSaveLoading}"
-                        @click="saveChanges()"
-                        :title="titleDisplay"
-                        :disabled="isDocumentInvalid || !selectedDoc || dynamicRuleManaged || tagsInvalid"
-                        data-qa="save-changes">
+                <button
+                  class="button is-small save-document-button"
+                  :class="{'is-loading': isSaveLoading}"
+                  @click="saveChanges()"
+                  :title="titleDisplay"
+                  :disabled="isDocumentInvalid || !selectedDoc || dynamicRuleManaged || tagsInvalid"
+                  data-qa="save-changes"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-save"></i>
+                    <i class="fas fa-save" />
                   </span>
                   <span>
                     Save
@@ -104,60 +120,69 @@
               </p>
 
               <p class="control">
-                <button class="button is-small has-text-danger delete-document-button"
-                        :class="{'is-loading': isDeleteLoading}"
-                        @click="deleteDoc()"
-                        title="Delete document"
-                        :disabled="selectedDocNotDeletable"
-                        data-qa="delete-document">
+                <button
+                  class="button is-small has-text-danger delete-document-button"
+                  :class="{'is-loading': isDeleteLoading}"
+                  @click="deleteDoc()"
+                  title="Delete document"
+                  :disabled="selectedDocNotDeletable"
+                  data-qa="delete-document"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-trash"></i>
+                    <i class="fas fa-trash" />
                   </span>
                   <span>
                     Delete
                   </span>
                 </button>
               </p>
-
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <hr/>
+    <hr>
 
-    <div class="content document-editor-wrapper"
-         v-show="!loadingDocCounter">
+    <div
+      class="content document-editor-wrapper"
+      v-show="!loadingDocCounter"
+    >
       <component
-          v-if="selectedBranch && selectedDocType && selectedDoc && !loadingDocCounter"
-          :is="componentsMap[selectedDocType].component"
-          v-model:selectedBranch="selectedBranch"
-          v-model:selectedDoc="selectedDoc"
-          v-model:selectedDocMatchingGlobalFilter="selectedDocMatchingGlobalFilter"
-          v-model:docs="docs"
-          :apiPath="documentAPIPath"
-          @form-invalid="setIsDocumentInvalid"
-          @tags-invalid="setTagsInvalid"
-          @go-to-route="goToRoute($event)"
-          ref="currentComponent">
-      </component>
-      <hr/>
-      <git-history v-if="selectedDocID && !isReblazeDocument"
-                   :api-path="gitAPIPath"
-                   :restore-target-title="`document [${titles[selectedDocType]}]`"
-                   @restore-version="restoreGitVersion"/>
+        v-if="selectedBranch && selectedDocType && selectedDoc && !loadingDocCounter"
+        :is="componentsMap[selectedDocType].component"
+        v-model:selectedBranch="selectedBranch"
+        v-model:selectedDoc="selectedDoc"
+        v-model:selectedDocMatchingGlobalFilter="selectedDocMatchingGlobalFilter"
+        v-model:docs="docs"
+        :api-path="documentAPIPath"
+        @form-invalid="setIsDocumentInvalid"
+        @tags-invalid="setTagsInvalid"
+        @go-to-route="goToRoute($event)"
+        ref="currentComponent"
+      />
+      <hr>
+      <git-history
+        v-if="selectedDocID && !isReblazeDocument"
+        :api-path="gitAPIPath"
+        :restore-target-title="`document [${titles[selectedDocType]}]`"
+        @restore-version="restoreGitVersion"
+      />
     </div>
 
-    <div class="content no-data-wrapper"
-         v-if="loadingDocCounter || !selectedBranch || !selectedDocType || !selectedDoc">
+    <div
+      class="content no-data-wrapper"
+      v-if="loadingDocCounter || !selectedBranch || !selectedDocType || !selectedDoc"
+    >
       <div v-if="loadingDocCounter > 0">
         <button class="button is-outlined is-text is-small is-loading document-loading">
           Loading
         </button>
       </div>
-      <div v-else
-           class="no-data-message">
+      <div
+        v-else
+        class="no-data-message"
+      >
         No data found.
         <div>
           <span v-if="!Object.keys(componentsMap).includes(selectedDocType)">
@@ -165,8 +190,10 @@
           </span>
           <span v-else-if="!docIdNames.find((doc) => doc.id.includes(selectedDoc?.id))">
             Missing document. To create a new one, click
-            <a title="Add new"
-               @click="addNewDoc()">
+            <a
+              title="Add new"
+              @click="addNewDoc()"
+            >
               here
             </a>
           </span>

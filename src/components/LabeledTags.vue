@@ -1,14 +1,18 @@
 <template>
   <div class="is-size-7 mb-4">
-    <span class="is-small"
-           v-if="title">
+    <span
+      class="is-small"
+      v-if="title"
+    >
       {{ title }}:
     </span>
     <div class="labeled-tags-wrapper">
-      <div v-for="(tag, index) in tags"
-           :key="index"
-           :title="tag"
-           class="labeled-tag ellipsis">
+      <div
+        v-for="(tag, index) in tags"
+        :key="index"
+        :title="tag"
+        class="labeled-tag ellipsis"
+      >
         {{ tag }}
       </div>
     </div>

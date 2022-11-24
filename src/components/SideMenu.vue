@@ -3,14 +3,18 @@
     <div class="branch-management-wrapper mb-3">
       <div class="control">
         <div class="select is-small is-fullwidth">
-          <select :value="selectedBranch?.id"
-                  data-qa="switch-branch-dropdown"
-                  title="Switch branch"
-                  @change="switchBranch($event)"
-                  class="branch-selection">
-            <option v-for="name in branchNames"
-                    :key="name"
-                    :value="name">
+          <select
+            :value="selectedBranch?.id"
+            data-qa="switch-branch-dropdown"
+            title="Switch branch"
+            @change="switchBranch($event)"
+            class="branch-selection"
+          >
+            <option
+              v-for="name in branchNames"
+              :key="name"
+              :value="name"
+            >
               {{ name }}
             </option>
           </select>
@@ -19,10 +23,12 @@
       <div class="is-flex">
         <div class="control mr-3">
           <span class="icon is-small is-vcentered">
-            <svg :width="24"
-                 :height="24"
-                 :viewBox="'0 0 24 24'">
-              <path :d="mdiSourceBranchPath"/>
+            <svg
+              :width="24"
+              :height="24"
+              :viewBox="'0 0 24 24'"
+            >
+              <path :d="mdiSourceBranchPath" />
             </svg>
           </span>
           <span class="is-size-7 git-branches">
@@ -31,10 +37,12 @@
         </div>
         <div class="control">
           <span class="icon is-small is-vcentered">
-            <svg :width="24"
-                 :height="24"
-                 :viewBox="'0 0 24 24'">
-              <path :d="mdiSourceCommitPath"/>
+            <svg
+              :width="24"
+              :height="24"
+              :viewBox="'0 0 24 24'"
+            >
+              <path :d="mdiSourceCommitPath" />
             </svg>
           </span>
           <span class="is-size-7 git-commits">
@@ -44,11 +52,13 @@
       </div>
     </div>
     <div class="menu-wrapper">
-      <sidebar-menu :menu="menu"
-                    :relative="true"
-                    :hideToggle="true"
-                    width="200px"
-                    theme="white-theme"/>
+      <sidebar-menu
+        :menu="menu"
+        :relative="true"
+        :hide-toggle="true"
+        width="200px"
+        theme="white-theme"
+      />
     </div>
   </div>
 </template>

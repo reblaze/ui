@@ -4,13 +4,15 @@
       <div class="media-content">
         <div class="field is-grouped is-pulled-right">
           <p class="control">
-            <button class="button is-small download-doc-button"
-                    :class="{'is-loading':isDownloadLoading}"
-                    @click="downloadDoc()"
-                    title="Download document"
-                    data-qa="download-document">
+            <button
+              class="button is-small download-doc-button"
+              :class="{'is-loading':isDownloadLoading}"
+              @click="downloadDoc()"
+              title="Download document"
+              data-qa="download-document"
+            >
               <span class="icon is-small">
-                <i class="fas fa-download"></i>
+                <i class="fas fa-download" />
               </span>
               <span>
                 Download
@@ -21,31 +23,36 @@
       </div>
     </div>
 
-    <hr/>
+    <hr>
 
-    <div class="content document-list-wrapper"
-         v-show="!loadingDocCounter && selectedBranch">
+    <div
+      class="content document-list-wrapper"
+      v-show="!loadingDocCounter && selectedBranch"
+    >
       <div class="content">
-        <rbz-table :columns="columns"
-                   :data="dynamicRulesData"
-                   :default-sort-column-index="1"
-                   :show-menu-column="true"
-                   :show-filter-button="true"
-                   :show-new-button="true"
-                   @new-button-clicked="addNewDynamicRule"
-                   :row-clickable="true"
-                   @row-clicked="editDynamicRule"
-                   :show-row-button="true"
-                   @row-button-clicked="editDynamicRule">
-        </rbz-table>
+        <rbz-table
+          :columns="columns"
+          :data="dynamicRulesData"
+          :default-sort-column-index="1"
+          :show-menu-column="true"
+          :show-filter-button="true"
+          :show-new-button="true"
+          @new-button-clicked="addNewDynamicRule"
+          :row-clickable="true"
+          @row-clicked="editDynamicRule"
+          :show-row-button="true"
+          @row-button-clicked="editDynamicRule"
+        />
         <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">
           {{ documentListAPIPath }}
         </span>
       </div>
     </div>
 
-    <div class="content no-data-wrapper"
-         v-if="loadingDocCounter || !selectedBranch">
+    <div
+      class="content no-data-wrapper"
+      v-if="loadingDocCounter || !selectedBranch"
+    >
       <button class="button is-outlined is-text is-small is-loading document-loading">
         Loading
       </button>

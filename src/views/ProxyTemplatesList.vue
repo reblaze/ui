@@ -4,13 +4,15 @@
       <div class="media-content">
         <div class="field is-grouped is-pulled-right">
           <p class="control">
-            <button :class="{'is-loading':isDownloadLoading}"
-                    class="button is-small download-doc-button"
-                    data-qa="download-document"
-                    title="Download document"
-                    @click="downloadDoc()">
+            <button
+              :class="{'is-loading':isDownloadLoading}"
+              class="button is-small download-doc-button"
+              data-qa="download-document"
+              title="Download document"
+              @click="downloadDoc()"
+            >
               <span class="icon is-small">
-                <i class="fas fa-download"></i>
+                <i class="fas fa-download" />
               </span>
               <span>
                 Download
@@ -21,31 +23,36 @@
       </div>
     </div>
 
-    <hr/>
+    <hr>
 
-    <div v-show="!loadingDocCounter && selectedBranch"
-         class="content document-list-wrapper">
+    <div
+      v-show="!loadingDocCounter && selectedBranch"
+      class="content document-list-wrapper"
+    >
       <div class="content">
-        <rbz-table :columns="columns"
-                   :data="proxyTemplates"
-                   :default-sort-column-index="1"
-                   :show-filter-button="true"
-                   :show-menu-column="true"
-                   :show-new-button="true"
-                   @new-button-clicked="addNewProxyTemplate"
-                   :row-clickable="true"
-                   @row-clicked="editProxyTemplate"
-                   :show-row-button="true"
-                   @row-button-clicked="editProxyTemplate">
-        </rbz-table>
+        <rbz-table
+          :columns="columns"
+          :data="proxyTemplates"
+          :default-sort-column-index="1"
+          :show-filter-button="true"
+          :show-menu-column="true"
+          :show-new-button="true"
+          @new-button-clicked="addNewProxyTemplate"
+          :row-clickable="true"
+          @row-clicked="editProxyTemplate"
+          :show-row-button="true"
+          @row-button-clicked="editProxyTemplate"
+        />
         <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">
           {{ documentListAPIPath }}
         </span>
       </div>
     </div>
 
-    <div v-if="loadingDocCounter || !selectedBranch"
-         class="content no-data-wrapper">
+    <div
+      v-if="loadingDocCounter || !selectedBranch"
+      class="content no-data-wrapper"
+    >
       <button class="button is-outlined is-text is-small is-loading document-loading">
         Loading
       </button>

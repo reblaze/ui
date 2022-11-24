@@ -1,34 +1,42 @@
 <template>
-  <div class="card-content" >
+  <div class="card-content">
     <div class="media">
       <div class="media-content">
         <div class="columns">
           <div class="column">
             <div class="field is-grouped">
               <p class="control">
-                <button class="button is-small redirect-list-button"
-                        @click="redirectToList()"
-                        title="Return to list"
-                        data-qa="redirect-to-list">
+                <button
+                  class="button is-small redirect-list-button"
+                  @click="redirectToList()"
+                  title="Return to list"
+                  data-qa="redirect-to-list"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-arrow-left"></i>
+                    <i class="fas fa-arrow-left" />
                   </span>
                   <span>
                     Return To List
                   </span>
                 </button>
               </p>
-              <div class="control"
-                   v-if="docs.length">
+              <div
+                class="control"
+                v-if="docs.length"
+              >
                 <div class="select is-small">
-                  <select v-model="selectedDocID"
-                          title="Switch document ID"
-                          @change="switchDocID()"
-                          class="site-selection"
-                          data-qa="switch-document">
-                          <option v-for="doc in docs"
-                            :key="doc.id"
-                            :value="doc.id">
+                  <select
+                    v-model="selectedDocID"
+                    title="Switch document ID"
+                    @change="switchDocID()"
+                    class="site-selection"
+                    data-qa="switch-document"
+                  >
+                    <option
+                      v-for="doc in docs"
+                      :key="doc.id"
+                      :value="doc.id"
+                    >
                       {{ doc.name }}
                     </option>
                   </select>
@@ -39,14 +47,16 @@
           <div class="column">
             <div class="field is-grouped is-pulled-right">
               <p class="control">
-                <button class="button is-small new-mobile-sdks-document-button"
-                        :class="{'is-loading': isNewLoading}"
-                        @click="addNewMobileSDK()"
-                        title="Add new document"
-                        :disabled="!selectedBranch"
-                        data-qa="add-new-document">
+                <button
+                  class="button is-small new-mobile-sdks-document-button"
+                  :class="{'is-loading': isNewLoading}"
+                  @click="addNewMobileSDK()"
+                  title="Add new document"
+                  :disabled="!selectedBranch"
+                  data-qa="add-new-document"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-plus"></i>
+                    <i class="fas fa-plus" />
                   </span>
                   <span>
                     New
@@ -55,14 +65,16 @@
               </p>
 
               <p class="control">
-                <button class="button is-small fork-document-button"
-                        :class="{'is-loading': isForkLoading}"
-                        @click="forkDoc()"
-                        title="Duplicate document"
-                        :disabled="!selectedMobileSDK"
-                        data-qa="duplicate-document">
+                <button
+                  class="button is-small fork-document-button"
+                  :class="{'is-loading': isForkLoading}"
+                  @click="forkDoc()"
+                  title="Duplicate document"
+                  :disabled="!selectedMobileSDK"
+                  data-qa="duplicate-document"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-clone"></i>
+                    <i class="fas fa-clone" />
                   </span>
                   <span>
                     Duplicate
@@ -70,13 +82,15 @@
                 </button>
               </p>
               <p class="control">
-                <button class="button is-small download-doc-button"
-                        :class="{'is-loading':isDownloadLoading}"
-                        @click="downloadDoc()"
-                        title="Download document"
-                        data-qa="download-document">
+                <button
+                  class="button is-small download-doc-button"
+                  :class="{'is-loading':isDownloadLoading}"
+                  @click="downloadDoc()"
+                  title="Download document"
+                  data-qa="download-document"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-download"></i>
+                    <i class="fas fa-download" />
                   </span>
                   <span>
                     Download
@@ -84,13 +98,15 @@
                 </button>
               </p>
               <p class="control">
-                <button class="button is-small save-document-button"
-                        :class="{'is-loading': isSaveLoading}"
-                        title="Save changes"
-                        data-qa="save-changes"
-                        @click="saveChanges()">
+                <button
+                  class="button is-small save-document-button"
+                  :class="{'is-loading': isSaveLoading}"
+                  title="Save changes"
+                  data-qa="save-changes"
+                  @click="saveChanges()"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-save"></i>
+                    <i class="fas fa-save" />
                   </span>
                   <span>
                     Save
@@ -98,14 +114,16 @@
                 </button>
               </p>
               <p class="control">
-                <button class="button is-small has-text-danger delete-document-button"
-                        title="Delete document"
-                        data-qa="delete-document"
-                        :class="{'is-loading': isDeleteLoading}"
-                        :disabled="selectedDocNotDeletable"
-                        @click="deleteDoc()">
+                <button
+                  class="button is-small has-text-danger delete-document-button"
+                  title="Delete document"
+                  data-qa="delete-document"
+                  :class="{'is-loading': isDeleteLoading}"
+                  :disabled="selectedDocNotDeletable"
+                  @click="deleteDoc()"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-trash"></i>
+                    <i class="fas fa-trash" />
                   </span>
                   <span>
                     Delete
@@ -117,36 +135,43 @@
         </div>
       </div>
     </div>
-    <hr/>
-    <div class="content"
-         v-if="!loadingDocCounter && selectedBranch && selectedMobileSDK">
+    <hr>
+    <div
+      class="content"
+      v-if="!loadingDocCounter && selectedBranch && selectedMobileSDK"
+    >
       <div class="columns columns-divided">
         <div class="column is-4">
           <div class="field">
             <label class="label is-small">
               Name
-              <span class="has-text-grey is-pulled-right document-id"
-                    title="Rule id">
-                            {{ selectedMobileSDK.id }}
-                        </span>
+              <span
+                class="has-text-grey is-pulled-right document-id"
+                title="Rule id"
+              >
+                {{ selectedMobileSDK.id }}
+              </span>
             </label>
             <div class="control">
-              <input class="input is-small document-name"
-                     title="Document name"
-                     :placeholder="selectedMobileSDK.name"
-                     v-model="selectedMobileSDK.name"/>
+              <input
+                class="input is-small document-name"
+                title="Document name"
+                :placeholder="selectedMobileSDK.name"
+                v-model="selectedMobileSDK.name"
+              >
             </div>
           </div>
           <div class="field">
             <div class="field textarea-field">
               <label class="label is-small">Description</label>
               <div class="control">
-                          <textarea class="is-small textarea document-description"
-                                    data-qa="description-input"
-                                    title="Document description"
-                                    rows="2"
-                                    v-model="selectedMobileSDK.description">
-                          </textarea>
+                <textarea
+                  class="is-small textarea document-description"
+                  data-qa="description-input"
+                  title="Document description"
+                  rows="2"
+                  v-model="selectedMobileSDK.description"
+                />
               </div>
             </div>
           </div>
@@ -155,9 +180,11 @@
           <div class="field">
             <label class="label is-small">Grace Period</label>
             <div class="control suffix seconds-suffix mb-0">
-              <input type="text"
-                     v-model="selectedMobileSDK.grace"
-                     class="input is-small">
+              <input
+                type="text"
+                v-model="selectedMobileSDK.grace"
+                class="input is-small"
+              >
             </div>
             <div class="help">
               Number of seconds considered as "grace time" for late arrivals of signatures
@@ -166,9 +193,11 @@
           <div class="field">
             <label class="label is-small">Token Header Name</label>
             <div class="control mb-0">
-              <input type="text"
-                     v-model="selectedMobileSDK.uid_header"
-                     class="input is-small">
+              <input
+                type="text"
+                v-model="selectedMobileSDK.uid_header"
+                class="input is-small"
+              >
             </div>
             <div class="help">
               The header that contains a user or session authentication token
@@ -183,84 +212,112 @@
         <div class="control">
           <table class="table is-narrow">
             <thead>
-            <tr>
-              <th class="is-size-7 width-300px">Name</th>
-              <th class="is-size-7 width-500px">Hash</th>
-              <th class="is-size-7 width-60px has-text-centered pr-2">Active</th>
-              <th class="is-size-7 width-100px has-text-right">
-                <a class="has-text-grey-dark is-small has-tooltip-left has-tooltip-multiline"
-                   title="Add a signature"
-                   data-tooltip="Add a signature"
-                   @click="openAddSignatureMode">
-                        <span class="icon is-small">
-                          <i class="fas fa-plus"></i>
-                        </span>
-                </a>
-              </th>
-            </tr>
+              <tr>
+                <th class="is-size-7 width-300px">
+                  Name
+                </th>
+                <th class="is-size-7 width-500px">
+                  Hash
+                </th>
+                <th class="is-size-7 width-60px has-text-centered pr-2">
+                  Active
+                </th>
+                <th class="is-size-7 width-100px has-text-right">
+                  <a
+                    class="has-text-grey-dark is-small has-tooltip-left has-tooltip-multiline"
+                    title="Add a signature"
+                    data-tooltip="Add a signature"
+                    @click="openAddSignatureMode"
+                  >
+                    <span class="icon is-small">
+                      <i class="fas fa-plus" />
+                    </span>
+                  </a>
+                </th>
+              </tr>
             </thead>
             <tbody>
-            <tr v-for="(signature, index) in selectedMobileSDK.signatures"
-                :key="index">
-              <td class="is-size-7 width-300px"
-                  :title="signature.name">
-                {{ signature.name }}
-              </td>
-              <td class="is-size-7 width-500px"
-                  :title="signature.hash">
-                {{ signature.hash }}
-              </td>
-              <td class="is-size-7 width-60px has-text-centered">
-                <input type="checkbox"
-                       v-model="signature.active"
-                       :checked:boolean="signature.active"
-                       :class="{'checkbox-active':signature.active}"/>
-              </td>
-              <td class="is-size-7 width-100px has-text-right">
-                <a class="is-small has-text-grey"
-                   title="remove signature"
-                   @click="removeSignature(index)">
-                  remove
-                </a>
-              </td>
-            </tr>
-            <tr v-if="addSignatureMode">
-              <td class="is-size-7 width-300px">
-                <input type="text"
-                       class="input is-small"
-                       v-model="newSignature.name"
-                       ref="newSignature"/>
-              </td>
-              <td class="is-size-7 width-500px">
-                <input class="input is-small"
-                       v-model="newSignature.hash"/>
-              </td>
-              <td class="is-size-7 width-60px is-vcentered has-text-centered">
-                <input type="checkbox"
-                       v-model="newSignature.active"
-                       :checked:boolean="newSignature.active"
-                       :class="{'checkbox-active' : newSignature.active}"/>
-              </td>
-              <td class="is-size-7 width-100px is-vcentered has-text-right">
-                <a class="is-small has-text-grey"
-                   title="add signature"
-                   @click="confirmAddSignature">
-                  add
-                </a>
-                |
-                <a class="is-small has-text-grey"
-                   @click="closeAddSignatureMode">
-                  cancel
-                </a>
-              </td>
-            </tr>
-            <tr v-else-if="!selectedMobileSDK.signatures?.length">
-              <td colspan="4">
-                <p class="is-size-7 has-text-grey has-text-centered">
-                  No signatures added yet
-                </p>
-              </td>
-            </tr>
+              <tr
+                v-for="(signature, index) in selectedMobileSDK.signatures"
+                :key="index"
+              >
+                <td
+                  class="is-size-7 width-300px"
+                  :title="signature.name"
+                >
+                  {{ signature.name }}
+                </td>
+                <td
+                  class="is-size-7 width-500px"
+                  :title="signature.hash"
+                >
+                  {{ signature.hash }}
+                </td>
+                <td class="is-size-7 width-60px has-text-centered">
+                  <input
+                    type="checkbox"
+                    v-model="signature.active"
+                    :checked:boolean="signature.active"
+                    :class="{'checkbox-active':signature.active}"
+                  >
+                </td>
+                <td class="is-size-7 width-100px has-text-right">
+                  <a
+                    class="is-small has-text-grey"
+                    title="remove signature"
+                    @click="removeSignature(index)"
+                  >
+                    remove
+                  </a>
+                </td>
+              </tr>
+              <tr v-if="addSignatureMode">
+                <td class="is-size-7 width-300px">
+                  <input
+                    type="text"
+                    class="input is-small"
+                    v-model="newSignature.name"
+                    ref="newSignature"
+                  >
+                </td>
+                <td class="is-size-7 width-500px">
+                  <input
+                    class="input is-small"
+                    v-model="newSignature.hash"
+                  >
+                </td>
+                <td class="is-size-7 width-60px is-vcentered has-text-centered">
+                  <input
+                    type="checkbox"
+                    v-model="newSignature.active"
+                    :checked:boolean="newSignature.active"
+                    :class="{'checkbox-active' : newSignature.active}"
+                  >
+                </td>
+                <td class="is-size-7 width-100px is-vcentered has-text-right">
+                  <a
+                    class="is-small has-text-grey"
+                    title="add signature"
+                    @click="confirmAddSignature"
+                  >
+                    add
+                  </a>
+                  |
+                  <a
+                    class="is-small has-text-grey"
+                    @click="closeAddSignatureMode"
+                  >
+                    cancel
+                  </a>
+                </td>
+              </tr>
+              <tr v-else-if="!selectedMobileSDK.signatures?.length">
+                <td colspan="4">
+                  <p class="is-size-7 has-text-grey has-text-centered">
+                    No signatures added yet
+                  </p>
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -272,134 +329,168 @@
         <div class="control">
           <table class="table is-narrow">
             <thead>
-            <tr>
-              <th class="is-size-7 width-300px">Name</th>
-              <th class="is-size-7 width-500px"></th>
-              <th class="is-size-7 width-60px has-text-centered pr-2">Active</th>
-              <th class="is-size-7 width-100px has-text-right">
-                <a class="has-text-grey-dark is-small has-tooltip-left has-tooltip-multiline"
-                   title="Add a configuration profile"
-                   data-tooltip="Add a configuration profile"
-                   @click="openAddConfigMode">
-                        <span class="icon is-small">
-                          <i class="fas fa-plus"></i>
-                        </span>
-                </a>
-              </th>
-            </tr>
+              <tr>
+                <th class="is-size-7 width-300px">
+                  Name
+                </th>
+                <th class="is-size-7 width-500px" />
+                <th class="is-size-7 width-60px has-text-centered pr-2">
+                  Active
+                </th>
+                <th class="is-size-7 width-100px has-text-right">
+                  <a
+                    class="has-text-grey-dark is-small has-tooltip-left has-tooltip-multiline"
+                    title="Add a configuration profile"
+                    data-tooltip="Add a configuration profile"
+                    @click="openAddConfigMode"
+                  >
+                    <span class="icon is-small">
+                      <i class="fas fa-plus" />
+                    </span>
+                  </a>
+                </th>
+              </tr>
             </thead>
             <tbody v-if="!(selectedMobileSDK.active_config?.length) && !addConfigMode">
-            <tr>
-              <td colspan="4">
-                <p class="is-size-7 has-text-grey has-text-centered">
-                  No configurations added yet
-                </p>
-              </td>
-            </tr>
+              <tr>
+                <td colspan="4">
+                  <p class="is-size-7 has-text-grey has-text-centered">
+                    No configurations added yet
+                  </p>
+                </td>
+              </tr>
             </tbody>
             <tbody v-else>
-            <tr v-for="(config, index) in selectedMobileSDK.active_config"
+              <tr
+                v-for="(config, index) in selectedMobileSDK.active_config"
                 :key="index"
                 :class="{'has-background-light': configAdditionalInfoIndex === index}"
-                @click="setConfigAdditionalInfoIndex(index)">
-              <td class="is-size-7 width-300px has-row-clickable"
-                  :title="config.name">
-                <div v-if="configAdditionalInfoIndex === index && index !== 0">
-                  <input class="input is-small"
-                         type="text"
-                         :value="config.name"
-                         @click.stop
-                         @input="editConfigName($event, index)"/>
-                </div>
-                <span v-else>{{ config.name }}</span>
-              </td>
-              <td class="is-size-7 width-500px has-row-clickable">
-                      <textarea v-if="configAdditionalInfoIndex === index"
-                                rows="7"
-                                class="textarea is-small is-fullwidth json-textarea"
-                                placeholder="Paste the JSON"
-                                :value="config.json"
-                                @click.stop
-                                @input="editConfig($event, index)"
-                                :disabled="index === 0">
-                      </textarea>
-              </td>
-              <td class="is-size-7 width-60px has-text-centered has-row-clickable">
-                <input type="radio"
-                       :checked="config.active"
-                       @click.stop
-                       @change="activateConfig(index)">
-              </td>
-              <td class="is-size-7 width-100px has-row-clickable close-remove has-text-right">
-                <a class="is-small has-text-grey"
-                   title="more details">
-                  {{ configAdditionalInfoIndex === index ? 'close' : 'expand' }}
-                </a>
-                <button title="Remove this configuration"
-                        class="button x-is-text is-small is-pulled-right is-danger is-light"
-                        @click="removeConfig(index)"
-                        v-if="configAdditionalInfoIndex === index && index !== 0">
-                  delete
-                </button>
-              </td>
-            </tr>
+                @click="setConfigAdditionalInfoIndex(index)"
+              >
+                <td
+                  class="is-size-7 width-300px has-row-clickable"
+                  :title="config.name"
+                >
+                  <div v-if="configAdditionalInfoIndex === index && index !== 0">
+                    <input
+                      class="input is-small"
+                      type="text"
+                      :value="config.name"
+                      @click.stop
+                      @input="editConfigName($event, index)"
+                    >
+                  </div>
+                  <span v-else>{{ config.name }}</span>
+                </td>
+                <td class="is-size-7 width-500px has-row-clickable">
+                  <textarea
+                    v-if="configAdditionalInfoIndex === index"
+                    rows="7"
+                    class="textarea is-small is-fullwidth json-textarea"
+                    placeholder="Paste the JSON"
+                    :value="config.json"
+                    @click.stop
+                    @input="editConfig($event, index)"
+                    :disabled="index === 0"
+                  />
+                </td>
+                <td class="is-size-7 width-60px has-text-centered has-row-clickable">
+                  <input
+                    type="radio"
+                    :checked="config.active"
+                    @click.stop
+                    @change="activateConfig(index)"
+                  >
+                </td>
+                <td class="is-size-7 width-100px has-row-clickable close-remove has-text-right">
+                  <a
+                    class="is-small has-text-grey"
+                    title="more details"
+                  >
+                    {{ configAdditionalInfoIndex === index ? 'close' : 'expand' }}
+                  </a>
+                  <button
+                    title="Remove this configuration"
+                    class="button x-is-text is-small is-pulled-right is-danger is-light"
+                    @click="removeConfig(index)"
+                    v-if="configAdditionalInfoIndex === index && index !== 0"
+                  >
+                    delete
+                  </button>
+                </td>
+              </tr>
             </tbody>
             <tfoot>
-            <tr v-if="addConfigMode">
-              <td class="is-size-7 width-300px">
-                <input class="input is-small"
-                       type="text"
-                       ref="newConfig"
-                       placeholder="Configuration name"
-                       :value="newConfig.name"
-                       @input="editConfigName"/>
-              </td>
-              <td class="is-size-7 width-500px">
-                      <textarea rows="5"
-                                class="textarea is-small is-fullwidth"
-                                placeholder="Paste the JSON"
-                                :value="newConfig.json"
-                                @input="editConfig">
-                      </textarea>
-              </td>
-              <td class="is-size-7 width-60px has-text-centered is-vcentered">
-                <input type="radio"
-                       :checked="newConfig.active"/>
-              </td>
-              <td class="is-size-7 width-100px is-vcentered has-text-right">
-                <a class="is-small has-text-grey"
-                   title="add configuration"
-                   @click="confirmAddConfig">
-                  add
-                </a>
-                |
-                <a class="is-small has-text-grey"
-                   @click="closeAddConfigMode">
-                  cancel
-                </a>
-              </td>
-            </tr>
+              <tr v-if="addConfigMode">
+                <td class="is-size-7 width-300px">
+                  <input
+                    class="input is-small"
+                    type="text"
+                    ref="newConfig"
+                    placeholder="Configuration name"
+                    :value="newConfig.name"
+                    @input="editConfigName"
+                  >
+                </td>
+                <td class="is-size-7 width-500px">
+                  <textarea
+                    rows="5"
+                    class="textarea is-small is-fullwidth"
+                    placeholder="Paste the JSON"
+                    :value="newConfig.json"
+                    @input="editConfig"
+                  />
+                </td>
+                <td class="is-size-7 width-60px has-text-centered is-vcentered">
+                  <input
+                    type="radio"
+                    :checked="newConfig.active"
+                  >
+                </td>
+                <td class="is-size-7 width-100px is-vcentered has-text-right">
+                  <a
+                    class="is-small has-text-grey"
+                    title="add configuration"
+                    @click="confirmAddConfig"
+                  >
+                    add
+                  </a>
+                  |
+                  <a
+                    class="is-small has-text-grey"
+                    @click="closeAddConfigMode"
+                  >
+                    cancel
+                  </a>
+                </td>
+              </tr>
             </tfoot>
           </table>
         </div>
       </div>
       <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ documentAPIPath }}</span>
     </div>
-    <div class="content no-data-wrapper"
-         v-if="loadingDocCounter || !selectedBranch || !selectedMobileSDK ">
+    <div
+      class="content no-data-wrapper"
+      v-if="loadingDocCounter || !selectedBranch || !selectedMobileSDK "
+    >
       <div v-if="loadingDocCounter > 0">
         <button class="button is-outlined is-text is-small is-loading document-loading">
           Loading
         </button>
       </div>
-      <div v-else
-           class="no-data-message">
+      <div
+        v-else
+        class="no-data-message"
+      >
         No data found.
         <div>
-            <span v-if="!selectedMobileSDK?.id">
+          <span v-if="!selectedMobileSDK?.id">
             Missing document. To create a new one, click
-            <a title="Add new"
-               @click="addNewMobileSDK()">
+            <a
+              title="Add new"
+              @click="addNewMobileSDK()"
+            >
               here
             </a>
           </span>

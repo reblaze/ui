@@ -1,14 +1,18 @@
 <template>
   <div class="card-content is-fullheight">
     <div class="tabs-wrapper mb-5">
-      <div class="tabs"
-           data-qa="dashboard-tabs">
+      <div
+        class="tabs"
+        data-qa="dashboard-tabs"
+      >
         <ul>
-          <li v-for="(dashboard, index) in dashboards"
-              :key="index"
-              :class="{'is-active': index === activeDashboardIndex}"
-              @click="activeDashboardIndex = index"
-              :data-qa="`dashboard-tab-${index}`">
+          <li
+            v-for="(dashboard, index) in dashboards"
+            :key="index"
+            :class="{'is-active': index === activeDashboardIndex}"
+            @click="activeDashboardIndex = index"
+            :data-qa="`dashboard-tab-${index}`"
+          >
             <a>
               {{ dashboard.title }}
             </a>
@@ -21,69 +25,79 @@
         <div class="media-content">
           <div class="field is-grouped">
             <div class="control search-wrapper">
-              <input class="input is-small is-fullwidth filter-input"
-                     placeholder="Filters, comma separated. Available filters: `proxy`, `appid`, and `profile`."
-                     v-model="searchFilter"/>
+              <input
+                class="input is-small is-fullwidth filter-input"
+                placeholder="Filters, comma separated. Available filters: `proxy`, `appid`, and `profile`."
+                v-model="searchFilter"
+              >
             </div>
             <p class="control">
-              <Datepicker v-model="date"
-                          range
-                          utc
-                          enableSeconds
-                          format="yyyy-MM-dd HH:mm"
-                          inputClassName="input is-small is-size-7 width-260px date-picker-input"
-                          :monthChangeOnScroll="false"
-                          :clearable="false"
-                          :presetRanges="presetRanges"
-                          @open="loadPresetRanges">
-              </Datepicker>
+              <Datepicker
+                v-model="date"
+                range
+                utc
+                enable-seconds
+                format="yyyy-MM-dd HH:mm"
+                input-class-name="input is-small is-size-7 width-260px date-picker-input"
+                :month-change-on-scroll="false"
+                :clearable="false"
+                :preset-ranges="presetRanges"
+                @open="loadPresetRanges"
+              />
             </p>
             <p class="control">
-              <button class="button is-small search-button"
-                      :class="{'is-loading': isSearchLoading}"
-                      @click="loadData()"
-                      title="Search"
-                      data-qa="search-button">
-              <span class="icon is-small">
-                <i class="fas fa-search"></i>
-              </span>
+              <button
+                class="button is-small search-button"
+                :class="{'is-loading': isSearchLoading}"
+                @click="loadData()"
+                title="Search"
+                data-qa="search-button"
+              >
+                <span class="icon is-small">
+                  <i class="fas fa-search" />
+                </span>
                 <span>
-                Search
-              </span>
+                  Search
+                </span>
               </button>
             </p>
             <p class="control">
-              <button class="button is-small clear-search-button"
-                      @click="clearSearch()"
-                      title="Clear filter"
-                      data-qa="clear-search-button">
-              <span class="icon is-small">
-                <i class="fas fa-times"></i>
-              </span>
+              <button
+                class="button is-small clear-search-button"
+                @click="clearSearch()"
+                title="Clear filter"
+                data-qa="clear-search-button"
+              >
+                <span class="icon is-small">
+                  <i class="fas fa-times" />
+                </span>
                 <span>
-                Clear
-              </span>
+                  Clear
+                </span>
               </button>
             </p>
           </div>
         </div>
       </div>
       <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'default'">
-        <rbz-dashboard-default :data="data"
-                               :loading="isSearchLoading">
-        </rbz-dashboard-default>
+        <rbz-dashboard-default
+          :data="data"
+          :loading="isSearchLoading"
+        />
       </div>
-      <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'threats'">
-      </div>
+      <div v-show="dashboards[activeDashboardIndex]?.useDashboard === 'threats'" />
     </div>
-    <div v-if="dashboards[activeDashboardIndex]?.metabaseId"
-         class="metabase-iframe-wrapper">
-      <iframe :src="getDashboardURL(dashboards[activeDashboardIndex].metabaseId)"
-              class="metabase-iframe is-fullheight is-fullwidth"
-              width="100%"
-              height="100%"
-              allowtransparency>
-      </iframe>
+    <div
+      v-if="dashboards[activeDashboardIndex]?.metabaseId"
+      class="metabase-iframe-wrapper"
+    >
+      <iframe
+        :src="getDashboardURL(dashboards[activeDashboardIndex].metabaseId)"
+        class="metabase-iframe is-fullheight is-fullwidth"
+        width="100%"
+        height="100%"
+        allowtransparency
+      />
     </div>
   </div>
 </template>

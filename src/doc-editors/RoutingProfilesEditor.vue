@@ -6,28 +6,37 @@
           <div class="column">
             <div class="field is-grouped">
               <p class="control">
-                <button class="button is-small redirect-list-button"
-                        @click="redirectToList()"
-                        title="Return to list"
-                        data-qa="redirect-to-list">
+                <button
+                  class="button is-small redirect-list-button"
+                  @click="redirectToList()"
+                  title="Return to list"
+                  data-qa="redirect-to-list"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-arrow-left"></i>
+                    <i class="fas fa-arrow-left" />
                   </span>
                   <span>
                     Return To List
                   </span>
                 </button>
               </p>
-              <div class="control" v-if="docs.length">
+              <div
+                class="control"
+                v-if="docs.length"
+              >
                 <div class="select is-small">
-                  <select v-model="selectedDocID"
-                          title="Switch routing profiles document ID"
-                          @change="switchDocID()"
-                          class="routing-profiles-selection"
-                          data-qa="switch-routing-profiles-document">
-                          <option v-for="doc in docs"
-                            :key="doc.id"
-                            :value="doc.id">
+                  <select
+                    v-model="selectedDocID"
+                    title="Switch routing profiles document ID"
+                    @change="switchDocID()"
+                    class="routing-profiles-selection"
+                    data-qa="switch-routing-profiles-document"
+                  >
+                    <option
+                      v-for="doc in docs"
+                      :key="doc.id"
+                      :value="doc.id"
+                    >
                       {{ doc.name }}
                     </option>
                   </select>
@@ -38,14 +47,16 @@
           <div class="column">
             <div class="field is-grouped is-pulled-right">
               <p class="control">
-                <button class="button is-small new-routing-profile-button"
-                        :class="{'is-loading': isNewLoading}"
-                        @click="addNewRoutingProfile()"
-                        title="Add new routing profile document"
-                        :disabled="!selectedBranch"
-                        data-qa="add-new-document">
+                <button
+                  class="button is-small new-routing-profile-button"
+                  :class="{'is-loading': isNewLoading}"
+                  @click="addNewRoutingProfile()"
+                  title="Add new routing profile document"
+                  :disabled="!selectedBranch"
+                  data-qa="add-new-document"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-plus"></i>
+                    <i class="fas fa-plus" />
                   </span>
                   <span>
                     New
@@ -54,14 +65,16 @@
               </p>
 
               <p class="control">
-                <button class="button is-small fork-document-button"
-                        :class="{'is-loading': isForkLoading}"
-                        @click="forkDoc()"
-                        title="Duplicate document"
-                        :disabled="!selectedRoutingProfile"
-                        data-qa="duplicate-document">
+                <button
+                  class="button is-small fork-document-button"
+                  :class="{'is-loading': isForkLoading}"
+                  @click="forkDoc()"
+                  title="Duplicate document"
+                  :disabled="!selectedRoutingProfile"
+                  data-qa="duplicate-document"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-clone"></i>
+                    <i class="fas fa-clone" />
                   </span>
                   <span>
                     Duplicate
@@ -69,13 +82,15 @@
                 </button>
               </p>
               <p class="control">
-                <button class="button is-small download-doc-button"
-                        :class="{'is-loading':isDownloadLoading}"
-                        @click="downloadDoc()"
-                        title="Download document"
-                        data-qa="download-document">
+                <button
+                  class="button is-small download-doc-button"
+                  :class="{'is-loading':isDownloadLoading}"
+                  @click="downloadDoc()"
+                  title="Download document"
+                  data-qa="download-document"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-download"></i>
+                    <i class="fas fa-download" />
                   </span>
                   <span>
                     Download
@@ -83,13 +98,15 @@
                 </button>
               </p>
               <p class="control">
-                <button class="button is-small save-document-button"
-                        :class="{'is-loading': isSaveLoading}"
-                        title="Save changes"
-                        data-qa="save-changes"
-                        @click="saveChanges()">
+                <button
+                  class="button is-small save-document-button"
+                  :class="{'is-loading': isSaveLoading}"
+                  title="Save changes"
+                  data-qa="save-changes"
+                  @click="saveChanges()"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-save"></i>
+                    <i class="fas fa-save" />
                   </span>
                   <span>
                     Save
@@ -97,14 +114,16 @@
                 </button>
               </p>
               <p class="control">
-                <button class="button is-small has-text-danger delete-document-button"
-                        title="Delete document"
-                        data-qa="delete-document"
-                        :class="{'is-loading': isDeleteLoading}"
-                        :disabled="selectedDocNotDeletable"
-                        @click="deleteDoc()">
+                <button
+                  class="button is-small has-text-danger delete-document-button"
+                  title="Delete document"
+                  data-qa="delete-document"
+                  :class="{'is-loading': isDeleteLoading}"
+                  :disabled="selectedDocNotDeletable"
+                  @click="deleteDoc()"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-trash"></i>
+                    <i class="fas fa-trash" />
                   </span>
                   <span>
                     Delete
@@ -116,36 +135,43 @@
         </div>
       </div>
     </div>
-    <hr/>
-    <div class="content"
-         v-if="!loadingDocCounter && selectedBranch && selectedRoutingProfile">
+    <hr>
+    <div
+      class="content"
+      v-if="!loadingDocCounter && selectedBranch && selectedRoutingProfile"
+    >
       <div class="columns columns-divided">
         <div class="column is-4">
           <div class="field">
             <label class="label is-small">
               Name
-              <span class="has-text-grey is-pulled-right document-id"
-                    title="Routing Profile id">
-                      {{ selectedRoutingProfile.id }}
-                    </span>
+              <span
+                class="has-text-grey is-pulled-right document-id"
+                title="Routing Profile id"
+              >
+                {{ selectedRoutingProfile.id }}
+              </span>
             </label>
             <div class="control">
-              <input class="input is-small document-name"
-                     title="Document name"
-                     placeholder="Document name"
-                     v-model="selectedRoutingProfile.name"/>
+              <input
+                class="input is-small document-name"
+                title="Document name"
+                placeholder="Document name"
+                v-model="selectedRoutingProfile.name"
+              >
             </div>
           </div>
           <div class="field">
             <div class="field textarea-field">
               <label class="label is-small">Description</label>
               <div class="control">
-                            <textarea class="is-small textarea document-description"
-                                      data-qa="description-input"
-                                      title="Document description"
-                                      v-model="selectedRoutingProfile.description"
-                                      rows="2">
-                            </textarea>
+                <textarea
+                  class="is-small textarea document-description"
+                  data-qa="description-input"
+                  title="Document description"
+                  v-model="selectedRoutingProfile.description"
+                  rows="2"
+                />
               </div>
             </div>
           </div>
@@ -157,253 +183,317 @@
         </label>
         <table class="table entries-table">
           <thead>
-          <tr>
-            <th class="is-size-7 width-50px"></th>
-            <th class="is-size-7 width-400px">Path</th>
-            <th class="is-size-7 width-150px">Backend Service</th>
-            <th class="is-size-7 width-150px">Edge Functions</th>
-            <th></th>
-          </tr>
+            <tr>
+              <th class="is-size-7 width-50px" />
+              <th class="is-size-7 width-400px">
+                Path
+              </th>
+              <th class="is-size-7 width-150px">
+                Backend Service
+              </th>
+              <th class="is-size-7 width-150px">
+                Edge Functions
+              </th>
+              <th />
+            </tr>
           </thead>
-          <tbody v-for="(mapEntry, mapIndex) in selectedRoutingProfile.locations"
-                 :key="mapIndex">
-          <tr @click="changeSelectedMapEntry(mapIndex)"
+          <tbody
+            v-for="(mapEntry, mapIndex) in selectedRoutingProfile.locations"
+            :key="mapIndex"
+          >
+            <tr
+              @click="changeSelectedMapEntry(mapIndex)"
               class="has-row-clickable entry-row"
-              :class="mapEntryIndex === mapIndex ? 'has-background-light borderless' : ''">
-            <td class="is-size-7 width-50px has-text-right has-text-grey-light entry-index">
-              {{ mapIndex + 1 }}
-            </td>
-            <td class="is-size-7 width-400px ellipsis entry-match"
-                :title="mapEntry.path">
-              {{ mapEntry.path }}
-            </td>
-            <td class="is-size-7 width-150px ellipsis entry-content-filter">
-              {{ backendServiceName(mapEntry.backend_id) }}
-            </td>
-            <td class="is-size-7 width-150px entry-edge-functions-count"
-                v-if="existingEdgeFunctionIDs(mapEntry)">
-              {{ existingEdgeFunctionIDs(mapEntry).length }}
-            </td>
-            <td class="is-size-7 width-70px"
-                :rowspan="mapEntryIndex === mapIndex ? '2' : '1'">
-              <a class="has-text-grey"
-                 title="more details"
-                 data-qa="expand-path-btn">
-                {{ mapEntryIndex === mapIndex ? 'close' : 'expand' }}
-              </a>
-            </td>
-          </tr>
-          <tr v-if="mapEntryIndex === mapIndex"
+              :class="mapEntryIndex === mapIndex ? 'has-background-light borderless' : ''"
+            >
+              <td class="is-size-7 width-50px has-text-right has-text-grey-light entry-index">
+                {{ mapIndex + 1 }}
+              </td>
+              <td
+                class="is-size-7 width-400px ellipsis entry-match"
+                :title="mapEntry.path"
+              >
+                {{ mapEntry.path }}
+              </td>
+              <td class="is-size-7 width-150px ellipsis entry-content-filter">
+                {{ backendServiceName(mapEntry.backend_id) }}
+              </td>
+              <td
+                class="is-size-7 width-150px entry-edge-functions-count"
+                v-if="existingEdgeFunctionIDs(mapEntry)"
+              >
+                {{ existingEdgeFunctionIDs(mapEntry).length }}
+              </td>
+              <td
+                class="is-size-7 width-70px"
+                :rowspan="mapEntryIndex === mapIndex ? '2' : '1'"
+              >
+                <a
+                  class="has-text-grey"
+                  title="more details"
+                  data-qa="expand-path-btn"
+                >
+                  {{ mapEntryIndex === mapIndex ? 'close' : 'expand' }}
+                </a>
+              </td>
+            </tr>
+            <tr
+              v-if="mapEntryIndex === mapIndex"
               :class=" mapEntryIndex === mapIndex ? 'has-background-light borderless' : ''"
-              class="expanded current-entry-row">
-            <td colspan="10">
-              <div class="card">
-                <div class="card-content">
-                  <div class="content">
-                    <div class="columns">
-                      <div class="column is-8">
-                        <div class="field">
-                          <label class="label is-small">
-                            Path
-                            <span class="has-text-grey is-pulled-right map-entry-id"
-                                  title="Map entry id">
-                                  {{ mapEntry.id }}
-                                </span>
-                          </label>
-                          <div class="control has-icons-left">
-                            <input class="input is-small current-entry-path"
-                                   type="text"
-                                   @input="validateInput($event, isSelectedMapEntryPathValid(mapIndex))"
-                                   data-qa="expanded-path-input"
-                                   :title="matchingPathTitle"
-                                   placeholder="Matching path regex"
-                                   required
-                                   :disabled="initialMapEntryPath === '/'"
-                                   ref="mapEntryPath"
-                                   v-model="mapEntry.path">
-                            <span class="icon is-small is-left has-text-grey">
-                                  <i class="fas fa-code"></i>
-                                </span>
-                          </div>
-                        </div>
-                        <hr/>
-                        <p class="title is-6 has-text-grey">
-                          Edge Functions
-                        </p>
-                        <div class="content">
-                          <table class="table is-hoverable is-narrow is-fullwidth
-                                              current-entry-edge-functions-table">
-                            <thead>
-                            <tr>
-                              <th class="is-size-7 width-250px">
-                                Edge Function Name
-                              </th>
-                              <th class="is-size-7 width-200px">
-                                Description
-                              </th>
-                              <th class="is-size-7 width-80px">
-                                Phase
-                              </th>
-                              <th class="has-text-centered is-size-7 width-60px">
-                                <a v-if="edgeFunctions && mapEntry.cloud_functions &&
-                                             edgeFunctions.length > existingEdgeFunctionIDs(mapEntry).length"
-                                   class="has-text-grey-dark is-small edge-function-add-button"
-                                   data-qa="add-existing-edge-function"
-                                   title="Add new"
-                                   tabindex="0"
-                                   @click="edgeFunctionNewEntryModeMapEntryId = mapIndex"
-                                   @keypress.space.prevent
-                                   @keypress.space="edgeFunctionNewEntryModeMapEntryId = mapIndex"
-                                   @keypress.enter="edgeFunctionNewEntryModeMapEntryId = mapIndex">
-                                  <span class="icon is-small"><i class="fas fa-plus"></i></span>
-                                </a>
-                              </th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <template v-for="(edgeFunctionId, edgeFunctionIndex) in mapEntry.cloud_functions">
-                              <tr v-if="edgeFunctionsDetails(edgeFunctionId)"
-                                  :key="edgeFunctionId"
-                                  class="edge-function-row">
-                                <td class="is-size-7 width-250px ellipsis edge-function-name"
-                                    v-if="edgeFunctionsDetails(edgeFunctionId)"
-                                    :title="edgeFunctionsDetails(edgeFunctionId).name">
-                                  {{ edgeFunctionsDetails(edgeFunctionId).name }}
-                                </td>
-                                <td class="is-size-7 width-220px ellipsis edge-function-description"
-                                    v-if="edgeFunctionsDetails(edgeFunctionId)"
-                                    :title="edgeFunctionsDetails(edgeFunctionId).description">
-                                  {{ edgeFunctionsDetails(edgeFunctionId).description }}
-                                </td>
-                                <td class="is-size-7 width-80px ellipsis edge-function-timeframe"
-                                    v-if="edgeFunctionsDetails(edgeFunctionId)">
-                                  {{ edgeFunctionsDetails(edgeFunctionId).phase }}
-                                </td>
-                                <td class="has-text-centered is-size-7 width-60px">
-                                  <a class="is-small has-text-grey edge-function-remove-button"
-                                     data-qa="remove-edge-function-btn"
-                                     title="Remove entry"
-                                     tabindex="0"
-                                     @click="removeEdgeFunctionFromEntry(mapEntry, edgeFunctionIndex)"
-                                     @keypress.space.prevent
-                                     @keypress.space="removeEdgeFunctionFromEntry(mapEntry, edgeFunctionIndex)"
-                                     @keypress.enter="removeEdgeFunctionFromEntry(mapEntry, edgeFunctionIndex)">
-                                    remove
-                                  </a>
-                                </td>
-                              </tr>
-                            </template>
-                            <tr v-if="edgeFunctionNewEntryMode(mapIndex)"
-                                class="new-edge-function-row">
-                              <td colspan="3">
-                                <div class="control is-expanded">
-                                  <div class="select is-small is-size-7 is-fullwidth">
-                                    <select class="select is-small new-edge-function-selection"
-                                            title="Edge Function ID"
-                                            v-model="edgeFunctionMapEntryId">
-                                      <option v-for="edgeFunction in newEdgeFunctions(mapEntry.cloud_functions)"
-                                              :key="edgeFunction.id"
-                                              :value="edgeFunction.id">
-                                        {{ edgeFunction.name + ' ' + edgeFunction.description }}
-                                      </option>
-                                    </select>
-                                  </div>
-                                </div>
-                              </td>
-                              <td class="has-text-centered is-size-7 width-60px">
-                                <a class="is-small has-text-grey edge-function-confirm-add-button"
-                                   title="Add this entry"
-                                   tabindex="0"
-                                   @click="addEdgeFunctionToEntry(mapEntry, edgeFunctionMapEntryId)"
-                                   @keypress.space.prevent
-                                   @keypress.space="addEdgeFunctionToEntry(mapEntry, edgeFunctionMapEntryId)"
-                                   @keypress.enter="addEdgeFunctionToEntry(mapEntry, edgeFunctionMapEntryId)">
-                                  add
-                                </a>
-                              </td>
-                            </tr>
-                            <tr v-if="mapEntry.cloud_functions && !existingEdgeFunctionIDs(mapEntry).length">
-                              <td colspan="5">
-                                <p class="is-size-7 has-text-grey has-text-centered">
-                                  To attach an existing Edge Function, click
-                                  <a class="edge-function-text-add-button"
-                                     title="Add New"
-                                     @click="edgeFunctionNewEntryModeMapEntryId = mapIndex">here</a>.
-                                  <br/>
-                                  To create a new Edge Function, click
-                                  <a class="edge-function-referral-button"
-                                     @click="referToEdgeFunction">here</a>.
-                                </p>
-                              </td>
-                            </tr>
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                      <div class="column is-4">
-                        <div class="field">
-                          <label class="label is-small">Backend Service</label>
-                          <div class="control is-expanded">
-                            <div class="select is-fullwidth is-small">
-                              <select v-model="mapEntry.backend_id"
-                                      data-qa="backend-service-dropdown"
-                                      class="current-entry-backend-service-selection"
-                                      title="Backend service">
-                                <option v-for="backendService in backendServiceNames"
-                                        :value="backendService[0]"
-                                        :key="backendService[0]">
-                                  {{ backendService[1] }}
-                                </option>
-                              </select>
+              class="expanded current-entry-row"
+            >
+              <td colspan="10">
+                <div class="card">
+                  <div class="card-content">
+                    <div class="content">
+                      <div class="columns">
+                        <div class="column is-8">
+                          <div class="field">
+                            <label class="label is-small">
+                              Path
+                              <span
+                                class="has-text-grey is-pulled-right map-entry-id"
+                                title="Map entry id"
+                              >
+                                {{ mapEntry.id }}
+                              </span>
+                            </label>
+                            <div class="control has-icons-left">
+                              <input
+                                class="input is-small current-entry-path"
+                                type="text"
+                                @input="validateInput($event, isSelectedMapEntryPathValid(mapIndex))"
+                                data-qa="expanded-path-input"
+                                :title="matchingPathTitle"
+                                placeholder="Matching path regex"
+                                required
+                                :disabled="initialMapEntryPath === '/'"
+                                ref="mapEntryPath"
+                                v-model="mapEntry.path"
+                              >
+                              <span class="icon is-small is-left has-text-grey">
+                                <i class="fas fa-code" />
+                              </span>
                             </div>
                           </div>
+                          <hr>
+                          <p class="title is-6 has-text-grey">
+                            Edge Functions
+                          </p>
+                          <div class="content">
+                            <table
+                              class="table is-hoverable is-narrow is-fullwidth
+                                              current-entry-edge-functions-table"
+                            >
+                              <thead>
+                                <tr>
+                                  <th class="is-size-7 width-250px">
+                                    Edge Function Name
+                                  </th>
+                                  <th class="is-size-7 width-200px">
+                                    Description
+                                  </th>
+                                  <th class="is-size-7 width-80px">
+                                    Phase
+                                  </th>
+                                  <th class="has-text-centered is-size-7 width-60px">
+                                    <a
+                                      v-if="edgeFunctions && mapEntry.cloud_functions &&
+                                        edgeFunctions.length > existingEdgeFunctionIDs(mapEntry).length"
+                                      class="has-text-grey-dark is-small edge-function-add-button"
+                                      data-qa="add-existing-edge-function"
+                                      title="Add new"
+                                      tabindex="0"
+                                      @click="edgeFunctionNewEntryModeMapEntryId = mapIndex"
+                                      @keypress.space.prevent
+                                      @keypress.space="edgeFunctionNewEntryModeMapEntryId = mapIndex"
+                                      @keypress.enter="edgeFunctionNewEntryModeMapEntryId = mapIndex"
+                                    >
+                                      <span class="icon is-small"><i class="fas fa-plus" /></span>
+                                    </a>
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <template v-for="(edgeFunctionId, edgeFunctionIndex) in mapEntry.cloud_functions">
+                                  <tr
+                                    v-if="edgeFunctionsDetails(edgeFunctionId)"
+                                    :key="edgeFunctionId"
+                                    class="edge-function-row"
+                                  >
+                                    <td
+                                      class="is-size-7 width-250px ellipsis edge-function-name"
+                                      v-if="edgeFunctionsDetails(edgeFunctionId)"
+                                      :title="edgeFunctionsDetails(edgeFunctionId).name"
+                                    >
+                                      {{ edgeFunctionsDetails(edgeFunctionId).name }}
+                                    </td>
+                                    <td
+                                      class="is-size-7 width-220px ellipsis edge-function-description"
+                                      v-if="edgeFunctionsDetails(edgeFunctionId)"
+                                      :title="edgeFunctionsDetails(edgeFunctionId).description"
+                                    >
+                                      {{ edgeFunctionsDetails(edgeFunctionId).description }}
+                                    </td>
+                                    <td
+                                      class="is-size-7 width-80px ellipsis edge-function-timeframe"
+                                      v-if="edgeFunctionsDetails(edgeFunctionId)"
+                                    >
+                                      {{ edgeFunctionsDetails(edgeFunctionId).phase }}
+                                    </td>
+                                    <td class="has-text-centered is-size-7 width-60px">
+                                      <a
+                                        class="is-small has-text-grey edge-function-remove-button"
+                                        data-qa="remove-edge-function-btn"
+                                        title="Remove entry"
+                                        tabindex="0"
+                                        @click="removeEdgeFunctionFromEntry(mapEntry, edgeFunctionIndex)"
+                                        @keypress.space.prevent
+                                        @keypress.space="removeEdgeFunctionFromEntry(mapEntry, edgeFunctionIndex)"
+                                        @keypress.enter="removeEdgeFunctionFromEntry(mapEntry, edgeFunctionIndex)"
+                                      >
+                                        remove
+                                      </a>
+                                    </td>
+                                  </tr>
+                                </template>
+                                <tr
+                                  v-if="edgeFunctionNewEntryMode(mapIndex)"
+                                  class="new-edge-function-row"
+                                >
+                                  <td colspan="3">
+                                    <div class="control is-expanded">
+                                      <div class="select is-small is-size-7 is-fullwidth">
+                                        <select
+                                          class="select is-small new-edge-function-selection"
+                                          title="Edge Function ID"
+                                          v-model="edgeFunctionMapEntryId"
+                                        >
+                                          <option
+                                            v-for="edgeFunction in newEdgeFunctions(mapEntry.cloud_functions)"
+                                            :key="edgeFunction.id"
+                                            :value="edgeFunction.id"
+                                          >
+                                            {{ edgeFunction.name + ' ' + edgeFunction.description }}
+                                          </option>
+                                        </select>
+                                      </div>
+                                    </div>
+                                  </td>
+                                  <td class="has-text-centered is-size-7 width-60px">
+                                    <a
+                                      class="is-small has-text-grey edge-function-confirm-add-button"
+                                      title="Add this entry"
+                                      tabindex="0"
+                                      @click="addEdgeFunctionToEntry(mapEntry, edgeFunctionMapEntryId)"
+                                      @keypress.space.prevent
+                                      @keypress.space="addEdgeFunctionToEntry(mapEntry, edgeFunctionMapEntryId)"
+                                      @keypress.enter="addEdgeFunctionToEntry(mapEntry, edgeFunctionMapEntryId)"
+                                    >
+                                      add
+                                    </a>
+                                  </td>
+                                </tr>
+                                <tr v-if="mapEntry.cloud_functions && !existingEdgeFunctionIDs(mapEntry).length">
+                                  <td colspan="5">
+                                    <p class="is-size-7 has-text-grey has-text-centered">
+                                      To attach an existing Edge Function, click
+                                      <a
+                                        class="edge-function-text-add-button"
+                                        title="Add New"
+                                        @click="edgeFunctionNewEntryModeMapEntryId = mapIndex"
+                                      >here</a>.
+                                      <br>
+                                      To create a new Edge Function, click
+                                      <a
+                                        class="edge-function-referral-button"
+                                        @click="referToEdgeFunction"
+                                      >here</a>.
+                                    </p>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
                         </div>
-                        <hr/>
-                        <div class="field">
-                          <button title="Create a new profile based on this one"
-                                  data-qa="fork-btn"
-                                  class="button is-small is-pulled-left is-light fork-entry-button"
-                                  @click="addNewProfile(mapEntry, mapIndex)">
-                            <span class="icon"><i class="fas fa-code-branch"></i></span>
-                            <span>
+                        <div class="column is-4">
+                          <div class="field">
+                            <label class="label is-small">Backend Service</label>
+                            <div class="control is-expanded">
+                              <div class="select is-fullwidth is-small">
+                                <select
+                                  v-model="mapEntry.backend_id"
+                                  data-qa="backend-service-dropdown"
+                                  class="current-entry-backend-service-selection"
+                                  title="Backend service"
+                                >
+                                  <option
+                                    v-for="backendService in backendServiceNames"
+                                    :value="backendService[0]"
+                                    :key="backendService[0]"
+                                  >
+                                    {{ backendService[1] }}
+                                  </option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                          <hr>
+                          <div class="field">
+                            <button
+                              title="Create a new profile based on this one"
+                              data-qa="fork-btn"
+                              class="button is-small is-pulled-left is-light fork-entry-button"
+                              @click="addNewProfile(mapEntry, mapIndex)"
+                            >
+                              <span class="icon"><i class="fas fa-code-branch" /></span>
+                              <span>
                                 Fork profile
                               </span>
-                          </button>
-                          <button title="Delete this profile"
-                                  data-qa="delete-location-btn"
-                                  class="button is-small is-pulled-right is-danger is-light remove-entry-button"
-                                  @click="removeMapEntry(mapIndex)"
-                                  v-if="initialMapEntryPath !== '/'">
-                            Delete
-                          </button>
+                            </button>
+                            <button
+                              title="Delete this profile"
+                              data-qa="delete-location-btn"
+                              class="button is-small is-pulled-right is-danger is-light remove-entry-button"
+                              @click="removeMapEntry(mapIndex)"
+                              v-if="initialMapEntryPath !== '/'"
+                            >
+                              Delete
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </td>
-          </tr>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
       <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ documentAPIPath }}</span>
     </div>
-    <div class="content no-data-wrapper"
-         v-if="loadingDocCounter || !selectedBranch || !selectedRoutingProfile">
+    <div
+      class="content no-data-wrapper"
+      v-if="loadingDocCounter || !selectedBranch || !selectedRoutingProfile"
+    >
       <div v-if="loadingDocCounter > 0">
         <button class="button is-outlined is-text is-small is-loading document-loading">
           Loading
         </button>
       </div>
-      <div v-else
-           class="no-data-message">
+      <div
+        v-else
+        class="no-data-message"
+      >
         No data found.
         <div>
           <span v-if="!selectedRoutingProfile?.id">
             Missing document. To create a new one, click
-            <a title="Add new"
-               @click="addNewRoutingProfile()">
+            <a
+              title="Add new"
+              @click="addNewRoutingProfile()"
+            >
               here
             </a>
           </span>

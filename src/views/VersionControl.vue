@@ -3,65 +3,83 @@
     <div class="media">
       <div class="media-content">
         <div class="columns">
-          <div class="column"
-               v-if="selectedBranch">
+          <div
+            class="column"
+            v-if="selectedBranch"
+          >
             <div class="field is-grouped is-pulled-right">
               <p class="control">
-                  <span class="field has-addons">
-                    <span class="control">
-                      <button class="button is-small fork-branch-toggle"
-                              data-qa="fork-branch-btn"
-                              @click="toggleBranchFork()">
-                        <span class="icon is-small">
-                          <i class="fas fa-code-branch"></i>
-                        </span>
-                        <span>
-                          Fork
-                        </span>
-                      </button>
-                    </span>
-                    <span class="control is-expanded"
-                          v-if="forkBranchInputOpen">
-                      <input class="input is-small fork-branch-input"
-                             title="Forked branch name"
-                             data-qa="fork-branch-name-input"
-                             @input="validateInput($event, isSelectedBranchForkNameValid)"
-                             placeholder="Forked Branch Name"
-                             v-model="forkBranchName"
-                             type="text">
-                    </span>
-                    <span class="control"
-                          v-if="forkBranchInputOpen">
-                      <button class="button is-danger is-small fork-branch-cancel"
-                              data-qa="cancel-branch-fork-btn"
-                              @click="toggleBranchFork">
-                        <span class="icon is-small">
-                          <i class="fas fa-times"></i>
-                        </span>
-                      </button>
-                    </span>
-                    <span class="control"
-                          v-if="forkBranchInputOpen">
-                      <button class="button is-primary is-small fork-branch-confirm"
-                              data-qa="confirm-branch-fork-btn"
-                              @click="forkBranch"
-                              :disabled="!isSelectedBranchForkNameValid">
-                        <span class="icon is-small">
-                          <i class="fas fa-check"></i>
-                        </span>
-                      </button>
-                    </span>
+                <span class="field has-addons">
+                  <span class="control">
+                    <button
+                      class="button is-small fork-branch-toggle"
+                      data-qa="fork-branch-btn"
+                      @click="toggleBranchFork()"
+                    >
+                      <span class="icon is-small">
+                        <i class="fas fa-code-branch" />
+                      </span>
+                      <span>
+                        Fork
+                      </span>
+                    </button>
                   </span>
+                  <span
+                    class="control is-expanded"
+                    v-if="forkBranchInputOpen"
+                  >
+                    <input
+                      class="input is-small fork-branch-input"
+                      title="Forked branch name"
+                      data-qa="fork-branch-name-input"
+                      @input="validateInput($event, isSelectedBranchForkNameValid)"
+                      placeholder="Forked Branch Name"
+                      v-model="forkBranchName"
+                      type="text"
+                    >
+                  </span>
+                  <span
+                    class="control"
+                    v-if="forkBranchInputOpen"
+                  >
+                    <button
+                      class="button is-danger is-small fork-branch-cancel"
+                      data-qa="cancel-branch-fork-btn"
+                      @click="toggleBranchFork"
+                    >
+                      <span class="icon is-small">
+                        <i class="fas fa-times" />
+                      </span>
+                    </button>
+                  </span>
+                  <span
+                    class="control"
+                    v-if="forkBranchInputOpen"
+                  >
+                    <button
+                      class="button is-primary is-small fork-branch-confirm"
+                      data-qa="confirm-branch-fork-btn"
+                      @click="forkBranch"
+                      :disabled="!isSelectedBranchForkNameValid"
+                    >
+                      <span class="icon is-small">
+                        <i class="fas fa-check" />
+                      </span>
+                    </button>
+                  </span>
+                </span>
               </p>
 
               <p class="control">
-                <button class="button is-small download-branch-button"
-                        :class="{'is-loading': isDownloadLoading}"
-                        @click="downloadBranch()"
-                        data-qa="download-branch-btn"
-                        title="Download branch">
+                <button
+                  class="button is-small download-branch-button"
+                  :class="{'is-loading': isDownloadLoading}"
+                  @click="downloadBranch()"
+                  data-qa="download-branch-btn"
+                  title="Download branch"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-download"></i>
+                    <i class="fas fa-download" />
                   </span>
                   <span>
                     Download
@@ -70,63 +88,79 @@
               </p>
 
               <p class="control">
-                  <span class="field has-addons">
-                    <span class="control">
-                      <button class="button is-small has-text-danger delete-branch-toggle"
-                              data-qa="delete-branch-btn"
-                              @click="toggleBranchDelete()"
-                              :disabled="isSelectedBranchProtected"
-                              :title="isSelectedBranchProtected ? 'Protected branch cannot be deleted' : ''">
-                        <span class="icon is-small">
-                          <i class="fas fa-trash"></i>
-                        </span>
-                        <span>
-                          Delete
-                        </span>
-                      </button>
-                    </span>
-                    <span class="control is-expanded"
-                          v-if="deleteBranchInputOpen">
-                      <input class="input is-small delete-branch-input"
-                             data-qa="confirm-branch-name-input"
-                             title="Confirm branch name"
-                             placeholder="Confirm Branch Name"
-                             v-model="deleteBranchName"
-                             type="text">
-                    </span>
-                    <span class="control"
-                          v-if="deleteBranchInputOpen">
-                      <button class="button is-danger is-small delete-branch-cancel"
-                              data-qa="cancel-delete-branch-btn"
-                              @click="toggleBranchDelete">
-                        <span class="icon is-small">
-                          <i class="fas fa-times"></i>
-                        </span>
-                      </button>
-                    </span>
-                    <span class="control"
-                          v-if="deleteBranchInputOpen">
-                      <button class="button is-primary is-small delete-branch-confirm"
-                              data-qa="confirm-delete-branch-btn"
-                              @click="deleteBranch"
-                              :disabled="!isSelectedBranchDeleteNameValid">
-                        <span class="icon is-small">
-                          <i class="fas fa-check"></i>
-                        </span>
-                      </button>
-                    </span>
+                <span class="field has-addons">
+                  <span class="control">
+                    <button
+                      class="button is-small has-text-danger delete-branch-toggle"
+                      data-qa="delete-branch-btn"
+                      @click="toggleBranchDelete()"
+                      :disabled="isSelectedBranchProtected"
+                      :title="isSelectedBranchProtected ? 'Protected branch cannot be deleted' : ''"
+                    >
+                      <span class="icon is-small">
+                        <i class="fas fa-trash" />
+                      </span>
+                      <span>
+                        Delete
+                      </span>
+                    </button>
                   </span>
+                  <span
+                    class="control is-expanded"
+                    v-if="deleteBranchInputOpen"
+                  >
+                    <input
+                      class="input is-small delete-branch-input"
+                      data-qa="confirm-branch-name-input"
+                      title="Confirm branch name"
+                      placeholder="Confirm Branch Name"
+                      v-model="deleteBranchName"
+                      type="text"
+                    >
+                  </span>
+                  <span
+                    class="control"
+                    v-if="deleteBranchInputOpen"
+                  >
+                    <button
+                      class="button is-danger is-small delete-branch-cancel"
+                      data-qa="cancel-delete-branch-btn"
+                      @click="toggleBranchDelete"
+                    >
+                      <span class="icon is-small">
+                        <i class="fas fa-times" />
+                      </span>
+                    </button>
+                  </span>
+                  <span
+                    class="control"
+                    v-if="deleteBranchInputOpen"
+                  >
+                    <button
+                      class="button is-primary is-small delete-branch-confirm"
+                      data-qa="confirm-delete-branch-btn"
+                      @click="deleteBranch"
+                      :disabled="!isSelectedBranchDeleteNameValid"
+                    >
+                      <span class="icon is-small">
+                        <i class="fas fa-check" />
+                      </span>
+                    </button>
+                  </span>
+                </span>
               </p>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <hr/>
+    <hr>
     <div class="content">
-      <git-history :api-path="gitAPIPath"
-                   :restore-target-title="`branch [${selectedBranch}]`"
-                   :is-collapsed-initial-state="false"/>
+      <git-history
+        :api-path="gitAPIPath"
+        :restore-target-title="`branch [${selectedBranch}]`"
+        :is-collapsed-initial-state="false"
+      />
     </div>
   </div>
 </template>

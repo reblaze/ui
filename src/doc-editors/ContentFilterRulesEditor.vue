@@ -7,30 +7,35 @@
             <div class="field">
               <label class="label is-small">
                 Name
-                <span class="has-text-grey is-pulled-right document-id"
-                      title="Document id">
-                    {{ selectedDoc.id }}
-                  </span>
+                <span
+                  class="has-text-grey is-pulled-right document-id"
+                  title="Document id"
+                >
+                  {{ selectedDoc.id }}
+                </span>
               </label>
               <div class="control">
-                <input class="input is-small document-name"
-                       data-qa="document-name-input"
-                       title="Document name"
-                       placeholder="Document name"
-                       v-model="localDoc.name"
-                       @change="emitDocUpdate"/>
+                <input
+                  class="input is-small document-name"
+                  data-qa="document-name-input"
+                  title="Document name"
+                  placeholder="Document name"
+                  v-model="localDoc.name"
+                  @change="emitDocUpdate"
+                >
               </div>
             </div>
             <div class="field textarea-field">
               <label class="label is-small">Description</label>
               <div class="control">
-                    <textarea class="is-small textarea document-description"
-                              data-qa="description-input"
-                              title="Document description"
-                              v-model="localDoc.description"
-                              @input="emitDocUpdate"
-                              rows="2">
-                    </textarea>
+                <textarea
+                  class="is-small textarea document-description"
+                  data-qa="description-input"
+                  title="Document description"
+                  v-model="localDoc.description"
+                  @input="emitDocUpdate"
+                  rows="2"
+                />
               </div>
             </div>
           </div>
@@ -38,36 +43,44 @@
             <div class="field">
               <label class="label is-small">Category</label>
               <div class="control">
-                <input class="input is-small document-category"
-                       data-qa="category-input"
-                       title="Category"
-                       placeholder="Category"
-                       v-model="localDoc.category"
-                       @change="emitDocUpdate"/>
+                <input
+                  class="input is-small document-category"
+                  data-qa="category-input"
+                  title="Category"
+                  placeholder="Category"
+                  v-model="localDoc.category"
+                  @change="emitDocUpdate"
+                >
               </div>
             </div>
             <div class="field">
               <label class="label is-small">Subcategory</label>
               <div class="control">
-                <input class="input is-small document-subcategory"
-                       data-qa="subcategory-input"
-                       title="Subcategory"
-                       placeholder="Subcategory"
-                       v-model="localDoc.subcategory"
-                       @change="emitDocUpdate"/>
+                <input
+                  class="input is-small document-subcategory"
+                  data-qa="subcategory-input"
+                  title="Subcategory"
+                  placeholder="Subcategory"
+                  v-model="localDoc.subcategory"
+                  @change="emitDocUpdate"
+                >
               </div>
             </div>
             <div class="field">
               <label class="label is-small">Risk Level</label>
               <div class="control select is-small">
-                <select v-model="localDoc.risk"
-                        @change="emitDocUpdate"
-                        data-qa="risk-level-dropdown"
-                        class="risk-level-selection"
-                        title="Risk level">
-                  <option v-for="(riskLevel, index) in riskLevels"
-                          :value="riskLevel"
-                          :key="index">
+                <select
+                  v-model="localDoc.risk"
+                  @change="emitDocUpdate"
+                  data-qa="risk-level-dropdown"
+                  class="risk-level-selection"
+                  title="Risk level"
+                >
+                  <option
+                    v-for="(riskLevel, index) in riskLevels"
+                    :value="riskLevel"
+                    :key="index"
+                  >
                     {{ riskLevel }}
                   </option>
                 </select>
@@ -77,43 +90,53 @@
           <div class="column is-4">
             <div class="field">
               <label class="label is-small">Tags</label>
-              <div class="control"
-                   data-qa="tag-input">
-                <tag-autocomplete-input :initial-tag="selectedDocTags"
-                                        selection-type="multiple"
-                                        @tag-changed="selectedDocTags = $event" />
+              <div
+                class="control"
+                data-qa="tag-input"
+              >
+                <tag-autocomplete-input
+                  :initial-tag="selectedDocTags"
+                  selection-type="multiple"
+                  @tag-changed="selectedDocTags = $event"
+                />
               </div>
-              <labeled-tags title="Automatic Tags"
-                            :tags="automaticTags" />
+              <labeled-tags
+                title="Automatic Tags"
+                :tags="automaticTags"
+              />
             </div>
           </div>
         </div>
         <div class="field">
           <label class="label is-small">Log Message</label>
           <div class="control">
-            <input class="input is-small document-msg"
-                   data-qa="log-message-input"
-                   type="text"
-                   title="Message to appear in the logs"
-                   placeholder="Log message"
-                   v-model="localDoc.msg"
-                   @change="emitDocUpdate"
-                   required>
+            <input
+              class="input is-small document-msg"
+              data-qa="log-message-input"
+              type="text"
+              title="Message to appear in the logs"
+              placeholder="Log message"
+              v-model="localDoc.msg"
+              @change="emitDocUpdate"
+              required
+            >
           </div>
         </div>
         <div class="field">
           <label class="label is-small">Match</label>
           <div class="control has-icons-left">
-            <input class="input is-small document-operand"
-                   data-qa="matching-regex-input"
-                   type="text"
-                   title="Match"
-                   placeholder="matching regex"
-                   v-model="localDoc.operand"
-                   @change="emitDocUpdate"
-                   required>
+            <input
+              class="input is-small document-operand"
+              data-qa="matching-regex-input"
+              type="text"
+              title="Match"
+              placeholder="matching regex"
+              v-model="localDoc.operand"
+              @change="emitDocUpdate"
+              required
+            >
             <span class="icon is-small is-left has-text-grey">
-              <i class="fas fa-code"></i>
+              <i class="fas fa-code" />
             </span>
           </div>
         </div>

@@ -1,37 +1,45 @@
 <template>
   <div class="card-content">
-    <div class="content"
-          v-if="quarantinedData && !loadingDocCounter">
-      <rbz-table :columns="columns"
-                 :data="quarantinedData"
-                 :default-sort-column-index="1"
-                 row-button-icon="fa-trash"
-                 row-button-title="Delete"
-                 row-button-class="has-text-danger"
-                 :show-menu-column="true"
-                 :show-filter-button="true"
-                 :show-row-button="true"
-                 :show-checkbox-column="true"
-                 @select-array="updateSelected"
-                 @row-button-clicked="deleteQuarantinedElement">
-                <template #menu>
-                  <button class="button is-size-7 has-text-danger delete-selected-button dropdown-item"
-                      title="Delete selected"
-                      :class="{'disabled': !selectedArray || selectedArray.length === 0 }"
-                      :disabled="!selectedArray || selectedArray.length === 0"
-                      @click.stop="deleteSelectedRows">
-                    <span class="icon is-small">
-                      <i class="fas fa-trash"></i>
-                    </span>
-                    <span>
-                      Delete Selected
-                    </span>
-                  </button>
-                </template>
+    <div
+      class="content"
+      v-if="quarantinedData && !loadingDocCounter"
+    >
+      <rbz-table
+        :columns="columns"
+        :data="quarantinedData"
+        :default-sort-column-index="1"
+        row-button-icon="fa-trash"
+        row-button-title="Delete"
+        row-button-class="has-text-danger"
+        :show-menu-column="true"
+        :show-filter-button="true"
+        :show-row-button="true"
+        :show-checkbox-column="true"
+        @select-array="updateSelected"
+        @row-button-clicked="deleteQuarantinedElement"
+      >
+        <template #menu>
+          <button
+            class="button is-size-7 has-text-danger delete-selected-button dropdown-item"
+            title="Delete selected"
+            :class="{'disabled': !selectedArray || selectedArray.length === 0 }"
+            :disabled="!selectedArray || selectedArray.length === 0"
+            @click.stop="deleteSelectedRows"
+          >
+            <span class="icon is-small">
+              <i class="fas fa-trash" />
+            </span>
+            <span>
+              Delete Selected
+            </span>
+          </button>
+        </template>
       </rbz-table>
     </div>
-    <div class="content no-data-wrapper"
-         v-if="!selectedBranch || !quarantinedData">
+    <div
+      class="content no-data-wrapper"
+      v-if="!selectedBranch || !quarantinedData"
+    >
       <div v-if="loadingDocCounter > 0">
         <button class="button is-outlined is-text is-small is-loading document-loading">
           Loading

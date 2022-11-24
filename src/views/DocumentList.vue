@@ -4,13 +4,15 @@
       <div class="media-content">
         <div class="field is-grouped is-pulled-right">
           <p class="control">
-            <button class="button is-small download-doc-button"
-                    :class="{'is-loading':isDownloadLoading}"
-                    @click="downloadDoc()"
-                    title="Download document"
-                    data-qa="download-document">
+            <button
+              class="button is-small download-doc-button"
+              :class="{'is-loading':isDownloadLoading}"
+              @click="downloadDoc()"
+              title="Download document"
+              data-qa="download-document"
+            >
               <span class="icon is-small">
-                <i class="fas fa-download"></i>
+                <i class="fas fa-download" />
               </span>
               <span>
                 Download
@@ -21,45 +23,54 @@
       </div>
     </div>
 
-    <hr/>
+    <hr>
 
-    <div class="content document-list-wrapper"
-         v-show="!loadingDocCounter && selectedBranch && selectedDocType">
+    <div
+      class="content document-list-wrapper"
+      v-show="!loadingDocCounter && selectedBranch && selectedDocType"
+    >
       <div class="content">
-        <rbz-table :columns="columns"
-                   :data="docs"
-                   :default-sort-column-index="1"
-                   :show-menu-column="true"
-                   :show-filter-button="true"
-                   :show-new-button="true"
-                   @new-button-clicked="addNewDoc"
-                   :row-clickable="true"
-                   @row-clicked="editDoc"
-                   :show-row-button="true"
-                   row-button-title="Edit"
-                   row-button-icon="fa-edit"
-                   @row-button-clicked="editDoc">
-        </rbz-table>
+        <rbz-table
+          :columns="columns"
+          :data="docs"
+          :default-sort-column-index="1"
+          :show-menu-column="true"
+          :show-filter-button="true"
+          :show-new-button="true"
+          @new-button-clicked="addNewDoc"
+          :row-clickable="true"
+          @row-clicked="editDoc"
+          :show-row-button="true"
+          row-button-title="Edit"
+          row-button-icon="fa-edit"
+          @row-button-clicked="editDoc"
+        />
         <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">
           {{ documentListAPIPath }}
         </span>
       </div>
-      <hr/>
-      <git-history v-if="!isReblazeDocument"
-                   :api-path="gitAPIPath"
-                   :restore-target-title="`document [${titles[selectedDocType]}]`"
-                   @restore-version="restoreGitVersion"/>
+      <hr>
+      <git-history
+        v-if="!isReblazeDocument"
+        :api-path="gitAPIPath"
+        :restore-target-title="`document [${titles[selectedDocType]}]`"
+        @restore-version="restoreGitVersion"
+      />
     </div>
 
-    <div class="content no-data-wrapper"
-         v-if="loadingDocCounter || !selectedBranch || !selectedDocType">
+    <div
+      class="content no-data-wrapper"
+      v-if="loadingDocCounter || !selectedBranch || !selectedDocType"
+    >
       <div v-if="loadingDocCounter > 0">
         <button class="button is-outlined is-text is-small is-loading document-loading">
           Loading
         </button>
       </div>
-      <div v-else
-           class="no-data-message">
+      <div
+        v-else
+        class="no-data-message"
+      >
         No data found.
         <div>
           <span v-if="!Object.keys(componentsMap).includes(selectedDocType)">

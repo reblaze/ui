@@ -1,18 +1,24 @@
 <template>
   <div class="main-component-wrapper is-fullheight">
-    <nav class="navbar is-fixed-top is-light" role="navigation" aria-label="main navigation">
-      <header-main/>
+    <nav
+      class="navbar is-fixed-top is-light"
+      role="navigation"
+      aria-label="main navigation"
+    >
+      <header-main />
     </nav>
-    <br/>
+    <br>
     <div class="content-container is-fullheight">
       <div class="columns">
         <div class="column side-menu-column">
-          <side-menu></side-menu>
+          <side-menu />
         </div>
         <div class="column router-view-column">
-          <div class="card is-fullheight has-overflow-y-auto"
-          ref="viewCardScroll">
-            <router-view></router-view>
+          <div
+            class="card is-fullheight has-overflow-y-auto"
+            ref="viewCardScroll"
+          >
+            <router-view />
           </div>
         </div>
       </div>

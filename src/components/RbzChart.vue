@@ -1,12 +1,13 @@
 <template>
-  <div class="chart-wrapper"
-       ref="chartWrapper">
+  <div
+    class="chart-wrapper"
+    ref="chartWrapper"
+  >
     <div v-show="chart">
-      <div ref="chart">
-      </div>
+      <div ref="chart" />
     </div>
     <div v-if="!chart">
-      <div class="loader is-loading"></div>
+      <div class="loader is-loading" />
     </div>
   </div>
 </template>

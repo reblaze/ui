@@ -6,29 +6,37 @@
           <div class="column">
             <div class="field is-grouped">
               <p class="control">
-                <button class="button is-small redirect-list-button"
-                        @click="redirectToList()"
-                        title="Return to list"
-                        data-qa="redirect-to-list">
+                <button
+                  class="button is-small redirect-list-button"
+                  @click="redirectToList()"
+                  title="Return to list"
+                  data-qa="redirect-to-list"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-arrow-left"></i>
+                    <i class="fas fa-arrow-left" />
                   </span>
                   <span>
                     Return To List
                   </span>
                 </button>
               </p>
-              <div class="control"
-                   v-if="docs.length">
+              <div
+                class="control"
+                v-if="docs.length"
+              >
                 <div class="select is-small">
-                  <select v-model="selectedDocID"
-                          title="Switch document ID"
-                          @change="switchDocID()"
-                          class="site-selection"
-                          data-qa="switch-document">
-                    <option v-for="doc in docs"
-                            :key="doc.id"
-                            :value="doc.id">
+                  <select
+                    v-model="selectedDocID"
+                    title="Switch document ID"
+                    @change="switchDocID()"
+                    class="site-selection"
+                    data-qa="switch-document"
+                  >
+                    <option
+                      v-for="doc in docs"
+                      :key="doc.id"
+                      :value="doc.id"
+                    >
                       {{ doc.name }}
                     </option>
                   </select>
@@ -39,14 +47,16 @@
           <div class="column">
             <div class="field is-grouped is-pulled-right">
               <p class="control">
-                <button class="button is-small new-backends-document-button"
-                        :class="{'is-loading': isNewLoading}"
-                        @click="addNewBackendService()"
-                        title="Add new document"
-                        :disabled="!selectedBranch"
-                        data-qa="add-new-document">
+                <button
+                  class="button is-small new-backends-document-button"
+                  :class="{'is-loading': isNewLoading}"
+                  @click="addNewBackendService()"
+                  title="Add new document"
+                  :disabled="!selectedBranch"
+                  data-qa="add-new-document"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-plus"></i>
+                    <i class="fas fa-plus" />
                   </span>
                   <span>
                     New
@@ -55,14 +65,16 @@
               </p>
 
               <p class="control">
-                <button class="button is-small fork-document-button"
-                        :class="{'is-loading': isForkLoading}"
-                        @click="forkDoc()"
-                        title="Duplicate document"
-                        :disabled="!selectedBackendService"
-                        data-qa="duplicate-document">
+                <button
+                  class="button is-small fork-document-button"
+                  :class="{'is-loading': isForkLoading}"
+                  @click="forkDoc()"
+                  title="Duplicate document"
+                  :disabled="!selectedBackendService"
+                  data-qa="duplicate-document"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-clone"></i>
+                    <i class="fas fa-clone" />
                   </span>
                   <span>
                     Duplicate
@@ -70,13 +82,15 @@
                 </button>
               </p>
               <p class="control">
-                <button class="button is-small download-doc-button"
-                        :class="{'is-loading':isDownloadLoading}"
-                        @click="downloadDoc()"
-                        title="Download document"
-                        data-qa="download-document">
+                <button
+                  class="button is-small download-doc-button"
+                  :class="{'is-loading':isDownloadLoading}"
+                  @click="downloadDoc()"
+                  title="Download document"
+                  data-qa="download-document"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-download"></i>
+                    <i class="fas fa-download" />
                   </span>
                   <span>
                     Download
@@ -84,13 +98,15 @@
                 </button>
               </p>
               <p class="control">
-                <button class="button is-small save-document-button"
-                        :class="{'is-loading': isSaveLoading}"
-                        title="Save changes"
-                        data-qa="save-changes"
-                        @click="saveChanges()">
+                <button
+                  class="button is-small save-document-button"
+                  :class="{'is-loading': isSaveLoading}"
+                  title="Save changes"
+                  data-qa="save-changes"
+                  @click="saveChanges()"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-save"></i>
+                    <i class="fas fa-save" />
                   </span>
                   <span>
                     Save
@@ -98,14 +114,16 @@
                 </button>
               </p>
               <p class="control">
-                <button class="button is-small has-text-danger delete-document-button"
-                        title="Delete document"
-                        data-qa="delete-document"
-                        :class="{'is-loading': isDeleteLoading}"
-                        :disabled="selectedDocNotDeletable"
-                        @click="deleteDoc()">
+                <button
+                  class="button is-small has-text-danger delete-document-button"
+                  title="Delete document"
+                  data-qa="delete-document"
+                  :class="{'is-loading': isDeleteLoading}"
+                  :disabled="selectedDocNotDeletable"
+                  @click="deleteDoc()"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-trash"></i>
+                    <i class="fas fa-trash" />
                   </span>
                   <span>
                     Delete
@@ -117,32 +135,40 @@
         </div>
       </div>
     </div>
-    <hr/>
-    <div class="content"
-         v-if="!loadingDocCounter && selectedBranch && selectedBackendService">
+    <hr>
+    <div
+      class="content"
+      v-if="!loadingDocCounter && selectedBranch && selectedBackendService"
+    >
       <div class="columns columns-divided">
         <div class="column is-4">
           <div class="field">
             <label class="label is-small">
               Name
-              <span class="has-text-grey is-pulled-right document-id"
-                    title="Rule id">
-                      {{ selectedBackendService.id }}
-                    </span>
+              <span
+                class="has-text-grey is-pulled-right document-id"
+                title="Rule id"
+              >
+                {{ selectedBackendService.id }}
+              </span>
             </label>
             <div class="control">
-              <input class="input is-small document-name"
-                     title="Document name"
-                     placeholder="Document name"
-                     v-model="selectedBackendService.name"/>
+              <input
+                class="input is-small document-name"
+                title="Document name"
+                placeholder="Document name"
+                v-model="selectedBackendService.name"
+              >
             </div>
           </div>
           <div class="field">
             <label class="checkbox is-size-7">
-              <input type="checkbox"
-                     data-qa="http11-checkbox"
-                     class="document-http11"
-                     v-model="selectedBackendService.http11">
+              <input
+                type="checkbox"
+                data-qa="http11-checkbox"
+                class="document-http11"
+                v-model="selectedBackendService.http11"
+              >
               Use HTTP/1.1
             </label>
             <div class="help">
@@ -153,12 +179,13 @@
             <div class="field textarea-field">
               <label class="label is-small">Description</label>
               <div class="control">
-                      <textarea class="is-small textarea document-description"
-                                data-qa="description-input"
-                                title="Document description"
-                                v-model="selectedBackendService.description"
-                                rows="2">
-                      </textarea>
+                <textarea
+                  class="is-small textarea document-description"
+                  data-qa="description-input"
+                  title="Document description"
+                  v-model="selectedBackendService.description"
+                  rows="2"
+                />
               </div>
             </div>
           </div>
@@ -168,13 +195,17 @@
             </label>
             <div class="control is-expanded">
               <div class="select is-fullwidth is-small">
-                <select v-model="selectedBackendService.transport_mode"
-                        data-qa="transport-mode-dropdown"
-                        class="document-transport-mode-selection"
-                        title="Transport protocol">
-                  <option v-for="{name, value} in protocols"
-                          :key="value"
-                          :value="value">
+                <select
+                  v-model="selectedBackendService.transport_mode"
+                  data-qa="transport-mode-dropdown"
+                  class="document-transport-mode-selection"
+                  title="Transport protocol"
+                >
+                  <option
+                    v-for="{name, value} in protocols"
+                    :key="value"
+                    :value="value"
+                  >
                     {{ name }}
                   </option>
                 </select>
@@ -194,28 +225,36 @@
             </label>
             <div class="control is-expanded">
               <div class="select is-fullwidth is-small">
-                <select class="select"
-                        v-model="selectedBackendService.sticky">
-                  <option v-for="stickinessModel in stickinessModels"
-                          :key="stickinessModel.value"
-                          :value="stickinessModel.value">
+                <select
+                  class="select"
+                  v-model="selectedBackendService.sticky"
+                >
+                  <option
+                    v-for="stickinessModel in stickinessModels"
+                    :key="stickinessModel.value"
+                    :value="stickinessModel.value"
+                  >
                     {{ stickinessModel.name }}
                   </option>
                 </select>
               </div>
             </div>
           </div>
-          <div v-if="selectedBackendService.sticky === 'customcookie'"
-               class="field">
+          <div
+            v-if="selectedBackendService.sticky === 'customcookie'"
+            class="field"
+          >
             <label class="label is-small">
               Custom Cookie Name
             </label>
             <div class="control">
-              <input class="input is-small sticky-cookie-name-input"
-                     data-qa="document-sticky-cookie-name-input"
-                     title="Custom cookie name"
-                     placeholder="Custom cookie name"
-                     v-model="selectedBackendService.sticky_cookie_name">
+              <input
+                class="input is-small sticky-cookie-name-input"
+                data-qa="document-sticky-cookie-name-input"
+                title="Custom cookie name"
+                placeholder="Custom cookie name"
+                v-model="selectedBackendService.sticky_cookie_name"
+              >
             </div>
           </div>
         </div>
@@ -224,114 +263,152 @@
         <div class="column is-12">
           <table class="table is-hoverable is-fullwidth back-hosts-table">
             <thead>
-            <tr>
-              <th class="is-size-7">Host</th>
-              <th class="is-size-7 width-100px">HTTP Port</th>
-              <th class="is-size-7 width-100px">HTTPS Port</th>
-              <th class="is-size-7 width-100px">Weight</th>
-              <th class="is-size-7 width-100px">Max Fails</th>
-              <th class="is-size-7 width-100px">Fail Timeout</th>
-              <th class="has-text-centered is-size-7 width-100px">Is Down?</th>
-              <th class="has-text-right is-vertical-middle is-size-7 width-60px">
-                <a
+              <tr>
+                <th class="is-size-7">
+                  Host
+                </th>
+                <th class="is-size-7 width-100px">
+                  HTTP Port
+                </th>
+                <th class="is-size-7 width-100px">
+                  HTTPS Port
+                </th>
+                <th class="is-size-7 width-100px">
+                  Weight
+                </th>
+                <th class="is-size-7 width-100px">
+                  Max Fails
+                </th>
+                <th class="is-size-7 width-100px">
+                  Fail Timeout
+                </th>
+                <th class="has-text-centered is-size-7 width-100px">
+                  Is Down?
+                </th>
+                <th class="has-text-right is-vertical-middle is-size-7 width-60px">
+                  <a
                     v-if="!isPortBridge"
                     class="has-text-grey-dark is-small"
                     title="Add New"
                     @click="selectedBackendService.back_hosts.push ({ ...newBackHost })"
-                >
-                      <span class="icon is-small">
-                        <i class="fas fa-plus"></i>
-                      </span>
-                </a>
-              </th>
-            </tr>
+                  >
+                    <span class="icon is-small">
+                      <i class="fas fa-plus" />
+                    </span>
+                  </a>
+                </th>
+              </tr>
             </thead>
             <tbody>
-            <tr v-for="(backHost, index) in selectedBackendService.back_hosts"
-                :key="index">
-              <td class="is-size-7">
-                <input class="input is-small back-host-host"
-                       v-model="backHost.host"
-                       placeholder="IP/FQDN">
-              </td>
-              <td class="is-size-7 width-100px">
-                <input class="input is-small back-host-http-port"
-                       data-qa="back-host-http-port-input"
-                       type="number"
-                       title="HTTP port"
-                       placeholder="HTTP port"
-                       max="65535"
-                       v-model.number="backHost.http_port">
-              </td>
-              <td class="is-size-7 width-100px">
-                <input class="input is-small back-host-https-port"
-                       data-qa="back-host-https-port-input"
-                       type="number"
-                       title="HTTPS port"
-                       placeholder="HTTPS port"
-                       max="65535"
-                       v-model.number="backHost.https_port">
-              </td>
-              <td class="is-size-7 width-100px">
-                <input class="input is-small back-host-weight"
-                       data-qa="back-host-weight-input"
-                       type="number"
-                       title="Weight"
-                       placeholder="Weight"
-                       :disabled="isSingleHost"
-                       v-model.number="backHost.weight">
-              </td>
-              <td class="is-size-7 width-100px">
-                <input class="input is-small back-host-max-fails"
-                       data-qa="back-host-max-fails-input"
-                       type="number"
-                       title="Max fails"
-                       placeholder="Max fails"
-                       :disabled="isSingleHost"
-                       v-model.number="backHost.max_fails">
-              </td>
-              <td class="is-size-7 width-100px">
-                <input class="input is-small back-host-fail-timeout"
-                       data-qa="back-host-fail-timeout-input"
-                       type="number"
-                       title="Fail timeout"
-                       placeholder="Fail timeout"
-                       v-model="backHost.fail_timeout">
-              </td>
-              <td class="is-vertical-middle is-size-7 has-text-centered width-100px">
-                <input type="checkbox"
-                       v-model="backHost.down"
-                       :disabled="!isDownable(index)"/>
-              </td>
-              <td class="has-text-centered is-vertical-middle is-size-7 is-60-px">
-                <a v-if="isDownable(index)"
-                   class="is-small has-text-grey"
-                   @click="deleteHost(index)">
-                  delete
-                </a>
-              </td>
-            </tr>
+              <tr
+                v-for="(backHost, index) in selectedBackendService.back_hosts"
+                :key="index"
+              >
+                <td class="is-size-7">
+                  <input
+                    class="input is-small back-host-host"
+                    v-model="backHost.host"
+                    placeholder="IP/FQDN"
+                  >
+                </td>
+                <td class="is-size-7 width-100px">
+                  <input
+                    class="input is-small back-host-http-port"
+                    data-qa="back-host-http-port-input"
+                    type="number"
+                    title="HTTP port"
+                    placeholder="HTTP port"
+                    max="65535"
+                    v-model.number="backHost.http_port"
+                  >
+                </td>
+                <td class="is-size-7 width-100px">
+                  <input
+                    class="input is-small back-host-https-port"
+                    data-qa="back-host-https-port-input"
+                    type="number"
+                    title="HTTPS port"
+                    placeholder="HTTPS port"
+                    max="65535"
+                    v-model.number="backHost.https_port"
+                  >
+                </td>
+                <td class="is-size-7 width-100px">
+                  <input
+                    class="input is-small back-host-weight"
+                    data-qa="back-host-weight-input"
+                    type="number"
+                    title="Weight"
+                    placeholder="Weight"
+                    :disabled="isSingleHost"
+                    v-model.number="backHost.weight"
+                  >
+                </td>
+                <td class="is-size-7 width-100px">
+                  <input
+                    class="input is-small back-host-max-fails"
+                    data-qa="back-host-max-fails-input"
+                    type="number"
+                    title="Max fails"
+                    placeholder="Max fails"
+                    :disabled="isSingleHost"
+                    v-model.number="backHost.max_fails"
+                  >
+                </td>
+                <td class="is-size-7 width-100px">
+                  <input
+                    class="input is-small back-host-fail-timeout"
+                    data-qa="back-host-fail-timeout-input"
+                    type="number"
+                    title="Fail timeout"
+                    placeholder="Fail timeout"
+                    v-model="backHost.fail_timeout"
+                  >
+                </td>
+                <td class="is-vertical-middle is-size-7 has-text-centered width-100px">
+                  <input
+                    type="checkbox"
+                    v-model="backHost.down"
+                    :disabled="!isDownable(index)"
+                  >
+                </td>
+                <td class="has-text-centered is-vertical-middle is-size-7 is-60-px">
+                  <a
+                    v-if="isDownable(index)"
+                    class="is-small has-text-grey"
+                    @click="deleteHost(index)"
+                  >
+                    delete
+                  </a>
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
       </div>
       <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ documentAPIPath }}</span>
     </div>
-    <div class="content no-data-wrapper"
-         v-if="loadingDocCounter || !selectedBranch || !selectedBackendService">
+    <div
+      class="content no-data-wrapper"
+      v-if="loadingDocCounter || !selectedBranch || !selectedBackendService"
+    >
       <div v-if="loadingDocCounter > 0">
         <button class="button is-outlined is-text is-small is-loading document-loading">
           Loading
         </button>
       </div>
-      <div v-else
-           class="no-data-message">
+      <div
+        v-else
+        class="no-data-message"
+      >
         No data found.
         <div>
           <span v-if="!selectedBackendService?.id">
             Missing document. To create a new one, click
-            <a title="Add new"
-               @click="addNewBackendService()">
+            <a
+              title="Add new"
+              @click="addNewBackendService()"
+            >
               here
             </a>
           </span>
