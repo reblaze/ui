@@ -22,7 +22,7 @@ const isoToNowCuriefenseFormat = (date: string | Date) => {
   }
   const currentDate = new Date()
   // @ts-ignore
-  if (date < currentDate) {
+  if (currentDate < date) {
     return DateTimeUtils.isoToNowFullCuriefenseFormat(date)
   }
   // @ts-ignore
