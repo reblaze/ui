@@ -89,7 +89,7 @@
                         :class="{'is-loading': isSaveLoading}"
                         title="Save changes"
                         data-qa="save-changes"
-                        :disabled="!selectedDynamicRule || !localGlobalFilterDoc || tagsInvalid"
+                        :disabled="!selectedDynamicRule || !localGlobalFilterDoc"
                         @click="saveChanges()">
                   <span class="icon is-small">
                     <i class="fas fa-save"></i>
@@ -431,7 +431,6 @@ export default defineComponent({
       isDownloadLoading: false,
       isForkLoading: false,
       isNewLoading: false,
-      tagsInvalid: false,
 
     }
   },
@@ -481,18 +480,14 @@ export default defineComponent({
       get: function(): string {
         if (this.localGlobalFilterDoc.tags && this.localGlobalFilterDoc.tags.length > 0) {
           return this.localGlobalFilterDoc.tags.join(' ')
+        } else {
+          return ''
         }
-        return ''
       },
       set: function(tags: string): void {
         this.localGlobalFilterDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
           return tag.trim()
         }) : []
-        if (tags.trim() === '' || tags.length < 3) {
-          this.tagsInvalid = true
-        } else {
-          this.tagsInvalid = false
-        }
       },
     },
 
@@ -706,7 +701,7 @@ export default defineComponent({
         await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
         const active = data.active
         data = this.duplicatedGlobalFilter
-        data.active = active
+        data.active = active // copy active from DynamicRule to GlobalFilter
         let urlGlobal = `configs/${this.selectedBranch}/d/globalfilters/e/`
         if (methodName !== 'POST') {
           urlGlobal += `${data.id}/`
