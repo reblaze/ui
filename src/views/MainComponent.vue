@@ -1,6 +1,8 @@
 <template>
   <div class="main-component-wrapper is-fullheight">
-    <nav class="navbar is-fixed-top is-light" role="navigation" aria-label="main navigation">
+    <nav class="navbar is-fixed-top is-light"
+         role="navigation"
+         aria-label="main navigation">
       <header-main/>
     </nav>
     <br/>
@@ -11,7 +13,7 @@
         </div>
         <div class="column router-view-column">
           <div class="card is-fullheight has-overflow-y-auto"
-          ref="viewCardScroll">
+               ref="viewCardScroll">
             <router-view></router-view>
           </div>
         </div>
@@ -49,7 +51,8 @@ export default defineComponent({
   },
 })
 </script>
-<style scoped lang="scss">
+<style scoped
+       lang="scss">
 $side-menu-width: 220px;
 $router-view-width: calc(100% - #{$side-menu-width});
 

@@ -79,9 +79,10 @@ export default defineComponent({
       // uPlot is displaying time in local, so we need to offset our timeframe by the timezone offset
       const date = new Date(0)
       date.setUTCSeconds(this.data[0]?.timeframe)
-      const timezoneOffset = date.getTimezoneOffset() * 60
+      // const timezoneOffset = date.getTimezoneOffset() * 60 // TODO: timezones
       _.forEach(sortedGroupedData, (dataItem) => {
-        datasets[0].push(dataItem[0].timeframe + timezoneOffset) // timestamps X axis
+        // datasets[0].push(dataItem[0].timeframe + timezoneOffset) // timestamps X axis // TODO: Timezones
+        datasets[0].push(dataItem[0].timeframe) // timestamps X axis
         datasets.forEach((dataset, index) => {
           if (index !== 0) { // timestamps X axis
             dataset.push(_.sumBy(dataItem, this.seriesOptions[index - 1].fieldName))

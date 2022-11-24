@@ -355,12 +355,12 @@
                        @input="editConfigName"/>
               </td>
               <td class="is-size-7 width-500px">
-                      <textarea rows="5"
-                                class="textarea is-small is-fullwidth"
-                                placeholder="Paste the JSON"
-                                :value="newConfig.json"
-                                @input="editConfig">
-                      </textarea>
+                <textarea rows="5"
+                          class="textarea is-small is-fullwidth"
+                          placeholder="Paste the JSON"
+                          :value="newConfig.json"
+                          @input="editConfig">
+                </textarea>
               </td>
               <td class="is-size-7 width-60px has-text-centered is-vcentered">
                 <input type="radio"

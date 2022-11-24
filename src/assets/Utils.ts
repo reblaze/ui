@@ -134,10 +134,28 @@ const amountSuffixFormatter = (value: number) => {
     {value: 1e12, symbol: 'T'},
   ]
   const rx = /\.0+$|(\.[0-9]*[1-9])0+$/
-  const item = lookup.slice().reverse().find(function(item) {
+  const item = lookup.slice().reverse().find((item) => {
     return value >= item.value
   })
   return item ? (value / item.value).toFixed(0).toString().replace(rx, '$1') + item.symbol : '0'
+}
+
+const amountSuffixFormatterBytes = (value: number) => {
+  if (!value) {
+    return '0 Bytes'
+  }
+  const lookup = [
+    {value: 1, symbol: ' Bytes'},
+    {value: 1024, symbol: ' KB'},
+    {value: Math.pow(1024, 2), symbol: ' MB'},
+    {value: Math.pow(1024, 3), symbol: ' GB'},
+    {value: Math.pow(1024, 4), symbol: ' TB'},
+  ]
+  const rx = /\.0+$|(\.[0-9]*[1-9])0+$/
+  const item = lookup.slice().reverse().find((item) => {
+    return value >= item.value
+  })
+  return (value / item.value).toFixed(2).toString().replace(rx, '$1') + item.symbol
 }
 
 const hexToRgbArray = (hex: string) => {
@@ -162,5 +180,6 @@ export default {
   toast,
   removeExtraWhitespaces,
   amountSuffixFormatter,
+  amountSuffixFormatterBytes,
   hexToRgbArray,
 }
