@@ -429,7 +429,6 @@ export default defineComponent({
     return {
       loadingDocCounter: 0,
       isDownloadLoading: false,
-      selectedRoutingProfile: null as RoutingProfile,
       docs: [] as unknown as RoutingProfile[],
       selectedDocID: null,
 
@@ -459,15 +458,17 @@ export default defineComponent({
   },
   watch: {
     selectedBranch: {
-      handler: function(val, oldVal) {
+      handler: async function(val, oldVal) {
         if ((this.$route.name as string).includes('RoutingProfiles/config') && val && val !== oldVal) {
-          this.loadDocs()
-          this.sortDocs()
-          this.setSelectedDataFromRouteParams()
-          this.loadProfile()
+          await this.loadDocs()
+          await this.setSelectedDataFromRouteParams()
+          // redirect to list if no data found
+          if (!this.docs?.[0]?.id || !this.selectedRoutingProfile) {
+            this.redirectToList()
+          }
           this.loadBackendServices()
           this.loadEdgeFunctions()
-          this.loadReferencedRoutingProfilesIDs()
+          await this.loadReferencedRoutingProfilesIDs()
         }
       },
       immediate: true,
@@ -503,6 +504,19 @@ export default defineComponent({
       }
       return 0
     },
+
+    selectedRoutingProfile: {
+      get(): RoutingProfile {
+        return (this.selectedDocIndex > -1) ? this.docs[this.selectedDocIndex] : null
+      },
+      set(newDoc: RoutingProfile): void {
+        if (this.selectedDocIndex > -1) {
+          this.docs[this.selectedDocIndex] = newDoc
+        }
+      },
+    },
+
+
   },
   methods: {
 
@@ -518,7 +532,6 @@ export default defineComponent({
     async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
       this.selectedDocID = this.$route.params?.doc_id?.toString()
-      await this.loadProfile()
       this.setLoadingDocStatus(false)
     },
 
@@ -532,13 +545,6 @@ export default defineComponent({
       } else {
         this.loadingDocCounter--
       }
-    },
-
-    async switchBranch() {
-      this.setLoadingDocStatus(true)
-      Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
-      await this.loadProfile()
-      this.setLoadingDocStatus(false)
     },
 
     async switchDocID() {
@@ -602,7 +608,7 @@ export default defineComponent({
     async addNewRoutingProfile(profileToAdd?: RoutingProfile, successMessage?: string, failureMessage?: string) {
       this.setLoadingDocStatus(true)
       this.isNewLoading = true
-      this.selectedRoutingProfile = null
+
       if (!profileToAdd) {
         profileToAdd = this.newRoutingProfile()
       }
@@ -654,7 +660,7 @@ export default defineComponent({
     async loadDocs() {
       this.isDownloadLoading = true
       this.setLoadingDocStatus(true)
-      this.selectedRoutingProfile = null
+
       const branch = this.selectedBranch
       const url = `configs/${branch}/d/routing-profiles/`
 
@@ -670,35 +676,9 @@ export default defineComponent({
       })
       this.docs = response?.data || []
       this.sortDocs()
-      if (this.docs && this.docs.length && this.docs[0].id) {
-        if (!_.find(this.docs, (doc: RoutingProfile) => {
-          return doc.id === this.selectedDocID
-        })) {
-          this.selectedDocID = this.docs[0].id
-        }
-        await this.loadProfile()
-      }
-      this.setLoadingDocStatus(false)
-      this.isDownloadLoading = false
-    },
 
-    async loadProfile() {
-      this.setLoadingDocStatus(true)
-      this.isDownloadLoading = true
-      this.selectedRoutingProfile = null
-      const response = await RequestsUtils.sendReblazeRequest({
-        methodName: 'GET',
-        url: `configs/${this.selectedBranch}/d/routing-profiles/e/${this.selectedDocID}`,
-        onFail: () => {
-          console.log('Error while attempting to load the Routing Profile')
-          this.selectedRoutingProfile = null
-          this.isDownloadLoading = false
-          this.setLoadingDocStatus(false)
-        },
-      })
-      this.selectedRoutingProfile = response?.data || {}
-      this.isDownloadLoading = false
       this.setLoadingDocStatus(false)
+      this.isDownloadLoading = false
     },
 
     validateInput(event: Event, validator: Function | boolean) {

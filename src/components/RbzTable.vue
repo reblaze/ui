@@ -235,6 +235,7 @@ export default defineComponent({
     secondRowButtonClass: String,
     secondRowButtonIcon: String,
     tableTitle: String,
+    isSortByOriginalValue: Boolean,
     rowsPerPage: {
       type: Number,
       default: 10,
@@ -442,7 +443,10 @@ export default defineComponent({
         this.sortDirection = 'asc'
       }
       this.sortColumnTitle = column.title
-      this.sortColumnDisplayFunction = column.displayFunction
+
+      this.sortColumnDisplayFunction = (this.isSortByOriginalValue) ? null :
+        this.sortColumnDisplayFunction = column.displayFunction
+
       this.sortColumnIsNumber = column.isNumber
     },
 

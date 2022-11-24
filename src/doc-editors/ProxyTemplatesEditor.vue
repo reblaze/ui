@@ -797,12 +797,16 @@ export default defineComponent({
   },
   watch: {
     selectedBranch: {
-      handler: function(val, oldVal) {
+      handler: async function(val, oldVal) {
         if ((this.$route.name as string).includes('ProxyTemplates/config') && val && val !== oldVal) {
-          this.loadDocs()
-          this.setSelectedDataFromRouteParams()
-          this.loadReferencedProxyTemplatesIDs()
-          this.loadTrustedSources()
+          await this.loadDocs()
+          await this.setSelectedDataFromRouteParams()
+          // redirect to list if no data found
+          if (!this.docs?.[0]?.id || !this.selectedProxyTemplate) {
+            this.redirectToList()
+          }
+          await this.loadTrustedSources()
+          await this.loadReferencedProxyTemplatesIDs()
         }
       },
       immediate: true,
@@ -811,10 +815,12 @@ export default defineComponent({
   computed: {
     selectedProxyTemplate: {
       get(): ProxyTemplate {
-        return this.docs[this.selectedDocIndex]
+        return (this.selectedDocIndex > -1) ? this.docs[this.selectedDocIndex] : null
       },
       set(newDoc: ProxyTemplate): void {
-        this.docs[this.selectedDocIndex] = newDoc
+        if (this.selectedDocIndex > -1) {
+          this.docs[this.selectedDocIndex] = newDoc
+        }
       },
     },
 
@@ -841,12 +847,9 @@ export default defineComponent({
     ...mapStores(useBranchesStore),
 
     selectedDocIndex(): number {
-      if (this.selectedDocID) {
-        return _.findIndex(this.docs, (doc) => {
-          return doc.id=== this.selectedDocID
-        })
-      }
-      return 0
+      return _.findIndex(this.docs, (doc) => {
+        return doc.id === this.selectedDocID
+      })
     },
   },
   methods: {
@@ -862,13 +865,7 @@ export default defineComponent({
 
     async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
-      const docIdFromRoute = this.$route.params?.doc_id?.toString()
-      await this.loadDocs()
-      if (docIdFromRoute && this.docs && this.docs.findIndex((doc) => doc.id === docIdFromRoute) > -1) {
-        this.selectedDocID = docIdFromRoute
-      } else {
-        this.selectedDocID = this.docs?.[0]?.id
-      }
+      this.selectedDocID = this.$route.params?.doc_id?.toString()
       this.setLoadingDocStatus(false)
     },
 
@@ -931,9 +928,8 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       this.isForkLoading = true
       const docToAdd = _.cloneDeep(this.selectedProxyTemplate) as ProxyTemplate
-      const oldId = docToAdd.id
       docToAdd.id = DatasetsUtils.generateUUID2()
-      docToAdd.name = 'copy of Proxy Template no. ' + oldId + ' ' + docToAdd.id
+      docToAdd.name = 'copy of ' + docToAdd.name + ' ' + docToAdd.id
 
       const docTypeText = this.titles['proxy-templates-singular']
       const successMessage = `The ${docTypeText} was duplicated.`
@@ -1029,13 +1025,7 @@ export default defineComponent({
       })
       this.docs = response?.data || []
       this.sortDocs()
-      if (this.docs && this.docs.length && this.docs[0].id) {
-        if (!_.find(this.docs, (doc: ProxyTemplate) => {
-          return doc.id === this.selectedDocID
-        })) {
-          this.selectedDocID = this.docs[0].id
-        }
-      }
+
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
     },

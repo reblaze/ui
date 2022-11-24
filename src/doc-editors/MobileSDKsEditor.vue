@@ -392,7 +392,7 @@
           Loading
         </button>
       </div>
-      <div v-else
+      <div v-else @load="redirectToList()"
            class="no-data-message">
         No data found.
         <div>
@@ -457,11 +457,15 @@ export default defineComponent({
   },
   watch: {
     selectedBranch: {
-      handler: function(val, oldVal) {
+      handler: async function(val, oldVal) {
         if ((this.$route.name as string).includes('MobileSDKs/config') && val && val !== oldVal) {
-          this.loadDocs()
-          this.setSelectedDataFromRouteParams()
-          this.loadReferencedMobileSDKsIDs()
+          await this.loadDocs()
+          await this.setSelectedDataFromRouteParams()
+          // redirect to list if no data found
+          if (!this.docs?.[0]?.id || !this.selectedMobileSDK) {
+            this.redirectToList()
+          }
+          await this.loadReferencedMobileSDKsIDs()
         }
       },
       immediate: true,
@@ -490,19 +494,18 @@ export default defineComponent({
     ...mapStores(useBranchesStore),
 
     selectedDocIndex(): number {
-      if (this.selectedDocID) {
-        return _.findIndex(this.docs, (doc) => {
-          return doc.id === this.selectedDocID
-        })
-      }
-      return 0
+      return _.findIndex(this.docs, (doc) => {
+        return doc.id === this.selectedDocID
+      })
     },
     selectedMobileSDK: {
       get(): MobileSDK {
-        return this.docs[this.selectedDocIndex]
+        return (this.selectedDocIndex > -1) ? this.docs[this.selectedDocIndex] : null
       },
       set(newDoc: MobileSDK): void {
-        this.docs[this.selectedDocIndex] = newDoc
+        if (this.selectedDocIndex > -1) {
+          this.docs[this.selectedDocIndex] = newDoc
+        }
       },
     },
   },
@@ -593,13 +596,7 @@ export default defineComponent({
       })
       this.docs = response?.data || []
       this.sortDocs()
-      if (this.docs && this.docs.length && this.docs[0].id) {
-        if (!_.find(this.docs, (doc: MobileSDK) => {
-          return doc.id === this.selectedDocID
-        })) {
-          this.selectedDocID = this.docs[0].id
-        }
-      }
+
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
     },
@@ -640,7 +637,7 @@ export default defineComponent({
       }
       const data = mobilesdksToAdd
       await this.saveChanges('POST', data, successMessage, failureMessage)
-      // this.docs.unshift(mobilesdksToAdd)
+
       this.loadDocs()
       this.selectedDocID = mobilesdksToAdd.id
 

@@ -373,9 +373,10 @@ const newOperationEntryFactory: { [key: string]: Function } = {
   },
 
   'mobile-sdks'(): MobileSDK {
+    const id = generateUUID2()
     return {
-      'id': generateUUID2(),
-      'name': 'New Mobile SDK ' + generateUUID2(), // TODO: Remove this random uuid once names are no longer unique
+      'id': id,
+      'name': 'New Mobile SDK ' + id, // TODO: Remove this random uuid once names are no longer unique
       'description': 'New Mobile SDK Description and Remarks',
       'uid_header': 'authorization',
       'grace': '5',

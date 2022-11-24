@@ -294,10 +294,12 @@ export default defineComponent({
 
     selectedDoc: {
       get(): Document {
-        return this.docs[this.selectedDocIndex]
+        return (this.selectedDocIndex > -1) ? this.docs[this.selectedDocIndex] : null
       },
       set(newDoc: Document): void {
-        this.docs[this.selectedDocIndex] = newDoc
+        if (this.selectedDocIndex > -1) {
+          this.docs[this.selectedDocIndex] = newDoc
+        }
       },
     },
 
@@ -312,12 +314,9 @@ export default defineComponent({
     },
 
     selectedDocIndex(): number {
-      if (this.selectedDocID) {
-        return _.findIndex(this.docs, (doc) => {
-          return doc.id === this.selectedDocID
-        })
-      }
-      return 0
+      return _.findIndex(this.docs, (doc) => {
+        return doc.id === this.selectedDocID
+      })
     },
 
     isDocReferenced(): boolean {
@@ -383,7 +382,8 @@ export default defineComponent({
       if (docIdFromRoute && this.docIdNames.findIndex((doc) => doc.id === docIdFromRoute) > -1) {
         this.selectedDocID = docIdFromRoute
       } else {
-        this.selectedDocID = this.docIdNames?.[0]?.id
+        console.log('redirectToList')
+        this.redirectToList()
       }
       this.isDocumentInvalid = false
 
@@ -429,7 +429,7 @@ export default defineComponent({
     async loadSelectedDocData() {
       this.setLoadingDocStatus(true)
       // check if the selected doc only has id and name, if it does, attempt to load the rest of the document data
-      if (this.selectedDoc && Object.keys(this.selectedDoc).length === 2) {
+      if (this.selectedDoc && Object.keys(this.selectedDoc).length === 2 && this.selectedDocID) {
         const url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`
         const response = await RequestsUtils.sendRequest({
           methodName: 'GET',
@@ -474,14 +474,7 @@ export default defineComponent({
         this.isDownloadLoading = false
       })
       this.updateDocIdNames()
-      if (this.docIdNames && this.docIdNames.length && this.docIdNames[0].id) {
-        if (!skipDocSelection || !_.find(this.docIdNames, (doc: Document) => {
-          return doc.id === this.selectedDocID
-        })) {
-          this.selectedDocID = this.docIdNames[0].id
-        }
-        await this.loadSelectedDocData()
-      }
+      await this.loadSelectedDocData()
       this.setLoadingDocStatus(false)
     },
 
@@ -643,10 +636,14 @@ export default defineComponent({
         config: {headers: {'x-fields': 'action'}},
       })
       const contentFilterProfilesDocs = response?.data || []
+
       response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/dynamic-rules/`,
         config: {headers: {'x-fields': 'action'}},
+        onFail: () => {
+          console.log('Error while attempting to load dynamic-rules action documents')
+        },
       })
       const dynamicRulesDocs = response?.data || []
       this.referencedIDsCustomResponse = _.uniq([

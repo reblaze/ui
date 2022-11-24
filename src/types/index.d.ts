@@ -276,6 +276,7 @@ declare module CuriefenseClient {
   type ColumnOptions = {
     title: string
     fieldNames?: string[]
+    isSortByOriginalValue?: boolean
     displayFunction?: (item: any) => string | number // Will be rendered as HTML
     isSortable?: boolean
     isSearchable?: boolean
