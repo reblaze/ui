@@ -115,7 +115,7 @@ export default defineComponent({
   watch: {
     selectedBranch: {
       handler: function(val, oldVal) {
-        if ((this.$route.name as string).includes('MobileSDKs/list') && val && val !== oldVal) {
+        if ((this.$route.name as string).includes('MobileSDK/list') && val && val !== oldVal) {
           this.loadMobileSDKs()
         }
       },

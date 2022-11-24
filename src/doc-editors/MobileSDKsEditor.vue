@@ -458,7 +458,7 @@ export default defineComponent({
   watch: {
     selectedBranch: {
       handler: async function(val, oldVal) {
-        if ((this.$route.name as string).includes('MobileSDKs/config') && val && val !== oldVal) {
+        if ((this.$route.name as string).includes('MobileSDK/config') && val && val !== oldVal) {
           await this.loadDocs()
           await this.setSelectedDataFromRouteParams()
           // redirect to list if no data found
@@ -628,12 +628,12 @@ export default defineComponent({
       if (!mobilesdksToAdd) {
         mobilesdksToAdd = this.newMobileSDK()
       }
-      const mobilesdksText = this.titles['mobile-sdks-singular']
+      const mobileSDKsText = this.titles['mobile-sdks-singular']
       if (!successMessage) {
-        successMessage = `New ${mobilesdksText} was created.`
+        successMessage = `New ${mobileSDKsText} was created.`
       }
       if (!failureMessage) {
-        failureMessage = `Failed while attempting to create the new ${mobilesdksText}.`
+        failureMessage = `Failed while attempting to create the new ${mobileSDKsText}.`
       }
       const data = mobilesdksToAdd
       await this.saveChanges('POST', data, successMessage, failureMessage)

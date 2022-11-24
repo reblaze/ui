@@ -108,7 +108,7 @@ const routes: Array<RouteRecordRaw> = [
           },
           {
             path: 'mobile-sdks',
-            name: 'MobileSDKs',
+            name: 'MobileSDK',
             beforeEnter: [premiumServerIsLive],
             redirect: (route) => {
               return `/${route.params.branch}/mobile-sdks/list`

@@ -203,7 +203,7 @@ export default defineComponent({
           title: 'Quarantined',
         },
         {
-          href: `/${this.selectedBranch?.id}/mobile-sdk`,
+          href: `/${this.selectedBranch?.id}/mobile-sdks`,
           title: 'Mobile SDK',
         },
         // ##############

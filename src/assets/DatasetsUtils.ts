@@ -213,7 +213,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'session_ids': [],
       'map': [
         {
-          'id': generateUUID2(),
+          'id': '__default_entry__',
           'match': '/',
           'name': 'default',
           'acl_profile': '__acldefault__',
