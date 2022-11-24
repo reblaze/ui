@@ -244,6 +244,7 @@ export default defineComponent({
       this.headersArray.push({key: '', value: ''})
     },
 
+    // Using this function instead of the bulma class `is-capitalized` because of an issue with <option> element
     capitalize(value: string) {
       return _.capitalize(value)
     },

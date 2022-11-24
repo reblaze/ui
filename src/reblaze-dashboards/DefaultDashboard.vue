@@ -23,8 +23,8 @@
           <div v-for="(data, trafficCategory) in trafficInfo"
                :key="trafficCategory"
                class="field traffic-info mb-0 width-50pct height-100px is-inline-block">
-            <label class="label is-small has-text-grey-light">
-              {{ capitalize(trafficCategory) }}
+            <label class="label is-small has-text-grey-light is-capitalized">
+              {{ trafficCategory }}
             </label>
             <div class="control">
               <div class="has-text-weight-bold">
@@ -257,14 +257,7 @@ import _ from 'lodash'
 import RbzChart, {SeriesOptions} from '@/components/RbzChart.vue'
 import Utils from '@/assets/Utils'
 import CountryFlag from 'vue-country-flag-next'
-
-const STATUS_COLORS = {
-  '1': '#02a4d3', // $color-cerulean
-  '2': '#06c', // $color-science-blue
-  '3': '#4169e1', // $color-royal-blue
-  '4': '#f34723', // $color-pomegranate
-  '5': '#ff355e', // $color-radical-red
-}
+import {STATUS_COLORS} from '@/types/const'
 
 type topTableData = {
   rowIdentification?: string
@@ -682,10 +675,6 @@ export default defineComponent({
       return returnArray
     },
 
-    capitalize(value: string) {
-      return _.capitalize(value)
-    },
-
     amountSuffixFormatter(value: number) {
       return Utils.amountSuffixFormatter(value)
     },
@@ -712,22 +701,6 @@ export default defineComponent({
 .flag {
   border: 1px solid #000;
   margin: -0.9em -1.1em;
-}
-
-.humans-bar {
-  background-color: $color-royal-blue;
-}
-
-.bots-bar {
-  background-color: $color-plum;
-}
-
-.passed-bar {
-  background-color: $color-emerald;
-}
-
-.blocked-bar {
-  background-color: $color-radical-red;
 }
 
 .status-legend-wrapper {

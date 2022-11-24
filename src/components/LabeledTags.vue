@@ -8,7 +8,10 @@
       <div v-for="(tag, index) in tags"
            :key="index"
            :title="tag"
-           class="labeled-tag ellipsis">
+           class="labeled-tag ellipsis"
+           :class="labelClass"
+           @click="emitTagClicked($event, tag, index)"
+           @contextmenu="emitTagContextmenu($event, tag, index)">
         {{ tag }}
       </div>
     </div>
@@ -23,6 +26,17 @@ export default defineComponent({
   props: {
     title: String,
     tags: Array,
+    labelClass: String,
+  },
+  emits: ['tag-clicked', 'tag-contextmenu'],
+  methods: {
+    emitTagClicked(event: PointerEvent, tag: string, index: number) {
+      this.$emit('tag-clicked', {event, tag, index})
+    },
+
+    emitTagContextmenu(event: PointerEvent, tag: string, index: number) {
+      this.$emit('tag-contextmenu', {event, tag, index})
+    },
   },
 })
 </script>

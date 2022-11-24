@@ -162,7 +162,7 @@
                   </td>
                   <td :title="dualCell(entry[1])"
                       class="is-size-7 entry-value width-250px ellipsis">
-                    <span v-html="dualCell(entry[1])"></span>
+                    <span>{{ dualCell(entry[1]) }}</span>
                   </td>
                   <td :title="entry[2]"
                       class="is-size-7 entry-annotation width-250px ellipsis">
@@ -496,8 +496,8 @@ export default defineComponent({
       }
       // args cookies or headers
       if (this.isCategoryArgsCookiesHeaders(this.newEntryCategory)) {
-        const newEntryName = this.newEntryItem.firstAttr.trim().toLowerCase()
-        const newEntryValue = this.newEntryItem.secondAttr.trim().toLowerCase()
+        const newEntryName = this.newEntryItem.firstAttr.trim()
+        const newEntryValue = this.newEntryItem.secondAttr.trim()
         if (newEntryName && newEntryValue) {
           this.localRule.entries.push([this.newEntryCategory, [newEntryName, newEntryValue], ''])
         }

@@ -458,7 +458,6 @@ const newOperationEntryFactory: { [key: string]: Function } = {
   },
 }
 
-
 export default {
   name: 'DatasetsUtils',
   titles,

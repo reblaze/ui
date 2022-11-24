@@ -314,22 +314,22 @@ declare module CuriefenseClient {
   }
 
   type Certificate = {
-    id:	string
-    cert_body:	string
-    expires:	string
-    issuer:	string
-    le_auto_renew:	boolean
-    le_auto_replace:	boolean
-    le_hash:	string
-    private_key:	string
-    provider_links:	[{
+    id: string
+    cert_body: string
+    expires: string
+    issuer: string
+    le_auto_renew: boolean
+    le_auto_replace: boolean
+    le_hash: string
+    private_key: string
+    provider_links: [{
       link: string
       provider: string
       region: string
     }]
-    san:	string[]
-    subject:	string
-    uploaded:	string
+    san: string[]
+    subject: string
+    uploaded: string
   }
 
   type RoutingProfileEntryLocation = {
@@ -437,6 +437,75 @@ declare module CuriefenseClient {
     tags: string[]
     target: string
     value: string
+  }
+
+  type EventLog = {
+    timestamp: string
+    curiesession: string
+    curiesession_ids: { [key: string]: string }
+    request_id: string
+    arguments: { [key: string]: string }
+    path: string
+    path_parts: { [key: string]: string }
+    authority: string
+    cookies: { [key: string]: string }
+    headers: { [key: string]: string }
+    uri: string
+    ip: string
+    method: typeof httpRequestMethods[number]
+    response_code: number
+    logs: string[]
+    processing_stage: number
+    acl_triggers: {
+      id: string
+      name: string
+      active: boolean
+    }[]
+    rate_limit_triggers: {
+      id: string
+      name: string
+      active: boolean
+    }[]
+    global_filter_triggers: {
+      id: string
+      name: string
+      active: boolean
+    }[]
+    content_filter_triggers: {
+      id: string
+      name: string
+      active: boolean
+    }[]
+    reason: string
+    tags: string[]
+    proxy: {
+      bytes_sent: string
+      geo_lat: string
+      geo_long: string
+      request_length: string
+      request_time: string
+      upstream_addr: string
+      upstream_response_time: string
+      upstream_status: string
+    }
+    security_config: {
+      revision: string
+      acl_active: boolean
+      cf_active: boolean
+      cf_rules: number
+      rate_limit_rules: number
+      global_filters_active: number
+    }
+    trigger_counters: {
+      acl: number
+      acl_active: number
+      global_filters: number
+      global_filters_active: number
+      rate_limit: number
+      rate_limit_active: number
+      content_filters: number
+      content_filters_active: number
+    }
   }
 }
 export = CuriefenseClient

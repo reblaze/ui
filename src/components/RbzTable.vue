@@ -468,6 +468,7 @@ export default defineComponent({
 
 .rbz-table {
   border-collapse: separate;
+  table-layout: fixed;
 }
 
 .rbz-table .arrow-wrapper {
