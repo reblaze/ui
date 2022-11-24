@@ -18,9 +18,9 @@ jobs:
         run: |
           docker login -u "${{ secrets.DOCKER_HUB_USER }}" -p "${{ secrets.DOCKER_HUB_PASSWORD }}"
           export DOCKER_TAG=$(echo ${GITHUB_REF#refs/heads/})
-          docker build -t "uiserver:$DOCKER_TAG" .
-          docker push "uiserver:$DOCKER_TAG"
+          docker build -t "curiefense/uiserver:$DOCKER_TAG" .
+          docker push "curiefense/uiserver:$DOCKER_TAG"
 
           export DOCKER_TAG=${GITHUB_SHA}
-          docker build -t "uiserver:$DOCKER_TAG" .
-          docker push "uiserver:$DOCKER_TAG"
+          docker build -t "curiefense/uiserver:$DOCKER_TAG" .
+          docker push "curiefense/uiserver:$DOCKER_TAG"
