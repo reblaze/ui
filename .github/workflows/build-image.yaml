@@ -1,5 +1,8 @@
 name: Run Build/Push Dev Images
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -9,14 +12,15 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
-      - name: Build image
-        uses: ./.github/actions/build/image/
         with:
-          AWS_ACCESS_KEY_ID:      "${{ secrets.AWS_ACCESS_KEY_ID }}"
-          AWS_ACCOUNT_ID:         "${{ secrets.AWS_ACCOUNT_ID }}"
-          AWS_SECRET_ACCESS_KEY:  "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-          GCP_PROJECT_ID:         "${{ secrets.GCP_PROJECT_ID }}"
-          GCP_SA_KEY:             "${{ secrets.GCP_SA_KEY }}"
-          GH_ENV:                 "dev"
-          SERVICE:                "uiserver"
-          REGION:                 "eu-central-1"
+          fetch-depth: 0
+      - name: Build and push the images
+        run: |
+          docker login -u "${{ secrets.DOCKER_HUB_USER }}" -p "${{ secrets.DOCKER_HUB_PASSWORD }}"
+          export DOCKER_TAG=$(echo ${GITHUB_REF#refs/heads/})
+          docker build -t "uiserver:$DOCKER_TAG" .
+          docker push "uiserver:$DOCKER_TAG"
+
+          export DOCKER_TAG=${GITHUB_SHA}
+          docker build -t "uiserver:$DOCKER_TAG" .
+          docker push "uiserver:$DOCKER_TAG"
