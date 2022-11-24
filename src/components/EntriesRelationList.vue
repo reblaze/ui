@@ -1,18 +1,26 @@
 <template>
-  <div v-if="localRule"
-       class="card collapsible-card entries-relation-wrapper"
-       :class="{ collapsed: isCollapsed }">
+  <div
+    v-if="localRule"
+    class="card collapsible-card entries-relation-wrapper"
+    :class="{ collapsed: isCollapsed }"
+  >
     <div class="card-content px-0 py-0">
-      <div class="media collapsible columns is-gapless px-5 py-5 mb-0"
-           @click="isCollapsed = !isCollapsed">
+      <div
+        class="media collapsible columns is-gapless px-5 py-5 mb-0"
+        @click="isCollapsed = !isCollapsed"
+      >
         <div class="column is-narrow title-wrapper">
           <span v-show="isCollapsed">
-            <i class="fas fa-angle-down"
-               aria-hidden="true"></i>
+            <i
+              class="fas fa-angle-down"
+              aria-hidden="true"
+            />
           </span>
           <span v-show="!isCollapsed">
-            <i class="fas fa-angle-up"
-               aria-hidden="true"></i>
+            <i
+              class="fas fa-angle-up"
+              aria-hidden="true"
+            />
           </span>
           <div class="media-content mx-3 is-inline-block">
             <p class="title is-6 card-title">
@@ -22,33 +30,41 @@
         </div>
         <div class="column buttons-wrapper height-30px">
           <div class="field is-grouped is-pulled-left">
-            <div v-if="editable"
-                 class="control">
-              <button class="button is-small add-section-button"
-                      title="Add new section"
-                      @click.stop="addSection()"
-                      @keypress.space.prevent
-                      @keypress.space.stop="addSection()"
-                      @keypress.enter.stop="addSection()">
+            <div
+              v-if="editable"
+              class="control"
+            >
+              <button
+                class="button is-small add-section-button"
+                title="Add new section"
+                @click.stop="addSection()"
+                @keypress.space.prevent
+                @keypress.space.stop="addSection()"
+                @keypress.enter.stop="addSection()"
+              >
                 <span class="icon is-small">
-                  <i class="fas fa-plus"></i>
+                  <i class="fas fa-plus" />
                 </span>
                 <span>
                   New Section
                 </span>
               </button>
             </div>
-            <div v-if="editable"
-                 class="control">
-              <button class="button is-small add-entry-button"
-                      title="Add new entry"
-                      :disabled="newEntryOpen || isRecursive"
-                      @click.stop="setNewEntryOpen(true)"
-                      @keypress.space.prevent
-                      @keypress.space.stop="setNewEntryOpen(true)"
-                      @keypress.enter.stop="setNewEntryOpen(true)">
+            <div
+              v-if="editable"
+              class="control"
+            >
+              <button
+                class="button is-small add-entry-button"
+                title="Add new entry"
+                :disabled="newEntryOpen || isRecursive"
+                @click.stop="setNewEntryOpen(true)"
+                @keypress.space.prevent
+                @keypress.space.stop="setNewEntryOpen(true)"
+                @keypress.enter.stop="setNewEntryOpen(true)"
+              >
                 <span class="icon is-small">
-                  <i class="fas fa-plus"></i>
+                  <i class="fas fa-plus" />
                 </span>
                 <span>
                   New Entry
@@ -56,15 +72,17 @@
               </button>
             </div>
             <div class="control">
-              <button class="button is-small rule-relation-toggle"
-                      title="Toggle rule relation"
-                      :disabled="ruleContainsSameCategoryItems || !editable"
-                      @click.stop="toggleRuleRelation()"
-                      @keypress.space.prevent
-                      @keypress.space.stop="toggleRuleRelation()"
-                      @keypress.enter.stop="toggleRuleRelation()">
-                  <span>
-                    Relation:
+              <button
+                class="button is-small rule-relation-toggle"
+                title="Toggle rule relation"
+                :disabled="ruleContainsSameCategoryItems || !editable"
+                @click.stop="toggleRuleRelation()"
+                @keypress.space.prevent
+                @keypress.space.stop="toggleRuleRelation()"
+                @keypress.enter.stop="toggleRuleRelation()"
+              >
+                <span>
+                  Relation:
                   <span class="has-text-weight-bold">
                     {{ localRule.relation }}
                   </span>
@@ -72,39 +90,49 @@
               </button>
             </div>
           </div>
-          <div v-if="editable"
-               class="field is-grouped is-pulled-right">
-            <div class="dropdown control is-right"
-                 :class="{'is-active': removeMenuVisible}">
+          <div
+            v-if="editable"
+            class="field is-grouped is-pulled-right"
+          >
+            <div
+              class="dropdown control is-right"
+              :class="{'is-active': removeMenuVisible}"
+            >
               <div class="dropdown-trigger">
-                <button class="button is-size-7 remove-menu-toggle-button is-block"
-                        aria-haspopup="true"
-                        aria-controls="dropdown-menu"
-                        :title="`${removeMenuVisible ? 'Close' : 'Open'} menu`"
-                        @click.stop="removeMenuVisible = !removeMenuVisible"
-                        @keypress.space.prevent
-                        @keypress.space.stop="removeMenuVisible = !removeMenuVisible"
-                        @keypress.enter.stop="removeMenuVisible = !removeMenuVisible"
-                        @blur="closeRemoveMenu($event)">
+                <button
+                  class="button is-size-7 remove-menu-toggle-button is-block"
+                  aria-haspopup="true"
+                  aria-controls="dropdown-menu"
+                  :title="`${removeMenuVisible ? 'Close' : 'Open'} menu`"
+                  @click.stop="removeMenuVisible = !removeMenuVisible"
+                  @keypress.space.prevent
+                  @keypress.space.stop="removeMenuVisible = !removeMenuVisible"
+                  @keypress.enter.stop="removeMenuVisible = !removeMenuVisible"
+                  @blur="closeRemoveMenu($event)"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-ellipsis-v"></i>
+                    <i class="fas fa-ellipsis-v" />
                   </span>
                 </button>
               </div>
-              <div class="dropdown-menu"
-                   id="dropdown-menu"
-                   role="menubar">
+              <div
+                class="dropdown-menu"
+                id="dropdown-menu"
+                role="menubar"
+              >
                 <div class="dropdown-content width-220px py-0">
-                  <button class="button is-small has-text-danger remove-all-entries-button dropdown-item"
-                          title="Remove all entries"
-                          :disabled="isEntriesEmpty"
-                          @click="removeAllEntries()"
-                          @keypress.space.prevent
-                          @keypress.space="removeAllEntries()"
-                          @keypress.enter="removeAllEntries()"
-                          @blur="closeRemoveMenu($event)">
+                  <button
+                    class="button is-small has-text-danger remove-all-entries-button dropdown-item"
+                    title="Remove all entries"
+                    :disabled="isEntriesEmpty"
+                    @click="removeAllEntries()"
+                    @keypress.space.prevent
+                    @keypress.space="removeAllEntries()"
+                    @keypress.enter="removeAllEntries()"
+                    @blur="closeRemoveMenu($event)"
+                  >
                     <span class="icon is-small">
-                      <i class="fas fa-trash"></i>
+                      <i class="fas fa-trash" />
                     </span>
                     <span>
                       Clear Section Content
@@ -112,15 +140,17 @@
                   </button>
                   <template v-if="deletable">
                     <hr class="dropdown-divider my-0">
-                    <button class="button is-small has-text-danger remove-section-button dropdown-item"
-                            title="Remove section"
-                            @click="emitRemoveSection()"
-                            @keypress.space.prevent
-                            @keypress.space="emitRemoveSection()"
-                            @keypress.enter="emitRemoveSection()"
-                            @blur="closeRemoveMenu($event)">
+                    <button
+                      class="button is-small has-text-danger remove-section-button dropdown-item"
+                      title="Remove section"
+                      @click="emitRemoveSection()"
+                      @keypress.space.prevent
+                      @keypress.space="emitRemoveSection()"
+                      @keypress.enter="emitRemoveSection()"
+                      @blur="closeRemoveMenu($event)"
+                    >
                       <span class="icon is-small">
-                        <i class="fas fa-trash"></i>
+                        <i class="fas fa-trash" />
                       </span>
                       <span>
                         Completely Remove Section
@@ -133,142 +163,184 @@
           </div>
         </div>
       </div>
-      <div class="content collapsible-content px-5 pb-5"
-           v-if="!isEntriesEmpty || newEntryOpen">
+      <div
+        class="content collapsible-content px-5 pb-5"
+        v-if="!isEntriesEmpty || newEntryOpen"
+      >
         <div class="data-wrapper">
           <template v-if="isRecursive">
-            <div class="sections-wrapper"
-                 v-for="(entry, entryIndex) in localRule.entries"
-                 :key="entryIndex">
-              <entries-relation-list v-model:rule="localRule.entries[entryIndex]"
-                                     @update:rule="ruleUpdated($event, entryIndex)"
-                                     @invalid="emitValidity($event)"
-                                     @remove-section="removeSection(entryIndex)"
-                                     :editable="editable"
-                                     :deletable="true"/>
+            <div
+              class="sections-wrapper"
+              v-for="(entry, entryIndex) in localRule.entries"
+              :key="entryIndex"
+            >
+              <entries-relation-list
+                v-model:rule="localRule.entries[entryIndex]"
+                @update:rule="ruleUpdated($event, entryIndex)"
+                @invalid="emitValidity($event)"
+                @remove-section="removeSection(entryIndex)"
+                :editable="editable"
+                :deletable="true"
+              />
             </div>
           </template>
           <template v-else>
             <div class="entries-wrapper">
               <table class="table is-narrow entries-table mb-0">
                 <tbody>
-                <tr v-for="(entry, entryIndex) in localRule.entries"
+                  <tr
+                    v-for="(entry, entryIndex) in localRule.entries"
                     :key="entryIndex"
                     :name="entryIndex"
                     class="entry-row"
-                    :class="{'has-text-danger': isEntryDuplicate(entry[0], entry[1])}">
-                  <td class="is-size-7 entry-category has-text-weight-medium width-150px">
-                    {{ listEntryTypes[entry[0]] }}
-                  </td>
-                  <td :title="dualCell(entry[1])"
-                      class="is-size-7 entry-value width-250px ellipsis">
-                    <span v-html="dualCell(entry[1])"></span>
-                  </td>
-                  <td :title="entry[2]"
-                      class="is-size-7 entry-annotation width-250px ellipsis">
-                    {{ entry[2] ? entry[2].substr(0, 60) : '' }}
-                  </td>
-                  <td class="is-size-7 width-80px">
-                    <a v-if="editable"
-                       tabindex="0"
-                       class="is-small has-text-grey remove-entry-button"
-                       title="remove entry"
-                       @click="removeEntry(entryIndex)"
-                       @keypress.space.prevent
-                       @keypress.space="removeEntry(entryIndex)"
-                       @keypress.enter="removeEntry(entryIndex)">
-                      remove
-                    </a>
-                  </td>
-                </tr>
+                    :class="{'has-text-danger': isEntryDuplicate(entry[0], entry[1])}"
+                  >
+                    <td class="is-size-7 entry-category has-text-weight-medium width-150px">
+                      {{ listEntryTypes[entry[0]] }}
+                    </td>
+                    <td
+                      :title="dualCell(entry[1])"
+                      class="is-size-7 entry-value width-250px ellipsis"
+                    >
+                      <span v-html="dualCell(entry[1])" />
+                    </td>
+                    <td
+                      :title="entry[2]"
+                      class="is-size-7 entry-annotation width-250px ellipsis"
+                    >
+                      {{ entry[2] ? entry[2].substr(0, 60) : '' }}
+                    </td>
+                    <td class="is-size-7 width-80px">
+                      <a
+                        v-if="editable"
+                        tabindex="0"
+                        class="is-small has-text-grey remove-entry-button"
+                        title="remove entry"
+                        @click="removeEntry(entryIndex)"
+                        @keypress.space.prevent
+                        @keypress.space="removeEntry(entryIndex)"
+                        @keypress.enter="removeEntry(entryIndex)"
+                      >
+                        remove
+                      </a>
+                    </td>
+                  </tr>
 
-                <tr v-if="newEntryOpen && editable"
-                    class="new-entry-row">
-                  <td class="is-size-7 width-150px">
-                    <div class="select is-small is-fullwidth">
-                      <select v-model="newEntryCategory"
-                              @change="clearFields"
-                              title="New entry category"
-                              class="select new-entry-type-selection">
-                        <option v-for="(title, category) in listEntryTypes"
-                                :key="category"
-                                :value="category">
-                          {{ title }}
-                        </option>
-                      </select>
-                    </div>
-                  </td>
-                  <td class="is-size-7 width-250px">
-                    <div v-if="isCategoryArgsCookiesHeaders(newEntryCategory)"
-                         class="control has-icons-left is-fullwidth new-entry-name">
-                      <input class="input is-small new-entry-name-input"
-                             :class="{
-                                'is-danger': isErrorField(newEntryCategory) || isErrorField('firstAttrEmpty'),
-                              }"
-                             @input="validateFirstAttrEmpty()"
-                             title="Name"
-                             placeholder="Name"
-                             v-model="newEntryItem.firstAttr"/>
-                      <span class="icon is-small is-left has-text-grey-light"><i class="fa fa-font"></i></span>
-                    </div>
-                    <textarea v-else
-                              title="Entries"
-                              v-model="newEntryItem.firstAttr"
-                              @input="validateValue(newEntryItem.firstAttr)"
-                              placeholder="One entry per line, use '#' for annotation"
-                              class="textarea is-small is-fullwidth new-entry-textarea"
-                              :class="{
-                                'is-danger': isErrorField(newEntryCategory) || isErrorField('firstAttrEmpty'),
-                              }"
-                              rows="3"/>
-                    <div class="invalid-ips-errors help is-danger"
-                         v-if="invalidIPs.length">
-                      <div class="mr-2">Please check the following:</div>
-                      <div v-for="(err,errIndex) in invalidIPs"
-                           :key="errIndex">
-                        {{ err }}
+                  <tr
+                    v-if="newEntryOpen && editable"
+                    class="new-entry-row"
+                  >
+                    <td class="is-size-7 width-150px">
+                      <div class="select is-small is-fullwidth">
+                        <select
+                          v-model="newEntryCategory"
+                          @change="clearFields"
+                          title="New entry category"
+                          class="select new-entry-type-selection"
+                        >
+                          <option
+                            v-for="(title, category) in listEntryTypes"
+                            :key="category"
+                            :value="category"
+                          >
+                            {{ title }}
+                          </option>
+                        </select>
                       </div>
-                    </div>
-                  </td>
-                  <td class="is-size-7 width-250px">
-                    <div class="control has-icons-left is-fullwidth new-entry-value-annotation">
-                      <input class="input is-small new-entry-value-annotation-input"
-                             :class="{ 'is-danger': isErrorField('secondAttrEmpty') }"
-                             :placeholder="isCategoryArgsCookiesHeaders(newEntryCategory) ? 'Value' : 'Annotation'"
-                             @input="validateSecondAttrEmpty()"
-                             v-model="newEntryItem.secondAttr"/>
-                      <span v-show="isCategoryArgsCookiesHeaders(newEntryCategory)"
-                            class="icon is-small is-left has-text-grey-light">
-                <i class="fa fa-code"></i>
-              </span>
-                      <span v-show="!isCategoryArgsCookiesHeaders(newEntryCategory)"
-                            class="icon is-small is-left has-text-grey-light">
-                <i class="fa fa-font"></i>
-              </span>
-                    </div>
-                  </td>
-                  <td class="is-size-7 width-80px">
-                    <a class="is-size-7 has-text-grey add-button confirm-add-entry-button"
-                       title="add new row"
-                       tabindex="0"
-                       @click="addEntry()"
-                       @keypress.space.prevent
-                       @keypress.space="addEntry()"
-                       @keypress.enter="addEntry()">
-                      <i class="fas fa-check"></i> Add
-                    </a>
-                    <br/>
-                    <a class="is-size-7 has-text-grey remove-button cancel-entry-button"
-                       title="cancel add new row"
-                       tabindex="0"
-                       @click="setNewEntryOpen(false)"
-                       @keypress.space.prevent
-                       @keypress.space="setNewEntryOpen(false)"
-                       @keypress.enter="setNewEntryOpen(false)">
-                      <i class="fas fa-times"></i> Cancel
-                    </a>
-                  </td>
-                </tr>
+                    </td>
+                    <td class="is-size-7 width-250px">
+                      <div
+                        v-if="isCategoryArgsCookiesHeaders(newEntryCategory)"
+                        class="control has-icons-left is-fullwidth new-entry-name"
+                      >
+                        <input
+                          class="input is-small new-entry-name-input"
+                          :class="{
+                            'is-danger': isErrorField(newEntryCategory) || isErrorField('firstAttrEmpty'),
+                          }"
+                          @input="validateFirstAttrEmpty()"
+                          title="Name"
+                          placeholder="Name"
+                          v-model="newEntryItem.firstAttr"
+                        >
+                        <span class="icon is-small is-left has-text-grey-light"><i class="fa fa-font" /></span>
+                      </div>
+                      <textarea
+                        v-else
+                        title="Entries"
+                        v-model="newEntryItem.firstAttr"
+                        @input="validateValue(newEntryItem.firstAttr)"
+                        placeholder="One entry per line, use '#' for annotation"
+                        class="textarea is-small is-fullwidth new-entry-textarea"
+                        :class="{
+                          'is-danger': isErrorField(newEntryCategory) || isErrorField('firstAttrEmpty'),
+                        }"
+                        rows="3"
+                      />
+                      <div
+                        class="invalid-ips-errors help is-danger"
+                        v-if="invalidIPs.length"
+                      >
+                        <div class="mr-2">
+                          Please check the following:
+                        </div>
+                        <div
+                          v-for="(err,errIndex) in invalidIPs"
+                          :key="errIndex"
+                        >
+                          {{ err }}
+                        </div>
+                      </div>
+                    </td>
+                    <td class="is-size-7 width-250px">
+                      <div class="control has-icons-left is-fullwidth new-entry-value-annotation">
+                        <input
+                          class="input is-small new-entry-value-annotation-input"
+                          :class="{ 'is-danger': isErrorField('secondAttrEmpty') }"
+                          :placeholder="isCategoryArgsCookiesHeaders(newEntryCategory) ? 'Value' : 'Annotation'"
+                          @input="validateSecondAttrEmpty()"
+                          v-model="newEntryItem.secondAttr"
+                        >
+                        <span
+                          v-show="isCategoryArgsCookiesHeaders(newEntryCategory)"
+                          class="icon is-small is-left has-text-grey-light"
+                        >
+                          <i class="fa fa-code" />
+                        </span>
+                        <span
+                          v-show="!isCategoryArgsCookiesHeaders(newEntryCategory)"
+                          class="icon is-small is-left has-text-grey-light"
+                        >
+                          <i class="fa fa-font" />
+                        </span>
+                      </div>
+                    </td>
+                    <td class="is-size-7 width-80px">
+                      <a
+                        class="is-size-7 has-text-grey add-button confirm-add-entry-button"
+                        title="add new row"
+                        tabindex="0"
+                        @click="addEntry()"
+                        @keypress.space.prevent
+                        @keypress.space="addEntry()"
+                        @keypress.enter="addEntry()"
+                      >
+                        <i class="fas fa-check" /> Add
+                      </a>
+                      <br>
+                      <a
+                        class="is-size-7 has-text-grey remove-button cancel-entry-button"
+                        title="cancel add new row"
+                        tabindex="0"
+                        @click="setNewEntryOpen(false)"
+                        @keypress.space.prevent
+                        @keypress.space="setNewEntryOpen(false)"
+                        @keypress.enter="setNewEntryOpen(false)"
+                      >
+                        <i class="fas fa-times" /> Cancel
+                      </a>
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>

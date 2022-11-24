@@ -1,38 +1,48 @@
 <template>
-<div class="modal is-active">
+  <div class="modal is-active">
     <div class="modal-background">
-        <div class="modal-card modal-location">
-            <header class="modal-card-head">
-                <h5 class="modal-card-title is-size-6 mb-0">Remove certificate</h5>
-                <button class="delete" aria-label="close" @click="$emit('deleteShownChanged', false)"></button>
-            </header>
-            <section class="modal-card-body is-size-6 has-text-centered">
-                <p class="is-small is-size-6">
-                    Are you sure you want to remove certificate<br />
-                    <strong>{{ clickedRow }}</strong>?
-                </p>
-                <p
-                    v-if="attachedApps"
-                    class="is-small is-size-6 mt-2"
-                    v-html="attachedApps"
-                ></p>
-            </section>
-            <footer class="modal-card-foot">
-                <div class="buttons is-right is-fullwidth">
-                    <button class="button is-small" @click="$emit('deleteShownChanged', false)">
-                        Cancel
-                    </button>
-                    <button
-                        class="button is-small is-light is-outlined is-danger"
-                        :class="{'is-loading': isLoading}"
-                        @click="deleteCertificate()">
-                        Delete
-                    </button>
-                </div>
-            </footer>
-        </div>
+      <div class="modal-card modal-location">
+        <header class="modal-card-head">
+          <h5 class="modal-card-title is-size-6 mb-0">
+            Remove certificate
+          </h5>
+          <button
+            class="delete"
+            aria-label="close"
+            @click="$emit('delete-shown-changed', false)"
+          />
+        </header>
+        <section class="modal-card-body is-size-6 has-text-centered">
+          <p class="is-small is-size-6">
+            Are you sure you want to remove certificate<br>
+            <strong>{{ clickedRow }}</strong>?
+          </p>
+          <p
+            v-if="attachedApps"
+            class="is-small is-size-6 mt-2"
+            v-html="attachedApps"
+          />
+        </section>
+        <footer class="modal-card-foot">
+          <div class="buttons is-right is-fullwidth">
+            <button
+              class="button is-small"
+              @click="$emit('delete-shown-changed', false)"
+            >
+              Cancel
+            </button>
+            <button
+              class="button is-small is-light is-outlined is-danger"
+              :class="{'is-loading': isLoading}"
+              @click="deleteCertificate()"
+            >
+              Delete
+            </button>
+          </div>
+        </footer>
+      </div>
     </div>
-</div>
+  </div>
 </template>
 <script lang="ts">
 import DatasetsUtils from '@/assets/DatasetsUtils'
@@ -46,7 +56,7 @@ export default defineComponent({
     selectedBranch: String,
   },
 
-  emits: ['deleteShownChanged', 'callLoadCertificate'],
+  emits: ['delete-shown-changed', 'call-load-certificate'],
 
   data() {
     return {
@@ -68,8 +78,8 @@ export default defineComponent({
         successMessage,
         failureMessage,
       })
-      this.$emit('callLoadCertificate')
-      this.$emit('deleteShownChanged', false)
+      this.$emit('call-load-certificate')
+      this.$emit('delete-shown-changed', false)
     },
   },
 })

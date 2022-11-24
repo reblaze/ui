@@ -1,132 +1,164 @@
 <template>
-<div class="modal is-active is-large">
-  <div class="modal-background">
-    <div class="modal-card is-size-7">
-          <header class="modal-card-head">
-              <h5 class="modal-card-title is-size-6 mb-0">Generate certificate</h5>
-              <button class="delete" aria-label="close" @click="closeAndResetUploadModal"></button>
-          </header>
-          <section class="modal-card-body">
-              <!-- <loader v-if="is_loading"></loader> -->
-              <div class="tile is-3">
-                  <div class="control modal-location">
-                      <label for="manual" class="radio is-size-7">
-                          <input
-                              type="radio"
-                              name="isManualInput"
-                              id="manual"
-                              :value="true"
-                              v-model="isManualInput"
-                              @change="inputTypeChagned"/>
-                          Manual input
-                      </label>
-                      <br>
-                      <label for="extract" class="radio is-size-7">
-                          <input
-                              type="radio"
-                              name="isManualInput"
-                              id="extract"
-                              :value="false"
-                              v-model="isManualInput"
-                              @change="inputTypeChagned"/>
-                          Extract pfx file
-                      </label>
-                  </div>
-              </div>
-              <div v-if="isManualInput">
-                  <h3 class="is-size-7 man-input-title">Input Certificate Manually</h3>
-                  <hr>
-              </div>
-              <div v-else>
-                  <h3 class="is-size-7 pb-2">Extract Certificate From File</h3>
-                  <div class="field has-addons-right">
-                      <form>
-                          <div class="file has-name control is-small">
-                              <label class="file-label">
-                                  <input
-                                      class="file-input"
-                                      type="file"
-                                      name="certFile"
-                                      @input="loadFile"
-                                      accept=".pfx"/>
-                                  <span class="file-cta">
-                                      <span class="file-icon">
-                                        <i class="fas fa-upload"></i>
-                                      </span>
-                                      <span class="file-label">
-                                        Choose a PFX file
-                                      </span>
-                                  </span>
-                                  <span class="file-name">
-                                      {{ certFile ? certFile.name : 'No file chosen' }}
-                                  </span>
-                              </label>
-                          </div>
-                      </form>
-                  </div>
-                  <div class="field" v-show="certFile && !private_key">
-                      <label class="label is-small">Password</label>
-                      <div class="control tile is-8">
-                          <input
-                            class="input is-small"
-                            ref="pfxPass"
-                            type="text"
-                            v-model="pfxPassword"/>
-                          <button
-                            @click="extractCertFile"
-                            :disabled="isExtractDisabled || !pfxPassword"
-                            class="button is-small is-info control ml-1"
-                            :class="{ 'is-loading': isExtracting }">
-                            Extract file
-                          </button>
-                      </div>
-                      <p :style="{ visibility: isPasswordWarning ? 'visible' : 'hidden' }" class="help is-danger">
-                        {{ passwordMessage }}
-                      </p>
-                  </div>
-                  <hr class="mt-3">
-              </div>
-              <div id="cert-parts">
-                <div class="field">
-                    <label class="label is-small">Private key</label>
-                    <div class="control">
-                        <textarea
-                            v-model="private_key"
-                            class="textarea is-small"
-                            :disabled="!isManualInput"
-                            :placeholder="EMPTY_CERTIFICATE_KEY_FIELD">
-                        </textarea>
-                    </div>
-                </div>
-                <div class="field">
-                    <label class="label is-small">Certificate</label>
-                    <div class="control">
-                      <textarea v-model="certificate"
-                                class="textarea is-small certificate-data"
-                                :placeholder="EMPTY_CERTIFICATE_FIELD"
-                                rows="8">
-                      </textarea>
-                    </div>
-                </div>
+  <div class="modal is-active is-large">
+    <div class="modal-background">
+      <div class="modal-card is-size-7">
+        <header class="modal-card-head">
+          <h5 class="modal-card-title is-size-6 mb-0">
+            Generate certificate
+          </h5>
+          <button
+            class="delete"
+            aria-label="close"
+            @click="closeAndResetUploadModal"
+          />
+        </header>
+        <section class="modal-card-body">
+          <!-- <loader v-if="is_loading"></loader> -->
+          <div class="tile is-3">
+            <div class="control modal-location">
+              <label
+                for="manual"
+                class="radio is-size-7"
+              >
+                <input
+                  type="radio"
+                  name="isManualInput"
+                  id="manual"
+                  :value="true"
+                  v-model="isManualInput"
+                  @change="inputTypeChagned"
+                >
+                Manual input
+              </label>
+              <br>
+              <label
+                for="extract"
+                class="radio is-size-7"
+              >
+                <input
+                  type="radio"
+                  name="isManualInput"
+                  id="extract"
+                  :value="false"
+                  v-model="isManualInput"
+                  @change="inputTypeChagned"
+                >
+                Extract pfx file
+              </label>
             </div>
+          </div>
+          <div v-if="isManualInput">
+            <h3 class="is-size-7 man-input-title">
+              Input Certificate Manually
+            </h3>
+            <hr>
+          </div>
+          <div v-else>
+            <h3 class="is-size-7 pb-2">
+              Extract Certificate From File
+            </h3>
+            <div class="field has-addons-right">
+              <form>
+                <div class="file has-name control is-small">
+                  <label class="file-label">
+                    <input
+                      class="file-input"
+                      type="file"
+                      name="certFile"
+                      @input="loadFile"
+                      accept=".pfx"
+                    >
+                    <span class="file-cta">
+                      <span class="file-icon">
+                        <i class="fas fa-upload" />
+                      </span>
+                      <span class="file-label">
+                        Choose a PFX file
+                      </span>
+                    </span>
+                    <span class="file-name">
+                      {{ certFile ? certFile.name : 'No file chosen' }}
+                    </span>
+                  </label>
+                </div>
+              </form>
+            </div>
+            <div
+              class="field"
+              v-show="certFile && !private_key"
+            >
+              <label class="label is-small">Password</label>
+              <div class="control tile is-8">
+                <input
+                  class="input is-small"
+                  ref="pfxPass"
+                  type="text"
+                  v-model="pfxPassword"
+                >
+                <button
+                  @click="extractCertFile"
+                  :disabled="isExtractDisabled || !pfxPassword"
+                  class="button is-small is-info control ml-1"
+                  :class="{ 'is-loading': isExtracting }"
+                >
+                  Extract file
+                </button>
+              </div>
+              <p
+                :style="{ visibility: isPasswordWarning ? 'visible' : 'hidden' }"
+                class="help is-danger"
+              >
+                {{ passwordMessage }}
+              </p>
+            </div>
+            <hr class="mt-3">
+          </div>
+          <div id="cert-parts">
+            <div class="field">
+              <label class="label is-small">Private key</label>
+              <div class="control">
+                <textarea
+                  v-model="private_key"
+                  class="textarea is-small"
+                  :disabled="!isManualInput"
+                  :placeholder="EMPTY_CERTIFICATE_KEY_FIELD"
+                />
+              </div>
+            </div>
+            <div class="field">
+              <label class="label is-small">Certificate</label>
+              <div class="control">
+                <textarea
+                  v-model="certificate"
+                  class="textarea is-small certificate-data"
+                  :placeholder="EMPTY_CERTIFICATE_FIELD"
+                  rows="8"
+                />
+              </div>
+            </div>
+          </div>
         </section>
         <footer class="modal-card-foot">
-            <div class="buttons is-right is-fullwidth">
-                <button class="button is-small" @click="closeAndResetUploadModal">
-                    Cancel
-                </button>
-                <button
-                    class="button is-small is-outlined"
-                    :class="{ 'is-loading': is_loading }"
-                    :disabled="isSaveNewCertDisabled"
-                    @click="uploadManualInputCert">
-                    Save
-                </button>
-            </div>
+          <div class="buttons is-right is-fullwidth">
+            <button
+              class="button is-small"
+              @click="closeAndResetUploadModal"
+            >
+              Cancel
+            </button>
+            <button
+              class="button is-small is-outlined"
+              :class="{ 'is-loading': is_loading }"
+              :disabled="isSaveNewCertDisabled"
+              @click="uploadManualInputCert"
+            >
+              Save
+            </button>
+          </div>
         </footer>
-        </div>
+      </div>
     </div>
-</div>
+  </div>
 </template>
 <script lang="ts">
 import DatasetsUtils from '@/assets/DatasetsUtils'
@@ -139,7 +171,7 @@ export default defineComponent({
     selectedBranch: String,
   },
 
-  emits: ['generateShownChanged', 'callLoadCertificate'],
+  emits: ['generate-shown-changed', 'call-load-certificate'],
 
   data() {
     return {
@@ -200,7 +232,7 @@ export default defineComponent({
     },
 
     closeAndResetUploadModal() {
-      this.$emit('generateShownChanged', false)
+      this.$emit('generate-shown-changed', false)
       this.isManualInput = true
       this.resetInputs()
       this.removeFile()
@@ -221,13 +253,13 @@ export default defineComponent({
     async extractCertFile() {
       if (this.certFile != null) {
         this.isExtracting = true
-        const siteText = this.titles['certificate-singular']
+        const certText = this.titles['certificate-singular']
         const file = this.certFile
         const url = 'tools/certificates/extractpfx/'
         const formData = new FormData()
         formData.append('fileName', file, this.certFile.name)
         formData.append('password', this.password)
-        const failureMessage = `Failed while attempting to extract the new ${siteText} PFX file.`
+        const failureMessage = `Failed while attempting to extract the new ${certText} PFX file.`
         const response = await RequestsUtils.sendReblazeRequest({
           methodName: 'POST',
           url,
@@ -258,8 +290,8 @@ export default defineComponent({
         manualCertificateToAdd['cert_body'] = this.certificate
         const data = manualCertificateToAdd
         await RequestsUtils.sendReblazeRequest({methodName: 'POST', url, data, successMessage, failureMessage}).then(() => {
-          this.$emit('generateShownChanged', false)
-          this.$emit('callLoadCertificate')
+          this.$emit('generate-shown-changed', false)
+          this.$emit('call-load-certificate')
         })
       } catch (err) {
         console.log(err)

@@ -6,29 +6,37 @@
           <div class="column">
             <div class="field is-grouped">
               <p class="control">
-                <button class="button is-small redirect-list-button"
-                        @click="redirectToList()"
-                        title="Return to list"
-                        data-qa="redirect-to-list">
+                <button
+                  class="button is-small redirect-list-button"
+                  @click="redirectToList()"
+                  title="Return to list"
+                  data-qa="redirect-to-list"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-arrow-left"></i>
+                    <i class="fas fa-arrow-left" />
                   </span>
                   <span>
                     Return To List
                   </span>
                 </button>
               </p>
-              <div class="control"
-                   v-if="docs.length">
+              <div
+                class="control"
+                v-if="docs.length"
+              >
                 <div class="select is-small">
-                  <select v-model="selectedDocID"
-                          title="Switch document ID"
-                          @change="switchDocID()"
-                          class="site-selection"
-                          data-qa="switch-document">
-                          <option v-for="doc in docs"
-                            :key="doc.id"
-                            :value="doc.id">
+                  <select
+                    v-model="selectedDocID"
+                    title="Switch document ID"
+                    @change="switchDocID()"
+                    class="site-selection"
+                    data-qa="switch-document"
+                  >
+                    <option
+                      v-for="doc in docs"
+                      :key="doc.id"
+                      :value="doc.id"
+                    >
                       {{ doc.name }}
                     </option>
                   </select>
@@ -39,14 +47,16 @@
           <div class="column">
             <div class="field is-grouped is-pulled-right">
               <p class="control">
-                <button class="button is-small new-document-button"
-                        :class="{'is-loading': isNewLoading}"
-                        @click="addNewDoc()"
-                        title="Add new document"
-                        :disabled="!selectedBranch"
-                        data-qa="add-new-document">
+                <button
+                  class="button is-small new-document-button"
+                  :class="{'is-loading': isNewLoading}"
+                  @click="addNewDoc()"
+                  title="Add new document"
+                  :disabled="!selectedBranch"
+                  data-qa="add-new-document"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-plus"></i>
+                    <i class="fas fa-plus" />
                   </span>
                   <span>
                     New
@@ -55,14 +65,16 @@
               </p>
 
               <p class="control">
-                <button class="button is-small fork-document-button"
-                        :class="{'is-loading': isForkLoading}"
-                        @click="forkDoc()"
-                        title="Duplicate document"
-                        :disabled="!selectedServerGroup"
-                        data-qa="duplicate-document">
+                <button
+                  class="button is-small fork-document-button"
+                  :class="{'is-loading': isForkLoading}"
+                  @click="forkDoc()"
+                  title="Duplicate document"
+                  :disabled="!selectedServerGroup"
+                  data-qa="duplicate-document"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-clone"></i>
+                    <i class="fas fa-clone" />
                   </span>
                   <span>
                     Duplicate
@@ -71,13 +83,15 @@
               </p>
 
               <p class="control">
-                <button class="button is-small download-doc-button"
-                        :class="{'is-loading':isDownloadLoading}"
-                        @click="downloadDoc()"
-                        title="Download document"
-                        data-qa="download-document">
+                <button
+                  class="button is-small download-doc-button"
+                  :class="{'is-loading':isDownloadLoading}"
+                  @click="downloadDoc()"
+                  title="Download document"
+                  data-qa="download-document"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-download"></i>
+                    <i class="fas fa-download" />
                   </span>
                   <span>
                     Download
@@ -85,13 +99,15 @@
                 </button>
               </p>
               <p class="control">
-                <button class="button is-small save-document-button"
-                        :class="{'is-loading': isSaveLoading}"
-                        title="Save changes"
-                        data-qa="save-changes"
-                        @click="saveChanges()">
+                <button
+                  class="button is-small save-document-button"
+                  :class="{'is-loading': isSaveLoading}"
+                  title="Save changes"
+                  data-qa="save-changes"
+                  @click="saveChanges()"
+                >
                   <span class="icon is-small">
-                    <i class="fas fa-save"></i>
+                    <i class="fas fa-save" />
                   </span>
                   <span>
                     Save
@@ -99,77 +115,97 @@
                 </button>
               </p>
               <p class="control">
-                  <span class="field has-addons">
-                    <span class="control">
-                      <button class="button is-small has-text-danger delete-server-group"
-                              data-qa="delete-server-group-btn"
-                              :class="{'is-loading': isDeleteLoading}"
-                              :disabled="selectedDocNotDeletable"
-                              @click="toggleDeleteServerGroupDoc()">
-                        <span class="icon is-small">
-                          <i class="fas fa-trash"></i>
-                        </span>
-                        <span>
-                          Delete
-                        </span>
-                      </button>
-                    </span>
-                    <span class="control is-expanded confirm-delete"
-                          v-if="deleteServerGroupDoc">
-                      <input class="input is-small width-200px delete-server-group-input"
-                             data-qa="confirm-server-group-input"
-                             title="Server Group Name"
-                             ref="confirm-delete"
-                             placeholder="Confirm Server Group name"
-                             v-model="deleteServerGroupDocName"
-                             type="text">
-                    </span>
-                    <span class="control"
-                          v-if="deleteServerGroupDoc">
-                      <button class="button is-danger is-small delete-server-group-cancel"
-                              data-qa="cancel-delete-server-group-btn"
-                              @click="toggleDeleteServerGroupDoc">
-                        <span class="icon is-small">
-                          <i class="fas fa-times"></i>
-                        </span>
-                      </button>
-                    </span>
-                    <span class="control"
-                          v-if="deleteServerGroupDoc">
-                      <button class="button is-primary is-small delete-server-group-confirm"
-                              data-qa="confirm-delete-server-group-btn"
-                              :disabled="!isDeleteServerGroupDocNameValid"
-                              @click="deleteServerGroup">
-                        <span class="icon is-small">
-                          <i class="fas fa-check"></i>
-                        </span>
-                      </button>
-                    </span>
+                <span class="field has-addons">
+                  <span class="control">
+                    <button
+                      class="button is-small has-text-danger delete-server-group"
+                      data-qa="delete-server-group-btn"
+                      :class="{'is-loading': isDeleteLoading}"
+                      :disabled="selectedDocNotDeletable"
+                      @click="toggleDeleteServerGroupDoc()"
+                    >
+                      <span class="icon is-small">
+                        <i class="fas fa-trash" />
+                      </span>
+                      <span>
+                        Delete
+                      </span>
+                    </button>
                   </span>
+                  <span
+                    class="control is-expanded confirm-delete"
+                    v-if="deleteServerGroupDoc"
+                  >
+                    <input
+                      class="input is-small width-200px delete-server-group-input"
+                      data-qa="confirm-server-group-input"
+                      title="Server Group Name"
+                      ref="confirm-delete"
+                      placeholder="Confirm Server Group name"
+                      v-model="deleteServerGroupDocName"
+                      type="text"
+                    >
+                  </span>
+                  <span
+                    class="control"
+                    v-if="deleteServerGroupDoc"
+                  >
+                    <button
+                      class="button is-danger is-small delete-server-group-cancel"
+                      data-qa="cancel-delete-server-group-btn"
+                      @click="toggleDeleteServerGroupDoc"
+                    >
+                      <span class="icon is-small">
+                        <i class="fas fa-times" />
+                      </span>
+                    </button>
+                  </span>
+                  <span
+                    class="control"
+                    v-if="deleteServerGroupDoc"
+                  >
+                    <button
+                      class="button is-primary is-small delete-server-group-confirm"
+                      data-qa="confirm-delete-server-group-btn"
+                      :disabled="!isDeleteServerGroupDocNameValid"
+                      @click="deleteServerGroup"
+                    >
+                      <span class="icon is-small">
+                        <i class="fas fa-check" />
+                      </span>
+                    </button>
+                  </span>
+                </span>
               </p>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <hr/>
-    <div class="content"
-         v-if="!loadingDocCounter && selectedBranch && selectedServerGroup">
+    <hr>
+    <div
+      class="content"
+      v-if="!loadingDocCounter && selectedBranch && selectedServerGroup"
+    >
       <div class="columns columns-divided">
         <div class="column is-4">
           <div class="field">
             <label class="label is-small">
               Name
-              <span class="has-text-grey is-pulled-right document-id"
-                    title="Rule id">
-                      {{ selectedServerGroup.id }}
-                    </span>
+              <span
+                class="has-text-grey is-pulled-right document-id"
+                title="Rule id"
+              >
+                {{ selectedServerGroup.id }}
+              </span>
             </label>
             <div class="control">
-              <input class="input is-small document-name"
-                     title="Document name"
-                     placeholder="Document name"
-                     v-model="selectedServerGroup.name"/>
+              <input
+                class="input is-small document-name"
+                title="Document name"
+                placeholder="Document name"
+                v-model="selectedServerGroup.name"
+              >
             </div>
           </div>
           <div class="field">
@@ -177,55 +213,72 @@
               Match Host/Authority Headers
             </label>
             <div class="control">
-                    <textarea
-                        class="is-small textarea match-host"
-                        title="Match Host/Authority Headers"
-                        placeholder="Match Host/Authority Headers"
-                        data-qa="match-host-input"
-                        v-model="serverNames"
-                        rows="2">
-                    </textarea>
+              <textarea
+                class="is-small textarea match-host"
+                title="Match Host/Authority Headers"
+                placeholder="Match Host/Authority Headers"
+                data-qa="match-host-input"
+                v-model="serverNames"
+                rows="2"
+              />
             </div>
           </div>
-          <!--div-- class="field">
-            <label class="label is-small">
-              Certificate
-            </label>
-            <div class="control is-expanded">
-              <div class="select is-fullwidth is-small">
-                <select v-model="selectedServerGroup.ssl_certificate" >
-                  <option value="" selected disabled>
-                      Select Certificate
-                  </option>
-                  <option v-for="certificate in certificatesNames"
-                      :value="certificate[0]"
-                      :key="certificate[0]">
-                      {{certificate[0] }} ({{certificate[1] }})
-                  </option>
-                </select>
-              </div>
-            </div>
-            <p class="help">
-              (Optional) Choose a certificate for the site, or create a
-              <a url="/new-ssl-page/certificate-store">
-                  new one
-              </a>.
-            </p>
-          </!--div-->
           <div class="field">
             <div class="field textarea-field">
               <label class="label is-small">Description</label>
               <div class="control">
-                      <textarea class="is-small textarea document-description"
-                                data-qa="description-input"
-                                title="Document description"
-                                v-model="selectedServerGroup.description"
-                                rows="5">
-                      </textarea>
+                <textarea
+                  class="is-small textarea document-description"
+                  data-qa="description-input"
+                  title="Document description"
+                  v-model="selectedServerGroup.description"
+                  rows="5"
+                />
               </div>
             </div>
           </div>
         </div>
+        <!-- TODO: Generate and Generate & replace <div class="column is-4">
+          <div class="field">
+            <label class="label is-small">Certificates</label>
+            <div class="control is-expanded">
+              <div class="select is-fullwidth is-small">
+                <select
+                  v-model="selectedServerGroup.ssl_certificate"
+                  data-qa="routing-profile-dropdown"
+                  class="document-routing-profile-selection"
+                  title="Routing profile"
+                >
+                  <option
+                    v-for="certificate in certificates"
+                    :value="certificate.id"
+                    :key="certificate.id"
+                  >
+                    {{ certificate.id }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field textarea-field">
+              <button
+              class="button is-small new-sequence-button"
+              data-qa="new-sequence-btn"
+              @click="generateCertificate()"
+            >
+              Generate
+            </button>
+            <button
+              class="button is-small new-sequence-button"
+              data-qa="new-sequence-btn"
+              @click="generateCertificate(true)"
+            >
+              Generate & replace
+            </button>
+            </div>
+          </div>
+        </div> -->
       </div>
       <div class="columns is-multiline">
         <div class="column is-4">
@@ -233,13 +286,17 @@
             <label class="label is-small">Routing Profile</label>
             <div class="control is-expanded">
               <div class="select is-fullwidth is-small">
-                <select v-model="selectedServerGroup.routing_profile"
-                        data-qa="routing-profile-dropdown"
-                        class="document-routing-profile-selection"
-                        title="Routing profile">
-                  <option v-for="routingProfile in routingProfilesNames"
-                          :value="routingProfile[0]"
-                          :key="routingProfile[0]">
+                <select
+                  v-model="selectedServerGroup.routing_profile"
+                  data-qa="routing-profile-dropdown"
+                  class="document-routing-profile-selection"
+                  title="Routing profile"
+                >
+                  <option
+                    v-for="routingProfile in routingProfilesNames"
+                    :value="routingProfile[0]"
+                    :key="routingProfile[0]"
+                  >
                     {{ routingProfile[1] }}
                   </option>
                 </select>
@@ -247,40 +304,46 @@
             </div>
           </div>
         </div>
-        <div v-if="selectedRoutingProfile"
-             class="column is-12">
+        <div
+          v-if="selectedRoutingProfile"
+          class="column is-12"
+        >
           <div class="card mb-0">
             <div class="card-content">
               <table class="table is-size-7">
                 <thead>
-                <tr>
-                  <th class="width-500px">
-                    Path
-                  </th>
-                  <th class="width-250px">
-                    Backend Service
-                  </th>
-                  <th class="width-120px">
-                    Edge Functions
-                  </th>
-                </tr>
+                  <tr>
+                    <th class="width-500px">
+                      Path
+                    </th>
+                    <th class="width-250px">
+                      Backend Service
+                    </th>
+                    <th class="width-120px">
+                      Edge Functions
+                    </th>
+                  </tr>
                 </thead>
                 <tbody>
-                <tr v-for="location in selectedRoutingProfile.locations"
-                    :key="location.path">
-                  <td class="ellipsis">
-                    {{ location.path }}
-                  </td>
-                  <td class="ellipsis">
-                    {{ referencedDocName(backendServicesNames, location.backend_id) }}
-                  </td>
-                  <td>
-                          <span v-for="edgeFunction in location.cloud_functions"
-                                :key="edgeFunction">
-                            {{ location.cloud_functions.length }}
-                          </span>
-                  </td>
-                </tr>
+                  <tr
+                    v-for="location in selectedRoutingProfile.locations"
+                    :key="location.path"
+                  >
+                    <td class="ellipsis">
+                      {{ location.path }}
+                    </td>
+                    <td class="ellipsis">
+                      {{ referencedDocName(backendServicesNames, location.backend_id) }}
+                    </td>
+                    <td>
+                      <span
+                        v-for="edgeFunction in location.cloud_functions"
+                        :key="edgeFunction"
+                      >
+                        {{ location.cloud_functions.length }}
+                      </span>
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -293,13 +356,17 @@
             <label class="label is-small">Security Policy</label>
             <div class="control is-expanded">
               <div class="select is-fullwidth is-small">
-                <select v-model="selectedServerGroup.security_policy"
-                        data-qa="security-policy-dropdown"
-                        class="document-security-policy-selection"
-                        title="Security policy">
-                  <option v-for="securityPolicy in securityPoliciesNames"
-                          :value="securityPolicy[0]"
-                          :key="securityPolicy[0]">
+                <select
+                  v-model="selectedServerGroup.security_policy"
+                  data-qa="security-policy-dropdown"
+                  class="document-security-policy-selection"
+                  title="Security policy"
+                >
+                  <option
+                    v-for="securityPolicy in securityPoliciesNames"
+                    :value="securityPolicy[0]"
+                    :key="securityPolicy[0]"
+                  >
                     {{ securityPolicy[1] }}
                   </option>
                 </select>
@@ -307,45 +374,67 @@
             </div>
           </div>
         </div>
-        <div v-if="selectedSecurityPolicy"
-             class="column is-12">
+        <div
+          v-if="selectedSecurityPolicy"
+          class="column is-12"
+        >
           <div class="card mb-0">
             <div class="card-content">
               <table class="table is-size-7">
                 <thead>
-                <tr>
-                  <th class="width-100px">Name</th>
-                  <th class="width-400px">Path</th>
-                  <th class="width-150px">Content Filter</th>
-                  <th class="width-150px">ACL</th>
-                  <th class="width-120px">Rate Limit</th>
-                </tr>
+                  <tr>
+                    <th class="width-100px">
+                      Name
+                    </th>
+                    <th class="width-400px">
+                      Path
+                    </th>
+                    <th class="width-150px">
+                      Content Filter
+                    </th>
+                    <th class="width-150px">
+                      ACL
+                    </th>
+                    <th class="width-120px">
+                      Rate Limit
+                    </th>
+                  </tr>
                 </thead>
-                <tbody v-for="(mapEntry, mapIndex) in selectedSecurityPolicy.map"
-                       :key="mapIndex">
-                <tr>
-                  <td class="ellipsis"
-                      :title="mapEntry.name">
-                    {{ mapEntry.name }}
-                  </td>
-                  <td class="ellipsis"
-                      :title="mapEntry.match">
-                    {{ mapEntry.match }}
-                  </td>
-                  <td class="ellipsis"
+                <tbody
+                  v-for="(mapEntry, mapIndex) in selectedSecurityPolicy.map"
+                  :key="mapIndex"
+                >
+                  <tr>
+                    <td
+                      class="ellipsis"
+                      :title="mapEntry.name"
+                    >
+                      {{ mapEntry.name }}
+                    </td>
+                    <td
+                      class="ellipsis"
+                      :title="mapEntry.match"
+                    >
+                      {{ mapEntry.match }}
+                    </td>
+                    <td
+                      class="ellipsis"
                       :class="mapEntry.content_filter_active ? 'has-text-success' : 'has-text-danger'"
-                      :title="mapEntry.content_filter_active ? 'Active mode' : 'Learning mode'">
-                    {{ referencedDocName(contentFilterProfilesNames, mapEntry.content_filter_profile) }}
-                  </td>
-                  <td class="ellipsis"
+                      :title="mapEntry.content_filter_active ? 'Active mode' : 'Learning mode'"
+                    >
+                      {{ referencedDocName(contentFilterProfilesNames, mapEntry.content_filter_profile) }}
+                    </td>
+                    <td
+                      class="ellipsis"
                       :class="mapEntry.acl_active ? 'has-text-success' : 'has-text-danger'"
-                      :title="mapEntry.acl_active ? 'Active mode' : 'Learning mode'">
-                    {{ referencedDocName(aclProfilesNames, mapEntry.acl_profile) }}
-                  </td>
-                  <td class="ellipsis">
-                    {{ mapEntry.limit_ids.length }}
-                  </td>
-                </tr>
+                      :title="mapEntry.acl_active ? 'Active mode' : 'Learning mode'"
+                    >
+                      {{ referencedDocName(aclProfilesNames, mapEntry.acl_profile) }}
+                    </td>
+                    <td class="ellipsis">
+                      {{ mapEntry.limit_ids.length }}
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -358,16 +447,20 @@
             <label class="label is-small">Mobile SDK</label>
             <div class="control is-expanded">
               <div class="select is-fullwidth is-small">
-                <select v-model="selectedServerGroup.mobile_sdk"
-                        data-qa="mobile-sdk-dropdown"
-                        class="document-mobile-sdk-selection"
-                        title="Mobile SDK">
+                <select
+                  v-model="selectedServerGroup.mobile_sdk"
+                  data-qa="mobile-sdk-dropdown"
+                  class="document-mobile-sdk-selection"
+                  title="Mobile SDK"
+                >
                   <option value="">
                     None
                   </option>
-                  <option v-for="mobileSDK in mobileSDKsNames"
-                          :value="mobileSDK[0]"
-                          :key="mobileSDK[0]">
+                  <option
+                    v-for="mobileSDK in mobileSDKsNames"
+                    :value="mobileSDK[0]"
+                    :key="mobileSDK[0]"
+                  >
                     {{ mobileSDK[1] }}
                   </option>
                 </select>
@@ -378,13 +471,17 @@
             <label class="label is-small">Proxy Template</label>
             <div class="control is-expanded">
               <div class="select is-fullwidth is-small">
-                <select v-model="selectedServerGroup.proxy_template"
-                        data-qa="proxy-template-dropdown"
-                        class="document-proxy-template-selection"
-                        title="Proxy template">
-                  <option v-for="proxyTemplate in proxyTemplatesNames"
-                          :value="proxyTemplate[0]"
-                          :key="proxyTemplate[0]">
+                <select
+                  v-model="selectedServerGroup.proxy_template"
+                  data-qa="proxy-template-dropdown"
+                  class="document-proxy-template-selection"
+                  title="Proxy template"
+                >
+                  <option
+                    v-for="proxyTemplate in proxyTemplatesNames"
+                    :value="proxyTemplate[0]"
+                    :key="proxyTemplate[0]"
+                  >
                     {{ proxyTemplate[1] }}
                   </option>
                 </select>
@@ -395,21 +492,27 @@
       </div>
       <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ documentAPIPath }}</span>
     </div>
-    <div class="content no-data-wrapper"
-         v-if="loadingDocCounter || !selectedBranch || !selectedServerGroup">
+    <div
+      class="content no-data-wrapper"
+      v-if="loadingDocCounter || !selectedBranch || !selectedServerGroup"
+    >
       <div v-if="loadingDocCounter > 0">
         <button class="button is-outlined is-text is-small is-loading document-loading">
           Loading
         </button>
       </div>
-      <div v-else
-           class="no-data-message">
+      <div
+        v-else
+        class="no-data-message"
+      >
         No data found.
         <div>
           <span v-if="!selectedServerGroup?.id">
             Missing document. To create a new one, click
-            <a title="Add new"
-               @click="addNewDoc()">
+            <a
+              title="Add new"
+              @click="addNewDoc()"
+            >
               here
             </a>
           </span>
@@ -465,7 +568,7 @@ export default defineComponent({
       routingProfilesNames: [] as [RoutingProfile['id'], RoutingProfile['name']][],
       proxyTemplatesNames: [] as [ProxyTemplate['id'], ProxyTemplate['name']][],
       mobileSDKsNames: [] as [MobileSDK['id'], MobileSDK['name']][],
-      certificatesNames: [] as [Certificate['id'], Certificate['san']][],
+      certificates: [] as Certificate[],
       backendServicesNames: [] as [BackendService['id'], BackendService['name']][],
       contentFilterProfilesNames: [] as [ContentFilterProfile['id'], ContentFilterProfile['name']][],
       aclProfilesNames: [] as [ACLProfile['id'], ACLProfile['name']][],
@@ -488,6 +591,7 @@ export default defineComponent({
           this.loadServerGroup()
           this.loadSecurityPolicies()
           this.loadRoutingProfiles()
+          this.loadCertificates()
           this.loadProxyTemplates()
           this.loadMobileSDKs()
           this.loadBackendServices()
@@ -600,6 +704,11 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
     },
+
+    /* async generateCertificate(replace: boolean = false) {
+      const method = 'POST'
+      const url = `config/${this.selectedBranch}/d/certificates/e/{id}`
+    }, */
 
     async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
@@ -723,23 +832,13 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
-    loadCertificates() {
-      // RequestsUtils.sendReblazeRequest({
-      //   methodName: 'GET',
-      //   url: `configs/${this.selectedBranch}/d/certificates/`,
-      //   config: {headers: {'x-fields': 'id, san'}},
-      // }).then((response: AxiosResponse<Certificate[]>) => {
-      //   if (response.data.length > 0) {
-      //     this.certificatesNames = _.sortBy(_.map(response.data, (entity) => {
-      //       return [entity.id, entity.san]
-      //     }), (e) => {
-      //       return e[1]
-      //     })
-      //   } else {
-      // TODO  get certificate to work
-      this.certificatesNames = [['need-real-data', ['www.certificate.com']]] as [string, string[]][]
-      //   }
-      // })
+    async loadCertificates() {
+      const response = await RequestsUtils.sendReblazeRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/certificates/`,
+        config: {headers: {'x-fields': 'id, san'}},
+      })
+      this.certificates = response.data || []
     },
 
     async loadServerGroup() {
@@ -872,7 +971,6 @@ export default defineComponent({
   },
   async created() {
     await this.branchesStore.list
-    this.loadCertificates()
   },
 })
 </script>

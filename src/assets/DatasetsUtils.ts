@@ -1,7 +1,6 @@
 import {
   ACLProfile,
   BackendService,
-  ProxyTemplate,
   ContentFilterProfile,
   ContentFilterRule,
   CustomResponse,
@@ -16,6 +15,7 @@ import {
   SecurityPolicy,
   Site,
   Certificate,
+  ProxyTemplate,
 } from '@/types'
 import _ from 'lodash'
 

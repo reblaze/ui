@@ -411,6 +411,21 @@ declare module CuriefenseClient {
     upload_time?: string
   }
 
+  type Balancer = {
+    certificates?: string[]
+    default_certificate?: string
+    dns_name: string
+    listener_name: string
+    listener_port: string
+    load_balancer_type: string
+    // max_certificates: number
+    name: string
+    provider: string
+    region: string
+    id?: string
+    loading?: boolean
+  }
+
   // Operation documents - END
 
   // Git - START

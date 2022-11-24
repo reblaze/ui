@@ -6,7 +6,7 @@ module.exports = {
     'node': true,
   },
   'extends': [
-    'plugin:vue/essential',
+    'plugin:vue/vue3-strongly-recommended',
     'eslint:recommended',
     '@vue/typescript',
     'google',
@@ -51,5 +51,6 @@ module.exports = {
     'array-bracket-spacing': [2, 'never'],
     'computed-property-spacing': [2, 'never'],
     'no-undef': 'off',
+    'vue/no-v-for-template-key': 'off',
   },
 }
