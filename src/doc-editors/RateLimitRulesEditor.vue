@@ -245,11 +245,12 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> connected: {{ connected}}
       <security-policies-connections
           selectedDocType="ratelimits"
           :selectedDocId="localDoc.id"
           @go-to-route="emitGoToRoute"
+          @connected="emitConnected"
           :selectedBranch="selectedBranch">
       </security-policies-connections>
     </div>
@@ -296,6 +297,7 @@ export default defineComponent({
       keysAreValid: true,
       removable: false,
       customResponseNames: [] as [CustomResponse['id'], CustomResponse['name']][],
+      connected: false as boolean,
     }
   },
   computed: {
@@ -345,6 +347,11 @@ export default defineComponent({
 
     emitGoToRoute(url: string) {
       this.$emit('go-to-route', url)
+    },
+
+    emitConnected(cInput: boolean) {
+      console.log('cInput', cInput)
+      this.connected = cInput
     },
 
     getOptionTextKey(option: LimitOptionType, index: number) {

@@ -215,7 +215,7 @@ export default defineComponent({
       })
     },
   },
-  emits: ['go-to-route'],
+  emits: ['go-to-route', 'connected'],
   methods: {
     referToSecurityPolicy(id: string) {
       this.$emit('go-to-route', `/${this.selectedBranch}/securitypolicies/config/${id}`)
@@ -284,6 +284,8 @@ export default defineComponent({
       RequestsUtils.sendRequest({methodName, url: urlTrail, data: doc, successMessage, failureMessage}).then(() => {
         this.getConnectedSecurityPoliciesEntries()
       })
+      console.log('cInput true')
+      this.$emit('connected', true)
     },
 
     removeSecurityPolicyConnection(id: SecurityPolicy['id'], entryMatch: SecurityPolicyEntryMatch['match']) {
@@ -307,6 +309,8 @@ export default defineComponent({
         this.setEntryDeleteIndex(-1)
         this.getConnectedSecurityPoliciesEntries()
       })
+      console.log('cInput del', mapEntry['limit_ids'].length > 1)
+      this.$emit('connected', mapEntry['limit_ids'].length > 1)
     },
 
     loadSecurityPolicies() {
