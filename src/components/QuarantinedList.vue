@@ -91,7 +91,7 @@ export default defineComponent({
           },
           isSortable: true,
           isSearchable: true,
-          classes: 'width-140px',
+          classes: 'width-150px',
         },
         {
           title: 'Last Seen',
@@ -103,7 +103,7 @@ export default defineComponent({
           },
           isSortable: true,
           isSearchable: true,
-          classes: 'width-140px',
+          classes: 'width-150px',
         },
         {
           title: 'Expires',
@@ -121,7 +121,7 @@ export default defineComponent({
           },
           isSortable: true,
           isSearchable: true,
-          classes: 'width-140px',
+          classes: 'width-150px',
         },
         {
           title: 'Dynamic Rule',
