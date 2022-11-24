@@ -1,0 +1,124 @@
+name: Build Docker Image
+description: 'Build Docker Image'
+inputs:
+  AWS_ACCESS_KEY_ID:
+    required: true
+  AWS_ACCOUNT_ID:
+    required: true
+  AWS_SECRET_ACCESS_KEY:
+    required: true
+  GCP_PROJECT_ID:
+    required: true
+  GCP_SA_KEY:
+    required: true
+  GH_ENV:
+    required: true
+  REGION:
+    required: true
+  SERVICE:
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Set up GCP
+      uses: google-github-actions/auth@v0.4.3
+      with:
+        project_id: ${{ inputs.GCP_PROJECT_ID }}
+        credentials_json: ${{ inputs.GCP_SA_KEY }}
+        create_credentials_file: true
+    - name: Login to GCR
+      uses: docker/login-action@v1
+      with:
+        registry: gcr.io
+        username: _json_key
+        password: ${{ inputs.GCP_SA_KEY }}
+    - name: Set up AWS
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ inputs.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ inputs.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ inputs.REGION }}
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+    - name: Get Date
+      id: get-date
+      working-directory: ${{ github.action_path }}
+      run: |
+        DATE=`date +'%Y-%m-%d'`
+        echo "::set-output name=DATE::$DATE"
+        echo "DATE = $DATE"
+      shell: bash
+    - name: reformat branch name
+      id: reformat-branch-name
+      working-directory: ${{ github.action_path }}
+      run: |
+        REFORMATTED_CODE_BRANCH=$(echo "${{ github.ref_name }}" | tr '[:upper:]' '[:lower:]' | tr '.' '-' | tr '/' '-')
+        echo "::set-output name=REFORMATTED_CODE_BRANCH::$REFORMATTED_CODE_BRANCH"
+        echo "REFORMATTED_CODE_BRANCH = $REFORMATTED_CODE_BRANCH"
+      shell: bash
+    - name: reformat image name
+      id: reformat-image-name
+      working-directory: ${{ github.action_path }}
+      run: |
+        IMAGE_NAME=$(echo "${{ inputs.SERVICE }}" | tr '[:upper:]' '[:lower:]' | tr '.' '-' | tr '/' '-' | sed s/"cronjobs-"// )
+        echo "::set-output name=IMAGE_NAME::$IMAGE_NAME"
+        echo "IMAGE_NAME = $IMAGE_NAME"
+      shell: bash
+    - name: Build, tag, and push docker image to Amazon ECR
+      working-directory: ./
+      env:
+        REGISTRY:   "${{ steps.login-ecr.outputs.registry }}"
+        REPOSITORY: "${{ steps.reformat-image-name.outputs.IMAGE_NAME }}"
+        IMAGE_TAG:  "${{ steps.get-date.outputs.DATE }}-${{ github.sha }}"
+      run: |
+        docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+        docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+      shell: bash
+    - name: Tag with branch name
+      working-directory: ./
+      env:
+        REGISTRY:   "${{ steps.login-ecr.outputs.registry }}"
+        REPOSITORY: "${{ steps.reformat-image-name.outputs.IMAGE_NAME }}"
+        IMAGE_TAG:  "${{ steps.reformat-branch-name.outputs.REFORMATTED_CODE_BRANCH }}"
+      run: |
+        docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+        docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+      shell: bash
+
+    - name: Retag AWS image
+      working-directory: ./
+      env:
+        REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        REPOSITORY: "${{ steps.reformat-image-name.outputs.IMAGE_NAME }}"
+        IMAGE_TAG: "${{ steps.get-date.outputs.DATE }}-${{ github.sha }}"
+      run: |
+        docker tag $REGISTRY/$REPOSITORY:$IMAGE_TAG gcr.io/${{ inputs.GCP_PROJECT_ID }}/$REPOSITORY:$IMAGE_TAG
+        docker tag $REGISTRY/$REPOSITORY:$IMAGE_TAG gcr.io/${{ inputs.GCP_PROJECT_ID }}/$REPOSITORY:${{ steps.reformat-branch-name.outputs.REFORMATTED_CODE_BRANCH }}
+      shell: bash
+    - name: Docker push image to gcr
+      env:
+        REPOSITORY: "${{ steps.reformat-image-name.outputs.IMAGE_NAME }}"
+        IMAGE_TAG: "${{ steps.get-date.outputs.DATE }}-${{ github.sha }}"
+      working-directory: ./
+      run: |
+        docker push gcr.io/${{ inputs.GCP_PROJECT_ID }}/$REPOSITORY:$IMAGE_TAG
+        docker push gcr.io/${{ inputs.GCP_PROJECT_ID }}/$REPOSITORY:${{ steps.reformat-branch-name.outputs.REFORMATTED_CODE_BRANCH }}
+      shell: bash
+    - name: Validate retag
+      working-directory: ./
+      run: |
+        docker image list | grep ${{ steps.reformat-image-name.outputs.IMAGE_NAME }}
+      shell: bash
+    - name: Validate push
+      working-directory: ./
+      run: |
+        gcloud container images list --repository=gcr.io/${{ inputs.GCP_PROJECT_ID }} | grep ${{ steps.reformat-image-name.outputs.IMAGE_NAME }}
+      shell: bash
+    - name: Clean Up Images
+      if: always()
+      working-directory: ./
+      run: |
+        docker system prune --all --force
+        docker image list
+      shell: bash

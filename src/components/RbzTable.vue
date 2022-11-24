@@ -161,6 +161,17 @@
                 </span>
               </button>
             </p>
+            <p class="control"
+               v-if="showSecondRowButton">
+              <button :title="secondRowButtonTitle"
+                      class="button is-small row-entity-button"
+                      :class="secondRowButtonClass"
+                      @click="secondRowButtonClicked(row.id)">
+                <span class="icon is-small">
+                  <i :class="`fas ${secondRowButtonIcon ? secondRowButtonIcon : 'fa-edit'}`"></i>
+                </span>
+              </button>
+            </p>
           </div>
         </td>
       </tr>
@@ -220,6 +231,9 @@ export default defineComponent({
     rowButtonTitle: String,
     rowButtonClass: String,
     rowButtonIcon: String,
+    secondRowButtonTitle: String,
+    secondRowButtonClass: String,
+    secondRowButtonIcon: String,
     tableTitle: String,
     rowsPerPage: {
       type: Number,
@@ -294,7 +308,7 @@ export default defineComponent({
       },
     },
   },
-  emits: ['new-button-clicked', 'row-button-clicked', 'row-clicked', 'select-array'],
+  emits: ['new-button-clicked', 'row-button-clicked', 'second-row-button-clicked', 'row-clicked', 'select-array'],
   computed: {
     dataArrayDisplay() {
       if (!this.data?.length || !Array.isArray(this.data)) {
@@ -386,6 +400,10 @@ export default defineComponent({
 
     rowButtonClicked(id: string) {
       this.$emit('row-button-clicked', id)
+    },
+
+    secondRowButtonClicked(id: string) {
+      this.$emit('second-row-button-clicked', id)
     },
 
     rowClicked(id: string) {
