@@ -1,3 +1,6 @@
+/* eslint-env node */
+require("@rushstack/eslint-patch/modern-module-resolution")
+
 module.exports = {
   'root': true,
   'env': {
@@ -6,9 +9,9 @@ module.exports = {
     'node': true,
   },
   'extends': [
-    'plugin:vue/essential',
     'eslint:recommended',
-    '@vue/typescript',
+    'plugin:vue/vue3-essential',
+    '@vue/eslint-config-typescript',
     'google',
   ],
   'globals': {
@@ -33,9 +36,8 @@ module.exports = {
       'ignoreTrailingComments': true,
       'ignoreUrls': true,
     }],
-  'require-jsdoc': 'off',
-  'vue/no-v-model-argument': 'off',
-  'indent': ['error', 2, {
+    'require-jsdoc': 'off',
+    'indent': ['error', 2, {
       'FunctionDeclaration': {
         'parameters': 'first',
       },

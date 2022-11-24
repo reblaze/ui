@@ -35,7 +35,7 @@
                           :monthChangeOnScroll="false"
                           :clearable="false"
                           :presetRanges="presetRanges"
-                          @open="loadPresetRanges">
+                          @open="loadPresetRanges()">
               </Datepicker>
             </p>
             <p class="control">
@@ -110,7 +110,6 @@ export default defineComponent({
   components: {RbzDashboardDefault, Datepicker},
   data() {
     const defaultMetabaseURL = 'http://localhost:3000'
-    const now = new Date()
     return {
       defaultMetabaseURL: defaultMetabaseURL,
       metabaseURL: defaultMetabaseURL,
@@ -119,7 +118,7 @@ export default defineComponent({
       activeDashboardIndex: -1,
       data: [],
       searchFilter: '',
-      date: [new Date(now.getTime() - (HOUR / 2)).toISOString(), now.toISOString()],
+      date: this.getDefaultDate(),
       presetRanges: [],
       isSearchLoading: false,
     }
@@ -173,7 +172,7 @@ export default defineComponent({
       const query = this.buildQuery()
       const response = await RequestsUtils.sendDataLayerRequest({
         methodName: 'GET',
-        url: `metrics/1s?filters=${query}`,
+        url: `metrics/1m?filters=${query}`,
         config: {
           headers: {
             'syntax': 'mongodb',
@@ -198,6 +197,12 @@ export default defineComponent({
 
     clearSearch() {
       this.searchFilter = ''
+      this.date = this.getDefaultDate()
+    },
+
+    getDefaultDate() {
+      const now = new Date()
+      return [new Date(now.getTime() - (HOUR / 2)).toISOString(), now.toISOString()]
     },
 
     loadPresetRanges() {

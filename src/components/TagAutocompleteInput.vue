@@ -252,16 +252,6 @@ export default defineComponent({
 @import 'node_modules/bulma/sass/utilities/derived-variables.sass';
 @import 'node_modules/bulma/sass/helpers/color.sass';
 
-:deep(.dot) {
-  @extend .has-background-info;
-  border-radius: 50%;
-  display: inline-block;
-  height: 0.5rem;
-  margin-left: -0.25rem;
-  margin-right: 0.25rem;
-  width: 0.5rem;
-}
-
 :deep(.dot.legitimate) {
   @extend .has-background-success;
 }

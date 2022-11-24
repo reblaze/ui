@@ -231,15 +231,16 @@
             </div>
           </div>
           <div class="field">
-            <label class="label is-small"> Time Span </label>
+            <label class="label is-small">
+              Quarantine Time
+            </label>
             <div class="control suffix seconds-suffix">
-              <input
-                class="input is-small document-time-span"
-                data-qa="dynamic-rules-time-span-input"
-                type="number"
-                title="Dynamic Rule time span"
-                placeholder="Dynamic Rule time span"
-                v-model="selectedDynamicRule.ttl" />
+              <input class="input is-small document-quarantine time"
+                     data-qa="dynamic-rules-quarantine time-input"
+                     type="number"
+                     title="Dynamic Rule quarantine time"
+                     placeholder="Dynamic Rule quarantine time"
+                     v-model="selectedDynamicRule.ttl">
             </div>
           </div>
           <div class="field">
@@ -812,7 +813,6 @@ export default defineComponent({
   },
 })
 </script>
-
 <style scoped lang="scss">
 .document-active {
   margin-top: 15px;

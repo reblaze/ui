@@ -24,7 +24,7 @@ import EdgeFunctionsList from '@/views/EdgeFunctionsList.vue'
 import EdgeFunctionsEditor from '@/doc-editors/EdgeFunctionsEditor.vue'
 import PremiumPage from '@/views/PremiumPage.vue'
 import RequestsUtils from '@/assets/RequestsUtils'
-
+import EventsLog from '@/views/EventsLog.vue'
 
 async function premiumServerIsLive() {
   const url = `health/`
@@ -116,18 +116,18 @@ const routes: Array<RouteRecordRaw> = [
             children: [
               {
                 path: 'list',
-                name: 'MobileSDKs/list',
+                name: 'MobileSDK/list',
                 component: MobileSDKList,
                 meta: {
-                  title: 'Mobile SDKs List',
+                  title: 'Mobile SDK List',
                 },
               },
               {
                 path: 'config/:doc_id',
-                name: 'MobileSDKs/config',
+                name: 'MobileSDK/config',
                 component: MobileSDKEditor,
                 meta: {
-                  title: 'Mobile SDKs Editor',
+                  title: 'Mobile SDK Editor',
                 },
               },
             ],
@@ -285,6 +285,14 @@ const routes: Array<RouteRecordRaw> = [
         component: DashboardDisplay,
         meta: {
           title: 'Dashboard',
+        },
+      },
+      {
+        path: 'events-log',
+        name: 'EventsLog',
+        component: EventsLog,
+        meta: {
+          title: 'Events Log',
         },
       },
       {

@@ -485,12 +485,9 @@ export default defineComponent({
           {
             title: 'Type',
             fieldNames: ['type'],
-            displayFunction: (item: CustomResponse) => {
-              return _.capitalize(item?.type)
-            },
             isSortable: true,
             isSearchable: true,
-            classes: 'width-130px',
+            classes: 'width-130px is-capitalized',
           },
         ],
         'contentfilterprofiles': [
