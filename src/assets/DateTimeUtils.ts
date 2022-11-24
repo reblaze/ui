@@ -21,13 +21,12 @@ const isoToNowCuriefenseFormat = (date: string | Date) => {
     date = new Date(date)
   }
   const currentDate = new Date()
-  // if ( date < currentDate ) {
   // @ts-ignore
-  const dateDiff = (currentDate - date) >= 0 ? currentDate - date : date - currentDate
-  // @ts-ignore
-  if ((currentDate - date) < 0) {
+  if (date < currentDate) {
     return DateTimeUtils.isoToNowFullCuriefenseFormat(date)
   }
+  // @ts-ignore
+  const dateDiff = currentDate - date
   const minutesDiff = dateDiff / 6e4
   const hoursDiff = dateDiff / 36e5
   const daysDiff = dateDiff / 864e5
