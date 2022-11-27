@@ -312,7 +312,7 @@ const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: 'system-db',
+        path: '/:branch/system-db',
         name: 'SystemDBEditor',
         component: SystemDBEditor,
         meta: {
@@ -320,7 +320,7 @@ const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: 'support',
+        path: '/:branch/support',
         name: 'Support',
         component: HelpAndSupport,
         meta: {
