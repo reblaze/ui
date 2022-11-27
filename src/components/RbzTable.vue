@@ -1,210 +1,291 @@
 <template>
-  <div class="rbz-table-wrapper"
-       :class="{'scrollable scrollbox-shadowed': useScroll}"
-       :style="useScroll ? `max-height: ${2 * rowsPerPage}rem` : ''">
+  <div
+    class="rbz-table-wrapper"
+    :class="{'scrollable scrollbox-shadowed': useScroll}"
+    :style="useScroll ? `max-height: ${2 * rowsPerPage}rem` : ''"
+  >
     <table class="table is-bordered is-fullwidth is-size-7 rbz-table is-hoverable">
       <thead>
-      <tr class="header-row"
-          v-if="tableTitle">
-        <th :colspan="totalColumns"
-            class="has-text-centered table-title">
-          {{ tableTitle }}
-        </th>
-      </tr>
-      <tr class="header-row">
-        <th class="is-size-7 width-45px" v-if="showCheckboxColumn">
-          <div class="field is-grouped is-grouped-centered">
-              <input type="checkbox"
-                      title="Select all rows"
-                      ref="check-box"
-                      :checked="(selectedArray.length === dataArrayDisplay.length) && !!dataArrayDisplay.length"
-                      class="is-small header-checkbox"
-                      @click="selectAll()" />
-          </div>
-        </th>
-        <th v-for="(col, index) in columns"
+        <tr
+          class="header-row"
+          v-if="tableTitle"
+        >
+          <th
+            :colspan="totalColumns"
+            class="has-text-centered table-title"
+          >
+            {{ tableTitle }}
+          </th>
+        </tr>
+        <tr class="header-row">
+          <th
+            class="is-size-7 width-45px"
+            v-if="showCheckboxColumn"
+          >
+            <div class="field is-grouped is-grouped-centered">
+              <input
+                type="checkbox"
+                title="Select all rows"
+                ref="check-box"
+                :checked="(selectedArray.length === dataArrayDisplay.length) && !!dataArrayDisplay.length"
+                class="is-small header-checkbox"
+                @click="selectAll()"
+              >
+            </div>
+          </th>
+          <th
+            v-for="(col, index) in columns"
             :key="index"
             class="column-header is-size-7 column-title"
             :class="`${col.classes} ${col.isSortable ? 'is-clickable' : ''}`"
-            @click="sortColumn(col)">
-          <div v-if="col.isSortable">
-            <div class="arrow-wrapper">
-                          <span class="arrow arrow-asc"
-                                :class="{'is-active': sortColumnTitle === col.title && sortDirection === 'asc'}"/>
-            </div>
-            <div class="arrow-wrapper">
-                          <span class="arrow arrow-desc"
-                                :class="{'is-active': sortColumnTitle === col.title && sortDirection === 'desc'}"/>
-            </div>
-          </div>
-          <span>
-            {{ col.title }}
-          </span>
-        </th>
-        <th class="column-header width-45px is-relative has-text-centered"
-            v-if="showMenuColumn">
-          <div class="dropdown is-block is-right"
-               :class="{'is-active': menuVisible}">
-            <div class="dropdown-trigger">
-              <button class="button is-size-7 menu-toggle-button is-block"
-                      aria-haspopup="true"
-                      aria-controls="dropdown-menu"
-                      :title="`${menuVisible ? 'Close' : 'Open'} menu`"
-                      v-if="showFilterButton || showNewButton || showCheckboxColumn"
-                      @click.stop="menuVisible = !menuVisible">
-              <span class="icon is-small">
-                <i class="fas fa-ellipsis-v"></i>
-              </span>
-              </button>
-            </div>
-            <div class="dropdown-menu"
-                 id="dropdown-menu"
-                 role="menubar">
-              <div class="dropdown-content py-0"
-              :class="showCheckboxColumn? 'width-130px' : 'width-100px'">
-                <button class="button is-size-7 filter-toggle dropdown-item"
-                        :class="{'is-active': filtersVisible }"
-                        title="Filter table data"
-                        v-if="showFilterButton"
-                        @click.stop="filtersVisible = !filtersVisible">
-                  <span class="icon is-small">
-                    <i class="fas fa-filter"></i>
-                  </span>
-                  <span>
-                    Filter
-                  </span>
-                </button>
-                <hr class="dropdown-divider my-0">
-                <button class="button is-size-7 new-entity-button dropdown-item"
-                        title="Add new"
-                        v-if="showNewButton"
-                        @click.stop="newButtonClicked()">
-                  <span class="icon is-small">
-                    <i class="fas fa-plus"></i>
-                  </span>
-                  <span>
-                    New
-                  </span>
-                </button>
-                <slot name="menu"></slot>
+            @click="sortColumn(col)"
+          >
+            <div v-if="col.isSortable">
+              <div class="arrow-wrapper">
+                <span
+                  class="arrow arrow-asc"
+                  :class="{'is-active': sortColumnTitle === col.title && sortDirection === 'asc'}"
+                />
+              </div>
+              <div class="arrow-wrapper">
+                <span
+                  class="arrow arrow-desc"
+                  :class="{'is-active': sortColumnTitle === col.title && sortDirection === 'desc'}"
+                />
               </div>
             </div>
-          </div>
-        </th>
-      </tr>
-      <tr class="search-row header-row"
-          v-if="filtersVisible">
-        <th class="is-size-7 width-50px" v-if="showCheckboxColumn">
-        </th>
-        <th class="control has-icons-right"
-            v-for="(col, index) in columns"
-            :key="index">
-          <div v-if="col.isSearchable">
-            <input class="input is-small filter-input"
-                   :title="col.title"
-                   :placeholder="col.title"
-                   v-model="filter[col.title]"
-                   @change="currentPage = 1"/>
-            <span class="icon is-small is-right">
-              <i class="fa fa-filter"
-                 aria-hidden="true"></i>
+            <span>
+              {{ col.title }}
             </span>
-          </div>
-        </th>
-        <th v-if="showMenuColumn"></th>
-      </tr>
+          </th>
+          <th
+            class="column-header is-relative has-text-centered"
+            :class="showSecondRowButton? 'width-70px' : 'width-45px'"
+            v-if="showMenuColumn"
+          >
+            <div
+              class="dropdown is-block is-right"
+              :class="{'is-active': menuVisible}"
+            >
+              <div class="dropdown-trigger">
+                <button
+                  class="button is-size-7 menu-toggle-button is-block"
+                  aria-haspopup="true"
+                  aria-controls="dropdown-menu"
+                  :title="`${menuVisible ? 'Close' : 'Open'} menu`"
+                  v-if="showFilterButton || showNewButton || showCheckboxColumn"
+                  @click.stop="menuVisible = !menuVisible"
+                >
+                  <span class="icon is-small">
+                    <i class="fas fa-ellipsis-v" />
+                  </span>
+                </button>
+              </div>
+              <div
+                class="dropdown-menu"
+                id="dropdown-menu"
+                role="menubar"
+              >
+                <div
+                  class="dropdown-content py-0"
+                  :class="showCheckboxColumn? 'width-130px' : 'width-100px'"
+                >
+                  <button
+                    class="button is-size-7 filter-toggle dropdown-item"
+                    :class="{'is-active': filtersVisible }"
+                    title="Filter table data"
+                    v-if="showFilterButton"
+                    @click.stop="filtersVisible = !filtersVisible"
+                  >
+                    <span class="icon is-small">
+                      <i class="fas fa-filter" />
+                    </span>
+                    <span>
+                      Filter
+                    </span>
+                  </button>
+                  <hr class="dropdown-divider my-0">
+                  <button
+                    class="button is-size-7 new-entity-button dropdown-item"
+                    title="Add new"
+                    v-if="showNewButton"
+                    @click.stop="newButtonClicked()"
+                  >
+                    <span class="icon is-small">
+                      <i class="fas fa-plus" />
+                    </span>
+                    <span>
+                      New
+                    </span>
+                  </button>
+                  <slot name="menu" />
+                </div>
+              </div>
+            </div>
+          </th>
+        </tr>
+        <tr
+          class="search-row header-row"
+          v-if="filtersVisible"
+        >
+          <th
+            class="is-size-7 width-50px"
+            v-if="showCheckboxColumn"
+          />
+          <th
+            class="control has-icons-right"
+            v-for="(col, index) in columns"
+            :key="index"
+          >
+            <div v-if="col.isSearchable">
+              <input
+                class="input is-small filter-input"
+                :title="col.title"
+                :placeholder="col.title"
+                v-model="filter[col.title]"
+                @change="currentPage = 1"
+              >
+              <span class="icon is-small is-right">
+                <i
+                  class="fa fa-filter"
+                  aria-hidden="true"
+                />
+              </span>
+            </div>
+          </th>
+          <th v-if="showMenuColumn" />
+        </tr>
       </thead>
       <tbody>
-      <tr v-for="row in slicedDataArrayDisplay"
-          :key="row.id"
-          @click="rowClickable && rowClicked(row.id)"
-          :class="{'is-clickable': rowClickable}"
-          class="data-row">
-        <td class="is-size-7" v-if="showCheckboxColumn">
-          <div class="field is-grouped is-grouped-centered">
-              <input type="checkbox"
-                      title="Checkbox"
-                      :checked="selectedArray.includes(row.id)"
-                      :id="row.id"
-                      :ref="row.id"
-                      class="is-small row-checkbox"
-                      @change="rowSelected(row.id)" />
-          </div>
-        </td>
-        <td v-for="(col, index) in columns"
-            :key="index"
-            :title="row[col.title]"
-        class="data-cell">
-          <div class="is-size-7 data-cell-content"
-               :class="col.classes">
-            <span v-if="col.displayFunction"
+        <template
+          v-for="row in slicedDataArrayDisplay"
+          :key="row.id ? row.id : row.name"
+        >
+          <tr
+            @click="rowClickable && rowClicked(row.id ? row.id : row.name)"
+            :class="{'is-clickable': rowClickable}"
+            class="data-row"
+          >
+            <td
+              class="is-size-7"
+              v-if="showCheckboxColumn"
+            >
+              <div class="field is-grouped is-grouped-centered">
+                <input
+                  type="checkbox"
+                  title="Checkbox"
+                  :checked="selectedArray.includes(row.id)"
+                  :id="row.id"
+                  :ref="row.id"
+                  class="is-small row-checkbox"
+                  @change="rowSelected(row.id)"
+                >
+              </div>
+            </td>
+            <td
+              v-for="(col, index) in columns"
+              :key="index"
+              :title="row[col.title]"
+              class="data-cell"
+            >
+              <div
+                class="is-size-7 data-cell-content"
+                :class="col.classes"
+              >
+                <span
+                  v-if="col.displayFunction"
                   v-html="col.displayFunction(row)"
-                  :title="col.displayFunction(row)?.toString()">
-            </span>
-            <span v-else
-                  :title="row[col.fieldNames[0]]">
-              {{ row[col.fieldNames[0]] }}
-            </span>
-          </div>
-        </td>
-        <td class="is-size-7"
-            v-if="showMenuColumn">
-          <div class="field is-grouped is-grouped-centered">
-            <p class="control"
-               v-if="showRowButton">
-              <button :title="rowButtonTitle"
-                      class="button is-small row-entity-button"
-                      :class="rowButtonClass"
-                      @click="rowButtonClicked(row.id)">
-                <span class="icon is-small">
-                  <i :class="`fas ${rowButtonIcon ? rowButtonIcon : 'fa-edit'}`"></i>
+                  :title="col.displayFunction(row)?.toString()"
+                />
+                <span
+                  v-else
+                  :title="row[col.fieldNames[0]]"
+                >
+                  {{ row[col.fieldNames[0]] }}
                 </span>
+              </div>
+            </td>
+            <td
+              class="is-size-7"
+              v-if="showMenuColumn"
+            >
+              <div class="field is-grouped is-grouped-centered">
+                <p
+                  class="control"
+                  v-if="showRowButton"
+                >
+                  <button
+                    :title="rowButtonTitle"
+                    class="button is-small row-entity-button"
+                    :class="rowButtonClass"
+                    @click="rowButtonClicked(row.id)"
+                  >
+                    <span class="icon is-small">
+                      <i :class="`fas ${rowButtonIcon ? rowButtonIcon : 'fa-edit'}`" />
+                    </span>
+                  </button>
+                </p>
+                <p
+                  class="control"
+                  v-if="showSecondRowButton"
+                >
+                  <button
+                    :title="secondRowButtonTitle"
+                    class="button is-small second-row-entity-button"
+                    @click="secondRowButtonClicked(row.id)"
+                  >
+                    <span class="icon is-small">
+                      <i :class="`fas ${secondRowButtonIcon ? secondRowButtonIcon : 'fa-edit'}`" />
+                    </span>
+                  </button>
+                </p>
+              </div>
+            </td>
+          </tr>
+          <!-- TODO: need to add there the slot -->
+          <slot
+            name="tableMenu"
+            :row="row"
+          />
+        </template>
+        <tr v-if="!slicedDataArrayDisplay?.length">
+          <td
+            :colspan="totalColumns"
+            class="has-text-centered table-no-data-message"
+          >
+            <div v-if="loading">
+              <button class="button is-outlined is-text is-small is-loading document-loading">
+                Loading
               </button>
-            </p>
-            <p class="control"
-               v-if="showSecondRowButton">
-              <button :title="secondRowButtonTitle"
-                      class="button is-small row-entity-button"
-                      :class="secondRowButtonClass"
-                      @click="secondRowButtonClicked(row.id)">
-                <span class="icon is-small">
-                  <i :class="`fas ${secondRowButtonIcon ? secondRowButtonIcon : 'fa-edit'}`"></i>
-                </span>
+            </div>
+            <div v-else>
+              No data found.
+            </div>
+          </td>
+        </tr>
+        <tr
+          v-if="totalPages > 1 && !useScroll"
+          class="pagination-row"
+        >
+          <td :colspan="totalColumns">
+            <div class="pagination is-small">
+              <button
+                class="pagination-previous"
+                @click="prevPage"
+                :disabled="currentPage === 1"
+              >
+                Previous Page
               </button>
-            </p>
-          </div>
-        </td>
-      </tr>
-      <tr v-if="!slicedDataArrayDisplay?.length">
-        <td :colspan="totalColumns"
-            class="has-text-centered table-no-data-message">
-          <div v-if="loading">
-            <button class="button is-outlined is-text is-small is-loading document-loading">
-              Loading
-            </button>
-          </div>
-          <div v-else>
-            No data found.
-          </div>
-        </td>
-      </tr>
-      <tr v-if="totalPages > 1 && !useScroll"
-          class="pagination-row">
-        <td :colspan="totalColumns">
-          <div class="pagination is-small">
-            <button class="pagination-previous"
-                    @click="prevPage"
-                    :disabled="currentPage === 1">
-              Previous Page
-            </button>
-            <button class="pagination-next"
-                    @click="nextPage"
-                    :disabled="currentPage === totalPages">
-              Next Page
-            </button>
-          </div>
-        </td>
-      </tr>
+              <button
+                class="pagination-next"
+                @click="nextPage"
+                :disabled="currentPage === totalPages"
+              >
+                Next Page
+              </button>
+            </div>
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>
@@ -232,10 +313,8 @@ export default defineComponent({
     rowButtonClass: String,
     rowButtonIcon: String,
     secondRowButtonTitle: String,
-    secondRowButtonClass: String,
     secondRowButtonIcon: String,
     tableTitle: String,
-    isSortByOriginalValue: Boolean,
     rowsPerPage: {
       type: Number,
       default: 10,
@@ -309,7 +388,7 @@ export default defineComponent({
       },
     },
   },
-  emits: ['new-button-clicked', 'row-button-clicked', 'second-row-button-clicked', 'row-clicked', 'select-array'],
+  emits: ['new-button-clicked', 'row-button-clicked', 'row-clicked', 'select-array', 'second-row-button-clicked'],
   computed: {
     dataArrayDisplay() {
       if (!this.data?.length || !Array.isArray(this.data)) {
@@ -403,12 +482,12 @@ export default defineComponent({
       this.$emit('row-button-clicked', id)
     },
 
-    secondRowButtonClicked(id: string) {
-      this.$emit('second-row-button-clicked', id)
-    },
-
     rowClicked(id: string) {
       this.$emit('row-clicked', id)
+    },
+
+    secondRowButtonClicked(id: string) {
+      this.$emit('second-row-button-clicked', id)
     },
 
     rowSelected(id: string) {
@@ -443,10 +522,7 @@ export default defineComponent({
         this.sortDirection = 'asc'
       }
       this.sortColumnTitle = column.title
-
-      this.sortColumnDisplayFunction = (this.isSortByOriginalValue) ? null :
-        this.sortColumnDisplayFunction = column.displayFunction
-
+      this.sortColumnDisplayFunction = column.displayFunction
       this.sortColumnIsNumber = column.isNumber
     },
 

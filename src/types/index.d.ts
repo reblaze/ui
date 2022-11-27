@@ -113,6 +113,11 @@ declare module CuriefenseClient {
     | 'contentfilterprofiles'
     | 'contentfilterrules'
     | 'actions'
+    | ReblazeDocumentType
+
+  type ReblazeDocumentType =
+    'cloud-functions'
+    | 'dynamic-rules'
 
   // Document types helpers - END
 
@@ -276,7 +281,6 @@ declare module CuriefenseClient {
   type ColumnOptions = {
     title: string
     fieldNames?: string[]
-    isSortByOriginalValue?: boolean
     displayFunction?: (item: any) => string | number // Will be rendered as HTML
     isSortable?: boolean
     isSearchable?: boolean
@@ -312,25 +316,6 @@ declare module CuriefenseClient {
       max_fails: number
       backup: boolean
     }[]
-  }
-
-  type Certificate = {
-    id: string
-    cert_body: string
-    expires: string
-    issuer: string
-    le_auto_renew: boolean
-    le_auto_replace: boolean
-    le_hash: string
-    private_key: string
-    provider_links: [{
-      link: string
-      provider: string
-      region: string
-    }]
-    san: string[]
-    subject: string
-    uploaded: string
   }
 
   type RoutingProfileEntryLocation = {
@@ -405,6 +390,42 @@ declare module CuriefenseClient {
     ssl_certificate: string
   }
 
+  type Link = {
+    provider: string
+    link: string
+    region: string
+  }
+
+  type Certificate = {
+    id: string
+    cert_body: string
+    exp_date?: string
+    links?: Link[]
+    issuer?: string
+    le_auto_renew?: boolean
+    le_auto_replace?: boolean
+    le_hash?: string
+    private_key: string
+    san?: string[]
+    subject?: string
+    upload_time?: string
+  }
+
+  type Balancer = {
+    certificates?: string[]
+    default_certificate?: string
+    dns_name: string
+    listener_name: string
+    listener_port: string
+    load_balancer_type: string
+    // max_certificates: number
+    name: string
+    provider: string
+    region: string
+    id?: string
+    loading?: boolean
+  }
+
   // Operation documents - END
 
   // Git - START
@@ -438,75 +459,6 @@ declare module CuriefenseClient {
     tags: string[]
     target: string
     value: string
-  }
-
-  type EventLog = {
-    timestamp: string
-    curiesession: string
-    curiesession_ids: { [key: string]: string }
-    request_id: string
-    arguments: { [key: string]: string }
-    path: string
-    path_parts: { [key: string]: string }
-    authority: string
-    cookies: { [key: string]: string }
-    headers: { [key: string]: string }
-    uri: string
-    ip: string
-    method: typeof httpRequestMethods[number]
-    response_code: number
-    logs: string[]
-    processing_stage: number
-    acl_triggers: {
-      id: string
-      name: string
-      active: boolean
-    }[]
-    rate_limit_triggers: {
-      id: string
-      name: string
-      active: boolean
-    }[]
-    global_filter_triggers: {
-      id: string
-      name: string
-      active: boolean
-    }[]
-    content_filter_triggers: {
-      id: string
-      name: string
-      active: boolean
-    }[]
-    reason: string
-    tags: string[]
-    proxy: {
-      bytes_sent: string
-      geo_lat: string
-      geo_long: string
-      request_length: string
-      request_time: string
-      upstream_addr: string
-      upstream_response_time: string
-      upstream_status: string
-    }
-    security_config: {
-      revision: string
-      acl_active: boolean
-      cf_active: boolean
-      cf_rules: number
-      rate_limit_rules: number
-      global_filters_active: number
-    }
-    trigger_counters: {
-      acl: number
-      acl_active: number
-      global_filters: number
-      global_filters_active: number
-      rate_limit: number
-      rate_limit_active: number
-      content_filters: number
-      content_filters_active: number
-    }
   }
 }
 export = CuriefenseClient

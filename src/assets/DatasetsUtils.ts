@@ -1,7 +1,6 @@
 import {
   ACLProfile,
   BackendService,
-  ProxyTemplate,
   ContentFilterProfile,
   ContentFilterRule,
   CustomResponse,
@@ -15,6 +14,8 @@ import {
   RoutingProfile,
   SecurityPolicy,
   Site,
+  Certificate,
+  ProxyTemplate,
 } from '@/types'
 import _ from 'lodash'
 
@@ -81,6 +82,8 @@ const titles: { [key: string]: string } = {
   'sites-singular': 'Server Group',
   'backends': 'Backends Services',
   'backends-singular': 'Backend Service',
+  'certificates': 'Certificates',
+  'certificate-singular': 'Certificate',
   'report': 'Report',
   'ignore': 'Ignore',
   'request': 'Request',
@@ -213,7 +216,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'session_ids': [],
       'map': [
         {
-          'id': '__default_entry__',
+          'id': generateUUID2(),
           'match': '/',
           'name': 'default',
           'acl_profile': '__acldefault__',
@@ -304,7 +307,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'id': id,
       'name': 'New Dynamic Rule ' + id,
       'description': 'New Dynamic Rule Description and Remarks',
-      'timeframe': 1,
+      'timeframe': 60,
       'threshold': 9999,
       'active': false,
       'include': ['all'],
@@ -373,10 +376,9 @@ const newOperationEntryFactory: { [key: string]: Function } = {
   },
 
   'mobile-sdks'(): MobileSDK {
-    const id = generateUUID2()
     return {
-      'id': id,
-      'name': 'New Mobile SDK ' + id, // TODO: Remove this random uuid once names are no longer unique
+      'id': generateUUID2(),
+      'name': 'New Mobile SDK ' + generateUUID2(), // TODO: Remove this random uuid once names are no longer unique
       'description': 'New Mobile SDK Description and Remarks',
       'uid_header': 'authorization',
       'grace': '5',
@@ -457,7 +459,17 @@ const newOperationEntryFactory: { [key: string]: Function } = {
       'target': 'ip',
     }
   },
+
+  'certificate'(): Certificate {
+    const id = generateUUID2()
+    return {
+      'id': id,
+      'private_key': '',
+      'cert_body': '',
+    }
+  },
 }
+
 
 export default {
   name: 'DatasetsUtils',

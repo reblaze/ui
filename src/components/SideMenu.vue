@@ -3,14 +3,18 @@
     <div class="branch-management-wrapper mb-3">
       <div class="control">
         <div class="select is-small is-fullwidth">
-          <select :value="selectedBranch?.id"
-                  data-qa="switch-branch-dropdown"
-                  title="Switch branch"
-                  @change="switchBranch($event)"
-                  class="branch-selection">
-            <option v-for="name in branchNames"
-                    :key="name"
-                    :value="name">
+          <select
+            :value="selectedBranch?.id"
+            data-qa="switch-branch-dropdown"
+            title="Switch branch"
+            @change="switchBranch($event)"
+            class="branch-selection"
+          >
+            <option
+              v-for="name in branchNames"
+              :key="name"
+              :value="name"
+            >
               {{ name }}
             </option>
           </select>
@@ -19,10 +23,12 @@
       <div class="is-flex">
         <div class="control mr-3">
           <span class="icon is-small is-vcentered">
-            <svg :width="24"
-                 :height="24"
-                 :viewBox="'0 0 24 24'">
-              <path :d="mdiSourceBranchPath"/>
+            <svg
+              :width="24"
+              :height="24"
+              :viewBox="'0 0 24 24'"
+            >
+              <path :d="mdiSourceBranchPath" />
             </svg>
           </span>
           <span class="is-size-7 git-branches">
@@ -31,10 +37,12 @@
         </div>
         <div class="control">
           <span class="icon is-small is-vcentered">
-            <svg :width="24"
-                 :height="24"
-                 :viewBox="'0 0 24 24'">
-              <path :d="mdiSourceCommitPath"/>
+            <svg
+              :width="24"
+              :height="24"
+              :viewBox="'0 0 24 24'"
+            >
+              <path :d="mdiSourceCommitPath" />
             </svg>
           </span>
           <span class="is-size-7 git-commits">
@@ -44,11 +52,13 @@
       </div>
     </div>
     <div class="menu-wrapper">
-      <sidebar-menu :menu="menu"
-                    :relative="true"
-                    :hideToggle="true"
-                    width="200px"
-                    theme="white-theme"/>
+      <sidebar-menu
+        :menu="menu"
+        :relative="true"
+        :hide-toggle="true"
+        width="200px"
+        theme="white-theme"
+      />
     </div>
   </div>
 </template>
@@ -68,9 +78,9 @@ export default defineComponent({
   name: 'SideMenu',
   data() {
     const swaggerURL = `${location.protocol}//${location.hostname}:30000/api/v3/`
-    // const kibanaURL = `${location.protocol}//${location.hostname}:5601/app/discover`
+    const kibanaURL = `${location.protocol}//${location.hostname}:5601/app/discover`
     const grafanaURL = `${location.protocol}//${location.hostname}:30300/`
-    // const prometheusURL = `${location.protocol}//${location.hostname}:9090/`
+    const prometheusURL = `${location.protocol}//${location.hostname}:9090/`
     const splitVersion = packageJson.version.split('.')
     const docsVersion = `${splitVersion[0]}.${splitVersion[1]}`
 
@@ -84,15 +94,15 @@ export default defineComponent({
 
       // Default URLs
       defaultSwaggerURL: swaggerURL,
-      // defaultKibanaURL: kibanaURL,
+      defaultKibanaURL: kibanaURL,
       defaultGrafanaURL: grafanaURL,
-      // defaultPrometheusURL: prometheusURL,
+      defaultPrometheusURL: prometheusURL,
 
       // Actual URLs
       swaggerURL: swaggerURL,
-      // kibanaURL: kibanaURL,
+      kibanaURL: kibanaURL,
       grafanaURL: grafanaURL,
-      // prometheusURL: prometheusURL,
+      prometheusURL: prometheusURL,
     }
   },
   watch: {
@@ -131,25 +141,25 @@ export default defineComponent({
           href: '/dashboard',
           title: 'Dashboard',
         },
-        // {
-        //   href: this.kibanaURL,
-        //   title: 'Kibana',
-        //   external: true,
-        // },
+        {
+          href: this.kibanaURL,
+          title: 'Kibana',
+          external: true,
+        },
         {
           href: this.grafanaURL,
           title: 'Grafana',
           external: true,
         },
-        // {
-        //   href: this.prometheusURL,
-        //   title: 'Prometheus',
-        //   external: true,
-        // },
         {
-          href: '/events-log',
-          title: 'Events Log',
+          href: this.prometheusURL,
+          title: 'Prometheus',
+          external: true,
         },
+        // {
+        //   href: '/events-log',
+        //   title: 'Events Log',
+        // },
         // ########
         // Security
         // ########
@@ -204,7 +214,7 @@ export default defineComponent({
         },
         {
           href: `/${this.selectedBranch?.id}/mobile-sdks`,
-          title: 'Mobile SDK',
+          title: 'Mobile SDKs',
         },
         // ##############
         // SaaS Settings
@@ -215,10 +225,6 @@ export default defineComponent({
         {
           href: `/${this.selectedBranch?.id}/server-groups`,
           title: 'Server Groups',
-        },
-        {
-          href: `/${this.selectedBranch?.id}/backend-services`,
-          title: 'Backend Services',
         },
         {
           href: `/${this.selectedBranch?.id}/routing-profiles`,
@@ -232,10 +238,14 @@ export default defineComponent({
           href: `/${this.selectedBranch?.id}/cloud-functions`,
           title: 'Edge Functions',
         },
-        // {
-        //   href: `/${this.selectedBranch?.id}/ssl`,
-        //   title: 'SSL',
-        // },
+        {
+          href: `/${this.selectedBranch?.id}/backend-services`,
+          title: 'Backend Services',
+        },
+        {
+          href: `/${this.selectedBranch}/ssl`,
+          title: 'SSL',
+        },
         // ######
         // System
         // ######
@@ -300,9 +310,9 @@ export default defineComponent({
       })
       const systemDBData = response?.data
       this.swaggerURL = systemDBData?.links?.swagger_url || this.defaultSwaggerURL
-      // this.kibanaURL = systemDBData?.links?.kibana_url || this.defaultKibanaURL
+      this.kibanaURL = systemDBData?.links?.kibana_url || this.defaultKibanaURL
       this.grafanaURL = systemDBData?.links?.grafana_url || this.defaultGrafanaURL
-      // this.prometheusURL = systemDBData?.links?.prometheus_url || this.defaultPrometheusURL
+      this.prometheusURL = systemDBData?.links?.prometheus_url || this.defaultPrometheusURL
     },
   },
   async mounted() {

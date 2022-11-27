@@ -52,20 +52,23 @@ const generateUniqueEntityName = (originalName: string, entitiesList: string[],
 // Download data as file
 const downloadFile = (fileName: string, fileType: string, data: any) => {
   // Check if file type can be downloaded
-  const recognizedDownloadFileTypes = ['json']
+  const recognizedDownloadFileTypes = ['json', 'pfx']
   if (!recognizedDownloadFileTypes.includes(fileType)) {
     console.log('Unable to download file, unknown file type')
     return
   }
-  // Create downloadable content based on file type
-  let content: BlobPart = ''
+  let blob
   if (fileType === 'json') {
+    let content: BlobPart = ''
     content = JSON.stringify(data)
+    blob = new Blob([content], {
+      type: `application/${fileType}`,
+    })
+  }
+  if (fileType === 'pfx') {
+    blob = data
   }
   // Create anchor element with download data
-  const blob = new Blob([content], {
-    type: `application/${fileType}`,
-  })
   const link = document.createElement('a')
   link.href = window.URL.createObjectURL(blob)
   link.download = `${fileName}.${fileType}`
@@ -134,28 +137,10 @@ const amountSuffixFormatter = (value: number) => {
     {value: 1e12, symbol: 'T'},
   ]
   const rx = /\.0+$|(\.[0-9]*[1-9])0+$/
-  const item = lookup.slice().reverse().find((item) => {
+  const item = lookup.slice().reverse().find(function(item) {
     return value >= item.value
   })
   return item ? (value / item.value).toFixed(0).toString().replace(rx, '$1') + item.symbol : '0'
-}
-
-const amountSuffixFormatterBytes = (value: number) => {
-  if (!value) {
-    return '0 Bytes'
-  }
-  const lookup = [
-    {value: 1, symbol: ' Bytes'},
-    {value: 1024, symbol: ' KB'},
-    {value: Math.pow(1024, 2), symbol: ' MB'},
-    {value: Math.pow(1024, 3), symbol: ' GB'},
-    {value: Math.pow(1024, 4), symbol: ' TB'},
-  ]
-  const rx = /\.0+$|(\.[0-9]*[1-9])0+$/
-  const item = lookup.slice().reverse().find((item) => {
-    return value >= item.value
-  })
-  return (value / item.value).toFixed(2).toString().replace(rx, '$1') + item.symbol
 }
 
 const hexToRgbArray = (hex: string) => {
@@ -180,6 +165,5 @@ export default {
   toast,
   removeExtraWhitespaces,
   amountSuffixFormatter,
-  amountSuffixFormatterBytes,
   hexToRgbArray,
 }

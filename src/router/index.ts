@@ -19,28 +19,7 @@ import BackendServiceEditor from '@/doc-editors/BackendServicesEditor.vue'
 import HelpAndSupport from '@/views/HelpAndSupport.vue'
 import DashboardDisplay from '@/views/Dashboards.vue'
 import DynamicRulesList from '@/views/DynamicRulesList.vue'
-import DynamicRulesEditor from '@/doc-editors/DynamicRulesEditor.vue'
-import EdgeFunctionsList from '@/views/EdgeFunctionsList.vue'
-import EdgeFunctionsEditor from '@/doc-editors/EdgeFunctionsEditor.vue'
-import PremiumPage from '@/views/PremiumPage.vue'
-import RequestsUtils from '@/assets/RequestsUtils'
-import EventsLog from '@/views/EventsLog.vue'
-
-async function premiumServerIsLive() {
-  const url = `health/`
-  const response = await RequestsUtils.sendReblazeRequest({
-    methodName: 'GET',
-    url,
-    onFail: () => {
-      console.log('Reblaze server not found, redirecting to Premium info page')
-    },
-  })
-
-  const isLive = response?.status === 200
-  if (!isLive) {
-    return {path: '/premium'}
-  }
-}
+import SslList from '@/views/SslList.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -57,7 +36,6 @@ const routes: Array<RouteRecordRaw> = [
           {
             path: 'server-groups',
             name: 'ServerGroups',
-            beforeEnter: [premiumServerIsLive],
             redirect: (route) => {
               return `/${route.params.branch}/server-groups/list`
             },
@@ -83,7 +61,6 @@ const routes: Array<RouteRecordRaw> = [
           {
             path: 'routing-profiles',
             name: 'RoutingProfiles',
-            beforeEnter: [premiumServerIsLive],
             redirect: (route) => {
               return `/${route.params.branch}/routing-profiles/list`
             },
@@ -108,26 +85,25 @@ const routes: Array<RouteRecordRaw> = [
           },
           {
             path: 'mobile-sdks',
-            name: 'MobileSDK',
-            beforeEnter: [premiumServerIsLive],
+            name: 'MobileSDKs',
             redirect: (route) => {
               return `/${route.params.branch}/mobile-sdks/list`
             },
             children: [
               {
                 path: 'list',
-                name: 'MobileSDK/list',
+                name: 'MobileSDKs/list',
                 component: MobileSDKList,
                 meta: {
-                  title: 'Mobile SDK List',
+                  title: 'Mobile SDKs List',
                 },
               },
               {
                 path: 'config/:doc_id',
-                name: 'MobileSDK/config',
+                name: 'MobileSDKs/config',
                 component: MobileSDKEditor,
                 meta: {
-                  title: 'Mobile SDK Editor',
+                  title: 'Mobile SDKs Editor',
                 },
               },
             ],
@@ -135,7 +111,6 @@ const routes: Array<RouteRecordRaw> = [
           {
             path: 'proxy-templates',
             name: 'ProxyTemplates',
-            beforeEnter: [premiumServerIsLive],
             redirect: (route) => {
               return `/${route.params.branch}/proxy-templates/list`
             },
@@ -161,7 +136,6 @@ const routes: Array<RouteRecordRaw> = [
           {
             path: 'dynamic-rules',
             name: 'DynamicRules',
-            beforeEnter: [premiumServerIsLive],
             redirect: (route) => {
               return `/${route.params.branch}/dynamic-rules/list`
             },
@@ -176,8 +150,8 @@ const routes: Array<RouteRecordRaw> = [
               },
               {
                 path: 'config/:doc_id',
-                name: 'DynamicRules/config',
-                component: DynamicRulesEditor,
+                name: 'DocumentEditor/DocType/config/DocID',
+                component: DocumentEditor,
                 meta: {
                   title: 'Dynamic Rules Editor',
                 },
@@ -187,7 +161,6 @@ const routes: Array<RouteRecordRaw> = [
           {
             path: 'backend-services',
             name: 'BackendServices',
-            beforeEnter: [premiumServerIsLive],
             redirect: (route) => {
               return `/${route.params.branch}/backend-services/list`
             },
@@ -211,28 +184,16 @@ const routes: Array<RouteRecordRaw> = [
             ],
           },
           {
-            path: 'cloud-functions',
-            name: 'EdgeFunctions',
-            beforeEnter: [premiumServerIsLive],
+            path: 'ssl',
+            name: 'SSL',
             redirect: (route) => {
-              return `/${route.params.branch}/cloud-functions/list`
+              return `/${route.params.branch}/ssl/list`
             },
             children: [
               {
                 path: 'list',
-                name: 'EdgeFunctions/list',
-                component: EdgeFunctionsList,
-                meta: {
-                  title: 'Edge Functions List',
-                },
-              },
-              {
-                path: 'config/:doc_id',
-                name: 'EdgeFunctions/config',
-                component: EdgeFunctionsEditor,
-                meta: {
-                  title: 'Edge Functions Editor',
-                },
+                name: 'SSL/list',
+                component: SslList,
               },
             ],
           },
@@ -288,22 +249,6 @@ const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: 'events-log',
-        name: 'EventsLog',
-        component: EventsLog,
-        meta: {
-          title: 'Events Log',
-        },
-      },
-      {
-        path: 'premium',
-        name: 'Premium',
-        component: PremiumPage,
-        meta: {
-          title: 'Premium',
-        },
-      },
-      {
         path: 'quarantined',
         name: 'Quarantined',
         component: QuarantinedList,
@@ -339,7 +284,6 @@ const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
 })
-
 
 export {routes}
 

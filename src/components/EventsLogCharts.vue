@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div class="columns height-200px">
     <div class="column">
       <label class="label is-small">
@@ -299,3 +299,4 @@ export default defineComponent({
   background-color: $color-radical-red;
 }
 </style>
+ -->
