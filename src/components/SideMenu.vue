@@ -3,9 +3,7 @@
     <div class="branch-management-wrapper mb-3">
       <div class="control">
         <div class="select is-small is-fullwidth">
-        <!-- v-model="selectedBranch.id" //-->
-          <select
-                  :value="selectedBranch?.id"
+          <select :value="selectedBranch?.id"
                   data-qa="switch-branch-dropdown"
                   title="Switch branch"
                   @change="switchBranch($event)"
