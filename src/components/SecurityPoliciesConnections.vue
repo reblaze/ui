@@ -164,7 +164,7 @@ import {SecurityPolicy, SecurityPolicyEntryMatch} from '@/types'
 
 
 export default defineComponent({
-  name: 'SecurityPolicyConnections',
+  name: 'SecurityPoliciesConnections',
 
   props: {
     selectedDocType: String,
@@ -196,8 +196,20 @@ export default defineComponent({
       immediate: true,
       deep: true,
     },
+    connectedSecurityPoliciesEntries: {
+      handler: function() {
+        this.havePoliciesConnections = !!this.connectedSecurityPoliciesEntries.length
+      },
+      immediate: true,
+    },
   },
   computed: {
+    havePoliciesConnections(): boolean {
+      const connection = !!this.connectedSecurityPoliciesEntries.length
+      this.emitConnections(connection)
+      return connection
+    },
+
     newSecurityPolicyConnections(): SecurityPolicy[] {
       return this.securityPolicies.filter((securityPolicy) => {
         return !securityPolicy.map.every((securityPolicyEntry) => {
@@ -215,10 +227,14 @@ export default defineComponent({
       })
     },
   },
-  emits: ['go-to-route'],
+  emits: ['go-to-route', 'have-policies-connections'],
   methods: {
     referToSecurityPolicy(id: string) {
       this.$emit('go-to-route', `/${this.selectedBranch}/securitypolicies/config/${id}`)
+    },
+
+    emitConnections(connect: boolean) {
+      this.$emit('have-policies-connections', connect)
     },
 
     openNewSecurityPolicyConnection() {

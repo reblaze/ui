@@ -249,6 +249,7 @@
       <security-policies-connections
           selectedDocType="ratelimits"
           :selectedDocId="localDoc.id"
+          @havePoliciesConnections="emitConnections"
           @go-to-route="emitGoToRoute"
           :selectedBranch="selectedBranch">
       </security-policies-connections>
@@ -296,6 +297,7 @@ export default defineComponent({
       keysAreValid: true,
       removable: false,
       customResponseNames: [] as [CustomResponse['id'], CustomResponse['name']][],
+      havePoliciesConnections: false,
     }
   },
   computed: {
@@ -332,7 +334,7 @@ export default defineComponent({
       return _.fromPairs(_.zip(dupTags, dupTags))
     },
   },
-  emits: ['update:selectedDoc', 'go-to-route', 'tags-invalid'],
+  emits: ['update:selectedDoc', 'go-to-route', 'tags-invalid', 'have-policies-connections'],
   methods: {
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
@@ -340,6 +342,10 @@ export default defineComponent({
 
     emitGoToRoute(url: string) {
       this.$emit('go-to-route', url)
+    },
+
+    emitConnections(connections: boolean) {
+      this.$emit('have-policies-connections', connections)
     },
 
     getOptionTextKey(option: LimitOptionType, index: number) {
