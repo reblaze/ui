@@ -2,11 +2,9 @@
   <div class="card-content">
     <div class="tabs is-centered">
       <ul>
-        <li
-          :class=" tab === 'Load balancers' ? 'is-active' : '' "
+        <li :class=" tab === 'Load balancers' ? 'is-active' : '' "
           class="load-balancers-tab"
-          data-qa="load-balancers-tab-btn"
-        >
+          data-qa="load-balancers-tab-btn">
           <a
             tabindex="0"
             @click="tab = 'Load balancers'"
@@ -651,7 +649,7 @@ export default defineComponent({
       return defaultCertName[defaultCertName.length - 1] + '(*)'
     },
 
-    openAttachCertPopup(balancer:Balancer) {
+    openAttachCertPopup() {
       this.certsSearch = ''
       this.attachCertPopupShown = true
     },
