@@ -128,7 +128,7 @@ export default defineComponent({
           header: 'Analytics',
         },
         {
-          href: '/dashboard',
+          href: `/${this.selectedBranch?.id}/dashboard`,
           title: 'Dashboard',
         },
         // {

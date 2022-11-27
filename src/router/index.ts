@@ -47,12 +47,12 @@ const routes: Array<RouteRecordRaw> = [
     path: '/',
     name: 'MainComponent',
     component: MainComponent,
-    redirect: '/dashboard',
+    redirect: ':branch/dashboard',
     children: [
       {
         path: ':branch',
         name: 'MainComponent/Branch',
-        redirect: '/dashboard',
+        redirect: ':branch/dashboard',
         children: [
           {
             path: 'server-groups',
@@ -280,7 +280,7 @@ const routes: Array<RouteRecordRaw> = [
         ],
       },
       {
-        path: 'dashboard',
+        path: ':branch/dashboard',
         name: 'DashboardDisplay',
         component: DashboardDisplay,
         meta: {
@@ -288,7 +288,7 @@ const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: 'events-log',
+        path: '/:branch/events-log',
         name: 'EventsLog',
         component: EventsLog,
         meta: {
