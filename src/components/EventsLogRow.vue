@@ -161,8 +161,9 @@
             </span>
           </div>
           <div class="content collapsible-content px-3 py-3">
-            <template v-for="(sessionIDValue, sessionIDKey) in event.curiesession_ids">
-              <div v-if="sessionIDKey !== 'sessionid'" :key="sessionIDKey"
+            <template v-for="(sessionIDValue, sessionIDKey) in event.curiesession_ids"
+              :key="sessionIDKey">
+              <div v-if="sessionIDKey !== 'sessionid'"
                    :title="`${sessionIDKey}: ${sessionIDValue}`"
                    @contextmenu="openContextMenu($event, 'curiesession_ids', sessionIDKey)"
                    class="path-part-field is-size-7 is-clickable">
@@ -348,8 +349,9 @@
             </span>
           </div>
           <div class="content collapsible-content px-3 py-3">
-            <template v-for="(pathPartValue, pathPartKey) in event.path_parts">
-              <div v-if="pathPartKey !== 'path'" :key="pathPartKey"
+            <template v-for="(pathPartValue, pathPartKey) in event.path_parts"
+              :key="pathPartKey">
+              <div v-if="pathPartKey !== 'path'"
                    :title="`${pathPartKey}: ${pathPartValue}`"
                    @contextmenu="openContextMenu($event, 'path_parts', pathPartKey)"
                    class="path-part-field is-size-7 is-clickable">

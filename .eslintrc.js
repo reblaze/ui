@@ -53,5 +53,8 @@ module.exports = {
     'array-bracket-spacing': [2, 'never'],
     'computed-property-spacing': [2, 'never'],
     'no-undef': 'off',
+    'vue/no-v-for-template-key': 'off',
+    'vue/html-self-closing': 'off',
+    'vue/first-attribute-linebreak': 'off',
   },
 }

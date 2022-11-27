@@ -28,8 +28,8 @@
            class="control is-fullwidth has-icons-left">
         <input type="text"
                title="Name"
-               :class="{ 'is-danger': localOption[this.localOptionType] === '' }"
-               v-model="localOption[this.localOptionType]"
+               :class="{ 'is-danger': localOption[localOptionType] === '' }"
+               v-model="localOption[localOptionType]"
                @change="emitOptionUpdate"
                class="input is-small option-name-input">
         <span class="icon is-small is-left has-text-grey-light"><i class="fa fa-font"></i></span>
@@ -37,7 +37,7 @@
       <div class="control select is-small is-fullwidth"
            v-if="localOptionType === 'attrs'">
         <div class="select is-fullwidth">
-          <select v-model="localOption[this.localOptionType]"
+          <select v-model="localOption[localOptionType]"
                   @change="emitOptionUpdate"
                   class="option-attribute-selection"
                   title="Name"
