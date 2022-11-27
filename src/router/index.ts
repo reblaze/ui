@@ -304,7 +304,7 @@ const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: 'quarantined',
+        path: '/:branch/quarantined',
         name: 'Quarantined',
         component: QuarantinedList,
         meta: {

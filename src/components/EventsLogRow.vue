@@ -161,9 +161,8 @@
             </span>
           </div>
           <div class="content collapsible-content px-3 py-3">
-            <template v-for="(sessionIDValue, sessionIDKey) in event.curiesession_ids"
-                      :key="sessionIDKey">
-              <div v-if="sessionIDKey !== 'sessionid'"
+            <template v-for="(sessionIDValue, sessionIDKey) in event.curiesession_ids">
+              <div v-if="sessionIDKey !== 'sessionid'" :key="sessionIDKey"
                    :title="`${sessionIDKey}: ${sessionIDValue}`"
                    @contextmenu="openContextMenu($event, 'curiesession_ids', sessionIDKey)"
                    class="path-part-field is-size-7 is-clickable">
@@ -349,9 +348,8 @@
             </span>
           </div>
           <div class="content collapsible-content px-3 py-3">
-            <template v-for="(pathPartValue, pathPartKey) in event.path_parts"
-                      :key="pathPartKey">
-              <div v-if="pathPartKey !== 'path'"
+            <template v-for="(pathPartValue, pathPartKey) in event.path_parts">
+              <div v-if="pathPartKey !== 'path'" :key="pathPartKey"
                    :title="`${pathPartKey}: ${pathPartValue}`"
                    @contextmenu="openContextMenu($event, 'path_parts', pathPartKey)"
                    class="path-part-field is-size-7 is-clickable">
@@ -567,7 +565,9 @@ import packageJson from '../../package.json'
 import LabeledTags from '@/components/LabeledTags.vue'
 import Utils from '@/assets/Utils'
 
+
 export default defineComponent({
+
   name: 'EventsLogRow',
   components: {LabeledTags},
   props: {

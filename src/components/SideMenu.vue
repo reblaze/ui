@@ -3,7 +3,9 @@
     <div class="branch-management-wrapper mb-3">
       <div class="control">
         <div class="select is-small is-fullwidth">
-          <select :value="selectedBranch?.id"
+        <!-- v-model="selectedBranch.id" //-->
+          <select
+                  :value="selectedBranch?.id"
                   data-qa="switch-branch-dropdown"
                   title="Switch branch"
                   @change="switchBranch($event)"
@@ -199,7 +201,7 @@ export default defineComponent({
           title: 'Dynamic Rules',
         },
         {
-          href: '/quarantined',
+          href: `/${this.selectedBranch?.id}/quarantined`,
           title: 'Quarantined',
         },
         {
@@ -306,6 +308,10 @@ export default defineComponent({
     },
   },
   async mounted() {
+    this.branches = await this.branchesStore.list
+    await this.loadLinksFromDB()
+  },
+  async updated() {
     this.branches = await this.branchesStore.list
     await this.loadLinksFromDB()
   },
