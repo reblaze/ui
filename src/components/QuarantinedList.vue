@@ -83,10 +83,10 @@ export default defineComponent({
         },
         {
           title: 'First Added',
-          fieldNames: ['first_added'],
+          fieldNames: ['timestamp'],
           isSortByOriginalValue: true,
           displayFunction: (item: any) => {
-            const newDate = new Date(item['first_added'] * 1000)
+            const newDate = new Date(item['timestamp'])
             return DateTimeUtils.isoToNowCuriefenseFormat(newDate)
           },
           isSortable: true,

@@ -432,7 +432,8 @@ declare module CuriefenseClient {
     id: string
     config: string
     count: number
-    first_added: number
+    first_added?: number
+    timestamp?: string
     last_seen: number
     rule_id: string
     tags: string[]
