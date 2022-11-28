@@ -150,6 +150,10 @@ export default defineComponent({
           href: '/events-log',
           title: 'Events Log',
         },
+        {
+          href: '/dns-records',
+          title: 'DNS Records',
+        },
         // ########
         // Security
         // ########
