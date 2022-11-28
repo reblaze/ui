@@ -49,6 +49,10 @@ const processRequest = (methodName: HttpRequestMethods, apiUrl: string, data: an
     }
   }
   request = request.then((response: AxiosResponse) => {
+    // follow redirect
+    if (response.request.responseURL !== apiUrl) {
+      window.location.href = response.request.responseURL
+    }
     // Toast message
     if (successMessage) {
       Utils.toast(successMessage, 'is-success', undoFunction)
