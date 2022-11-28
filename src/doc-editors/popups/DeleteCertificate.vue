@@ -6,36 +6,28 @@
           <h5 class="modal-card-title is-size-6 mb-0">
             Remove certificate
           </h5>
-          <button
-            class="delete"
+          <button class="delete"
             aria-label="close"
-            @click="$emit('delete-shown-changed', false)"
-          />
+            @click="$emit('delete-shown-changed', false)"/>
         </header>
         <section class="modal-card-body is-size-6 has-text-centered">
           <p class="is-small is-size-6">
             Are you sure you want to remove certificate<br>
             <strong>{{ clickedRow }}</strong>?
           </p>
-          <p
-            v-if="attachedApps"
+          <p v-if="attachedApps"
             class="is-small is-size-6 mt-2"
-            v-html="attachedApps"
-          />
+            v-html="attachedApps"/>
         </section>
         <footer class="modal-card-foot">
           <div class="buttons is-right is-fullwidth">
-            <button
-              class="button is-small"
-              @click="$emit('delete-shown-changed', false)"
-            >
+            <button class="button is-small"
+              @click="$emit('delete-shown-changed', false)">
               Cancel
             </button>
-            <button
-              class="button is-small is-light is-outlined is-danger"
+            <button class="button is-small is-light is-outlined is-danger"
               :class="{'is-loading': isLoading}"
-              @click="deleteCertificate()"
-            >
+              @click="deleteCertificate()">
               Delete
             </button>
           </div>

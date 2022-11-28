@@ -3,31 +3,22 @@
     <div class="modal-background">
       <div class="modal-card is-size-7">
         <header class="modal-card-head">
-          <h5
-            class="modal-card-title is-size-6 mb-0"
-            :title="selectedBalancer.name"
-          >
+          <h5 class="modal-card-title is-size-6 mb-0"
+            :title="selectedBalancer.name">
             Select certificate to attach to {{ selectedBalancer.name }}
           </h5>
-          <button
-            class="delete"
+          <button class="delete"
             aria-label="close"
-            @click="closeAttachCertPopup"
-          />
+            @click="closeAttachCertPopup"/>
         </header>
         <section class="modal-card-body">
           <div id="attach-modal-content">
-            <div
-              class="mb-1 certificate-search"
-            >
+            <div class="mb-1 certificate-search">
               <!-- TODO: should to implement the search -->
-              <input
-                v-model="certsSearch"
+              <input v-model="certsToAttach"
                 type="text"
-                class="input is-small"
-                style="width: 300px;"
-                placeholder="Filter by name"
-              >
+                class="input is-small search-input"
+                placeholder="Filter by name">
             </div>
             <div class="table-container table-content">
               <table class="table is-fullwidth table-balancers is-size-7 is-striped">
@@ -43,10 +34,8 @@
                   </tr>
                 </thead>
                 <tbody v-if="filteredCertificatesToAttach.length">
-                  <tr
-                    v-for="(certificate, idx) in filteredCertificatesToAttach"
-                    :key="idx"
-                  >
+                  <tr v-for="(certificate, idx) in filteredCertificatesToAttach"
+                    :key="idx">
                     <td class="is-size-7 is-vcentered is-60">
                       {{ certificate.id }}
                     </td>
@@ -54,10 +43,8 @@
                       {{ certificate.exp_date }}
                     </td>
                     <td class="is-size-7 is-vcentered is-20 has-text-right">
-                      <button
-                        class="button is-small is-outlined"
-                        @click="attachCertificateToLoadBalancer(selectedBalancer, certificate.id, false, certificate)"
-                      >
+                      <button class="button is-small is-outlined"
+                        @click="attachCertificateToLoadBalancer(selectedBalancer, certificate.id, false, certificate)">
                         <!-- TODO: :class="{ 'is-loading': selectedBalancer.loading === certificate.id }" and :disabled="!!selectedBalancer.loading" -->
                         Attach
                       </button>
@@ -66,11 +53,9 @@
                 </tbody>
                 <tbody v-else>
                   <tr>
-                    <td
-                      colspan="3"
+                    <td colspan="3"
                       class="is-size-7 is-vcentered has-text-centered"
-                      style="width: 100%;"
-                    >
+                      style="width: 100%;">
                       No certificates found
                     </td>
                   </tr>
@@ -81,10 +66,8 @@
         </section>
         <footer class="modal-card-foot">
           <div class="buttons is-right is-fullwidth">
-            <button
-              class="button is-small"
-              @click="closeAttachCertPopup"
-            >
+            <button class="button is-small"
+              @click="closeAttachCertPopup">
               Close
             </button>
           </div>
@@ -96,7 +79,7 @@
 <script lang="ts">
 import {Certificate, Link} from '@/types'
 import _ from 'lodash'
-import {defineComponent, PropType} from 'vue'
+import {defineComponent, PropType, ref} from 'vue'
 
 export default defineComponent({
   props: {
@@ -108,16 +91,22 @@ export default defineComponent({
   emits: ['attach-shown-changed'],
   data() {
     return {
-      certsSearch: '',
+      certsToAttach: ref(''),
     }
   },
   computed: {
+    filteredCertificates() {
+      return _.filter(this.certificates, (certificate:Certificate) => {
+        return certificate.id.toLowerCase().includes(this.certsToAttach.toLowerCase())
+      })
+    },
+
     filteredCertificatesToAttach() {
       if (this.selectedBalancer) {
         let currentLoadBalancerCertificates = this.selectedBalancer.certificates.slice()
         currentLoadBalancerCertificates.push(this.selectedBalancer.default_certificate)
         currentLoadBalancerCertificates = currentLoadBalancerCertificates.join()
-        return _.filter(this.certificates, (certificate: Certificate) => {
+        return _.filter(this.filteredCertificates, (certificate: Certificate) => {
           if (this.selectedBalancer.provider === 'gcp') {
             const gcpLinks = _.filter(certificate.links, (link:Link) => {
               return link.provider === 'gcp'
@@ -143,7 +132,7 @@ export default defineComponent({
   methods: {
     closeAttachCertPopup() {
       this.$emit('attach-shown-changed', false)
-      this.certsSearch = ''
+      this.certsToAttach = ''
     },
   },
 })
@@ -152,5 +141,9 @@ export default defineComponent({
   .certificate-search {
     position: relative;
     top: -5px;
+  }
+
+  .search-input {
+    width: 300px;
   }
 </style>

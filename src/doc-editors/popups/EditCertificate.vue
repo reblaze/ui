@@ -3,101 +3,77 @@
     <div class="modal-background">
       <div class="modal-card is-size-7">
         <header class="modal-card-head">
-          <h5
-            class="modal-card-title is-size-6 mb-0"
-            :title="clickedRow"
-          >
+          <h5 class="modal-card-title is-size-6 mb-0"
+            :title="clickedRow">
             Edit certificate - {{ clickedRow }}
           </h5>
-          <button
-            class="delete"
+          <button class="delete"
             aria-label="close"
-            @click="resetEditModal"
-          />
+            @click="resetEditModal"/>
         </header>
         <section class="modal-card-body">
           <!-- <loader v-if="isLoading"></loader> -->
-          <div
-            v-if="getConnectedSitesForEditCert"
-            class="control content is-small mb-2"
-          >
+          <div v-if="getConnectedSitesForEditCert"
+            class="control content is-small mb-2">
             Connected sites:
-            <input
-              :value="getConnectedSitesForEditCert"
+            <input :value="getConnectedSitesForEditCert"
               class="input is-small"
               :title="getConnectedSitesForEditCert"
               type="text"
-              disabled
-            >
+              disabled>
           </div>
           <div class="control content is-small mb-2">
             Certificate subject:
-            <input
-              :value="localCert.subject"
+            <input :value="localCert.subject"
               class="input is-small"
               :title="localCert.subject"
               type="text"
-              disabled
-            >
+              disabled>
           </div>
           <div class="control content is-small mb-2">
             Certificate issuer:
-            <input
-              :value="localCert.issuer"
+            <input :value="localCert.issuer"
               class="input is-small"
               :title="localCert.issuer"
               type="text"
-              disabled
-            >
+              disabled>
           </div>
           <div class="control content is-small mb-2">
             SAN:
-            <input
-              :value="localCert.san.toString()"
+            <input :value="localCert.san.toString()"
               class="input is-small"
               :title="localCert.san.toString()"
               type="text"
-              disabled
-            >
+              disabled>
           </div>
           <div class="control content is-small mb-2">
             Certificate body:
-            <textarea
-              v-html="localCert.cert_body"
+            <textarea v-html="localCert.cert_body"
               class="textarea is-small cert-body"
-              disabled
-            />
+              disabled/>
           </div>
-          <div
-            v-if="certCanReplaceByLE"
-            class="control content is-small mb-0 mt-4"
-          >
+          <div v-if="certCanReplaceByLE"
+            class="control content is-small mb-0 mt-4">
             <label class="checkbox is-align-items-center is-inline-flex">
-              <input
-                type="checkbox"
+              <input type="checkbox"
                 v-model="localCert.le_auto_replace"
                 @change="updateLetsEncrypt = !updateLetsEncrypt"
-                class="mr-1"
-              >
+                class="mr-1">
               Auto Replacement by&nbsp;
-              <a
-                href="https://letsencrypt.org"
-                target="_blank"
-              >Let's Encrypt</a>
+              <a href="https://letsencrypt.org"
+                target="_blank">
+              Let's Encrypt
+              </a>
             </label>
           </div>
           <div class="tabs is-small">
             <ul class="ml-0">
-              <li
-                @click="certAction='attach_to_application'"
-                :class="{'is-active': isAttachSelectedOnEdit}"
-              >
+              <li @click="certAction='attach_to_application'"
+                :class="{'is-active': isAttachSelectedOnEdit}">
                 <a>Attach to application</a>
               </li>
-              <li
-                @click="certAction='replace_certificate'"
-                :class="{'is-active': isReplaceSelectedOnEdit}"
-              >
+              <li @click="certAction='replace_certificate'"
+                :class="{'is-active': isReplaceSelectedOnEdit}">
                 <a>Replace existing certificates</a>
               </li>
             </ul>
@@ -108,19 +84,15 @@
                 <div class="is-size-7 pl-1">
                   {{ selectedAppsLabel }}
                 </div>
-                <select
-                  v-model="selectedApps"
-                  class="select-apps"
+                <select v-model="selectedApps"
+                  class="selected"
                   multiple
                   title="Select links"
                   :loading="isLoading"
-                  :option-height="10"
-                >
-                  <option
-                    v-for="site in sites"
+                  :option-height="10">
+                  <option v-for="site in sites"
                     :key="site.id"
-                    :value="site"
-                  >
+                    :value="site">
                     {{ site.name }}
                   </option>
                 </select>
@@ -130,23 +102,17 @@
               <div class="field">
                 <div class="control">
                   <div class="select is-small">
-                    <select
-                      v-model="selectedCertId"
-                      id="selectCert"
-                      style="width: 400px;"
-                    >
-                      <option
-                        value=""
+                    <select v-model="selectedCertId"
+                      class="selected"
+                      id="selectCert">
+                      <option value=""
                         disabled
-                        key="no_value"
-                      >
+                        key="no_value">
                         {{ assignedCertsNamesExceptCurrent.length ? 'Select certificate' : '-- No certificates to replace --' }}
                       </option>
-                      <option
-                        v-for="(certId, index) in assignedCertsNamesExceptCurrent"
+                      <option v-for="(certId, index) in assignedCertsNamesExceptCurrent"
                         :value="certId"
-                        :key="index"
-                      >
+                        :key="index">
                         {{ certId }}
                       </option>
                     </select>
@@ -158,28 +124,22 @@
         </section>
         <footer class="modal-card-foot columns">
           <div class="column is-9">
-            <button
-              class="button is-light has-text-info is-small"
+            <button class="button is-light has-text-info is-small"
               type="submit"
-              @click="downloadPFX"
-            >
+              @click="downloadPFX">
               Download PFX
             </button>
           </div>
           <div class="column is-3 has-text-right">
-            <button
-              class="button is-small"
+            <button class="button is-small"
               @click="resetEditModal"
-              v-if="!isLoading"
-            >
+              v-if="!isLoading">
               Cancel
             </button>
-            <button
-              @click="saveChanges"
+            <button @click="saveChanges"
               :disabled="isSaveEditDisabled"
               class="button is-small"
-              :class="{ 'is-loading': isLoading }"
-            >
+              :class="{ 'is-loading': isLoading }">
               Save
             </button>
           </div>
@@ -373,7 +333,7 @@ export default defineComponent({
 })
 </script>
 <style scoped lang="scss">
-.select-apps {
+.selected {
   width: 400px;
 }
 </style>
