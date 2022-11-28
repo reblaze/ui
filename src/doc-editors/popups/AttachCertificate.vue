@@ -14,7 +14,6 @@
         <section class="modal-card-body">
           <div id="attach-modal-content">
             <div class="mb-1 certificate-search">
-              <!-- TODO: should to implement the search -->
               <input v-model="certsToAttach"
                 type="text"
                 class="input is-small search-input"
@@ -44,11 +43,14 @@
                     </td>
                     <td class="is-size-7 is-vcentered is-20 has-text-right">
                       <button class="button is-small is-outlined"
-                        @click="attachCertificateToLoadBalancer(selectedBalancer, certificate.id, false, certificate)">
+                        @click="attachCertificateToLoadBalancer(selectedBalancer, certificate.id, false, certificate)"
+                        :class="{'is-loading' : isAttachLoading}">
+                        <!-- TODO: Need to do it more specific -->
                         <!-- TODO: :class="{ 'is-loading': selectedBalancer.loading === certificate.id }" and :disabled="!!selectedBalancer.loading" -->
                         Attach
                       </button>
                     </td>
+                    {{isAttachLoading}}
                   </tr>
                 </tbody>
                 <tbody v-else>
@@ -87,6 +89,7 @@ export default defineComponent({
     certificates: Array as PropType<Certificate[]>,
     selectedBalancer: Object,
     attachCertificateToLoadBalancer: Function,
+    isAttachLoading: Boolean,
   },
   emits: ['attach-shown-changed'],
   data() {

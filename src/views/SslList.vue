@@ -87,9 +87,9 @@
                         Set default
                       </button>
                       <button @click="detachNonDefaultCertificate(selectedBalancer, cert)"
-                        class="button is-small">
-                        <!-- TODO: :class="{ 'is-loading': selectedBalancer.loading === cert }"
-                                    :disabled="!!selectedBalancer.loading" -->
+                        class="button is-small"
+                        :class="{ 'is-loading':isDetachLoading }">
+                        <!-- TODO: :disabled="!!selectedBalancer.loading" -->
                         Detach
                       </button>
                     </div>
@@ -158,7 +158,8 @@
       :selected-balancer="selectedBalancer"
       :certificates="certificates"
       @attach-shown-changed="attachCertPopupShown = false"
-      :attach-certificate-to-load-balancer="attachCertificateToLoadBalancer"/>
+      :attach-certificate-to-load-balancer="attachCertificateToLoadBalancer"
+      :isAttachLoading="isAttachLoading"/>
   </div>
 </template>
 <script lang="ts">
@@ -227,7 +228,8 @@ export default defineComponent({
         shown: false,
       },
       selectedBalancer: {} as Balancer,
-
+      isDetachLoading: false,
+      isAttachLoading: false,
     }
   },
   computed: {
@@ -267,7 +269,7 @@ export default defineComponent({
             }
           },
           isSearchable: true,
-          classes: 'width-100px white-space-pre',
+          classes: 'width-100px white-space-pre ellipsis',
         },
         {
           title: 'AWS',
@@ -477,6 +479,7 @@ export default defineComponent({
     },
 
     async attachCertificateToLoadBalancer(balancer:Balancer, certificateId:string, isDefault:boolean = false) {
+      this.isAttachLoading = true
       const method = 'PUT'
       const encodedBalancerName = encodeURIComponent(balancer.name)
       const encodedCertificateId = encodeURIComponent(certificateId)
@@ -491,10 +494,12 @@ export default defineComponent({
         url: url,
       })
       this.attachCertPopupShown = false
+      this.isAttachLoading = false
       this.callLoaders()
     },
 
     async detachNonDefaultCertificate(balancer: Balancer, certificateLink:string, certificate?: Certificate) {
+      this.isDetachLoading = true
       const method = 'DELETE'
       const encodedBalancerName = encodeURIComponent(balancer.name)
       const encodedCertificateLink = encodeURIComponent(certificateLink)
@@ -509,6 +514,7 @@ export default defineComponent({
         url: url,
       })
       this.callLoaders()
+      this.isDetachLoading = false
     },
 
     async populateLoadBalancers() {

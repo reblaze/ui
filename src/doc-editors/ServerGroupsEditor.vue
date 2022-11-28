@@ -6,12 +6,10 @@
           <div class="column">
             <div class="field is-grouped">
               <p class="control">
-                <button
-                  class="button is-small redirect-list-button"
+                <button  class="button is-small redirect-list-button"
                   @click="redirectToList()"
                   title="Return to list"
-                  data-qa="redirect-to-list"
-                >
+                  data-qa="redirect-to-list">
                   <span class="icon is-small">
                     <i class="fas fa-arrow-left" />
                   </span>
@@ -20,23 +18,17 @@
                   </span>
                 </button>
               </p>
-              <div
-                class="control"
-                v-if="docs.length"
-              >
+              <div class="control"
+                v-if="docs.length">
                 <div class="select is-small">
-                  <select
-                    v-model="selectedDocID"
+                  <select v-model="selectedDocID"
                     title="Switch document ID"
                     @change="switchDocID()"
                     class="site-selection"
-                    data-qa="switch-document"
-                  >
-                    <option
-                      v-for="doc in docs"
+                    data-qa="switch-document">
+                    <option v-for="doc in docs"
                       :key="doc.id"
-                      :value="doc.id"
-                    >
+                      :value="doc.id">
                       {{ doc.name }}
                     </option>
                   </select>
@@ -47,14 +39,12 @@
           <div class="column">
             <div class="field is-grouped is-pulled-right">
               <p class="control">
-                <button
-                  class="button is-small new-document-button"
+                <button class="button is-small new-document-button"
                   :class="{'is-loading': isNewLoading}"
                   @click="addNewDoc()"
                   title="Add new document"
                   :disabled="!selectedBranch"
-                  data-qa="add-new-document"
-                >
+                  data-qa="add-new-document">
                   <span class="icon is-small">
                     <i class="fas fa-plus" />
                   </span>
@@ -65,14 +55,12 @@
               </p>
 
               <p class="control">
-                <button
-                  class="button is-small fork-document-button"
+                <button class="button is-small fork-document-button"
                   :class="{'is-loading': isForkLoading}"
                   @click="forkDoc()"
                   title="Duplicate document"
                   :disabled="!selectedServerGroup"
-                  data-qa="duplicate-document"
-                >
+                  data-qa="duplicate-document">
                   <span class="icon is-small">
                     <i class="fas fa-clone" />
                   </span>
@@ -83,13 +71,11 @@
               </p>
 
               <p class="control">
-                <button
-                  class="button is-small download-doc-button"
+                <button class="button is-small download-doc-button"
                   :class="{'is-loading':isDownloadLoading}"
                   @click="downloadDoc()"
                   title="Download document"
-                  data-qa="download-document"
-                >
+                  data-qa="download-document">
                   <span class="icon is-small">
                     <i class="fas fa-download" />
                   </span>
@@ -99,13 +85,11 @@
                 </button>
               </p>
               <p class="control">
-                <button
-                  class="button is-small save-document-button"
+                <button class="button is-small save-document-button"
                   :class="{'is-loading': isSaveLoading}"
                   title="Save changes"
                   data-qa="save-changes"
-                  @click="saveChanges()"
-                >
+                  @click="saveChanges()">
                   <span class="icon is-small">
                     <i class="fas fa-save" />
                   </span>
@@ -117,13 +101,11 @@
               <p class="control">
                 <span class="field has-addons">
                   <span class="control">
-                    <button
-                      class="button is-small has-text-danger delete-server-group"
+                    <button class="button is-small has-text-danger delete-server-group"
                       data-qa="delete-server-group-btn"
                       :class="{'is-loading': isDeleteLoading}"
                       :disabled="selectedDocNotDeletable"
-                      @click="toggleDeleteServerGroupDoc()"
-                    >
+                      @click="toggleDeleteServerGroupDoc()">
                       <span class="icon is-small">
                         <i class="fas fa-trash" />
                       </span>
@@ -132,44 +114,32 @@
                       </span>
                     </button>
                   </span>
-                  <span
-                    class="control is-expanded confirm-delete"
-                    v-if="deleteServerGroupDoc"
-                  >
-                    <input
-                      class="input is-small width-200px delete-server-group-input"
+                  <span class="control is-expanded confirm-delete"
+                    v-if="deleteServerGroupDoc">
+                    <input class="input is-small width-200px delete-server-group-input"
                       data-qa="confirm-server-group-input"
                       title="Server Group Name"
                       ref="confirm-delete"
                       placeholder="Confirm Server Group name"
                       v-model="deleteServerGroupDocName"
-                      type="text"
-                    >
+                      type="text">
                   </span>
-                  <span
-                    class="control"
-                    v-if="deleteServerGroupDoc"
-                  >
-                    <button
-                      class="button is-danger is-small delete-server-group-cancel"
+                  <span class="control"
+                    v-if="deleteServerGroupDoc">
+                    <button class="button is-danger is-small delete-server-group-cancel"
                       data-qa="cancel-delete-server-group-btn"
-                      @click="toggleDeleteServerGroupDoc"
-                    >
+                      @click="toggleDeleteServerGroupDoc">
                       <span class="icon is-small">
                         <i class="fas fa-times" />
                       </span>
                     </button>
                   </span>
-                  <span
-                    class="control"
-                    v-if="deleteServerGroupDoc"
-                  >
-                    <button
-                      class="button is-primary is-small delete-server-group-confirm"
+                  <span class="control"
+                    v-if="deleteServerGroupDoc">
+                    <button class="button is-primary is-small delete-server-group-confirm"
                       data-qa="confirm-delete-server-group-btn"
                       :disabled="!isDeleteServerGroupDocNameValid"
-                      @click="deleteServerGroup"
-                    >
+                      @click="deleteServerGroup">
                       <span class="icon is-small">
                         <i class="fas fa-check" />
                       </span>
@@ -183,29 +153,23 @@
       </div>
     </div>
     <hr>
-    <div
-      class="content"
-      v-if="!loadingDocCounter && selectedBranch && selectedServerGroup"
-    >
+    <div class="content"
+      v-if="!loadingDocCounter && selectedBranch && selectedServerGroup">
       <div class="columns columns-divided">
         <div class="column is-4">
           <div class="field">
             <label class="label is-small">
               Name
-              <span
-                class="has-text-grey is-pulled-right document-id"
-                title="Rule id"
-              >
+              <span class="has-text-grey is-pulled-right document-id"
+                title="Rule id">
                 {{ selectedServerGroup.id }}
               </span>
             </label>
             <div class="control">
-              <input
-                class="input is-small document-name"
+              <input class="input is-small document-name"
                 title="Document name"
                 placeholder="Document name"
-                v-model="selectedServerGroup.name"
-              >
+                v-model="selectedServerGroup.name">
             </div>
           </div>
           <div class="field">
@@ -213,72 +177,64 @@
               Match Host/Authority Headers
             </label>
             <div class="control">
-              <textarea
-                class="is-small textarea match-host"
+              <textarea class="is-small textarea match-host"
                 title="Match Host/Authority Headers"
                 placeholder="Match Host/Authority Headers"
                 data-qa="match-host-input"
                 v-model="serverNames"
-                rows="2"
-              />
+                rows="2"/>
             </div>
           </div>
           <div class="field">
             <div class="field textarea-field">
               <label class="label is-small">Description</label>
               <div class="control">
-                <textarea
-                  class="is-small textarea document-description"
+                <textarea class="is-small textarea document-description"
                   data-qa="description-input"
                   title="Document description"
                   v-model="selectedServerGroup.description"
-                  rows="5"
-                />
+                  rows="5"/>
               </div>
             </div>
           </div>
         </div>
-        <!-- TODO: Generate and Generate & replace <div class="column is-4">
+        <!-- TODO: Generate and Generate & replace -->
+        <div class="column is-4">
           <div class="field">
             <label class="label is-small">Certificates</label>
             <div class="control is-expanded">
               <div class="select is-fullwidth is-small">
-                <select
-                  v-model="selectedServerGroup.ssl_certificate"
+                <select v-model="selectedServerGroup.ssl_certificate"
                   data-qa="routing-profile-dropdown"
                   class="document-routing-profile-selection"
-                  title="Routing profile"
-                >
-                  <option
-                    v-for="certificate in certificates"
+                  title="SSL Certificates">
+                  <option v-for="certificate in certificates"
                     :value="certificate.id"
-                    :key="certificate.id"
-                  >
+                    :key="certificate.id">
                     {{ certificate.id }}
                   </option>
+                  {{selectedServerGroup.ssl_certificate}}
                 </select>
               </div>
             </div>
           </div>
           <div class="field">
-            <div class="field textarea-field">
-              <button
-              class="button is-small new-sequence-button"
+            <div class="field flex-buttons textarea-field is-justify-content-space-around">
+              <button class="button is-small new-sequence-button"
+              :class="{'is-loading': isDownloadLoading}"
               data-qa="new-sequence-btn"
-              @click="generateCertificate()"
-            >
+              @click="generateCertificate()">
               Generate
             </button>
-            <button
-              class="button is-small new-sequence-button"
+            <button class="button is-small new-sequence-button"
+              :class="{'is-loading': isDownloadLoading}"
               data-qa="new-sequence-btn"
-              @click="generateCertificate(true)"
-            >
+              @click="generateCertificate(selectedServerGroup.ssl_certificate)">
               Generate & replace
             </button>
             </div>
           </div>
-        </div> -->
+        </div>
       </div>
       <div class="columns is-multiline">
         <div class="column is-4">
@@ -286,17 +242,13 @@
             <label class="label is-small">Routing Profile</label>
             <div class="control is-expanded">
               <div class="select is-fullwidth is-small">
-                <select
-                  v-model="selectedServerGroup.routing_profile"
+                <select v-model="selectedServerGroup.routing_profile"
                   data-qa="routing-profile-dropdown"
                   class="document-routing-profile-selection"
-                  title="Routing profile"
-                >
-                  <option
-                    v-for="routingProfile in routingProfilesNames"
+                  title="Routing profile">
+                  <option v-for="routingProfile in routingProfilesNames"
                     :value="routingProfile[0]"
-                    :key="routingProfile[0]"
-                  >
+                    :key="routingProfile[0]">
                     {{ routingProfile[1] }}
                   </option>
                 </select>
@@ -304,10 +256,8 @@
             </div>
           </div>
         </div>
-        <div
-          v-if="selectedRoutingProfile"
-          class="column is-12"
-        >
+        <div v-if="selectedRoutingProfile"
+          class="column is-12">
           <div class="card mb-0">
             <div class="card-content">
               <table class="table is-size-7">
@@ -325,10 +275,8 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr
-                    v-for="location in selectedRoutingProfile.locations"
-                    :key="location.path"
-                  >
+                  <tr v-for="location in selectedRoutingProfile.locations"
+                    :key="location.path">
                     <td class="ellipsis">
                       {{ location.path }}
                     </td>
@@ -336,10 +284,8 @@
                       {{ referencedDocName(backendServicesNames, location.backend_id) }}
                     </td>
                     <td>
-                      <span
-                        v-for="edgeFunction in location.cloud_functions"
-                        :key="edgeFunction"
-                      >
+                      <span v-for="edgeFunction in location.cloud_functions"
+                        :key="edgeFunction">
                         {{ location.cloud_functions.length }}
                       </span>
                     </td>
@@ -356,17 +302,13 @@
             <label class="label is-small">Security Policy</label>
             <div class="control is-expanded">
               <div class="select is-fullwidth is-small">
-                <select
-                  v-model="selectedServerGroup.security_policy"
+                <select v-model="selectedServerGroup.security_policy"
                   data-qa="security-policy-dropdown"
                   class="document-security-policy-selection"
-                  title="Security policy"
-                >
-                  <option
-                    v-for="securityPolicy in securityPoliciesNames"
+                  title="Security policy">
+                  <option v-for="securityPolicy in securityPoliciesNames"
                     :value="securityPolicy[0]"
-                    :key="securityPolicy[0]"
-                  >
+                    :key="securityPolicy[0]">
                     {{ securityPolicy[1] }}
                   </option>
                 </select>
@@ -374,10 +316,8 @@
             </div>
           </div>
         </div>
-        <div
-          v-if="selectedSecurityPolicy"
-          class="column is-12"
-        >
+        <div v-if="selectedSecurityPolicy"
+          class="column is-12">
           <div class="card mb-0">
             <div class="card-content">
               <table class="table is-size-7">
@@ -400,35 +340,25 @@
                     </th>
                   </tr>
                 </thead>
-                <tbody
-                  v-for="(mapEntry, mapIndex) in selectedSecurityPolicy.map"
-                  :key="mapIndex"
-                >
+                <tbody v-for="(mapEntry, mapIndex) in selectedSecurityPolicy.map"
+                  :key="mapIndex">
                   <tr>
-                    <td
-                      class="ellipsis"
-                      :title="mapEntry.name"
-                    >
+                    <td class="ellipsis"
+                      :title="mapEntry.name">
                       {{ mapEntry.name }}
                     </td>
-                    <td
-                      class="ellipsis"
-                      :title="mapEntry.match"
-                    >
+                    <td class="ellipsis"
+                      :title="mapEntry.match">
                       {{ mapEntry.match }}
                     </td>
-                    <td
-                      class="ellipsis"
+                    <td class="ellipsis"
                       :class="mapEntry.content_filter_active ? 'has-text-success' : 'has-text-danger'"
-                      :title="mapEntry.content_filter_active ? 'Active mode' : 'Learning mode'"
-                    >
+                      :title="mapEntry.content_filter_active ? 'Active mode' : 'Learning mode'">
                       {{ referencedDocName(contentFilterProfilesNames, mapEntry.content_filter_profile) }}
                     </td>
-                    <td
-                      class="ellipsis"
+                    <td class="ellipsis"
                       :class="mapEntry.acl_active ? 'has-text-success' : 'has-text-danger'"
-                      :title="mapEntry.acl_active ? 'Active mode' : 'Learning mode'"
-                    >
+                      :title="mapEntry.acl_active ? 'Active mode' : 'Learning mode'">
                       {{ referencedDocName(aclProfilesNames, mapEntry.acl_profile) }}
                     </td>
                     <td class="ellipsis">
@@ -447,20 +377,16 @@
             <label class="label is-small">Mobile SDK</label>
             <div class="control is-expanded">
               <div class="select is-fullwidth is-small">
-                <select
-                  v-model="selectedServerGroup.mobile_sdk"
+                <select v-model="selectedServerGroup.mobile_sdk"
                   data-qa="mobile-sdk-dropdown"
                   class="document-mobile-sdk-selection"
-                  title="Mobile SDK"
-                >
+                  title="Mobile SDK">
                   <option value="">
                     None
                   </option>
-                  <option
-                    v-for="mobileSDK in mobileSDKsNames"
+                  <option v-for="mobileSDK in mobileSDKsNames"
                     :value="mobileSDK[0]"
-                    :key="mobileSDK[0]"
-                  >
+                    :key="mobileSDK[0]">
                     {{ mobileSDK[1] }}
                   </option>
                 </select>
@@ -471,17 +397,13 @@
             <label class="label is-small">Proxy Template</label>
             <div class="control is-expanded">
               <div class="select is-fullwidth is-small">
-                <select
-                  v-model="selectedServerGroup.proxy_template"
+                <select v-model="selectedServerGroup.proxy_template"
                   data-qa="proxy-template-dropdown"
                   class="document-proxy-template-selection"
-                  title="Proxy template"
-                >
-                  <option
-                    v-for="proxyTemplate in proxyTemplatesNames"
+                  title="Proxy template">
+                  <option v-for="proxyTemplate in proxyTemplatesNames"
                     :value="proxyTemplate[0]"
-                    :key="proxyTemplate[0]"
-                  >
+                    :key="proxyTemplate[0]">
                     {{ proxyTemplate[1] }}
                   </option>
                 </select>
@@ -490,29 +412,25 @@
           </div>
         </div>
       </div>
-      <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ documentAPIPath }}</span>
+      <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">
+        {{ documentAPIPath }}
+      </span>
     </div>
-    <div
-      class="content no-data-wrapper"
-      v-if="loadingDocCounter || !selectedBranch || !selectedServerGroup"
-    >
+    <div class="content no-data-wrapper"
+      v-if="loadingDocCounter || !selectedBranch || !selectedServerGroup">
       <div v-if="loadingDocCounter > 0">
         <button class="button is-outlined is-text is-small is-loading document-loading">
           Loading
         </button>
       </div>
-      <div
-        v-else
-        class="no-data-message"
-      >
+      <div v-else
+        class="no-data-message">
         No data found.
         <div>
           <span v-if="!selectedServerGroup?.id">
             Missing document. To create a new one, click
-            <a
-              title="Add new"
-              @click="addNewDoc()"
-            >
+            <a title="Add new"
+              @click="addNewDoc()">
               here
             </a>
           </span>
@@ -705,10 +623,17 @@ export default defineComponent({
       this.isDownloadLoading = false
     },
 
-    /* async generateCertificate(replace: boolean = false) {
+    async generateCertificate(certificateId?: string) {
       const method = 'POST'
-      const url = `config/${this.selectedBranch}/d/certificates/e/{id}`
-    }, */
+      if(certificateId) {
+        const url = `configs/${this.selectedBranch}/d/certificates/e/${certificateId}?domains=${this.selectedServerGroup.server_names}&site-id=${this.selectedServerGroup.id}`
+        await RequestsUtils.sendReblazeRequest({methodName: method, url: url})
+      } else {
+        const url = `configs/${this.selectedBranch}/d/certificates/e/${DatasetsUtils.generateUUID2()}?domains=${this.selectedServerGroup.server_names}&site-id=${this.selectedServerGroup.id}`
+        await RequestsUtils.sendReblazeRequest({methodName: method, url: url})
+      }
+      
+    },
 
     async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
@@ -974,3 +899,9 @@ export default defineComponent({
   },
 })
 </script>
+
+<style scoped type="scss">
+  .flex-buttons {
+    display: flex;
+  }
+</style>

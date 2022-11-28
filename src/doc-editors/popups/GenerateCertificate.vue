@@ -11,36 +11,27 @@
             @click="closeAndResetUploadModal" />
         </header>
         <section class="modal-card-body">
-          <!-- <loader v-if="is_loading"></loader> -->
           <div class="tile is-3">
             <div class="control modal-location">
-              <label
-                for="manual"
-                class="radio is-size-7"
-              >
-                <input
-                  type="radio"
+              <label for="manual"
+                class="radio is-size-7">
+                <input type="radio"
                   name="isManualInput"
                   id="manual"
                   :value="true"
                   v-model="isManualInput"
-                  @change="inputTypeChagned"
-                >
+                  @change="inputTypeChagned">
                 Manual input
               </label>
               <br>
-              <label
-                for="extract"
-                class="radio is-size-7"
-              >
-                <input
-                  type="radio"
+              <label for="extract"
+                class="radio is-size-7">
+                <input type="radio"
                   name="isManualInput"
                   id="extract"
                   :value="false"
                   v-model="isManualInput"
-                  @change="inputTypeChagned"
-                >
+                  @change="inputTypeChagned">
                 Extract pfx file
               </label>
             </div>
@@ -59,13 +50,11 @@
               <form>
                 <div class="file has-name control is-small">
                   <label class="file-label">
-                    <input
-                      class="file-input"
+                    <input class="file-input"
                       type="file"
                       name="certFile"
                       @input="loadFile"
-                      accept=".pfx"
-                    >
+                      accept=".pfx">
                     <span class="file-cta">
                       <span class="file-icon">
                         <i class="fas fa-upload" />
@@ -81,31 +70,23 @@
                 </div>
               </form>
             </div>
-            <div
-              class="field"
-              v-show="certFile && !privateKey"
-            >
+            <div class="field"
+              v-show="certFile && !privateKey">
               <label class="label is-small">Password</label>
               <div class="control tile is-8">
-                <input
-                  class="input is-small"
+                <input class="input is-small"
                   ref="pfxPass"
                   type="text"
-                  v-model="pfxPassword"
-                >
-                <button
-                  @click="extractCertFile"
+                  v-model="pfxPassword">
+                <button @click="extractCertFile"
                   :disabled="isExtractDisabled || !pfxPassword"
                   class="button is-small is-info control ml-1"
-                  :class="{ 'is-loading': isExtracting }"
-                >
+                  :class="{ 'is-loading': isExtracting }">
                   Extract file
                 </button>
               </div>
-              <p
-                :style="{ visibility: isPasswordWarning ? 'visible' : 'hidden' }"
-                class="help is-danger"
-              >
+              <p :style="{ visibility: isPasswordWarning ? 'visible' : 'hidden' }"
+                class="help is-danger">
                 {{ passwordMessage }}
               </p>
             </div>
@@ -115,41 +96,33 @@
             <div class="field">
               <label class="label is-small">Private key</label>
               <div class="control">
-                <textarea
-                  v-model="privateKey"
+                <textarea v-model="privateKey"
                   class="textarea is-small"
                   :disabled="!isManualInput"
-                  :placeholder="EMPTY_CERTIFICATE_KEY_FIELD"
-                />
+                  :placeholder="EMPTY_CERTIFICATE_KEY_FIELD"/>
               </div>
             </div>
             <div class="field">
               <label class="label is-small">Certificate</label>
               <div class="control">
-                <textarea
-                  v-model="certificate"
+                <textarea v-model="certificate"
                   class="textarea is-small certificate-data"
                   :placeholder="EMPTY_CERTIFICATE_FIELD"
-                  rows="8"
-                />
+                  rows="8"/>
               </div>
             </div>
           </div>
         </section>
         <footer class="modal-card-foot">
           <div class="buttons is-right is-fullwidth">
-            <button
-              class="button is-small"
-              @click="closeAndResetUploadModal"
-            >
+            <button class="button is-small"
+              @click="closeAndResetUploadModal">
               Cancel
             </button>
-            <button
-              class="button is-small is-outlined"
+            <button class="button is-small is-outlined"
               :class="{ 'is-loading': is_loading }"
               :disabled="isSaveNewCertDisabled"
-              @click="uploadManualInputCert"
-            >
+              @click="uploadManualInputCert">
               Save
             </button>
           </div>

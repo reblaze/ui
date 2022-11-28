@@ -12,7 +12,6 @@
             @click="resetEditModal"/>
         </header>
         <section class="modal-card-body">
-          <!-- <loader v-if="isLoading"></loader> -->
           <div v-if="getConnectedSitesForEditCert"
             class="control content is-small mb-2">
             Connected sites:
