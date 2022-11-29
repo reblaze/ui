@@ -409,6 +409,7 @@ declare module CuriefenseClient {
     san?: string[]
     subject?: string
     upload_time?: string
+    loading?: boolean
   }
 
   type Balancer = {
@@ -423,7 +424,8 @@ declare module CuriefenseClient {
     provider: string
     region: string
     id?: string
-    loading?: boolean
+    attach_loading?: boolean | string
+    detach_loading?: boolean | string
   }
 
   type EventLog = {

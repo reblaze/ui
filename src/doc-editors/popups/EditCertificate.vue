@@ -279,8 +279,7 @@ export default defineComponent({
       this.certAction = 'attach_to_application'
     },
 
-    // TODO: add type to providerLink as loadbalancer[links.provider]
-    findLocalCertificateNameWithLink(providerLink:any): string {
+    findLocalCertificateNameWithLink(providerLink:string): string {
       const gcpLink = _.find(this.certificate.links, (link) => {
         return link.provider === 'gcp'
       })

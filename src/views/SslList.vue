@@ -59,37 +59,34 @@
                     <strong>Certificates:</strong>
                   </p>
                   <div class="center-details balancer-box default-box-certificate"
-                    v-for="cert in selectedBalancer?.certificates"
-                    :key="cert">
+                    v-for="(certificate, index) in selectedBalancer?.certificates"
+                    :key="index">
                     <div class="column is-10">
                       <p class="has-text-weight-medium"
-                        :class="{ 'mb-1': getCertificateDetails(cert)}">
-                        {{ findLocalCertificateNameWithLink(cert) }}
+                        :class="{ 'mb-1': getCertificateDetails(certificate)}">
+                        {{ findLocalCertificateNameWithLink(certificate) }}
                       </p>
-                      <div v-if="getCertificateDetails(cert)">
+                      <div v-if="getCertificateDetails(certificate)">
                         <p class="mb-1">
-                          CN: {{ getCertificateDetails(cert).name }}
+                          CN: {{ getCertificateDetails(certificate).name }}
                         </p>
                         <p class="mb-1">
-                          SAN: {{ getCertificateDetails(cert).san }}
+                          SAN: {{ getCertificateDetails(certificate).san }}
                         </p>
                         <p class="mb-1">
-                          Expiration: {{ getCertificateDetails(cert).expDate }}
+                          Expiration: {{ getCertificateDetails(certificate).expDate }}
                         </p>
                       </div>
                     </div>
                     <div class="has-text-right">
-                      <button @click="setDefaultCertificate(cert)"
-                        class="button is-small is-outlined mr-2">
-                        <!-- TODO: add :disabled="!!selectedBalancer.loading"
-                          and
-                          :class="{ 'is-loading': selectedBalancer.loading === cert }" -->
+                      <button @click="setDefaultCertificate(selectedBalancer, certificate)"
+                        class="button is-small is-outlined mr-2"
+                        :class="{ 'is-loading': selectedBalancer.attach_loading === certificate }">
                         Set default
                       </button>
-                      <button @click="detachNonDefaultCertificate(selectedBalancer, cert)"
+                      <button @click="detachNonDefaultCertificate(selectedBalancer, certificate)"
                         class="button is-small"
-                        :class="{ 'is-loading':isDetachLoading }">
-                        <!-- TODO: :disabled="!!selectedBalancer.loading" -->
+                        :class="{ 'is-loading': selectedBalancer?.detach_loading === certificate }">
                         Detach
                       </button>
                     </div>
@@ -383,7 +380,6 @@ export default defineComponent({
       ] as ColumnOptions[]
     },
 
-    // This is the specific loadBalancer
     selectedLoadBalancerID() {
       const balancer = this.loadBalancers.find((loadBalancer:any) => {
         return loadBalancer.id === this.rowClickedId
@@ -393,7 +389,11 @@ export default defineComponent({
 
     documentListAPIPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
-      return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/ssl/`
+      if (this.tab === 'Load balancers') {
+        return `${apiPrefix}/reblaze/config/load-balancers/`
+      } else {
+        return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/certificates/`
+      }
     },
 
     selectedBranch(): string {
@@ -407,7 +407,6 @@ export default defineComponent({
       const maxCertsNumber = this.MAX_CERT_PER_LB[this.selectedBalancer?.load_balancer_type]
       return this.certificates?.length + 1 < maxCertsNumber || maxCertsNumber === 1
     },
-
 
     getCertificateDetails(certificateLink:string) {
       const linkToCertificatesMapID = this.findLocalCertificateNameWithLink(certificateLink)
@@ -469,20 +468,23 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
-    async setDefaultCertificate(certLink: string) {
-      let cert = this.findLocalCertificateNameWithLink(certLink)
+    async setDefaultCertificate(balancer:Balancer, certificateLink: string) {
+      let cert = this.findLocalCertificateNameWithLink(certificateLink)
       if (cert.includes('(*)')) {
-        cert = certLink
+        cert = certificateLink
       }
       cert = encodeURIComponent(cert)
-      this.attachCertificateToLoadBalancer(this.selectedBalancer, cert, true)
+      this.attachCertificateToLoadBalancer(balancer, cert, true, certificateLink)
     },
 
-    async attachCertificateToLoadBalancer(balancer:Balancer, certificateId:string, isDefault:boolean = false) {
-      this.isAttachLoading = true
+    async attachCertificateToLoadBalancer(balancer:Balancer, cert:string, isDefault:boolean = false, certificateLink?: string, certificate?: Certificate) {
+      balancer.attach_loading = certificateLink
+      if (certificate) {
+        certificate.loading = true
+      }
       const method = 'PUT'
       const encodedBalancerName = encodeURIComponent(balancer.name)
-      const encodedCertificateId = encodeURIComponent(certificateId)
+      const encodedCertificateId = encodeURIComponent(cert)
       const encodedBalancerProvider = encodeURIComponent(balancer?.provider)
       const encodedBalancerRegion = encodeURIComponent(balancer?.region)
       const encodedBalancerListenerName = encodeURIComponent(balancer?.listener_name)
@@ -494,12 +496,14 @@ export default defineComponent({
         url: url,
       })
       this.attachCertPopupShown = false
-      this.isAttachLoading = false
+      if (certificate) {
+        certificate.loading = false
+      }
       this.callLoaders()
     },
 
-    async detachNonDefaultCertificate(balancer: Balancer, certificateLink:string, certificate?: Certificate) {
-      this.isDetachLoading = true
+    async detachNonDefaultCertificate(balancer:Balancer, certificateLink:string) {
+      balancer.detach_loading = certificateLink
       const method = 'DELETE'
       const encodedBalancerName = encodeURIComponent(balancer.name)
       const encodedCertificateLink = encodeURIComponent(certificateLink)
@@ -514,7 +518,6 @@ export default defineComponent({
         url: url,
       })
       this.callLoaders()
-      this.isDetachLoading = false
     },
 
     async populateLoadBalancers() {
@@ -525,9 +528,9 @@ export default defineComponent({
       this.loadBalancers = this.loadBalancers.map((balancer) => {
         return {
           ...balancer,
-          loading: false,
+          attach_loading: false,
+          detach_loading: false,
           id: `ui-lb-${DatasetsUtils.generateUUID2()}`,
-          isOpen: false,
         }
       })
       this.setLoadingDocStatus(false)
@@ -538,6 +541,12 @@ export default defineComponent({
       const url = `configs/${this.selectedBranch}/d/certificates/`
       const certificatesResponse = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
       this.certificates = certificatesResponse?.data || []
+      this.certificates = this.certificates.map((certificate) => {
+        return {
+          ...certificate,
+          loading: false,
+        }
+      })
       this.setLoadingDocStatus(false)
     },
 

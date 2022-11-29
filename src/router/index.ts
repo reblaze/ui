@@ -194,6 +194,9 @@ const routes: Array<RouteRecordRaw> = [
                 path: 'list',
                 name: 'SSL/list',
                 component: SslList,
+                meta: {
+                  title: 'SSL List',
+                },
               },
             ],
           },

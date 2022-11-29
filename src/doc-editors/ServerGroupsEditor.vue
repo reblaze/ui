@@ -198,7 +198,6 @@
             </div>
           </div>
         </div>
-        <!-- TODO: Generate and Generate & replace -->
         <div class="column is-4">
           <div class="field">
             <label class="label is-small">Certificates</label>
@@ -226,12 +225,12 @@
               @click="generateCertificate()">
               Generate
             </button>
-            <button class="button is-small new-sequence-button"
+            <!-- TODO: Generate&Replace button is disabled for now <button class="button is-small new-sequence-button"
               :class="{'is-loading': isDownloadLoading}"
               data-qa="new-sequence-btn"
               @click="generateCertificate(selectedServerGroup.ssl_certificate)">
               Generate & replace
-            </button>
+            </button> -->
             </div>
           </div>
         </div>
@@ -625,14 +624,13 @@ export default defineComponent({
 
     async generateCertificate(certificateId?: string) {
       const method = 'POST'
-      if(certificateId) {
+      if (certificateId) {
         const url = `configs/${this.selectedBranch}/d/certificates/e/${certificateId}?domains=${this.selectedServerGroup.server_names}&site-id=${this.selectedServerGroup.id}`
         await RequestsUtils.sendReblazeRequest({methodName: method, url: url})
       } else {
         const url = `configs/${this.selectedBranch}/d/certificates/e/${DatasetsUtils.generateUUID2()}?domains=${this.selectedServerGroup.server_names}&site-id=${this.selectedServerGroup.id}`
         await RequestsUtils.sendReblazeRequest({methodName: method, url: url})
       }
-      
     },
 
     async setSelectedDataFromRouteParams() {

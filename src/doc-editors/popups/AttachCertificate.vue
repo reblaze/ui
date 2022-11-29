@@ -43,21 +43,17 @@
                     </td>
                     <td class="is-size-7 is-vcentered is-20 has-text-right">
                       <button class="button is-small is-outlined"
-                        @click="attachCertificateToLoadBalancer(selectedBalancer, certificate.id, false, certificate)"
-                        :class="{'is-loading' : isAttachLoading}">
-                        <!-- TODO: Need to do it more specific -->
-                        <!-- TODO: :class="{ 'is-loading': selectedBalancer.loading === certificate.id }" and :disabled="!!selectedBalancer.loading" -->
+                        @click="attachCertificateToLoadBalancer(selectedBalancer, certificate.id, false, '', certificate)"
+                        :class="{'is-loading' : certificate.loading}">
                         Attach
                       </button>
                     </td>
-                    {{isAttachLoading}}
                   </tr>
                 </tbody>
                 <tbody v-else>
                   <tr>
                     <td colspan="3"
-                      class="is-size-7 is-vcentered has-text-centered"
-                      style="width: 100%;">
+                      class="is-size-7 is-vcentered has-text-centered no-certificate">
                       No certificates found
                     </td>
                   </tr>
@@ -148,5 +144,9 @@ export default defineComponent({
 
   .search-input {
     width: 300px;
+  }
+
+  .no-certificate {
+    width: 100%;
   }
 </style>
