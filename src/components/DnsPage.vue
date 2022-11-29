@@ -5,6 +5,7 @@
       <rbz-table :columns="columns"
                  :data="dnsRecords"
                  :default-sort-column-index="1"
+                 :vertical-top="true"
                  :show-filter-button="true">
       </rbz-table>
     </div>
@@ -41,35 +42,31 @@ export default defineComponent({
           fieldNames: ['name'],
           isSortable: true,
           isSearchable: true,
-          classes: 'ellipsis ',
+          classes: 'ellipsis width-300px align-top',
         },
         {
-          title: 'Name',
-          fieldNames: ['name'],
-          isSortable: true,
-          isSearchable: true,
-          classes: 'ellipsis ',
-        },
-        {
-          title: 'Resource Records',
-          fieldNames: ['resource_records'],
-          isSortable: true,
-          isSearchable: true,
-          classes: 'ellipsis ',
-        },
-        {
-          title: 'Time Records',
-          fieldNames: ['ttl'],
-          isSortable: true,
-          isSearchable: true,
-          classes: 'ellipsis ',
-        },
-        {
-          title: 'Record Type',
+          title: 'Type',
           fieldNames: ['type'],
           isSortable: true,
           isSearchable: true,
-          classes: 'ellipsis ',
+          classes: 'width-100px',
+        },
+        {
+          title: 'TTL',
+          fieldNames: ['ttl'],
+          isSortable: true,
+          isSearchable: true,
+          classes: 'width-100px',
+        },
+        {
+          title: 'Value',
+          fieldNames: ['resource_records'],
+          displayFunction: (item: DnsRecord) => {
+            return item.resource_records?.join('<br>\n')
+          },
+          isSortable: true,
+          isSearchable: true,
+          classes: 'ellipsis multi-line',
         },
       ] as ColumnOptions[],
       dnsRecords: [] as undefined as DnsRecord[],
@@ -77,14 +74,14 @@ export default defineComponent({
     }
   },
   watch: {
-    selectedBranch: {
-      handler: async function(val, oldVal) {
-        if ((this.$route.name as string).includes('DNSRecords') && val && val !== oldVal) {
-          await this.loadDNS()
-        }
-      },
-      immediate: true,
-    },
+    // selectedBranch: {
+    //   handler: async function(val, oldVal) {
+    //     if ((this.$route.name as string).includes('DNSRecords') && val && val !== oldVal) {
+    //       await this.loadDNS()
+    //     }
+    //   },
+    //   immediate: true,
+    // },
   },
   methods: {
 
@@ -98,7 +95,7 @@ export default defineComponent({
 
     async loadDNS() {
       this.setLoadingDocStatus(true)
-      const url = '/tools/dns-information/'
+      const url = 'tools/dns-information/'
       const methodName = 'GET'
       const response = await RequestsUtils.sendReblazeRequest({methodName, url})
       this.dnsRecords = response?.data?.dns_records || []
@@ -122,3 +119,33 @@ export default defineComponent({
 
 </script>
 
+<style scoped
+       lang="scss">
+.content table td {
+  vertical-align: top !important;
+}
+
+.align-top {
+  align-self: flex-start;
+  height: 100%;
+  vertical-align: top !important;
+}
+
+.rbz-table .data-cell-content {
+  max-height: 90px !important;
+}
+
+.rbz-table .data-cell {
+  vertical-align: top !important;
+}
+
+.multi-line {
+  height: fit-content !important;
+  max-height: fit-content !important;
+  max-width: 300px;
+  min-height: 150px;
+  min-width: 250px;
+  width: 250px;
+}
+
+</style>
