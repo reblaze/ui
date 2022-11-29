@@ -188,31 +188,6 @@
             </div>
           </div>
           <div class="field">
-            <label class="label is-small">
-              Certificate
-            </label>
-            <div class="control is-expanded">
-              <div class="select is-fullwidth is-small">
-                <select v-model="selectedServerGroup.ssl_certificate" >
-                  <option value="" selected disabled>
-                      Select Certificate
-                  </option>
-                  <option v-for="certificate in certificatesNames"
-                      :value="certificate[0]"
-                      :key="certificate[0]">
-                      {{certificate[0] }} ({{certificate[1] }})
-                  </option>
-                </select>
-              </div>
-            </div>
-            <p class="help">
-              (Optional) Choose a certificate for the site, or create a
-              <a url="/new-ssl-page/certificate-store">
-                  new one
-              </a>.
-            </p>
-          </div>
-          <div class="field">
             <div class="field textarea-field">
               <label class="label is-small">Description</label>
               <div class="control">
@@ -223,6 +198,42 @@
                                 rows="2">
                       </textarea>
               </div>
+            </div>
+          </div>
+        </div>
+        <div class="column is-4">
+          <div class="field">
+            <label class="label is-small">Certificates</label>
+            <div class="control is-expanded">
+              <div class="select is-fullwidth is-small">
+                <select v-model="selectedServerGroup.ssl_certificate"
+                  data-qa="routing-profile-dropdown"
+                  class="document-routing-profile-selection"
+                  title="SSL Certificates">
+                  <option v-for="certificate in certificates"
+                    :value="certificate.id"
+                    :key="certificate.id">
+                    {{ certificate.id }}
+                  </option>
+                  {{selectedServerGroup.ssl_certificate}}
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field flex-buttons textarea-field is-justify-content-space-around">
+              <button class="button is-small new-sequence-button"
+              :class="{'is-loading': isDownloadLoading}"
+              data-qa="new-sequence-btn"
+              @click="generateCertificate()">
+              Generate
+            </button>
+            <!-- TODO: Generate&Replace button is disabled for now <button class="button is-small new-sequence-button"
+              :class="{'is-loading': isDownloadLoading}"
+              data-qa="new-sequence-btn"
+              @click="generateCertificate(selectedServerGroup.ssl_certificate)">
+              Generate & replace
+            </button> -->
             </div>
           </div>
         </div>
@@ -462,7 +473,7 @@ export default defineComponent({
       routingProfilesNames: [] as [RoutingProfile['id'], RoutingProfile['name']][],
       proxyTemplatesNames: [] as [ProxyTemplate['id'], ProxyTemplate['name']][],
       mobileSDKsNames: [] as [MobileSDK['id'], MobileSDK['name']][],
-      certificatesNames: [] as [Certificate['id'], Certificate['san']][],
+      certificates: [] as Certificate[],
       backendServicesNames: [] as [BackendService['id'], BackendService['name']][],
       contentFilterProfilesNames: [] as [ContentFilterProfile['id'], ContentFilterProfile['name']][],
       aclProfilesNames: [] as [ACLProfile['id'], ACLProfile['name']][],
@@ -560,6 +571,27 @@ export default defineComponent({
     },
   },
   methods: {
+    async generateCertificate(certificateId?: string) {
+      this.isDownloadLoading = true
+      const serverGroupText = this.titles['certificate-singular']
+      const successMessage = `The ${serverGroupText} was deleted.`
+      const failureMessage = `Failed while attempting to delete the ${serverGroupText}.`
+      const method = 'POST'
+      if (certificateId) {
+        const url = `configs/${this.selectedBranch}/d/certificates/e/${certificateId}?domains=${this.selectedServerGroup.server_names}&site-id=${this.selectedServerGroup.id}`
+        await RequestsUtils.sendReblazeRequest(
+          {methodName: method,
+            url: url,
+            successMessage,
+            failureMessage,
+          })
+      } else {
+        const url = `configs/${this.selectedBranch}/d/certificates/e/${DatasetsUtils.generateUUID2()}?domains=${this.selectedServerGroup.server_names}&site-id=${this.selectedServerGroup.id}`
+        await RequestsUtils.sendReblazeRequest({methodName: method, url: url})
+      }
+      this.redirectToList()
+      this.isDownloadLoading = false
+    },
 
     async goToRoute() {
       const newRoute = `/${this.selectedBranch}/server-groups/config/${this.selectedDocID}`
@@ -624,7 +656,6 @@ export default defineComponent({
 
     async switchDocID() {
       this.setLoadingDocStatus(true)
-
       const docName = this.docs[this.selectedDocIndex].name
       if (docName) {
         Utils.toast(
@@ -655,9 +686,9 @@ export default defineComponent({
         successMessage,
         failureMessage,
       })
-      this.redirectToList()
       this.isDeleteLoading = false
       this.setLoadingDocStatus(false)
+      this.redirectToList()
     },
 
     async forkDoc() {
@@ -730,16 +761,7 @@ export default defineComponent({
         url: `configs/${this.selectedBranch}/d/certificates/`,
         config: {headers: {'x-fields': 'id, san'}},
       })
-      if (response.data.length > 0) {
-        this.certificatesNames = _.sortBy(_.map(response.data, (entity) => {
-          return [entity.id, entity.san]
-        }), (e) => {
-          return e[1]
-        })
-      } else {
-        // TODO  get certificate to work
-        this.certificatesNames = [['need-real-data', ['www.certificate.com']]] as [string, string[]][]
-      }
+      this.certificates = response.data || []
     },
 
     async loadSecurityPolicies() {
@@ -850,3 +872,9 @@ export default defineComponent({
   },
 })
 </script>
+
+<style scoped type="scss">
+  .flex-buttons {
+    display: flex;
+  }
+</style>

@@ -314,25 +314,6 @@ declare module CuriefenseClient {
     }[]
   }
 
-  type Certificate = {
-    id: string
-    cert_body: string
-    expires?: string
-    issuer?: string
-    le_auto_renew?: boolean
-    le_auto_replace?: boolean
-    le_hash?: string
-    private_key: string
-    provider_links?: [{
-      link: string
-      provider: string
-      region: string
-    }]
-    san?: string[]
-    subject?: string
-    uploaded?: string
-  }
-
   type RoutingProfileEntryLocation = {
     id: string
     path: string
