@@ -309,10 +309,6 @@ export default defineComponent({
     this.branches = await this.branchesStore.list
     await this.loadLinksFromDB()
   },
-  async updated() {
-    this.branches = await this.branchesStore.list
-    await this.loadLinksFromDB()
-  },
 })
 </script>
 <style lang="scss">
