@@ -15,15 +15,15 @@ describe('LimitOption.vue', () => {
       'self': 'self',
     }
     allAttributes = [
+      'ASN',
       'Authority',
-      'Company',
       'Country',
       'IP Address',
       'Method',
       'Network',
+      'Organization',
       'Path',
       'Path Matching ID',
-      'Provider',
       'Query',
       'Region',
       'Security Policy ID',
@@ -131,7 +131,7 @@ describe('LimitOption.vue', () => {
 
     test('should render dropdown correctly without ignored action types (ip, uri, company)', async () => {
       allAttributes = allAttributes.filter((item) => {
-        return !['IP Address', 'URI', 'Company'].includes(item)
+        return !['IP Address', 'URI', 'Organization'].includes(item)
       })
       option = {
         'attrs': '',

@@ -105,6 +105,27 @@ export default defineComponent({
             ticks: {
               width: 0.5,
             },
+            values: (self, splits) => {
+              const secondsDiff = splits[splits.length - 1] - splits[0]
+              return splits.map((value) => {
+                const date = new Date(value * 1000)
+                const hours = date.getHours()
+                const minutes = date.getMinutes()
+                const seconds = date.getSeconds()
+                if (hours === 0 && minutes === 0 && seconds === 0) {
+                  return `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`
+                } else {
+                  const displayHours = hours < 10 ? `0${hours}` : hours
+                  const displayMinutes = minutes < 10 ? `0${minutes}` : minutes
+                  if (secondsDiff >= 600) { // 10 minutes span or more
+                    return `${displayHours}:${displayMinutes}`
+                  } else { // less than 10 minutes span
+                    const displaySeconds = seconds < 10 ? `0${seconds}` : seconds
+                    return `${displayHours}:${displayMinutes}:${displaySeconds}`
+                  }
+                }
+              })
+            },
           },
           {
             grid: {
@@ -114,7 +135,7 @@ export default defineComponent({
               width: 0.5,
             },
             values: (self, splits) => splits.map((value) => {
-              return value == null ? null : this.amountSuffixFormatter(value)
+              return value === null ? null : this.amountSuffixFormatter(value)
             }),
           },
         ],

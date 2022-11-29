@@ -75,15 +75,15 @@ import {LimitOptionType} from '@/types'
 type LimitRuleType = 'headers' | 'args' | 'cookies' | 'attrs' | 'self'
 
 const limitAttributes = {
+  asn: 'ASN',
   authority: 'Authority',
-  company: 'Company',
   country: 'Country',
   ip: 'IP Address',
   method: 'Method',
   network: 'Network',
+  company: 'Organization',
   path: 'Path',
   securitypolicyentryid: 'Path Matching ID',
-  asn: 'Provider',
   query: 'Query',
   region: 'Region',
   securitypolicyid: 'Security Policy ID',
