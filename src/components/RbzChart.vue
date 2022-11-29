@@ -149,6 +149,8 @@ export default defineComponent({
     // converts the legend into a simple tooltip
     legendAsTooltipPlugin({classList = [], style = {}} = {}) {
       let legendElement: HTMLElement
+      // TODO: make this customizable
+      const legendWidth = 230
 
       const init = (uPlotChart: uPlot) => {
         legendElement = uPlotChart.root.querySelector('.u-legend')
@@ -158,7 +160,7 @@ export default defineComponent({
         uPlot.assign(legendElement.style, {
           display: 'none',
           ...style,
-          ...{backgroundColor: 'rgba(255, 250, 195, 0.85)', color: 'black'},
+          ...{backgroundColor: 'rgba(255, 250, 195, 0.85)', color: 'black', width: legendWidth},
         })
 
         // better the color series color markers
@@ -184,7 +186,10 @@ export default defineComponent({
       }
 
       const update = (uPlotChart: uPlot) => {
-        const {left, top} = uPlotChart.cursor
+        let {left, top} = uPlotChart.cursor
+        if (left + legendWidth > uPlotChart.over?.clientWidth) {
+          left = left - legendWidth
+        }
         legendElement.style.transform = `translate(${left}px, ${top}px)`
       }
 
@@ -249,7 +254,6 @@ export default defineComponent({
   position: absolute;
   text-align: left;
   top: 0;
-  width: 230px;
   z-index: 100;
 }
 </style>

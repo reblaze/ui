@@ -67,8 +67,9 @@
             {{ event.curiesession }}
           </span>
         </span>
-        <span class="column ellipsis"
+        <span v-if="addToSummaryDisplay"
               :title="addToSummaryDisplay"
+              class="column ellipsis"
               @contextmenu="openContextMenu($event, addToSummaryProperty, addToSummaryInnerIdentifier)">
           {{ addToSummaryDisplay }}
         </span>
