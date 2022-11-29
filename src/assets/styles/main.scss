@@ -429,6 +429,31 @@ $color-light: hsl(0, 0%, 96%);
   width: 100%;
 }
 
+/* Modal */
+.modal.is-active {
+  z-index: 102;
+}
+
+.modal-card {
+  border-radius: 6px;
+}
+
+.modal-card:not(.modal-content) {
+  top: 10%;
+}
+
+.modal .modal.is-large {
+  top: 2%;
+}
+
+.modal-footer-buttons {
+  justify-content: space-between;
+}
+
+.modal-card-foot.columns {
+  z-index: 2;
+}
+
 /* Vue3Datepicker */
 
 .dp__preset_ranges { /* stylelint-disable-line */
