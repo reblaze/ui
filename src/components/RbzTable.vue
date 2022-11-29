@@ -134,8 +134,9 @@
         <td v-for="(col, index) in columns"
             :key="index"
             :title="row[col.title]"
-        class="data-cell">
-          <div class="is-size-7 data-cell-content"
+            class="data-cell"
+            :class="verticalAlignTop ? 'vertical-align-top' : 'vertical-align-middle'">
+          <div class="is-size-7"
                :class="col.classes">
             <span v-if="col.displayFunction"
                   v-html="col.displayFunction(row)"
@@ -228,6 +229,7 @@ export default defineComponent({
     rowClickable: Boolean,
     showRowButton: Boolean,
     showSecondRowButton: Boolean,
+    verticalAlignTop: Boolean,
     rowButtonTitle: String,
     rowButtonClass: String,
     rowButtonIcon: String,
@@ -588,10 +590,6 @@ export default defineComponent({
 
 .rbz-table .filter-toggle:focus {
   box-shadow: none;
-}
-
-.rbz-table .data-cell {
-  vertical-align: middle;
 }
 
 .rbz-table .data-cell-content {

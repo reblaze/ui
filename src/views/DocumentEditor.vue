@@ -109,7 +109,7 @@
                         :class="{'is-loading': isDeleteLoading}"
                         @click="deleteDoc()"
                         title="Delete document"
-                        :disabled="selectedDocNotDeletable || havePoliciesConnections"
+                        :disabled="selectedDocNotDeletable"
                         data-qa="delete-document">
                   <span class="icon is-small">
                     <i class="fas fa-trash"></i>
@@ -313,6 +313,7 @@ export default defineComponent({
           this.selectedDoc.id.startsWith('action-') || // Reblaze-managed Custom Responses
           this.selectedDoc.id.startsWith('rbz-') || // Reblaze-managed Global Filters
           this.selectedDoc.id.startsWith('dr_') || // Dynamic-Rule-managed Global Filters
+          this.havePoliciesConnections ||
           this.isDocReferenced
     },
 
@@ -389,7 +390,6 @@ export default defineComponent({
       if (docIdFromRoute && this.docIdNames.findIndex((doc) => doc.id === docIdFromRoute) > -1) {
         this.selectedDocID = docIdFromRoute
       } else {
-        console.log('redirectToList')
         this.redirectToList()
       }
       this.isDocumentInvalid = false
@@ -447,7 +447,7 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
-    async loadDocs(skipDocSelection?: boolean) {
+    async loadDocs() {
       this.isDownloadLoading = true
       this.setLoadingDocStatus(true)
       const branch = this.selectedBranch
@@ -676,7 +676,7 @@ export default defineComponent({
     },
 
     restoreGitVersion() {
-      this.loadDocs(true)
+      this.loadDocs()
     },
 
     // Collect every request to display a loading indicator

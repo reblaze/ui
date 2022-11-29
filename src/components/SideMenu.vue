@@ -128,7 +128,7 @@ export default defineComponent({
           header: 'Analytics',
         },
         {
-          href: '/dashboard',
+          href: `/${this.selectedBranch?.id}/dashboard`,
           title: 'Dashboard',
         },
         // {
@@ -147,8 +147,12 @@ export default defineComponent({
         //   external: true,
         // },
         {
-          href: '/events-log',
+          href: `/${this.selectedBranch?.id}/events-log`,
           title: 'Events Log',
+        },
+        {
+          href: `/${this.selectedBranch?.id}/dns-records`,
+          title: 'DNS Records',
         },
         // ########
         // Security
@@ -199,7 +203,7 @@ export default defineComponent({
           title: 'Dynamic Rules',
         },
         {
-          href: '/quarantined',
+          href: `/${this.selectedBranch?.id}/quarantined`,
           title: 'Quarantined',
         },
         {
@@ -247,7 +251,7 @@ export default defineComponent({
           title: 'Version Control',
         },
         {
-          href: '/system-db',
+          href: `/${this.selectedBranch?.id}/system-db`,
           title: 'System DB',
         },
         {
@@ -261,7 +265,7 @@ export default defineComponent({
           header: 'Help',
         },
         {
-          href: '/support',
+          href: `/${this.selectedBranch?.id}/support`,
           title: 'Support',
         },
         {
@@ -306,6 +310,10 @@ export default defineComponent({
     },
   },
   async mounted() {
+    this.branches = await this.branchesStore.list
+    await this.loadLinksFromDB()
+  },
+  async updated() {
     this.branches = await this.branchesStore.list
     await this.loadLinksFromDB()
   },

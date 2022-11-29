@@ -428,11 +428,18 @@ declare module CuriefenseClient {
 
   // Git - END
 
+  type DnsRecord = {
+      name: string,
+      resource_records: string[],
+      ttl: number,
+      type: string
+  }
+
   type Quarantined = {
     id: string
     config: string
     count: number
-    first_added: number
+    timestamp: string
     last_seen: number
     rule_id: string
     tags: string[]

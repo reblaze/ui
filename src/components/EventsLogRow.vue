@@ -560,6 +560,7 @@
 </template>
 
 <script lang="ts">
+/* eslint-disable */
 import {defineComponent, nextTick, PropType} from 'vue'
 import {EventLog, TagsNamespaceValue} from '@/types'
 import _ from 'lodash'
