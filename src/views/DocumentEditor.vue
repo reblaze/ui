@@ -109,7 +109,7 @@
                         :class="{'is-loading': isDeleteLoading}"
                         @click="deleteDoc()"
                         title="Delete document"
-                        :disabled="selectedDocNotDeletable || havePoliciesConnections"
+                        :disabled="selectedDocNotDeletable"
                         data-qa="delete-document">
                   <span class="icon is-small">
                     <i class="fas fa-trash"></i>
@@ -313,6 +313,7 @@ export default defineComponent({
           this.selectedDoc.id.startsWith('action-') || // Reblaze-managed Custom Responses
           this.selectedDoc.id.startsWith('rbz-') || // Reblaze-managed Global Filters
           this.selectedDoc.id.startsWith('dr_') || // Dynamic-Rule-managed Global Filters
+          this.havePoliciesConnections ||
           this.isDocReferenced
     },
 
