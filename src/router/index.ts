@@ -47,12 +47,12 @@ const routes: Array<RouteRecordRaw> = [
     path: '/',
     name: 'MainComponent',
     component: MainComponent,
-    redirect: '/dashboard',
+    redirect: ':branch/dashboard',
     children: [
       {
         path: ':branch',
         name: 'MainComponent/Branch',
-        redirect: '/dashboard',
+        redirect: ':branch/dashboard',
         children: [
           {
             path: 'server-groups',
@@ -280,7 +280,7 @@ const routes: Array<RouteRecordRaw> = [
         ],
       },
       {
-        path: 'dashboard',
+        path: ':branch/dashboard',
         name: 'DashboardDisplay',
         component: DashboardDisplay,
         meta: {
@@ -288,7 +288,7 @@ const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: 'events-log',
+        path: '/:branch/events-log',
         name: 'EventsLog',
         component: EventsLog,
         meta: {
@@ -304,7 +304,7 @@ const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: 'quarantined',
+        path: '/:branch/quarantined',
         name: 'Quarantined',
         component: QuarantinedList,
         meta: {
@@ -312,7 +312,7 @@ const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: 'system-db',
+        path: '/:branch/system-db',
         name: 'SystemDBEditor',
         component: SystemDBEditor,
         meta: {
@@ -320,7 +320,7 @@ const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: 'support',
+        path: '/:branch/support',
         name: 'Support',
         component: HelpAndSupport,
         meta: {
