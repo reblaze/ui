@@ -22,6 +22,7 @@ import DynamicRulesList from '@/views/DynamicRulesList.vue'
 import DynamicRulesEditor from '@/doc-editors/DynamicRulesEditor.vue'
 import EdgeFunctionsList from '@/views/EdgeFunctionsList.vue'
 import EdgeFunctionsEditor from '@/doc-editors/EdgeFunctionsEditor.vue'
+import DnsPage from '@/components/DnsPage.vue'
 import PremiumPage from '@/views/PremiumPage.vue'
 import RequestsUtils from '@/assets/RequestsUtils'
 import EventsLog from '@/views/EventsLog.vue'
@@ -301,6 +302,14 @@ const routes: Array<RouteRecordRaw> = [
         component: PremiumPage,
         meta: {
           title: 'Premium',
+        },
+      },
+      {
+        path: ':branch/dns-records',
+        name: 'DNSRecords',
+        component: DnsPage,
+        meta: {
+          title: 'DNS Records',
         },
       },
       {
