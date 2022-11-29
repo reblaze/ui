@@ -390,7 +390,6 @@ export default defineComponent({
       if (docIdFromRoute && this.docIdNames.findIndex((doc) => doc.id === docIdFromRoute) > -1) {
         this.selectedDocID = docIdFromRoute
       } else {
-        console.log('redirectToList')
         this.redirectToList()
       }
       this.isDocumentInvalid = false
