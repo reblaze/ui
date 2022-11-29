@@ -305,7 +305,7 @@ const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: 'dns-records',
+        path: ':branch/dns-records',
         name: 'DNSRecords',
         component: DnsPage,
         meta: {

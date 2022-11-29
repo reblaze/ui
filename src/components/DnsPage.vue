@@ -5,12 +5,12 @@
       <rbz-table :columns="columns"
                  :data="dnsRecords"
                  :default-sort-column-index="1"
-                 :vertical-top="true"
+                 :vertical-align-top="true"
                  :show-filter-button="true">
       </rbz-table>
     </div>
     <div class="content no-data-wrapper"
-         v-if="!selectedBranch || !dnsRecords">
+         v-if="!dnsRecords">
       <div v-if="loadingDocCounter > 0">
         <button class="button is-outlined is-text is-small is-loading document-loading">
           Loading
@@ -25,12 +25,10 @@ import {defineComponent} from 'vue'
 import RbzTable from '@/components/RbzTable.vue'
 import {ColumnOptions, DnsRecord} from '@/types'
 import RequestsUtils from '@/assets/RequestsUtils'
-import {mapStores} from 'pinia'
-import {useBranchesStore} from '@/stores/BranchesStore'
 
 
 export default defineComponent({
-  name: 'QuarantinedList',
+  name: 'DNSRecords',
   components: {
     RbzTable,
   },
@@ -73,16 +71,6 @@ export default defineComponent({
       loadingDocCounter: 0,
     }
   },
-  watch: {
-    // selectedBranch: {
-    //   handler: async function(val, oldVal) {
-    //     if ((this.$route.name as string).includes('DNSRecords') && val && val !== oldVal) {
-    //       await this.loadDNS()
-    //     }
-    //   },
-    //   immediate: true,
-    // },
-  },
   methods: {
 
     setLoadingDocStatus(isLoading: boolean) {
@@ -103,16 +91,7 @@ export default defineComponent({
     },
   },
 
-  computed: {
-    selectedBranch(): string {
-      return this.branchesStore.selectedBranchId
-    },
-
-    ...mapStores(useBranchesStore),
-  },
-
   async created() {
-    await this.branchesStore.list
     await this.loadDNS()
   },
 })

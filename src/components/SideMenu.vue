@@ -151,7 +151,7 @@ export default defineComponent({
           title: 'Events Log',
         },
         {
-          href: '/dns-records',
+          href: `/${this.selectedBranch?.id}/dns-records`,
           title: 'DNS Records',
         },
         // ########
