@@ -92,7 +92,8 @@
                         :class="{'is-loading': isSaveLoading}"
                         @click="saveChanges()"
                         :title="titleDisplay"
-                        :disabled="isDocumentInvalid || !selectedDoc || dynamicRuleManaged || tagsInvalid"
+                        :disabled="isDocumentInvalid || !selectedDoc || dynamicRuleManaged ||
+                        tagsInvalid"
                         data-qa="save-changes">
                   <span class="icon is-small">
                     <i class="fas fa-save"></i>
@@ -139,6 +140,7 @@
           :apiPath="documentAPIPath"
           @form-invalid="setIsDocumentInvalid"
           @tags-invalid="setTagsInvalid"
+          @have-policies-connections="setPoliciesConnections"
           @go-to-route="goToRoute($event)"
           ref="currentComponent">
       </component>
@@ -242,6 +244,7 @@ export default defineComponent({
       tagsInvalid: false,
       selectedDocMatchingGlobalFilter: null as GlobalFilter,
       duplicatedDocMatchingGlobalFilter: null as GlobalFilter,
+      havePoliciesConnections: false as boolean,
 
       componentsMap: {
         'globalfilters': shallowRef({component: GlobalFilterListEditor}),
@@ -310,6 +313,7 @@ export default defineComponent({
           this.selectedDoc.id.startsWith('action-') || // Reblaze-managed Custom Responses
           this.selectedDoc.id.startsWith('rbz-') || // Reblaze-managed Global Filters
           this.selectedDoc.id.startsWith('dr_') || // Dynamic-Rule-managed Global Filters
+          this.havePoliciesConnections ||
           this.isDocReferenced
     },
 
@@ -353,6 +357,10 @@ export default defineComponent({
 
     setTagsInvalid(tagsInvalid: boolean) {
       this.tagsInvalid = tagsInvalid
+    },
+
+    setPoliciesConnections(connections: boolean) {
+      this.havePoliciesConnections = connections
     },
 
     async goToRoute(newRoute?: string) {
