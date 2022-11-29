@@ -134,7 +134,7 @@
         <td v-for="(col, index) in columns"
             :key="index"
             :title="row[col.title]"
-        :class="verticalAlignTop ? 'vertical-align-top' : 'vertical-align-middle'">
+            :class="verticalAlignTop ? 'vertical-align-top' : 'vertical-align-middle'">
           <div class="is-size-7 "
                :class="col.classes">
             <span v-if="col.displayFunction"

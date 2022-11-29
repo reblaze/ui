@@ -4,7 +4,6 @@
           v-if="dnsRecords && !loadingDocCounter">
       <rbz-table :columns="columns"
                  :data="dnsRecords"
-                 :default-sort-column-index="1"
                  :vertical-align-top="true"
                  :show-filter-button="true">
       </rbz-table>
@@ -40,7 +39,7 @@ export default defineComponent({
           fieldNames: ['name'],
           isSortable: true,
           isSearchable: true,
-          classes: 'ellipsis width-300px align-top',
+          classes: 'ellipsis width-300px ',
         },
         {
           title: 'Type',
@@ -100,27 +99,10 @@ export default defineComponent({
 
 <style scoped
        lang="scss">
-.content table td {
-  vertical-align: top !important;
-}
-
-.align-top {
-  align-self: flex-start;
-  height: 100%;
-  vertical-align: top !important;
-}
-
-.rbz-table .data-cell-content {
-  max-height: 90px !important;
-}
-
-.rbz-table .data-cell {
-  vertical-align: top !important;
-}
 
 .multi-line {
-  height: fit-content !important;
-  max-height: fit-content !important;
+  height: fit-content;
+  max-height: fit-content;
   max-width: 300px;
   min-height: 150px;
   min-width: 250px;
