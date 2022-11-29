@@ -448,7 +448,7 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
-    async loadDocs(skipDocSelection?: boolean) {
+    async loadDocs() {
       this.isDownloadLoading = true
       this.setLoadingDocStatus(true)
       const branch = this.selectedBranch
@@ -677,7 +677,7 @@ export default defineComponent({
     },
 
     restoreGitVersion() {
-      this.loadDocs(true)
+      this.loadDocs()
     },
 
     // Collect every request to display a loading indicator
