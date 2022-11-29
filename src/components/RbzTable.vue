@@ -591,6 +591,9 @@ export default defineComponent({
   box-shadow: none;
 }
 
+.rbz-table .data-cell {
+  vertical-align: middle;
+}
 
 .rbz-table .data-cell-content {
   max-height: 1.75rem;
