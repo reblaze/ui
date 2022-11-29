@@ -469,7 +469,7 @@ const newOperationEntryFactory: { [key: string]: Function } = {
       'cert_body': '',
     }
   },
-    
+
 }
 
 export default {
