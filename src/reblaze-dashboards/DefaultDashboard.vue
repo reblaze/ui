@@ -83,8 +83,8 @@
                 </span>
               </span>
                 <span class="status-value is-inline-block">
-                {{ legend.percentile }}%
-              </span>
+                  {{ legend.percentile }}%
+                </span>
               </div>
             </div>
           </div>
@@ -414,7 +414,7 @@ export default defineComponent({
           svgDoughnut.appendChild(circle)
           this.statusesPieChartLegend.push({
             status: dataItem.status,
-            percentile: Math.round(dataItem.fill * 100),
+            percentile: Math.floor(dataItem.fill * 100) / 100,
             color: dataItem.color,
           })
           filled += dataItem.fill

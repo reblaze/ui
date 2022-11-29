@@ -10,20 +10,9 @@
                       placeholder="Filters, separated by a new line."/>
           </div>
           <div class="control">
-            <Datepicker v-model="date"
-                        range
-                        enable-seconds
-                        auto-apply
-                        utc="preserve"
-                        format="yyyy-MM-dd HH:mm"
-                        input-class-name="input is-small is-size-7 width-260px date-picker-input"
-                        class="mb-3"
-                        :close-on-auto-apply="false"
-                        :month-change-on-scroll="false"
-                        :clearable="false"
-                        :preset-ranges="presetRanges"
-                        @open="loadPresetRanges()">
-            </Datepicker>
+            <rbz-date-picker @update:date="date = $event"
+                             ref="rbzDatePicker"
+                             class="mb-3"/>
             <div class="select is-small is-fullwidth">
               <select data-qa="events-limit-dropdown"
                       title="Events limit"
@@ -68,7 +57,12 @@
           </div>
         </div>
         <div v-if="!isSearchLoading && data?.length > 0">
-          {{ data.length }} EVENTS {{ groupedByLabel }}
+          {{ data.length }} EVENTS {{ groupedByLabel }}.
+          <a v-if="groupBy.length"
+             title="Ungroup events"
+             @click="clearGroupByProperty()">
+            Click here to ungroup.
+          </a>
         </div>
       </div>
     </div>
@@ -141,20 +135,17 @@
 <script lang="ts">
 import {defineComponent} from 'vue'
 import RequestsUtils from '@/assets/RequestsUtils'
-import Datepicker from '@vuepic/vue-datepicker'
 import {Dictionary, EventLog, GenericObject, TagsNamespaceValue} from '@/types'
 import _ from 'lodash'
 import EventsLogRow from '@/components/EventsLogRow.vue'
 import {AxiosResponse} from 'axios'
 import EventsLogCharts from '@/components/EventsLogCharts.vue'
-
-const MS_PER_MINUTE = 60000
-const HOUR = 60 * MS_PER_MINUTE
+import RbzDatePicker from '@/components/RbzDatePicker.vue'
 
 export default defineComponent({
   name: 'EventsLog',
   components: {
-    Datepicker,
+    RbzDatePicker,
     EventsLogCharts,
     EventsLogRow,
   },
@@ -165,8 +156,7 @@ export default defineComponent({
       eventsLimitOptions: [200, 500, 1000, 1500, 2000, 2500],
       eventsLimit: 200,
       groupBy: [],
-      date: this.getDefaultDate(),
-      presetRanges: [],
+      date: [null, null],
       isSearchLoading: false,
       showFullGroupIndexes: [],
       addToSummaryProperty: null,
@@ -229,38 +219,51 @@ export default defineComponent({
       const filters = this.searchFilter ? this.searchFilter.split('\n') : []
       filters.forEach((filter) => {
         filter = filter.trim()
-        // Extract data from filter
-        const splitFilter = filter.split(/:/)
-        const operator = splitFilter.shift()
-        let operand: string | number = splitFilter.join(':')
-        let operation
-        // Negative check
-        const isNegative = operand.startsWith('!')
-        if (isNegative) {
-          operand = operand.substring(1)
-        }
-        // Number check
-        const isNumber = ['response_code'].includes(operator)
-        if (isNumber) {
-          operation = 'eq'
-          operand = Number(operand)
-        } else {
-          operation = 'regex'
-          // URI encoding
-          if (operator === 'uri') {
-            operand = encodeURI(operand)
+        if (filter) {
+          // Extract data from filter
+          const splitFilter = filter.split(/:/)
+          const operator = splitFilter.shift()
+          let operand: string | number = splitFilter.join(':')
+          let operation
+          // Negative check
+          const isNegative = operand.startsWith('!')
+          if (isNegative) {
+            operand = operand.substring(1)
           }
-          operand = this.escapeRegex(operand as string)
+          // Number check
+          const isNumber = ['response_code'].includes(operator)
+          if (isNumber) {
+            operation = 'eq'
+            operand = Number(operand)
+          } else {
+            operation = 'regex'
+            // URI encoding
+            if (operator === 'uri') {
+              operand = encodeURI(operand)
+            }
+            operand = this.escapeRegex(operand as string)
+          }
+          if (isNegative) {
+            operation = `not ${operation}`
+          }
+          const filterObject: GenericObject = {
+            field: operator,
+            value: operand,
+            op: operation,
+          }
+          // Nested check
+          const isNested = _.some(['args', 'cookies', 'headers', 'proxy'], (operatorName) => {
+            return operator.startsWith(operatorName)
+          })
+          if (isNested) {
+            const splitField = filterObject.field.split(/_/)
+            const field = splitField.shift()
+            const key = splitField.join('_')
+            filterObject['field'] = field
+            filterObject['key'] = key
+          }
+          queryJson['AND'].push(filterObject)
         }
-        if (isNegative) {
-          operation = `not ${operation}`
-        }
-        const filterObject = {
-          'field': operator,
-          'value': operand,
-          'op': operation,
-        }
-        queryJson['AND'].push(filterObject)
       })
       return JSON.stringify(queryJson)
     },
@@ -322,50 +325,11 @@ export default defineComponent({
 
     clear() {
       this.searchFilter = ''
-      this.date = this.getDefaultDate()
+      this.$refs.rbzDatePicker.resetDateToDefault()
       this.data = []
       this.eventsLimit = 200
       this.showFullGroupIndexes = []
       this.groupBy = []
-    },
-
-    getDefaultDate() {
-      const now = new Date()
-      return [new Date(now.getTime() - (HOUR / 2)).toISOString(), now.toISOString()]
-    },
-
-    loadPresetRanges() {
-      const now = new Date()
-      this.presetRanges = [
-        {
-          label: 'Last 30 Minutes',
-          range: [new Date(now.getTime() - (HOUR / 2)), now],
-        },
-        {
-          label: 'Last Hour',
-          range: [new Date(now.getTime() - HOUR), now],
-        },
-        {
-          label: 'Last 2 Hours',
-          range: [new Date(now.getTime() - (2 * HOUR)), now],
-        },
-        {
-          label: 'Last 3 Hours',
-          range: [new Date(now.getTime() - (3 * HOUR)), now],
-        },
-        {
-          label: 'Last 4 Hours',
-          range: [new Date(now.getTime() - (4 * HOUR)), now],
-        },
-        {
-          label: 'Last 12 Hours',
-          range: [new Date(now.getTime() - (12 * HOUR)), now],
-        },
-        {
-          label: 'Last 24 Hours',
-          range: [new Date(now.getTime() - (24 * HOUR)), now],
-        },
-      ]
     },
 
     getGroupTail(group: EventLog[]): EventLog[] {
@@ -380,6 +344,11 @@ export default defineComponent({
       } else {
         this.showFullGroupIndexes.push(index)
       }
+    },
+
+    clearGroupByProperty() {
+      this.groupBy = []
+      this.showFullGroupIndexes = []
     },
 
     setGroupByProperty(groupByObject: { property: string, innerIdentifier?: string }) {
@@ -407,7 +376,6 @@ export default defineComponent({
 </script>
 <style scoped
        lang="scss">
-@import 'node_modules/@vuepic/vue-datepicker/src/VueDatePicker/style/main';
 @import 'src/assets/styles/colors';
 
 .filter-wrapper {
@@ -434,9 +402,5 @@ export default defineComponent({
 
 .filter-textarea {
   resize: none;
-}
-
-.date-picker-input {
-  padding-left: 33px;
 }
 </style>
