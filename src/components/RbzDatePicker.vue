@@ -4,12 +4,13 @@
               enable-seconds
               auto-apply
               utc="preserve"
-              format="yyyy-MM-dd HH:mm"
+              format="dd-MM-yyyy HH:mm"
               input-class-name="input is-small is-size-7 width-260px date-picker-input"
               :close-on-auto-apply="false"
               :month-change-on-scroll="false"
               :clearable="false"
               :time-picker-component="timePicker"
+              disable-time-range-validation
               :preset-ranges="presetRanges"
               @open="loadPresetRanges()">
   </Datepicker>
@@ -50,6 +51,8 @@ export default defineComponent({
     loadPresetRanges() {
       const now = new Date()
       const utcNow = new Date((now.getTimezoneOffset() * MS_PER_MINUTE) + now.getTime())
+      utcNow.setSeconds(0)
+      utcNow.setMilliseconds(0)
       this.presetRanges = [
         {
           label: 'Last 30 Minutes',
@@ -84,6 +87,8 @@ export default defineComponent({
 
     getDefaultDate() {
       const now = new Date()
+      now.setSeconds(0)
+      now.setMilliseconds(0)
       return [new Date(now.getTime() - (HOUR / 2)), now]
     },
 

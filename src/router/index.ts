@@ -49,12 +49,14 @@ const routes: Array<RouteRecordRaw> = [
     path: '/',
     name: 'MainComponent',
     component: MainComponent,
-    redirect: ':branch/dashboard',
+    redirect: 'prod/dashboard',
     children: [
       {
         path: ':branch',
         name: 'MainComponent/Branch',
-        redirect: ':branch/dashboard',
+        redirect: (route) => {
+          return `/${route.params.branch}/dashboard`
+        },
         children: [
           {
             path: 'server-groups',

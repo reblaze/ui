@@ -57,12 +57,18 @@
           </div>
         </div>
         <div v-if="!isSearchLoading && data?.length > 0">
-          {{ data.length }} EVENTS {{ groupedByLabel }}.
-          <a v-if="groupBy.length"
-             title="Ungroup events"
-             @click="clearGroupByProperty()">
-            Click here to ungroup.
-          </a>
+          {{ data.length }} EVENTS
+          <span v-if="groupBy.length"
+                class="group-by-label">
+            {{ groupedByLabel }}
+            <span class="is-clickable px-1"
+                  @click="clearGroupByProperty()">
+              <i class="fas fa-times"></i>
+            </span>
+          </span>
+          <span v-else>
+            ungrouped by any category
+          </span>
         </div>
       </div>
     </div>
@@ -80,7 +86,6 @@
                           :group-property="groupBy[0]"
                           :add-to-summary-property="addToSummaryProperty"
                           :add-to-summary-inner-identifier="addToSummaryInnerIdentifier"
-                          :tag-categories="tagCategories"
                           @toggle-show-full-group="toggleShowFullGroup(groupIndex)"
                           @add-filter="addFilter"
                           @add-to-summary="addToSummary"
@@ -94,7 +99,6 @@
                           :group-property="groupBy[0]"
                           :add-to-summary-property="addToSummaryProperty"
                           :add-to-summary-inner-identifier="addToSummaryInnerIdentifier"
-                          :tag-categories="tagCategories"
                           @add-filter="addFilter"
                           @add-to-summary="addToSummary"
                           @group-by="setGroupByProperty">
@@ -110,7 +114,6 @@
                           :group-property="groupBy[0]"
                           :add-to-summary-property="addToSummaryProperty"
                           :add-to-summary-inner-identifier="addToSummaryInnerIdentifier"
-                          :tag-categories="tagCategories"
                           @add-filter="addFilter"
                           @add-to-summary="addToSummary"
                           @group-by="setGroupByProperty">
@@ -135,10 +138,9 @@
 <script lang="ts">
 import {defineComponent} from 'vue'
 import RequestsUtils from '@/assets/RequestsUtils'
-import {Dictionary, EventLog, GenericObject, TagsNamespaceValue} from '@/types'
+import {Dictionary, EventLog, GenericObject} from '@/types'
 import _ from 'lodash'
 import EventsLogRow from '@/components/EventsLogRow.vue'
-import {AxiosResponse} from 'axios'
 import EventsLogCharts from '@/components/EventsLogCharts.vue'
 import RbzDatePicker from '@/components/RbzDatePicker.vue'
 
@@ -161,7 +163,6 @@ export default defineComponent({
       showFullGroupIndexes: [],
       addToSummaryProperty: null,
       addToSummaryInnerIdentifier: null,
-      tagCategories: null as TagsNamespaceValue,
     }
   },
   computed: {
@@ -170,7 +171,17 @@ export default defineComponent({
         return _.groupBy(this.data, (dataItem: EventLog) => {
           const propertyValue: any = dataItem[this.groupBy[0] as keyof EventLog]
           if (this.groupBy[0] === 'tags') {
-            return propertyValue.includes(this.groupBy[1])
+            const splitTag = this.groupBy[1].split(/:/)
+            if (splitTag.length < 2) {
+              return this.groupBy[1]
+            }
+            const tagPrefix = splitTag.shift()
+            const dataItemTag = _.find(propertyValue, (tag: string) => {
+              return tag.startsWith(tagPrefix)
+            })
+            const dataItemSplitTag = dataItemTag.split(/:/)
+            dataItemSplitTag.shift()
+            return dataItemSplitTag.join(':')
           } else {
             return propertyValue[this.groupBy[1]]
           }
@@ -183,9 +194,19 @@ export default defineComponent({
       if (!this.groupBy.length) {
         return 'ungrouped by any category'
       }
-      let groupByText = this.groupBy[0].toUpperCase()
+      let groupByText = ''
       if (this.groupBy[1]) {
-        groupByText += ` value ${this.groupBy[1].toUpperCase()}`
+        let value = this.groupBy[1].toUpperCase()
+        if (this.groupBy[0] === 'tags') {
+          const splitTag = value.split(/:/)
+          value = splitTag.shift()
+        }
+        groupByText += `${value} `
+      }
+      groupByText += this.groupBy[0].toUpperCase()
+      // Drop the last plural characters (S) from nested grouping (headers -> header, etc.)
+      if (this.groupBy[1]) {
+        groupByText = groupByText.slice(0, -1)
       }
       const groupByLength = Object.keys(this.groupedData).length
       return `grouped by ${groupByText} with ${groupByLength} UNIQUE VALUE${groupByLength > 1 ? 'S' : ''}`
@@ -365,18 +386,9 @@ export default defineComponent({
       this.groupBy = _.isEqual(this.groupBy, groupByValue) ? [] : groupByValue
       this.showFullGroupIndexes = []
     },
-
-    async loadTagCategories() {
-      const response: AxiosResponse<TagsNamespaceValue> = await RequestsUtils.sendRequest({
-        methodName: 'GET',
-        url: `db/system/k/tags/`,
-      })
-      this.tagCategories = response?.data || null as TagsNamespaceValue
-    },
   },
   async mounted() {
     await this.loadData()
-    await this.loadTagCategories()
   },
 })
 </script>
@@ -408,5 +420,13 @@ export default defineComponent({
 
 .filter-textarea {
   resize: none;
+}
+
+.group-by-label {
+  background-color: $color-alto;
+  border: 1px solid $color-white;
+  border-radius: 10px;
+  padding: 0.25rem 0.5rem;
+  width: fit-content;
 }
 </style>

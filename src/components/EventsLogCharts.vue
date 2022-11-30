@@ -154,10 +154,27 @@ export default defineComponent({
     trafficChartData(): GenericObject[] {
       const returnArray: GenericObject[] = []
       const sortedData = _.sortBy(this.data, 'timestamp')
-      const sortedDataGroupedBySecond = _.groupBy(sortedData, (event: EventLog) => {
-        return event.timestamp.split('.')[0]
-      })
-      _.forEach(sortedDataGroupedBySecond, (events: EventLog[], key: string) => {
+      if (!sortedData.length) {
+        return []
+      }
+      const start = sortedData[0].timestamp
+      const end = sortedData[sortedData.length-1].timestamp
+      let sortedDataGrouped
+      let splitSecondLevel: number
+      // if data contains at least 2 seconds
+      if (new Date(end).getTime() - new Date(start).getTime() > 1000) {
+        splitSecondLevel = 1
+        sortedDataGrouped = _.groupBy(sortedData, (event: EventLog) => {
+          return event.timestamp.split('.')[0]
+        })
+      } else {
+        sortedDataGrouped = _.groupBy(sortedData, (event: EventLog) => {
+          splitSecondLevel = 100
+          const splitTime = event.timestamp.split('.')
+          return `${splitTime[0]}.${splitTime[1].slice(0, 2)}`
+        })
+      }
+      _.forEach(sortedDataGrouped, (events: EventLog[], key: string) => {
         const passed = _.filter(events, (event: EventLog) => {
           return !this.isEventReport(event) && !event.reason
         })
@@ -174,7 +191,7 @@ export default defineComponent({
           return event.tags.includes('bot')
         })
         returnArray.push({
-          timeframe: Math.floor(new Date(key).getTime() / 1000),
+          timeframe: Math.floor(new Date(key).getTime() / (1000 / splitSecondLevel)),
           passed: passed.length > 0 ? passed.length : 0,
           blocked: blocked.length > 0 ? blocked.length : 0,
           report: report.length > 0 ? report.length : 0,
