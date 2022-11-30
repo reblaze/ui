@@ -6,12 +6,12 @@
       <!--Set the columns width for table with layout fixed-->
       <colgroup>
         <col class="width-45px"
-            v-if="showCheckboxColumn" />
+             v-if="showCheckboxColumn"/>
         <col v-for="(col, index) in columns"
-            :key="index"
-            :class="col.classes" />
-        <col class="width-45px"
-            v-if="showMenuColumn" />
+             :key="index"
+             :class="col.classes"/>
+        <col :class="overrideMenuColumnWidthClass ? overrideMenuColumnWidthClass : 'width-45px'"
+             v-if="showMenuColumn"/>
       </colgroup>
       <thead>
       <tr class="header-row"
@@ -52,7 +52,8 @@
             {{ col.title }}
           </span>
         </th>
-        <th class="column-header width-45px is-relative has-text-centered"
+        <th class="column-header is-relative has-text-centered"
+            :class="overrideMenuColumnWidthClass ? overrideMenuColumnWidthClass : 'width-45px'"
             v-if="showMenuColumn">
           <div class="dropdown is-block is-right"
                :class="{'is-active': menuVisible}">
@@ -146,10 +147,13 @@
         </td>
         <td v-for="(col, index) in columns"
             :key="index"
-            class="data-cell"
-            :class="verticalAlignTop ? 'vertical-align-top' : 'vertical-align-middle'">
-          <div class="is-size-7"
-               :class="col.classes">
+            class="data-cell is-size-7"
+            :class="`
+              ${col.classes ? col.classes : ''}
+              ${verticalAlignTop ? 'vertical-align-top' : 'vertical-align-middle'}
+            `">
+          <div class="data-cell-content"
+               :class="col.cellContentClasses">
             <span v-if="col.displayFunction"
                   v-html="col.displayFunction(row)"
                   :title="col.displayFunction(row)?.toString()">
@@ -163,7 +167,7 @@
         <td class="is-size-7"
             v-if="showMenuColumn">
           <div class="field is-grouped is-grouped-centered">
-            <p class="control"
+            <p class="control mx-0"
                v-if="showRowButton">
               <button :title="rowButtonTitle"
                       class="button is-small row-entity-button"
@@ -174,7 +178,7 @@
                 </span>
               </button>
             </p>
-            <p class="control"
+            <p class="control mx-0"
                v-if="showSecondRowButton">
               <button :title="secondRowButtonTitle"
                       class="button is-small row-entity-button"
@@ -236,6 +240,7 @@ export default defineComponent({
     defaultSortColumnIndex: Number,
     defaultSortColumnDirection: String as PropType<'asc' | 'desc'>,
     showMenuColumn: Boolean,
+    overrideMenuColumnWidthClass: String,
     showFilterButton: Boolean,
     showNewButton: Boolean,
     rowClickable: Boolean,
@@ -573,6 +578,7 @@ export default defineComponent({
 .rbz-table .menu-toggle-button {
   background: transparent;
   border-color: transparent;
+  margin: auto;
 }
 
 .rbz-table .dropdown-menu {
@@ -602,6 +608,14 @@ export default defineComponent({
 
 .rbz-table .filter-toggle:focus {
   box-shadow: none;
+}
+
+.rbz-table .data-cell.vertical-align-middle {
+  vertical-align: middle;
+}
+
+.rbz-table .data-cell.vertical-align-top {
+  vertical-align: top;
 }
 
 .rbz-table .data-cell-content {

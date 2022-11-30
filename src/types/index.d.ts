@@ -282,6 +282,7 @@ declare module CuriefenseClient {
     isSearchable?: boolean
     isNumber?: boolean // True if all values are always numbers, for sorting
     classes?: string
+    cellContentClasses?: string
   }
 
   type ColumnOptionsMap = {

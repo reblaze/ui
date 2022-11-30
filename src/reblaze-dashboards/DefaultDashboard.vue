@@ -251,7 +251,7 @@ export default defineComponent({
       {
         title: '',
         fieldNames: ['rowIdentification'],
-        classes: 'horizontal-scroll',
+        cellContentClasses: 'horizontal-scroll',
       },
       {
         title: 'Passed',

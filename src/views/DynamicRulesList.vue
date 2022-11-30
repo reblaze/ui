@@ -83,14 +83,15 @@ export default defineComponent({
           fieldNames: ['id'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-130px ellipsis',
+          classes: 'width-130px',
+          cellContentClasses: 'ellipsis',
         },
         {
           title: 'Name',
           fieldNames: ['name'],
           isSortable: true,
           isSearchable: true,
-          classes: 'ellipsis',
+          cellContentClasses: 'ellipsis',
         },
         {
           title: 'Timeframe',
@@ -119,9 +120,10 @@ export default defineComponent({
             })
             return customResponse?.name || ''
           },
-          isSortable: false,
+          isSortable: true,
           isSearchable: true,
-          classes: 'width-120px white-space-pre ellipsis',
+          classes: 'width-150px',
+          cellContentClasses: 'white-space-pre ellipsis',
         },
         {
           title: 'Tags',
@@ -137,7 +139,8 @@ export default defineComponent({
           },
           isSortable: false,
           isSearchable: true,
-          classes: 'width-100px vertical-scroll white-space-pre ellipsis',
+          classes: 'width-100px',
+          cellContentClasses: 'vertical-scroll white-space-pre ellipsis',
         },
       ] as ColumnOptions[],
       isNewLoading: false,
