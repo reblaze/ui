@@ -221,15 +221,15 @@
             </div>
           </div>
           <div class="field">
-            <div class="field flex-buttons textarea-field is-justify-content-space-around">
+            <div class="field is-flex textarea-field is-justify-content-space-around">
               <button class="button is-small new-sequence-button"
-              :class="{'is-loading': isDownloadLoading}"
+              :class="{'is-loading': isGenerateLoading}"
               data-qa="new-sequence-btn"
               @click="generateCertificate()">
               Generate
             </button>
             <button class="button is-small new-sequence-button"
-              :class="{'is-loading': isDownloadLoading}"
+              :class="{'is-loading': isGenerateAndReplaceLoading}"
               data-qa="new-sequence-btn"
               @click="generateCertificate(selectedServerGroup.ssl_certificate)">
               Generate & replace
@@ -465,6 +465,8 @@ export default defineComponent({
       isDownloadLoading: false,
       isNewLoading: false,
       isForkLoading: false,
+      isGenerateLoading: false,
+      isGenerateAndReplaceLoading: false,
 
       // Referenced docs
       securityPolicies: [] as SecurityPolicy[],
@@ -572,25 +574,34 @@ export default defineComponent({
   },
   methods: {
     async generateCertificate(certificateId?: string) {
-      this.isDownloadLoading = true
-      const serverGroupText = this.titles['certificate-singular']
-      const successMessage = `The ${serverGroupText} was deleted.`
-      const failureMessage = `Failed while attempting to delete the ${serverGroupText}.`
+      const certificateText = this.titles['certificates-singular']
       const method = 'POST'
-      if (certificateId) {
-        const url = `configs/${this.selectedBranch}/d/certificates/e/${certificateId}?domains=${this.selectedServerGroup.server_names}&site-id=${this.selectedServerGroup.id}`
-        await RequestsUtils.sendReblazeRequest(
-          {methodName: method,
-            url: url,
-            successMessage,
-            failureMessage,
-          })
+      let url = ''
+      const queryParameters = `?domains=${this.selectedServerGroup.server_names}&site-id=${this.selectedServerGroup.id}`
+      let successMessage = ''
+      let failureMessage = ''
+      if (!certificateId) {
+        this.isGenerateLoading = true
+        successMessage = `The ${certificateText} was generated.`
+        failureMessage = `Failed while attempting to generate the ${certificateText}.`
+        url = `configs/${this.selectedBranch}/d/certificates/e/${DatasetsUtils.generateUUID2()}` + queryParameters
       } else {
-        const url = `configs/${this.selectedBranch}/d/certificates/e/${DatasetsUtils.generateUUID2()}?domains=${this.selectedServerGroup.server_names}&site-id=${this.selectedServerGroup.id}`
-        await RequestsUtils.sendReblazeRequest({methodName: method, url: url})
+        this.isGenerateAndReplaceLoading = true
+        successMessage = `The ${certificateText} was generated and replaced.`
+        failureMessage = `Failed while attempting to generate & replace the ${certificateText}.`
+        url = `configs/${this.selectedBranch}/d/certificates/e/${certificateId}` + queryParameters
       }
-      this.redirectToList()
-      this.isDownloadLoading = false
+      await RequestsUtils.sendReblazeRequest(
+        {methodName: method,
+          url: url,
+          successMessage,
+          failureMessage,
+        })
+      if (!certificateId) {
+        this.isGenerateLoading = false
+      } else {
+        this.isGenerateAndReplaceLoading = false
+      }
     },
 
     async goToRoute() {
@@ -872,9 +883,3 @@ export default defineComponent({
   },
 })
 </script>
-
-<style scoped type="scss">
-  .flex-buttons {
-    display: flex;
-  }
-</style>

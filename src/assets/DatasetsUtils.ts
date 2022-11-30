@@ -83,7 +83,7 @@ const titles: { [key: string]: string } = {
   'backends': 'Backends Services',
   'backends-singular': 'Backend Service',
   'certificates': 'Certificates',
-  'certificate-singular': 'Certificate',
+  'certificates-singular': 'Certificate',
   'report': 'Report',
   'ignore': 'Ignore',
   'request': 'Request',
@@ -461,7 +461,7 @@ const newOperationEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  'certificate'(): Certificate {
+  'certificates'(): Certificate {
     const id = generateUUID2()
     return {
       'id': id,

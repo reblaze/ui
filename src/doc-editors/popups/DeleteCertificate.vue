@@ -40,7 +40,6 @@
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import {defineComponent} from 'vue'
-// import RequestsUtils from '@/assets/RequestsUtils'
 export default defineComponent({
   props: {
     deleteShown: Boolean,
@@ -60,7 +59,7 @@ export default defineComponent({
 
   methods: {
     async deleteCertificate() {
-      const certificateText = this.titles['certificate-singular']
+      const certificateText = this.titles['certificates-singular']
       const url = `configs/${this.selectedBranch}/d/certificates/e/${this.clickedRow}/`
       const successMessage = `The ${certificateText} was deleted.`
       const failureMessage = `Failed while attempting to delete the ${certificateText}.`

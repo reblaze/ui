@@ -84,7 +84,7 @@
                   {{ selectedAppsLabel }}
                 </div>
                 <select v-model="selectedApps"
-                  class="selected"
+                  class="width-400px"
                   multiple
                   title="Select links"
                   :loading="isLoading"
@@ -102,7 +102,7 @@
                 <div class="control">
                   <div class="select is-small">
                     <select v-model="selectedCertId"
-                      class="selected"
+                      class="width-400px"
                       id="selectCert">
                       <option value=""
                         disabled
@@ -177,22 +177,12 @@ export default defineComponent({
 
   data() {
     return {
-      CERT_FIELDS_LABELS: {
-        subject: 'Certificate subject:',
-        issuer: 'Certificate issuer:',
-        san: 'SAN:',
-        cert_body: 'Certificate body:',
-      },
       cert: '',
       selectedApps: [] as Site[],
       selectedCertId: '',
       certAction: 'attach_to_application',
       isLoading: false,
       updateLetsEncrypt: false,
-      cnamesForSelect: [],
-      searchMultiselect: '',
-      multiselectOpen: false,
-      headerResponse: {},
     }
   },
   computed: {
@@ -307,6 +297,7 @@ export default defineComponent({
     },
 
     async saveChanges() {
+      this.isLoading = true
       const sitesToRemove = _.differenceBy(this.assignedApps, this.selectedApps, 'id')
       const sitesToAdd = _.differenceBy(this.selectedApps, this.assignedApps, 'id')
       const methodName = 'PUT'
@@ -324,14 +315,10 @@ export default defineComponent({
       const url = `configs/${this.selectedBranch}/d/certificates/e/${this.localCert.id}${urlArgs}`
       const data = this.localCert
       await RequestsUtils.sendReblazeRequest({methodName: methodName, url, data})
+      this.isLoading = false
       this.$emit('edit-shown-changed', false)
       this.$emit('call-load-certificate')
     },
   },
 })
 </script>
-<style scoped lang="scss">
-.selected {
-  width: 400px;
-}
-</style>

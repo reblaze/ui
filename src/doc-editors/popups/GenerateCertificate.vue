@@ -120,7 +120,7 @@
               Cancel
             </button>
             <button class="button is-small is-outlined"
-              :class="{ 'is-loading': is_loading }"
+              :class="{ 'is-loading': isLoading }"
               :disabled="isSaveNewCertDisabled"
               @click="uploadManualInputCert">
               Save
@@ -148,7 +148,7 @@ export default defineComponent({
     return {
       EMPTY_CERTIFICATE_FIELD: '-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----',
       EMPTY_CERTIFICATE_KEY_FIELD: '--BEGIN PRIVATE KEY--\n--END PRIVATE KEY--',
-      is_loading: false,
+      isLoading: false,
       privateKey: '',
       certificate: '',
       certFile: null,
@@ -224,7 +224,7 @@ export default defineComponent({
     async extractCertFile() {
       if (this.certFile != null) {
         this.isExtracting = true
-        const certText = this.titles['certificate-singular']
+        const certText = this.titles['certificates-singular']
         const file = this.certFile
         const url = 'tools/certificates/extractpfx/'
         const formData = new FormData()
@@ -245,17 +245,17 @@ export default defineComponent({
     },
 
     newManualCertificate(): Certificate {
-      const factory = DatasetsUtils.newOperationEntryFactory['certificate']
+      const factory = DatasetsUtils.newOperationEntryFactory['certificates']
       return factory && factory()
     },
 
     async uploadManualInputCert() {
-      this.is_loading = true
+      this.isLoading = true
       try {
         const manualCertificateToAdd = this.newManualCertificate()
-        const siteText = this.titles['certificate-singular']
-        const successMessage = `New ${siteText} was created.`
-        const failureMessage = `Failed while attempting to create the new ${siteText}.`
+        const certificateText = this.titles['certificates-singular']
+        const successMessage = `New ${certificateText} was created.`
+        const failureMessage = `Failed while attempting to create the new ${certificateText}.`
         const url = `configs/${this.selectedBranch}/d/certificates/e/${manualCertificateToAdd.id}`
         manualCertificateToAdd['private_key'] = this.privateKey
         manualCertificateToAdd['cert_body'] = this.certificate
@@ -267,7 +267,7 @@ export default defineComponent({
       } catch (err) {
         console.log(err)
       } finally {
-        this.is_loading = false
+        this.isLoading = false
       }
     },
   },
@@ -282,9 +282,5 @@ export default defineComponent({
 .modal-card {
   border-radius: 6px;
   top: 2%;
-}
-
-.buttons.is-fullwidth {
-  width: 100%;
 }
 </style>

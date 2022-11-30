@@ -2,27 +2,27 @@
   <div class="card-content">
     <div class="tabs is-centered">
       <ul>
-        <li :class=" tab === 'Load balancers' ? 'is-active' : '' "
+        <li :class="{'is-active' : tab === 'LoadBalancers'}"
           class="load-balancers-tab"
           data-qa="load-balancers-tab-btn">
           <a tabindex="0"
-            @click="tab = 'Load balancers'">
-            Load balancers
+            @click="tab = 'LoadBalancers'">
+            Load Balancers
           </a>
         </li>
-        <li :class=" tab === 'Certificates' ? 'is-active' : '' "
-          class="certificate-tab"
-          data-qa="certificate-tab-btn">
+        <li :class="{'is-active': tab === 'Certificates'}"
+          class="certificates-tab"
+          data-qa="certificates-tab-btn">
           <a tabindex="0"
             @click="tab = 'Certificates'">
-            Certificate store
+            Certificate Store
           </a>
         </li>
       </ul>
     </div>
     <div v-show="!loadingDocCounter && selectedBranch"
-      class="content document-list-wrapper">
-      <div v-show="tab === 'Load balancers'">
+      class="content">
+      <div v-show="tab === 'LoadBalancers'">
         <rbz-table :columns="loadBalancerColumnOption"
           :data="loadBalancers"
           :show-menu-column="true"
@@ -33,12 +33,12 @@
             <tr class="is-size-7 selected"
               v-if="rowProps.row.id === selectedBalancer?.id">
               <td colspan="7">
-                <div class="default-box-certificate">
+                <div class="mb-3">
                   <p>
                     <strong>Default certificate:</strong>
                   </p>
                   <div class="column balancer-box">
-                    <p :class="{ 'details-box': getCertificateDetails(selectedBalancer?.default_certificate)}">
+                    <p :class="{ 'pb-5': getCertificateDetails(selectedBalancer?.default_certificate)}">
                       {{ findLocalCertificateNameWithLink(selectedBalancer?.default_certificate) }}
                     </p>
                     <div v-if="getCertificateDetails(selectedBalancer?.default_certificate)">
@@ -55,10 +55,10 @@
                   </div>
                 </div>
                 <div v-if="selectedBalancer?.certificates?.length">
-                  <p class="is-small has-text-small mb-2 default-box-certificate">
+                  <p class="is-small has-text-small mb-2 mb-3">
                     <strong>Certificates:</strong>
                   </p>
-                  <div class="center-details balancer-box default-box-certificate"
+                  <div class="center-details is-flex balancer-box mb-3"
                     v-for="(certificate, index) in selectedBalancer?.certificates"
                     :key="index">
                     <div class="column is-10">
@@ -92,7 +92,7 @@
                     </div>
                   </div>
                 </div>
-                <button v-if="isAttachButtonEnabled()"
+                <button v-if="isAttachButtonEnabled"
                   class="button is-outlined is-small"
                   :class="{ 'mt-3': selectedBalancer?.certificates?.length }"
                   @click="openAttachCertPopup()">
@@ -136,12 +136,12 @@
     <generate-certificate v-if="generateShown"
       @generate-shown-changed="generateShown = false"
       :selected-branch="selectedBranch"
-      @call-load-certificate="callLoadCertificate"/>
+      @call-load-certificate="loadCertificates"/>
     <delete-certificate v-if="deleteShown"
       @delete-shown-changed="deleteShown = false"
       :clicked-row="clickedRow"
       :selected-branch="selectedBranch"
-      @call-load-certificate="callLoadCertificate"/>
+      @call-load-certificate="loadCertificates"/>
     <edit-certificate v-if="editShown"
       @edit-shown-changed="editShown = false"
       :clicked-row="clickedRow"
@@ -150,7 +150,7 @@
       :certificates="certificates"
       :sites="sites"
       :selected-branch="selectedBranch"
-      @call-load-certificate="callLoadCertificate"/>
+      @call-load-certificate="loadCertificates"/>
     <attach-certificate v-if="attachCertPopupShown"
       :selected-balancer="selectedBalancer"
       :certificates="certificates"
@@ -186,9 +186,9 @@ export default defineComponent({
     selectedBranch: {
       handler: function(val, oldVal) {
         if ((this.$route.name as string).includes('SSL/list') && val && val !== oldVal) {
-          this.populateLoadBalancers()
-          this.loadCertificates()
-          this.loadSites()
+          this.setLoadingDocStatus(true)
+          this.callLoaders()
+          this.setLoadingDocStatus(false)
         }
       },
       immediate: true,
@@ -208,9 +208,8 @@ export default defineComponent({
       titles: DatasetsUtils.titles,
       loadBalancers: null as Balancer[],
       certificates: null as Certificate[],
-      configs: [],
       loadingDocCounter: 0,
-      tab: 'Load balancers',
+      tab: 'LoadBalancers' as 'LoadBalancers' | 'Certificates',
       generateShown: false,
       deleteShown: false,
       editShown: false,
@@ -220,10 +219,6 @@ export default defineComponent({
       clickedRow: null,
       certificateByID: {} as Certificate,
       sites: [] as Site[],
-      rowClickedId: '',
-      attachCertPopup: {
-        shown: false,
-      },
       selectedBalancer: {} as Balancer,
       isDetachLoading: false,
       isAttachLoading: false,
@@ -382,18 +377,23 @@ export default defineComponent({
 
     selectedLoadBalancerID() {
       const balancer = this.loadBalancers.find((loadBalancer:any) => {
-        return loadBalancer.id === this.rowClickedId
+        return loadBalancer.id === this.clickedRow
       })
       return balancer
     },
 
     documentListAPIPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
-      if (this.tab === 'Load balancers') {
+      if (this.tab === 'LoadBalancers') {
         return `${apiPrefix}/reblaze/config/load-balancers/`
       } else {
         return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/certificates/`
       }
+    },
+
+    isAttachButtonEnabled() {
+      const maxCertsNumber = this.MAX_CERT_PER_LB[this.selectedBalancer?.load_balancer_type]
+      return this.certificates?.length + 1 < maxCertsNumber || maxCertsNumber === 1
     },
 
     selectedBranch(): string {
@@ -403,11 +403,6 @@ export default defineComponent({
     ...mapStores(useBranchesStore),
   },
   methods: {
-    isAttachButtonEnabled() {
-      const maxCertsNumber = this.MAX_CERT_PER_LB[this.selectedBalancer?.load_balancer_type]
-      return this.certificates?.length + 1 < maxCertsNumber || maxCertsNumber === 1
-    },
-
     getCertificateDetails(certificateLink:string) {
       const linkToCertificatesMapID = this.findLocalCertificateNameWithLink(certificateLink)
       const certificate: Certificate = this.certificates?.find((certificate:Certificate) => {
@@ -421,16 +416,12 @@ export default defineComponent({
     },
 
     onSelectedLoadBalancerRow(id: string) {
-      this.rowClickedId = id
-      this.selectedBalancer = this.selectedBalancer?.id === this.rowClickedId ? null : this.selectedLoadBalancerID
+      this.clickedRow = id
+      this.selectedBalancer = this.selectedBalancer?.id === this.clickedRow ? null : this.selectedLoadBalancerID
     },
 
     getCertificateByID(id:string) {
       this.certificateByID = this.certificates?.find((certificate:Certificate) => certificate.id === id)
-    },
-
-    async callLoadCertificate() {
-      await this.loadCertificates()
     },
 
     async callLoaders() {
@@ -551,9 +542,11 @@ export default defineComponent({
     },
 
     async loadSites() {
+      this.setLoadingDocStatus(true)
       const url = `configs/${this.selectedBranch}/d/sites/`
       const sitesResponse = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
       this.sites = sitesResponse?.data || []
+      this.setLoadingDocStatus(false)
     },
 
     findLocalCertificateNameWithLink(providerLink:string) {
@@ -588,25 +581,18 @@ export default defineComponent({
 })
 </script>
 <style scoped lang="scss">
-  .details-box {
-    padding-bottom: 21px;
-  }
+@import 'src/assets/styles/colors';
 
-  .balancer-box {
-    background-color: #fff;
-    box-shadow: 0 1px 5px -1px rgba(199, 199, 199, 1);
-  }
+.balancer-box {
+  background-color: $color-white;
+  box-shadow: 0 1px 5px -1px rgba(199, 199, 199, 1);
+}
 
-  .balancer-box:hover {
-    background-color: rgb(241, 241, 241);
-  }
+.balancer-box:hover {
+  background-color: $color-black-haze;
+}
 
-  .default-box-certificate {
-    margin-bottom: 12px;
-  }
-
-  .center-details {
-    align-items: center;
-    display: flex;
-  }
+.center-details {
+  align-items: center;
+}
 </style>
