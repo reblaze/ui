@@ -429,12 +429,33 @@ $color-light: hsl(0, 0%, 96%);
   justify-content: space-around;
 }
 
-.is-justify-content-space-between {
+.is-fullwidth {
+  width: 100%;
+}
+
+/* Modal */
+.modal.is-active {
+  z-index: 102;
+}
+
+.modal-card {
+  border-radius: 6px;
+}
+
+.modal-card:not(.modal-content) {
+  top: 10%;
+}
+
+.modal .modal.is-large {
+  top: 2%;
+}
+
+.modal-footer-buttons {
   justify-content: space-between;
 }
 
-.is-fullwidth {
-  width: 100%;
+.modal-card-foot.columns {
+  z-index: 2;
 }
 
 /* Vue3Datepicker */
@@ -526,12 +547,4 @@ $color-light: hsl(0, 0%, 96%);
 .doc-selection-wrapper {
   max-width: 450px;
   min-width: 300px;
-}
-
-.vertical-align-middle {
-  vertical-align: middle;
-}
-
-.vertical-align-top {
-  vertical-align: top;
 }

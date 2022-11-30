@@ -150,10 +150,6 @@ export default defineComponent({
           href: `/${this.selectedBranch?.id}/events-log`,
           title: 'Events Log',
         },
-        {
-          href: `/${this.selectedBranch?.id}/dns-records`,
-          title: 'DNS Records',
-        },
         // ########
         // Security
         // ########
@@ -236,10 +232,14 @@ export default defineComponent({
           href: `/${this.selectedBranch?.id}/cloud-functions`,
           title: 'Edge Functions',
         },
-        // {
-        //   href: `/${this.selectedBranch?.id}/ssl`,
-        //   title: 'SSL',
-        // },
+        {
+          href: `/${this.selectedBranch?.id}/ssl`,
+          title: 'SSL',
+        },
+        {
+          href: `/${this.selectedBranch?.id}/dns-records`,
+          title: 'DNS Records',
+        },
         // ######
         // System
         // ######

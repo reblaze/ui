@@ -75,14 +75,15 @@ export default defineComponent({
           fieldNames: ['id'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-130px ellipsis',
+          classes: 'width-130px',
+          cellContentClasses: 'ellipsis',
         },
         {
           title: 'Name',
           fieldNames: ['name'],
           isSortable: true,
           isSearchable: true,
-          classes: 'ellipsis',
+          cellContentClasses: 'ellipsis',
         },
         {
           title: 'Static IP Rate Limit',
@@ -93,7 +94,8 @@ export default defineComponent({
               `<span class="width-50px is-inline-block">Burst:</span> ${item['limit_req_burst']} / second`,
             ].join('\n')
           },
-          classes: 'width-200px vertical-scroll white-space-pre',
+          classes: 'width-200px',
+          cellContentClasses: 'vertical-scroll white-space-pre ellipsis',
         },
         {
           title: 'Proxy Timeout',
@@ -105,7 +107,8 @@ export default defineComponent({
               `<span class="width-60px is-inline-block">Read:</span> ${item['proxy_read_timeout']}`,
             ].join('\n')
           },
-          classes: 'width-150px vertical-scroll white-space-pre',
+          classes: 'width-150px',
+          cellContentClasses: 'vertical-scroll white-space-pre ellipsis',
         },
       ] as ColumnOptions[],
       isNewLoading: false,

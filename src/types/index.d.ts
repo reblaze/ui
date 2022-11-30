@@ -282,6 +282,7 @@ declare module CuriefenseClient {
     isSearchable?: boolean
     isNumber?: boolean // True if all values are always numbers, for sorting
     classes?: string
+    cellContentClasses?: string
   }
 
   type ColumnOptionsMap = {
@@ -317,25 +318,6 @@ declare module CuriefenseClient {
   type DocumentName = {
     id: string
     name: string
-  }
-
-  type Certificate = {
-    id: string
-    cert_body: string
-    expires: string
-    issuer: string
-    le_auto_renew: boolean
-    le_auto_replace: boolean
-    le_hash: string
-    private_key: string
-    provider_links: [{
-      link: string
-      provider: string
-      region: string
-    }]
-    san: string[]
-    subject: string
-    uploaded: string
   }
 
   type RoutingProfileEntryLocation = {
@@ -409,6 +391,44 @@ declare module CuriefenseClient {
     mobile_sdk: MobileSDK['id']
     ssl_certificate: string
   }
+
+  type Link = {
+    provider: string
+    link: string
+    region: string
+  }
+
+  type Certificate = {
+    id: string
+    cert_body: string
+    exp_date?: string
+    links?: Link[]
+    issuer?: string
+    le_auto_renew?: boolean
+    le_auto_replace?: boolean
+    le_hash?: string
+    private_key: string
+    san?: string[]
+    subject?: string
+    upload_time?: string
+    loading?: boolean
+  }
+
+  type Balancer = {
+    certificates?: string[]
+    default_certificate?: string
+    dns_name: string
+    listener_name: string
+    listener_port: string
+    load_balancer_type: string
+    name: string
+    provider: string
+    region: string
+    id?: string
+    attach_loading?: boolean | string
+    detach_loading?: boolean | string
+  }
+
 
   // Operation documents - END
 
