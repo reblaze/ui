@@ -245,7 +245,7 @@
             </div>
           </div>
         </div>
-      </div> connected: {{ havePoliciesConnections }}
+      </div>
       <security-policies-connections
           selectedDocType="ratelimits"
           :selectedDocId="localDoc.id"
