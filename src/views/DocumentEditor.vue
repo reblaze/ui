@@ -276,11 +276,6 @@ export default defineComponent({
       },
       immediate: true,
     },
-    selectedDoc: {
-      handler: async function(val, oldVal) {
-        await this.loadReferencedSecurityPoliciesIDs()
-      },
-    },
   },
   computed: {
     titleDisplay(): string {

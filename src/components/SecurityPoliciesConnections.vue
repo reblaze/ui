@@ -324,7 +324,6 @@ export default defineComponent({
         this.setEntryDeleteIndex(-1)
         this.getConnectedSecurityPoliciesEntries()
       })
-      console.log('cInput del', mapEntry['limit_ids'].length > 1)
       this.$emit('have-policies-connections', mapEntry['limit_ids'].length > 1)
     },
 
