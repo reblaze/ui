@@ -76,7 +76,7 @@ export const useBranchesStore = defineStore('branches', () => {
 
   async function setSelectedBranch(id ?: Branch['id']) {
     const branches = await list.value
-    let newId = branches[0].id
+    let newId = 'prod'
     if (id) {
       const branch = branches.find((branch: Branch) => {
         return branch.id === id

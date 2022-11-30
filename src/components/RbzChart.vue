@@ -241,7 +241,7 @@ export default defineComponent({
     // Programmatically change the width of the chart based on component width on window resize
     setChartSize() {
       const wrapperElement = this.$refs.chartWrapper
-      if (wrapperElement) {
+      if (wrapperElement && this.chart) {
         this.chart.setSize({
           width: wrapperElement.clientWidth,
           height: this.chartHeight,

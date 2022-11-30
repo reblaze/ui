@@ -101,9 +101,16 @@
         <div v-if="event.proxy">
           <div class="box full-details-box py-2 px-3 mb-3 is-inline-block">
             <span class="has-text-weight-bold">
-              Latency
+              Processing Time:
             </span>
-            {{ eventLatency }} ms
+            <span title="Total processing time">
+              {{ processTimeDisplay(Number(event.proxy?.request_time)) }} ms
+            </span>
+            (<span title="Latency">
+              {{ eventLatency }}
+            </span>, <span title="Upstream response time">
+              {{ processTimeDisplay(Number(event.proxy?.upstream_response_time)) }}
+            </span>)
           </div>
           <div class="box full-details-box py-2 px-3 ml-2 mb-3 is-inline-block">
             <span class="has-text-weight-bold">
@@ -134,11 +141,6 @@
                   @contextmenu="openContextMenu($event, 'proxy', 'bytes_sent')">
               <i class="fa fa-download"/>
               {{ amountSuffixFormatterBytes(Number(event.proxy.bytes_sent)) }}
-              <span v-if="['200', '304'].includes(event.proxy.status) &&
-               event.proxy.upstream_status === '-' &&
-               /challenge/.test(event.reason)">
-                (from-cache)
-              </span>
             </span>
           </div>
         </div>
@@ -179,7 +181,7 @@
           </div>
         </div>
       </div>
-      <div class="box full-details-box py-2 px-3 mb-3 is-clickable"
+      <div class="box user-agent-details full-details-box py-2 px-3 mb-3 is-clickable"
            v-if="eventUserAgent !== '-'"
            title="User agent"
            @contextmenu="openContextMenu($event, 'headers', 'user-agent')">
@@ -206,128 +208,38 @@
             </span>
           </div>
           <div class="content collapsible-content px-3 py-3">
-            <template v-if="eventTagsLegitimate?.length">
+            <template v-if="eventTagsPolicies?.length">
               <span class="label is-size-7">
-                Legitimate
+                Policies
               </span>
-              <labeled-tags :tags="eventTagsLegitimate"
+              <labeled-tags :tags="eventTagsPolicies"
                             label-class="is-clickable is-inline-block"
                             @tag-contextmenu="openContextMenu($event.event, 'tags', $event.tag)"/>
             </template>
-            <template v-if="eventTagsMalicious?.length">
-              <span class="label is-size-7">Malicious</span>
-              <labeled-tags :tags="eventTagsMalicious"
+            <template v-if="eventTagsRTC?.length">
+              <span class="label is-size-7">
+                Reblaze Threat Category
+              </span>
+              <labeled-tags :tags="eventTagsRTC"
                             label-class="is-clickable is-inline-block"
                             @tag-contextmenu="openContextMenu($event.event, 'tags', $event.tag)"/>
             </template>
-            <template v-if="eventTagsNeutral?.length">
-              <span class="label is-size-7">Neutral</span>
-              <labeled-tags :tags="eventTagsNeutral"
+            <template v-if="eventTagsGeo?.length">
+              <span class="label is-size-7">
+                Geographic
+              </span>
+              <labeled-tags :tags="eventTagsGeo"
                             label-class="is-clickable is-inline-block"
                             @tag-contextmenu="openContextMenu($event.event, 'tags', $event.tag)"/>
             </template>
-          </div>
-        </div>
-      </div>
-      <div class="card collapsible-card collapsible-card-arguments mb-3"
-           :class="{ collapsed: isArgumentsCollapsed }"
-           v-if="Object.keys(event.arguments)?.length">
-        <div class="card-content px-0 py-0">
-          <div class="media collapsible collapsible-title px-3 py-3 mb-0"
-               @click="isArgumentsCollapsed = !isArgumentsCollapsed">
-            <div class="media-content">
-              <p class="title is-7 is-uppercase">Arguments ({{ Object.keys(event.arguments)?.length }})</p>
-            </div>
-            <span v-show="isArgumentsCollapsed">
-              <i class="fas fa-angle-down"
-                 aria-hidden="true"></i>
-            </span>
-            <span v-show="!isArgumentsCollapsed">
-              <i class="fas fa-angle-up"
-                 aria-hidden="true"></i>
-            </span>
-          </div>
-          <div class="content collapsible-content px-3 py-3">
-            <div v-for="(argumentValue, argumentKey) in event.arguments"
-                 :key="argumentKey"
-                 :title="`${argumentKey}: ${argumentValue}`"
-                 @contextmenu="openContextMenu($event, 'arguments', argumentKey)"
-                 class="argument-field is-size-7 is-clickable">
-              <div class="width-200px has-text-weight-bold">
-                {{ argumentKey }}
-              </div>
-              <div>
-                {{ argumentValue }}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="card collapsible-card collapsible-card-cookies mb-3"
-           :class="{ collapsed: isCookiesCollapsed }"
-           v-if="Object.keys(event.cookies)?.length">
-        <div class="card-content px-0 py-0">
-          <div class="media collapsible collapsible-title px-3 py-3 mb-0"
-               @click="isCookiesCollapsed = !isCookiesCollapsed">
-            <div class="media-content">
-              <p class="title is-7 is-uppercase">Cookies ({{ Object.keys(event.cookies)?.length }})</p>
-            </div>
-            <span v-show="isCookiesCollapsed">
-              <i class="fas fa-angle-down"
-                 aria-hidden="true"></i>
-            </span>
-            <span v-show="!isCookiesCollapsed">
-              <i class="fas fa-angle-up"
-                 aria-hidden="true"></i>
-            </span>
-          </div>
-          <div class="content collapsible-content px-3 py-3">
-            <div v-for="(cookieValue, cookieKey) in event.cookies"
-                 :key="cookieKey"
-                 :title="`${cookieKey}: ${cookieValue}`"
-                 @contextmenu="openContextMenu($event, 'cookies', cookieKey)"
-                 class="cookie-field is-size-7 is-clickable">
-              <div class="width-200px has-text-weight-bold">
-                {{ cookieKey }}
-              </div>
-              <div>
-                {{ cookieValue }}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="card collapsible-card collapsible-card-headers mb-3"
-           :class="{ collapsed: isHeadersCollapsed }"
-           v-if="Object.keys(eventHeaders)?.length > 1">
-        <div class="card-content px-0 py-0">
-          <div class="media collapsible collapsible-title px-3 py-3 mb-0"
-               @click="isHeadersCollapsed = !isHeadersCollapsed">
-            <div class="media-content">
-              <p class="title is-7 is-uppercase">Headers ({{ Object.keys(eventHeaders).length }})</p>
-            </div>
-            <span v-show="isHeadersCollapsed">
-              <i class="fas fa-angle-down"
-                 aria-hidden="true"></i>
-            </span>
-            <span v-show="!isHeadersCollapsed">
-              <i class="fas fa-angle-up"
-                 aria-hidden="true"></i>
-            </span>
-          </div>
-          <div class="content collapsible-content px-3 py-3">
-            <div v-for="(headerValue, headerKey) in eventHeaders"
-                 :key="headerKey"
-                 :title="`${headerKey}: ${headerValue}`"
-                 @contextmenu="openContextMenu($event, 'headers', headerKey)"
-                 class="header-field is-size-7 is-clickable">
-              <div class="width-200px has-text-weight-bold">
-                {{ headerKey }}
-              </div>
-              <div>
-                {{ headerValue }}
-              </div>
-            </div>
+            <template v-if="eventTagsInformative?.length">
+              <span class="label is-size-7">
+                Informative
+              </span>
+              <labeled-tags :tags="eventTagsInformative"
+                            label-class="is-clickable is-inline-block"
+                            @tag-contextmenu="openContextMenu($event.event, 'tags', $event.tag)"/>
+            </template>
           </div>
         </div>
       </div>
@@ -367,6 +279,137 @@
           </div>
         </div>
       </div>
+      <div class="card collapsible-card collapsible-card-headers mb-3"
+           :class="{ collapsed: isHeadersCollapsed }"
+           v-if="Object.keys(eventHeaders)?.length > 1">
+        <div class="card-content px-0 py-0">
+          <div class="media collapsible collapsible-title px-3 py-3 mb-0"
+               @click="isHeadersCollapsed = !isHeadersCollapsed">
+            <div class="media-content">
+              <p class="title is-7 is-uppercase">Headers ({{ Object.keys(eventHeaders).length }})</p>
+            </div>
+            <span v-show="isHeadersCollapsed">
+              <i class="fas fa-angle-down"
+                 aria-hidden="true"></i>
+            </span>
+            <span v-show="!isHeadersCollapsed">
+              <i class="fas fa-angle-up"
+                 aria-hidden="true"></i>
+            </span>
+          </div>
+          <div class="content collapsible-content px-3 py-3">
+            <div v-for="(headerValue, headerKey) in eventHeaders"
+                 :key="headerKey"
+                 :title="`${headerKey}: ${headerValue}`"
+                 @contextmenu="openContextMenu($event, 'headers', headerKey)"
+                 class="header-field is-size-7 is-clickable">
+              <div class="width-200px has-text-weight-bold">
+                {{ headerKey }}
+              </div>
+              <div>
+                {{ headerValue }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card collapsible-card collapsible-card-cookies mb-3"
+           :class="{ collapsed: isCookiesCollapsed }"
+           v-if="Object.keys(event.cookies)?.length">
+        <div class="card-content px-0 py-0">
+          <div class="media collapsible collapsible-title px-3 py-3 mb-0"
+               @click="isCookiesCollapsed = !isCookiesCollapsed">
+            <div class="media-content">
+              <p class="title is-7 is-uppercase">Cookies ({{ Object.keys(event.cookies)?.length }})</p>
+            </div>
+            <span v-show="isCookiesCollapsed">
+              <i class="fas fa-angle-down"
+                 aria-hidden="true"></i>
+            </span>
+            <span v-show="!isCookiesCollapsed">
+              <i class="fas fa-angle-up"
+                 aria-hidden="true"></i>
+            </span>
+          </div>
+          <div class="content collapsible-content px-3 py-3">
+            <div v-for="(cookieValue, cookieKey) in event.cookies"
+                 :key="cookieKey"
+                 :title="`${cookieKey}: ${cookieValue}`"
+                 @contextmenu="openContextMenu($event, 'cookies', cookieKey)"
+                 class="cookie-field is-size-7 is-clickable">
+              <div class="width-200px has-text-weight-bold">
+                {{ cookieKey }}
+              </div>
+              <div>
+                {{ cookieValue }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card collapsible-card collapsible-card-arguments mb-3"
+           :class="{ collapsed: isArgumentsCollapsed }"
+           v-if="Object.keys(event.arguments)?.length">
+        <div class="card-content px-0 py-0">
+          <div class="media collapsible collapsible-title px-3 py-3 mb-0"
+               @click="isArgumentsCollapsed = !isArgumentsCollapsed">
+            <div class="media-content">
+              <p class="title is-7 is-uppercase">Arguments ({{ Object.keys(event.arguments)?.length }})</p>
+            </div>
+            <span v-show="isArgumentsCollapsed">
+              <i class="fas fa-angle-down"
+                 aria-hidden="true"></i>
+            </span>
+            <span v-show="!isArgumentsCollapsed">
+              <i class="fas fa-angle-up"
+                 aria-hidden="true"></i>
+            </span>
+          </div>
+          <div class="content collapsible-content px-3 py-3">
+            <div v-for="(argumentValue, argumentKey) in event.arguments"
+                 :key="argumentKey"
+                 :title="`${argumentKey}: ${argumentValue}`"
+                 @contextmenu="openContextMenu($event, 'arguments', argumentKey)"
+                 class="argument-field is-size-7 is-clickable">
+              <div class="width-200px has-text-weight-bold">
+                {{ argumentKey }}
+              </div>
+              <div>
+                {{ argumentValue }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="box upstream-details full-details-box py-2 px-3 mb-3 columns is-gapless"
+           v-if="event.proxy?.upstream_status || event.proxy?.upstream_response_time || event.proxy?.upstream_addr"
+           title="Upstream">
+        <span class="column has-text-weight-bold width-100px">
+          Upstream:
+        </span>
+        <span v-if="event.proxy?.upstream_status"
+              class="column width-50px status-box-wrapper"
+              @contextmenu="openContextMenu($event, 'proxy', 'upstream_status')">
+          <span class="status-box px-2"
+                :style="`background: ${getStatusColor(event.response_code?.toString())}`">
+            {{ event.proxy.upstream_status }}
+          </span>
+        </span>
+        <span v-if="event.proxy?.upstream_response_time"
+              class="column width-50px"
+              @contextmenu="openContextMenu($event, 'proxy', 'upstream_response_time')">
+          <span>
+            {{ event.proxy.upstream_response_time * 1000 }} ms
+          </span>
+        </span>
+        <span v-if="event.proxy?.upstream_addr"
+              class="column"
+              @contextmenu="openContextMenu($event, 'proxy', 'upstream_addr')">
+          <span>
+            {{ event.proxy.upstream_addr }}
+          </span>
+        </span>
+      </div>
       <div class="card collapsible-card collapsible-card-logs mb-3"
            :class="{ collapsed: isLogsCollapsed }"
            v-if="event.logs?.length">
@@ -392,74 +435,6 @@
                  class="log-field is-size-7">
               <div>
                 {{ logValue }}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="card collapsible-card collapsible-card-proxy mb-3"
-           :class="{ collapsed: isUpstreamCollapsed }">
-        <div class="card-content px-0 py-0">
-          <div class="media collapsible collapsible-title px-3 py-3 mb-0"
-               @click="isUpstreamCollapsed = !isUpstreamCollapsed">
-            <div class="media-content">
-              <p class="title is-7 is-uppercase">Upstream</p>
-            </div>
-            <span v-show="isUpstreamCollapsed">
-              <i class="fas fa-angle-down"
-                 aria-hidden="true"></i>
-            </span>
-            <span v-show="!isUpstreamCollapsed">
-              <i class="fas fa-angle-up"
-                 aria-hidden="true"></i>
-            </span>
-          </div>
-          <div class="content collapsible-content px-3 py-3">
-            <div v-if="event.proxy?.upstream_addr"
-                 :title="`upstream_addr: ${event.proxy.upstream_addr}`"
-                 @contextmenu="openContextMenu($event, 'proxy', 'upstream_addr')"
-                 class="cookie-field is-size-7 is-clickable">
-              <div class="width-200px has-text-weight-bold">
-                Upstream Address
-              </div>
-              <div>
-                {{ event.proxy.upstream_addr }}
-              </div>
-            </div>
-            <div v-if="event.proxy?.upstream_status"
-                 :title="`upstream_status: ${event.proxy.upstream_status}`"
-                 @contextmenu="openContextMenu($event, 'proxy', 'upstream_status')"
-                 class="cookie-field is-size-7 is-clickable">
-              <div class="width-200px has-text-weight-bold">
-                Upstream Status
-              </div>
-              <div class="status-box-wrapper width-50px">
-                <span class="status-box px-2 my-1"
-                      :style="`background: ${getStatusColor(event.response_code?.toString())}`">
-                  {{ event.proxy.upstream_status }}
-                </span>
-              </div>
-            </div>
-            <div v-if="event.proxy?.upstream_response_time"
-                 :title="`upstream_response_time: ${event.proxy.upstream_response_time * 1000}`"
-                 @contextmenu="openContextMenu($event, 'proxy', 'upstream_response_time')"
-                 class="cookie-field is-size-7 is-clickable">
-              <div class="width-200px has-text-weight-bold">
-                Upstream Response Time
-              </div>
-              <div>
-                {{ event.proxy.upstream_response_time * 1000 }} ms
-              </div>
-            </div>
-            <div v-if="event.proxy?.request_time"
-                 :title="`request_time: ${event.proxy.request_time * 1000}`"
-                 @contextmenu="openContextMenu($event, 'proxy', 'request_time')"
-                 class="cookie-field is-size-7 is-clickable">
-              <div class="width-200px has-text-weight-bold">
-                Request Time
-              </div>
-              <div>
-                {{ event.proxy.request_time * 1000 }} ms
               </div>
             </div>
           </div>
@@ -541,19 +516,17 @@
             </span>
           </button>
         </template>
-        <template v-if="!Array.isArray(event[contextMenuProperty])">
-          <hr class="context-menu-divider my-0">
-          <button class="button is-size-7 is-fullwidth context-menu-item"
-                  :title="`${contextMenuProperty === groupProperty ? 'Ungroup' : 'Group'} events by value`"
-                  @mousedown="contextMenuGroupBy()">
-            <span class="icon is-small">
-              <i class="fas fa-object-group"></i>
-            </span>
-            <span>
-              {{ `${contextMenuProperty === groupProperty ? 'Ungroup' : 'Group'} Events By Value` }}
-            </span>
-          </button>
-        </template>
+        <hr class="context-menu-divider my-0">
+        <button class="button is-size-7 is-fullwidth context-menu-item"
+                :title="`${contextMenuProperty === groupProperty ? 'Ungroup' : 'Group'} events by value`"
+                @mousedown="contextMenuGroupBy()">
+          <span class="icon is-small">
+            <i class="fas fa-object-group"></i>
+          </span>
+          <span>
+            {{ `${contextMenuProperty === groupProperty ? 'Ungroup' : 'Group'} Events By Value` }}
+          </span>
+        </button>
       </div>
     </div>
   </div>
@@ -562,7 +535,7 @@
 <script lang="ts">
 /* eslint-disable */
 import {defineComponent, nextTick, PropType} from 'vue'
-import {EventLog, TagsNamespaceValue} from '@/types'
+import {EventLog} from '@/types'
 import _ from 'lodash'
 import {STATUS_COLORS} from '@/types/const'
 import packageJson from '../../package.json'
@@ -580,10 +553,6 @@ export default defineComponent({
     groupHeader: Boolean,
     groupLength: Number,
     groupProperty: String,
-    tagCategories: {
-      type: Object as PropType<TagsNamespaceValue>,
-      default: () => (null as TagsNamespaceValue),
-    },
   },
   data() {
     return {
@@ -596,7 +565,6 @@ export default defineComponent({
       isTagsCollapsed: false,
       isPathPartsCollapsed: false,
       isLogsCollapsed: false,
-      isUpstreamCollapsed: false,
 
       // Context Menu
       contextMenuVisible: false,
@@ -678,7 +646,7 @@ export default defineComponent({
 
     addToSummaryEqualsContextMenu(): boolean {
       return this.contextMenuProperty === this.addToSummaryProperty &&
-          this.contextMenuInnerIdentifier === this.addToSummaryInnerIdentifier
+        this.contextMenuInnerIdentifier === this.addToSummaryInnerIdentifier
     },
 
     addToSummaryVisible(): boolean {
@@ -695,7 +663,7 @@ export default defineComponent({
         'x-forwarded-proto',
       ]
       return !hiddenProperties.includes(this.contextMenuProperty) ||
-          (this.contextMenuProperty === 'headers' && !hiddenHeaders.includes(this.contextMenuInnerIdentifier))
+        (this.contextMenuProperty === 'headers' && !hiddenHeaders.includes(this.contextMenuInnerIdentifier))
     },
 
     eventUserAgent(): string {
@@ -726,36 +694,51 @@ export default defineComponent({
     eventLatency(): number {
       // Latency = request time - upstream response time
       let latency = (Number(this.event.proxy?.request_time) - Number(this.event.proxy?.upstream_response_time))
-      // * 1000 to change seconds into milliseconds
-      latency = latency * 1000
-      // Math floor to remove high decimal accuracy when dealing with milliseconds
-      latency = Math.floor(latency)
-      if (_.isFinite(latency)) {
-        return latency
-      }
-      return 0
+      return this.processTimeDisplay(latency)
     },
 
-    eventTagsLegitimate(): string[] {
+    eventTagsPolicies(): string[] {
       return _.filter(this.event.tags, (tag: string) => {
-        return this.tagCategories?.legitimate?.includes(tag)
+        const isTagACLProfile = tag.startsWith('aclid') ||
+          tag.startsWith('aclname')
+        const isTagContentFilterProfile = tag.startsWith('contentfilterid') ||
+          tag.startsWith('contentfiltername')
+        const isTagContentFilterRule = tag.startsWith('cf-rule-id') ||
+          tag.startsWith('cf-rule-risk') ||
+          tag.startsWith('cf-rule-category') ||
+          tag.startsWith('cf-rule-subcategory')
+        const isTagFlowControl = tag.startsWith('fc-id') ||
+          tag.startsWith('fc-name')
+        const isTagRateLimitRule = tag.startsWith('limit-id') ||
+          tag.startsWith('limit-name')
+        const isTagSecurityPolicy = tag.startsWith('securitypolicy')
+        return isTagACLProfile ||
+          isTagContentFilterProfile ||
+          isTagContentFilterRule ||
+          isTagFlowControl ||
+          isTagRateLimitRule ||
+          isTagSecurityPolicy
       })
     },
 
-    eventTagsMalicious(): string[] {
+    eventTagsRTC(): string[] {
       return _.filter(this.event.tags, (tag: string) => {
-        return this.tagCategories?.malicious?.includes(tag)
+        return tag.startsWith('rtc')
       })
     },
 
-    eventTagsNeutral(): string[] {
-      // Includes anything no in `legitimate` or `malicious`
+    eventTagsGeo(): string[] {
       return _.filter(this.event.tags, (tag: string) => {
-        const knownTags = _.union(
-            this.tagCategories?.legitimate,
-            this.tagCategories?.malicious,
-        )
-        return !knownTags?.includes(tag)
+        return tag.startsWith('geo-')
+      })
+    },
+
+    eventTagsInformative(): string[] {
+      // Includes anything not in `policies` or `rtc` or `geo`
+      return _.filter(this.event.tags, (tag: string) => {
+        return !this.eventTagsPolicies.includes(tag) &&
+          !this.eventTagsRTC.includes(tag) &&
+          !this.eventTagsGeo.includes(tag)
       })
     },
   },
@@ -779,6 +762,17 @@ export default defineComponent({
 
     amountSuffixFormatterBytes(value: number) {
       return Utils.amountSuffixFormatterBytes(value)
+    },
+
+    processTimeDisplay(value: number) {
+      // * 1000 to change seconds into milliseconds
+      value = value * 1000
+      // Math round to remove high decimal accuracy when dealing with milliseconds
+      value = Math.round(value)
+      if (_.isFinite(value)) {
+        return value
+      }
+      return 0
     },
 
     setContextMenu(top: number, left: number) {
@@ -900,6 +894,7 @@ export default defineComponent({
 $event-row-box-horizontal-padding: 1rem;
 
 .event-row-box {
+  background-color: $color-black-haze;
   padding: 0 $event-row-box-horizontal-padding;
 }
 
@@ -920,7 +915,12 @@ $event-row-box-horizontal-padding: 1rem;
   z-index: 10;
 }
 
+.event-row-summary:hover {
+  background-color: $color-black-haze;
+}
+
 .event-row-summary-open {
+  background-color: $color-black-haze;
   border: 1px solid $color-nobel;
 }
 
@@ -956,6 +956,7 @@ $event-row-box-horizontal-padding: 1rem;
 }
 
 .status-box {
+  border: 1px solid $color-white;
   border-radius: 2px;
   color: $color-white;
   line-height: 1rem;
@@ -968,6 +969,7 @@ $event-row-box-horizontal-padding: 1rem;
 }
 
 .full-details-box:hover {
+  background-color: $color-black-haze;
   outline: 1px solid $color-nobel;
 }
 
@@ -979,6 +981,10 @@ $event-row-box-horizontal-padding: 1rem;
 .collapsible-card {
   border-radius: 6px;
   box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%), 0 0 0 1px rgb(10 10 10 / 2%);
+}
+
+.collapsible-card:hover {
+  background-color: $color-black-haze;
 }
 
 .collapsible-title {

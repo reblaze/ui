@@ -43,15 +43,11 @@ export default defineComponent({
 
 <style scoped
        lang="scss">
-
-@import 'node_modules/bulma/sass/utilities/initial-variables.sass';
-@import 'node_modules/bulma/sass/utilities/functions.sass';
-@import 'node_modules/bulma/sass/utilities/derived-variables.sass';
-@import 'node_modules/bulma/sass/helpers/color.sass';
+@import 'src/assets/styles/colors';
 
 .labeled-tag {
-  @extend .has-background-grey-lighter;
-  border: 1px solid #fff;
+  background-color: $color-alto;
+  border: 1px solid $color-white;
   border-radius: 10px;
   margin-right: 0.25rem;
   max-width: 90%;

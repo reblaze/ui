@@ -232,7 +232,7 @@ type topTableData = {
   rowIdentification?: string
   passed?: number
   blocked?: number
-  report?: number
+  reported?: number
 }
 
 export default defineComponent({
@@ -268,8 +268,8 @@ export default defineComponent({
         classes: 'width-80px',
       },
       {
-        title: 'Report',
-        fieldNames: ['report'],
+        title: 'Reported',
+        fieldNames: ['reported'],
         isSortable: true,
         isNumber: true,
         classes: 'width-80px',
@@ -303,8 +303,8 @@ export default defineComponent({
           strokeColor: '#ff355e', // $color-radical-red
         },
         {
-          title: 'Report',
-          fieldName: 'report',
+          title: 'Reported',
+          fieldName: 'reported',
           show: true,
           drawStyle: 'spline',
           fillColor: `rgba(${Utils.hexToRgbArray('#ffdb58').join(', ')}, 0.1)`,
@@ -465,7 +465,7 @@ export default defineComponent({
         const hits = dataItem.counters.hits
         const passed = dataItem.counters.passed
         const blocked = dataItem.counters.active
-        const report = dataItem.counters.report
+        const reported = dataItem.counters.reported
         const humans = dataItem.counters.human
         const bots = dataItem.counters.bot
         returnArray.push({
@@ -473,7 +473,7 @@ export default defineComponent({
           hits: hits > 0 ? hits : 0,
           passed: passed > 0 ? passed : 0,
           blocked: blocked > 0 ? blocked : 0,
-          report: report > 0 ? report : 0,
+          reported: reported > 0 ? reported : 0,
           humans: humans > 0 ? humans : 0,
           bots: bots > 0 ? bots : 0,
         })
@@ -549,12 +549,12 @@ export default defineComponent({
       for (const appId of Object.keys(groupedObject)) {
         const passed = _.sumBy(groupedObject[appId], (item) => item.counters.passed)
         const blocked = _.sumBy(groupedObject[appId], (item) => item.counters.active)
-        const report = _.sumBy(groupedObject[appId], (item) => item.counters.report)
+        const reported = _.sumBy(groupedObject[appId], (item) => item.counters.reported)
         returnArray.push({
           rowIdentification: appId,
           passed: passed > 0 ? passed : 0,
           blocked: blocked > 0 ? blocked : 0,
-          report: report > 0 ? report : 0,
+          reported: reported > 0 ? reported : 0,
         })
       }
       return returnArray
@@ -605,7 +605,7 @@ export default defineComponent({
       this.statusesClassDetails = !this.statusesClassDetails
     },
 
-    buildTopDataFromCounters(blocksFieldName: string, passedFieldName: string, reportFieldName: string) {
+    buildTopDataFromCounters(blocksFieldName: string, passedFieldName: string, reportedFieldName: string) {
       const returnArray = []
       const groupedObject: { [key: string]: topTableData } = {}
       this.data.forEach((item) => {
@@ -629,14 +629,14 @@ export default defineComponent({
             groupedObject[escapedKey].passed += passedItem.value || 0
           }
         }
-        if (item.counters[reportFieldName]) {
-          for (const reportedItem of item.counters[reportFieldName]) {
-            const escapedKey = _.escape(reportedItem.key)
+        if (item.counters[reportedFieldName]) {
+          for (const reportededItem of item.counters[reportedFieldName]) {
+            const escapedKey = _.escape(reportededItem.key)
             if (!groupedObject[escapedKey]) {
               groupedObject[escapedKey] = {}
             }
-            groupedObject[escapedKey].report = groupedObject[escapedKey].report || 0
-            groupedObject[escapedKey].report += reportedItem.value || 0
+            groupedObject[escapedKey].reported = groupedObject[escapedKey].reported || 0
+            groupedObject[escapedKey].reported += reportededItem.value || 0
           }
         }
       })
@@ -645,7 +645,7 @@ export default defineComponent({
           rowIdentification: key,
           passed: groupedObject[key].passed > 0 ? groupedObject[key].passed : 0,
           blocked: groupedObject[key].blocked > 0 ? groupedObject[key].blocked : 0,
-          report: groupedObject[key].report > 0 ? groupedObject[key].report : 0,
+          reported: groupedObject[key].reported > 0 ? groupedObject[key].reported : 0,
         })
       }
       return returnArray
