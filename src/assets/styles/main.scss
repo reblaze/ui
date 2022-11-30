@@ -310,6 +310,14 @@ html {
   white-space: normal;
 }
 
+// Note: Manually add width to elements using this class. default 100%
+.horizontal-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+}
+
 // Adds a shadow to scrollable boxes if there is an option to scroll down or up
 .scrollbox-shadowed {
   background: /* First two gradients - Shadow covers . Last two gradients - Shadows */

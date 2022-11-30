@@ -9,15 +9,15 @@
               Total Calls
             </label>
             <div class="control columns is-variable is-0">
-            <span class="column is-4 has-text-weight-bold">
-              {{ amountSuffixFormatter(totalCallsInfo.amount) }}
-            </span>
-              <span class="column is-8">
-              <span class="has-text-weight-bold">
-                {{ amountSuffixFormatter(totalCallsInfo.callsPerHour) }}
+              <span class="column is-4 has-text-weight-bold">
+                {{ amountSuffixFormatter(totalCallsInfo.amount) }}
               </span>
-              Calls / Hr
-            </span>
+              <span class="column is-8">
+                <span class="has-text-weight-bold">
+                  {{ amountSuffixFormatter(totalCallsInfo.callsPerHour) }}
+                </span>
+                Calls / Hr
+              </span>
             </div>
           </div>
           <div v-for="(data, trafficCategory) in trafficInfo"
@@ -42,8 +42,8 @@
                                 size="small"
                                 class="flag"/>
                   <span>
-                  {{ data.topCountries.length > 3 ? `+${data.topCountries.length - 3}` : '' }}
-                </span>
+                    {{ data.topCountries.length > 3 ? `+${data.topCountries.length - 3}` : '' }}
+                  </span>
                 </template>
               </div>
             </div>
@@ -74,14 +74,14 @@
             <div class="status-legend-wrapper is-size-7 scrollbox-shadowed height-50px">
               <div v-for="legend in statusesPieChartLegend"
                    :key="legend.status">
-              <span class="width-60px is-inline-block">
-                <span class="status-marker is-inline-block"
-                      :style="`background: ${legend.color}`">
+                <span class="width-60px is-inline-block">
+                  <span class="status-marker is-inline-block"
+                        :style="`background: ${legend.color}`">
+                  </span>
+                  <span class="status-label is-inline-block">
+                    {{ legend.status }}
+                  </span>
                 </span>
-                <span class="status-label is-inline-block">
-                  {{ legend.status }}
-                </span>
-              </span>
                 <span class="status-value is-inline-block">
                   {{ legend.percentile }}%
                 </span>
@@ -101,134 +101,103 @@
           </rbz-chart>
         </div>
       </div>
-      <!--First tables row-->
-      <div class="columns">
-        <div class="column is-4">
+      <!--Top tables-->
+      <div class="columns is-multiline">
+        <div class="column is-6">
           <rbz-table :columns="topTableColumns"
                      :data="topTargetApps"
                      :default-sort-column-index="1"
-                     :use-scroll="true"
                      :rows-per-page="5"
-                     :loading="loading"
                      default-sort-column-direction="desc"
                      table-title="TOP TARGETED SERVICES/APPS">
           </rbz-table>
         </div>
-        <div class="column is-4">
+        <div class="column is-6">
           <rbz-table :columns="topTableColumns"
                      :data="topTargetUris"
                      :default-sort-column-index="1"
-                     :use-scroll="true"
                      :rows-per-page="5"
-                     :loading="loading"
                      default-sort-column-direction="desc"
                      table-title="TOP TARGETED URLs">
           </rbz-table>
         </div>
-        <div class="column is-4">
-          <rbz-table :columns="topTableColumnsTagPrefixRemoved"
+        <div class="column is-6">
+          <rbz-table :columns="topTableColumns"
                      :data="topTargetRTCs"
                      :default-sort-column-index="1"
-                     :use-scroll="true"
                      :rows-per-page="5"
-                     :loading="loading"
                      default-sort-column-direction="desc"
                      table-title="TOP TARGETED RTCs">
           </rbz-table>
         </div>
-      </div>
-      <!--Second tables row-->
-      <div class="columns">
-        <div class="column is-4">
-          <rbz-table :columns="topTableColumnsTagPrefixRemoved"
+        <div class="column is-6">
+          <rbz-table :columns="topTableColumns"
                      :data="topCountries"
                      :default-sort-column-index="1"
-                     :use-scroll="true"
                      :rows-per-page="5"
-                     :loading="loading"
                      default-sort-column-direction="desc"
                      table-title="TOP COUNTRIES">
           </rbz-table>
         </div>
-        <div class="column is-4">
-          <rbz-table :columns="topTableColumnsTagPrefixRemoved"
+        <div class="column is-6">
+          <rbz-table :columns="topTableColumns"
                      :data="topASNumbers"
                      :default-sort-column-index="1"
-                     :use-scroll="true"
                      :rows-per-page="5"
-                     :loading="loading"
                      default-sort-column-direction="desc"
                      table-title="TOP AS NUMBERS">
           </rbz-table>
         </div>
-        <div class="column is-4">
+        <div class="column is-6">
           <rbz-table :columns="topTableColumns"
                      :data="topIPAddresses"
                      :default-sort-column-index="1"
-                     :use-scroll="true"
                      :rows-per-page="5"
-                     :loading="loading"
                      default-sort-column-direction="desc"
                      table-title="TOP IP ADDRESSES">
           </rbz-table>
         </div>
-      </div>
-      <!--Third tables row-->
-      <div class="columns">
-        <div class="column is-4">
-          <rbz-table :columns="topTableColumnsTagPrefixRemoved"
+        <div class="column is-6">
+          <rbz-table :columns="topTableColumns"
                      :data="topRateLimits"
                      :default-sort-column-index="1"
-                     :use-scroll="true"
                      :rows-per-page="5"
-                     :loading="loading"
                      default-sort-column-direction="desc"
                      table-title="TOP RATE LIMITS">
           </rbz-table>
         </div>
-        <div class="column is-4">
-          <rbz-table :columns="topTableColumnsTagPrefixRemoved"
+        <div class="column is-6">
+          <rbz-table :columns="topTableColumns"
                      :data="topACLs"
                      :default-sort-column-index="1"
-                     :use-scroll="true"
                      :rows-per-page="5"
-                     :loading="loading"
                      default-sort-column-direction="desc"
                      table-title="TOP ACLs">
           </rbz-table>
         </div>
-        <div class="column is-4">
-          <rbz-table :columns="topTableColumnsTagPrefixRemoved"
+        <div class="column is-6">
+          <rbz-table :columns="topTableColumns"
                      :data="topContentFilters"
                      :default-sort-column-index="1"
-                     :use-scroll="true"
                      :rows-per-page="5"
-                     :loading="loading"
                      default-sort-column-direction="desc"
                      table-title="TOP CONTENT FILTERS">
           </rbz-table>
         </div>
-      </div>
-      <!--Fourth tables row-->
-      <div class="columns">
-        <div class="column is-4">
+        <div class="column is-6">
           <rbz-table :columns="topTableColumns"
                      :data="topUserAgents"
                      :default-sort-column-index="1"
-                     :use-scroll="true"
                      :rows-per-page="5"
-                     :loading="loading"
                      default-sort-column-direction="desc"
                      table-title="TOP USER AGENT">
           </rbz-table>
         </div>
-        <div class="column is-4">
+        <div class="column is-6">
           <rbz-table :columns="topTableColumns"
                      :data="topTags"
                      :default-sort-column-index="1"
-                     :use-scroll="true"
                      :rows-per-page="5"
-                     :loading="loading"
                      default-sort-column-direction="desc"
                      table-title="TOP TAGS">
           </rbz-table>
@@ -282,40 +251,41 @@ export default defineComponent({
       {
         title: '',
         fieldNames: ['rowIdentification'],
-        classes: 'width-80px ellipsis',
+        classes: 'horizontal-scroll',
       },
       {
         title: 'Passed',
         fieldNames: ['passed'],
         isSortable: true,
         isNumber: true,
-        classes: 'width-60px',
+        classes: 'width-80px',
       },
       {
-        title: 'blocked',
+        title: 'Blocked',
         fieldNames: ['blocked'],
         isSortable: true,
         isNumber: true,
-        classes: 'width-60px',
+        classes: 'width-80px',
       },
       {
         title: 'Report',
         fieldNames: ['report'],
         isSortable: true,
         isNumber: true,
-        classes: 'width-60px',
+        classes: 'width-80px',
       },
     ]
-    const topTableColumnsTagPrefixRemoved = _.cloneDeep(topTableColumns)
-    topTableColumnsTagPrefixRemoved[0].displayFunction = (item: topTableData) => {
-      const splitFilter = item.rowIdentification.split(/:/)
-      splitFilter.shift()
-      return splitFilter.join(':')
-    }
     return {
       topTableColumns: topTableColumns,
-      topTableColumnsTagPrefixRemoved: topTableColumnsTagPrefixRemoved,
       trafficChartSeriesOptions: [
+        {
+          title: 'Hits',
+          fieldName: 'hits',
+          show: true,
+          drawStyle: 'spline',
+          fillColor: `rgba(${Utils.hexToRgbArray('#7a7a7a').join(', ')}, 0.1)`,
+          strokeColor: '#7a7a7a', // $color-boulder
+        },
         {
           title: 'Passed',
           fieldName: 'passed',
@@ -492,6 +462,7 @@ export default defineComponent({
     trafficChartData(): GenericObject[] {
       const returnArray = []
       for (const dataItem of this.data) {
+        const hits = dataItem.counters.hits
         const passed = dataItem.counters.passed
         const blocked = dataItem.counters.active
         const report = dataItem.counters.report
@@ -499,6 +470,7 @@ export default defineComponent({
         const bots = dataItem.counters.bot
         returnArray.push({
           timeframe: Math.floor(new Date(dataItem['timestamp']).getTime() / 1000),
+          hits: hits > 0 ? hits : 0,
           passed: passed > 0 ? passed : 0,
           blocked: blocked > 0 ? blocked : 0,
           report: report > 0 ? report : 0,
@@ -512,22 +484,34 @@ export default defineComponent({
     statusesChartData(): GenericObject[] {
       const returnArray = []
       if (this.statusesClassDetails) {
+        const existingStatusKeys = _.uniq(_.flatMap(this.data, (dataItem) => {
+          return _.map(dataItem.counters.status_classes, 'key') || []
+        })).sort()
         for (const dataItem of this.data) {
           const statusesObject: GenericObject = {
             'timeframe': Math.floor(new Date(dataItem['timestamp']).getTime() / 1000),
           }
-          for (const statusClass of dataItem.counters.status_classes) {
-            statusesObject[`${statusClass.key}xx`] = statusClass.value > 0 ? statusClass.value : 0
+          for (const statusKey of existingStatusKeys) {
+            const statusClass = _.find(dataItem.counters.status_classes, (statusClass) => {
+              return statusClass.key === statusKey
+            })
+            statusesObject[`${statusKey}xx`] = statusClass?.value > 0 ? statusClass.value : 0
           }
           returnArray.push(statusesObject)
         }
       } else {
+        const existingStatusKeys = _.uniq(_.flatMap(this.data, (dataItem) => {
+          return _.map(dataItem.counters.status, 'key') || []
+        })).sort()
         for (const dataItem of this.data) {
           const statusesObject: GenericObject = {
             'timeframe': Math.floor(new Date(dataItem['timestamp']).getTime() / 1000),
           }
-          for (const status of dataItem.counters.status) {
-            statusesObject[status.key] = status.value > 0 ? status.value : 0
+          for (const statusKey of existingStatusKeys) {
+            const status = _.find(dataItem.counters.status, (status) => {
+              return status.key === statusKey
+            })
+            statusesObject[statusKey] = status?.value > 0 ? status.value : 0
           }
           returnArray.push(statusesObject)
         }
@@ -561,7 +545,7 @@ export default defineComponent({
 
     topTargetApps(): topTableData[] {
       const returnArray = []
-      const groupedObject = _.groupBy(this.data, 'appid')
+      const groupedObject = _.groupBy(this.data, 'secpolid')
       for (const appId of Object.keys(groupedObject)) {
         const passed = _.sumBy(groupedObject[appId], (item) => item.counters.passed)
         const blocked = _.sumBy(groupedObject[appId], (item) => item.counters.active)
@@ -577,51 +561,43 @@ export default defineComponent({
     },
 
     topTargetUris(): topTableData[] {
-      return this.buildTopDataFromCounters('top_active_uri', 'top_passed_uri', 'top_reported_uri')
+      return this.buildTopDataFromCounters('top_uri_active', 'top_uri_passed', 'top_uri_reported')
     },
 
     topTargetRTCs(): topTableData[] {
-      return this.topTags.filter((tag: topTableData) => {
-        return tag.rowIdentification.startsWith('rtc:')
-      })
+      return this.buildTopDataFromCounters('top_rtc_active', 'top_rtc_passed', 'top_rtc_reported')
     },
 
     topCountries(): topTableData[] {
-      return this.buildTopDataFromCounters('top_active_country', 'top_passed_country', 'top_reported_country')
+      return this.buildTopDataFromCounters('top_country_active', 'top_country_passed', 'top_country_reported')
     },
 
     topASNumbers(): topTableData[] {
-      return this.buildTopDataFromCounters('top_active_asn', 'top_passed_asn', 'top_reported_asn')
+      return this.buildTopDataFromCounters('top_asn_active', 'top_asn_passed', 'top_asn_reported')
     },
 
     topIPAddresses(): topTableData[] {
-      return this.buildTopDataFromCounters('top_active_ip', 'top_passed_ip', 'top_reported_ip')
+      return this.buildTopDataFromCounters('top_ip_active', 'top_ip_passed', 'top_ip_reported')
     },
 
     topRateLimits(): topTableData[] {
-      return this.topTags.filter((tag: topTableData) => {
-        return tag.rowIdentification.startsWith('rate-limit:')
-      })
+      return this.buildTopDataFromCounters('top_rl_active', 'top_rl_passed', 'top_rl_reported')
     },
 
     topACLs(): topTableData[] {
-      return this.topTags.filter((tag: topTableData) => {
-        return tag.rowIdentification.startsWith('acl:')
-      })
+      return this.buildTopDataFromCounters('top_aclid_active', 'top_aclid_passed', 'top_aclid_reported')
     },
 
     topContentFilters(): topTableData[] {
-      return this.topTags.filter((tag: topTableData) => {
-        return tag.rowIdentification.startsWith('content-filter:')
-      })
+      return this.buildTopDataFromCounters('top_ruleid_active', 'top_ruleid_passed', 'top_ruleid_reported')
     },
 
     topUserAgents(): topTableData[] {
-      return this.buildTopDataFromCounters('top_active_user_agent', 'top_passed_user_agent', 'top_reported_user_agent')
+      return this.buildTopDataFromCounters('top_user_agent_active', 'top_user_agent_passed', 'top_user_agent_reported')
     },
 
     topTags(): topTableData[] {
-      return this.buildTopDataFromCounters('top_active_tags', 'top_passed_tags', 'top_reported_tags')
+      return this.buildTopDataFromCounters('top_tags_active', 'top_tags_passed', 'top_tags_reported')
     },
   },
   methods: {

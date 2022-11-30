@@ -319,22 +319,23 @@ export default defineComponent({
     return {
       listEntryTypes: {
         args: 'Argument',
+        asn: 'ASN',
         authority: 'Authority',
-        company: 'Company',
         cookies: 'Cookie',
         country: 'Country',
         headers: 'Header',
         ip: 'IP Address',
         method: 'Method',
         network: 'Network',
+        company: 'Organization',
         path: 'Path',
         securitypolicyentryid: 'Path Matching ID',
-        asn: 'Provider',
         query: 'Query',
         region: 'Region',
         securitypolicyid: 'Security Policy ID',
         session: 'Session ID',
         subregion: 'Subregion',
+        tags: 'Tag',
         uri: 'URI',
       },
       isCollapsed: false,
@@ -394,7 +395,7 @@ export default defineComponent({
       const categories = Object.keys(this.listEntryTypes)
       for (let i = 0; i < categories.length; i++) {
         const category = categories[i]
-        if (this.isCategoryArgsCookiesHeaders(category as Category)) {
+        if (this.isCategoryArgsCookiesHeaders(category as Category) || category === 'tags') {
           continue
         }
         if (countedCategories[category] > 1) {
