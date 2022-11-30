@@ -387,7 +387,24 @@ export default defineComponent({
       this.docIdNames = this.docs.map((doc) => {
         return {id: doc.id, name: doc.name}
       })
-      this.docIdNames = _.sortBy(this.docIdNames, [(doc) => doc.name.toLowerCase()])
+      this.docIdNames = this.docIdNames.sort((a: DocumentName, b: DocumentName) => {
+        let sortValueA: string = a.name || ''
+        let sortValueB: string = b.name || ''
+        const sortValueALowerCase: string = sortValueA.toString().toLowerCase()
+        const sortValueBLowerCase: string = sortValueB.toString().toLowerCase()
+        // only ignore case if the values are different from one another
+        if (!_.isEqual(sortValueALowerCase, sortValueBLowerCase)) {
+          sortValueA = sortValueALowerCase
+          sortValueB = sortValueBLowerCase
+        }
+        if (sortValueA < sortValueB) {
+          return -1
+        }
+        if (sortValueA > sortValueB) {
+          return 1
+        }
+        return 0
+      })
     },
 
     newEdgeFunction(): EdgeFunction {
