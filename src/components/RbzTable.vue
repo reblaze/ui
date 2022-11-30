@@ -128,70 +128,73 @@
       </tr>
       </thead>
       <tbody>
-      <tr v-for="row in slicedDataArrayDisplay"
-          :key="row.id"
-          @click="rowClickable && rowClicked(row.id)"
-          :class="{'is-clickable': rowClickable}"
-          class="data-row">
-        <td class="is-size-7"
-            v-if="showCheckboxColumn">
-          <div class="field is-grouped is-grouped-centered">
-            <input type="checkbox"
-                   title="Checkbox"
-                   :checked="selectedArray.includes(row.id)"
-                   :id="row.id"
-                   :ref="row.id"
-                   class="is-small row-checkbox"
-                   @change="rowSelected(row.id)"/>
-          </div>
-        </td>
-        <td v-for="(col, index) in columns"
-            :key="index"
-            class="data-cell is-size-7"
+      <template v-for="row in slicedDataArrayDisplay"
+        :key="row.id ? row.id : row.name">
+        <tr @click="rowClickable && rowClicked(row.id ? row.id : row.name)"
+            :class="{'is-clickable': rowClickable}"
+            class="data-row">
+          <td class="is-size-7" v-if="showCheckboxColumn">
+            <div class="field is-grouped is-grouped-centered">
+                <input type="checkbox"
+                        title="Checkbox"
+                        :checked="selectedArray.includes(row.id)"
+                        :id="row.id"
+                        :ref="row.id"
+                        class="is-small row-checkbox"
+                        @change="rowSelected(row.id)" />
+            </div>
+          </td>
+          <td v-for="(col, index) in columns"
+              :key="index"
+              :title="row[col.title]"
+              class="data-cell is-size-7"
             :class="`
               ${col.classes ? col.classes : ''}
               ${verticalAlignTop ? 'vertical-align-top' : 'vertical-align-middle'}
             `">
-          <div class="data-cell-content"
-               :class="col.cellContentClasses">
-            <span v-if="col.displayFunction"
-                  v-html="col.displayFunction(row)"
-                  :title="col.displayFunction(row)?.toString()">
-            </span>
-            <span v-else
-                  :title="row[col.fieldNames[0]]">
-              {{ row[col.fieldNames[0]] }}
-            </span>
-          </div>
-        </td>
-        <td class="is-size-7"
-            v-if="showMenuColumn">
-          <div class="field is-grouped is-grouped-centered">
-            <p class="control mx-0"
-               v-if="showRowButton">
-              <button :title="rowButtonTitle"
-                      class="button is-small row-entity-button"
-                      :class="rowButtonClass"
-                      @click="rowButtonClicked(row.id)">
-                <span class="icon is-small">
-                  <i :class="`fas ${rowButtonIcon ? rowButtonIcon : 'fa-edit'}`"></i>
-                </span>
-              </button>
-            </p>
-            <p class="control mx-0"
-               v-if="showSecondRowButton">
-              <button :title="secondRowButtonTitle"
-                      class="button is-small row-entity-button"
-                      :class="secondRowButtonClass"
-                      @click="secondRowButtonClicked(row.id)">
-                <span class="icon is-small">
-                  <i :class="`fas ${secondRowButtonIcon ? secondRowButtonIcon : 'fa-edit'}`"></i>
-                </span>
-              </button>
-            </p>
-          </div>
-        </td>
-      </tr>
+            <div class="data-cell-content"
+                :class="col.cellContentClasses">
+              <span v-if="col.displayFunction"
+                    v-html="col.displayFunction(row)"
+                    :title="col.displayFunction(row)?.toString()">
+              </span>
+              <span v-else
+                    :title="row[col.fieldNames[0]]">
+                {{ row[col.fieldNames[0]] }}
+              </span>
+            </div>
+          </td>
+          <td class="is-size-7"
+              v-if="showMenuColumn">
+            <div class="field is-grouped is-grouped-centered">
+              <p class="control mx-0"
+                v-if="showRowButton">
+                <button :title="rowButtonTitle"
+                        class="button is-small row-entity-button"
+                        :class="rowButtonClass"
+                        @click="rowButtonClicked(row.id)">
+                  <span class="icon is-small">
+                    <i :class="`fas ${rowButtonIcon ? rowButtonIcon : 'fa-edit'}`"></i>
+                  </span>
+                </button>
+              </p>
+              <p class="control mx-0"
+                v-if="showSecondRowButton">
+                <button :title="secondRowButtonTitle"
+                        class="button is-small row-entity-button"
+                        :class="secondRowButtonClass"
+                        @click="secondRowButtonClicked(row.id)">
+                  <span class="icon is-small">
+                    <i :class="`fas ${secondRowButtonIcon ? secondRowButtonIcon : 'fa-edit'}`"></i>
+                  </span>
+                </button>
+              </p>
+            </div>
+          </td>
+        </tr>
+        <slot name="tableMenu"
+          :row="row"/>
+      </template>
       <tr v-if="!slicedDataArrayDisplay?.length">
         <td :colspan="totalColumns"
             class="has-text-centered table-no-data-message">

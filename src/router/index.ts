@@ -26,6 +26,7 @@ import DnsPage from '@/components/DnsPage.vue'
 import PremiumPage from '@/views/PremiumPage.vue'
 import RequestsUtils from '@/assets/RequestsUtils'
 import EventsLog from '@/views/EventsLog.vue'
+import SslList from '@/views/SslList.vue'
 
 async function premiumServerIsLive() {
   const url = `health/`
@@ -207,6 +208,23 @@ const routes: Array<RouteRecordRaw> = [
                 component: BackendServiceEditor,
                 meta: {
                   title: 'Backend Services Editor',
+                },
+              },
+            ],
+          },
+          {
+            path: 'ssl',
+            name: 'SSL',
+            redirect: (route) => {
+              return `/${route.params.branch}/ssl/list`
+            },
+            children: [
+              {
+                path: 'list',
+                name: 'SSL/list',
+                component: SslList,
+                meta: {
+                  title: 'SSL List',
                 },
               },
             ],

@@ -233,13 +233,13 @@ export default defineComponent({
           title: 'Edge Functions',
         },
         {
+          href: `/${this.selectedBranch?.id}/ssl`,
+          title: 'SSL',
+        },
+        {
           href: `/${this.selectedBranch?.id}/dns-records`,
           title: 'DNS Records',
         },
-        // {
-        //   href: `/${this.selectedBranch?.id}/ssl`,
-        //   title: 'SSL',
-        // },
         // ######
         // System
         // ######
