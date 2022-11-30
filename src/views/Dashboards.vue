@@ -22,21 +22,12 @@
           <div class="field is-grouped">
             <div class="control search-wrapper">
               <input class="input is-small is-fullwidth filter-input"
-                     placeholder="Filters, comma separated. Available filters: `proxy`, `appid`, and `profile`."
+                     placeholder="Filters, separated by a comma."
                      v-model="searchFilter"/>
             </div>
             <p class="control">
-              <Datepicker v-model="date"
-                          range
-                          utc
-                          enableSeconds
-                          format="yyyy-MM-dd HH:mm"
-                          inputClassName="input is-small is-size-7 width-260px date-picker-input"
-                          :monthChangeOnScroll="false"
-                          :clearable="false"
-                          :presetRanges="presetRanges"
-                          @open="loadPresetRanges">
-              </Datepicker>
+              <rbz-date-picker @update:date="date = $event"
+                               ref="rbzDatePicker" />
             </p>
             <p class="control">
               <button class="button is-small search-button"
@@ -92,12 +83,10 @@
 import {defineComponent} from 'vue'
 import RequestsUtils from '@/assets/RequestsUtils'
 import RbzDashboardDefault from '@/reblaze-dashboards/DefaultDashboard.vue'
-import Datepicker from '@vuepic/vue-datepicker'
 import {GenericObject} from '@/types'
+import RbzDatePicker from '@/components/RbzDatePicker.vue'
 
 const jwt = require('jsonwebtoken')
-const MS_PER_MINUTE = 60000
-const HOUR = 60 * MS_PER_MINUTE
 
 type DashboardData = {
   title: string
@@ -107,10 +96,12 @@ type DashboardData = {
 
 export default defineComponent({
   name: 'DashboardDisplay',
-  components: {RbzDashboardDefault, Datepicker},
+  components: {
+    RbzDashboardDefault,
+    RbzDatePicker,
+  },
   data() {
     const defaultMetabaseURL = 'http://localhost:3000'
-    const now = new Date()
     return {
       defaultMetabaseURL: defaultMetabaseURL,
       metabaseURL: defaultMetabaseURL,
@@ -119,8 +110,7 @@ export default defineComponent({
       activeDashboardIndex: -1,
       data: [],
       searchFilter: '',
-      date: [new Date(now.getTime() - (HOUR / 2)).toISOString(), now.toISOString()],
-      presetRanges: [],
+      date: [null, null],
       isSearchLoading: false,
     }
   },
@@ -132,7 +122,7 @@ export default defineComponent({
       })
       const systemDBData = response?.data
       const dashboardsInfo = systemDBData?.dashboardsinfo
-      this.metabaseURL = dashboardsInfo.metabaseURL || this.defaultMetabaseURL
+      this.metabaseURL = dashboardsInfo?.metabaseURL || this.defaultMetabaseURL
       this.metabaseKey = dashboardsInfo?.metabaseKey || ''
       if (dashboardsInfo?.dashboards?.length) {
         this.dashboards = dashboardsInfo.dashboards
@@ -173,7 +163,7 @@ export default defineComponent({
       const query = this.buildQuery()
       const response = await RequestsUtils.sendDataLayerRequest({
         methodName: 'GET',
-        url: `metrics/1s?filters=${query}`,
+        url: `metrics/1m?filters=${query}`,
         config: {
           headers: {
             'syntax': 'mongodb',
@@ -198,40 +188,7 @@ export default defineComponent({
 
     clearSearch() {
       this.searchFilter = ''
-    },
-
-    loadPresetRanges() {
-      const now = new Date()
-      this.presetRanges = [
-        {
-          label: 'Last 30 Minutes',
-          range: [new Date(now.getTime() - (HOUR / 2)), now],
-        },
-        {
-          label: 'Last Hour',
-          range: [new Date(now.getTime() - HOUR), now],
-        },
-        {
-          label: 'Last 2 Hours',
-          range: [new Date(now.getTime() - (2 * HOUR)), now],
-        },
-        {
-          label: 'Last 3 Hours',
-          range: [new Date(now.getTime() - (3 * HOUR)), now],
-        },
-        {
-          label: 'Last 4 Hours',
-          range: [new Date(now.getTime() - (4 * HOUR)), now],
-        },
-        {
-          label: 'Last 12 Hours',
-          range: [new Date(now.getTime() - (12 * HOUR)), now],
-        },
-        {
-          label: 'Last 24 Hours',
-          range: [new Date(now.getTime() - (24 * HOUR)), now],
-        },
-      ]
+      this.$refs.rbzDatePicker.resetDateToDefault()
     },
   },
   async mounted() {
@@ -240,16 +197,11 @@ export default defineComponent({
   },
 })
 </script>
-<style lang="scss">
-@import 'node_modules/@vuepic/vue-datepicker/src/VueDatePicker/style/main';
-
+<style scoped
+       lang="scss">
 .search-wrapper {
   /* Magic number 450x - width of datepicker, search, and clear buttons */
   width: calc(100% - 450px);
-}
-
-.date-picker-input {
-  padding-left: 33px;
 }
 
 .metabase-iframe-wrapper {

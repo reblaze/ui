@@ -79,9 +79,10 @@ export default defineComponent({
       // uPlot is displaying time in local, so we need to offset our timeframe by the timezone offset
       const date = new Date(0)
       date.setUTCSeconds(this.data[0]?.timeframe)
-      const timezoneOffset = date.getTimezoneOffset() * 60
+      // const timezoneOffset = date.getTimezoneOffset() * 60 // TODO: timezones
       _.forEach(sortedGroupedData, (dataItem) => {
-        datasets[0].push(dataItem[0].timeframe + timezoneOffset) // timestamps X axis
+        // datasets[0].push(dataItem[0].timeframe + timezoneOffset) // timestamps X axis // TODO: Timezones
+        datasets[0].push(dataItem[0].timeframe) // timestamps X axis
         datasets.forEach((dataset, index) => {
           if (index !== 0) { // timestamps X axis
             dataset.push(_.sumBy(dataItem, this.seriesOptions[index - 1].fieldName))
@@ -104,6 +105,27 @@ export default defineComponent({
             ticks: {
               width: 0.5,
             },
+            values: (self, splits) => {
+              const secondsDiff = splits[splits.length - 1] - splits[0]
+              return splits.map((value) => {
+                const date = new Date(value * 1000)
+                const hours = date.getHours()
+                const minutes = date.getMinutes()
+                const seconds = date.getSeconds()
+                if (hours === 0 && minutes === 0 && seconds === 0) {
+                  return `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`
+                } else {
+                  const displayHours = hours < 10 ? `0${hours}` : hours
+                  const displayMinutes = minutes < 10 ? `0${minutes}` : minutes
+                  if (secondsDiff >= 600) { // 10 minutes span or more
+                    return `${displayHours}:${displayMinutes}`
+                  } else { // less than 10 minutes span
+                    const displaySeconds = seconds < 10 ? `0${seconds}` : seconds
+                    return `${displayHours}:${displayMinutes}:${displaySeconds}`
+                  }
+                }
+              })
+            },
           },
           {
             grid: {
@@ -113,7 +135,7 @@ export default defineComponent({
               width: 0.5,
             },
             values: (self, splits) => splits.map((value) => {
-              return value == null ? null : this.amountSuffixFormatter(value)
+              return value === null ? null : this.amountSuffixFormatter(value)
             }),
           },
         ],
@@ -148,6 +170,8 @@ export default defineComponent({
     // converts the legend into a simple tooltip
     legendAsTooltipPlugin({classList = [], style = {}} = {}) {
       let legendElement: HTMLElement
+      // TODO: make this customizable
+      const legendWidth = 230
 
       const init = (uPlotChart: uPlot) => {
         legendElement = uPlotChart.root.querySelector('.u-legend')
@@ -157,7 +181,7 @@ export default defineComponent({
         uPlot.assign(legendElement.style, {
           display: 'none',
           ...style,
-          ...{backgroundColor: 'rgba(255, 250, 195, 0.85)', color: 'black'},
+          ...{backgroundColor: 'rgba(255, 250, 195, 0.85)', color: 'black', width: legendWidth},
         })
 
         // better the color series color markers
@@ -183,7 +207,10 @@ export default defineComponent({
       }
 
       const update = (uPlotChart: uPlot) => {
-        const {left, top} = uPlotChart.cursor
+        let {left, top} = uPlotChart.cursor
+        if (left + legendWidth > uPlotChart.over?.clientWidth) {
+          left = left - legendWidth
+        }
         legendElement.style.transform = `translate(${left}px, ${top}px)`
       }
 
@@ -248,7 +275,6 @@ export default defineComponent({
   position: absolute;
   text-align: left;
   top: 0;
-  width: 230px;
   z-index: 100;
 }
 </style>

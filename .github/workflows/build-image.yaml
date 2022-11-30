@@ -1,0 +1,26 @@
+name: Run Build/Push Dev Images
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  Build-Images:
+    environment: dev
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Build and push the images
+        run: |
+          docker login -u "${{ secrets.DOCKER_HUB_USER }}" -p "${{ secrets.DOCKER_HUB_PASSWORD }}"
+          export DOCKER_TAG=$(echo ${GITHUB_REF#refs/heads/})
+          docker build -t "curiefense/uiserver:$DOCKER_TAG" .
+          docker push "curiefense/uiserver:$DOCKER_TAG"
+
+          export DOCKER_TAG=${GITHUB_SHA}
+          docker build -t "curiefense/uiserver:$DOCKER_TAG" .
+          docker push "curiefense/uiserver:$DOCKER_TAG"

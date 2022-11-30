@@ -355,12 +355,12 @@
                        @input="editConfigName"/>
               </td>
               <td class="is-size-7 width-500px">
-                      <textarea rows="5"
-                                class="textarea is-small is-fullwidth"
-                                placeholder="Paste the JSON"
-                                :value="newConfig.json"
-                                @input="editConfig">
-                      </textarea>
+                <textarea rows="5"
+                          class="textarea is-small is-fullwidth"
+                          placeholder="Paste the JSON"
+                          :value="newConfig.json"
+                          @input="editConfig">
+                </textarea>
               </td>
               <td class="is-size-7 width-60px has-text-centered is-vcentered">
                 <input type="radio"
@@ -392,7 +392,7 @@
           Loading
         </button>
       </div>
-      <div v-else
+      <div v-else @load="redirectToList()"
            class="no-data-message">
         No data found.
         <div>
@@ -457,11 +457,15 @@ export default defineComponent({
   },
   watch: {
     selectedBranch: {
-      handler: function(val, oldVal) {
-        if ((this.$route.name as string).includes('MobileSDKs/config') && val && val !== oldVal) {
-          this.loadDocs()
-          this.setSelectedDataFromRouteParams()
-          this.loadReferencedMobileSDKsIDs()
+      handler: async function(val, oldVal) {
+        if ((this.$route.name as string).includes('MobileSDK/config') && val && val !== oldVal) {
+          await this.loadDocs()
+          await this.setSelectedDataFromRouteParams()
+          // redirect to list if no data found
+          if (!this.docs?.[0]?.id || !this.selectedMobileSDK) {
+            this.redirectToList()
+          }
+          await this.loadReferencedMobileSDKsIDs()
         }
       },
       immediate: true,
@@ -490,19 +494,18 @@ export default defineComponent({
     ...mapStores(useBranchesStore),
 
     selectedDocIndex(): number {
-      if (this.selectedDocID) {
-        return _.findIndex(this.docs, (doc) => {
-          return doc.id === this.selectedDocID
-        })
-      }
-      return 0
+      return _.findIndex(this.docs, (doc) => {
+        return doc.id === this.selectedDocID
+      })
     },
     selectedMobileSDK: {
       get(): MobileSDK {
-        return this.docs[this.selectedDocIndex]
+        return (this.selectedDocIndex > -1) ? this.docs[this.selectedDocIndex] : null
       },
       set(newDoc: MobileSDK): void {
-        this.docs[this.selectedDocIndex] = newDoc
+        if (this.selectedDocIndex > -1) {
+          this.docs[this.selectedDocIndex] = newDoc
+        }
       },
     },
   },
@@ -593,13 +596,7 @@ export default defineComponent({
       })
       this.docs = response?.data || []
       this.sortDocs()
-      if (this.docs && this.docs.length && this.docs[0].id) {
-        if (!_.find(this.docs, (doc: MobileSDK) => {
-          return doc.id === this.selectedDocID
-        })) {
-          this.selectedDocID = this.docs[0].id
-        }
-      }
+
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
     },
@@ -631,16 +628,16 @@ export default defineComponent({
       if (!mobilesdksToAdd) {
         mobilesdksToAdd = this.newMobileSDK()
       }
-      const mobilesdksText = this.titles['mobile-sdks-singular']
+      const mobileSDKsText = this.titles['mobile-sdks-singular']
       if (!successMessage) {
-        successMessage = `New ${mobilesdksText} was created.`
+        successMessage = `New ${mobileSDKsText} was created.`
       }
       if (!failureMessage) {
-        failureMessage = `Failed while attempting to create the new ${mobilesdksText}.`
+        failureMessage = `Failed while attempting to create the new ${mobileSDKsText}.`
       }
       const data = mobilesdksToAdd
       await this.saveChanges('POST', data, successMessage, failureMessage)
-      // this.docs.unshift(mobilesdksToAdd)
+
       this.loadDocs()
       this.selectedDocID = mobilesdksToAdd.id
 

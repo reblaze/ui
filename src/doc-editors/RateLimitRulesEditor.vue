@@ -245,12 +245,13 @@
             </div>
           </div>
         </div>
-      </div> connected: {{ connected}}
+      </div> connected: {{ havePoliciesConnections }}
       <security-policies-connections
           selectedDocType="ratelimits"
           :selectedDocId="localDoc.id"
+          @havePoliciesConnections="emitConnections"
           @go-to-route="emitGoToRoute"
-          @connected="emitConnected"
+          @connected="emitConnections"
           :selectedBranch="selectedBranch">
       </security-policies-connections>
     </div>
@@ -297,7 +298,7 @@ export default defineComponent({
       keysAreValid: true,
       removable: false,
       customResponseNames: [] as [CustomResponse['id'], CustomResponse['name']][],
-      connected: false as boolean,
+      havePoliciesConnections: false,
     }
   },
   computed: {
@@ -309,19 +310,14 @@ export default defineComponent({
       get: function(): string {
         if (this.localDoc.tags && this.localDoc.tags.length > 0) {
           return this.localDoc.tags.join(' ')
+        } else {
+          return ''
         }
-        this.$emit('tags-invalid', true)
-        return ''
       },
       set: function(tags: string): void {
         this.localDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
           return tag.trim()
         }) : []
-        if (tags.trim() === '' || tags.length < 3) {
-          this.$emit('tags-invalid', true)
-        } else {
-          this.$emit('tags-invalid', false)
-        }
         this.emitDocUpdate()
       },
     },
@@ -339,7 +335,7 @@ export default defineComponent({
       return _.fromPairs(_.zip(dupTags, dupTags))
     },
   },
-  emits: ['update:selectedDoc', 'go-to-route', 'tags-invalid'],
+  emits: ['update:selectedDoc', 'go-to-route', 'tags-invalid', 'have-policies-connections'],
   methods: {
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
@@ -349,9 +345,8 @@ export default defineComponent({
       this.$emit('go-to-route', url)
     },
 
-    emitConnected(cInput: boolean) {
-      console.log('cInput', cInput)
-      this.connected = cInput
+    emitConnections(connections: boolean) {
+      this.$emit('have-policies-connections', connections)
     },
 
     getOptionTextKey(option: LimitOptionType, index: number) {

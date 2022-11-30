@@ -3,6 +3,16 @@
        :class="{'scrollable scrollbox-shadowed': useScroll}"
        :style="useScroll ? `max-height: ${2 * rowsPerPage}rem` : ''">
     <table class="table is-bordered is-fullwidth is-size-7 rbz-table is-hoverable">
+      <!--Set the columns width for table with layout fixed-->
+      <colgroup>
+        <col class="width-45px"
+            v-if="showCheckboxColumn" />
+        <col v-for="(col, index) in columns"
+            :key="index"
+            :class="col.classes" />
+        <col class="width-45px"
+            v-if="showMenuColumn" />
+      </colgroup>
       <thead>
       <tr class="header-row"
           v-if="tableTitle">
@@ -12,14 +22,15 @@
         </th>
       </tr>
       <tr class="header-row">
-        <th class="is-size-7 width-45px" v-if="showCheckboxColumn">
+        <th class="is-size-7 width-45px"
+            v-if="showCheckboxColumn">
           <div class="field is-grouped is-grouped-centered">
-              <input type="checkbox"
-                      title="Select all rows"
-                      ref="check-box"
-                      :checked="(selectedArray.length === dataArrayDisplay.length) && !!dataArrayDisplay.length"
-                      class="is-small header-checkbox"
-                      @click="selectAll()" />
+            <input type="checkbox"
+                   title="Select all rows"
+                   ref="check-box"
+                   :checked="(selectedArray.length === dataArrayDisplay.length) && !!dataArrayDisplay.length"
+                   class="is-small header-checkbox"
+                   @click="selectAll()"/>
           </div>
         </th>
         <th v-for="(col, index) in columns"
@@ -29,12 +40,12 @@
             @click="sortColumn(col)">
           <div v-if="col.isSortable">
             <div class="arrow-wrapper">
-                          <span class="arrow arrow-asc"
-                                :class="{'is-active': sortColumnTitle === col.title && sortDirection === 'asc'}"/>
+              <span class="arrow arrow-asc"
+                    :class="{'is-active': sortColumnTitle === col.title && sortDirection === 'asc'}"/>
             </div>
             <div class="arrow-wrapper">
-                          <span class="arrow arrow-desc"
-                                :class="{'is-active': sortColumnTitle === col.title && sortDirection === 'desc'}"/>
+              <span class="arrow arrow-desc"
+                    :class="{'is-active': sortColumnTitle === col.title && sortDirection === 'desc'}"/>
             </div>
           </div>
           <span>
@@ -61,7 +72,7 @@
                  id="dropdown-menu"
                  role="menubar">
               <div class="dropdown-content py-0"
-              :class="showCheckboxColumn? 'width-130px' : 'width-100px'">
+                   :class="showCheckboxColumn? 'width-130px' : 'width-100px'">
                 <button class="button is-size-7 filter-toggle dropdown-item"
                         :class="{'is-active': filtersVisible }"
                         title="Filter table data"
@@ -94,7 +105,8 @@
       </tr>
       <tr class="search-row header-row"
           v-if="filtersVisible">
-        <th class="is-size-7 width-50px" v-if="showCheckboxColumn">
+        <th class="is-size-7 width-50px"
+            v-if="showCheckboxColumn">
         </th>
         <th class="control has-icons-right"
             v-for="(col, index) in columns"
@@ -120,22 +132,23 @@
           @click="rowClickable && rowClicked(row.id)"
           :class="{'is-clickable': rowClickable}"
           class="data-row">
-        <td class="is-size-7" v-if="showCheckboxColumn">
+        <td class="is-size-7"
+            v-if="showCheckboxColumn">
           <div class="field is-grouped is-grouped-centered">
-              <input type="checkbox"
-                      title="Checkbox"
-                      :checked="selectedArray.includes(row.id)"
-                      :id="row.id"
-                      :ref="row.id"
-                      class="is-small row-checkbox"
-                      @change="rowSelected(row.id)" />
+            <input type="checkbox"
+                   title="Checkbox"
+                   :checked="selectedArray.includes(row.id)"
+                   :id="row.id"
+                   :ref="row.id"
+                   class="is-small row-checkbox"
+                   @change="rowSelected(row.id)"/>
           </div>
         </td>
         <td v-for="(col, index) in columns"
             :key="index"
-            :title="row[col.title]"
-        class="data-cell">
-          <div class="is-size-7 data-cell-content"
+            class="data-cell"
+            :class="verticalAlignTop ? 'vertical-align-top' : 'vertical-align-middle'">
+          <div class="is-size-7"
                :class="col.classes">
             <span v-if="col.displayFunction"
                   v-html="col.displayFunction(row)"
@@ -228,6 +241,7 @@ export default defineComponent({
     rowClickable: Boolean,
     showRowButton: Boolean,
     showSecondRowButton: Boolean,
+    verticalAlignTop: Boolean,
     rowButtonTitle: String,
     rowButtonClass: String,
     rowButtonIcon: String,
@@ -235,6 +249,7 @@ export default defineComponent({
     secondRowButtonClass: String,
     secondRowButtonIcon: String,
     tableTitle: String,
+    isSortByOriginalValue: Boolean,
     rowsPerPage: {
       type: Number,
       default: 10,
@@ -318,22 +333,22 @@ export default defineComponent({
       return this.data.filter((item: GenericObject) => {
         const keys = Object.keys(this.filter)
         return _.reduce(
-            keys,
-            (match: boolean, key: string) => {
-              let getFilterValue: ColumnOptions['displayFunction']
-              const filterColumn = this.columns.find((column) => {
-                return column.title === key
-              })
-              if (filterColumn.displayFunction) {
-                getFilterValue = filterColumn.displayFunction
-              } else {
-                getFilterValue = (item: GenericObject) => {
-                  return item[filterColumn?.fieldNames[0]]?.toString() || ''
-                }
+          keys,
+          (match: boolean, key: string) => {
+            let getFilterValue: ColumnOptions['displayFunction']
+            const filterColumn = this.columns.find((column) => {
+              return column.title === key
+            })
+            if (filterColumn.displayFunction) {
+              getFilterValue = filterColumn.displayFunction
+            } else {
+              getFilterValue = (item: GenericObject) => {
+                return item[filterColumn?.fieldNames[0]]?.toString() || ''
               }
-              const filterValue = getFilterValue(item)?.toString().toLowerCase() || ''
-              return (match && filterValue.includes(this.filter[key].toLowerCase()))
-            }, true)
+            }
+            const filterValue = getFilterValue(item)?.toString().toLowerCase() || ''
+            return (match && filterValue.includes(this.filter[key].toLowerCase()))
+          }, true)
       }).sort((a: GenericObject, b: GenericObject) => {
         let getSortValue: ColumnOptions['displayFunction']
         if (this.sortColumnDisplayFunction) {
@@ -442,7 +457,10 @@ export default defineComponent({
         this.sortDirection = 'asc'
       }
       this.sortColumnTitle = column.title
-      this.sortColumnDisplayFunction = column.displayFunction
+
+      this.sortColumnDisplayFunction = (this.isSortByOriginalValue) ? null :
+        this.sortColumnDisplayFunction = column.displayFunction
+
       this.sortColumnIsNumber = column.isNumber
     },
 
@@ -486,6 +504,7 @@ export default defineComponent({
 
 .rbz-table {
   border-collapse: separate;
+  table-layout: fixed;
 }
 
 .rbz-table .arrow-wrapper {
@@ -583,10 +602,6 @@ export default defineComponent({
 
 .rbz-table .filter-toggle:focus {
   box-shadow: none;
-}
-
-.rbz-table .data-cell {
-  vertical-align: middle;
 }
 
 .rbz-table .data-cell-content {

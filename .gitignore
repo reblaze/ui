@@ -105,6 +105,9 @@ out
 # TernJS port file
 .tern-port
 
+# JetBrains config files
+.idea
+
 # vs code config files
 .vscode
 

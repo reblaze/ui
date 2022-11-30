@@ -187,7 +187,7 @@
                     </textarea>
             </div>
           </div>
-          <!-- <div class="field">
+          <div class="field">
             <label class="label is-small">
               Certificate
             </label>
@@ -211,7 +211,7 @@
                   new one
               </a>.
             </p>
-          </div> -->
+          </div>
           <div class="field">
             <div class="field textarea-field">
               <label class="label is-small">Description</label>
@@ -435,7 +435,6 @@ import {
 import Utils from '@/assets/Utils'
 import {defineComponent} from 'vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
-import {AxiosResponse} from 'axios'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
 
@@ -478,18 +477,22 @@ export default defineComponent({
   },
   watch: {
     selectedBranch: {
-      handler: function(val, oldVal) {
+      handler: async function(val, oldVal) {
         if ((this.$route.name as string).includes('ServerGroups/config') && val && val !== oldVal) {
-          this.loadDocs()
-          this.setSelectedDataFromRouteParams()
-          // this.loadCertificates()
-          this.loadSecurityPolicies()
-          this.loadRoutingProfiles()
-          this.loadProxyTemplates()
-          this.loadMobileSDKs()
-          this.loadBackendServices()
-          this.loadContentFilterProfiles()
-          this.loadACLProfiles()
+          await this.loadDocs()
+          await this.setSelectedDataFromRouteParams()
+          // redirect to list if no data found
+          if (!this.docs?.[0]?.id || !this.selectedServerGroup) {
+            this.redirectToList()
+          }
+          await this.loadSecurityPolicies()
+          await this.loadRoutingProfiles()
+          await this.loadProxyTemplates()
+          await this.loadCertificates()
+          await this.loadMobileSDKs()
+          await this.loadBackendServices()
+          await this.loadContentFilterProfiles()
+          await this.loadACLProfiles()
         }
       },
       immediate: true,
@@ -520,20 +523,19 @@ export default defineComponent({
 
     selectedServerGroup: {
       get(): Site {
-        return this.docs[this.selectedDocIndex]
+        return (this.selectedDocIndex > -1) ? this.docs[this.selectedDocIndex] : null
       },
       set(newDoc: Site): void {
-        this.docs[this.selectedDocIndex] = newDoc
+        if (this.selectedDocIndex > -1) {
+          this.docs[this.selectedDocIndex] = newDoc
+        }
       },
     },
 
     selectedDocIndex(): number {
-      if (this.selectedDocID) {
-        return _.findIndex(this.docs, (doc) => {
-          return doc.id === this.selectedDocID
-        })
-      }
-      return 0
+      return _.findIndex(this.docs, (doc) => {
+        return doc.id === this.selectedDocID
+      })
     },
 
     serverNames: {
@@ -591,17 +593,12 @@ export default defineComponent({
           console.log('Error while attempting to load documents')
           this.docs = []
           this.isDownloadLoading = false
+          this.setLoadingDocStatus(false)
         },
       })
       this.docs = response?.data || []
       this.sortDocs()
-      if (this.docs && this.docs.length && this.docs[0].id) {
-        if (!_.find(this.docs, (doc: Site) => {
-          return doc.id === this.selectedDocID
-        })) {
-          this.selectedDocID = this.docs[0].id
-        }
-      }
+
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
     },
@@ -668,7 +665,7 @@ export default defineComponent({
       this.isForkLoading = true
       const docToAdd = this.selectedServerGroup as Site
       docToAdd.id = DatasetsUtils.generateUUID2()
-      docToAdd.name = 'Proxy Template copy no. ' + docToAdd.id
+      docToAdd.name = 'copy of ' + docToAdd.name + ' ' + docToAdd.id
 
       const docTypeText = this.titles['sites-singular']
       const successMessage = `The ${docTypeText} was duplicated.`
@@ -695,8 +692,6 @@ export default defineComponent({
       }
       const data = siteToAdd
       await this.saveChanges('POST', data, successMessage, failureMessage)
-      // this.docs.unshift(siteToAdd)
-      // this.sortDocs()
       this.loadDocs()
       this.selectedDocID = siteToAdd.id
 
@@ -723,146 +718,118 @@ export default defineComponent({
       if (!failureMessage) {
         failureMessage = `Failed while attempting to save the changes to the ${serverGroupText}.`
       }
-
-      // data.ssl_certificate = 'lets encript certificate'
       // TODO delete after we have UI for ssl certificate as it is a required string in schema
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
       this.isSaveLoading = false
       this.setLoadingDocStatus(false)
     },
 
-    // loadCertificates() {
-    //   RequestsUtils.sendReblazeRequest({
-    //     methodName: 'GET',
-    //     url: `configs/${this.selectedBranch}/d/certificates/`,
-    //     config: {headers: {'x-fields': 'id, san'}},
-    //   }).then((response: AxiosResponse<Certificate[]>) => {
-    //     if (response.data.length > 0) {
-    //       this.certificatesNames = _.sortBy(_.map(response.data, (entity) => {
-    //         return [entity.id, entity.san]
-    //       }), (e) => {
-    //         return e[1]
-    //       })
-    //     } else {
-    //       // TODO  get certificate to work
-    //       this.certificatesNames = [['need-real-data', ['www.certificate.com']]] as [string, string[]][]
-    //     }
-    //   })
-    // },
+    async loadCertificates() {
+      const response = await RequestsUtils.sendReblazeRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/certificates/`,
+        config: {headers: {'x-fields': 'id, san'}},
+      })
+      if (response.data.length > 0) {
+        this.certificatesNames = _.sortBy(_.map(response.data, (entity) => {
+          return [entity.id, entity.san]
+        }), (e) => {
+          return e[1]
+        })
+      } else {
+        // TODO  get certificate to work
+        this.certificatesNames = [['need-real-data', ['www.certificate.com']]] as [string, string[]][]
+      }
+    },
 
-    // async loadServerGroup() {
-    //   this.setLoadingDocStatus(true)
-    //   this.isDownloadLoading = true
-    //   this.selectedServerGroup = null
-    //   const response = await RequestsUtils.sendReblazeRequest({
-    //     methodName: 'GET',
-    //     url: `configs/${this.selectedBranch}/d/sites/e/${this.selectedDocID}`,
-    //     onFail: () => {
-    //       console.log(`Error while attempting to load the ${this.titles['sites-singular']}`)
-    //       this.selectedServerGroup = null
-    //       this.isDownloadLoading = false
-    //     },
-    //   })
-    //   this.selectedServerGroup = response?.data || {}
-    //   this.isDownloadLoading = false
-    //   this.setLoadingDocStatus(false)
-    // },
-
-    loadSecurityPolicies() {
-      RequestsUtils.sendRequest({
+    async loadSecurityPolicies() {
+      const response = await RequestsUtils.sendRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/securitypolicies/`,
-      }).then((response: AxiosResponse<SecurityPolicy[]>) => {
-        this.securityPolicies = response.data
-        this.securityPoliciesNames = _.sortBy(_.map(response.data, (entity) => {
-          return [entity.id, entity.name]
-        }), (e) => {
-          return e[1]
-        })
+      })
+      this.securityPolicies = response?.data
+      this.securityPoliciesNames = _.sortBy(_.map(response.data, (entity) => {
+        return [entity.id, entity.name]
+      }), (e) => {
+        return e[1]
       })
     },
 
-    loadRoutingProfiles() {
-      RequestsUtils.sendReblazeRequest({
+    async loadRoutingProfiles() {
+      const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/routing-profiles/`,
-      }).then((response: AxiosResponse<RoutingProfile[]>) => {
-        this.routingProfiles = response.data
-        this.routingProfilesNames = _.sortBy(_.map(response.data, (entity) => {
-          return [entity.id, entity.name]
-        }), (e) => {
-          return e[1]
-        })
+      })
+      this.routingProfiles = response?.data
+      this.routingProfilesNames = _.sortBy(_.map(response.data, (entity) => {
+        return [entity.id, entity.name]
+      }), (e) => {
+        return e[1]
       })
     },
 
-    loadProxyTemplates() {
-      RequestsUtils.sendReblazeRequest({
+    async loadProxyTemplates() {
+      const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/proxy-templates/`,
         config: {headers: {'x-fields': 'id, name'}},
-      }).then((response: AxiosResponse<ProxyTemplate[]>) => {
-        this.proxyTemplatesNames = _.sortBy(_.map(response.data, (entity) => {
-          return [entity.id, entity.name]
-        }), (e) => {
-          return e[1]
-        })
+      })
+      this.proxyTemplatesNames = _.sortBy(_.map(response.data, (entity) => {
+        return [entity.id, entity.name]
+      }), (e) => {
+        return e[1]
       })
     },
 
-    loadMobileSDKs() {
-      RequestsUtils.sendReblazeRequest({
+    async loadMobileSDKs() {
+      const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/mobile-sdks/`,
         config: {headers: {'x-fields': 'id, name'}},
-      }).then((response: AxiosResponse<MobileSDK[]>) => {
-        this.mobileSDKsNames = _.sortBy(_.map(response.data, (entity) => {
-          return [entity.id, entity.name]
-        }), (e) => {
-          return e[1]
-        })
+      })
+      this.mobileSDKsNames = _.sortBy(_.map(response.data, (entity) => {
+        return [entity.id, entity.name]
+      }), (e) => {
+        return e[1]
       })
     },
 
-    loadBackendServices() {
-      RequestsUtils.sendReblazeRequest({
+    async loadBackendServices() {
+      const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/backends/`,
         config: {headers: {'x-fields': 'id, name'}},
-      }).then((response: AxiosResponse<BackendService[]>) => {
-        this.backendServicesNames = _.sortBy(_.map(response.data, (entity) => {
-          return [entity.id, entity.name]
-        }), (e) => {
-          return e[1]
-        })
+      })
+      this.backendServicesNames = _.sortBy(_.map(response.data, (entity) => {
+        return [entity.id, entity.name]
+      }), (e) => {
+        return e[1]
       })
     },
 
-    loadContentFilterProfiles() {
-      RequestsUtils.sendRequest({
+    async loadContentFilterProfiles() {
+      const response = await RequestsUtils.sendRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/contentfilterprofiles/`,
         config: {headers: {'x-fields': 'id, name'}},
-      }).then((response: AxiosResponse<ContentFilterProfile[]>) => {
-        this.contentFilterProfilesNames = _.sortBy(_.map(response.data, (entity) => {
-          return [entity.id, entity.name]
-        }), (e) => {
-          return e[1]
-        })
+      })
+      this.contentFilterProfilesNames = _.sortBy(_.map(response.data, (entity) => {
+        return [entity.id, entity.name]
+      }), (e) => {
+        return e[1]
       })
     },
 
-    loadACLProfiles() {
-      RequestsUtils.sendRequest({
+    async loadACLProfiles() {
+      const response = await RequestsUtils.sendRequest({
         methodName: 'GET',
         url: `configs/${this.selectedBranch}/d/aclprofiles/`,
         config: {headers: {'x-fields': 'id, name'}},
-      }).then((response: AxiosResponse<ACLProfile[]>) => {
-        this.aclProfilesNames = _.sortBy(_.map(response.data, (entity) => {
-          return [entity.id, entity.name]
-        }), (e) => {
-          return e[1]
-        })
+      })
+      this.aclProfilesNames = _.sortBy(_.map(response.data, (entity) => {
+        return [entity.id, entity.name]
+      }), (e) => {
+        return e[1]
       })
     },
 

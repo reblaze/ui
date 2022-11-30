@@ -225,7 +225,6 @@ export default defineComponent({
     return {
       cloudPhases: ['request', 'response'] as EdgeFunctionsPhaseType[],
       titles: DatasetsUtils.titles,
-      selectedEdgeFunction: null as EdgeFunction,
       docs: [] as unknown as EdgeFunction[],
       selectedDocID: null,
 
@@ -248,9 +247,11 @@ export default defineComponent({
       handler: async function(val, oldVal) {
         if ((this.$route.name as string).includes('EdgeFunctions/config') && val && val !== oldVal) {
           await this.loadDocs()
-          await this.sortDocs()
           await this.setSelectedDataFromRouteParams()
-          await this.loadEdgeFunction()
+          // redirect to list if no data found
+          if (!this.docs?.[0]?.id || !this.selectedEdgeFunction) {
+            this.redirectToList()
+          }
           await this.loadReferencedEdgeFunctionsDocsIDs()
         }
       },
@@ -266,12 +267,9 @@ export default defineComponent({
     ...mapStores(useBranchesStore),
 
     selectedDocIndex(): number {
-      if (this.selectedDocID) {
-        return _.findIndex(this.docs, (doc) => {
-          return doc.id === this.selectedDocID
-        })
-      }
-      return 0
+      return _.findIndex(this.docs, (doc) => {
+        return doc.id === this.selectedDocID
+      })
     },
 
     isDocReferenced(): boolean {
@@ -288,8 +286,16 @@ export default defineComponent({
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
       return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/cloud-functions/e/${this.selectedDocID}/`
     },
+
+    selectedEdgeFunction: {
+      get(): EdgeFunction {
+        return this.selectedDocIndex > -1 ? this.docs[this.selectedDocIndex] : null
+      },
+      set(newDoc: EdgeFunction): void {
+        this.docs[this.selectedDocIndex] = newDoc
+      },
+    },
   },
-  emits: ['update:selectedDoc'],
   methods: {
     async goToRoute() {
       const newRoute = `/${this.selectedBranch}/cloud-functions/config/${this.selectedDocID}`
@@ -303,7 +309,6 @@ export default defineComponent({
     async setSelectedDataFromRouteParams() {
       this.setLoadingDocStatus(true)
       this.selectedDocID = this.$route.params?.doc_id?.toString()
-      await this.loadEdgeFunction()
       this.setLoadingDocStatus(false)
     },
 
@@ -376,14 +381,7 @@ export default defineComponent({
       })
       this.docs = response?.data || []
       this.sortDocs()
-      if (this.docs && this.docs.length && this.docs[0].id) {
-        if (!_.find(this.docs, (doc: EdgeFunction) => {
-          return doc.id === this.selectedDocID
-        })) {
-          this.selectedDocID = this.docs[0].id
-        }
-        this.loadEdgeFunction()
-      }
+
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
     },
@@ -393,20 +391,12 @@ export default defineComponent({
       return factory && factory()
     },
 
-    async loadEdgeFunction() {
-      this.setLoadingDocStatus(true)
-      this.isDownloadLoading = true
-      this.selectedEdgeFunction = this.docs.find((cloud: EdgeFunction) => cloud.id === this.selectedDocID)
-      this.isDownloadLoading = false
-      this.setLoadingDocStatus(false)
-    },
-
     async forkDoc() {
       this.setLoadingDocStatus(true)
       this.isForkLoading = true
       const docToAdd = _.cloneDeep(this.selectedEdgeFunction) as EdgeFunction
-      docToAdd.name = 'copy of ' + docToAdd.name
       docToAdd.id = DatasetsUtils.generateUUID2()
+      docToAdd.name = 'copy of ' + docToAdd.name + ' ' + docToAdd.id
 
       const docTypeText = this.titles['cloud-functions-singular']
       const successMessage = `The ${docTypeText} was duplicated.`
@@ -419,7 +409,7 @@ export default defineComponent({
     async addNewEdgeFunction(cloudFunctionToAdd?: EdgeFunction, successMessage?: string, failureMessage?: string) {
       this.setLoadingDocStatus(true)
       this.isNewLoading = true
-      this.selectedEdgeFunction = null
+
       if (!cloudFunctionToAdd) {
         cloudFunctionToAdd = this.newEdgeFunction()
       }
@@ -432,9 +422,8 @@ export default defineComponent({
       }
       const data = cloudFunctionToAdd
       await this.saveChanges('POST', data, successMessage, failureMessage)
-      this.docs.unshift(cloudFunctionToAdd)
+      this.loadDocs()
       this.selectedDocID = cloudFunctionToAdd.id
-      this.sortDocs()
 
       this.goToRoute()
       this.isNewLoading = false

@@ -164,7 +164,7 @@ import {SecurityPolicy, SecurityPolicyEntryMatch} from '@/types'
 
 
 export default defineComponent({
-  name: 'SecurityPolicyConnections',
+  name: 'SecurityPoliciesConnections',
 
   props: {
     selectedDocType: String,
@@ -196,8 +196,20 @@ export default defineComponent({
       immediate: true,
       deep: true,
     },
+    connectedSecurityPoliciesEntries: {
+      handler: function() {
+        this.havePoliciesConnections = !!this.connectedSecurityPoliciesEntries.length
+      },
+      immediate: true,
+    },
   },
   computed: {
+    havePoliciesConnections(): boolean {
+      const connection = !!this.connectedSecurityPoliciesEntries.length
+      this.emitConnections(connection)
+      return connection
+    },
+
     newSecurityPolicyConnections(): SecurityPolicy[] {
       return this.securityPolicies.filter((securityPolicy) => {
         return !securityPolicy.map.every((securityPolicyEntry) => {
@@ -215,10 +227,14 @@ export default defineComponent({
       })
     },
   },
-  emits: ['go-to-route', 'connected'],
+  emits: ['go-to-route', 'have-policies-connections'],
   methods: {
     referToSecurityPolicy(id: string) {
       this.$emit('go-to-route', `/${this.selectedBranch}/securitypolicies/config/${id}`)
+    },
+
+    emitConnections(connect: boolean) {
+      this.$emit('have-policies-connections', connect)
     },
 
     openNewSecurityPolicyConnection() {
@@ -284,8 +300,7 @@ export default defineComponent({
       RequestsUtils.sendRequest({methodName, url: urlTrail, data: doc, successMessage, failureMessage}).then(() => {
         this.getConnectedSecurityPoliciesEntries()
       })
-      console.log('cInput true')
-      this.$emit('connected', true)
+      this.$emit('have-policies-connections', true)
     },
 
     removeSecurityPolicyConnection(id: SecurityPolicy['id'], entryMatch: SecurityPolicyEntryMatch['match']) {
@@ -309,9 +324,8 @@ export default defineComponent({
         this.setEntryDeleteIndex(-1)
         this.getConnectedSecurityPoliciesEntries()
       })
-      // const mapEntrySize = _.filter
       console.log('cInput del', mapEntry['limit_ids'].length > 1)
-      this.$emit('connected', mapEntry['limit_ids'].length > 1)
+      this.$emit('have-policies-connections', mapEntry['limit_ids'].length > 1)
     },
 
     loadSecurityPolicies() {

@@ -68,9 +68,9 @@ export default defineComponent({
   name: 'SideMenu',
   data() {
     const swaggerURL = `${location.protocol}//${location.hostname}:30000/api/v3/`
-    const kibanaURL = `${location.protocol}//${location.hostname}:5601/app/discover`
+    // const kibanaURL = `${location.protocol}//${location.hostname}:5601/app/discover`
     const grafanaURL = `${location.protocol}//${location.hostname}:30300/`
-    const prometheusURL = `${location.protocol}//${location.hostname}:9090/`
+    // const prometheusURL = `${location.protocol}//${location.hostname}:9090/`
     const splitVersion = packageJson.version.split('.')
     const docsVersion = `${splitVersion[0]}.${splitVersion[1]}`
 
@@ -84,15 +84,15 @@ export default defineComponent({
 
       // Default URLs
       defaultSwaggerURL: swaggerURL,
-      defaultKibanaURL: kibanaURL,
+      // defaultKibanaURL: kibanaURL,
       defaultGrafanaURL: grafanaURL,
-      defaultPrometheusURL: prometheusURL,
+      // defaultPrometheusURL: prometheusURL,
 
       // Actual URLs
       swaggerURL: swaggerURL,
-      kibanaURL: kibanaURL,
+      // kibanaURL: kibanaURL,
       grafanaURL: grafanaURL,
-      prometheusURL: prometheusURL,
+      // prometheusURL: prometheusURL,
     }
   },
   watch: {
@@ -128,32 +128,32 @@ export default defineComponent({
           header: 'Analytics',
         },
         {
-          href: '/dashboard',
+          href: `/${this.selectedBranch?.id}/dashboard`,
           title: 'Dashboard',
         },
-        {
-          href: this.kibanaURL,
-          title: 'Kibana',
-          external: true,
-        },
+        // {
+        //   href: this.kibanaURL,
+        //   title: 'Kibana',
+        //   external: true,
+        // },
         {
           href: this.grafanaURL,
           title: 'Grafana',
           external: true,
         },
-        {
-          href: this.prometheusURL,
-          title: 'Prometheus',
-          external: true,
-        },
-        {
-          href: '/premium',
-          title: 'Premium',
-        },
         // {
-        //   href: '/events-log',
-        //   title: 'Events Log',
+        //   href: this.prometheusURL,
+        //   title: 'Prometheus',
+        //   external: true,
         // },
+        {
+          href: `/${this.selectedBranch?.id}/events-log`,
+          title: 'Events Log',
+        },
+        {
+          href: `/${this.selectedBranch?.id}/dns-records`,
+          title: 'DNS Records',
+        },
         // ########
         // Security
         // ########
@@ -203,12 +203,12 @@ export default defineComponent({
           title: 'Dynamic Rules',
         },
         {
-          href: '/quarantined',
+          href: `/${this.selectedBranch?.id}/quarantined`,
           title: 'Quarantined',
         },
         {
           href: `/${this.selectedBranch?.id}/mobile-sdks`,
-          title: 'Mobile SDKs',
+          title: 'Mobile SDK',
         },
         // ##############
         // SaaS Settings
@@ -221,6 +221,10 @@ export default defineComponent({
           title: 'Server Groups',
         },
         {
+          href: `/${this.selectedBranch?.id}/backend-services`,
+          title: 'Backend Services',
+        },
+        {
           href: `/${this.selectedBranch?.id}/routing-profiles`,
           title: 'Routing Profiles',
         },
@@ -231,10 +235,6 @@ export default defineComponent({
         {
           href: `/${this.selectedBranch?.id}/cloud-functions`,
           title: 'Edge Functions',
-        },
-        {
-          href: `/${this.selectedBranch?.id}/backend-services`,
-          title: 'Backend Services',
         },
         // {
         //   href: `/${this.selectedBranch?.id}/ssl`,
@@ -251,7 +251,7 @@ export default defineComponent({
           title: 'Version Control',
         },
         {
-          href: '/system-db',
+          href: `/${this.selectedBranch?.id}/system-db`,
           title: 'System DB',
         },
         {
@@ -265,7 +265,7 @@ export default defineComponent({
           header: 'Help',
         },
         {
-          href: '/support',
+          href: `/${this.selectedBranch?.id}/support`,
           title: 'Support',
         },
         {
@@ -304,12 +304,16 @@ export default defineComponent({
       })
       const systemDBData = response?.data
       this.swaggerURL = systemDBData?.links?.swagger_url || this.defaultSwaggerURL
-      this.kibanaURL = systemDBData?.links?.kibana_url || this.defaultKibanaURL
+      // this.kibanaURL = systemDBData?.links?.kibana_url || this.defaultKibanaURL
       this.grafanaURL = systemDBData?.links?.grafana_url || this.defaultGrafanaURL
-      this.prometheusURL = systemDBData?.links?.prometheus_url || this.defaultPrometheusURL
+      // this.prometheusURL = systemDBData?.links?.prometheus_url || this.defaultPrometheusURL
     },
   },
   async mounted() {
+    this.branches = await this.branchesStore.list
+    await this.loadLinksFromDB()
+  },
+  async updated() {
     this.branches = await this.branchesStore.list
     await this.loadLinksFromDB()
   },

@@ -327,7 +327,7 @@
                  :key="section.sectionType"
                  :class="`${section.sectionType}-section`"
                  v-show="currentSection === section.sectionType">
-              <div class="columns section-inputs-wrapper">
+              <div class="columns section-inputs-wrapper" v-if="(section.sectionType !== 'allsections')">
                 <div class="column is-4">
                   <div class="field">
                     <label class="label is-small">Max Length</label>
@@ -355,8 +355,6 @@
                              @change="emitDocUpdate"/>
                     </div>
                   </div>
-                </div>
-                <div class="column is-4">
                 </div>
               </div>
               <div class="section-constraints-wrapper my-5">
@@ -845,19 +843,14 @@ export default defineComponent({
       get: function(): string {
         if (this.localDoc.tags && this.localDoc.tags.length > 0) {
           return this.localDoc.tags.join(' ')
+        } else {
+          return ''
         }
-        this.$emit('tags-invalid', true)
-        return ''
       },
       set: function(tags: string): void {
         this.localDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
           return tag.trim()
         }) : []
-        if (tags.trim() === '' || tags.length < 3 || !!_.size(this.duplicateTags)) {
-          this.$emit('tags-invalid', true)
-        } else {
-          this.$emit('tags-invalid', false)
-        }
         this.emitDocUpdate()
       },
     },
