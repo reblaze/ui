@@ -228,12 +228,12 @@
               @click="generateCertificate()">
               Generate
             </button>
-            <!-- TODO: Generate&Replace button is disabled for now <button class="button is-small new-sequence-button"
+            <button class="button is-small new-sequence-button"
               :class="{'is-loading': isDownloadLoading}"
               data-qa="new-sequence-btn"
               @click="generateCertificate(selectedServerGroup.ssl_certificate)">
               Generate & replace
-            </button> -->
+            </button>
             </div>
           </div>
         </div>
