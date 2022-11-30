@@ -587,7 +587,7 @@ export default defineComponent({
         url = `configs/${this.selectedBranch}/d/certificates/e/${DatasetsUtils.generateUUID2()}` + queryParameters
       } else {
         this.isGenerateAndReplaceLoading = true
-        successMessage = `The ${certificateText} was generated and replaced.`
+        successMessage = `The ${certificateText} was generated & replaced.`
         failureMessage = `Failed while attempting to generate & replace the ${certificateText}.`
         url = `configs/${this.selectedBranch}/d/certificates/e/${certificateId}` + queryParameters
       }
