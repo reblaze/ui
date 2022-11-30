@@ -289,7 +289,7 @@ export default defineComponent({
 
     selectedEdgeFunction: {
       get(): EdgeFunction {
-        return (this.docs && this.selectedDocIndex) ? this.docs[this.selectedDocIndex] : null
+        return this.selectedDocIndex > -1 ? this.docs[this.selectedDocIndex] : null
       },
       set(newDoc: EdgeFunction): void {
         this.docs[this.selectedDocIndex] = newDoc

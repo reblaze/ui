@@ -22,7 +22,7 @@
           <div class="field is-grouped">
             <div class="control search-wrapper">
               <input class="input is-small is-fullwidth filter-input"
-                     placeholder="Filters, comma separated. Available filters: `proxy`, `appid`, and `profile`."
+                     placeholder="Filters, separated by a comma."
                      v-model="searchFilter"/>
             </div>
             <p class="control">
