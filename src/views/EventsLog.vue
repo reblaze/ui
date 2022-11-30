@@ -252,7 +252,13 @@ export default defineComponent({
             op: operation,
           }
           // Nested check
-          const isNested = _.some(['args', 'cookies', 'headers', 'proxy'], (operatorName) => {
+          const isNested = _.some([
+            'args',
+            'cookies',
+            'curiesession_ids',
+            'headers',
+            'proxy',
+          ], (operatorName) => {
             return operator.startsWith(operatorName)
           })
           if (isNested) {

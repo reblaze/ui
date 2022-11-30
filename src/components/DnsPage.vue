@@ -5,6 +5,7 @@
       <rbz-table :columns="columns"
                  :data="dnsRecords"
                  :vertical-align-top="true"
+                 :show-menu-column="true"
                  :show-filter-button="true">
       </rbz-table>
     </div>
@@ -39,7 +40,8 @@ export default defineComponent({
           fieldNames: ['name'],
           isSortable: true,
           isSearchable: true,
-          classes: 'ellipsis width-300px ',
+          classes: 'width-300px',
+          cellContentClasses: 'ellipsis',
         },
         {
           title: 'Type',
@@ -47,6 +49,7 @@ export default defineComponent({
           isSortable: true,
           isSearchable: true,
           classes: 'width-100px',
+          cellContentClasses: 'ellipsis',
         },
         {
           title: 'TTL',
@@ -63,7 +66,7 @@ export default defineComponent({
           },
           isSortable: true,
           isSearchable: true,
-          classes: 'ellipsis multi-line',
+          cellContentClasses: 'multi-line ellipsis',
         },
       ] as ColumnOptions[],
       dnsRecords: [] as undefined as DnsRecord[],
@@ -103,10 +106,7 @@ export default defineComponent({
 .multi-line {
   height: fit-content;
   max-height: fit-content;
-  max-width: 300px;
   min-height: 150px;
-  min-width: 250px;
-  width: 250px;
 }
 
 </style>
