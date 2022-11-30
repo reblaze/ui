@@ -1,7 +1,7 @@
 <template>
   <div class="card-content">
     <div class="content"
-          v-if="quarantinedData && !loadingDocCounter">
+         v-if="quarantinedData && !loadingDocCounter">
       <rbz-table :columns="columns"
                  :data="quarantinedData"
                  :default-sort-column-index="1"
@@ -14,20 +14,20 @@
                  :show-checkbox-column="true"
                  @select-array="updateSelected"
                  @row-button-clicked="deleteQuarantinedElement">
-                <template #menu>
-                  <button class="button is-size-7 has-text-danger delete-selected-button dropdown-item"
-                      title="Delete selected"
-                      :class="{'disabled': !selectedArray || selectedArray.length === 0 }"
-                      :disabled="!selectedArray || selectedArray.length === 0"
-                      @click.stop="deleteSelectedRows">
-                    <span class="icon is-small">
-                      <i class="fas fa-trash"></i>
-                    </span>
-                    <span>
-                      Delete Selected
-                    </span>
-                  </button>
-                </template>
+        <template #menu>
+          <button class="button is-size-7 has-text-danger delete-selected-button dropdown-item"
+                  title="Delete selected"
+                  :class="{'disabled': !selectedArray || selectedArray.length === 0 }"
+                  :disabled="!selectedArray || selectedArray.length === 0"
+                  @click.stop="deleteSelectedRows">
+            <span class="icon is-small">
+              <i class="fas fa-trash"></i>
+            </span>
+            <span>
+              Delete Selected
+            </span>
+          </button>
+        </template>
       </rbz-table>
     </div>
     <div class="content no-data-wrapper"
@@ -65,21 +65,22 @@ export default defineComponent({
           fieldNames: ['target'],
           isSortable: true,
           isSearchable: true,
-          classes: 'ellipsis ',
+          classes: 'width-130px',
+          cellContentClasses: 'ellipsis',
         },
         {
           title: 'Value',
           fieldNames: ['value'],
           isSortable: true,
           isSearchable: true,
-          classes: 'ellipsis width-90px',
+          cellContentClasses: 'ellipsis',
         },
         {
           title: 'Count',
           fieldNames: ['count'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-50px',
+          classes: 'width-80px',
         },
         {
           title: 'First Added',
@@ -92,6 +93,7 @@ export default defineComponent({
           isSortable: true,
           isSearchable: true,
           classes: 'width-150px',
+          cellContentClasses: 'ellipsis',
         },
         {
           title: 'Last Seen',
@@ -104,13 +106,14 @@ export default defineComponent({
           isSortable: true,
           isSearchable: true,
           classes: 'width-150px',
+          cellContentClasses: 'ellipsis',
         },
         {
           title: 'Expires',
           fieldNames: ['expires'],
           isSortByOriginalValue: true,
           displayFunction: (item: Quarantined) => {
-            const dynamicRules: {id: string, name: string, ttl: number} =
+            const dynamicRules: { id: string, name: string, ttl: number } =
               _.find(this.dynamicRulesNames, (dynamicRule) => {
                 return dynamicRule.id === item.rule_id
               })
@@ -122,19 +125,21 @@ export default defineComponent({
           isSortable: true,
           isSearchable: true,
           classes: 'width-150px',
+          cellContentClasses: 'ellipsis',
         },
         {
           title: 'Dynamic Rule',
           fieldNames: ['rule_id'],
           displayFunction: (item: Quarantined) => {
-            const dynamicRules: {id: string, name: string} = _.find(this.dynamicRulesNames, (dynamicRule) => {
+            const dynamicRules: { id: string, name: string } = _.find(this.dynamicRulesNames, (dynamicRule) => {
               return dynamicRule.id === item.rule_id
             })
             return dynamicRules?.name.trim() || ''
           },
           isSortable: true,
           isSearchable: true,
-          classes: 'width-110px ellipsis',
+          classes: 'width-110px',
+          cellContentClasses: 'ellipsis',
         },
         {
           title: 'Tags',
@@ -144,12 +149,13 @@ export default defineComponent({
             return item.tags?.join('\n')
           },
           isSearchable: true,
-          classes: 'vertical-scroll ellipsis width-110px',
+          classes: 'width-110px',
+          cellContentClasses: 'vertical-scroll ellipsis',
         },
       ] as ColumnOptions[],
       quarantinedData: null as Quarantined[],
       selectedArray: [] as string[],
-      dynamicRulesNames: [] as {id: string, name: string}[],
+      dynamicRulesNames: [] as { id: string, name: string }[],
       loadingDocCounter: 0,
     }
   },
@@ -205,15 +211,15 @@ export default defineComponent({
       const config = {headers: {'provider': 'mongodb'}}
       const data = {
         'query':
-            {
-              'collection': 'dynamic_rules_violations_active',
-              'execute': [
-                {
-                  'func': 'find',
-                  'options': {'filter': {'config': this.selectedBranch}},
-                },
-              ],
-            },
+          {
+            'collection': 'dynamic_rules_violations_active',
+            'execute': [
+              {
+                'func': 'find',
+                'options': {'filter': {'config': this.selectedBranch}},
+              },
+            ],
+          },
       }
       const response = await RequestsUtils.sendDataLayerRequest({methodName: 'POST', url, data, config})
 
@@ -229,15 +235,15 @@ export default defineComponent({
       const config = {headers: {'provider': 'mongodb'}}
       const data = {
         'query':
-            {
-              'collection': 'dynamic_rules_violations_active',
-              'execute': [
-                {
-                  'func': 'delete_many',
-                  'options': {'filter': {'_id': {'$oid': id}}},
-                },
-              ],
-            },
+          {
+            'collection': 'dynamic_rules_violations_active',
+            'execute': [
+              {
+                'func': 'delete_many',
+                'options': {'filter': {'_id': {'$oid': id}}},
+              },
+            ],
+          },
       }
       await RequestsUtils.sendDataLayerRequest({methodName: 'POST', url, data, config})
       this.loadQuarantinedData()
@@ -251,15 +257,15 @@ export default defineComponent({
       const config = {headers: {'provider': 'mongodb'}}
       const data = {
         'query':
-            {
-              'collection': 'dynamic_rules_violations_active',
-              'execute': [
-                {
-                  'func': 'delete_many',
-                  'options': {'filter': {'_id': {'$in': toDeleteArray}}},
-                },
-              ],
-            },
+          {
+            'collection': 'dynamic_rules_violations_active',
+            'execute': [
+              {
+                'func': 'delete_many',
+                'options': {'filter': {'_id': {'$in': toDeleteArray}}},
+              },
+            ],
+          },
       }
       await RequestsUtils.sendDataLayerRequest({methodName: 'POST', url, data, config})
       this.loadQuarantinedData()
@@ -276,21 +282,21 @@ export default defineComponent({
 <style scoped
        lang="scss">
 
-  .delete-selected-button {
-    background-color: transparent;
-    border: 0 solid transparent;
-  }
+.delete-selected-button {
+  background-color: transparent;
+  border: 0 solid transparent;
+}
 
-  .delete-selected-button.disabled {
-    font-weight: 100;
-    opacity: 0.3;
-  }
+.delete-selected-button.disabled {
+  font-weight: 100;
+  opacity: 0.3;
+}
 
-  .delete-selected-button:hover {
-    background-color: transparent;
-    border: 0 solid transparent;
-    box-shadow: none;
-    font-weight: 200;
-  }
+.delete-selected-button:hover {
+  background-color: transparent;
+  border: 0 solid transparent;
+  box-shadow: none;
+  font-weight: 200;
+}
 
 </style>

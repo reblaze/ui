@@ -300,6 +300,7 @@ export default defineComponent({
       RequestsUtils.sendRequest({methodName, url: urlTrail, data: doc, successMessage, failureMessage}).then(() => {
         this.getConnectedSecurityPoliciesEntries()
       })
+      this.$emit('have-policies-connections', true)
     },
 
     removeSecurityPolicyConnection(id: SecurityPolicy['id'], entryMatch: SecurityPolicyEntryMatch['match']) {
@@ -323,6 +324,7 @@ export default defineComponent({
         this.setEntryDeleteIndex(-1)
         this.getConnectedSecurityPoliciesEntries()
       })
+      this.$emit('have-policies-connections', mapEntry['limit_ids'].length > 1)
     },
 
     loadSecurityPolicies() {

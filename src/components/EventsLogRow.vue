@@ -976,9 +976,7 @@ $event-row-box-horizontal-padding: 1rem;
   outline: 1px solid $color-radical-red;
 }
 
-.collapsible-card-arguments,
-.collapsible-card-cookies,
-.collapsible-card-headers {
+.collapsible-card {
   border-radius: 6px;
   box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%), 0 0 0 1px rgb(10 10 10 / 2%);
 }

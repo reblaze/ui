@@ -249,8 +249,8 @@
       <security-policies-connections
           selectedDocType="ratelimits"
           :selectedDocId="localDoc.id"
-          @havePoliciesConnections="emitConnections"
           @go-to-route="emitGoToRoute"
+          @have-policies-connections="emitConnections"
           :selectedBranch="selectedBranch">
       </security-policies-connections>
     </div>

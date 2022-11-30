@@ -447,47 +447,49 @@
         </div>
       </div>
       <div class="card collapsible-card"
-             :class="{ collapsed: isTrustedSourcesCollapsed }">
-          <div class="card-content px-0 py-0">
-            <div class="media collapsible px-5 py-5 mb-0"
-                 @click="isTrustedSourcesCollapsed = !isTrustedSourcesCollapsed">
-              <div class="media-content">
-                <p class="title is-5 is-uppercase">Trusted Sources</p>
-              </div>
-              <span v-show="isTrustedSourcesCollapsed">
+           :class="{ collapsed: isTrustedSourcesCollapsed }">
+        <div class="card-content px-0 py-0">
+          <div class="media collapsible px-5 py-5 mb-0"
+               @click="isTrustedSourcesCollapsed = !isTrustedSourcesCollapsed">
+            <div class="media-content">
+              <p class="title is-5 is-uppercase">Trusted Sources</p>
+            </div>
+            <span v-show="isTrustedSourcesCollapsed">
                 <i class="fas fa-angle-down"
                    aria-hidden="true"></i>
               </span>
-              <span v-show="!isTrustedSourcesCollapsed">
+            <span v-show="!isTrustedSourcesCollapsed">
                 <i class="fas fa-angle-up"
                    aria-hidden="true"></i>
               </span>
+          </div>
+          <div class="content collapsible-content px-5 py-5">
+            <div class="content">
+              <rbz-table :columns="trusted_sources_columns"
+                         :data="trustedData"
+                         :row-button-icon="'fa-trash'"
+                         :row-button-title="'Delete'"
+                         :show-menu-column="true"
+                         override-menu-column-width-class="width-70px"
+                         :show-filter-button="true"
+                         :show-row-button="true"
+                         :show-new-button="true"
+                         :show-second-row-button="true"
+                         @row-button-clicked="openDeleteModal"
+                         @new-button-clicked="openAddNewTrustedSourceModal"
+                         @second-row-button-clicked="openEditTrustedModal"
+              >
+              </rbz-table>
             </div>
-            <div class="content collapsible-content px-5 py-5">
-                  <div class="content" >
-                    <rbz-table :columns="trusted_sources_columns"
-                                :data="trustedData"
-                                :row-button-icon="'fa-trash'"
-                                :row-button-title="'Delete'"
-                                :show-menu-column="true"
-                                :show-filter-button="true"
-                                :show-row-button="true"
-                                :show-new-button="true"
-                                :show-second-row-button="true"
-                                @row-button-clicked="openDeleteModal"
-                                @new-button-clicked="openAddNewTrustedSourceModal"
-                                @second-row-button-clicked="openEditTrustedModal"
-                                >
-                    </rbz-table>
-                </div>
-                <div class="content no-data-wrapper" v-if="!trustedData">
-                  <button class="button is-outlined is-text is-small is-loading document-loading">
-                    Loading
-                  </button>
-                </div>
+            <div class="content no-data-wrapper"
+                 v-if="!trustedData">
+              <button class="button is-outlined is-text is-small is-loading document-loading">
+                Loading
+              </button>
             </div>
           </div>
         </div>
+      </div>
       <div class="card collapsible-card"
            :class="{ collapsed: isAdvancedCollapsed }">
         <div class="card-content px-0 py-0">
@@ -550,56 +552,61 @@
       <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ documentAPIPath }}</span>
     </div>
     <div class="modal add-source is-active"
-      v-if="isAddModalVisible">
+         v-if="isAddModalVisible">
       <div class="modal-background"
-            tabindex="0"
-            @keydown.esc="closeModal">
+           tabindex="0"
+           @keydown.esc="closeModal">
         <div class="modal-card modal-position">
           <div class="modal-card-head">
             <h5 class="modal-card-title is-size-6 mb-0">
-                Add Trusted Source
+              Add Trusted Source
             </h5>
-            <button class="button is-small" @click="closeModal">X</button>
+            <button class="button is-small"
+                    @click="closeModal">X
+            </button>
           </div>
           <div class="modal-card-body">
-              <div class="field">
-                  <div class="is-small is-size-7 is-fullwidth mb-1">
-                    <span value="cidr" key="cidr">IP address</span>
-                  </div>
-                  <input
-                      class="input is-small"
-                      :class="{'is-danger': isError('ip')}"
-                      placeholder="Enter IP address"
-                      v-model="sourceToAdd.address"
-                      @input="validateIp"
-                      ref="address" />
-                  <p class="help is-danger" v-if="isError('ip')">
-                      Incorrect value: expected IP address
-                  </p>
-                  <p class="help is-danger" v-else-if="isError('duplicate')">
-                      A source with this ip address is already in the trusted sources list
-                  </p>
+            <div class="field">
+              <div class="is-small is-size-7 is-fullwidth mb-1">
+                <span>IP address</span>
               </div>
-              <div class="field">
-                  <label class="label is-small mb-1">Comment</label>
-                  <div class="control">
-                      <input
-                          class="input is-small"
-                          placeholder="Enter comment"
-                          v-model="sourceToAdd.comment" />
-                  </div>
+              <input
+                class="input is-small"
+                :class="{'is-danger': isError('ip')}"
+                placeholder="Enter IP address"
+                v-model="sourceToAdd.address"
+                @input="validateIp"
+                ref="address"/>
+              <p class="help is-danger"
+                 v-if="isError('ip')">
+                Incorrect value: expected IP address
+              </p>
+              <p class="help is-danger"
+                 v-else-if="isError('duplicate')">
+                A source with this ip address is already in the trusted sources list
+              </p>
+            </div>
+            <div class="field">
+              <label class="label is-small mb-1">Comment</label>
+              <div class="control">
+                <input
+                  class="input is-small"
+                  placeholder="Enter comment"
+                  v-model="sourceToAdd.comment"/>
               </div>
+            </div>
           </div>
           <div class="modal-card-foot modal-footer-buttons">
             <div class="buttons is-right is-fullwidth">
-              <button class="button is-small" @click="closeModal">
-                  Cancel
+              <button class="button is-small"
+                      @click="closeModal">
+                Cancel
               </button>
               <button
-                  :disabled="!ipToAddIsValid"
-                  class="button is-small"
-                  @click="saveTrustedSource">
-                  Save
+                :disabled="!ipToAddIsValid"
+                class="button is-small"
+                @click="saveTrustedSource">
+                Save
               </button>
             </div>
           </div>
@@ -607,56 +614,61 @@
       </div>
     </div>
     <div class="modal add-source is-active"
-      v-if="isEditTrustedSource">
+         v-if="isEditTrustedSource">
       <div class="modal-background"
-            tabindex="0"
-            @keydown.esc="closeModal">
+           tabindex="0"
+           @keydown.esc="closeModal">
         <div class="modal-card modal-position">
           <div class="modal-card-head">
             <h5 class="modal-card-title is-size-6 mb-0">
-                Edit Trusted Source
+              Edit Trusted Source
             </h5>
-            <button class="button is-small" @click="closeModal">X</button>
+            <button class="button is-small"
+                    @click="closeModal">X
+            </button>
           </div>
           <div class="modal-card-body">
-              <div class="field">
-                  <div class="is-small is-size-7 is-fullwidth mb-1">
-                    <span value="cidr" key="cidr">IP address</span>
-                  </div>
-                  <input
-                      class="input is-small"
-                      :class="{'is-danger': isError('ip')}"
-                      placeholder="Enter IP address"
-                      v-model="sourceToAdd.address"
-                      @input="validateIp"
-                      ref="address" />
-                  <p class="help is-danger" v-if="isError('ip')">
-                      Incorrect value: expected IP address
-                  </p>
-                  <p class="help is-danger" v-else-if="isError('duplicate')">
-                      A source with this ip address is already in the trusted sources list
-                  </p>
+            <div class="field">
+              <div class="is-small is-size-7 is-fullwidth mb-1">
+                <span>IP address</span>
               </div>
-              <div class="field">
-                  <label class="label is-small mb-1">Comment</label>
-                  <div class="control">
-                      <input
-                          class="input is-small"
-                          placeholder="Enter comment"
-                          v-model="sourceToAdd.comment" />
-                  </div>
+              <input
+                class="input is-small"
+                :class="{'is-danger': isError('ip')}"
+                placeholder="Enter IP address"
+                v-model="sourceToAdd.address"
+                @input="validateIp"
+                ref="address"/>
+              <p class="help is-danger"
+                 v-if="isError('ip')">
+                Incorrect value: expected IP address
+              </p>
+              <p class="help is-danger"
+                 v-else-if="isError('duplicate')">
+                A source with this ip address is already in the trusted sources list
+              </p>
+            </div>
+            <div class="field">
+              <label class="label is-small mb-1">Comment</label>
+              <div class="control">
+                <input
+                  class="input is-small"
+                  placeholder="Enter comment"
+                  v-model="sourceToAdd.comment"/>
               </div>
+            </div>
           </div>
           <div class="modal-card-foot modal-footer-buttons">
             <div class="buttons is-right is-fullwidth">
-              <button class="button is-small" @click="closeModal">
-                  Cancel
+              <button class="button is-small"
+                      @click="closeModal">
+                Cancel
               </button>
               <button
-                  :disabled="!ipToAddIsValid"
-                  class="button is-small"
-                  @click="saveTrustedSource">
-                  Save
+                :disabled="!ipToAddIsValid"
+                class="button is-small"
+                @click="saveTrustedSource">
+                Save
               </button>
             </div>
           </div>
@@ -664,29 +676,32 @@
       </div>
     </div>
     <div class="modal add-source is-active"
-      v-if="isDeleteModalVisible">
+         v-if="isDeleteModalVisible">
       <div class="modal-background"
-            tabindex="0"
-            @keydown.esc="closeModal">
+           tabindex="0"
+           @keydown.esc="closeModal">
         <div class="modal-card modal-position">
           <div class="modal-card-head">
             <h5 class="modal-card-title is-size-6 mb-0">
-                Delete Trusted Source
+              Delete Trusted Source
             </h5>
-            <button class="button is-small" @click="closeModal">X</button>
+            <button class="button is-small"
+                    @click="closeModal">X
+            </button>
           </div>
-          <div class="modal-card-body delete-modal" >
+          <div class="modal-card-body delete-modal">
             <span class="warning-delete">Are you sure you want to delete this trusted source?</span>
           </div>
           <div class="modal-card-foot modal-footer-buttons">
             <div class="buttons is-right is-fullwidth">
-              <button class="button is-small" @click="closeModal">
-                  Cancel
+              <button class="button is-small"
+                      @click="closeModal">
+                Cancel
               </button>
               <button
-                  class="button is-small"
-                  @click="saveTrustedSource">
-                  OK
+                class="button is-small"
+                @click="saveTrustedSource">
+                OK
               </button>
             </div>
           </div>
@@ -718,7 +733,7 @@
 </template>
 <script lang="ts">
 import RequestsUtils from '@/assets/RequestsUtils'
-import {ProxyTemplate, HttpRequestMethods} from '@/types'
+import {HttpRequestMethods, ProxyTemplate} from '@/types'
 import Utils from '@/assets/Utils'
 import {defineComponent} from 'vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
@@ -778,14 +793,14 @@ export default defineComponent({
           fieldNames: ['address'],
           isSortable: true,
           isSearchable: true,
-          classes: 'ellipsis',
+          cellContentClasses: 'ellipsis',
         },
         {
           title: 'comment',
           fieldNames: ['comment'],
           isSortable: true,
           isSearchable: true,
-          classes: 'ellipsis',
+          cellContentClasses: 'ellipsis',
         },
       ],
       sourceToAdd: {id: 0, address: '', comment: ''} as TrustedSource,
@@ -832,8 +847,8 @@ export default defineComponent({
 
     selectedDocNotDeletable(): boolean {
       return !this.selectedProxyTemplate ||
-          this.selectedProxyTemplate.id.startsWith('__') || // Default entries
-          this.isDocReferenced
+        this.selectedProxyTemplate.id.startsWith('__') || // Default entries
+        this.isDocReferenced
     },
 
     isDocReferenced(): boolean {
@@ -887,8 +902,8 @@ export default defineComponent({
       const docName = this.docs[this.selectedDocIndex].id
       if (docName) {
         Utils.toast(
-            `Switched to document ${docName} with ID "${this.selectedDocID}".`,
-            'is-info',
+          `Switched to document ${docName} with ID "${this.selectedDocID}".`,
+          'is-info',
         )
       }
       this.goToRoute()
@@ -1081,7 +1096,7 @@ export default defineComponent({
       this.planetID = response.data.id
       this.planetName = response.data.name
       this.trustedData = response?.data?.trusted_nets?.map(
-        (trusted: {address: string, comment: string}, index: number)=> {
+        (trusted: { address: string, comment: string }, index: number) => {
           return {id: index, address: trusted.address, comment: trusted.comment}
         })
     },
@@ -1131,8 +1146,10 @@ export default defineComponent({
     },
 
     addTrustedSource() {
-      this.trustedData.push({id: this.trustedData.length,
-        address: this.sourceToAdd.address, comment: this.sourceToAdd.comment})
+      this.trustedData.push({
+        id: this.trustedData.length,
+        address: this.sourceToAdd.address, comment: this.sourceToAdd.comment,
+      })
       this.isAddModalVisible = false
     },
 
@@ -1154,8 +1171,8 @@ export default defineComponent({
 <style scoped
        lang="scss">
 
-  .modal-position {
-    margin: 300px auto;
-  }
+.modal-position {
+  margin: 300px auto;
+}
 
 </style>
