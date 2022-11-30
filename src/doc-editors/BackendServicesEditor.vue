@@ -19,14 +19,14 @@
                 </button>
               </p>
               <div class="control doc-selection-wrapper"
-                   v-if="docs.length">
+                   v-if="docIdNames.length">
                 <div class="select is-small">
                   <select v-model="selectedDocID"
                           title="Switch document ID"
                           @change="switchDocID()"
                           class="doc-selection"
                           data-qa="switch-document">
-                    <option v-for="doc in docs"
+                    <option v-for="doc in docIdNames"
                             :key="doc.id"
                             :value="doc.id">
                       {{ doc.name }}
@@ -342,7 +342,7 @@
 </template>
 <script lang="ts">
 import RequestsUtils from '@/assets/RequestsUtils'
-import {BackendService, HttpRequestMethods} from '@/types'
+import {DocumentName, BackendService, HttpRequestMethods} from '@/types'
 import Utils from '@/assets/Utils'
 import {defineComponent} from 'vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
@@ -357,6 +357,7 @@ export default defineComponent({
     return {
       titles: DatasetsUtils.titles,
       docs: [] as unknown as BackendService[],
+      docIdNames: [] as DocumentName[],
       selectedDocID: null,
       stickinessModels: backendServicesConsts.stickinessModels,
       newBackHost: {
@@ -541,11 +542,19 @@ export default defineComponent({
           this.isDownloadLoading = false
         },
       })
+      console.log('response?.data', response?.data)
       this.docs = response?.data || []
       this.sortDocs()
+      this.updateDocIdNames()
 
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
+    },
+
+    updateDocIdNames() {
+      this.docIdNames = this.docs.map((doc) => {
+        return {id: doc.id, name: doc.name}
+      })
     },
 
     newBackends(): BackendService {
@@ -612,6 +621,8 @@ export default defineComponent({
         failureMessage = `Failed while attempting to save the changes to the ${backendServiceText}.`
       }
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
+      this.updateDocIdNames()
+
       this.isSaveLoading = false
       this.setLoadingDocStatus(false)
     },

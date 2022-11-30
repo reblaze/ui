@@ -314,6 +314,11 @@ declare module CuriefenseClient {
     }[]
   }
 
+  type DocumentName = {
+    id: string
+    name: string
+  }
+
   type Certificate = {
     id: string
     cert_body: string

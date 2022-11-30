@@ -19,14 +19,14 @@
                 </button>
               </p>
               <div class="control doc-selection-wrapper"
-                   v-if="docs.length">
+                   v-if="docIdNames.length">
                 <div class="select is-small">
                   <select v-model="selectedDocID"
                           title="Switch document ID"
                           @change="switchDocID()"
                           class="doc-selection"
                           data-qa="switch-document">
-                          <option v-for="doc in docs"
+                          <option v-for="doc in docIdNames"
                             :key="doc.id"
                             :value="doc.id">
                       {{ doc.name }}
@@ -415,7 +415,7 @@ import RequestsUtils from '@/assets/RequestsUtils'
 import Utils from '@/assets/Utils'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import {defineComponent} from 'vue'
-import {MobileSDK, HttpRequestMethods} from '@/types'
+import {DocumentName, MobileSDK, HttpRequestMethods} from '@/types'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
 
@@ -427,6 +427,7 @@ export default defineComponent({
     return {
       titles: DatasetsUtils.titles,
       docs: [] as unknown as MobileSDK[],
+      docIdNames: [] as DocumentName[],
       selectedDocID: null,
 
       // App Signatures
@@ -596,9 +597,16 @@ export default defineComponent({
       })
       this.docs = response?.data || []
       this.sortDocs()
+      this.updateDocIdNames()
 
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
+    },
+
+    updateDocIdNames() {
+      this.docIdNames = this.docs.map((doc) => {
+        return {id: doc.id, name: doc.name}
+      })
     },
 
     newMobileSDK(): MobileSDK {
@@ -665,6 +673,8 @@ export default defineComponent({
         failureMessage = `Failed while attempting to save the changes to the ${mobileSDKText}.`
       }
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
+      this.updateDocIdNames()
+
       this.isSaveLoading = false
       this.setLoadingDocStatus(false)
     },

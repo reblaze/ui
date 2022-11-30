@@ -17,7 +17,8 @@
                   <span> Return To List </span>
                 </button>
               </p>
-              <div class="control doc-selection-wrapper" v-if="docs.length">
+              <div class="control doc-selection-wrapper"
+                v-if="docIdNames.length">
                 <div class="select is-small">
                   <select
                       v-model="selectedDocID"
@@ -26,7 +27,9 @@
                       class="doc-selection"
                       :class="{'is-loading': isNewLoading}"
                       data-qa="switch-document">
-                    <option v-for="doc in docs" :key="doc.id" :value="doc.id">
+                    <option v-for="doc in docIdNames"
+                      :key="doc.id"
+                      :value="doc.id">
                       {{ doc.name }}
                     </option>
                   </select>
@@ -348,6 +351,7 @@ import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import {
   CustomResponse,
   Dictionary,
+  DocumentName,
   DynamicRule,
   GlobalFilter,
   IncludeExcludeType,
@@ -408,6 +412,7 @@ export default defineComponent({
       localGlobalFilterDoc: null as GlobalFilter,
       duplicatedGlobalFilter: null as GlobalFilter,
       docs: [] as DynamicRule[],
+      docIdNames: [] as DocumentName[],
       globalFiltersDocs: [] as GlobalFilter[],
       selectedDocID: null,
 
@@ -560,11 +565,16 @@ export default defineComponent({
       })
       this.docs = response?.data ? _.cloneDeep(response.data) : []
       this.sortDocs()
-      // if (!this.docs?.[0]?.id || !this.selectedDynamicRule) {
-      //   this.redirectToList()
-      // }
+      this.updateDocIdNames()
+
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
+    },
+
+    updateDocIdNames() {
+      this.docIdNames = this.docs.map((doc) => {
+        return {id: doc.id, name: doc.name}
+      })
     },
 
     newDynamicRule(): DynamicRule {
@@ -720,6 +730,8 @@ export default defineComponent({
           failureMessage,
         })
       }
+      this.updateDocIdNames()
+
       this.isSaveLoading = false
       this.setLoadingDocStatus(false)
     },
@@ -734,7 +746,7 @@ export default defineComponent({
 
     async switchDocID() {
       this.setLoadingDocStatus(true)
-      const docName = this.docs[this.selectedDocIndex].name
+      const docName = this.selectedDynamicRule.name // this.docs[this.selectedDocIndex].name
       if (docName) {
         Utils.toast(
           `Switched to document ${docName} with ID "${this.selectedDocID}".`,

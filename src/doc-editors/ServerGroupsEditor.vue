@@ -19,14 +19,14 @@
                 </button>
               </p>
               <div class="control"
-                   v-if="docs.length">
+                   v-if="docIdNames.length">
                 <div class="select is-small">
                   <select v-model="selectedDocID"
                           title="Switch document ID"
                           @change="switchDocID()"
                           class="doc-selection"
                           data-qa="switch-document">
-                          <option v-for="doc in docs"
+                          <option v-for="doc in docIdNames"
                             :key="doc.id"
                             :value="doc.id">
                       {{ doc.name }}
@@ -424,13 +424,14 @@ import {
   ACLProfile,
   BackendService,
   Certificate,
-  ProxyTemplate,
   ContentFilterProfile,
+  DocumentName,
+  HttpRequestMethods,
   MobileSDK,
+  ProxyTemplate,
   RoutingProfile,
   SecurityPolicy,
   Site,
-  HttpRequestMethods,
 } from '@/types'
 import Utils from '@/assets/Utils'
 import {defineComponent} from 'vue'
@@ -445,6 +446,7 @@ export default defineComponent({
       titles: DatasetsUtils.titles,
       configs: [],
       docs: [] as unknown as Site[],
+      docIdNames: [] as DocumentName[],
       selectedDocID: null,
 
       // Loading indicators
@@ -598,9 +600,16 @@ export default defineComponent({
       })
       this.docs = response?.data || []
       this.sortDocs()
+      this.updateDocIdNames()
 
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
+    },
+
+    updateDocIdNames() {
+      this.docIdNames = this.docs.map((doc) => {
+        return {id: doc.id, name: doc.name}
+      })
     },
 
     async setSelectedDataFromRouteParams() {
@@ -720,6 +729,8 @@ export default defineComponent({
       }
       // TODO delete after we have UI for ssl certificate as it is a required string in schema
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
+      this.updateDocIdNames()
+
       this.isSaveLoading = false
       this.setLoadingDocStatus(false)
     },

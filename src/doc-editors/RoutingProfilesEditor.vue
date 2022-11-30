@@ -18,14 +18,14 @@
                   </span>
                 </button>
               </p>
-              <div class="control doc-selection-wrapper" v-if="docs.length">
+              <div class="control doc-selection-wrapper" v-if="docIdNames.length">
                 <div class="select is-small">
                   <select v-model="selectedDocID"
                           title="Switch routing profiles document ID"
                           @change="switchDocID()"
                           class="doc-selection"
                           data-qa="switch-routing-profiles-document">
-                          <option v-for="doc in docs"
+                          <option v-for="doc in docIdNames"
                             :key="doc.id"
                             :value="doc.id">
                       {{ doc.name }}
@@ -415,7 +415,8 @@
 <script lang="ts">
 import _ from 'lodash'
 import RequestsUtils from '@/assets/RequestsUtils'
-import {BackendService, EdgeFunction, HttpRequestMethods, RoutingProfile, RoutingProfileEntryLocation} from '@/types'
+import {BackendService, DocumentName, EdgeFunction, HttpRequestMethods, RoutingProfile,
+  RoutingProfileEntryLocation} from '@/types'
 import Utils from '@/assets/Utils'
 import {defineComponent} from 'vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
@@ -430,6 +431,7 @@ export default defineComponent({
       loadingDocCounter: 0,
       isDownloadLoading: false,
       docs: [] as unknown as RoutingProfile[],
+      docIdNames: [] as DocumentName[],
       selectedDocID: null,
 
       isSaveLoading: false,
@@ -649,6 +651,8 @@ export default defineComponent({
         failureMessage = `Failed while attempting to save the changes to the ${routingProfileText}.`
       }
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
+      this.updateDocIdNames()
+
       this.isSaveLoading = false
       this.setLoadingDocStatus(false)
     },
@@ -676,9 +680,16 @@ export default defineComponent({
       })
       this.docs = response?.data || []
       this.sortDocs()
+      this.updateDocIdNames()
 
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
+    },
+
+    updateDocIdNames() {
+      this.docIdNames = this.docs.map((doc) => {
+        return {id: doc.id, name: doc.name}
+      })
     },
 
     validateInput(event: Event, validator: Function | boolean) {

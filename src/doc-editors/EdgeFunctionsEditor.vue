@@ -19,14 +19,14 @@
                 </button>
               </p>
               <div class="control doc-selection-wrapper"
-                   v-if="docs.length">
+                   v-if="docIdNames.length">
                 <div class="select is-small">
                   <select v-model="selectedDocID"
                           title="Switch document ID"
                           @change="switchDocID()"
                           class="doc-selection"
                           data-qa="switch-document">
-                          <option v-for="doc in docs"
+                          <option v-for="doc in docIdNames"
                             :key="doc.id"
                             :value="doc.id">
                       {{ doc.name }}
@@ -210,7 +210,7 @@
 <script lang="ts">
 import _ from 'lodash'
 import {defineComponent} from 'vue'
-import {EdgeFunction, EdgeFunctionsPhaseType, HttpRequestMethods} from '@/types'
+import {DocumentName, EdgeFunction, EdgeFunctionsPhaseType, HttpRequestMethods} from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
@@ -226,6 +226,7 @@ export default defineComponent({
       cloudPhases: ['request', 'response'] as EdgeFunctionsPhaseType[],
       titles: DatasetsUtils.titles,
       docs: [] as unknown as EdgeFunction[],
+      docIdNames: [] as DocumentName[],
       selectedDocID: null,
 
       // Loading indicators
@@ -381,9 +382,16 @@ export default defineComponent({
       })
       this.docs = response?.data || []
       this.sortDocs()
+      this.updateDocIdNames()
 
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
+    },
+
+    updateDocIdNames() {
+      this.docIdNames = this.docs.map((doc) => {
+        return {id: doc.id, name: doc.name}
+      })
     },
 
     newEdgeFunction(): EdgeFunction {
@@ -449,6 +457,8 @@ export default defineComponent({
         failureMessage = `Failed while attempting to save the changes to the ${cloudFunctionText}.`
       }
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
+      this.updateDocIdNames()
+
       this.isSaveLoading = false
       this.setLoadingDocStatus(false)
     },
