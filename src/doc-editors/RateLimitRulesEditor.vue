@@ -251,7 +251,7 @@
           :selectedDocId="localDoc.id"
           @havePoliciesConnections="emitConnections"
           @go-to-route="emitGoToRoute"
-          @connected="emitConnections"
+          @have-policies-connections="emitConnections"
           :selectedBranch="selectedBranch">
       </security-policies-connections>
     </div>
