@@ -545,11 +545,6 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
-    sortDocs() {
-      this.docs =
-        this.docs?.length && _.sortBy(this.docs, [(doc) => doc.name.toLowerCase()])
-    },
-
     async loadDocs() {
       this.isDownloadLoading = true
       this.setLoadingDocStatus(true)
@@ -564,7 +559,6 @@ export default defineComponent({
         },
       })
       this.docs = response?.data ? _.cloneDeep(response.data) : []
-      this.sortDocs()
       this.updateDocIdNames()
 
       this.setLoadingDocStatus(false)
@@ -575,6 +569,7 @@ export default defineComponent({
       this.docIdNames = this.docs.map((doc) => {
         return {id: doc.id, name: doc.name}
       })
+      this.docIdNames = _.sortBy(this.docIdNames, [(doc) => doc.name.toLowerCase()])
     },
 
     newDynamicRule(): DynamicRule {
@@ -617,10 +612,7 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
-    async addNewDynamicRule(
-      dynamicRuleToAdd?: DynamicRule,
-      successMessage?: string,
-      failureMessage?: string,
+    async addNewDynamicRule(dynamicRuleToAdd?: DynamicRule, successMessage?: string, failureMessage?: string,
     ) {
       this.setLoadingDocStatus(true)
       this.isNewLoading = true
@@ -643,22 +635,17 @@ export default defineComponent({
         failureMessage = `Failed while attempting to create the new ${dynamicRuleText}.`
       }
       const data = dynamicRuleToAdd
-      this.selectedDocID = dynamicRuleToAdd.id // data.id
 
       await this.saveChanges('POST', data, successMessage, failureMessage)
-      this.docs.push(dynamicRuleToAdd)
-      this.sortDocs()
+      this.selectedDocID = dynamicRuleToAdd.id
 
       this.goToRoute()
       this.isNewLoading = false
       this.setLoadingDocStatus(false)
     },
 
-    async saveChanges(
-      methodName?: HttpRequestMethods,
-      data?: DynamicRule | GlobalFilter,
-      successMessage?: string,
-      failureMessage?: string,
+    async saveChanges(methodName?: HttpRequestMethods, data?: DynamicRule | GlobalFilter,
+                      successMessage?: string, failureMessage?: string,
     ) {
       this.setLoadingDocStatus(true)
       this.isSaveLoading = true
@@ -730,7 +717,7 @@ export default defineComponent({
           failureMessage,
         })
       }
-      this.updateDocIdNames()
+      this.loadDocs()
 
       this.isSaveLoading = false
       this.setLoadingDocStatus(false)
@@ -749,7 +736,7 @@ export default defineComponent({
       const docName = this.selectedDynamicRule.name // this.docs[this.selectedDocIndex].name
       if (docName) {
         Utils.toast(
-          `Switched to document ${docName} with ID "${this.selectedDocID}".`,
+          `Switched to document "${docName}" with ID: ${this.selectedDocID}.`,
           'is-info',
         )
       }

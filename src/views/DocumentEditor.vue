@@ -490,7 +490,7 @@ export default defineComponent({
       const docName = this.selectedDoc.name
       if (docName) {
         Utils.toast(
-            `Switched to document ${docName} with ID "${this.selectedDocID}".`,
+            `Switched to document "${docName}" with ID: ${this.selectedDocID}.`,
             'is-info',
         )
       }

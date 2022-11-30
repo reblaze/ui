@@ -885,10 +885,10 @@ export default defineComponent({
     async switchDocID() {
       this.setLoadingDocStatus(true)
 
-      const docName = this.docs[this.selectedDocIndex].id
+      const docName = this.selectedProxyTemplate.name
       if (docName) {
         Utils.toast(
-            `Switched to document ${docName} with ID "${this.selectedDocID}".`,
+            `Switched to document "${docName}" with ID: ${this.selectedDocID}.`,
             'is-info',
         )
       }
@@ -956,7 +956,6 @@ export default defineComponent({
       }
       const data = proxyTemplateToAdd
       await this.saveChanges('POST', data, successMessage, failureMessage)
-      this.loadDocs()
       this.selectedDocID = proxyTemplateToAdd.id
 
       this.goToRoute()
@@ -984,6 +983,7 @@ export default defineComponent({
         failureMessage = `Failed while attempting to save the changes to the ${proxyTemplateText}.`
       }
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
+      this.loadDocs()
 
       // save trusted sources
       const trustedUrl = `configs/${this.selectedBranch}/d/planet/`
@@ -999,14 +999,9 @@ export default defineComponent({
         trusted_nets: trustedArr,
       }
       await RequestsUtils.sendReblazeRequest({methodName: 'PUT', data: planetData, url: trustedUrl})
-      this.updateDocIdNames()
 
       this.isSaveLoading = false
       this.setLoadingDocStatus(false)
-    },
-
-    sortDocs() {
-      this.docs = _.sortBy(this.docs, [(doc) => doc.name.toLowerCase()])
     },
 
     async loadDocs() {
@@ -1026,7 +1021,6 @@ export default defineComponent({
         },
       })
       this.docs = response?.data || []
-      this.sortDocs()
       this.updateDocIdNames()
 
       this.setLoadingDocStatus(false)
@@ -1037,6 +1031,7 @@ export default defineComponent({
       this.docIdNames = this.docs.map((doc) => {
         return {id: doc.id, name: doc.name}
       })
+      this.docIdNames = _.sortBy(this.docIdNames, [(doc) => doc.name.toLowerCase()])
     },
 
     async loadReferencedProxyTemplatesIDs() {

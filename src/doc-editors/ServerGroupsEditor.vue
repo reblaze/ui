@@ -18,7 +18,7 @@
                   </span>
                 </button>
               </p>
-              <div class="control"
+              <div class="control doc-selection-wrapper"
                    v-if="docIdNames.length">
                 <div class="select is-small">
                   <select v-model="selectedDocID"
@@ -577,10 +577,6 @@ export default defineComponent({
       return factory && factory()
     },
 
-    sortDocs() {
-      this.docs = _.sortBy(this.docs, [(doc) => doc.name.toLowerCase()])
-    },
-
     async loadDocs() {
       this.isDownloadLoading = true
       this.setLoadingDocStatus(true)
@@ -599,7 +595,6 @@ export default defineComponent({
         },
       })
       this.docs = response?.data || []
-      this.sortDocs()
       this.updateDocIdNames()
 
       this.setLoadingDocStatus(false)
@@ -610,6 +605,7 @@ export default defineComponent({
       this.docIdNames = this.docs.map((doc) => {
         return {id: doc.id, name: doc.name}
       })
+      this.docIdNames = _.sortBy(this.docIdNames, [(doc) => doc.name.toLowerCase()])
     },
 
     async setSelectedDataFromRouteParams() {
@@ -634,10 +630,10 @@ export default defineComponent({
     async switchDocID() {
       this.setLoadingDocStatus(true)
 
-      const docName = this.docs[this.selectedDocIndex].name
+      const docName = this.selectedServerGroup.name
       if (docName) {
         Utils.toast(
-            `Switched to document ${docName} with ID "${this.selectedDocID}".`,
+            `Switched to document "${docName}" with ID: ${this.selectedDocID}.`,
             'is-info',
         )
       }
@@ -701,7 +697,6 @@ export default defineComponent({
       }
       const data = siteToAdd
       await this.saveChanges('POST', data, successMessage, failureMessage)
-      this.loadDocs()
       this.selectedDocID = siteToAdd.id
 
       this.goToRoute()
@@ -729,7 +724,7 @@ export default defineComponent({
       }
       // TODO delete after we have UI for ssl certificate as it is a required string in schema
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
-      this.updateDocIdNames()
+      this.loadDocs()
 
       this.isSaveLoading = false
       this.setLoadingDocStatus(false)

@@ -327,10 +327,10 @@ export default defineComponent({
 
     async switchDocID() {
       this.setLoadingDocStatus(true)
-      const docName = this.docs[this.selectedDocIndex].name
+      const docName = this.selectedEdgeFunction.name
       if (docName) {
         Utils.toast(
-            `Switched to document ${docName} with ID "${this.selectedDocID}".`,
+            `Switched to document "${docName}" with ID: ${this.selectedDocID}.`,
             'is-info',
         )
       }
@@ -362,10 +362,6 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
-    sortDocs() {
-      this.docs = _.sortBy(this.docs, [(doc) => doc.name.toLowerCase()])
-    },
-
     async loadDocs() {
       this.isDownloadLoading = true
       this.setLoadingDocStatus(true)
@@ -381,7 +377,6 @@ export default defineComponent({
         },
       })
       this.docs = response?.data || []
-      this.sortDocs()
       this.updateDocIdNames()
 
       this.setLoadingDocStatus(false)
@@ -392,6 +387,7 @@ export default defineComponent({
       this.docIdNames = this.docs.map((doc) => {
         return {id: doc.id, name: doc.name}
       })
+      this.docIdNames = _.sortBy(this.docIdNames, [(doc) => doc.name.toLowerCase()])
     },
 
     newEdgeFunction(): EdgeFunction {
@@ -430,7 +426,6 @@ export default defineComponent({
       }
       const data = cloudFunctionToAdd
       await this.saveChanges('POST', data, successMessage, failureMessage)
-      this.loadDocs()
       this.selectedDocID = cloudFunctionToAdd.id
 
       this.goToRoute()
@@ -457,7 +452,7 @@ export default defineComponent({
         failureMessage = `Failed while attempting to save the changes to the ${cloudFunctionText}.`
       }
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
-      this.updateDocIdNames()
+      this.loadDocs()
 
       this.isSaveLoading = false
       this.setLoadingDocStatus(false)

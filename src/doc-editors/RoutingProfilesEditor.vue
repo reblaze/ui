@@ -552,10 +552,10 @@ export default defineComponent({
     async switchDocID() {
       this.setLoadingDocStatus(true)
 
-      const docName = this.docs[this.selectedDocIndex].id
+      const docName = this.selectedRoutingProfile.name
       if (docName) {
         Utils.toast(
-            `Switched to document ${docName} with ID "${this.selectedDocID}".`,
+            `Switched to document "${docName}" with ID: ${this.selectedDocID}.`,
             'is-info',
         )
       }
@@ -614,9 +614,6 @@ export default defineComponent({
       if (!profileToAdd) {
         profileToAdd = this.newRoutingProfile()
       }
-      this.docs.unshift(profileToAdd)
-      this.selectedDocID = profileToAdd.id
-      this.sortDocs()
       const routingProfileText = this.titles['routing-profiles-singular']
       if (!successMessage) {
         successMessage = `New ${routingProfileText} was created.`
@@ -626,6 +623,8 @@ export default defineComponent({
       }
       const data = profileToAdd
       await this.saveChanges('POST', data, successMessage, failureMessage)
+
+      this.selectedDocID = profileToAdd.id
 
       this.goToRoute()
       this.isNewLoading = false
@@ -651,14 +650,10 @@ export default defineComponent({
         failureMessage = `Failed while attempting to save the changes to the ${routingProfileText}.`
       }
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
-      this.updateDocIdNames()
+      this.loadDocs()
 
       this.isSaveLoading = false
       this.setLoadingDocStatus(false)
-    },
-
-    sortDocs() {
-      this.docs = _.sortBy(this.docs, [(doc) => doc.name.toLowerCase()])
     },
 
     async loadDocs() {
@@ -679,7 +674,6 @@ export default defineComponent({
         },
       })
       this.docs = response?.data || []
-      this.sortDocs()
       this.updateDocIdNames()
 
       this.setLoadingDocStatus(false)
@@ -690,6 +684,7 @@ export default defineComponent({
       this.docIdNames = this.docs.map((doc) => {
         return {id: doc.id, name: doc.name}
       })
+      this.docIdNames = _.sortBy(this.docIdNames, [(doc) => doc.name.toLowerCase()])
     },
 
     validateInput(event: Event, validator: Function | boolean) {
