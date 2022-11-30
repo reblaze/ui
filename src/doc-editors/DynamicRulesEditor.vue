@@ -733,7 +733,7 @@ export default defineComponent({
 
     async switchDocID() {
       this.setLoadingDocStatus(true)
-      const docName = this.selectedDynamicRule.name // this.docs[this.selectedDocIndex].name
+      const docName = this.selectedDynamicRule.name
       if (docName) {
         Utils.toast(
           `Switched to document "${docName}" with ID: ${this.selectedDocID}.`,
