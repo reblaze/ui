@@ -119,7 +119,8 @@
           :show-row-button="true"
           :show-second-row-button="true"
           :second-row-button-title="secondRowButtonTitle"
-          :second-row-button-icon="secondRowButtonIcon"/>
+          :second-row-button-icon="secondRowButtonIcon"
+          override-menu-column-width-class="width-70px"/>
       </div>
       <span class="is-family-monospace has-text-grey-lighter">
         {{ documentListAPIPath }}
