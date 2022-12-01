@@ -55,20 +55,23 @@ const generateUniqueEntityName = (originalName: string, entitiesList: string[],
 // Download data as file
 const downloadFile = (fileName: string, fileType: string, data: any) => {
   // Check if file type can be downloaded
-  const recognizedDownloadFileTypes = ['json']
+  const recognizedDownloadFileTypes = ['json', 'pfx']
   if (!recognizedDownloadFileTypes.includes(fileType)) {
     console.log('Unable to download file, unknown file type')
     return
   }
-  // Create downloadable content based on file type
-  let content: BlobPart = ''
+  let blob
   if (fileType === 'json') {
+    let content: BlobPart = ''
     content = JSON.stringify(data)
+    blob = new Blob([content], {
+      type: `application/${fileType}`,
+    })
+  }
+  if (fileType === 'pfx') {
+    blob = data
   }
   // Create anchor element with download data
-  const blob = new Blob([content], {
-    type: `application/${fileType}`,
-  })
   const link = document.createElement('a')
   link.href = window.URL.createObjectURL(blob)
   link.download = `${fileName}.${fileType}`

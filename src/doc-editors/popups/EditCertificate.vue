@@ -293,7 +293,7 @@ export default defineComponent({
         url: url,
         config: {responseType: 'blob'},
       })
-      Utils.downloadFile('certificate', 'pfx', response.data)
+      Utils.downloadFile('certificate', 'pfx', response?.data)
     },
 
     async saveChanges() {
