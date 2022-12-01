@@ -19,14 +19,14 @@
                 </button>
               </p>
               <div class="control doc-selection-wrapper"
-                   v-if="docs.length">
+                   v-if="docIdNames.length">
                 <div class="select is-small">
                   <select v-model="selectedDocID"
                           title="Switch document ID"
                           @change="switchDocID()"
                           class="doc-selection"
                           data-qa="switch-document">
-                    <option v-for="doc in docs"
+                    <option v-for="doc in docIdNames"
                             :key="doc.id"
                             :value="doc.id">
                       {{ doc.name }}
@@ -342,7 +342,7 @@
 </template>
 <script lang="ts">
 import RequestsUtils from '@/assets/RequestsUtils'
-import {BackendService, HttpRequestMethods} from '@/types'
+import {DocumentName, BackendService, HttpRequestMethods} from '@/types'
 import Utils from '@/assets/Utils'
 import {defineComponent} from 'vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
@@ -357,6 +357,7 @@ export default defineComponent({
     return {
       titles: DatasetsUtils.titles,
       docs: [] as unknown as BackendService[],
+      docIdNames: [] as DocumentName[],
       selectedDocID: null,
       stickinessModels: backendServicesConsts.stickinessModels,
       newBackHost: {
@@ -486,10 +487,10 @@ export default defineComponent({
 
     async switchDocID() {
       this.setLoadingDocStatus(true)
-      const docName = this.docs[this.selectedDocIndex].name
+      const docName = this.selectedBackendService.name
       if (docName) {
         Utils.toast(
-            `Switched to document ${docName} with ID "${this.selectedDocID}".`,
+            `Switched to document "${docName}" with ID: ${this.selectedDocID}.`,
             'is-info',
         )
       }
@@ -521,10 +522,6 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
-    sortDocs() {
-      this.docs = _.sortBy(this.docs, [(doc) => doc.name.toLowerCase()])
-    },
-
     async loadDocs() {
       this.isDownloadLoading = true
       this.setLoadingDocStatus(true)
@@ -534,7 +531,6 @@ export default defineComponent({
       const response = await RequestsUtils.sendReblazeRequest({
         methodName: 'GET',
         url,
-        config: {headers: {'x-fields': 'id, name'}},
         onFail: () => {
           console.log('Error while attempting to load documents')
           this.docs = []
@@ -542,10 +538,17 @@ export default defineComponent({
         },
       })
       this.docs = response?.data || []
-      this.sortDocs()
+      this.updateDocIdNames()
 
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
+    },
+
+    updateDocIdNames() {
+      this.docIdNames = this.docs.map((doc) => {
+        return {id: doc.id, name: doc.name}
+      })
+      this.docIdNames = Utils.sortArrayByName(this.docIdNames) as DocumentName[]
     },
 
     newBackends(): BackendService {
@@ -585,7 +588,6 @@ export default defineComponent({
       const data = backendServiceToAdd
       await this.saveChanges('POST', data, successMessage, failureMessage)
 
-      this.loadDocs()
       this.selectedDocID = backendServiceToAdd.id
 
       this.goToRoute()
@@ -612,27 +614,11 @@ export default defineComponent({
         failureMessage = `Failed while attempting to save the changes to the ${backendServiceText}.`
       }
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
+      this.loadDocs()
+
       this.isSaveLoading = false
       this.setLoadingDocStatus(false)
     },
-
-    // async loadBackendService() {
-    //   this.setLoadingDocStatus(true)
-    //   this.isDownloadLoading = true
-    //   this.selectedBackendService = null
-    //   const response = await RequestsUtils.sendReblazeRequest({
-    //     methodName: 'GET',
-    //     url: `configs/${this.selectedBranch}/d/backends/e/${this.selectedDocID}`,
-    //     onFail: () => {
-    //       console.log('Error while attempting to load the Backend Service')
-    //       this.selectedBackendService = null
-    //       this.isDownloadLoading = false
-    //     },
-    //   })
-    //   this.selectedBackendService = response?.data || {}
-    //   this.isDownloadLoading = false
-    //   this.setLoadingDocStatus(false)
-    // },
 
     isDownable(index: number) {
       const backHosts = this.selectedBackendService.back_hosts

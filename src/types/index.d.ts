@@ -315,6 +315,11 @@ declare module CuriefenseClient {
     }[]
   }
 
+  type DocumentName = {
+    id: string
+    name: string
+  }
+
   type RoutingProfileEntryLocation = {
     id: string
     path: string

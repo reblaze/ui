@@ -18,15 +18,15 @@
                   </span>
                 </button>
               </p>
-              <div class="control"
-                   v-if="docs.length">
+              <div class="control doc-selection-wrapper"
+                   v-if="docIdNames.length">
                 <div class="select is-small">
                   <select v-model="selectedDocID"
                           title="Switch document ID"
                           @change="switchDocID()"
                           class="doc-selection"
                           data-qa="switch-document">
-                          <option v-for="doc in docs"
+                          <option v-for="doc in docIdNames"
                             :key="doc.id"
                             :value="doc.id">
                       {{ doc.name }}
@@ -435,19 +435,21 @@ import {
   ACLProfile,
   BackendService,
   Certificate,
-  ProxyTemplate,
   ContentFilterProfile,
+  DocumentName,
+  HttpRequestMethods,
   MobileSDK,
+  ProxyTemplate,
   RoutingProfile,
   SecurityPolicy,
   Site,
-  HttpRequestMethods,
 } from '@/types'
 import Utils from '@/assets/Utils'
 import {defineComponent} from 'vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
+
 
 export default defineComponent({
   name: 'ServerGroupsEditor',
@@ -456,6 +458,7 @@ export default defineComponent({
       titles: DatasetsUtils.titles,
       configs: [],
       docs: [] as unknown as Site[],
+      docIdNames: [] as DocumentName[],
       selectedDocID: null,
 
       // Loading indicators
@@ -618,10 +621,6 @@ export default defineComponent({
       return factory && factory()
     },
 
-    sortDocs() {
-      this.docs = _.sortBy(this.docs, [(doc) => doc.name.toLowerCase()])
-    },
-
     async loadDocs() {
       this.isDownloadLoading = true
       this.setLoadingDocStatus(true)
@@ -640,10 +639,17 @@ export default defineComponent({
         },
       })
       this.docs = response?.data || []
-      this.sortDocs()
+      this.updateDocIdNames()
 
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
+    },
+
+    updateDocIdNames() {
+      this.docIdNames = this.docs.map((doc) => {
+        return {id: doc.id, name: doc.name}
+      })
+      this.docIdNames = Utils.sortArrayByName(this.docIdNames) as DocumentName[]
     },
 
     async setSelectedDataFromRouteParams() {
@@ -667,10 +673,11 @@ export default defineComponent({
 
     async switchDocID() {
       this.setLoadingDocStatus(true)
-      const docName = this.docs[this.selectedDocIndex].name
+
+      const docName = this.selectedServerGroup.name
       if (docName) {
         Utils.toast(
-            `Switched to document ${docName} with ID "${this.selectedDocID}".`,
+            `Switched to document "${docName}" with ID: ${this.selectedDocID}.`,
             'is-info',
         )
       }
@@ -734,7 +741,6 @@ export default defineComponent({
       }
       const data = siteToAdd
       await this.saveChanges('POST', data, successMessage, failureMessage)
-      this.loadDocs()
       this.selectedDocID = siteToAdd.id
 
       this.goToRoute()
@@ -762,6 +768,8 @@ export default defineComponent({
       }
       // TODO delete after we have UI for ssl certificate as it is a required string in schema
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
+      this.loadDocs()
+
       this.isSaveLoading = false
       this.setLoadingDocStatus(false)
     },

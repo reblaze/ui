@@ -469,6 +469,7 @@ export default defineComponent({
       this.attachCertificateToLoadBalancer(balancer, cert, true, certificateLink)
     },
 
+    // eslint-disable-next-line
     async attachCertificateToLoadBalancer(balancer:Balancer, cert:string, isDefault:boolean = false, certificateLink?: string, certificate?: Certificate) {
       balancer.attach_loading = certificateLink
       if (certificate) {
@@ -482,6 +483,7 @@ export default defineComponent({
       const encodedBalancerListenerName = encodeURIComponent(balancer?.listener_name)
       const encodedBalancerListenerPort = encodeURIComponent(balancer?.listener_port)
       const elbVersion = balancer.load_balancer_type === 'classic' ? false : true
+      // eslint-disable-next-line
       const url = `config/${this.selectedBranch}/load-balancers/${encodedBalancerName}/certificates/${encodedCertificateId}/?provider=${encodedBalancerProvider}&default=${isDefault}&region=${encodedBalancerRegion}&listener=${encodedBalancerListenerName}&listener-port=${encodedBalancerListenerPort}&elbv2=${elbVersion}`
       await RequestsUtils.sendReblazeRequest({
         methodName: method,
@@ -551,7 +553,6 @@ export default defineComponent({
     },
 
     findLocalCertificateNameWithLink(providerLink:string) {
-      console.log('providerLink', providerLink)
       const gcpLink:Link = _.find(this.certificateByID.links, (link) => {
         return link.provider === 'gcp'
       })

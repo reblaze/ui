@@ -19,14 +19,14 @@
                 </button>
               </p>
               <div class="control doc-selection-wrapper"
-                   v-if="docs.length">
+                   v-if="docIdNames.length">
                 <div class="select is-small">
                   <select v-model="selectedDocID"
                           title="Switch document ID"
                           @change="switchDocID()"
                           class="doc-selection"
                           data-qa="switch-document">
-                          <option v-for="doc in docs"
+                          <option v-for="doc in docIdNames"
                             :key="doc.id"
                             :value="doc.id">
                       {{ doc.name }}
@@ -210,7 +210,7 @@
 <script lang="ts">
 import _ from 'lodash'
 import {defineComponent} from 'vue'
-import {EdgeFunction, EdgeFunctionsPhaseType, HttpRequestMethods} from '@/types'
+import {DocumentName, EdgeFunction, EdgeFunctionsPhaseType, HttpRequestMethods} from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
@@ -226,6 +226,7 @@ export default defineComponent({
       cloudPhases: ['request', 'response'] as EdgeFunctionsPhaseType[],
       titles: DatasetsUtils.titles,
       docs: [] as unknown as EdgeFunction[],
+      docIdNames: [] as DocumentName[],
       selectedDocID: null,
 
       // Loading indicators
@@ -326,10 +327,10 @@ export default defineComponent({
 
     async switchDocID() {
       this.setLoadingDocStatus(true)
-      const docName = this.docs[this.selectedDocIndex].name
+      const docName = this.selectedEdgeFunction.name
       if (docName) {
         Utils.toast(
-            `Switched to document ${docName} with ID "${this.selectedDocID}".`,
+            `Switched to document "${docName}" with ID: ${this.selectedDocID}.`,
             'is-info',
         )
       }
@@ -361,10 +362,6 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
-    sortDocs() {
-      this.docs = _.sortBy(this.docs, [(doc) => doc.name.toLowerCase()])
-    },
-
     async loadDocs() {
       this.isDownloadLoading = true
       this.setLoadingDocStatus(true)
@@ -380,10 +377,17 @@ export default defineComponent({
         },
       })
       this.docs = response?.data || []
-      this.sortDocs()
+      this.updateDocIdNames()
 
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
+    },
+
+    updateDocIdNames() {
+      this.docIdNames = this.docs.map((doc) => {
+        return {id: doc.id, name: doc.name}
+      })
+      this.docIdNames = Utils.sortArrayByName(this.docIdNames) as DocumentName[]
     },
 
     newEdgeFunction(): EdgeFunction {
@@ -422,7 +426,6 @@ export default defineComponent({
       }
       const data = cloudFunctionToAdd
       await this.saveChanges('POST', data, successMessage, failureMessage)
-      this.loadDocs()
       this.selectedDocID = cloudFunctionToAdd.id
 
       this.goToRoute()
@@ -449,6 +452,8 @@ export default defineComponent({
         failureMessage = `Failed while attempting to save the changes to the ${cloudFunctionText}.`
       }
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
+      this.loadDocs()
+
       this.isSaveLoading = false
       this.setLoadingDocStatus(false)
     },

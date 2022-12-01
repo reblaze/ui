@@ -18,14 +18,14 @@
                   </span>
                 </button>
               </p>
-              <div class="control doc-selection-wrapper" v-if="docs.length">
+              <div class="control doc-selection-wrapper" v-if="docIdNames.length">
                 <div class="select is-small">
                   <select v-model="selectedDocID"
                           title="Switch routing profiles document ID"
                           @change="switchDocID()"
                           class="doc-selection"
                           data-qa="switch-routing-profiles-document">
-                          <option v-for="doc in docs"
+                          <option v-for="doc in docIdNames"
                             :key="doc.id"
                             :value="doc.id">
                       {{ doc.name }}
@@ -415,7 +415,8 @@
 <script lang="ts">
 import _ from 'lodash'
 import RequestsUtils from '@/assets/RequestsUtils'
-import {BackendService, EdgeFunction, HttpRequestMethods, RoutingProfile, RoutingProfileEntryLocation} from '@/types'
+import {BackendService, DocumentName, EdgeFunction, HttpRequestMethods, RoutingProfile,
+  RoutingProfileEntryLocation} from '@/types'
 import Utils from '@/assets/Utils'
 import {defineComponent} from 'vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
@@ -430,6 +431,7 @@ export default defineComponent({
       loadingDocCounter: 0,
       isDownloadLoading: false,
       docs: [] as unknown as RoutingProfile[],
+      docIdNames: [] as DocumentName[],
       selectedDocID: null,
 
       isSaveLoading: false,
@@ -550,10 +552,10 @@ export default defineComponent({
     async switchDocID() {
       this.setLoadingDocStatus(true)
 
-      const docName = this.docs[this.selectedDocIndex].id
+      const docName = this.selectedRoutingProfile.name
       if (docName) {
         Utils.toast(
-            `Switched to document ${docName} with ID "${this.selectedDocID}".`,
+            `Switched to document "${docName}" with ID: ${this.selectedDocID}.`,
             'is-info',
         )
       }
@@ -612,9 +614,6 @@ export default defineComponent({
       if (!profileToAdd) {
         profileToAdd = this.newRoutingProfile()
       }
-      this.docs.unshift(profileToAdd)
-      this.selectedDocID = profileToAdd.id
-      this.sortDocs()
       const routingProfileText = this.titles['routing-profiles-singular']
       if (!successMessage) {
         successMessage = `New ${routingProfileText} was created.`
@@ -624,6 +623,8 @@ export default defineComponent({
       }
       const data = profileToAdd
       await this.saveChanges('POST', data, successMessage, failureMessage)
+
+      this.selectedDocID = profileToAdd.id
 
       this.goToRoute()
       this.isNewLoading = false
@@ -649,12 +650,10 @@ export default defineComponent({
         failureMessage = `Failed while attempting to save the changes to the ${routingProfileText}.`
       }
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
+      this.loadDocs()
+
       this.isSaveLoading = false
       this.setLoadingDocStatus(false)
-    },
-
-    sortDocs() {
-      this.docs = _.sortBy(this.docs, [(doc) => doc.name.toLowerCase()])
     },
 
     async loadDocs() {
@@ -675,10 +674,17 @@ export default defineComponent({
         },
       })
       this.docs = response?.data || []
-      this.sortDocs()
+      this.updateDocIdNames()
 
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
+    },
+
+    updateDocIdNames() {
+      this.docIdNames = this.docs.map((doc) => {
+        return {id: doc.id, name: doc.name}
+      })
+      this.docIdNames = Utils.sortArrayByName(this.docIdNames) as DocumentName[]
     },
 
     validateInput(event: Event, validator: Function | boolean) {

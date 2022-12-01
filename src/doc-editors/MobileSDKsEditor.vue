@@ -19,14 +19,14 @@
                 </button>
               </p>
               <div class="control doc-selection-wrapper"
-                   v-if="docs.length">
+                   v-if="docIdNames.length">
                 <div class="select is-small">
                   <select v-model="selectedDocID"
                           title="Switch document ID"
                           @change="switchDocID()"
                           class="doc-selection"
                           data-qa="switch-document">
-                          <option v-for="doc in docs"
+                          <option v-for="doc in docIdNames"
                             :key="doc.id"
                             :value="doc.id">
                       {{ doc.name }}
@@ -415,7 +415,7 @@ import RequestsUtils from '@/assets/RequestsUtils'
 import Utils from '@/assets/Utils'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import {defineComponent} from 'vue'
-import {MobileSDK, HttpRequestMethods} from '@/types'
+import {DocumentName, MobileSDK, HttpRequestMethods} from '@/types'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
 
@@ -427,6 +427,7 @@ export default defineComponent({
     return {
       titles: DatasetsUtils.titles,
       docs: [] as unknown as MobileSDK[],
+      docIdNames: [] as DocumentName[],
       selectedDocID: null,
 
       // App Signatures
@@ -539,10 +540,10 @@ export default defineComponent({
 
     async switchDocID() {
       this.setLoadingDocStatus(true)
-      const docName = this.docs[this.selectedDocIndex].name
+      const docName = this.selectedMobileSDK.name
       if (docName) {
         Utils.toast(
-            `Switched to document ${docName} with ID "${this.selectedDocID}".`,
+            `Switched to document "${docName}" with ID: ${this.selectedDocID}.`,
             'is-info',
         )
       }
@@ -574,10 +575,6 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
-    sortDocs() {
-      this.docs = _.sortBy(this.docs, [(doc) => doc.name.toLowerCase()])
-    },
-
     async loadDocs() {
       this.isDownloadLoading = true
       this.setLoadingDocStatus(true)
@@ -595,10 +592,17 @@ export default defineComponent({
         },
       })
       this.docs = response?.data || []
-      this.sortDocs()
+      this.updateDocIdNames()
 
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
+    },
+
+    updateDocIdNames() {
+      this.docIdNames = this.docs.map((doc) => {
+        return {id: doc.id, name: doc.name}
+      })
+      this.docIdNames = Utils.sortArrayByName(this.docIdNames) as DocumentName[]
     },
 
     newMobileSDK(): MobileSDK {
@@ -637,8 +641,6 @@ export default defineComponent({
       }
       const data = mobilesdksToAdd
       await this.saveChanges('POST', data, successMessage, failureMessage)
-
-      this.loadDocs()
       this.selectedDocID = mobilesdksToAdd.id
 
       this.goToRoute()
@@ -665,6 +667,8 @@ export default defineComponent({
         failureMessage = `Failed while attempting to save the changes to the ${mobileSDKText}.`
       }
       await RequestsUtils.sendReblazeRequest({methodName, url, data, successMessage, failureMessage})
+      this.loadDocs()
+
       this.isSaveLoading = false
       this.setLoadingDocStatus(false)
     },

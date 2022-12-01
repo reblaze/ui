@@ -17,7 +17,8 @@
                   <span> Return To List </span>
                 </button>
               </p>
-              <div class="control doc-selection-wrapper" v-if="docs.length">
+              <div class="control doc-selection-wrapper"
+                v-if="docIdNames.length">
                 <div class="select is-small">
                   <select
                       v-model="selectedDocID"
@@ -26,7 +27,9 @@
                       class="doc-selection"
                       :class="{'is-loading': isNewLoading}"
                       data-qa="switch-document">
-                    <option v-for="doc in docs" :key="doc.id" :value="doc.id">
+                    <option v-for="doc in docIdNames"
+                      :key="doc.id"
+                      :value="doc.id">
                       {{ doc.name }}
                     </option>
                   </select>
@@ -348,6 +351,7 @@ import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import {
   CustomResponse,
   Dictionary,
+  DocumentName,
   DynamicRule,
   GlobalFilter,
   IncludeExcludeType,
@@ -408,6 +412,7 @@ export default defineComponent({
       localGlobalFilterDoc: null as GlobalFilter,
       duplicatedGlobalFilter: null as GlobalFilter,
       docs: [] as DynamicRule[],
+      docIdNames: [] as DocumentName[],
       globalFiltersDocs: [] as GlobalFilter[],
       selectedDocID: null,
 
@@ -540,11 +545,6 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
-    sortDocs() {
-      this.docs =
-        this.docs?.length && _.sortBy(this.docs, [(doc) => doc.name.toLowerCase()])
-    },
-
     async loadDocs() {
       this.isDownloadLoading = true
       this.setLoadingDocStatus(true)
@@ -559,12 +559,17 @@ export default defineComponent({
         },
       })
       this.docs = response?.data ? _.cloneDeep(response.data) : []
-      this.sortDocs()
-      // if (!this.docs?.[0]?.id || !this.selectedDynamicRule) {
-      //   this.redirectToList()
-      // }
+      this.updateDocIdNames()
+
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
+    },
+
+    updateDocIdNames() {
+      this.docIdNames = this.docs.map((doc) => {
+        return {id: doc.id, name: doc.name}
+      })
+      this.docIdNames = Utils.sortArrayByName(this.docIdNames) as DocumentName[]
     },
 
     newDynamicRule(): DynamicRule {
@@ -607,10 +612,7 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
-    async addNewDynamicRule(
-      dynamicRuleToAdd?: DynamicRule,
-      successMessage?: string,
-      failureMessage?: string,
+    async addNewDynamicRule(dynamicRuleToAdd?: DynamicRule, successMessage?: string, failureMessage?: string,
     ) {
       this.setLoadingDocStatus(true)
       this.isNewLoading = true
@@ -633,22 +635,17 @@ export default defineComponent({
         failureMessage = `Failed while attempting to create the new ${dynamicRuleText}.`
       }
       const data = dynamicRuleToAdd
-      this.selectedDocID = dynamicRuleToAdd.id // data.id
 
       await this.saveChanges('POST', data, successMessage, failureMessage)
-      this.docs.push(dynamicRuleToAdd)
-      this.sortDocs()
+      this.selectedDocID = dynamicRuleToAdd.id
 
       this.goToRoute()
       this.isNewLoading = false
       this.setLoadingDocStatus(false)
     },
 
-    async saveChanges(
-      methodName?: HttpRequestMethods,
-      data?: DynamicRule | GlobalFilter,
-      successMessage?: string,
-      failureMessage?: string,
+    async saveChanges(methodName?: HttpRequestMethods, data?: DynamicRule | GlobalFilter,
+                      successMessage?: string, failureMessage?: string,
     ) {
       this.setLoadingDocStatus(true)
       this.isSaveLoading = true
@@ -720,6 +717,8 @@ export default defineComponent({
           failureMessage,
         })
       }
+      this.loadDocs()
+
       this.isSaveLoading = false
       this.setLoadingDocStatus(false)
     },
@@ -734,10 +733,10 @@ export default defineComponent({
 
     async switchDocID() {
       this.setLoadingDocStatus(true)
-      const docName = this.docs[this.selectedDocIndex].name
+      const docName = this.selectedDynamicRule.name
       if (docName) {
         Utils.toast(
-          `Switched to document ${docName} with ID "${this.selectedDocID}".`,
+          `Switched to document "${docName}" with ID: ${this.selectedDocID}.`,
           'is-info',
         )
       }

@@ -196,6 +196,7 @@ import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
 import {defineComponent, shallowRef} from 'vue'
 import {
   Document,
+  DocumentName,
   DocumentType,
   GlobalFilter,
   HttpRequestMethods,
@@ -236,7 +237,7 @@ export default defineComponent({
       selectedDocType: null as DocumentType,
 
       docs: [] as Document[],
-      docIdNames: [] as Document[],
+      docIdNames: [] as DocumentName[],
       selectedDocID: null,
       cancelSource: axios.CancelToken.source(),
       isDownloadLoading: false,
@@ -413,24 +414,10 @@ export default defineComponent({
     },
 
     updateDocIdNames() {
-      this.docIdNames = this.docs.sort((a: Document, b: Document) => {
-        let sortValueA: string = a.name || ''
-        let sortValueB: string = b.name || ''
-        const sortValueALowerCase: string = sortValueA.toString().toLowerCase()
-        const sortValueBLowerCase: string = sortValueB.toString().toLowerCase()
-        // only ignore case if the values are different from one another
-        if (!_.isEqual(sortValueALowerCase, sortValueBLowerCase)) {
-          sortValueA = sortValueALowerCase
-          sortValueB = sortValueBLowerCase
-        }
-        if (sortValueA < sortValueB) {
-          return -1
-        }
-        if (sortValueA > sortValueB) {
-          return 1
-        }
-        return 0
-      }) as Document[]
+      this.docIdNames = this.docs.map((doc) => {
+        return {id: doc.id, name: doc.name}
+      })
+      this.docIdNames = Utils.sortArrayByName(this.docIdNames) as DocumentName[]
     },
 
     async loadSelectedDocData() {
@@ -490,7 +477,7 @@ export default defineComponent({
       const docName = this.selectedDoc.name
       if (docName) {
         Utils.toast(
-            `Switched to document ${docName} with ID "${this.selectedDocID}".`,
+            `Switched to document "${docName}" with ID: ${this.selectedDocID}.`,
             'is-info',
         )
       }

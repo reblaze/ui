@@ -1,5 +1,8 @@
 import * as bulmaToast from 'bulma-toast'
 import {ToastType} from 'bulma-toast'
+import {GenericObject} from '@/types'
+import _ from 'lodash'
+
 
 const invalidityClasses = ` has-text-danger has-background-danger-light`
 
@@ -171,6 +174,27 @@ const hexToRgbArray = (hex: string) => {
   }
 }
 
+const sortArrayByName = (docArray: GenericObject[]) => {
+  return docArray.sort((a: GenericObject, b: GenericObject) => {
+    let sortValueA: string = a.name || ''
+    let sortValueB: string = b.name || ''
+    const sortValueALowerCase: string = sortValueA.toString().toLowerCase()
+    const sortValueBLowerCase: string = sortValueB.toString().toLowerCase()
+    // only ignore case if the values are different from one another
+    if (!_.isEqual(sortValueALowerCase, sortValueBLowerCase)) {
+      sortValueA = sortValueALowerCase
+      sortValueB = sortValueBLowerCase
+    }
+    if (sortValueA < sortValueB) {
+      return -1
+    }
+    if (sortValueA > sortValueB) {
+      return 1
+    }
+    return 0
+  })
+}
+
 export default {
   name: 'Utils',
   validateInput,
@@ -182,4 +206,5 @@ export default {
   amountSuffixFormatter,
   amountSuffixFormatterBytes,
   hexToRgbArray,
+  sortArrayByName,
 }
