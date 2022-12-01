@@ -109,6 +109,11 @@
             </tr>
             </tbody>
           </table>
+          <p class="title is-6 is-expanded">Publish History</p>
+          <rbz-table class="table"
+            :columns="columns"
+            :data="publishHistoryData">
+          </rbz-table>
         </div>
       </div>
     </div>
@@ -120,17 +125,19 @@ import _ from 'lodash'
 import RequestsUtils, {IRequestParams} from '@/assets/RequestsUtils'
 import {mdiBucket} from '@mdi/js'
 import {defineComponent} from 'vue'
-import {Branch, Commit} from '@/types'
+import {Branch, ColumnOptions, Commit, PublishHistory} from '@/types'
 import {AxiosResponse} from 'axios'
 import Utils from '@/assets/Utils'
 import DateTimeUtils from '@/assets/DateTimeUtils'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
+import RbzTable from '@/components/RbzTable.vue'
+import DatasetsUtils from '@/assets/DatasetsUtils'
 
 export default defineComponent({
   name: 'PublishChanges',
   props: {},
-  components: {},
+  components: {RbzTable},
   data() {
     return {
       mdiBucketPath: mdiBucket,
@@ -150,6 +157,54 @@ export default defineComponent({
       apiVersion: RequestsUtils.confAPIVersion,
       // loading indicator
       isPublishLoading: false,
+
+      // Publish History
+      columns: [
+        {
+          title: 'Source Branch',
+          fieldNames: ['source_branch'],
+          isSortable: true,
+          isSearchable: true,
+          classes: 'width-130px',
+          cellContentClasses: 'ellipsis',
+        },
+        {
+          title: 'Target Bucket',
+          fieldNames: ['target_bucket'],
+          isSortable: true,
+          isSearchable: true,
+          cellContentClasses: 'ellipsis',
+        },
+        {
+          title: 'Commit hash ID',
+          fieldNames: ['commit_hash_id'],
+          isSortable: true,
+          isSearchable: true,
+          classes: 'width-80px',
+        },
+        {
+          title: 'Full Date',
+          fieldNames: ['date'],
+          isSortByOriginalValue: true,
+          displayFunction: (item: any) => {
+            const newDate = new Date(item['date'])
+            return DateTimeUtils.isoToNowCuriefenseFormat(newDate)
+          },
+          isSortable: true,
+          isSearchable: true,
+          classes: 'width-150px',
+          cellContentClasses: 'ellipsis',
+        },
+        {
+          title: 'Published User',
+          fieldNames: ['published_user'],
+          isSortable: true,
+          isSearchable: true,
+          classes: 'width-150px',
+          cellContentClasses: 'ellipsis',
+        },
+      ] as ColumnOptions[],
+      publishHistoryData: [] as PublishHistory[],
     }
   },
   watch: {
@@ -158,6 +213,7 @@ export default defineComponent({
         if ((this.$route.name as string).includes('PublishChanges') && val) {
           this.loadPublishInfo()
           this.loadBranchLogs()
+          this.loadPublishHistory()
           this.setDefaultBuckets()
         }
       },
@@ -184,6 +240,8 @@ export default defineComponent({
     },
 
     ...mapStores(useBranchesStore),
+
+
   },
   methods: {
     selectCommit(commit: Commit) {
@@ -202,6 +260,24 @@ export default defineComponent({
         classNames.push('marked')
       }
       return classNames.join(' ')
+    },
+
+    async loadPublishHistory() {
+      const url = '/db/system/k/publishhistory/'
+      this.publishHistoryData = await RequestsUtils.sendRequest({methodName: 'GET', url: url})
+      console.log('this.publishHistoryData', this.publishHistoryData)
+    },
+
+    savePublishHistory() {
+      const url = '/db/system/k/publishhistory/'
+      const data = this.publishHistoryData
+      RequestsUtils.sendRequest({methodName: 'PUT', data, url: url})
+    },
+
+    addPublishHistory(history: PublishHistory) {
+      const id = DatasetsUtils.generateUUID2()
+      history.id = id
+      this.publishHistoryData.push(history)
     },
 
     loadBranchLogs() {
