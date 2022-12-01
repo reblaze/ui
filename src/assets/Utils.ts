@@ -1,6 +1,6 @@
 import * as bulmaToast from 'bulma-toast'
 import {ToastType} from 'bulma-toast'
-import {DocumentName} from '@/types'
+import {GenericObject} from '@/types'
 import _ from 'lodash'
 
 
@@ -174,8 +174,8 @@ const hexToRgbArray = (hex: string) => {
   }
 }
 
-const sortDocumentName = (docArray: DocumentName[]) => {
-  return docArray.sort((a: DocumentName, b: DocumentName) => {
+const sortArrayByName = (docArray: GenericObject[]) => {
+  return docArray.sort((a: GenericObject, b: GenericObject) => {
     let sortValueA: string = a.name || ''
     let sortValueB: string = b.name || ''
     const sortValueALowerCase: string = sortValueA.toString().toLowerCase()
@@ -206,5 +206,5 @@ export default {
   amountSuffixFormatter,
   amountSuffixFormatterBytes,
   hexToRgbArray,
-  sortDocumentName,
+  sortArrayByName,
 }

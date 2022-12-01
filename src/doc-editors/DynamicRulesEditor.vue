@@ -569,7 +569,7 @@ export default defineComponent({
       this.docIdNames = this.docs.map((doc) => {
         return {id: doc.id, name: doc.name}
       })
-      this.docIdNames = Utils.sortDocumentName(this.docIdNames)
+      this.docIdNames = Utils.sortArrayByName(this.docIdNames) as DocumentName[]
     },
 
     newDynamicRule(): DynamicRule {
