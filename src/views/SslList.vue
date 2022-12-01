@@ -257,18 +257,19 @@ export default defineComponent({
           title: 'Linked To',
           displayFunction: (item: Certificate) => {
             if (this.sites?.length > 0) {
-              const matchingSite: Site = _.find(this.sites, (site: Site) => {
+              const matchingSites: Site[] = _.filter(this.sites, (site: Site) => {
                 return site.ssl_certificate === item.id
               })
-              console.log('matchingSite', matchingSite)
-              return matchingSite ? matchingSite.server_names.join('\n') : ''
+              return matchingSites.length ? _.flatMap(matchingSites, (matchingSite:Site) => {
+                return matchingSite.server_names
+              }).join('\n') : ''
             } else {
               return ''
             }
           },
           isSearchable: true,
           classes: 'width-100px',
-          cellContentClasses: 'ellipsis white-space-pre',
+          cellContentClasses: 'ellipsis white-space-pre vertical-scroll',
         },
         {
           title: 'AWS',
