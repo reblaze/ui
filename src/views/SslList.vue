@@ -274,8 +274,11 @@ export default defineComponent({
         {
           title: 'AWS',
           fieldNames: ['links'],
-          displayFunction: (item) => {
-            return item?.links?.provider === 'aws' ? 'true' : 'false'
+          displayFunction: (item: Certificate) => {
+            const isAWS = _.some(item?.links, (link: Link) => {
+              return link?.provider === 'aws' ? true : false
+            })
+            return isAWS ? 'true' : 'false'
           },
           isSortable: true,
           isSearchable: true,
@@ -285,8 +288,11 @@ export default defineComponent({
         {
           title: 'GCP',
           fieldNames: ['links'],
-          displayFunction: (item) => {
-            return item?.links?.provider === 'gcp' ? 'true' : 'false'
+          displayFunction: (item: Certificate) => {
+            const isGCP = _.some(item?.links, (link: Link) => {
+              return link?.provider === 'gcp' ? true : false
+            })
+            return isGCP ? 'true' : 'false'
           },
           isSortable: true,
           isSearchable: true,
