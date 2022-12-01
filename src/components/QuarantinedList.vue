@@ -88,10 +88,10 @@ export default defineComponent({
           isSortByOriginalValue: true,
           displayFunction: (item: any) => {
             const newDate = new Date(item['timestamp'])
-            const newDateMinutes = newDate.getTime()
-            const timeZoneDifference = newDate.getTimezoneOffset()
-            const timeZoneMinutes = timeZoneDifference * 60 * 1000
-            const finalDate = new Date(newDateMinutes - timeZoneMinutes)
+            const newDateMilliSeconds = newDate.getTime()
+            const timeZoneDifferenceMinutes = newDate.getTimezoneOffset()
+            const timeZoneMilliSeconds = timeZoneDifferenceMinutes * 60 * 1000
+            const finalDate = new Date(newDateMilliSeconds - timeZoneMilliSeconds)
             return DateTimeUtils.isoToNowCuriefenseFormat(finalDate)
           },
           isSortable: true,
