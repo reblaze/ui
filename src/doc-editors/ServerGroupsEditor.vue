@@ -211,7 +211,7 @@
                   class="document-routing-profile-selection"
                   title="SSL Certificates">
                   <option v-for="certificate in certificates"
-                    :value="certificate.name"
+                    :value="certificate.id"
                     :key="certificate.id">
                     {{ certificate.name }}
                   </option>
