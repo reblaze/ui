@@ -95,7 +95,17 @@ export default defineComponent({
         height: 0,
         plugins: [],
         series: [
-          {}, // timestamps X axis
+          {
+            value: (self, ts) => {
+              let timeFormat
+              if (Math.floor(ts) === ts) {
+                timeFormat = uPlot.fmtDate('{YYYY}-{MM}-{DD} {HH}:{mm}:{ss}')
+              } else {
+                timeFormat = uPlot.fmtDate('{YYYY}-{MM}-{DD} {HH}:{mm}:{ss}.{fff}')
+              }
+              return timeFormat(new Date(ts * 1000))
+            },
+          }, // timestamps X axis
         ],
         axes: [
           {
@@ -105,27 +115,15 @@ export default defineComponent({
             ticks: {
               width: 0.5,
             },
-            values: (self, splits) => {
-              const secondsDiff = splits[splits.length - 1] - splits[0]
-              return splits.map((value) => {
-                const date = new Date(value * 1000)
-                const hours = date.getHours()
-                const minutes = date.getMinutes()
-                const seconds = date.getSeconds()
-                if (hours === 0 && minutes === 0 && seconds === 0) {
-                  return `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`
-                } else {
-                  const displayHours = hours < 10 ? `0${hours}` : hours
-                  const displayMinutes = minutes < 10 ? `0${minutes}` : minutes
-                  if (secondsDiff >= 600) { // 10 minutes span or more
-                    return `${displayHours}:${displayMinutes}`
-                  } else { // less than 10 minutes span
-                    const displaySeconds = seconds < 10 ? `0${seconds}` : seconds
-                    return `${displayHours}:${displayMinutes}:${displaySeconds}`
-                  }
-                }
-              })
-            },
+            values: [
+              [3600 * 24 * 365, '{YYYY}-{MM}-{DD}'],
+              [3600 * 24 * 28, '{YYYY}-{MM}-{DD}'],
+              [3600 * 24, '{YYYY}-{MM}-{DD}'],
+              [3600, '{HH}:{mm}', '\n{YYYY}-{MM}-{DD}'],
+              [60, '{HH}:{mm}', '\n{YYYY}-{MM}-{DD}'],
+              [1, ':{ss}', '\n{YYYY}-{MM}-{DD} {HH}:{mm}', null, null, null, '\n{HH}:{mm}'],
+              [0.001, ':{ss}.{fff}', '\n{YYYY}-{MM}-{DD} {HH}:{mm}', null, null, null, '\n{HH}:{mm}'],
+            ],
           },
           {
             grid: {
@@ -171,7 +169,7 @@ export default defineComponent({
     legendAsTooltipPlugin({classList = [], style = {}} = {}) {
       let legendElement: HTMLElement
       // TODO: make this customizable
-      const legendWidth = 230
+      const legendWidth = 260
 
       const init = (uPlotChart: uPlot) => {
         legendElement = uPlotChart.root.querySelector('.u-legend')
