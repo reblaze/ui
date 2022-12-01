@@ -1,5 +1,5 @@
 <template>
-  <div class="columns height-200px">
+  <div class="columns height-250px">
     <div class="column">
       <label class="label is-small">
         Traffic Info
@@ -7,84 +7,91 @@
       <rbz-chart :data="trafficChartData"
                  :series-options="trafficChartSeriesOptions"
                  :legend-as-tooltip="true"
-                 :chart-height="150">
+                 :chart-height="200">
       </rbz-chart>
     </div>
-    <div class="column width-200px">
-      <div class="height-200px is-flex is-justify-content-space-around has-text-centered">
-        <div class="bar-wrapper height-150px">
-          <div class="bar humans-bar has-text-weight-bold width-60px"
-               :title="`${trafficInfo.humans.percentile}% humans`"
-               :style="`height: ${trafficInfo.humans.percentile}%`">
-            <span v-if="trafficInfo.humans.percentile >= 10">
-              Humans
-            </span>
-          </div>
-          <div class="bar bots-bar has-text-weight-bold width-60px"
-               :title="`${trafficInfo.bots.percentile}% bots`"
-               :style="`height: ${trafficInfo.bots.percentile}%`">
-            <span v-if="trafficInfo.bots.percentile >= 10">
-              Bots
-            </span>
-          </div>
-        </div>
-        <div class="bar-wrapper height-150px">
-          <div class="bar passed-bar has-text-weight-bold width-60px"
-               :title="`${trafficInfo.passed.percentile}% passed`"
-               :style="`height: ${trafficInfo.passed.percentile}%`">
-            <span v-if="trafficInfo.passed.percentile >= 10">
-              Passed
-            </span>
-          </div>
-          <div class="bar report-bar has-text-weight-bold width-60px"
-               :title="`${trafficInfo.report.percentile}% report`"
-               :style="`height: ${trafficInfo.report.percentile}%`">
-            <span v-if="trafficInfo.report.percentile >= 10">
-              Report
-            </span>
-          </div>
-          <div class="bar blocked-bar has-text-weight-bold width-60px"
-               :title="`${trafficInfo.blocked.percentile}% blocked`"
-               :style="`height: ${trafficInfo.blocked.percentile}%`">
-            <span v-if="trafficInfo.blocked.percentile >= 10">
-              Blocked
-            </span>
-          </div>
-        </div>
+    <div class="column width-230px">
+      <div class="uniques-wrapper height-100px mb-3">
+        <span class="has-text-weight-bold">
+          UNIQUES
+        </span>
+        <hr class="my-0">
+        <span class="width-50pct is-inline-block">
+          SESSIONS
+        </span>
+        <span class="width-50pct is-inline-block has-text-weight-bold">
+          {{ uniquesInfo.sessions }}
+        </span>
+        <hr class="my-0">
+        <span class="width-50pct is-inline-block">
+          IPs
+        </span>
+        <span class="width-50pct is-inline-block has-text-weight-bold">
+          {{ uniquesInfo.ips }}
+        </span>
+        <hr class="my-0">
+        <span class="width-50pct is-inline-block">
+          ASNs
+        </span>
+        <span class="width-50pct is-inline-block has-text-weight-bold">
+          {{ uniquesInfo.asns }}
+        </span>
+        <hr class="my-0">
+        <span class="width-50pct is-inline-block">
+          URIs
+        </span>
+        <span class="width-50pct is-inline-block has-text-weight-bold">
+          {{ uniquesInfo.uris }}
+        </span>
       </div>
-    </div>
-    <div class="column width-200px">
-      <span class="has-text-weight-bold">
-        UNIQUES
-      </span>
-      <hr class="mt-1 mb-2">
-      <span class="width-50pct is-inline-block">
-        SESSIONS
-      </span>
-      <span class="width-50pct is-inline-block has-text-weight-bold">
-        {{ uniquesInfo.sessions }}
-      </span>
-      <hr class="mt-1 mb-2">
-      <span class="width-50pct is-inline-block">
-        IPs
-      </span>
-      <span class="width-50pct is-inline-block has-text-weight-bold">
-        {{ uniquesInfo.ips }}
-      </span>
-      <hr class="mt-1 mb-2">
-      <span class="width-50pct is-inline-block">
-        ASNs
-      </span>
-      <span class="width-50pct is-inline-block has-text-weight-bold">
-        {{ uniquesInfo.asns }}
-      </span>
-      <hr class="mt-1 mb-2">
-      <span class="width-50pct is-inline-block">
-        URIs
-      </span>
-      <span class="width-50pct is-inline-block has-text-weight-bold">
-        {{ uniquesInfo.uris }}
-      </span>
+      <div class="bar-wrapper mb-3">
+        <div class="bar humans-bar has-text-weight-bold is-inline-block height-1rem"
+             :title="`${trafficInfo.humans.percentile}% humans`"
+             :style="`width: ${trafficInfo.humans.percentile}%`">
+        </div>
+        <div class="bar bots-bar has-text-weight-bold is-inline-block height-1rem"
+             :title="`${trafficInfo.bots.percentile}% bots`"
+             :style="`width: ${trafficInfo.bots.percentile}%`">
+        </div>
+        <span class="legend is-flex is-justify-content-space-between">
+          <span :title="`${trafficInfo.humans.percentile}% humans`">
+            <span class="square humans-legend"></span>
+            Humans
+          </span>
+          <span :title="`${trafficInfo.bots.percentile}% bots`">
+            <span class="square bots-legend"></span>
+            Bots
+          </span>
+        </span>
+      </div>
+      <div class="bar-wrapper">
+        <div class="bar passed-bar has-text-weight-bold is-inline-block height-1rem"
+             :title="`${trafficInfo.passed.percentile}% passed`"
+             :style="`width: ${trafficInfo.passed.percentile}%`">
+        </div>
+        <div class="bar reported-bar has-text-weight-bold is-inline-block height-1rem"
+             :title="`${trafficInfo.reported.percentile}% reported`"
+             :style="`width: ${trafficInfo.reported.percentile}%`">
+        </div>
+        <div class="bar blocked-bar has-text-weight-bold is-inline-block height-1rem"
+             :title="`${trafficInfo.blocked.percentile}% blocked`"
+             :style="`width: ${trafficInfo.blocked.percentile}%`">
+        </div>
+        <span class="legend is-flex is-justify-content-space-between">
+          <span :title="`${trafficInfo.passed.percentile}% passed`">
+            <span class="square passed-legend"></span>
+            Passed
+          </span>
+          <span :title="`${trafficInfo.reported.percentile}% reported`">
+            <span class="square reported-legend"></span>
+            Reported
+          </span>
+          <span :title="`${trafficInfo.blocked.percentile}% blocked`">
+            <span class="square blocked-legend"></span>
+            Blocked
+          </span>
+        </span>
+      </div>
     </div>
   </div>
 </template>
@@ -124,8 +131,8 @@ export default defineComponent({
           strokeColor: '#ff355e', // $color-radical-red
         },
         {
-          title: 'Report',
-          fieldName: 'report',
+          title: 'Reported',
+          fieldName: 'reported',
           show: true,
           drawStyle: 'spline',
           fillColor: `rgba(${Utils.hexToRgbArray('#ffdb58').join(', ')}, 0.1)`,
@@ -158,28 +165,30 @@ export default defineComponent({
         return []
       }
       const start = sortedData[0].timestamp
-      const end = sortedData[sortedData.length-1].timestamp
+      const end = sortedData[sortedData.length - 1].timestamp
       let sortedDataGrouped
-      let splitSecondLevel: number
-      // if data contains at least 2 seconds
-      if (new Date(end).getTime() - new Date(start).getTime() > 1000) {
-        splitSecondLevel = 1
+      const timeDiff = new Date(end).getTime() - new Date(start).getTime()
+      if (timeDiff < 2000) { // if data contains less than 2 seconds
+        sortedDataGrouped = _.groupBy(sortedData, (event: EventLog) => {
+          const splitTime = event.timestamp.split('.')
+          return `${splitTime[0]}.${splitTime[1].slice(0, 2)}`
+        })
+      } else if (timeDiff < 120000) { // if data contains less than 2 minutes
         sortedDataGrouped = _.groupBy(sortedData, (event: EventLog) => {
           return event.timestamp.split('.')[0]
         })
       } else {
         sortedDataGrouped = _.groupBy(sortedData, (event: EventLog) => {
-          splitSecondLevel = 100
-          const splitTime = event.timestamp.split('.')
-          return `${splitTime[0]}.${splitTime[1].slice(0, 2)}`
+          const time = event.timestamp.split('.')[0]
+          return time.split(':').slice(0, 2).join(':')
         })
       }
       _.forEach(sortedDataGrouped, (events: EventLog[], key: string) => {
         const passed = _.filter(events, (event: EventLog) => {
-          return !this.isEventReport(event) && !event.reason
+          return !this.isEventReported(event) && !event.reason
         })
-        const report = _.filter(events, (event: EventLog) => {
-          return this.isEventReport(event)
+        const reported = _.filter(events, (event: EventLog) => {
+          return this.isEventReported(event)
         })
         const blocked = _.filter(events, (event: EventLog) => {
           return event.reason
@@ -191,10 +200,10 @@ export default defineComponent({
           return event.tags.includes('bot')
         })
         returnArray.push({
-          timeframe: Math.floor(new Date(key).getTime() / (1000 / splitSecondLevel)),
+          timeframe: new Date(key).getTime() / 1000,
           passed: passed.length > 0 ? passed.length : 0,
           blocked: blocked.length > 0 ? blocked.length : 0,
-          report: report.length > 0 ? report.length : 0,
+          reported: reported.length > 0 ? reported.length : 0,
           humans: humans.length > 0 ? humans.length : 0,
           bots: bots.length > 0 ? bots.length : 0,
         })
@@ -205,16 +214,16 @@ export default defineComponent({
     trafficInfo() {
       const hits = this.data.length
       const passed = _.filter(this.data, (event: EventLog) => {
-        return !this.isEventReport(event) && !event.reason
+        return !this.isEventReported(event) && !event.reason
       })
-      const report = _.filter(this.data, (event: EventLog) => {
-        return this.isEventReport(event)
+      const reported = _.filter(this.data, (event: EventLog) => {
+        return this.isEventReported(event)
       })
       const blocked = _.filter(this.data, (event: EventLog) => {
         return !!event.reason
       })
       const passedPercentile = Number(((passed.length / hits) * 100).toFixed(2))
-      const reportPercentile = Number(((report.length / hits) * 100).toFixed(2))
+      const reportedPercentile = Number(((reported.length / hits) * 100).toFixed(2))
       const blockedPercentile = Number(((blocked.length / hits) * 100).toFixed(2))
       const humans = _.filter(this.data, (event: EventLog) => {
         return event.tags.includes('human')
@@ -229,9 +238,9 @@ export default defineComponent({
           amount: passed.length,
           percentile: passedPercentile,
         },
-        'report': {
-          amount: report.length,
-          percentile: reportPercentile,
+        'reported': {
+          amount: reported.length,
+          percentile: reportedPercentile,
         },
         'blocked': {
           amount: blocked.length,
@@ -272,7 +281,7 @@ export default defineComponent({
     },
   },
   methods: {
-    isEventReport(event: EventLog): boolean {
+    isEventReported(event: EventLog): boolean {
       const triggers = _.sum([
         event.acl_triggers?.length,
         event.content_filter_triggers?.length,
@@ -290,29 +299,34 @@ export default defineComponent({
 
 .bar {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: center;
 }
 
-.humans-bar {
+.humans-bar,
+.humans-legend {
   background-color: $color-royal-blue;
   color: $color-white;
 }
 
-.bots-bar {
+.bots-bar,
+.bots-legend {
   background-color: $color-plum;
   color: $color-white;
 }
 
-.passed-bar {
+.passed-bar,
+.passed-legend {
   background-color: $color-emerald;
 }
 
-.report-bar {
+.reported-bar,
+.reported-legend {
   background-color: $color-mustard;
 }
 
-.blocked-bar {
+.blocked-bar,
+.blocked-legend {
   background-color: $color-radical-red;
 }
 </style>

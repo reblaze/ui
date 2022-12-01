@@ -3,35 +3,35 @@
     <div class="tabs is-centered">
       <ul>
         <li :class="{'is-active' : tab === 'LoadBalancers'}"
-          class="load-balancers-tab"
-          data-qa="load-balancers-tab-btn">
+            class="load-balancers-tab"
+            data-qa="load-balancers-tab-btn">
           <a tabindex="0"
-            @click="tab = 'LoadBalancers'">
+             @click="tab = 'LoadBalancers'">
             Load Balancers
           </a>
         </li>
         <li :class="{'is-active': tab === 'Certificates'}"
-          class="certificates-tab"
-          data-qa="certificates-tab-btn">
+            class="certificates-tab"
+            data-qa="certificates-tab-btn">
           <a tabindex="0"
-            @click="tab = 'Certificates'">
+             @click="tab = 'Certificates'">
             Certificate Store
           </a>
         </li>
       </ul>
     </div>
     <div v-show="!loadingDocCounter && selectedBranch"
-      class="content">
+         class="content">
       <div v-show="tab === 'LoadBalancers'">
         <rbz-table :columns="loadBalancerColumnOption"
-          :data="loadBalancers"
-          :show-menu-column="true"
-          :show-filter-button="true"
-          :row-clickable="true"
-          @row-clicked="onSelectedLoadBalancerRow">
+                   :data="loadBalancers"
+                   :show-menu-column="true"
+                   :show-filter-button="true"
+                   :row-clickable="true"
+                   @row-clicked="onSelectedLoadBalancerRow">
           <template #tableMenu="rowProps">
             <tr class="is-size-7 selected"
-              v-if="rowProps.row.id === selectedBalancer?.id">
+                v-if="rowProps.row.id === selectedBalancer?.id">
               <td colspan="7">
                 <div class="mb-3">
                   <p>
@@ -59,11 +59,11 @@
                     <strong>Certificates:</strong>
                   </p>
                   <div class="center-details is-flex balancer-box mb-3"
-                    v-for="(certificate, index) in selectedBalancer?.certificates"
-                    :key="index">
+                       v-for="(certificate, index) in selectedBalancer?.certificates"
+                       :key="index">
                     <div class="column is-10">
                       <p class="has-text-weight-medium"
-                        :class="{ 'mb-1': getCertificateDetails(certificate)}">
+                         :class="{ 'mb-1': getCertificateDetails(certificate)}">
                         {{ findLocalCertificateNameWithLink(certificate) }}
                       </p>
                       <div v-if="getCertificateDetails(certificate)">
@@ -83,26 +83,26 @@
                     </div>
                     <div class="has-text-right">
                       <button @click="setDefaultCertificate(selectedBalancer, certificate)"
-                        class="button is-small is-outlined mr-2"
-                        :class="{ 'is-loading': selectedBalancer.attach_loading === certificate }">
+                              class="button is-small is-outlined mr-2"
+                              :class="{ 'is-loading': selectedBalancer.attach_loading === certificate }">
                         Set default
                       </button>
                       <button @click="detachNonDefaultCertificate(selectedBalancer, certificate)"
-                        class="button is-small"
-                        :class="{ 'is-loading': selectedBalancer?.detach_loading === certificate }">
+                              class="button is-small"
+                              :class="{ 'is-loading': selectedBalancer?.detach_loading === certificate }">
                         Detach
                       </button>
                     </div>
                   </div>
                 </div>
                 <button v-if="isAttachButtonEnabled"
-                  class="button is-outlined is-small"
-                  :class="{ 'mt-3': selectedBalancer?.certificates?.length }"
-                  @click="openAttachCertPopup()">
+                        class="button is-outlined is-small"
+                        :class="{ 'mt-3': selectedBalancer?.certificates?.length }"
+                        @click="openAttachCertPopup()">
                   Attach certificate
                 </button>
                 <span v-else
-                  class="has-text-danger pl-4 quota">
+                      class="has-text-danger pl-4 quota">
                   You have reached the max certificates quota for {{ selectedBalancer?.provider }} loadbalancer
                 </span>
               </td>
@@ -112,25 +112,26 @@
       </div>
       <div v-show="tab === 'Certificates'">
         <rbz-table :columns="certificateColumnOption"
-          :data="certificates"
-          :show-menu-column="true"
-          :show-filter-button="true"
-          :show-new-button="true"
-          @new-button-clicked="addNewCertificate"
-          @row-button-clicked="editProfile"
-          @second-row-button-clicked="deleteProfile"
-          :show-row-button="true"
-          :show-second-row-button="true"
-          :second-row-button-title="secondRowButtonTitle"
-          :second-row-button-icon="secondRowButtonIcon"
-          override-menu-column-width-class="width-70px"/>
+                   :data="certificates"
+                   :show-menu-column="true"
+                   :show-filter-button="true"
+                   :show-new-button="true"
+                   @new-button-clicked="addNewCertificate"
+                   @row-button-clicked="editProfile"
+                   @second-row-button-clicked="deleteProfile"
+                   :show-row-button="true"
+                   :show-second-row-button="true"
+                   :second-row-button-title="secondRowButtonTitle"
+                   :second-row-button-icon="secondRowButtonIcon"
+                   :second-row-button-disabled-callback="isDeleteDisabled"
+                   override-menu-column-width-class="width-70px"/>
       </div>
       <span class="is-family-monospace has-text-grey-lighter">
         {{ documentListAPIPath }}
       </span>
     </div>
     <div class="content no-data-wrapper"
-      v-if="loadingDocCounter || !selectedBranch">
+         v-if="loadingDocCounter || !selectedBranch">
       <div v-if="loadingDocCounter > 0">
         <button class="button is-outlined is-text is-small is-loading document-loading">
           Loading
@@ -138,29 +139,29 @@
       </div>
     </div>
     <generate-certificate v-if="generateShown"
-      @generate-shown-changed="generateShown = false"
-      :selected-branch="selectedBranch"
-      @call-load-certificate="loadCertificates"/>
+                          @generate-shown-changed="generateShown = false"
+                          :selected-branch="selectedBranch"
+                          @call-load-certificate="loadCertificates"/>
     <delete-certificate v-if="deleteShown"
-      @delete-shown-changed="deleteShown = false"
-      :clicked-row="clickedRow"
-      :selected-branch="selectedBranch"
-      @call-load-certificate="loadCertificates"/>
+                        @delete-shown-changed="deleteShown = false"
+                        :clicked-row="clickedRow"
+                        :selected-branch="selectedBranch"
+                        @call-load-certificate="loadCertificates"/>
     <edit-certificate v-if="editShown"
-      @edit-shown-changed="editShown = false"
-      :clicked-row="clickedRow"
-      :balancers="loadBalancers"
-      :certificate="certificateByID"
-      :certificates="certificates"
-      :sites="sites"
-      :selected-branch="selectedBranch"
-      @call-load-certificate="loadCertificates"/>
+                      @edit-shown-changed="editShown = false"
+                      :clicked-row="clickedRow"
+                      :balancers="loadBalancers"
+                      :certificate="certificateByID"
+                      :certificates="certificates"
+                      :sites="sites"
+                      :selected-branch="selectedBranch"
+                      @call-load-certificate="loadCertificates"/>
     <attach-certificate v-if="attachCertPopupShown"
-      :selected-balancer="selectedBalancer"
-      :certificates="certificates"
-      @attach-shown-changed="attachCertPopupShown = false"
-      :attach-certificate-to-load-balancer="attachCertificateToLoadBalancer"
-      :isAttachLoading="isAttachLoading"/>
+                        :selected-balancer="selectedBalancer"
+                        :certificates="certificates"
+                        @attach-shown-changed="attachCertPopupShown = false"
+                        :attach-certificate-to-load-balancer="attachCertificateToLoadBalancer"
+                        :isAttachLoading="isAttachLoading"/>
   </div>
 </template>
 <script lang="ts">
@@ -229,7 +230,7 @@ export default defineComponent({
     }
   },
   computed: {
-    certificateColumnOption() : ColumnOptions[] {
+    certificateColumnOption(): ColumnOptions[] {
       return [
         {
           title: 'ID',
@@ -296,15 +297,15 @@ export default defineComponent({
         },
         {
           title: 'Load Balancers',
-          displayFunction: (item:Certificate) => {
-            const matchingLoadBalancers = _.filter(this.loadBalancers, (balancer:Balancer) => {
-              return _.some(balancer.certificates, (balancerCertificateLink: string) =>{
+          displayFunction: (item: Certificate) => {
+            const matchingLoadBalancers = _.filter(this.loadBalancers, (balancer: Balancer) => {
+              return _.some(balancer.certificates, (balancerCertificateLink: string) => {
                 return _.some(item.links, (certificateLink: Link) => {
                   return certificateLink.link === balancerCertificateLink
                 })
               })
             })
-            const matchingLoadBalancersDNS = _.map(matchingLoadBalancers, (balancer:Balancer) => {
+            const matchingLoadBalancersDNS = _.map(matchingLoadBalancers, (balancer: Balancer) => {
               return `${balancer.name}\n(${balancer.dns_name})`
             })
             return matchingLoadBalancersDNS.join('\n')
@@ -327,7 +328,7 @@ export default defineComponent({
       ]
     },
 
-    loadBalancerColumnOption() : ColumnOptions[] {
+    loadBalancerColumnOption(): ColumnOptions[] {
       return [
         {
           title: 'Name',
@@ -395,10 +396,9 @@ export default defineComponent({
     },
 
     selectedLoadBalancerID() {
-      const balancer = this.loadBalancers.find((loadBalancer:any) => {
+      return this.loadBalancers.find((loadBalancer: any) => {
         return loadBalancer.id === this.clickedRow
       })
-      return balancer
     },
 
     documentListAPIPath(): string {
@@ -422,9 +422,9 @@ export default defineComponent({
     ...mapStores(useBranchesStore),
   },
   methods: {
-    getCertificateDetails(certificateLink:string) {
+    getCertificateDetails(certificateLink: string) {
       const linkToCertificatesMapID = this.findLocalCertificateNameWithLink(certificateLink)
-      const certificate: Certificate = this.certificates?.find((certificate:Certificate) => {
+      const certificate: Certificate = this.certificates?.find((certificate: Certificate) => {
         return certificate.id === linkToCertificatesMapID
       })
       return certificate?.subject ? {
@@ -440,8 +440,8 @@ export default defineComponent({
       this.selectedBalancer = this.selectedBalancer?.id === this.clickedRow ? null : this.selectedLoadBalancerID
     },
 
-    getCertificateByID(id:string) {
-      this.certificateByID = this.certificates?.find((certificate:Certificate) => certificate.id === id)
+    getCertificateByID(id: string) {
+      this.certificateByID = this.certificates?.find((certificate: Certificate) => certificate.id === id)
     },
 
     async callLoaders() {
@@ -472,14 +472,24 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
-    async deleteProfile(id:string) {
+    async deleteProfile(id: string) {
       this.clickedRow = id
       this.setLoadingDocStatus(true)
       this.deleteShown = true
       this.setLoadingDocStatus(false)
     },
 
-    async setDefaultCertificate(balancer:Balancer, certificateLink: string) {
+    isDeleteDisabled(certificate: Certificate) {
+      return _.some(this.loadBalancers, (balancer: Balancer) => {
+        return _.some(balancer.certificates, (balancerCertificateLink: string) => {
+          return _.some(certificate.links, (certificateLink: Link) => {
+            return certificateLink.link === balancerCertificateLink
+          })
+        })
+      })
+    },
+
+    async setDefaultCertificate(balancer: Balancer, certificateLink: string) {
       let cert = this.findLocalCertificateNameWithLink(certificateLink)
       if (cert.includes('(*)')) {
         cert = certificateLink
@@ -487,6 +497,7 @@ export default defineComponent({
       this.attachCertificateToLoadBalancer(balancer, cert, true, certificateLink)
     },
 
+    // eslint-disable-next-line
     async attachCertificateToLoadBalancer(balancer:Balancer, cert:string, isDefault:boolean = false, certificateLink?: string, certificate?: Certificate) {
       balancer.attach_loading = certificateLink
       if (certificate) {
@@ -499,7 +510,8 @@ export default defineComponent({
       const encodedBalancerRegion = encodeURIComponent(balancer?.region)
       const encodedBalancerListenerName = encodeURIComponent(balancer?.listener_name)
       const encodedBalancerListenerPort = encodeURIComponent(balancer?.listener_port)
-      const elbVersion = balancer.load_balancer_type === 'classic' ? false : true
+      const elbVersion = balancer.load_balancer_type !== 'classic'
+      // eslint-disable-next-line
       const url = `config/${this.selectedBranch}/load-balancers/${encodedBalancerName}/certificates/${encodedCertificateId}/?provider=${encodedBalancerProvider}&default=${isDefault}&region=${encodedBalancerRegion}&listener=${encodedBalancerListenerName}&listener-port=${encodedBalancerListenerPort}&elbv2=${elbVersion}`
       await RequestsUtils.sendReblazeRequest({
         methodName: method,
@@ -512,7 +524,7 @@ export default defineComponent({
       this.callLoaders()
     },
 
-    async detachNonDefaultCertificate(balancer:Balancer, certificateLink:string) {
+    async detachNonDefaultCertificate(balancer: Balancer, certificateLink: string) {
       balancer.detach_loading = certificateLink
       const method = 'DELETE'
       const encodedBalancerName = encodeURIComponent(balancer.name)
@@ -521,7 +533,8 @@ export default defineComponent({
       const encodedBalancerRegion = encodeURIComponent(balancer?.region)
       const encodedBalancerListenerName = encodeURIComponent(balancer?.listener_name)
       const encodedBalancerListenerPort = encodeURIComponent(balancer?.listener_port)
-      const elbVersion = balancer.load_balancer_type === 'classic' ? false : true
+      const elbVersion = balancer.load_balancer_type !== 'classic'
+      // eslint-disable-next-line max-len
       const url = `config/${this.selectedBranch}/load-balancers/${encodedBalancerName}/certificates/?certificate-id=${encodedCertificateLink}&provider=${encodedBalancerProvider}&region=${encodedBalancerRegion}&listener=${encodedBalancerListenerName}&listener-port=${encodedBalancerListenerPort}&elbv2=${elbVersion}`
       await RequestsUtils.sendReblazeRequest({
         methodName: method,
@@ -568,7 +581,7 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
-    findLocalCertificateNameWithLink(providerLink:string) {
+    findLocalCertificateNameWithLink(providerLink: string) {
       const certificate = _.find(this.certificates, (certificate:Certificate) => {
         const gcpLink:Link = _.find(certificate.links, (link) => {
           return link.provider === 'gcp'
@@ -604,7 +617,8 @@ export default defineComponent({
   },
 })
 </script>
-<style scoped lang="scss">
+<style scoped
+       lang="scss">
 @import 'src/assets/styles/colors';
 
 .balancer-box {

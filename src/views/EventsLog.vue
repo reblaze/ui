@@ -74,7 +74,7 @@
     </div>
     <div v-show="!isSearchLoading && data?.length > 0">
       <events-log-charts :data="data"
-                         class="mb-5"/>
+                         class="mb-3"/>
       <template v-if="groupBy.length">
         <div v-for="(group, groupKey, groupIndex) in groupedData"
              :key="groupIndex"

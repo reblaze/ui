@@ -26,7 +26,7 @@
                           @change="switchDocID()"
                           class="doc-selection"
                           data-qa="switch-document">
-                          <option v-for="doc in docIdNames"
+                    <option v-for="doc in docIdNames"
                             :key="doc.id"
                             :value="doc.id">
                       {{ doc.name }}
@@ -178,12 +178,12 @@
             </label>
             <div class="control">
                     <textarea
-                        class="is-small textarea match-host"
-                        title="Match Host/Authority Headers"
-                        placeholder="Match Host/Authority Headers"
-                        data-qa="match-host-input"
-                        v-model="serverNames"
-                        rows="2">
+                      class="is-small textarea match-host"
+                      title="Match Host/Authority Headers"
+                      placeholder="Match Host/Authority Headers"
+                      data-qa="match-host-input"
+                      v-model="serverNames"
+                      rows="2">
                     </textarea>
             </div>
           </div>
@@ -207,12 +207,12 @@
             <div class="control is-expanded">
               <div class="select is-fullwidth is-small">
                 <select v-model="selectedServerGroup.ssl_certificate"
-                  data-qa="routing-profile-dropdown"
-                  class="document-routing-profile-selection"
-                  title="SSL Certificates">
+                        data-qa="routing-profile-dropdown"
+                        class="document-routing-profile-selection"
+                        title="SSL Certificates">
                   <option v-for="certificate in certificates"
-                    :value="certificate.id"
-                    :key="certificate.id">
+                          :value="certificate.id"
+                          :key="certificate.id">
                     {{ certificate.name }}
                   </option>
                 </select>
@@ -220,19 +220,13 @@
             </div>
           </div>
           <div class="field">
-            <div class="field is-flex textarea-field is-justify-content-space-around">
-              <button class="button is-small new-sequence-button"
-              :class="{'is-loading': isGenerateLoading}"
-              data-qa="new-sequence-btn"
-              @click="generateCertificate()">
-              Generate
-            </button>
-            <button class="button is-small new-sequence-button"
-              :class="{'is-loading': isGenerateAndReplaceLoading}"
-              data-qa="new-sequence-btn"
-              @click="generateCertificate(selectedServerGroup.ssl_certificate)">
-              Generate & replace
-            </button>
+            <div class="field is-flex textarea-field">
+              <button class="button is-small"
+                      :class="{'is-loading': isGenerateLoading}"
+                      data-qa="generate-certificate-btn"
+                      @click="generateCertificate()">
+                Generate
+              </button>
             </div>
           </div>
         </div>
@@ -285,8 +279,8 @@
                     {{ referencedDocName(backendServicesNames, location.backend_id) }}
                   </td>
                   <td>
-                    <span >
-                      {{ location?.cloud_functions?.length || 0}}
+                    <span>
+                      {{ location?.cloud_functions?.length || 0 }}
                     </span>
                   </td>
                 </tr>
@@ -468,7 +462,6 @@ export default defineComponent({
       isNewLoading: false,
       isForkLoading: false,
       isGenerateLoading: false,
-      isGenerateAndReplaceLoading: false,
 
       // Referenced docs
       securityPolicies: [] as SecurityPolicy[],
@@ -521,7 +514,7 @@ export default defineComponent({
 
     selectedDocNotDeletable(): boolean {
       return !this.selectedServerGroup ||
-          this.selectedServerGroup.id.startsWith('__') // Default entries
+        this.selectedServerGroup.id.startsWith('__') // Default entries
     },
 
     selectedSecurityPolicy(): SecurityPolicy {
@@ -575,35 +568,35 @@ export default defineComponent({
     },
   },
   methods: {
-    async generateCertificate(certificateId?: string) {
+    async generateCertificate() {
+      this.isGenerateLoading = true
       const certificateText = this.titles['certificates-singular']
       const method = 'POST'
-      let url = ''
-      const queryParameters = `?domains=${this.selectedServerGroup.server_names}&site-id=${this.selectedServerGroup.id}`
-      let successMessage = ''
-      let failureMessage = ''
-      if (!certificateId) {
-        this.isGenerateLoading = true
-        successMessage = `The ${certificateText} was generated.`
-        failureMessage = `Failed while attempting to generate the ${certificateText}.`
-        url = `configs/${this.selectedBranch}/d/certificates/e/${DatasetsUtils.generateUUID2()}` + queryParameters
-      } else {
-        this.isGenerateAndReplaceLoading = true
-        successMessage = `The ${certificateText} was generated & replaced.`
-        failureMessage = `Failed while attempting to generate & replace the ${certificateText}.`
-        url = `configs/${this.selectedBranch}/d/certificates/e/${certificateId}` + queryParameters
-      }
+      let queryParameters = ''
+      const serverNames: string[] = _.filter(this.selectedServerGroup.server_names, (serverName: string) => {
+        return serverName?.length > 0
+      })
+      _.forEach(serverNames, (serverName: string) => {
+        if (queryParameters.length) {
+          queryParameters += '&'
+        }
+        queryParameters += `domains=${encodeURIComponent(serverName)}`
+      })
+      const siteId = encodeURIComponent(this.selectedServerGroup.id)
+      queryParameters += `&site-id=${siteId}`
+      const successMessage = `The ${certificateText} was generated.`
+      const failureMessage = `Failed while attempting to generate the ${certificateText}.`
+      const newId = DatasetsUtils.generateUUID2()
+      const url = `configs/${this.selectedBranch}/d/certificates/e/${newId}?${queryParameters}`
       await RequestsUtils.sendReblazeRequest(
-        {methodName: method,
+        {
+          methodName: method,
           url: url,
           successMessage,
           failureMessage,
         })
-      if (!certificateId) {
-        this.isGenerateLoading = false
-      } else {
-        this.isGenerateAndReplaceLoading = false
-      }
+      await this.loadCertificates()
+      this.isGenerateLoading = false
     },
 
     async goToRoute() {
@@ -676,8 +669,8 @@ export default defineComponent({
       const docName = this.selectedServerGroup.name
       if (docName) {
         Utils.toast(
-            `Switched to document "${docName}" with ID: ${this.selectedDocID}.`,
-            'is-info',
+          `Switched to document "${docName}" with ID: ${this.selectedDocID}.`,
+          'is-info',
         )
       }
       this.goToRoute()

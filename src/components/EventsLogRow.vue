@@ -218,7 +218,7 @@
             </template>
             <template v-if="eventTagsRTC?.length">
               <span class="label is-size-7">
-                Reblaze Threat Category
+                Reblaze Traffic Category
               </span>
               <labeled-tags :tags="eventTagsRTC"
                             label-class="is-clickable is-inline-block"

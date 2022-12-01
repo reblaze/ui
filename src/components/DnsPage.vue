@@ -41,7 +41,7 @@ export default defineComponent({
           isSortable: true,
           isSearchable: true,
           classes: 'width-300px',
-          cellContentClasses: 'ellipsis',
+          cellContentClasses: 'word-break-all',
         },
         {
           title: 'Type',
@@ -49,7 +49,7 @@ export default defineComponent({
           isSortable: true,
           isSearchable: true,
           classes: 'width-100px',
-          cellContentClasses: 'ellipsis',
+          cellContentClasses: 'word-break-all',
         },
         {
           title: 'TTL',
@@ -62,11 +62,11 @@ export default defineComponent({
           title: 'Value',
           fieldNames: ['resource_records'],
           displayFunction: (item: DnsRecord) => {
-            return item.resource_records?.join('<br>\n')
+            return item.resource_records?.join('\n')
           },
           isSortable: true,
           isSearchable: true,
-          cellContentClasses: 'multi-line ellipsis',
+          cellContentClasses: 'multi-line white-space-pre word-break-all',
         },
       ] as ColumnOptions[],
       dnsRecords: [] as undefined as DnsRecord[],
@@ -103,7 +103,11 @@ export default defineComponent({
 <style scoped
        lang="scss">
 
-.multi-line {
+.word-break-all {
+  word-break: break-all;
+}
+
+:deep(.multi-line) {
   height: fit-content;
   max-height: fit-content;
   min-height: 150px;

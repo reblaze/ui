@@ -465,7 +465,7 @@
           </div>
           <div class="content collapsible-content px-5 py-5">
             <div class="content">
-              <rbz-table :columns="trusted_sources_columns"
+              <rbz-table :columns="trustedSourcesColumns"
                          :data="trustedData"
                          :row-button-icon="'fa-trash'"
                          :row-button-title="'Delete'"
@@ -788,7 +788,7 @@ export default defineComponent({
       planetID: null as string,
       planetName: null as string,
       trustedData: null as TrustedSource[],
-      trusted_sources_columns: [
+      trustedSourcesColumns: [
         {
           title: 'IP',
           fieldNames: ['address'],
@@ -797,7 +797,7 @@ export default defineComponent({
           cellContentClasses: 'ellipsis',
         },
         {
-          title: 'comment',
+          title: 'Comment',
           fieldNames: ['comment'],
           isSortable: true,
           isSearchable: true,
