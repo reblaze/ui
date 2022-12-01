@@ -211,11 +211,10 @@
                   class="document-routing-profile-selection"
                   title="SSL Certificates">
                   <option v-for="certificate in certificates"
-                    :value="certificate.id"
+                    :value="certificate.name"
                     :key="certificate.id">
-                    {{ certificate.id }}
+                    {{ certificate.name }}
                   </option>
-                  {{selectedServerGroup.ssl_certificate}}
                 </select>
               </div>
             </div>
@@ -526,7 +525,7 @@ export default defineComponent({
     },
 
     selectedSecurityPolicy(): SecurityPolicy {
-      return this.securityPolicies.find((securityPolicy) => {
+      return this.securityPolicies?.find((securityPolicy) => {
         return securityPolicy.id === this.selectedServerGroup.security_policy
       })
     },
@@ -780,7 +779,7 @@ export default defineComponent({
         url: `configs/${this.selectedBranch}/d/certificates/`,
         config: {headers: {'x-fields': 'id, san'}},
       })
-      this.certificates = response.data || []
+      this.certificates = response?.data || []
     },
 
     async loadSecurityPolicies() {
@@ -789,7 +788,7 @@ export default defineComponent({
         url: `configs/${this.selectedBranch}/d/securitypolicies/`,
       })
       this.securityPolicies = response?.data
-      this.securityPoliciesNames = _.sortBy(_.map(response.data, (entity) => {
+      this.securityPoliciesNames = _.sortBy(_.map(response?.data, (entity) => {
         return [entity.id, entity.name]
       }), (e) => {
         return e[1]
@@ -802,7 +801,7 @@ export default defineComponent({
         url: `configs/${this.selectedBranch}/d/routing-profiles/`,
       })
       this.routingProfiles = response?.data
-      this.routingProfilesNames = _.sortBy(_.map(response.data, (entity) => {
+      this.routingProfilesNames = _.sortBy(_.map(response?.data, (entity) => {
         return [entity.id, entity.name]
       }), (e) => {
         return e[1]
@@ -815,7 +814,7 @@ export default defineComponent({
         url: `configs/${this.selectedBranch}/d/proxy-templates/`,
         config: {headers: {'x-fields': 'id, name'}},
       })
-      this.proxyTemplatesNames = _.sortBy(_.map(response.data, (entity) => {
+      this.proxyTemplatesNames = _.sortBy(_.map(response?.data, (entity) => {
         return [entity.id, entity.name]
       }), (e) => {
         return e[1]
@@ -828,7 +827,7 @@ export default defineComponent({
         url: `configs/${this.selectedBranch}/d/mobile-sdks/`,
         config: {headers: {'x-fields': 'id, name'}},
       })
-      this.mobileSDKsNames = _.sortBy(_.map(response.data, (entity) => {
+      this.mobileSDKsNames = _.sortBy(_.map(response?.data, (entity) => {
         return [entity.id, entity.name]
       }), (e) => {
         return e[1]
@@ -841,7 +840,7 @@ export default defineComponent({
         url: `configs/${this.selectedBranch}/d/backends/`,
         config: {headers: {'x-fields': 'id, name'}},
       })
-      this.backendServicesNames = _.sortBy(_.map(response.data, (entity) => {
+      this.backendServicesNames = _.sortBy(_.map(response?.data, (entity) => {
         return [entity.id, entity.name]
       }), (e) => {
         return e[1]
@@ -854,7 +853,7 @@ export default defineComponent({
         url: `configs/${this.selectedBranch}/d/contentfilterprofiles/`,
         config: {headers: {'x-fields': 'id, name'}},
       })
-      this.contentFilterProfilesNames = _.sortBy(_.map(response.data, (entity) => {
+      this.contentFilterProfilesNames = _.sortBy(_.map(response?.data, (entity) => {
         return [entity.id, entity.name]
       }), (e) => {
         return e[1]
@@ -867,7 +866,7 @@ export default defineComponent({
         url: `configs/${this.selectedBranch}/d/aclprofiles/`,
         config: {headers: {'x-fields': 'id, name'}},
       })
-      this.aclProfilesNames = _.sortBy(_.map(response.data, (entity) => {
+      this.aclProfilesNames = _.sortBy(_.map(response?.data, (entity) => {
         return [entity.id, entity.name]
       }), (e) => {
         return e[1]

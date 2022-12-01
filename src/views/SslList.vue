@@ -68,10 +68,13 @@
                       </p>
                       <div v-if="getCertificateDetails(certificate)">
                         <p class="mb-1">
-                          CN: {{ getCertificateDetails(certificate).name }}
+                          Certificate Name: {{ getCertificateDetails(certificate).name }}
                         </p>
                         <p class="mb-1">
-                          SAN: {{ getCertificateDetails(certificate).san }}
+                          CN: {{ getCertificateDetails(certificate).cn }}
+                        </p>
+                        <p class="mb-1">
+                          SAN: {{ getCertificateDetails(certificate).san.join('\n') }}
                         </p>
                         <p class="mb-1">
                           Expiration: {{ getCertificateDetails(certificate).expDate }}
@@ -240,14 +243,15 @@ export default defineComponent({
           fieldNames: ['name'],
           isSortable: true,
           isSearchable: true,
-          classes: 'ellipsis',
+          cellContentClasses: 'ellipsis',
         },
         {
           title: 'Expiration Date',
           fieldNames: ['exp_date'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-120px ellipsis',
+          classes: 'width-120px',
+          cellContentClasses: 'ellipsis',
         },
         {
           title: 'Linked To',
@@ -256,33 +260,38 @@ export default defineComponent({
               const matchingSite: Site = _.find(this.sites, (site: Site) => {
                 return site.ssl_certificate === item.id
               })
+              console.log('matchingSite', matchingSite)
               return matchingSite ? matchingSite.server_names.join('\n') : ''
             } else {
               return ''
             }
           },
           isSearchable: true,
-          classes: 'width-100px white-space-pre ellipsis',
+          classes: 'width-100px',
+          cellContentClasses: 'ellipsis white-space-pre',
         },
         {
           title: 'AWS',
           fieldNames: ['links'],
           displayFunction: (item) => {
-            return item?.links?.provider === 'aws' ? true : false
+            return item?.links?.provider === 'aws' ? 'true' : 'false'
           },
           isSortable: true,
           isSearchable: true,
-          classes: 'width-100px white-space-pre',
+          classes: 'width-100px',
+          cellContentClasses: 'white-space-pre',
         },
         {
           title: 'GCP',
           fieldNames: ['links'],
           displayFunction: (item) => {
-            return item?.links?.provider === 'gcp' ? true : false
+            return item?.links?.provider === 'gcp' ? 'true' : 'false'
           },
           isSortable: true,
           isSearchable: true,
-          classes: 'width-100px white-space-pre',
+          classes: 'width-100px',
+          cellContentClasses: 'white-space-pre',
+
         },
         {
           title: 'Load Balancers',
@@ -300,7 +309,8 @@ export default defineComponent({
             return matchingLoadBalancersDNS.join('\n')
           },
           isSearchable: true,
-          classes: 'width-100px white-space-pre ellipsis vertical-scroll',
+          classes: 'width-120px',
+          cellContentClasses: 'white-space-pre ellipsis vertical-scroll',
         },
         {
           title: 'SAN',
@@ -310,7 +320,8 @@ export default defineComponent({
           },
           isSortable: true,
           isSearchable: true,
-          classes: 'width-100px white-space-pre ellipsis',
+          classes: 'width-100px',
+          cellContentClasses: 'white-space-pre ellipsis',
         },
       ]
     },
@@ -325,7 +336,8 @@ export default defineComponent({
           },
           isSortable: true,
           isSearchable: true,
-          classes: 'ellipsis',
+          cellContentClasses: 'ellipsis',
+
         },
         {
           title: '# Of certs',
@@ -350,28 +362,33 @@ export default defineComponent({
           fieldNames: ['provider'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-100px white-space-pre',
+          classes: 'width-120px',
+          cellContentClasses: 'white-space-pre',
+
         },
         {
           title: 'IP/FQDN',
           fieldNames: ['dns_name'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-100px white-space-pre ellipsis',
+          classes: 'width-100px',
+          cellContentClasses: 'white-space-pre ellipsis',
         },
         {
           title: 'Region',
           fieldNames: ['region'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-100px white-space-pre',
+          classes: 'width-100px',
+          cellContentClasses: 'white-space-pre',
         },
         {
           title: 'Type',
           fieldNames: ['load_balancer_type'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-100px white-space-pre',
+          classes: 'width-100px',
+          cellContentClasses: 'white-space-pre',
         },
       ] as ColumnOptions[]
     },
@@ -412,7 +429,8 @@ export default defineComponent({
       return certificate?.subject ? {
         san: certificate.san,
         expDate: certificate.exp_date,
-        name: (new URLSearchParams(certificate.subject.replaceAll(', ', '&'))).get('CN'),
+        cn: (new URLSearchParams(certificate.subject.replaceAll(', ', '&'))).get('CN'),
+        name: certificate.name,
       } : null
     },
 
@@ -465,11 +483,9 @@ export default defineComponent({
       if (cert.includes('(*)')) {
         cert = certificateLink
       }
-      cert = encodeURIComponent(cert)
       this.attachCertificateToLoadBalancer(balancer, cert, true, certificateLink)
     },
 
-    // eslint-disable-next-line
     async attachCertificateToLoadBalancer(balancer:Balancer, cert:string, isDefault:boolean = false, certificateLink?: string, certificate?: Certificate) {
       balancer.attach_loading = certificateLink
       if (certificate) {
@@ -483,7 +499,6 @@ export default defineComponent({
       const encodedBalancerListenerName = encodeURIComponent(balancer?.listener_name)
       const encodedBalancerListenerPort = encodeURIComponent(balancer?.listener_port)
       const elbVersion = balancer.load_balancer_type === 'classic' ? false : true
-      // eslint-disable-next-line
       const url = `config/${this.selectedBranch}/load-balancers/${encodedBalancerName}/certificates/${encodedCertificateId}/?provider=${encodedBalancerProvider}&default=${isDefault}&region=${encodedBalancerRegion}&listener=${encodedBalancerListenerName}&listener-port=${encodedBalancerListenerPort}&elbv2=${elbVersion}`
       await RequestsUtils.sendReblazeRequest({
         methodName: method,
@@ -553,17 +568,23 @@ export default defineComponent({
     },
 
     findLocalCertificateNameWithLink(providerLink:string) {
-      const gcpLink:Link = _.find(this.certificateByID.links, (link) => {
-        return link.provider === 'gcp'
+      const certificate = _.find(this.certificates, (certificate:Certificate) => {
+        const gcpLink:Link = _.find(certificate.links, (link) => {
+          return link.provider === 'gcp'
+        })
+        if (gcpLink?.link === providerLink) {
+          return true
+        }
+        const awsLink:Link = _.find(certificate.links, (link) => {
+          return link.provider === 'aws'
+        })
+        if (awsLink?.link === providerLink) {
+          return true
+        }
+        return false
       })
-      if (gcpLink?.link === providerLink) {
-        return this.certificateByID.id
-      }
-      const awsLink:Link = _.find(this.certificateByID.links, (link) => {
-        return link.provider === 'aws'
-      })
-      if (awsLink?.link === providerLink) {
-        return this.certificateByID.id
+      if (certificate) {
+        return certificate.id
       }
       const defaultCertName = providerLink.split('/')
       return defaultCertName[defaultCertName.length - 1] + '(*)'
