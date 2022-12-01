@@ -497,7 +497,6 @@ export default defineComponent({
       this.attachCertificateToLoadBalancer(balancer, cert, true, certificateLink)
     },
 
-    // eslint-disable-next-line
     async attachCertificateToLoadBalancer(balancer:Balancer, cert:string, isDefault:boolean = false, certificateLink?: string, certificate?: Certificate) {
       balancer.attach_loading = certificateLink
       if (certificate) {
