@@ -602,7 +602,7 @@ export default defineComponent({
       this.docIdNames = this.docs.map((doc) => {
         return {id: doc.id, name: doc.name}
       })
-      this.docIdNames = _.sortBy(this.docIdNames, [(doc) => doc.name.toLowerCase()])
+      this.docIdNames = Utils.sortDocumentName(this.docIdNames)
     },
 
     newMobileSDK(): MobileSDK {

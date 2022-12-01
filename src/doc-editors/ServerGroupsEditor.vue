@@ -450,6 +450,7 @@ import DatasetsUtils from '@/assets/DatasetsUtils'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
 
+
 export default defineComponent({
   name: 'ServerGroupsEditor',
   data() {
@@ -648,7 +649,7 @@ export default defineComponent({
       this.docIdNames = this.docs.map((doc) => {
         return {id: doc.id, name: doc.name}
       })
-      this.docIdNames = _.sortBy(this.docIdNames, [(doc) => doc.name.toLowerCase()])
+      this.docIdNames = Utils.sortDocumentName(this.docIdNames)
     },
 
     async setSelectedDataFromRouteParams() {
