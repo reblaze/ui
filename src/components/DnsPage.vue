@@ -4,9 +4,11 @@
           v-if="dnsRecords && !loadingDocCounter">
       <rbz-table :columns="columns"
                  :data="dnsRecords"
+                 :default-sort-column-index="1"
                  :vertical-align-top="true"
                  :show-menu-column="true"
-                 :show-filter-button="true">
+                 :show-filter-button="true"
+                 @select-array="updateSelected">
       </rbz-table>
     </div>
     <div class="content no-data-wrapper"
@@ -66,7 +68,7 @@ export default defineComponent({
           },
           isSortable: true,
           isSearchable: true,
-          cellContentClasses: 'multi-line ellipsis',
+          classes: 'multi-line ellipsis',
         },
       ] as ColumnOptions[],
       dnsRecords: [] as undefined as DnsRecord[],
@@ -74,6 +76,10 @@ export default defineComponent({
     }
   },
   methods: {
+
+    updateSelected(selectedBoxes: string[]) {
+      console.log('selectedBoxes', selectedBoxes)
+    },
 
     setLoadingDocStatus(isLoading: boolean) {
       if (isLoading) {
