@@ -231,7 +231,6 @@ export default defineComponent({
       this.quarantinedData = response.data.data.results.map((result: any) => {
         return {...result, id: result._id}
       })
-      console.log('quarantinedData', this.quarantinedData)
       this.selectedArray = []
       this.setLoadingDocStatus(false)
     },
