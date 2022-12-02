@@ -163,12 +163,16 @@ export default defineComponent({
       // Publish History
       columns: [
         {
-          title: 'ID',
-          fieldNames: ['id'],
+          title: 'Full Date',
+          fieldNames: ['full_date'],
+          isSortByOriginalValue: true,
+          displayFunction: (item: any) => {
+            const newDate = new Date(item['full_date'])
+            return DateTimeUtils.isoToNowFullCuriefenseFormat(newDate)
+          },
           isSortable: true,
           isSearchable: true,
-          classes: 'width-100px',
-          cellContentClasses: 'ellipsis',
+          classes: 'ellipsis width-170px',
         },
         {
           title: 'Source Branch',
@@ -186,34 +190,21 @@ export default defineComponent({
           },
           isSortable: true,
           isSearchable: true,
-          cellContentClasses: 'ellipsis',
+          classes: 'width-130px',
         },
         {
           title: 'Commit hash ID',
           fieldNames: ['commit_hash_id'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-80px',
-        },
-        {
-          title: 'Full Date',
-          fieldNames: ['date'],
-          isSortByOriginalValue: true,
-          displayFunction: (item: any) => {
-            const newDate = new Date(item['date'])
-            return DateTimeUtils.isoToNowCuriefenseFormat(newDate)
-          },
-          isSortable: true,
-          isSearchable: true,
-          classes: 'width-150px',
+          classes: 'ellipsis',
         },
         {
           title: 'Published User',
           fieldNames: ['published_user'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-100px',
-          cellContentClasses: 'ellipsis',
+          classes: 'ellipsis width-170px',
         },
       ] as ColumnOptions[],
       publishHistoryData: [] as PublishHistory[],
@@ -298,8 +289,7 @@ export default defineComponent({
 
     addPublishHistory() {
       const history = {} as PublishHistory
-      history.id = Date.now()
-      history.full_date = new Date(Date.now()).toDateString()
+      history.full_date = Date.now()
       history.source_branch = this.selectedBranch.id
       history.commit_hash_id = this.selectedCommit
       history.target_bucket = this.selectedBucketNames

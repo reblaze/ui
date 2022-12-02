@@ -461,12 +461,11 @@ declare module CuriefenseClient {
   }
 
   type PublishHistory = {
-    id: number,
+    commit_hash_id: string
+    full_date: number
+    published_user: string
     source_branch: string
     target_bucket: string[]
-    commit_hash_id: string
-    full_date: string
-    published_user: string
   }
 
   type Quarantined = {
