@@ -33,6 +33,13 @@
 
     <div class="content">
       <hr/>
+      <div class="publish-history">
+        <p class="title is-6 is-expanded">Publish History</p>
+          <rbz-table class="table"
+            :columns="columns"
+            :data="publishHistoryData">
+          </rbz-table>
+      </div>
       <div class="columns">
         <div class="column">
           <p class="title is-6 is-expanded">Version History</p>
@@ -109,11 +116,6 @@
             </tr>
             </tbody>
           </table>
-          <p class="title is-6 is-expanded">Publish History</p>
-          <rbz-table class="table"
-            :columns="columns"
-            :data="publishHistoryData">
-          </rbz-table>
         </div>
       </div>
     </div>
@@ -132,7 +134,7 @@ import DateTimeUtils from '@/assets/DateTimeUtils'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
 import RbzTable from '@/components/RbzTable.vue'
-import DatasetsUtils from '@/assets/DatasetsUtils'
+// import DatasetsUtils from '@/assets/DatasetsUtils'
 
 export default defineComponent({
   name: 'PublishChanges',
@@ -161,6 +163,14 @@ export default defineComponent({
       // Publish History
       columns: [
         {
+          title: 'ID',
+          fieldNames: ['id'],
+          isSortable: true,
+          isSearchable: true,
+          classes: 'width-100px',
+          cellContentClasses: 'ellipsis',
+        },
+        {
           title: 'Source Branch',
           fieldNames: ['source_branch'],
           isSortable: true,
@@ -171,6 +181,9 @@ export default defineComponent({
         {
           title: 'Target Bucket',
           fieldNames: ['target_bucket'],
+          displayFunction: (item: PublishHistory) => {
+            return item.target_bucket?.join('\n')
+          },
           isSortable: true,
           isSearchable: true,
           cellContentClasses: 'ellipsis',
@@ -193,14 +206,13 @@ export default defineComponent({
           isSortable: true,
           isSearchable: true,
           classes: 'width-150px',
-          cellContentClasses: 'ellipsis',
         },
         {
           title: 'Published User',
           fieldNames: ['published_user'],
           isSortable: true,
           isSearchable: true,
-          classes: 'width-150px',
+          classes: 'width-100px',
           cellContentClasses: 'ellipsis',
         },
       ] as ColumnOptions[],
@@ -264,19 +276,34 @@ export default defineComponent({
 
     async loadPublishHistory() {
       const url = '/db/system/k/publishhistory/'
-      this.publishHistoryData = await RequestsUtils.sendRequest({methodName: 'GET', url: url})
+      const response = await RequestsUtils.sendRequest({methodName: 'GET', url: url})
+      this.publishHistoryData = response?.data || []
       console.log('this.publishHistoryData', this.publishHistoryData)
     },
 
-    savePublishHistory() {
-      const url = '/db/system/k/publishhistory/'
-      const data = this.publishHistoryData
-      RequestsUtils.sendRequest({methodName: 'PUT', data, url: url})
+    async savePublishHistory() {
+      if (!this.publishHistoryData) {
+        await this.loadPublishHistory()
+      }
+      if (this.publishHistoryData) {
+        this.addPublishHistory()
+
+        const url = '/db/system/k/publishhistory/'
+        const data = this.publishHistoryData
+        RequestsUtils.sendRequest({methodName: 'PUT', data, url: url})
+      } else {
+        console.log('no publish history')
+      }
     },
 
-    addPublishHistory(history: PublishHistory) {
-      const id = DatasetsUtils.generateUUID2()
-      history.id = id
+    addPublishHistory() {
+      const history = {} as PublishHistory
+      history.id = Date.now()
+      history.full_date = new Date(Date.now()).toDateString()
+      history.source_branch = this.selectedBranch.id
+      history.commit_hash_id = this.selectedCommit
+      history.target_bucket = this.selectedBucketNames
+      history.published_user = this.gitLog?.[0].author || 'reblaze default user'
       this.publishHistoryData.push(history)
     },
 
@@ -343,6 +370,8 @@ export default defineComponent({
       const response = await RequestsUtils.sendReblazeRequest(publishRequestData)
       if (response) {
         this.parsePublishResults(true)
+        await this.savePublishHistory()
+
         this.isPublishLoading = false
       } else {
         console.log(`Reblaze publish ${failureMessage}`)
@@ -394,5 +423,9 @@ export default defineComponent({
        lang="scss">
 .marked {
   font-weight: 400;
+}
+
+.publish-history {
+  margin: 50px 10px;
 }
 </style>

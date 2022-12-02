@@ -461,9 +461,9 @@ declare module CuriefenseClient {
   }
 
   type PublishHistory = {
-    id: string,
+    id: number,
     source_branch: string
-    target_buvket: string
+    target_bucket: string[]
     commit_hash_id: string
     full_date: string
     published_user: string
