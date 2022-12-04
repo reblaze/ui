@@ -541,12 +541,11 @@ export default defineComponent({
         failureMessage,
       })
       // delete global filter
-      const gUrl = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${this.selectedDocID}/`
+      const globalFilterURL = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${this.selectedDocID}/`
       await RequestsUtils.sendRequest({
         methodName: 'DELETE',
-        url: gUrl,
+        url: globalFilterURL,
       })
-
       this.redirectToList()
       this.isDeleteLoading = false
       this.setLoadingDocStatus(false)

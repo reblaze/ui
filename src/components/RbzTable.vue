@@ -150,7 +150,6 @@
           </td>
           <td v-for="(col, index) in columns"
               :key="index"
-              :title="row[col.title]"
               class="data-cell is-size-7"
               :class="`
                 ${col.classes ? col.classes : ''}
@@ -160,10 +159,10 @@
                  :class="col.cellContentClasses">
               <span v-if="col.displayFunction"
                     v-html="col.displayFunction(row)"
-                    :title="col.displayFunction(row)?.toString()">
+                    :title="col.tooltipFunction ? col.tooltipFunction(row) : col.displayFunction(row)?.toString()">
               </span>
               <span v-else
-                    :title="row[col.fieldNames[0]]">
+                    :title="col.tooltipFunction ? col.tooltipFunction(row) : row[col.fieldNames[0]]">
                 {{ row[col.fieldNames[0]] }}
               </span>
             </div>
@@ -275,7 +274,6 @@ export default defineComponent({
     },
     secondRowButtonIcon: String,
     tableTitle: String,
-    isSortByOriginalValue: Boolean,
     rowsPerPage: {
       type: Number,
       default: 10,
@@ -320,7 +318,11 @@ export default defineComponent({
             })
           }
           this.sortColumnTitle = column?.title || null
-          this.sortColumnDisplayFunction = column?.displayFunction || null
+          if (column?.displayFunction && !column?.isSortByOriginalValue) {
+            this.sortColumnDisplayFunction = column.displayFunction
+          } else {
+            this.sortColumnDisplayFunction = null
+          }
           this.sortColumnIsNumber = column?.isNumber || false
           if (this.defaultSortColumnDirection) {
             this.sortDirection = this.defaultSortColumnDirection
@@ -484,8 +486,7 @@ export default defineComponent({
       }
       this.sortColumnTitle = column.title
 
-      this.sortColumnDisplayFunction = (this.isSortByOriginalValue) ? null :
-        column.displayFunction
+      this.sortColumnDisplayFunction = (column.isSortByOriginalValue) ? null : column.displayFunction
 
       this.sortColumnIsNumber = column.isNumber
     },

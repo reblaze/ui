@@ -278,6 +278,7 @@ declare module CuriefenseClient {
     fieldNames?: string[]
     isSortByOriginalValue?: boolean
     displayFunction?: (item: any) => string | number // Will be rendered as HTML
+    tooltipFunction?: (item: any) => string // Override tooltip (priority: tooltipFunction->displayFunction->fieldName)
     isSortable?: boolean
     isSearchable?: boolean
     isNumber?: boolean // True if all values are always numbers, for sorting
