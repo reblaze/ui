@@ -484,6 +484,8 @@ export default defineComponent({
       }
       this.sortColumnTitle = column.title
 
+      // this.isSortByOriginalValue = column.isSortByOriginalValue
+
       this.sortColumnDisplayFunction = (this.isSortByOriginalValue) ? null :
         column.displayFunction
 
