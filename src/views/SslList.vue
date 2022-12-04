@@ -276,7 +276,7 @@ export default defineComponent({
           fieldNames: ['links'],
           displayFunction: (item: Certificate) => {
             const isAWS = _.some(item?.links, (link: Link) => {
-              return link?.provider === 'aws' ? true : false
+              return link?.provider === 'aws'
             })
             return isAWS ? 'true' : 'false'
           },
@@ -290,7 +290,7 @@ export default defineComponent({
           fieldNames: ['links'],
           displayFunction: (item: Certificate) => {
             const isGCP = _.some(item?.links, (link: Link) => {
-              return link?.provider === 'gcp' ? true : false
+              return link?.provider === 'gcp'
             })
             return isGCP ? 'true' : 'false'
           },
