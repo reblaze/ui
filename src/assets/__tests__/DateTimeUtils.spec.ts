@@ -114,105 +114,7 @@ describe('DateTimeUtils.ts', () => {
           })
         })
 
-        describe('Between a day and three months', () => {
-          let month: string
-          let day: number | string
-          let hours: number | string
-          let minutes: number | string
-          const calcWantedTime = () => {
-            month = date.toLocaleString('default', {month: 'short'})
-            day = date.getDate()
-            if (day > 3 && day < 21) {
-              day = `${day}th`
-            } else {
-              switch (day % 10) {
-                case 1:
-                  day = `${day}st`
-                  break
-                case 2:
-                  day = `${day}nd`
-                  break
-                case 3:
-                  day = `${day}rd`
-                  break
-                default:
-                  day = `${day}th`
-              }
-            }
-            hours = date.getHours()
-            if (hours < 10) {
-              hours = `0${hours}`
-            }
-            minutes = date.getMinutes()
-            if (minutes < 10) {
-              minutes = `0${minutes}`
-            }
-            return `${day} ${month}, ${hours}:${minutes}`
-          }
-
-          test('should display correct message when two days old', async () => {
-            date = new Date()
-            date.setDate(date.getDate() - 2)
-            const wantedTime = calcWantedTime()
-
-            const actualTime = callFunc(date)
-            expect(actualTime).toEqual(wantedTime)
-          })
-
-          for (let i = 0; i < 28; i++) {
-            test(`should display correct message when ${i} of month (date ordinal)`, async () => {
-              date = new Date()
-              date.setMonth(date.getMonth() - 1)
-              date.setDate(i)
-              const wantedTime = calcWantedTime()
-
-              const actualTime = callFunc(date)
-              expect(actualTime).toEqual(wantedTime)
-            })
-          }
-
-          test('should display correct message when hours are single digit', async () => {
-            date = new Date()
-            date.setDate(date.getDate() - 3)
-            date.setHours(2)
-            const wantedTime = calcWantedTime()
-
-            const actualTime = callFunc(date)
-            expect(actualTime).toEqual(wantedTime)
-          })
-
-          test('should display correct message when hours are multi digit', async () => {
-            date = new Date()
-            date.setDate(date.getDate() - 3)
-            date.setHours(14)
-            const wantedTime = calcWantedTime()
-
-            const actualTime = callFunc(date)
-            expect(actualTime).toEqual(wantedTime)
-          })
-
-          test('should display correct message when minutes are single digit', async () => {
-            date = new Date()
-            date.setDate(date.getDate() - 3)
-            date.setMinutes(2)
-            const wantedTime = calcWantedTime()
-
-            const actualTime = callFunc(date)
-            expect(actualTime).toEqual(wantedTime)
-          })
-
-          test('should display correct message when minutes are multi digit', async () => {
-            date = new Date()
-            date.setDate(date.getDate() - 3)
-            date.setMinutes(37)
-            const wantedTime = calcWantedTime()
-
-            const actualTime = callFunc(date)
-            expect(actualTime).toEqual(wantedTime)
-          })
-        })
-
-        describe('Over three months', () => {
+        describe('Over 1 month', () => {
           let original: (date: string | Date) => string
           let spy: any
           beforeEach(() => {
@@ -265,22 +167,8 @@ describe('DateTimeUtils.ts', () => {
           year = date.getFullYear()
           month = date.toLocaleString('default', {month: 'short'})
           day = date.getDate()
-          if (day > 3 && day < 21) {
-            day = `${day}th`
-          } else {
-            switch (day % 10) {
-              case 1:
-                day = `${day}st`
-                break
-              case 2:
-                day = `${day}nd`
-                break
-              case 3:
-                day = `${day}rd`
-                break
-              default:
-                day = `${day}th`
-            }
+          if (day < 10) {
+            day = `0${day}`
           }
           hours = date.getHours()
           if (hours < 10) {
@@ -294,7 +182,7 @@ describe('DateTimeUtils.ts', () => {
           if (seconds < 10) {
             seconds = `0${seconds}`
           }
-          return `${day} ${month} ${year}, ${hours}:${minutes}:${seconds}`
+          return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
         }
 
         test('should display correct message when two days old', async () => {

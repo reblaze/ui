@@ -400,6 +400,7 @@ declare module CuriefenseClient {
 
   type Certificate = {
     id: string
+    name?: string
     cert_body: string
     exp_date?: string
     links?: Link[]

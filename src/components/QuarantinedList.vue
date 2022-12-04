@@ -88,7 +88,11 @@ export default defineComponent({
           isSortByOriginalValue: true,
           displayFunction: (item: any) => {
             const newDate = new Date(item['timestamp'])
-            return DateTimeUtils.isoToNowCuriefenseFormat(newDate)
+            const newDateMilliSeconds = newDate.getTime()
+            const timeZoneDifferenceMinutes = newDate.getTimezoneOffset()
+            const timeZoneMilliSeconds = timeZoneDifferenceMinutes * 60 * 1000
+            const finalDate = new Date(newDateMilliSeconds - timeZoneMilliSeconds)
+            return DateTimeUtils.isoToNowCuriefenseFormat(finalDate)
           },
           isSortable: true,
           isSearchable: true,
@@ -205,6 +209,7 @@ export default defineComponent({
     updateSelected(selectedBoxes: string[]) {
       this.selectedArray = [...selectedBoxes]
     },
+
     async loadQuarantinedData() {
       this.setLoadingDocStatus(true)
       const url = 'query'
@@ -248,6 +253,7 @@ export default defineComponent({
       await RequestsUtils.sendDataLayerRequest({methodName: 'POST', url, data, config})
       this.loadQuarantinedData()
     },
+
     async deleteSelectedRows() {
       this.setLoadingDocStatus(true)
       const toDeleteArray = this.selectedArray.map((rowId) => {

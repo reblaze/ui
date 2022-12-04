@@ -9,7 +9,7 @@
              v-if="showCheckboxColumn"/>
         <col v-for="(col, index) in columns"
              :key="index"
-             :class="col.classes"/>
+             :class="col.classes ? col.classes : ''"/>
         <col :class="overrideMenuColumnWidthClass ? overrideMenuColumnWidthClass : 'width-45px'"
              v-if="showMenuColumn"/>
       </colgroup>
@@ -36,7 +36,10 @@
         <th v-for="(col, index) in columns"
             :key="index"
             class="column-header is-size-7 column-title"
-            :class="`${col.classes} ${col.isSortable ? 'is-clickable' : ''}`"
+            :class="`
+              ${col.classes ? col.classes : ''}
+              ${col.isSortable ? 'is-clickable' : ''}
+            `"
             @click="sortColumn(col)">
           <div v-if="col.isSortable">
             <div class="arrow-wrapper">
@@ -128,32 +131,33 @@
       </tr>
       </thead>
       <tbody>
-      <template v-for="row in slicedDataArrayDisplay"
-        :key="row.id ? row.id : row.name">
+      <template v-for="(row, index) in slicedDataArrayDisplay"
+                :key="index">
         <tr @click="rowClickable && rowClicked(row.id ? row.id : row.name)"
             :class="{'is-clickable': rowClickable}"
             class="data-row">
-          <td class="is-size-7" v-if="showCheckboxColumn">
+          <td class="is-size-7"
+              v-if="showCheckboxColumn">
             <div class="field is-grouped is-grouped-centered">
-                <input type="checkbox"
-                        title="Checkbox"
-                        :checked="selectedArray.includes(row.id)"
-                        :id="row.id"
-                        :ref="row.id"
-                        class="is-small row-checkbox"
-                        @change="rowSelected(row.id)" />
+              <input type="checkbox"
+                     title="Checkbox"
+                     :checked="selectedArray.includes(row.id)"
+                     :id="row.id"
+                     :ref="row.id"
+                     class="is-small row-checkbox"
+                     @change="rowSelected(row.id)"/>
             </div>
           </td>
           <td v-for="(col, index) in columns"
               :key="index"
               :title="row[col.title]"
               class="data-cell is-size-7"
-            :class="`
-              ${col.classes ? col.classes : ''}
-              ${verticalAlignTop ? 'vertical-align-top' : 'vertical-align-middle'}
-            `">
-            <div :class="col?.cellContentClasses?.includes('multi-line') ? col.cellContentClasses :
-                'data-cell-content'">
+              :class="`
+                ${col.classes ? col.classes : ''}
+                ${verticalAlignTop ? 'vertical-align-top' : 'vertical-align-middle'}
+              `">
+            <div class="data-cell-content"
+                 :class="col.cellContentClasses">
               <span v-if="col.displayFunction"
                     v-html="col.displayFunction(row)"
                     :title="col.displayFunction(row)?.toString()">
@@ -168,10 +172,11 @@
               v-if="showMenuColumn">
             <div class="field is-grouped is-grouped-centered">
               <p class="control mx-0"
-                v-if="showRowButton">
+                 v-if="showRowButton">
                 <button :title="rowButtonTitle"
                         class="button is-small row-entity-button"
                         :class="rowButtonClass"
+                        :disabled="rowButtonDisabledCallback(row)"
                         @click="rowButtonClicked(row.id)">
                   <span class="icon is-small">
                     <i :class="`fas ${rowButtonIcon ? rowButtonIcon : 'fa-edit'}`"></i>
@@ -179,9 +184,10 @@
                 </button>
               </p>
               <p class="control mx-0"
-                v-if="showSecondRowButton">
+                 v-if="showSecondRowButton">
                 <button :title="secondRowButtonTitle"
                         class="button is-small row-entity-button"
+                        :disabled="secondRowButtonDisabledCallback(row)"
                         :class="secondRowButtonClass"
                         @click="secondRowButtonClicked(row.id)">
                   <span class="icon is-small">
@@ -193,7 +199,7 @@
           </td>
         </tr>
         <slot name="tableMenu"
-          :row="row"/>
+              :row="row"/>
       </template>
       <tr v-if="!slicedDataArrayDisplay?.length">
         <td :colspan="totalColumns"
@@ -252,9 +258,21 @@ export default defineComponent({
     verticalAlignTop: Boolean,
     rowButtonTitle: String,
     rowButtonClass: String,
+    rowButtonDisabledCallback: {
+      type: Function,
+      default: () => {
+        return false
+      },
+    },
     rowButtonIcon: String,
     secondRowButtonTitle: String,
     secondRowButtonClass: String,
+    secondRowButtonDisabledCallback: {
+      type: Function,
+      default: () => {
+        return false
+      },
+    },
     secondRowButtonIcon: String,
     tableTitle: String,
     isSortByOriginalValue: Boolean,

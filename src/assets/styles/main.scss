@@ -137,6 +137,12 @@ html {
   width: 220px;
 }
 
+.width-230px {
+  max-width: 230px;
+  min-width: 230px;
+  width: 230px;
+}
+
 .width-250px {
   max-width: 250px;
   min-width: 250px;
@@ -281,6 +287,12 @@ html {
   height: 200px;
   max-height: 200px;
   min-height: 200px;
+}
+
+.height-250px {
+  height: 250px;
+  max-height: 250px;
+  min-height: 250px;
 }
 
 .height-300px {
@@ -429,6 +441,10 @@ $color-light: hsl(0, 0%, 96%);
   justify-content: space-around;
 }
 
+.is-justify-content-space-between {
+  justify-content: space-between;
+}
+
 .is-fullwidth {
   width: 100%;
 }
@@ -510,6 +526,13 @@ $color-light: hsl(0, 0%, 96%);
   height: 0.5rem;
   margin-left: -0.25rem;
   margin-right: 0.25rem;
+  width: 0.5rem;
+}
+
+.square {
+  background-color: $color-curious-blue;
+  display: inline-block;
+  height: 0.5rem;
   width: 0.5rem;
 }
 
