@@ -263,6 +263,16 @@ export default defineComponent({
             cellContentClasses: 'vertical-scroll white-space-pre ellipsis',
           },
           {
+            title: 'Active',
+            fieldNames: ['active'],
+            displayFunction: (item: FlowControlPolicy) => {
+              return item?.active ? 'yes' : 'no'
+            },
+            isSortable: true,
+            isSearchable: true,
+            classes: 'width-80px',
+          },
+          {
             title: 'Sequences',
             fieldNames: ['sequence'],
             displayFunction: (item: FlowControlPolicy) => {
@@ -377,6 +387,16 @@ export default defineComponent({
             isSearchable: true,
             classes: 'width-100px',
             cellContentClasses: 'vertical-scroll white-space-pre ellipsis',
+          },
+          {
+            title: 'Active',
+            fieldNames: ['active'],
+            displayFunction: (item: RateLimit) => {
+              return item?.active ? 'yes' : 'no'
+            },
+            isSortable: true,
+            isSearchable: true,
+            classes: 'width-80px',
           },
           {
             title: 'Timeframe',
