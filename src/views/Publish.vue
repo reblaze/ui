@@ -33,7 +33,7 @@
 
     <div class="content">
       <hr/>
-      <div class="publish-history">
+      <div class="publish-history mb-5">
         <p class="title is-6 is-expanded">Publish History</p>
           <rbz-table class="table"
             :columns="columns"
@@ -134,7 +134,6 @@ import DateTimeUtils from '@/assets/DateTimeUtils'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
 import RbzTable from '@/components/RbzTable.vue'
-// import DatasetsUtils from '@/assets/DatasetsUtils'
 
 export default defineComponent({
   name: 'PublishChanges',
@@ -163,16 +162,17 @@ export default defineComponent({
       // Publish History
       columns: [
         {
-          title: 'Full Date',
-          fieldNames: ['full_date'],
+          title: 'Date',
+          fieldNames: ['date'],
           isSortByOriginalValue: true,
           displayFunction: (item: any) => {
-            const newDate = new Date(item['full_date'])
+            const newDate = new Date(item['date'])
             return DateTimeUtils.isoToNowFullCuriefenseFormat(newDate)
           },
           isSortable: true,
           isSearchable: true,
-          classes: 'ellipsis width-170px',
+          classes: 'width-170px',
+          cellContentClasses: 'ellipsis',
         },
         {
           title: 'Source Branch',
@@ -197,14 +197,15 @@ export default defineComponent({
           fieldNames: ['commit_hash_id'],
           isSortable: true,
           isSearchable: true,
-          classes: 'ellipsis',
+          cellContentClasses: 'ellipsis',
         },
         {
-          title: 'Published User',
-          fieldNames: ['published_user'],
+          title: 'Author',
+          fieldNames: ['author'],
           isSortable: true,
           isSearchable: true,
-          classes: 'ellipsis width-170px',
+          classes: 'width-170px',
+          cellContentClasses: 'ellipsis',
         },
       ] as ColumnOptions[],
       publishHistoryData: [] as PublishHistory[],
@@ -243,7 +244,6 @@ export default defineComponent({
     },
 
     ...mapStores(useBranchesStore),
-
 
   },
   methods: {
@@ -288,11 +288,11 @@ export default defineComponent({
 
     addPublishHistory() {
       const history = {} as PublishHistory
-      history.full_date = Date.now()
+      history.date = Date.now()
       history.source_branch = this.selectedBranch.id
       history.commit_hash_id = this.selectedCommit
       history.target_bucket = this.selectedBucketNames
-      history.published_user = this.gitLog?.[0].author || 'reblaze default user'
+      history.author = this.gitLog?.[0].author || 'reblaze default user'
       this.publishHistoryData.push(history)
     },
 
@@ -414,7 +414,4 @@ export default defineComponent({
   font-weight: 400;
 }
 
-.publish-history {
-  margin: 50px 10px;
-}
 </style>
