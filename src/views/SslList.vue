@@ -38,15 +38,19 @@
                     <strong>Default certificate:</strong>
                   </p>
                   <div class="column balancer-box">
-                    <p :class="{ 'pb-5': getCertificateDetails(selectedBalancer?.default_certificate)}">
+                    <p class="has-text-weight-medium"
+                       :class="{ 'mb-1': getCertificateDetails(selectedBalancer?.default_certificate)}">
                       {{ findLocalCertificateNameWithLink(selectedBalancer?.default_certificate) }}
                     </p>
                     <div v-if="getCertificateDetails(selectedBalancer?.default_certificate)">
                       <p class="mb-1">
-                        CN: {{ getCertificateDetails(selectedBalancer?.default_certificate).name }}
+                        Certificate Name: {{ getCertificateDetails(selectedBalancer?.default_certificate).name }}
                       </p>
                       <p class="mb-1">
-                        SAN: {{ getCertificateDetails(selectedBalancer?.default_certificate).san }}
+                        CN: {{ getCertificateDetails(selectedBalancer?.default_certificate).cn }}
+                      </p>
+                      <p class="mb-1">
+                        SAN: {{ getCertificateDetails(selectedBalancer?.default_certificate).san.join('\n') }}
                       </p>
                       <p class="mb-1">
                         Expiration: {{ getCertificateDetails(selectedBalancer?.default_certificate)?.expDate }}
