@@ -74,7 +74,7 @@ describe('RequestsUtils.ts', () => {
       expect(typeof document['mdate'] === 'string').toBeTruthy()
       expect(document['description']).toEqual('New Global Filter Description and Remarks')
       expect(document['active']).toEqual(false)
-      expect(document['tags']).toEqual(['trusted'])
+      expect(document['tags']).toEqual([])
       expect(document['action']).toEqual('action-global-filter-block')
       expect(document['rule']['relation']).toEqual('OR')
       expect(document['rule']['entries']).toEqual([])
