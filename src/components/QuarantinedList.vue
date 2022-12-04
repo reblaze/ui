@@ -4,7 +4,7 @@
          v-if="quarantinedData && !loadingDocCounter">
       <rbz-table :columns="columns"
                  :data="quarantinedData"
-                 :default-sort-column-index="1"
+                 :default-sort-column-index="3"
                  row-button-icon="fa-trash"
                  row-button-title="Delete"
                  row-button-class="has-text-danger"
@@ -85,13 +85,13 @@ export default defineComponent({
         {
           title: 'First Added',
           fieldNames: ['timestamp'],
-          isSortByOriginalValue: true,
           displayFunction: (item: any) => {
             const newDate = new Date(item['timestamp'])
             const newDateMilliSeconds = newDate.getTime()
             const timeZoneDifferenceMinutes = newDate.getTimezoneOffset()
             const timeZoneMilliSeconds = timeZoneDifferenceMinutes * 60 * 1000
-            const finalDate = new Date(newDateMilliSeconds - timeZoneMilliSeconds)
+            const finalDateMilliSecond = newDateMilliSeconds - timeZoneMilliSeconds
+            const finalDate = new Date(finalDateMilliSecond)
             return DateTimeUtils.isoToNowCuriefenseFormat(finalDate)
           },
           isSortable: true,
