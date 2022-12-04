@@ -517,6 +517,8 @@ export default defineComponent({
 
 <style scoped
        lang="scss">
+@import '../assets/styles/colors';
+
 .scrollable {
   border-collapse: separate;
   overflow-x: hidden;
@@ -568,7 +570,7 @@ export default defineComponent({
 }
 
 .rbz-table th {
-  background-color: #eef6fc;
+  background-color: $color-wild-sand;
   padding: 0.25em 0.5em;
   vertical-align: baseline;
 }
