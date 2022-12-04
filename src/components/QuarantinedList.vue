@@ -154,7 +154,7 @@ export default defineComponent({
           },
           isSearchable: true,
           classes: 'width-110px',
-          cellContentClasses: 'vertical-scroll ellipsis',
+          cellContentClasses: 'multi-line ellipsis',
         },
       ] as ColumnOptions[],
       quarantinedData: null as Quarantined[],
@@ -305,4 +305,9 @@ export default defineComponent({
   font-weight: 200;
 }
 
+:deep(.multi-line) {
+  height: fit-content;
+  max-height: fit-content;
+  min-height: 50px;
+}
 </style>

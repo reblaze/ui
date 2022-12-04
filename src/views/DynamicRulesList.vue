@@ -150,7 +150,7 @@ export default defineComponent({
           isSortable: false,
           isSearchable: true,
           classes: 'width-100px',
-          cellContentClasses: 'vertical-scroll white-space-pre ellipsis',
+          cellContentClasses: 'multi-line white-space-pre ellipsis',
         },
       ] as ColumnOptions[],
       isNewLoading: false,
@@ -283,3 +283,10 @@ export default defineComponent({
   },
 })
 </script>
+<style scoped lang="scss">
+:deep(.multi-line) {
+  height: fit-content;
+  max-height: fit-content;
+  min-height: 50px;
+}
+</style>

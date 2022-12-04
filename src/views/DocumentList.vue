@@ -166,6 +166,7 @@ export default defineComponent({
       selectedDocMatchingGlobalFilter: null as GlobalFilter,
       matchedDocsData: null as any,
       customResponsesNames: [] as [CustomResponse['id'], CustomResponse['name']][],
+      counter: 0,
     }
   },
   computed: {
@@ -204,11 +205,11 @@ export default defineComponent({
             title: 'Tags',
             fieldNames: ['tags'],
             displayFunction: (item: GlobalFilter) => {
-              return item?.tags?.join('\n')
+              return item?.tags?.length
             },
             isSearchable: true,
             classes: 'width-100px',
-            cellContentClasses: 'vertical-scroll white-space-pre ellipsis',
+            cellContentClasses: 'white-space-pre ellipsis',
           },
           {
             title: 'Active',
@@ -255,12 +256,12 @@ export default defineComponent({
             title: 'Tags',
             fieldNames: ['tags'],
             displayFunction: (item: FlowControlPolicy) => {
-              return item?.tags?.join('\n')
+              return item?.tags?.length
             },
             isSortable: false,
             isSearchable: true,
             classes: 'width-100px',
-            cellContentClasses: 'vertical-scroll white-space-pre ellipsis',
+            cellContentClasses: 'white-space-pre ellipsis',
           },
           {
             title: 'Active',
@@ -320,12 +321,12 @@ export default defineComponent({
             title: 'Tags',
             fieldNames: ['tags'],
             displayFunction: (item: SecurityPolicy) => {
-              return item?.tags?.join('\n')
+              return item?.tags?.length
             },
             isSortable: true,
             isSearchable: true,
             classes: 'width-100px',
-            cellContentClasses: 'vertical-scroll white-space-pre ellipsis',
+            cellContentClasses: 'white-space-pre ellipsis',
           },
           {
             title: 'Connected Profiles & Rules',
@@ -358,7 +359,7 @@ export default defineComponent({
               ].join('\n')
             },
             classes: 'width-200px',
-            cellContentClasses: 'vertical-scroll white-space-pre ellipsis',
+            cellContentClasses: 'white-space-pre ellipsis multi-line',
           },
         ],
         'ratelimits': [
@@ -381,12 +382,12 @@ export default defineComponent({
             title: 'Tags',
             fieldNames: ['tags'],
             displayFunction: (item: RateLimit) => {
-              return item?.tags?.join('\n')
+              return item?.tags?.length
             },
             isSortable: false,
             isSearchable: true,
             classes: 'width-100px',
-            cellContentClasses: 'vertical-scroll white-space-pre ellipsis',
+            cellContentClasses: 'white-space-pre ellipsis',
           },
           {
             title: 'Active',
@@ -422,7 +423,7 @@ export default defineComponent({
             isSortable: true,
             isSearchable: true,
             classes: 'width-250px',
-            cellContentClasses: 'vertical-scroll white-space-pre ellipsis',
+            cellContentClasses: 'multi-line white-space-pre ellipsis',
           },
           {
             title: 'Event',
@@ -460,12 +461,12 @@ export default defineComponent({
             title: 'Tags',
             fieldNames: ['tags'],
             displayFunction: (item: ACLProfile) => {
-              return item?.tags?.join('\n')
+              return item?.tags?.length
             },
             isSortable: false,
             isSearchable: true,
             classes: 'width-100px',
-            cellContentClasses: 'vertical-scroll white-space-pre ellipsis',
+            cellContentClasses: 'white-space-pre ellipsis',
           },
           {
             title: 'Custom Response',
@@ -514,12 +515,12 @@ export default defineComponent({
             title: 'Tags',
             fieldNames: ['tags'],
             displayFunction: (item: CustomResponse) => {
-              return item?.tags?.join('\n')
+              return item?.tags?.length
             },
             isSortable: false,
             isSearchable: true,
             classes: 'width-100px',
-            cellContentClasses: 'vertical-scroll white-space-pre ellipsis',
+            cellContentClasses: 'white-space-pre ellipsis',
           },
           {
             title: 'Type',
@@ -550,12 +551,12 @@ export default defineComponent({
             title: 'Tags',
             fieldNames: ['tags'],
             displayFunction: (item: ContentFilterProfile) => {
-              return item?.tags?.join('\n')
+              return item?.tags?.length
             },
             isSortable: false,
             isSearchable: true,
             classes: 'width-100px',
-            cellContentClasses: 'vertical-scroll white-space-pre ellipsis',
+            cellContentClasses: 'white-space-pre ellipsis',
           },
           {
             title: 'Restrict Content Type',
@@ -566,7 +567,7 @@ export default defineComponent({
             isSortable: true,
             isSearchable: true,
             classes: 'width-170px',
-            cellContentClasses: 'vertical-scroll white-space-pre ellipsis',
+            cellContentClasses: 'multi-line white-space-pre ellipsis',
           },
           {
             title: 'Decoding',
@@ -586,7 +587,7 @@ export default defineComponent({
             isSortable: true,
             isSearchable: true,
             classes: 'width-100px',
-            cellContentClasses: 'vertical-scroll white-space-pre ellipsis',
+            cellContentClasses: 'multi-line white-space-pre ellipsis',
           },
           {
             title: 'Custom Response',
@@ -647,7 +648,7 @@ export default defineComponent({
             title: 'Tags',
             fieldNames: ['tags'],
             displayFunction: (item: ContentFilterRule) => {
-              return item?.tags?.join('\n')
+              return item?.tags?.length
             },
             isSortable: true,
             isSearchable: true,
@@ -818,6 +819,12 @@ export default defineComponent({
   animation: delayedDisplay 300ms;
   /* Magic number! The page looks empty without content */
   min-height: 50vh;
+}
+
+:deep(.multi-line) {
+  height: fit-content;
+  max-height: fit-content;
+  min-height: 50px;
 }
 
 @keyframes delayedDisplay {

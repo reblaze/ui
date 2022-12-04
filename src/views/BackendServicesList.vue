@@ -96,7 +96,7 @@ export default defineComponent({
           },
           isSortable: true,
           isSearchable: true,
-          cellContentClasses: 'vertical-scroll white-space-pre ellipsis',
+          cellContentClasses: 'multi-line white-space-pre ellipsis',
         },
         {
           title: 'Transport Protocol',
@@ -218,3 +218,11 @@ export default defineComponent({
   },
 })
 </script>
+<style scoped lang="scss">
+:deep(.multi-line) {
+  height: fit-content;
+  max-height: fit-content;
+  min-height: 50px;
+}
+</style>
+
