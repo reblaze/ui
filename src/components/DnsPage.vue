@@ -89,6 +89,21 @@ export default defineComponent({
       const methodName = 'GET'
       const response = await RequestsUtils.sendReblazeRequest({methodName, url})
       this.dnsRecords = response?.data?.dns_records || []
+      this.dnsRecords = [
+        {
+          name: 'rbzdevay001olbs.dev.rbzdns.com',
+          resource_records: ['asdf23421342sadf', 'asdfg dsdfsadf', 'asdf6453645sadf',
+            'asd34564356435fsadf', 'asdfsadf'],
+          ttl: 99999,
+          type: 'NS',
+        },
+        {
+          name: 'rbzdevay001olbs.dev.rbzdns.com',
+          resource_records: ['asdf234213df6453645s.dfgdfgdfgsdgsdd.sddfsadf'],
+          ttl: 99999,
+          type: 'SOA',
+        },
+      ]
       this.setLoadingDocStatus(false)
     },
   },
@@ -110,7 +125,6 @@ export default defineComponent({
 :deep(.multi-line) {
   height: fit-content;
   max-height: fit-content;
-  min-height: 150px;
 }
 
 </style>
