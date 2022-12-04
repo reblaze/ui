@@ -94,6 +94,16 @@ export default defineComponent({
           cellContentClasses: 'ellipsis',
         },
         {
+          title: 'Active',
+          fieldNames: ['active'],
+          displayFunction: (item: DynamicRule) => {
+            return item?.active ? 'yes' : 'no'
+          },
+          isSortable: true,
+          isSearchable: true,
+          classes: 'width-80px',
+        },
+        {
           title: 'Timeframe',
           fieldNames: ['timeframe'],
           isSortable: true,
