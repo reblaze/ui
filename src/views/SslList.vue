@@ -50,7 +50,7 @@
                         CN: {{ getCertificateDetails(selectedBalancer?.default_certificate).cn }}
                       </p>
                       <p class="mb-1">
-                        SAN: {{ getCertificateDetails(selectedBalancer?.default_certificate).san.join('\n') }}
+                        SAN: {{ getCertificateDetails(selectedBalancer?.default_certificate).san.join(', ') }}
                       </p>
                       <p class="mb-1">
                         Expiration: {{ getCertificateDetails(selectedBalancer?.default_certificate)?.expDate }}
@@ -78,7 +78,7 @@
                           CN: {{ getCertificateDetails(certificate).cn }}
                         </p>
                         <p class="mb-1">
-                          SAN: {{ getCertificateDetails(certificate).san.join('\n') }}
+                          SAN: {{ getCertificateDetails(certificate).san.join(', ') }}
                         </p>
                         <p class="mb-1">
                           Expiration: {{ getCertificateDetails(certificate).expDate }}
