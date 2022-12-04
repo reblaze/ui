@@ -85,7 +85,6 @@ export default defineComponent({
         {
           title: 'First Added',
           fieldNames: ['timestamp'],
-          isSortByOriginalValue: true,
           displayFunction: (item: any) => {
             const newDate = new Date(item['timestamp'])
             const newDateMilliSeconds = newDate.getTime()
