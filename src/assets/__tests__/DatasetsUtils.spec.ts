@@ -118,7 +118,7 @@ describe('RequestsUtils.ts', () => {
       expect(document['active']).toEqual(true)
       expect(document['description']).toEqual('New Flow Control Policy Description and Remarks')
       expect(document['key']).toEqual([{'attrs': 'ip'}])
-      expect(document['tags']).toEqual(['all'])
+      expect(document['tags']).toEqual([])
       expect(document['exclude']).toEqual([])
       expect(document['include']).toEqual(['all'])
       expect(document['sequence']).toEqual([
