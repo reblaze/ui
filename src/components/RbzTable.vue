@@ -152,8 +152,8 @@
               ${col.classes ? col.classes : ''}
               ${verticalAlignTop ? 'vertical-align-top' : 'vertical-align-middle'}
             `">
-            <div class="data-cell-content"
-                :class="col.cellContentClasses">
+            <div :class="col?.cellContentClasses?.includes('multi-line') ? col.cellContentClasses :
+                'data-cell-content'">
               <span v-if="col.displayFunction"
                     v-html="col.displayFunction(row)"
                     :title="col.displayFunction(row)?.toString()">

@@ -269,7 +269,6 @@ export default defineComponent({
       const url = '/db/system/k/publishhistory/'
       const response = await RequestsUtils.sendRequest({methodName: 'GET', url: url})
       this.publishHistoryData = response?.data || []
-      console.log('this.publishHistoryData', this.publishHistoryData)
     },
 
     async savePublishHistory() {
