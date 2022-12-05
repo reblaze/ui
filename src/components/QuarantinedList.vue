@@ -165,13 +165,14 @@ export default defineComponent({
         {
           title: 'Tags',
           fieldNames: ['tags'],
-          isSortable: true,
           displayFunction: (item: Quarantined) => {
-            return item.tags?.join('\n')
+            return item.tags?.length
           },
+          isSortable: true,
           isSearchable: true,
+          isNumber: true,
           classes: 'width-110px',
-          cellContentClasses: 'vertical-scroll ellipsis',
+          cellContentClasses: 'ellipsis',
         },
       ] as ColumnOptions[],
       quarantinedData: null as Quarantined[],
@@ -322,4 +323,9 @@ export default defineComponent({
   font-weight: 200;
 }
 
+:deep(.multi-line) {
+  height: fit-content;
+  max-height: fit-content;
+  min-height: 50px;
+}
 </style>

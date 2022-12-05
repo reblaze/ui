@@ -214,22 +214,24 @@
         </td>
       </tr>
       <tr v-if="totalPages > 1 && !useScroll"
-          class="pagination-row">
-        <td :colspan="totalColumns">
-          <div class="pagination is-small">
-            <button class="pagination-previous"
-                    @click="prevPage"
-                    :disabled="currentPage === 1">
-              Previous Page
-            </button>
-            <button class="pagination-next"
-                    @click="nextPage"
-                    :disabled="currentPage === totalPages">
-              Next Page
-            </button>
-          </div>
-        </td>
-      </tr>
+        class="pagination-row">
+      <td :colspan="totalColumns">
+        <div class="pagination is-small">
+          <button class="pagination-button mx-1 my-2 pagination-button-previous"
+                  @click="prevPage"
+                  :disabled="currentPage === 1"
+                  :class="{'pagination-button-active' : currentPage !== 1 }">
+            Previous Page
+          </button>
+          <button class="pagination-button mx-1 my-2 pagination-button-next"
+                  @click="nextPage"
+                  :disabled="currentPage === totalPages"
+                  :class="{'pagination-button-active' : currentPage !== totalPages }">
+            Next Page
+          </button>
+        </div>
+      </td>
+    </tr>
       </tbody>
     </table>
   </div>
@@ -518,6 +520,8 @@ export default defineComponent({
 
 <style scoped
        lang="scss">
+@import 'src/assets/styles/colors';
+
 .scrollable {
   border-collapse: separate;
   overflow-x: hidden;
@@ -642,5 +646,16 @@ export default defineComponent({
 
 .rbz-table .data-cell-content {
   max-height: 1.75rem;
+}
+
+.pagination-button {
+  background: none;
+  border: 0;
+  padding: 0;
+}
+
+.pagination-button-active {
+  color: $color-cornflower-blue;
+  cursor: pointer;
 }
 </style>

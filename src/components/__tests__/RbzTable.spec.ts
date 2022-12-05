@@ -32,7 +32,7 @@ describe('RbzTable.vue', () => {
         title: 'Tags',
         fieldNames: ['tags'],
         displayFunction: (item: GlobalFilter) => {
-          return item?.tags?.join('\n')
+          return item?.tags?.length
         },
         isSearchable: true,
         classes: 'width-100px white-space-pre ellipsis',
@@ -242,7 +242,7 @@ describe('RbzTable.vue', () => {
       expect(ascArrowElement.element.classList).toContain('is-active')
     })
 
-    test('should not have arrows in column header when the column is non sortable', () => {
+    test('should not have is-clickable class in column header when the column is non sortable', () => {
       const tagsCell = wrapper.findAll('.column-title').at(2)
       expect(tagsCell.element.classList).not.toContain('is-clickable')
     })
@@ -372,7 +372,7 @@ describe('RbzTable.vue', () => {
       await filterButton.trigger('click')
       const tagsInput = wrapper.findAll('.filter-input').at(2)
       await tagsInput.trigger('click')
-      await tagsInput.setValue('curiefense')
+      await tagsInput.setValue('1')
       await tagsInput.trigger('keydown', {keyCode: 13})
       const firstDataCell = wrapper.findAll('.data-cell').at(0)
       const secondDataCell = wrapper.findAll('.data-cell').at(1)
@@ -626,30 +626,30 @@ describe('RbzTable.vue', () => {
     })
 
     test('should have the next page button enabled if not in the last page', async () => {
-      const nextPageButton = wrapper.find('.pagination-next')
+      const nextPageButton = wrapper.find('.pagination-button-next')
       expect(nextPageButton.element.disabled).toBeFalsy()
     })
 
     test('should have the next page button disabled if in the last page', async () => {
-      const nextPageButton = wrapper.find('.pagination-next')
+      const nextPageButton = wrapper.find('.pagination-button-next')
       await nextPageButton.trigger('click')
       expect(nextPageButton.element.disabled).toBeTruthy()
     })
 
     test('should have the prev page button disabled if in the first page', async () => {
-      const prevPageButton = wrapper.find('.pagination-previous')
+      const prevPageButton = wrapper.find('.pagination-button-previous')
       expect(prevPageButton.element.disabled).toBeTruthy()
     })
 
     test('should have the prev page button enabled if not in the first page', async () => {
-      const nextPageButton = wrapper.find('.pagination-next')
+      const nextPageButton = wrapper.find('.pagination-button-next')
       await nextPageButton.trigger('click')
-      const prevPageButton = wrapper.find('.pagination-previous')
+      const prevPageButton = wrapper.find('.pagination-button-previous')
       expect(prevPageButton.element.disabled).toBeFalsy()
     })
 
     test('should have the correct data when navigating to the next page', async () => {
-      const nextPageButton = wrapper.find('.pagination-next')
+      const nextPageButton = wrapper.find('.pagination-button-next')
       await nextPageButton.trigger('click')
       const firstRow = wrapper.findAll('.data-row').at(0)
       const nameCell = firstRow.findAll('td').at(0)
@@ -657,9 +657,9 @@ describe('RbzTable.vue', () => {
     })
 
     test('should have the correct data when navigating to the prev page', async () => {
-      const nextPageButton = wrapper.find('.pagination-next')
+      const nextPageButton = wrapper.find('.pagination-button-next')
       await nextPageButton.trigger('click')
-      const prevPageButton = wrapper.find('.pagination-previous')
+      const prevPageButton = wrapper.find('.pagination-button-previous')
       await prevPageButton.trigger('click')
       const firstRow = wrapper.findAll('.data-row').at(0)
       const nameCell = firstRow.findAll('td').at(0)
@@ -687,7 +687,7 @@ describe('RbzTable.vue', () => {
     })
 
     test('should automatically change pages if filtering results in less pages than the current page', async () => {
-      const nextPageButton = wrapper.find('.pagination-next')
+      const nextPageButton = wrapper.find('.pagination-button-next')
       await nextPageButton.trigger('click')
       const filterButton = wrapper.find('.filter-toggle')
       await filterButton.trigger('click')

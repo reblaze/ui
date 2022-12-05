@@ -274,7 +274,7 @@ export default defineComponent({
           },
           isSearchable: true,
           classes: 'width-100px',
-          cellContentClasses: 'ellipsis white-space-pre vertical-scroll',
+          cellContentClasses: 'ellipsis white-space-pre multi-line',
         },
         {
           title: 'AWS',
@@ -328,7 +328,7 @@ export default defineComponent({
           },
           isSearchable: true,
           classes: 'width-120px',
-          cellContentClasses: 'white-space-pre ellipsis vertical-scroll',
+          cellContentClasses: 'white-space-pre ellipsis multi-line',
         },
         {
           title: 'SAN',
@@ -647,5 +647,11 @@ export default defineComponent({
 
 .center-details {
   align-items: center;
+}
+
+:deep(.multi-line) {
+  height: fit-content;
+  max-height: fit-content;
+  min-height: 75px;
 }
 </style>
