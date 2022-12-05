@@ -281,7 +281,13 @@
 
 <script lang="ts">
 import {defineComponent, PropType} from 'vue'
-import {Category, GlobalFilterRule, GlobalFilterRuleEntry, GlobalFilterRuleSection, Relation} from '@/types'
+import {
+  EntriesCategory,
+  GlobalFilterRule,
+  GlobalFilterRuleEntry,
+  GlobalFilterRuleSection,
+  Relation,
+} from '@/types'
 import _ from 'lodash'
 import Utils from '@/assets/Utils'
 
@@ -339,7 +345,7 @@ export default defineComponent({
       isCollapsed: false,
       newEntryOpen: false,
       // newEntryCategory - start with most common category - IP
-      newEntryCategory: 'ip' as Category,
+      newEntryCategory: 'ip' as EntriesCategory,
       newEntryItem: {
         firstAttr: '',
         secondAttr: '',
@@ -393,7 +399,7 @@ export default defineComponent({
       const categories = Object.keys(this.listEntryTypes)
       for (let i = 0; i < categories.length; i++) {
         const category = categories[i]
-        if (this.isCategoryArgsCookiesHeaders(category as Category) || category === 'tags') {
+        if (this.isCategoryArgsCookiesHeaders(category as EntriesCategory) || category === 'tags') {
           continue
         }
         if (countedCategories[category] > 1) {
@@ -473,7 +479,7 @@ export default defineComponent({
       this.emitRuleUpdate()
     },
 
-    isCategoryArgsCookiesHeaders(category: Category) {
+    isCategoryArgsCookiesHeaders(category: EntriesCategory) {
       return (new RegExp('(args|cookies|headers)')).test(category)
     },
 
@@ -552,7 +558,7 @@ export default defineComponent({
     },
 
     clearCategory() {
-      this.newEntryCategory = 'ip' as Category
+      this.newEntryCategory = 'ip' as EntriesCategory
     },
 
     clearFields() {
@@ -616,7 +622,7 @@ export default defineComponent({
         })
         _.filter(values, (value, index, iteratee) => {
           if (_.includes(iteratee, value, index + 1) &&
-              !this.isEntryDuplicate(key as Category, value)) {
+              !this.isEntryDuplicate(key as EntriesCategory, value)) {
             this.duplicatedEntries.push([key, value])
           }
         })
@@ -625,7 +631,7 @@ export default defineComponent({
         const duplicatesMsg = this.duplicatedEntries.reduce(
             (prev: string, [category, value]: GlobalFilterRuleEntry) => {
               return `${prev}<br/>` +
-                  `${this.listEntryTypes[category as Category]} = ${this.dualCell(value)}`
+                  `${this.listEntryTypes[category as EntriesCategory]} = ${this.dualCell(value)}`
             },
             '',
         )
