@@ -628,30 +628,30 @@ describe('RbzTable.vue', () => {
     })
 
     test('should have the next page button enabled if not in the last page', async () => {
-      const nextPageButton = wrapper.find('.pagination-next-check')
+      const nextPageButton = wrapper.find('.pagination-button-next')
       expect(nextPageButton.element.disabled).toBeFalsy()
     })
 
     test('should have the next page button disabled if in the last page', async () => {
-      const nextPageButton = wrapper.find('.pagination-next-check')
+      const nextPageButton = wrapper.find('.pagination-button-next')
       await nextPageButton.trigger('click')
       expect(nextPageButton.element.disabled).toBeTruthy()
     })
 
     test('should have the prev page button disabled if in the first page', async () => {
-      const prevPageButton = wrapper.find('.pagination-previous-check')
+      const prevPageButton = wrapper.find('.pagination-button-previous')
       expect(prevPageButton.element.disabled).toBeTruthy()
     })
 
     test('should have the prev page button enabled if not in the first page', async () => {
-      const nextPageButton = wrapper.find('.pagination-next-check')
+      const nextPageButton = wrapper.find('.pagination-button-next')
       await nextPageButton.trigger('click')
-      const prevPageButton = wrapper.find('.pagination-previous-check')
+      const prevPageButton = wrapper.find('.pagination-button-previous')
       expect(prevPageButton.element.disabled).toBeFalsy()
     })
 
     test('should have the correct data when navigating to the next page', async () => {
-      const nextPageButton = wrapper.find('.pagination-next-check')
+      const nextPageButton = wrapper.find('.pagination-button-next')
       await nextPageButton.trigger('click')
       const firstRow = wrapper.findAll('.data-row').at(0)
       const nameCell = firstRow.findAll('td').at(0)
@@ -659,9 +659,9 @@ describe('RbzTable.vue', () => {
     })
 
     test('should have the correct data when navigating to the prev page', async () => {
-      const nextPageButton = wrapper.find('.pagination-next-check')
+      const nextPageButton = wrapper.find('.pagination-button-next')
       await nextPageButton.trigger('click')
-      const prevPageButton = wrapper.find('.pagination-previous-check')
+      const prevPageButton = wrapper.find('.pagination-button-previous')
       await prevPageButton.trigger('click')
       const firstRow = wrapper.findAll('.data-row').at(0)
       const nameCell = firstRow.findAll('td').at(0)
@@ -689,7 +689,7 @@ describe('RbzTable.vue', () => {
     })
 
     test('should automatically change pages if filtering results in less pages than the current page', async () => {
-      const nextPageButton = wrapper.find('.pagination-next-check')
+      const nextPageButton = wrapper.find('.pagination-button-next')
       await nextPageButton.trigger('click')
       const filterButton = wrapper.find('.filter-toggle')
       await filterButton.trigger('click')
