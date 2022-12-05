@@ -428,7 +428,7 @@ export default defineComponent({
 
     isAttachButtonEnabled() {
       const maxCertsNumber = this.MAX_CERT_PER_LB[this.selectedBalancer?.load_balancer_type]
-      return this.certificates?.length + 1 < maxCertsNumber || maxCertsNumber === 1
+      return this.selectedBalancer.certificates?.length + 1 < maxCertsNumber || maxCertsNumber === 1
     },
 
     selectedBranch(): string {
