@@ -212,6 +212,40 @@ describe('RequestsUtils.ts', () => {
           requestFunc({methodName: 'DELETE', url, successMessage, failureMessage, onFail})
         })
       })
+
+      describe('redirect response', () => {
+        let originalLocation
+        beforeEach(() => {
+          const location = JSON.stringify(window.location)
+          originalLocation = window.location
+          delete window.location
+
+          window.location = JSON.parse(location)
+          window.location.href = 'http://localhost/test'
+        })
+        afterEach(() => {
+          window.location = originalLocation
+        })
+
+        test('should not attempt to redirect if no redirect info received from the server', async () => {
+          getSpy = jest.spyOn(axios, 'get').mockImplementation(() => Promise.resolve())
+          await requestFunc({methodName: 'GET', url})
+          expect(window.location.href).toEqual('http://localhost/test')
+          jest.clearAllMocks()
+        })
+
+        test('should attempt to redirect if redirect info received from the server', async () => {
+          const wantedURL = 'http://127.0.0.1/testOtherPath'
+          getSpy = jest.spyOn(axios, 'get').mockImplementation(() => Promise.resolve({
+            request: {
+              location: wantedURL,
+            },
+          }))
+          await requestFunc({methodName: 'GET', url})
+          expect(window.location.href).toEqual(wantedURL)
+          jest.clearAllMocks()
+        })
+      })
     })
   }
 

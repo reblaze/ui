@@ -164,7 +164,13 @@
                         :selected-balancer="selectedBalancer"
                         :certificates="certificates"
                         @attach-shown-changed="attachCertPopupShown = false"
-                        :attach-certificate-to-load-balancer="attachCertificateToLoadBalancer"
+                        @attach-certificate-to-load-balancer="attachCertificateToLoadBalancer(
+                          $event.selectedBalancer,
+                          $event.certificate.id,
+                          false,
+                          '',
+                          $event.certificate
+                        )"
                         :isAttachLoading="isAttachLoading"/>
   </div>
 </template>
@@ -265,9 +271,7 @@ export default defineComponent({
               const matchingSites: Site[] = _.filter(this.sites, (site: Site) => {
                 return site.ssl_certificate === item.id
               })
-              return matchingSites.length ? _.flatMap(matchingSites, (matchingSite:Site) => {
-                return matchingSite.server_names
-              }).join('\n') : ''
+              return matchingSites.length ? _.map(matchingSites, 'name').join('\n') : ''
             } else {
               return ''
             }
@@ -513,7 +517,11 @@ export default defineComponent({
       this.attachCertificateToLoadBalancer(balancer, cert, true, certificateLink)
     },
 
-    async attachCertificateToLoadBalancer(balancer:Balancer, cert:string, isDefault:boolean = false, certificateLink?: string, certificate?: Certificate) {
+    async attachCertificateToLoadBalancer(balancer: Balancer,
+                                          cert: string,
+                                          isDefault: boolean = false,
+                                          certificateLink?: string,
+                                          certificate?: Certificate) {
       balancer.attach_loading = certificateLink
       if (certificate) {
         certificate.loading = true
@@ -597,14 +605,14 @@ export default defineComponent({
     },
 
     findLocalCertificateNameWithLink(providerLink: string) {
-      const certificate = _.find(this.certificates, (certificate:Certificate) => {
-        const gcpLink:Link = _.find(certificate.links, (link) => {
+      const certificate = _.find(this.certificates, (certificate: Certificate) => {
+        const gcpLink: Link = _.find(certificate.links, (link) => {
           return link.provider === 'gcp'
         })
         if (gcpLink?.link === providerLink) {
           return true
         }
-        const awsLink:Link = _.find(certificate.links, (link) => {
+        const awsLink: Link = _.find(certificate.links, (link) => {
           return link.provider === 'aws'
         })
         if (awsLink?.link === providerLink) {

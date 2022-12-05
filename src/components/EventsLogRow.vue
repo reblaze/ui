@@ -1,7 +1,7 @@
 <template>
-  <div class="box event-row-box mb-0">
+  <div class="box event-row-box mb-0"
+       :class="{'event-row-box-open': eventFullDetails}">
     <div class="event-row-summary is-fullwidth mb-0 is-clickable"
-         :class="{'event-row-summary-open': eventFullDetails}"
          @click="toggleShowFullDetails()">
       <div class="columns event-row-summary-columns mb-0">
         <span class="column width-10px">
@@ -983,14 +983,22 @@ $event-row-box-horizontal-padding: 1rem;
 
 .event-row-box {
   background-color: $color-black-haze;
+  border: 1px solid $color-wild-sand;
+  border-radius: 0;
+  border-top: 0;
   padding: 0 $event-row-box-horizontal-padding;
+}
+
+.event-row-box-open {
+  background-color: $color-black-haze;
+  border: 1px solid $color-nobel;
+  border-top: 0;
 }
 
 .event-row-summary {
   background-color: $color-white;
-  border: 1px solid $color-white;
-  border-bottom: 1px solid $color-nobel;
-  border-radius: 6px;
+  border-radius: 0;
+  border-top: 1px solid $color-white;
   height: 4rem;
   line-height: 2rem;
   margin-left: - $event-row-box-horizontal-padding;
@@ -1003,13 +1011,19 @@ $event-row-box-horizontal-padding: 1rem;
   z-index: 10;
 }
 
-.event-row-summary:hover {
+.event-row-box-open .event-row-summary {
   background-color: $color-black-haze;
+  border-bottom: 1px solid $color-mercury;
+  border-top: 1px solid $color-nobel;
 }
 
-.event-row-summary-open {
+.event-row-summary:hover {
   background-color: $color-black-haze;
-  border: 1px solid $color-nobel;
+  border-top: 1px solid $color-black-haze;
+}
+
+.event-row-box-open .event-row-summary:hover {
+  border-top: 1px solid $color-nobel;
 }
 
 .event-row-summary-columns {

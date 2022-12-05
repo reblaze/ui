@@ -14,13 +14,6 @@
              v-if="showMenuColumn"/>
       </colgroup>
       <thead>
-      <tr class="header-row"
-          v-if="tableTitle">
-        <th :colspan="totalColumns"
-            class="has-text-centered table-title">
-          {{ tableTitle }}
-        </th>
-      </tr>
       <tr class="header-row">
         <th class="is-size-7 width-45px"
             v-if="showCheckboxColumn">
@@ -36,23 +29,20 @@
         <th v-for="(col, index) in columns"
             :key="index"
             class="column-header is-size-7 column-title"
-            :class="`
-              ${col.classes ? col.classes : ''}
-              ${col.isSortable ? 'is-clickable' : ''}
-            `"
+            :class="`${col.classes || ''}${col.isSortable ? 'is-clickable' : ''}`"
             @click="sortColumn(col)">
-          <div v-if="col.isSortable">
-            <div class="arrow-wrapper">
-              <span class="arrow arrow-asc"
-                    :class="{'is-active': sortColumnTitle === col.title && sortDirection === 'asc'}"/>
-            </div>
-            <div class="arrow-wrapper">
-              <span class="arrow arrow-desc"
-                    :class="{'is-active': sortColumnTitle === col.title && sortDirection === 'desc'}"/>
-            </div>
-          </div>
-          <span>
-            {{ col.title }}
+          <span class="is-flex is-justify-content-space-between">
+            <span>
+              {{ col.title }}
+            </span>
+            <span v-show="col.isSortable">
+              <div v-show="sortColumnTitle === col.title && sortDirection === 'asc'">
+                <i class="fas fa-sort-up"></i>
+              </div>
+              <div v-show="sortColumnTitle === col.title && sortDirection === 'desc'">
+                <i class="fas fa-sort-down"></i>
+              </div>
+            </span>
           </span>
         </th>
         <th class="column-header is-relative has-text-centered"
@@ -151,10 +141,7 @@
           <td v-for="(col, index) in columns"
               :key="index"
               class="data-cell is-size-7"
-              :class="`
-                ${col.classes ? col.classes : ''}
-                ${verticalAlignTop ? 'vertical-align-top' : 'vertical-align-middle'}
-              `">
+              :class="`${col.classes || ''}${verticalAlignTop ? 'vertical-align-top' : 'vertical-align-middle'}`">
             <div class="data-cell-content"
                  :class="col.cellContentClasses">
               <span v-if="col.displayFunction"
@@ -275,7 +262,6 @@ export default defineComponent({
       },
     },
     secondRowButtonIcon: String,
-    tableTitle: String,
     rowsPerPage: {
       type: Number,
       default: 10,
@@ -536,36 +522,6 @@ export default defineComponent({
 .rbz-table {
   border-collapse: separate;
   table-layout: fixed;
-}
-
-.rbz-table .arrow-wrapper {
-  float: right;
-  height: 0;
-}
-
-.rbz-table .arrow {
-  border-left: 4px solid transparent;
-  border-right: 4px solid transparent;
-  display: inline-block;
-  height: 0;
-  opacity: 0.3;
-  width: 0;
-}
-
-.rbz-table .arrow.is-active {
-  opacity: 1;
-}
-
-.rbz-table .arrow-asc {
-  border-bottom: 6px solid #000;
-  border-top: 0;
-  vertical-align: top;
-}
-
-.rbz-table .arrow-desc {
-  border-bottom: 0;
-  border-top: 6px solid #000;
-  vertical-align: bottom;
 }
 
 .rbz-table.table.is-hoverable tbody tr:hover {
