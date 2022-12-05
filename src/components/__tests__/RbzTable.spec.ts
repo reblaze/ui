@@ -34,9 +34,7 @@ describe('RbzTable.vue', () => {
         displayFunction: (item: GlobalFilter) => {
           return item?.tags?.length
         },
-        isSortable: true,
         isSearchable: true,
-        isNumber: true,
         classes: 'width-100px white-space-pre ellipsis',
       },
       {
@@ -244,7 +242,7 @@ describe('RbzTable.vue', () => {
       expect(ascArrowElement.element.classList).toContain('is-active')
     })
 
-    test('should not have arrows in column header when the column is non sortable', () => {
+    test('should not have is-clickable class in column header when the column is non sortable', () => {
       const tagsCell = wrapper.findAll('.column-title').at(2)
       expect(tagsCell.element.classList).not.toContain('is-clickable')
     })
@@ -374,7 +372,7 @@ describe('RbzTable.vue', () => {
       await filterButton.trigger('click')
       const tagsInput = wrapper.findAll('.filter-input').at(2)
       await tagsInput.trigger('click')
-      await tagsInput.setValue('curiefense')
+      await tagsInput.setValue('1')
       await tagsInput.trigger('keydown', {keyCode: 13})
       const firstDataCell = wrapper.findAll('.data-cell').at(0)
       const secondDataCell = wrapper.findAll('.data-cell').at(1)
