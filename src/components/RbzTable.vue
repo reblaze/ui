@@ -215,22 +215,24 @@
         </td>
       </tr>
       <tr v-if="totalPages > 1 && !useScroll"
-          class="pagination-row">
-        <td :colspan="totalColumns">
-          <div class="pagination is-small">
-            <a class="my-2 mx-1"
-               @click="prevPage"
-               :disabled="currentPage === 1">
-              Previous Page
-            </a>
-            <a class="my-2 mx-1"
-               @click="nextPage"
-               :disabled="currentPage === totalPages">
-              Next Page
-            </a>
-          </div>
-        </td>
-      </tr>
+        class="pagination-row">
+      <td :colspan="totalColumns">
+        <div class="pagination is-small">
+          <button class="pagination-buttons mx-1 my-2"
+                  @click="prevPage"
+                  :disabled="currentPage === 1"
+                  :class="{'is-button-active' : currentPage !== 1 }">
+            Previous Page
+          </button>
+          <button class="pagination-buttons mx-1 my-2"
+                  @click="nextPage"
+                  :disabled="currentPage === totalPages"
+                  :class="{'is-button-active' : currentPage !== totalPages }">
+            Next Page
+          </button>
+        </div>
+      </td>
+    </tr>
       </tbody>
     </table>
   </div>
@@ -641,5 +643,16 @@ export default defineComponent({
 
 .rbz-table .data-cell-content {
   max-height: 1.75rem;
+}
+
+.pagination-buttons {
+  background: none !important;
+  border: 0;
+  padding: 0 !important;
+}
+
+.is-button-active {
+  color: #069;
+  cursor: pointer;
 }
 </style>
