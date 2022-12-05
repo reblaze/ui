@@ -38,15 +38,19 @@
                     <strong>Default certificate:</strong>
                   </p>
                   <div class="column balancer-box">
-                    <p :class="{ 'pb-5': getCertificateDetails(selectedBalancer?.default_certificate)}">
+                    <p class="has-text-weight-medium"
+                       :class="{ 'mb-1': getCertificateDetails(selectedBalancer?.default_certificate)}">
                       {{ findLocalCertificateNameWithLink(selectedBalancer?.default_certificate) }}
                     </p>
                     <div v-if="getCertificateDetails(selectedBalancer?.default_certificate)">
                       <p class="mb-1">
-                        CN: {{ getCertificateDetails(selectedBalancer?.default_certificate).name }}
+                        Certificate Name: {{ getCertificateDetails(selectedBalancer?.default_certificate).name }}
                       </p>
                       <p class="mb-1">
-                        SAN: {{ getCertificateDetails(selectedBalancer?.default_certificate).san }}
+                        CN: {{ getCertificateDetails(selectedBalancer?.default_certificate).cn }}
+                      </p>
+                      <p class="mb-1">
+                        SAN: {{ getCertificateDetails(selectedBalancer?.default_certificate).san.join(', ') }}
                       </p>
                       <p class="mb-1">
                         Expiration: {{ getCertificateDetails(selectedBalancer?.default_certificate)?.expDate }}
@@ -74,7 +78,7 @@
                           CN: {{ getCertificateDetails(certificate).cn }}
                         </p>
                         <p class="mb-1">
-                          SAN: {{ getCertificateDetails(certificate).san.join('\n') }}
+                          SAN: {{ getCertificateDetails(certificate).san.join(', ') }}
                         </p>
                         <p class="mb-1">
                           Expiration: {{ getCertificateDetails(certificate).expDate }}
@@ -311,7 +315,13 @@ export default defineComponent({
                 })
               })
             })
-            const matchingLoadBalancersDNS = _.map(matchingLoadBalancers, (balancer: Balancer) => {
+            const matchingDefaultCertificate = _.filter(this.loadBalancers, (balancer: Balancer) => {
+              return _.some(item.links, (certificateLink: Link) => {
+                return certificateLink.link === balancer.default_certificate
+              })
+            })
+            const unionMatchingLoadBalancersAndDefault = _.union(matchingLoadBalancers, matchingDefaultCertificate)
+            const matchingLoadBalancersDNS = _.map(unionMatchingLoadBalancersAndDefault, (balancer: Balancer) => {
               return `${balancer.name}\n(${balancer.dns_name})`
             })
             return matchingLoadBalancersDNS.join('\n')
@@ -418,7 +428,7 @@ export default defineComponent({
 
     isAttachButtonEnabled() {
       const maxCertsNumber = this.MAX_CERT_PER_LB[this.selectedBalancer?.load_balancer_type]
-      return this.certificates?.length + 1 < maxCertsNumber || maxCertsNumber === 1
+      return this.selectedBalancer.certificates?.length + 1 < maxCertsNumber || maxCertsNumber === 1
     },
 
     selectedBranch(): string {
