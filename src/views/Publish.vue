@@ -360,17 +360,20 @@ export default defineComponent({
       if (response) {
         this.parsePublishResults(true)
         await this.savePublishHistory()
-
+        this.publishMode = false
         this.isPublishLoading = false
       } else {
         console.log(`Reblaze publish ${failureMessage}`)
         console.log('Attempting publish using confserver')
         publishRequestData.failureMessage = failureMessage
         publishRequestData.onFail = () => {
+          this.publishMode = false
           this.isPublishLoading = false
         }
         RequestsUtils.sendRequest(publishRequestData).then((response: AxiosResponse) => {
           this.parsePublishResults(response?.data.ok, response?.data)
+          this.savePublishHistory()
+          this.publishMode = false
           this.isPublishLoading = false
         })
       }
