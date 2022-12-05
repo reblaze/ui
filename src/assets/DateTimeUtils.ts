@@ -1,6 +1,15 @@
 // Helper function to add date ordinal
 import DateTimeUtils from '@/assets/DateTimeUtils'
 
+// Removes timezone from Date received as UTC without timezone
+const adjustDateToTimezone = (date: Date) => {
+  const dateInMilliseconds = date.getTime()
+  const timeZoneDifferenceInMinutes = date.getTimezoneOffset()
+  const timeZoneInMilliseconds = timeZoneDifferenceInMinutes * 60 * 1000
+  const differenceInMilliseconds = dateInMilliseconds - timeZoneInMilliseconds
+  return new Date(differenceInMilliseconds)
+}
+
 // Formats the received ISO date into a more user-friendly format
 const isoToNowCuriefenseFormat = (date: string | Date) => {
   if (typeof date === 'string') {
@@ -60,6 +69,7 @@ const isoToNowFullCuriefenseFormat = (date: string | Date) => {
 
 export default {
   name: 'DateTimeUtils',
+  adjustDateToTimezone,
   isoToNowCuriefenseFormat,
   isoToNowFullCuriefenseFormat,
 }

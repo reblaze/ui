@@ -174,7 +174,7 @@ import RequestsUtils from '@/assets/RequestsUtils'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import EntriesRelationList from '@/components/EntriesRelationList.vue'
 import {defineComponent} from 'vue'
-import {Category, CustomResponse, GlobalFilter, GlobalFilterRuleEntry} from '@/types'
+import {CustomResponse, EntriesCategory, GlobalFilter, GlobalFilterRuleEntry} from '@/types'
 import {AxiosResponse} from 'axios'
 import DateTimeUtils from '@/assets/DateTimeUtils'
 
@@ -267,7 +267,7 @@ export default defineComponent({
       this.$emit('form-invalid', isFormInvalid)
     },
 
-    tryMatch(data: string, regex: RegExp, type: Category): GlobalFilterRuleEntry[] {
+    tryMatch(data: string, regex: RegExp, type: EntriesCategory): GlobalFilterRuleEntry[] {
       let matches
       const entries = []
       matches = regex.exec(data)
@@ -295,7 +295,7 @@ export default defineComponent({
             if (_.isString(item[0]) && (item[0].toLowerCase() === 'ip' || item[0].toLowerCase() === 'asn') &&
                 _.isString(item[1]) && (singleIP.test(item[1]) || singleASN.test(item[1]))) {
               const annotation = (item[2] && _.isString(item[2])) ? item[2] : null
-              store.push([item[0].toLowerCase() as Category, item[1], annotation])
+              store.push([item[0].toLowerCase() as EntriesCategory, item[1], annotation])
             } else {
               objectParser(item, store)
             }

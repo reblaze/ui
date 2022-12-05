@@ -243,51 +243,52 @@ export default defineComponent({
         if (filter) {
           // Extract data from filter
           const splitFilter = filter.split(/:/)
-          const operator = splitFilter.shift()
-          let operand: string | number = splitFilter.join(':')
-          let operation
-          // Negative check
-          const isNegative = operand.startsWith('!')
-          if (isNegative) {
-            operand = operand.substring(1)
-          }
-          // Number check
-          const isNumber = ['response_code'].includes(operator)
-          if (isNumber) {
-            operation = 'eq'
-            operand = Number(operand)
-          } else {
-            operation = 'regex'
-            // URI encoding
-            if (operator === 'uri') {
-              operand = encodeURI(operand)
-            }
-            operand = this.escapeRegex(operand as string)
-          }
-          if (isNegative) {
-            operation = `not ${operation}`
-          }
           const filterObject: GenericObject = {
-            field: operator,
-            value: operand,
-            op: operation,
+            field: splitFilter.shift(),
+            value: splitFilter.join(':'),
+            op: 'regex',
+          }
+          // Negative check
+          const isNegative = filterObject['value'].startsWith('!')
+          if (isNegative) {
+            filterObject['value'] = filterObject['value'].substring(1)
           }
           // Nested check
           const isNested = _.some([
-            'args',
+            'arguments',
             'cookies',
             'curiesession_ids',
             'headers',
             'proxy',
+            'security_config',
+            'trigger_counters',
           ], (operatorName) => {
-            return operator.startsWith(operatorName)
+            return filterObject['field'].startsWith(operatorName)
           })
           if (isNested) {
             const splitField = filterObject.field.split(/_/)
-            const field = splitField.shift()
+            let field = splitField.shift()
+            if (['curiesession', 'security', 'trigger'].includes(field)) {
+              field = `${field}_${splitField.shift()}`
+            }
             const key = splitField.join('_')
             filterObject['field'] = field
             filterObject['key'] = key
+          }
+          // Number check
+          const isNumber = ['response_code', 'trigger_counters'].includes(filterObject['field'])
+          if (isNumber) {
+            filterObject['op'] = 'eq'
+            filterObject['value'] = Number(filterObject['value'])
+          } else {
+            // URI encoding
+            if (filterObject['field'] === 'uri') {
+              filterObject['value'] = encodeURI(filterObject['value'])
+            }
+            filterObject['value'] = this.escapeRegex(filterObject['value'] as string)
+          }
+          if (isNegative) {
+            filterObject['op'] = `not ${filterObject['op']}`
           }
           queryJson['AND'].push(filterObject)
         }

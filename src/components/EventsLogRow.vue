@@ -87,72 +87,130 @@
         <span class="has-text-weight-bold">
           Reason:
         </span>
-        {{ event.reason }}
+        <span>
+          {{ event.reason }}
+        </span>
       </div>
       <div class="is-flex is-justify-content-space-between">
         <div class="box full-details-box py-2 px-3 mr-2 mb-3 is-clickable is-inline-block"
-             title="Request ID"
+             :title="`Request ID: ${event.request_id}`"
              @contextmenu="openContextMenu($event, 'request_id')">
           <span class="has-text-weight-bold">
             Request ID:
           </span>
-          {{ event.request_id }}
+          <span>
+            {{ event.request_id }}
+          </span>
         </div>
         <div v-if="event.proxy">
           <div class="box full-details-box py-2 px-3 mb-3 is-inline-block">
-            <span class="has-text-weight-bold">
-              Processing Time:
+            <span class="mr-1">
+              <i class="far fa-clock"></i>
             </span>
+            <span class="has-text-weight-bold mr-1">Processing Time:</span>
             <span title="Total processing time">
-              {{ processTimeDisplay(Number(event.proxy?.request_time)) }} ms
+              {{ processTimeDisplay(Number(event.proxy?.request_time)) }}
             </span>
             (<span title="Latency">
               {{ eventLatency }}
             </span>, <span title="Upstream response time">
               {{ processTimeDisplay(Number(event.proxy?.upstream_response_time)) }}
-            </span>)
+            </span>) ms
           </div>
-          <div class="box full-details-box py-2 px-3 ml-2 mb-3 is-inline-block">
-            <span class="has-text-weight-bold">
-              Geographic Coordinates:
+          <a class="box full-details-box py-2 px-3 ml-2 mb-3 is-inline-block"
+             :href="`https://maps.google.com/?q=${event.proxy.geo_long},${event.proxy.geo_lat}`"
+             target="_blank"
+             title="Show location on map">
+            <span class="mr-1">
+              <i class="fas fa-map-marker-alt"></i>
             </span>
-            <span title="Latitude"
-                  class="is-clickable"
-                  @contextmenu="openContextMenu($event, 'proxy', 'geo_lat')">
-              {{ event.proxy.geo_lat }}
-            </span>
-            ,
-            <span title="Longitude"
-                  class="is-clickable"
-                  @contextmenu="openContextMenu($event, 'proxy', 'geo_long')">
-              {{ event.proxy.geo_long }}
-            </span>
-          </div>
+            <span>Show Location</span>
+          </a>
           <div class="box full-details-box py-2 px-3 mb-3 ml-2 is-inline-block">
             <span title="Upload"
                   class="is-clickable"
                   @contextmenu="openContextMenu($event, 'proxy', 'request_length')">
-              <i class="fa fa-upload"/>
-              {{ amountSuffixFormatterBytes(Number(event.proxy.request_length)) }}
+              <span class="mr-1">
+                <i class="fa fa-upload"/>
+              </span>
+              <span>
+                 {{ amountSuffixFormatterBytes(Number(event.proxy.request_length)) }}
+              </span>
             </span>
-            |
+            <span class="mx-1">|</span>
             <span title="Download"
                   class="is-clickable"
                   @contextmenu="openContextMenu($event, 'proxy', 'bytes_sent')">
-              <i class="fa fa-download"/>
-              {{ amountSuffixFormatterBytes(Number(event.proxy.bytes_sent)) }}
+              <span class="mr-1">
+                <i class="fa fa-download"/>
+              </span>
+              <span>
+                 {{ amountSuffixFormatterBytes(Number(event.proxy.bytes_sent)) }}
+              </span>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="is-flex is-justify-content-space-between">
+        <div>
+          <div class="box full-details-box py-2 px-3 mr-2 mb-3 is-clickable is-inline-block"
+               title="Processing stage"
+               @contextmenu="openContextMenu($event, 'processing_stage')">
+            <span class="has-text-weight-bold">
+              Processing Stage:
+            </span>
+            <span>
+              {{ eventProcessingStage }}
+            </span>
+          </div>
+          <div class="box full-details-box py-2 px-3 mr-2 mb-3 is-clickable is-inline-block"
+               v-if="event.security_config"
+               :title="`Revision ID: ${event.security_config.revision}`"
+               @contextmenu="openContextMenu($event, 'security_config', 'revision')">
+            <span class="has-text-weight-bold">
+              Revision ID:
+            </span>
+            <span>
+              {{ event.security_config.revision.substring(0, 6) }}
+            </span>
+          </div>
+        </div>
+        <div class="trigger-counters">
+          <div class="box full-details-box py-2 px-3 mb-3 ml-2 is-inline-block">
+            <span class="has-text-weight-bold">
+              Triggers:
+            </span>
+            <span v-for="(triggerCounterValue, triggerCounterKey) in eventTriggerCounters"
+                  :key="triggerCounterKey"
+                  class="mr-1">
+              <span class="mr-1">
+                <span title="Active triggers"
+                      class="is-clickable"
+                      @contextmenu="openContextMenu($event, 'trigger_counters', `${triggerCounterKey}_active`)">
+                  {{ event.trigger_counters[`${triggerCounterKey}_active`] || 0 }}
+                </span>
+                <span>/</span>
+                <span title="Total triggers"
+                      class="is-clickable"
+                      @contextmenu="openContextMenu($event, 'trigger_counters', triggerCounterKey)">
+                  {{ triggerCounterValue }}
+                </span>
+              </span>
+              <span>
+                {{ titles[`${triggerCounterKey}${triggerCounterValue === 1 ? '-singular' : ''}`] }}
+              </span>
             </span>
           </div>
         </div>
       </div>
       <div class="card collapsible-card collapsible-card-session-ids mb-3"
            :class="{ collapsed: isSessionIDsCollapsed }"
-           v-if="event.curiesession_ids?.length > 1">
+           v-if="Object.keys(event.curiesession_ids)?.length > 1">
         <div class="card-content px-0 py-0">
           <div class="media collapsible collapsible-title px-3 py-3 mb-0"
                @click="isSessionIDsCollapsed = !isSessionIDsCollapsed">
             <div class="media-content">
-              <p class="title is-7 is-uppercase">Session IDs ({{ event.curiesession_ids.length - 1 }})</p>
+              <p class="title is-7 is-uppercase">Session IDs ({{ Object.keys(event.curiesession_ids)?.length - 1 }})</p>
             </div>
             <span v-show="isSessionIDsCollapsed">
               <i class="fas fa-angle-down"
@@ -535,12 +593,23 @@
 <script lang="ts">
 /* eslint-disable */
 import {defineComponent, nextTick, PropType} from 'vue'
-import {EventLog} from '@/types'
+import {EventLog, GenericObject} from '@/types'
 import _ from 'lodash'
 import {STATUS_COLORS} from '@/types/const'
 import packageJson from '../../package.json'
 import LabeledTags from '@/components/LabeledTags.vue'
 import Utils from '@/assets/Utils'
+import DatasetsUtils from '@/assets/DatasetsUtils'
+
+const PROCESSING_STAGE = {
+  0: 'Initialization',
+  1: 'Security Policy',
+  2: 'Global Filter',
+  3: 'Flow Control Policy',
+  4: 'Rate Limit Rule',
+  5: 'ACL Profile',
+  6: 'Content Filter',
+} as { [key: number]: string }
 
 export default defineComponent({
   name: 'EventsLogRow',
@@ -556,6 +625,8 @@ export default defineComponent({
   },
   data() {
     return {
+      titles: DatasetsUtils.titles,
+
       // Full Details
       eventFullDetails: false,
       isSessionIDsCollapsed: false,
@@ -693,7 +764,7 @@ export default defineComponent({
 
     eventLatency(): number {
       // Latency = request time - upstream response time
-      let latency = (Number(this.event.proxy?.request_time) - Number(this.event.proxy?.upstream_response_time))
+      let latency = (Number(this.event.proxy?.request_time) - Number(this.event.proxy?.upstream_response_time || 0))
       return this.processTimeDisplay(latency)
     },
 
@@ -740,6 +811,23 @@ export default defineComponent({
           !this.eventTagsRTC.includes(tag) &&
           !this.eventTagsGeo.includes(tag)
       })
+    },
+
+    eventTriggerCounters(): GenericObject {
+      const hiddenCounters: string[] = [
+        'acl_active',
+        'content_filters_active',
+        'flow_control_active',
+        'global_filters_active',
+        'rate_limit_active',
+      ]
+      return _.pickBy(this.event.trigger_counters, (triggerCounterValue, triggerCounterKey) => {
+        return !hiddenCounters.includes(triggerCounterKey) && triggerCounterValue
+      })
+    },
+
+    eventProcessingStage(): string {
+      return PROCESSING_STAGE[this.event.processing_stage]
     },
   },
   methods: {
@@ -975,7 +1063,7 @@ $event-row-box-horizontal-padding: 1rem;
 
 .reason-box,
 .reason-box:hover {
-  outline: 1px solid $color-radical-red;
+  background-color: $color-cinderella;
 }
 
 .collapsible-card {

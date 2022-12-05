@@ -3,6 +3,7 @@
               range
               enable-seconds
               auto-apply
+              model-auto
               utc="preserve"
               format="dd-MM-yyyy HH:mm"
               input-class-name="input is-small is-size-7 width-260px date-picker-input"
