@@ -96,7 +96,7 @@ export default defineComponent({
           },
           isSortable: true,
           isSearchable: true,
-          cellContentClasses: 'multi-line white-space-pre ellipsis',
+          cellContentClasses: 'vertical-scroll multi-line white-space-pre ellipsis',
         },
         {
           title: 'Transport Protocol',
@@ -219,10 +219,9 @@ export default defineComponent({
 })
 </script>
 <style scoped lang="scss">
-:deep(.multi-line) {
+:deep(.rbz-table .multi-line) {
   height: fit-content;
-  max-height: fit-content;
-  min-height: 50px;
+  max-height: 5rem;
 }
 </style>
 

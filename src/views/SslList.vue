@@ -31,7 +31,7 @@
                    @row-clicked="onSelectedLoadBalancerRow">
           <template #tableMenu="rowProps">
             <tr class="is-size-7 selected"
-                v-if="rowProps.row.id === selectedBalancer?.id">
+                v-if="selectedBalancer?.id && selectedBalancer.id === rowProps.row.id">
               <td colspan="7">
                 <div class="mb-3">
                   <p>
@@ -278,7 +278,7 @@ export default defineComponent({
           },
           isSearchable: true,
           classes: 'width-100px',
-          cellContentClasses: 'ellipsis white-space-pre multi-line',
+          cellContentClasses: 'ellipsis white-space-pre vertical-scroll multi-line',
         },
         {
           title: 'AWS',
@@ -332,7 +332,7 @@ export default defineComponent({
           },
           isSearchable: true,
           classes: 'width-120px',
-          cellContentClasses: 'white-space-pre ellipsis multi-line',
+          cellContentClasses: 'white-space-pre ellipsis vertical-scroll multi-line',
         },
         {
           title: 'SAN',
@@ -657,9 +657,8 @@ export default defineComponent({
   align-items: center;
 }
 
-:deep(.multi-line) {
+:deep(.rbz-table .multi-line) {
   height: fit-content;
-  max-height: fit-content;
-  min-height: 75px;
+  max-height: 10rem;
 }
 </style>

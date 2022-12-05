@@ -93,13 +93,13 @@ export default defineComponent({
     }
   },
   computed: {
-    filteredCertificates() {
+    filteredCertificates(): Certificate[] {
       return _.filter(this.certificates, (certificate: Certificate) => {
         return certificate.id.toLowerCase().includes(this.certsToAttach.toLowerCase())
       })
     },
 
-    filteredCertificatesToAttach() {
+    filteredCertificatesToAttach(): Certificate[] {
       if (this.selectedBalancer) {
         let currentLoadBalancerCertificates = this.selectedBalancer.certificates.slice()
         currentLoadBalancerCertificates.push(this.selectedBalancer.default_certificate)

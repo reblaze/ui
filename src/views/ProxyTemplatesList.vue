@@ -95,7 +95,7 @@ export default defineComponent({
             ].join('\n')
           },
           classes: 'width-200px',
-          cellContentClasses: 'multi-line white-space-pre ellipsis',
+          cellContentClasses: 'vertical-scroll multi-line white-space-pre ellipsis',
         },
         {
           title: 'Proxy Timeout',
@@ -108,7 +108,7 @@ export default defineComponent({
             ].join('\n')
           },
           classes: 'width-150px',
-          cellContentClasses: 'multi-line white-space-pre ellipsis',
+          cellContentClasses: 'vertical-scroll multi-line white-space-pre ellipsis',
         },
       ] as ColumnOptions[],
       isNewLoading: false,
@@ -205,10 +205,9 @@ export default defineComponent({
 })
 </script>
 <style scoped lang="scss">
-:deep(.multi-line) {
+:deep(.rbz-table .multi-line) {
   height: fit-content;
-  max-height: fit-content;
-  min-height: 50px;
+  max-height: 5rem;
 }
 </style>
 

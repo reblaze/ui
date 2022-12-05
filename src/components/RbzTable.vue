@@ -29,7 +29,7 @@
         <th v-for="(col, index) in columns"
             :key="index"
             class="column-header is-size-7 column-title"
-            :class="`${col.classes || ''}${col.isSortable ? 'is-clickable' : ''}`"
+            :class="`${col.classes || ''} ${col.isSortable ? 'is-clickable' : ''}`"
             @click="sortColumn(col)">
           <span class="is-flex is-justify-content-space-between">
             <span>
@@ -141,7 +141,7 @@
           <td v-for="(col, index) in columns"
               :key="index"
               class="data-cell is-size-7"
-              :class="`${col.classes || ''}${verticalAlignTop ? 'vertical-align-top' : 'vertical-align-middle'}`">
+              :class="`${col.classes || ''} ${verticalAlignTop ? 'vertical-align-top' : 'vertical-align-middle'}`">
             <div class="data-cell-content"
                  :class="col.cellContentClasses">
               <span v-if="col.displayFunction"
@@ -204,13 +204,13 @@
         class="pagination-row">
       <td :colspan="totalColumns">
         <div class="pagination is-small">
-          <button class="pagination-button mx-1 my-2 pagination-button-previous"
+          <button class="pagination-button mx-1 my-2 pagination-button-previous is-size-7"
                   @click="prevPage"
                   :disabled="currentPage === 1"
                   :class="{'pagination-button-active' : currentPage !== 1 }">
             Previous Page
           </button>
-          <button class="pagination-button mx-1 my-2 pagination-button-next"
+          <button class="pagination-button mx-1 my-2 pagination-button-next is-size-7"
                   @click="nextPage"
                   :disabled="currentPage === totalPages"
                   :class="{'pagination-button-active' : currentPage !== totalPages }">
@@ -529,7 +529,7 @@ export default defineComponent({
 }
 
 .rbz-table th {
-  background-color: #eef6fc;
+  background-color: $color-wild-sand;
   padding: 0.25em 0.5em;
   vertical-align: baseline;
 }

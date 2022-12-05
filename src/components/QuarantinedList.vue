@@ -322,10 +322,4 @@ export default defineComponent({
   box-shadow: none;
   font-weight: 200;
 }
-
-:deep(.multi-line) {
-  height: fit-content;
-  max-height: fit-content;
-  min-height: 50px;
-}
 </style>
