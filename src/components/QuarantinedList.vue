@@ -150,7 +150,7 @@ export default defineComponent({
           fieldNames: ['tags'],
           isSortable: true,
           displayFunction: (item: Quarantined) => {
-            return item.tags?.join('\n')
+            return item.tags?.length
           },
           isSearchable: true,
           classes: 'width-110px',

@@ -32,7 +32,7 @@ describe('RbzTable.vue', () => {
         title: 'Tags',
         fieldNames: ['tags'],
         displayFunction: (item: GlobalFilter) => {
-          return item?.tags?.join('\n')
+          return item?.tags?.length
         },
         isSearchable: true,
         classes: 'width-100px white-space-pre ellipsis',
