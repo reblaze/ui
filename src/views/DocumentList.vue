@@ -362,7 +362,7 @@ export default defineComponent({
               ].join('\n')
             },
             classes: 'width-200px',
-            cellContentClasses: 'white-space-pre ellipsis multi-line',
+            cellContentClasses: 'white-space-pre ellipsis vertical-scroll multi-line',
           },
         ],
         'ratelimits': [
@@ -427,7 +427,7 @@ export default defineComponent({
             isSortable: true,
             isSearchable: true,
             classes: 'width-250px',
-            cellContentClasses: 'multi-line white-space-pre ellipsis',
+            cellContentClasses: 'vertical-scroll multi-line white-space-pre ellipsis',
           },
           {
             title: 'Event',
@@ -574,7 +574,7 @@ export default defineComponent({
             isSortable: true,
             isSearchable: true,
             classes: 'width-170px',
-            cellContentClasses: 'multi-line white-space-pre ellipsis',
+            cellContentClasses: 'vertical-scroll multi-line white-space-pre ellipsis',
           },
           {
             title: 'Decoding',
@@ -594,7 +594,7 @@ export default defineComponent({
             isSortable: true,
             isSearchable: true,
             classes: 'width-100px',
-            cellContentClasses: 'multi-line white-space-pre ellipsis',
+            cellContentClasses: 'vertical-scroll multi-line white-space-pre ellipsis',
           },
           {
             title: 'Custom Response',
@@ -829,10 +829,9 @@ export default defineComponent({
   min-height: 50vh;
 }
 
-:deep(.multi-line) {
+:deep(.rbz-table .multi-line) {
   height: fit-content;
-  max-height: fit-content;
-  min-height: 50px;
+  max-height: 5rem;
 }
 
 @keyframes delayedDisplay {

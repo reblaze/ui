@@ -7,31 +7,31 @@
             Generate certificate
           </h5>
           <button class="delete"
-            aria-label="close"
-            @click="closeAndResetUploadModal" />
+                  aria-label="close"
+                  @click="closeAndResetUploadModal"/>
         </header>
         <section class="modal-card-body">
           <div class="tile is-3">
             <div class="control modal-location">
               <label for="manual"
-                class="radio is-size-7">
+                     class="radio is-size-7">
                 <input type="radio"
-                  name="isManualInput"
-                  id="manual"
-                  :value="true"
-                  v-model="isManualInput"
-                  @change="inputTypeChagned">
+                       name="isManualInput"
+                       id="manual"
+                       :value="true"
+                       v-model="isManualInput"
+                       @change="inputTypeChagned">
                 Manual input
               </label>
               <br>
               <label for="extract"
-                class="radio is-size-7">
+                     class="radio is-size-7">
                 <input type="radio"
-                  name="isManualInput"
-                  id="extract"
-                  :value="false"
-                  v-model="isManualInput"
-                  @change="inputTypeChagned">
+                       name="isManualInput"
+                       id="extract"
+                       :value="false"
+                       v-model="isManualInput"
+                       @change="inputTypeChagned">
                 Extract pfx file
               </label>
             </div>
@@ -51,13 +51,13 @@
                 <div class="file has-name control is-small">
                   <label class="file-label">
                     <input class="file-input"
-                      type="file"
-                      name="certFile"
-                      @input="loadFile"
-                      accept=".pfx">
+                           type="file"
+                           name="certFile"
+                           @input="loadFile"
+                           accept=".pfx">
                     <span class="file-cta">
                       <span class="file-icon">
-                        <i class="fas fa-upload" />
+                        <i class="fas fa-upload"/>
                       </span>
                       <span class="file-label">
                         Choose a PFX file
@@ -71,22 +71,22 @@
               </form>
             </div>
             <div class="field"
-              v-show="certFile && !privateKey">
+                 v-show="certFile && !privateKey">
               <label class="label is-small">Password</label>
               <div class="control tile is-8">
                 <input class="input is-small"
-                  ref="pfxPass"
-                  type="text"
-                  v-model="pfxPassword">
+                       ref="pfxPass"
+                       type="text"
+                       v-model="pfxPassword">
                 <button @click="extractCertFile"
-                  :disabled="isExtractDisabled || !pfxPassword"
-                  class="button is-small is-info control ml-1"
-                  :class="{ 'is-loading': isExtracting }">
+                        :disabled="isExtractDisabled || !pfxPassword"
+                        class="button is-small is-info control ml-1"
+                        :class="{ 'is-loading': isExtracting }">
                   Extract file
                 </button>
               </div>
               <p :style="{ visibility: isPasswordWarning ? 'visible' : 'hidden' }"
-                class="help is-danger">
+                 class="help is-danger">
                 {{ passwordMessage }}
               </p>
             </div>
@@ -97,18 +97,18 @@
               <label class="label is-small">Private key</label>
               <div class="control">
                 <textarea v-model="privateKey"
-                  class="textarea is-small"
-                  :disabled="!isManualInput"
-                  :placeholder="EMPTY_CERTIFICATE_KEY_FIELD"/>
+                          class="textarea is-small"
+                          :disabled="!isManualInput"
+                          :placeholder="EMPTY_CERTIFICATE_KEY_FIELD"/>
               </div>
             </div>
             <div class="field">
               <label class="label is-small">Certificate</label>
               <div class="control">
                 <textarea v-model="certificate"
-                  class="textarea is-small certificate-data"
-                  :placeholder="EMPTY_CERTIFICATE_FIELD"
-                  rows="8"/>
+                          class="textarea is-small certificate-data"
+                          :placeholder="EMPTY_CERTIFICATE_FIELD"
+                          rows="8"/>
               </div>
             </div>
           </div>
@@ -116,13 +116,13 @@
         <footer class="modal-card-foot">
           <div class="buttons is-right is-fullwidth">
             <button class="button is-small"
-              @click="closeAndResetUploadModal">
+                    @click="closeAndResetUploadModal">
               Cancel
             </button>
             <button class="button is-small is-outlined"
-              :class="{ 'is-loading': isLoading }"
-              :disabled="isSaveNewCertDisabled"
-              @click="uploadManualInputCert">
+                    :class="{ 'is-loading': isLoading }"
+                    :disabled="isSaveNewCertDisabled"
+                    @click="uploadManualInputCert">
               Save
             </button>
           </div>
@@ -165,7 +165,7 @@ export default defineComponent({
       get() {
         return '•'.repeat(this.password.length)
       },
-      set(value:any) {
+      set(value: any) {
         const newVal = value.replaceAll('•', '')
         const password = this.password.substr(0, value.length)
         this.passwordMessage = ''
@@ -209,7 +209,7 @@ export default defineComponent({
       this.removeFile()
     },
 
-    loadFile({target}:any) {
+    loadFile({target}: any) {
       const file: File = target.files[0]
       const extension = file.name.split('.').pop()
       if (extension === 'pfx') {
@@ -260,7 +260,13 @@ export default defineComponent({
         manualCertificateToAdd['private_key'] = this.privateKey
         manualCertificateToAdd['cert_body'] = this.certificate
         const data = manualCertificateToAdd
-        await RequestsUtils.sendReblazeRequest({methodName: 'POST', url, data, successMessage, failureMessage}).then(() => {
+        await RequestsUtils.sendReblazeRequest({
+          methodName: 'POST',
+          url,
+          data,
+          successMessage,
+          failureMessage,
+        }).then(() => {
           this.$emit('generate-shown-changed', false)
           this.$emit('call-load-certificate')
         })
@@ -273,7 +279,8 @@ export default defineComponent({
   },
 })
 </script>
-<style scoped lang="scss">
+<style scoped
+       lang="scss">
 .modal-location {
   margin-bottom: 8px;
   margin-top: -5px;

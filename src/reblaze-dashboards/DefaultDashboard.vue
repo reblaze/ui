@@ -104,102 +104,91 @@
       <!--Top tables-->
       <div class="columns is-multiline">
         <div class="column is-6">
-          <rbz-table :columns="topTableColumns"
+          <rbz-table :columns="topTargetAppsTableColumns"
                      :data="topTargetApps"
                      :default-sort-column-index="1"
                      :rows-per-page="10"
-                     default-sort-column-direction="desc"
-                     table-title="TOP TARGETED SERVICES/APPS">
+                     default-sort-column-direction="desc">
           </rbz-table>
         </div>
         <div class="column is-6">
-          <rbz-table :columns="topTableColumns"
-                     :data="topTargetUris"
+          <rbz-table :columns="topTargetURIsTableColumns"
+                     :data="topTargetURIs"
                      :default-sort-column-index="1"
                      :rows-per-page="10"
-                     default-sort-column-direction="desc"
-                     table-title="TOP TARGETED URLs">
+                     default-sort-column-direction="desc">
           </rbz-table>
         </div>
         <div class="column is-6">
-          <rbz-table :columns="topTableColumns"
+          <rbz-table :columns="topTargetRTCsTableColumns"
                      :data="topTargetRTCs"
                      :default-sort-column-index="1"
                      :rows-per-page="10"
-                     default-sort-column-direction="desc"
-                     table-title="TOP TARGETED RTCs">
+                     default-sort-column-direction="desc">
           </rbz-table>
         </div>
         <div class="column is-6">
-          <rbz-table :columns="topTableColumns"
+          <rbz-table :columns="topCountriesTableColumns"
                      :data="topCountries"
                      :default-sort-column-index="1"
                      :rows-per-page="10"
-                     default-sort-column-direction="desc"
-                     table-title="TOP COUNTRIES">
+                     default-sort-column-direction="desc">
           </rbz-table>
         </div>
         <div class="column is-6">
-          <rbz-table :columns="topTableColumns"
+          <rbz-table :columns="topASNumbersTableColumns"
                      :data="topASNumbers"
                      :default-sort-column-index="1"
                      :rows-per-page="10"
-                     default-sort-column-direction="desc"
-                     table-title="TOP AS NUMBERS">
+                     default-sort-column-direction="desc">
           </rbz-table>
         </div>
         <div class="column is-6">
-          <rbz-table :columns="topTableColumns"
+          <rbz-table :columns="topIPAddressesTableColumns"
                      :data="topIPAddresses"
                      :default-sort-column-index="1"
                      :rows-per-page="10"
-                     default-sort-column-direction="desc"
-                     table-title="TOP IP ADDRESSES">
+                     default-sort-column-direction="desc">
           </rbz-table>
         </div>
         <div class="column is-6">
-          <rbz-table :columns="topTableColumns"
+          <rbz-table :columns="topRateLimitsTableColumns"
                      :data="topRateLimits"
                      :default-sort-column-index="1"
                      :rows-per-page="10"
-                     default-sort-column-direction="desc"
-                     table-title="TOP RATE LIMITS">
+                     default-sort-column-direction="desc">
           </rbz-table>
         </div>
         <div class="column is-6">
-          <rbz-table :columns="topTableColumns"
+          <rbz-table :columns="topACLsTableColumns"
                      :data="topACLs"
                      :default-sort-column-index="1"
                      :rows-per-page="10"
-                     default-sort-column-direction="desc"
-                     table-title="TOP ACLs">
+                     default-sort-column-direction="desc">
           </rbz-table>
         </div>
         <div class="column is-6">
-          <rbz-table :columns="topTableColumns"
+          <rbz-table :columns="topContentFiltersTableColumns"
                      :data="topContentFilters"
                      :default-sort-column-index="1"
                      :rows-per-page="10"
-                     default-sort-column-direction="desc"
-                     table-title="TOP CONTENT FILTERS">
+                     default-sort-column-direction="desc">
           </rbz-table>
         </div>
         <div class="column is-6">
-          <rbz-table :columns="topTableColumns"
+          <rbz-table :columns="topUserAgentsTableColumns"
                      :data="topUserAgents"
                      :default-sort-column-index="1"
                      :rows-per-page="10"
-                     default-sort-column-direction="desc"
-                     table-title="TOP USER AGENT">
+                     default-sort-column-direction="desc">
           </rbz-table>
         </div>
         <div class="column is-6">
-          <rbz-table :columns="topTableColumns"
+          <rbz-table :columns="topTagsTableColumns"
                      :data="topTags"
                      :default-sort-column-index="1"
                      :rows-per-page="10"
-                     default-sort-column-direction="desc"
-                     table-title="TOP TAGS">
+                     default-sort-column-direction="desc">
           </rbz-table>
         </div>
       </div>
@@ -275,8 +264,41 @@ export default defineComponent({
         classes: 'width-80px',
       },
     ]
+    const topTargetAppsTableColumns = _.cloneDeep(topTableColumns)
+    topTargetAppsTableColumns[0].title = 'TOP TARGETED SERVICES/APPS'
+    const topTargetURIsTableColumns = _.cloneDeep(topTableColumns)
+    topTargetURIsTableColumns[0].title = 'TOP TARGETED URLs'
+    const topTargetRTCsTableColumns = _.cloneDeep(topTableColumns)
+    topTargetRTCsTableColumns[0].title = 'TOP TARGETED RTCs'
+    const topCountriesTableColumns = _.cloneDeep(topTableColumns)
+    topCountriesTableColumns[0].title = 'TOP COUNTRIES'
+    const topASNumbersTableColumns = _.cloneDeep(topTableColumns)
+    topASNumbersTableColumns[0].title = 'TOP AS NUMBERS'
+    const topIPAddressesTableColumns = _.cloneDeep(topTableColumns)
+    topIPAddressesTableColumns[0].title = 'TOP IP ADDRESSES'
+    const topRateLimitsTableColumns = _.cloneDeep(topTableColumns)
+    topRateLimitsTableColumns[0].title = 'TOP RATE LIMITS'
+    const topACLsTableColumns = _.cloneDeep(topTableColumns)
+    topACLsTableColumns[0].title = 'TOP ACLs'
+    const topContentFiltersTableColumns = _.cloneDeep(topTableColumns)
+    topContentFiltersTableColumns[0].title = 'TOP CONTENT FILTER RULES'
+    const topUserAgentsTableColumns = _.cloneDeep(topTableColumns)
+    topUserAgentsTableColumns[0].title = 'TOP USER AGENTS'
+    const topTagsTableColumns = _.cloneDeep(topTableColumns)
+    topTagsTableColumns[0].title = 'TOP TAGS'
     return {
       topTableColumns: topTableColumns,
+      topTargetAppsTableColumns: topTargetAppsTableColumns,
+      topTargetURIsTableColumns: topTargetURIsTableColumns,
+      topTargetRTCsTableColumns: topTargetRTCsTableColumns,
+      topCountriesTableColumns: topCountriesTableColumns,
+      topASNumbersTableColumns: topASNumbersTableColumns,
+      topIPAddressesTableColumns: topIPAddressesTableColumns,
+      topRateLimitsTableColumns: topRateLimitsTableColumns,
+      topACLsTableColumns: topACLsTableColumns,
+      topContentFiltersTableColumns: topContentFiltersTableColumns,
+      topUserAgentsTableColumns: topUserAgentsTableColumns,
+      topTagsTableColumns: topTagsTableColumns,
       trafficChartSeriesOptions: [
         {
           title: 'Hits',
@@ -560,7 +582,7 @@ export default defineComponent({
       return returnArray
     },
 
-    topTargetUris(): topTableData[] {
+    topTargetURIs(): topTableData[] {
       return this.buildTopDataFromCounters('top_uri_active', 'top_uri_passed', 'top_uri_reported')
     },
 

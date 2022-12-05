@@ -101,31 +101,31 @@ describe('RbzTable.vue', () => {
 
   describe('sorting', () => {
     test('should have the correct first asc arrow active by default', () => {
-      const ascArrowElement = wrapper.find('.arrow-asc')
-      expect(ascArrowElement.element.classList).toContain('is-active')
+      const arrowElement = wrapper.find('.fa-sort-up')
+      expect(arrowElement.isVisible()).toBeTruthy()
     })
 
     test('should have asc arrow active on click on non sorted column', async () => {
       const header = wrapper.findAll('.column-title').at(1)
       await header.trigger('click')
-      const arrowElement = header.find('.arrow-asc')
-      expect(arrowElement.element.classList).toContain('is-active')
+      const arrowElement = header.find('.fa-sort-up')
+      expect(arrowElement.isVisible()).toBeTruthy()
     })
 
     test('should have desc arrow active on click on asc sorted column', async () => {
       const header = wrapper.findAll('.column-title').at(1)
       await header.trigger('click')
       await header.trigger('click')
-      const arrowElement = header.find('.arrow-desc')
-      expect(arrowElement.element.classList).toContain('is-active')
+      const arrowElement = header.find('.fa-sort-down')
+      expect(arrowElement.isVisible()).toBeTruthy()
     })
 
     test('should have asc arrow active on click on desc sorted column', async () => {
       const nameCell = wrapper.findAll('.column-title').at(0)
       await nameCell.trigger('click')
       await nameCell.trigger('click')
-      const arrowElement = nameCell.find('.arrow-asc')
-      expect(arrowElement.element.classList).toContain('is-active')
+      const arrowElement = nameCell.find('.fa-sort-up')
+      expect(arrowElement.isVisible()).toBeTruthy()
     })
 
     test('should be able to sort null values', async () => {
@@ -229,8 +229,8 @@ describe('RbzTable.vue', () => {
       await descriptionCell.trigger('click')
       const nameCell = wrapper.findAll('.column-title').at(0)
       await nameCell.trigger('click')
-      const ascArrowElement = wrapper.findAll('.arrow-asc').at(0)
-      expect(ascArrowElement.element.classList).toContain('is-active')
+      const arrowElement = wrapper.findAll('.fa-sort-up').at(0)
+      expect(arrowElement.isVisible()).toBeTruthy()
     })
 
     test('should have asc arrow in new sort column when previous sort column was dsec order', async () => {
@@ -238,8 +238,8 @@ describe('RbzTable.vue', () => {
       await nameCell.trigger('click')
       const descriptionCell = wrapper.findAll('.column-title').at(1)
       await descriptionCell.trigger('click')
-      const ascArrowElement = wrapper.findAll('.arrow-asc').at(1)
-      expect(ascArrowElement.element.classList).toContain('is-active')
+      const arrowElement = wrapper.findAll('.fa-sort-up').at(1)
+      expect(arrowElement.isVisible()).toBeTruthy()
     })
 
     test('should not have is-clickable class in column header when the column is non sortable', () => {
@@ -306,8 +306,8 @@ describe('RbzTable.vue', () => {
       ]
       await wrapper.setProps({columns: columns})
       const firstHeader = wrapper.findAll('.column-title').at(0)
-      const ascArrowElement = firstHeader.find('.arrow-asc')
-      expect(ascArrowElement.element.classList).toContain('is-active')
+      const arrowElement = firstHeader.find('.fa-sort-up')
+      expect(arrowElement.isVisible()).toBeTruthy()
     })
   })
 

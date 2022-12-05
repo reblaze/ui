@@ -67,7 +67,7 @@ export default defineComponent({
           },
           isSortable: true,
           isSearchable: true,
-          cellContentClasses: 'multi-line white-space-pre word-break-all',
+          cellContentClasses: 'vertical-scroll multi-line white-space-pre word-break-all',
         },
       ] as ColumnOptions[],
       dnsRecords: [] as undefined as DnsRecord[],
@@ -110,8 +110,7 @@ export default defineComponent({
 
 :deep(.multi-line) {
   height: fit-content;
-  max-height: fit-content;
-  min-height: 150px;
+  max-height: 10rem;
 }
 
 </style>

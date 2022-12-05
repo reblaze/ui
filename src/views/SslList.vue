@@ -31,7 +31,7 @@
                    @row-clicked="onSelectedLoadBalancerRow">
           <template #tableMenu="rowProps">
             <tr class="is-size-7 selected"
-                v-if="rowProps.row.id === selectedBalancer?.id">
+                v-if="selectedBalancer?.id && selectedBalancer.id === rowProps.row.id">
               <td colspan="7">
                 <div class="mb-3">
                   <p>
@@ -164,7 +164,13 @@
                         :selected-balancer="selectedBalancer"
                         :certificates="certificates"
                         @attach-shown-changed="attachCertPopupShown = false"
-                        :attach-certificate-to-load-balancer="attachCertificateToLoadBalancer"
+                        @attach-certificate-to-load-balancer="attachCertificateToLoadBalancer(
+                          $event.selectedBalancer,
+                          $event.certificate.id,
+                          false,
+                          '',
+                          $event.certificate
+                        )"
                         :isAttachLoading="isAttachLoading"/>
   </div>
 </template>
@@ -265,16 +271,14 @@ export default defineComponent({
               const matchingSites: Site[] = _.filter(this.sites, (site: Site) => {
                 return site.ssl_certificate === item.id
               })
-              return matchingSites.length ? _.flatMap(matchingSites, (matchingSite:Site) => {
-                return matchingSite.server_names
-              }).join('\n') : ''
+              return matchingSites.length ? _.map(matchingSites, 'name').join('\n') : ''
             } else {
               return ''
             }
           },
           isSearchable: true,
           classes: 'width-100px',
-          cellContentClasses: 'ellipsis white-space-pre multi-line',
+          cellContentClasses: 'ellipsis white-space-pre vertical-scroll multi-line',
         },
         {
           title: 'AWS',
@@ -328,7 +332,7 @@ export default defineComponent({
           },
           isSearchable: true,
           classes: 'width-120px',
-          cellContentClasses: 'white-space-pre ellipsis multi-line',
+          cellContentClasses: 'white-space-pre ellipsis vertical-scroll multi-line',
         },
         {
           title: 'SAN',
@@ -513,7 +517,11 @@ export default defineComponent({
       this.attachCertificateToLoadBalancer(balancer, cert, true, certificateLink)
     },
 
-    async attachCertificateToLoadBalancer(balancer:Balancer, cert:string, isDefault:boolean = false, certificateLink?: string, certificate?: Certificate) {
+    async attachCertificateToLoadBalancer(balancer: Balancer,
+                                          cert: string,
+                                          isDefault: boolean = false,
+                                          certificateLink?: string,
+                                          certificate?: Certificate) {
       balancer.attach_loading = certificateLink
       if (certificate) {
         certificate.loading = true
@@ -597,14 +605,14 @@ export default defineComponent({
     },
 
     findLocalCertificateNameWithLink(providerLink: string) {
-      const certificate = _.find(this.certificates, (certificate:Certificate) => {
-        const gcpLink:Link = _.find(certificate.links, (link) => {
+      const certificate = _.find(this.certificates, (certificate: Certificate) => {
+        const gcpLink: Link = _.find(certificate.links, (link) => {
           return link.provider === 'gcp'
         })
         if (gcpLink?.link === providerLink) {
           return true
         }
-        const awsLink:Link = _.find(certificate.links, (link) => {
+        const awsLink: Link = _.find(certificate.links, (link) => {
           return link.provider === 'aws'
         })
         if (awsLink?.link === providerLink) {
@@ -649,9 +657,8 @@ export default defineComponent({
   align-items: center;
 }
 
-:deep(.multi-line) {
+:deep(.rbz-table .multi-line) {
   height: fit-content;
-  max-height: fit-content;
-  min-height: 75px;
+  max-height: 10rem;
 }
 </style>

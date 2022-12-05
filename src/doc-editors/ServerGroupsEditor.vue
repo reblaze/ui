@@ -750,6 +750,9 @@ export default defineComponent({
       if (!data) {
         data = this.selectedServerGroup
       }
+      data.server_names = _.filter(data.server_names, (serverName: string) => {
+        return serverName?.length > 0
+      })
       const url = `configs/${this.selectedBranch}/d/sites/e/${data.id}/`
       const serverGroupText = this.titles['sites-singular']
       if (!successMessage) {

@@ -142,15 +142,16 @@ export default defineComponent({
               const matchingGlobalFilter = _.find(this.globalFiltersData, (globalFilter: GlobalFilter) => {
                 return globalFilter.id === `dr_${item.id}`
               })
-              return matchingGlobalFilter ? matchingGlobalFilter.tags?.join('\n') : ''
+              return matchingGlobalFilter?.tags?.length || 0
             } else {
-              return ''
+              return 0
             }
           },
-          isSortable: false,
+          isSortable: true,
           isSearchable: true,
+          isNumber: true,
           classes: 'width-100px',
-          cellContentClasses: 'multi-line white-space-pre ellipsis',
+          cellContentClasses: 'white-space-pre ellipsis',
         },
       ] as ColumnOptions[],
       isNewLoading: false,
@@ -283,10 +284,3 @@ export default defineComponent({
   },
 })
 </script>
-<style scoped lang="scss">
-:deep(.multi-line) {
-  height: fit-content;
-  max-height: fit-content;
-  min-height: 50px;
-}
-</style>
