@@ -315,7 +315,13 @@ export default defineComponent({
                 })
               })
             })
-            const matchingLoadBalancersDNS = _.map(matchingLoadBalancers, (balancer: Balancer) => {
+            const matchingDefaultCertificate = _.filter(this.loadBalancers, (balancer: Balancer) => {
+              return _.some(item.links, (certificateLink: Link) => {
+                return certificateLink.link === balancer.default_certificate
+              })
+            })
+            const unionMatchingLoadBalancersAndDefault = _.union(matchingLoadBalancers, matchingDefaultCertificate)
+            const matchingLoadBalancersDNS = _.map(unionMatchingLoadBalancersAndDefault, (balancer: Balancer) => {
               return `${balancer.name}\n(${balancer.dns_name})`
             })
             return matchingLoadBalancersDNS.join('\n')
