@@ -44,7 +44,27 @@ declare module CuriefenseClient {
     limit_ids: string[]
   }
 
-  type GlobalFilterRuleEntry = [Category, string | string[], string]
+  type EntriesCategory =
+    'args'
+    | 'authority'
+    | 'company'
+    | 'cookies'
+    | 'country'
+    | 'headers'
+    | 'ip'
+    | 'method'
+    | 'path'
+    | 'securitypolicyentryid'
+    | 'asn'
+    | 'query'
+    | 'region'
+    | 'securitypolicyid'
+    | 'subregion'
+    | 'tag'
+    | 'uri'
+    | ArgsCookiesHeadersType
+
+  type GlobalFilterRuleEntry = [EntriesCategory, string | string[], string]
 
   type GlobalFilterRuleSection = {
     relation: Relation
@@ -88,6 +108,7 @@ declare module CuriefenseClient {
     | 'securitypolicyid'
     | 'session'
     | 'subregion'
+    | 'tags'
     | 'uri'
     | ArgsCookiesHeadersType
 
@@ -278,6 +299,7 @@ declare module CuriefenseClient {
     fieldNames?: string[]
     isSortByOriginalValue?: boolean
     displayFunction?: (item: any) => string | number // Will be rendered as HTML
+    tooltipFunction?: (item: any) => string // Override tooltip (priority: tooltipFunction->displayFunction->fieldName)
     isSortable?: boolean
     isSearchable?: boolean
     isNumber?: boolean // True if all values are always numbers, for sorting

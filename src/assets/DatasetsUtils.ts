@@ -88,6 +88,16 @@ const titles: { [key: string]: string } = {
   'ignore': 'Ignore',
   'request': 'Request',
   'response': 'Response',
+  'acl': 'ACL Profiles',
+  'acl-singular': 'ACL Profiles',
+  'content_filters': 'Content Filters',
+  'content_filters-singular': 'Content Filters',
+  'flow_control': 'Flow Control Policies',
+  'flow_control-singular': 'Flow Control Policy',
+  'global_filters': 'Global Filters',
+  'global_filters-singular': 'Global Filter',
+  'rate_limit': 'Rate Limit Rules',
+  'rate_limit-singular': 'Rate Limit Rule',
 }
 
 function generateUUID(): string {

@@ -18,54 +18,53 @@ const axiosMethodsMap: Partial<{ [key in HttpRequestMethods]: Function }> = {
   'DELETE': axios.delete,
 }
 
-const processRequest = (methodName: HttpRequestMethods, apiUrl: string, data: any, config: AxiosRequestConfig,
-                        successMessage: string, failureMessage: string, undoFunction: () => any, onFail?: Function) => {
+const processRequest = (requestParams: IRequestParams) => {
   // Get correct axios method
-  if (!methodName) {
-    methodName = 'GET'
+  if (!requestParams.methodName) {
+    requestParams.methodName = 'GET'
   } else {
-    methodName = <HttpRequestMethods>methodName.toUpperCase()
+    requestParams.methodName = <HttpRequestMethods>requestParams.methodName.toUpperCase()
   }
-  const axiosMethod = axiosMethodsMap[methodName]
+  const axiosMethod = axiosMethodsMap[requestParams.methodName]
   if (!axiosMethod) {
-    console.error(`Attempted sending unrecognized request method ${methodName}`)
+    console.error(`Attempted sending unrecognized request method ${requestParams.methodName}`)
     return
   }
 
   // Request
-  console.log(`Sending ${methodName} request to url ${apiUrl}`)
+  console.log(`Sending ${requestParams.methodName} request to url ${requestParams.url}`)
   let request
-  if (data) {
-    if (config) {
-      request = axiosMethod(apiUrl, data, config)
+  if (requestParams.data) {
+    if (requestParams.config) {
+      request = axiosMethod(requestParams.url, requestParams.data, requestParams.config)
     } else {
-      request = axiosMethod(apiUrl, data)
+      request = axiosMethod(requestParams.url, requestParams.data)
     }
   } else {
-    if (config) {
-      request = axiosMethod(apiUrl, config)
+    if (requestParams.config) {
+      request = axiosMethod(requestParams.url, requestParams.config)
     } else {
-      request = axiosMethod(apiUrl)
+      request = axiosMethod(requestParams.url)
     }
   }
   request = request.then((response: AxiosResponse) => {
     // Toast message
-    if (successMessage) {
-      Utils.toast(successMessage, 'is-success', undoFunction)
+    if (requestParams.successMessage) {
+      Utils.toast(requestParams.successMessage, 'is-success', requestParams.undoFunction)
     }
     // Update commit counters
-    if (methodName !== 'GET') {
+    if (requestParams.methodName !== 'GET' && !requestParams.skipIncreaseCommitsCounterOnSuccess) {
       const store = useBranchesStore()
       store.increaseCommitsCounter()
     }
     return response
   }).catch((error: Error) => {
     // Toast message
-    if (failureMessage) {
-      Utils.toast(failureMessage, 'is-danger', undoFunction)
+    if (requestParams.failureMessage) {
+      Utils.toast(requestParams.failureMessage, 'is-danger', requestParams.undoFunction)
     }
-    if (typeof onFail === 'function') {
-      onFail()
+    if (typeof requestParams.onFail === 'function') {
+      requestParams.onFail()
     }
     console.error(error)
   })
@@ -79,26 +78,25 @@ export interface IRequestParams {
   config?: AxiosRequestConfig,
   successMessage?: string,
   failureMessage?: string,
+  skipIncreaseCommitsCounterOnSuccess?: boolean,
   undoFunction?: () => any,
   onFail?: Function,
 }
 
 const sendRequest = (requestParams: IRequestParams) => {
-  const {methodName, url, data, config, successMessage, failureMessage, undoFunction, onFail} = requestParams
-  const apiUrl = `${confAPIRoot}/${confAPIVersion}/${url}`
-  return processRequest(methodName, apiUrl, data, config, successMessage, failureMessage, undoFunction, onFail)
+  requestParams.url = `${confAPIRoot}/${confAPIVersion}/${requestParams.url}`
+  return processRequest(requestParams)
 }
 
 const sendReblazeRequest = (requestParams: IRequestParams) => {
-  const {methodName, url, data, config, successMessage, failureMessage, undoFunction, onFail} = requestParams
-  const apiUrl = `${reblazeAPIRoot}/${reblazeAPIVersion}/reblaze/${url}`
-  return processRequest(methodName, apiUrl, data, config, successMessage, failureMessage, undoFunction, onFail)
+  requestParams.url = `${reblazeAPIRoot}/${reblazeAPIVersion}/reblaze/${requestParams.url}`
+  return processRequest(requestParams)
 }
 
 const sendDataLayerRequest = (requestParams: IRequestParams) => {
-  const {methodName, url, data, config, successMessage, failureMessage, undoFunction, onFail} = requestParams
-  const apiUrl = `${dataLayerAPIRoot}/${dataLayerAPIVersion}/${url}`
-  return processRequest(methodName, apiUrl, data, config, successMessage, failureMessage, undoFunction, onFail)
+  requestParams.url = `${dataLayerAPIRoot}/${dataLayerAPIVersion}/${requestParams.url}`
+  requestParams.skipIncreaseCommitsCounterOnSuccess = true
+  return processRequest(requestParams)
 }
 
 export default {

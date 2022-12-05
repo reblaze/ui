@@ -4,7 +4,7 @@
          v-if="quarantinedData && !loadingDocCounter">
       <rbz-table :columns="columns"
                  :data="quarantinedData"
-                 :default-sort-column-index="1"
+                 :default-sort-column-index="3"
                  row-button-icon="fa-trash"
                  row-button-title="Delete"
                  row-button-class="has-text-danger"
@@ -80,6 +80,7 @@ export default defineComponent({
           fieldNames: ['count'],
           isSortable: true,
           isSearchable: true,
+          isNumber: true,
           classes: 'width-80px',
         },
         {
@@ -87,12 +88,14 @@ export default defineComponent({
           fieldNames: ['timestamp'],
           isSortByOriginalValue: true,
           displayFunction: (item: any) => {
-            const newDate = new Date(item['timestamp'])
-            const newDateMilliSeconds = newDate.getTime()
-            const timeZoneDifferenceMinutes = newDate.getTimezoneOffset()
-            const timeZoneMilliSeconds = timeZoneDifferenceMinutes * 60 * 1000
-            const finalDate = new Date(newDateMilliSeconds - timeZoneMilliSeconds)
-            return DateTimeUtils.isoToNowCuriefenseFormat(finalDate)
+            const date = new Date(item['timestamp'])
+            const adjustedDate = DateTimeUtils.adjustDateToTimezone(date)
+            return DateTimeUtils.isoToNowCuriefenseFormat(adjustedDate)
+          },
+          tooltipFunction: (item: any) => {
+            const date = new Date(item['timestamp'])
+            const adjustedDate = DateTimeUtils.adjustDateToTimezone(date)
+            return DateTimeUtils.isoToNowFullCuriefenseFormat(adjustedDate)
           },
           isSortable: true,
           isSearchable: true,
@@ -104,8 +107,12 @@ export default defineComponent({
           fieldNames: ['last_seen'],
           isSortByOriginalValue: true,
           displayFunction: (item: any) => {
-            const newDate = new Date(item['last_seen'] * 1000)
-            return DateTimeUtils.isoToNowCuriefenseFormat(newDate)
+            const date = new Date(item['last_seen'] * 1000)
+            return DateTimeUtils.isoToNowCuriefenseFormat(date)
+          },
+          tooltipFunction: (item: any) => {
+            const date = new Date(item['last_seen'] * 1000)
+            return DateTimeUtils.isoToNowFullCuriefenseFormat(date)
           },
           isSortable: true,
           isSearchable: true,
@@ -123,8 +130,18 @@ export default defineComponent({
               })
             const lastSeen = item['last_seen'] ? item['last_seen'] : 0
             const ttl = dynamicRules?.ttl ? dynamicRules?.ttl : 0
-            const newDate = new Date((lastSeen + ttl) * 1000)
-            return DateTimeUtils.isoToNowCuriefenseFormat(newDate) || ''
+            const date = new Date((lastSeen + ttl) * 1000)
+            return DateTimeUtils.isoToNowCuriefenseFormat(date)
+          },
+          tooltipFunction: (item: any) => {
+            const dynamicRules: { id: string, name: string, ttl: number } =
+              _.find(this.dynamicRulesNames, (dynamicRule) => {
+                return dynamicRule.id === item.rule_id
+              })
+            const lastSeen = item['last_seen'] ? item['last_seen'] : 0
+            const ttl = dynamicRules?.ttl ? dynamicRules?.ttl : 0
+            const date = new Date((lastSeen + ttl) * 1000)
+            return DateTimeUtils.isoToNowFullCuriefenseFormat(date)
           },
           isSortable: true,
           isSearchable: true,
@@ -228,9 +245,9 @@ export default defineComponent({
       }
       const response = await RequestsUtils.sendDataLayerRequest({methodName: 'POST', url, data, config})
 
-      this.quarantinedData = response.data.data.results.map((result: any) => {
+      this.quarantinedData = _.map(response?.data?.data?.results, (result: any) => {
         return {...result, id: result._id}
-      })
+      }) || []
       this.selectedArray = []
       this.setLoadingDocStatus(false)
     },

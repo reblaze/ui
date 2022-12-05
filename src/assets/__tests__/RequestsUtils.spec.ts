@@ -23,64 +23,55 @@ describe('RequestsUtils.ts', () => {
     jest.clearAllTimers()
   })
 
-  function buildFuncDescribe(func: Function, baseUrl: string, urlTrail: string) {
-    describe(`${func.name} function`, () => {
+  function buildFuncDescribe(requestFunc: Function, baseUrl: string, urlTrail: string) {
+    describe(`${requestFunc.name} function`, () => {
       const apiUrl = `${baseUrl}${urlTrail}`
-      const dataObject = {
+      const url = urlTrail
+      const data = {
         id: 'a240gava',
         name: 'A name',
       }
-      const requestFunc = (
-        methodName: string,
-        url: IRequestParams['url'],
-        data?: IRequestParams['data'],
-        config?: IRequestParams['config'],
-        successMessage?: IRequestParams['successMessage'],
-        failureMessage?: IRequestParams['failureMessage'],
-        undoFunction?: IRequestParams['undoFunction'],
-        onFail?: IRequestParams['onFail'],
-      ) => func({methodName, url, data, config, successMessage, failureMessage, undoFunction, onFail})
 
       describe('basic usage', () => {
         test('should send GET request correctly', async () => {
-          await requestFunc('GET', urlTrail)
+          await requestFunc({methodName: 'GET', url})
           expect(getSpy).toHaveBeenCalledWith(apiUrl)
         })
 
         test('should send PUT request correctly', async () => {
-          await requestFunc('PUT', urlTrail, dataObject)
-          expect(putSpy).toHaveBeenCalledWith(apiUrl, dataObject)
+          await requestFunc({methodName: 'PUT', url, data})
+          expect(putSpy).toHaveBeenCalledWith(apiUrl, data)
         })
 
         test('should send POST request correctly', async () => {
-          await requestFunc('POST', urlTrail, dataObject)
-          expect(postSpy).toHaveBeenCalledWith(apiUrl, dataObject)
+          await requestFunc({methodName: 'POST', url, data})
+          expect(postSpy).toHaveBeenCalledWith(apiUrl, data)
         })
 
         test('should send DELETE request correctly', async () => {
-          await requestFunc('DELETE', urlTrail)
+          await requestFunc({methodName: 'DELETE', url})
           expect(deleteSpy).toHaveBeenCalledWith(apiUrl)
         })
 
         test('should send POST request correctly with header config and data', async () => {
           const config = {headers: {'x-fields': 'name'}}
-          await requestFunc('POST', urlTrail, dataObject, config)
-          expect(postSpy).toHaveBeenCalledWith(apiUrl, dataObject, config)
+          await requestFunc({methodName: 'POST', url, data, config})
+          expect(postSpy).toHaveBeenCalledWith(apiUrl, data, config)
         })
 
         test('should send POST request correctly with header config without data', async () => {
           const config = {headers: {'x-fields': 'name'}}
-          await requestFunc('POST', urlTrail, null, config)
+          await requestFunc({methodName: 'POST', url, config})
           expect(postSpy).toHaveBeenCalledWith(apiUrl, config)
         })
 
         test('should send GET request correctly when method name is not capitalized', async () => {
-          await requestFunc('get', urlTrail)
+          await requestFunc({methodName: 'get', url})
           expect(getSpy).toHaveBeenCalledWith(apiUrl)
         })
 
         test('should send GET request correctly when method name is not prompted', async () => {
-          await requestFunc(null, urlTrail)
+          await requestFunc({url})
           expect(getSpy).toHaveBeenCalledWith(apiUrl)
         })
       })
@@ -98,22 +89,22 @@ describe('RequestsUtils.ts', () => {
         })
 
         test('should log GET request correctly', async () => {
-          await requestFunc('GET', urlTrail)
+          await requestFunc({methodName: 'GET', url})
           expect(consoleOutput).toContain(`Sending GET request to url ${apiUrl}`)
         })
 
         test('should log PUT request correctly', async () => {
-          await requestFunc('PUT', urlTrail, dataObject)
+          await requestFunc({methodName: 'PUT', url, data})
           expect(consoleOutput).toContain(`Sending PUT request to url ${apiUrl}`)
         })
 
         test('should log POST request correctly', async () => {
-          await requestFunc('POST', urlTrail, dataObject)
+          await requestFunc({methodName: 'POST', url, data})
           expect(consoleOutput).toContain(`Sending POST request to url ${apiUrl}`)
         })
 
         test('should log DELETE request correctly', async () => {
-          await requestFunc('DELETE', urlTrail)
+          await requestFunc({methodName: 'DELETE', url})
           expect(consoleOutput).toContain(`Sending DELETE request to url ${apiUrl}`)
         })
 
@@ -121,7 +112,7 @@ describe('RequestsUtils.ts', () => {
           const originalError = console.error
           console.error = (output: string) => consoleOutput.push(output)
           const weirdRequestMethod = 'POTATO' as IRequestParams['methodName']
-          await requestFunc(weirdRequestMethod, urlTrail)
+          await requestFunc({methodName: weirdRequestMethod, url})
           expect(consoleOutput).toContain(`Attempted sending unrecognized request method ${weirdRequestMethod}`)
           console.error = originalError
         })
@@ -144,30 +135,30 @@ describe('RequestsUtils.ts', () => {
         })
 
         test('should not send success toast when GET request is rejected if not set', async () => {
-          await requestFunc('GET', urlTrail, null, null, null, failureMessage)
+          await requestFunc({methodName: 'GET', url, failureMessage})
           expect(toastOutput.length).toEqual(0)
         })
 
         test('should send success toast when GET request returns successfully', async () => {
-          await requestFunc('GET', urlTrail, null, null, successMessage, failureMessage)
+          await requestFunc({methodName: 'GET', url, successMessage, failureMessage})
           expect(toastOutput[0].message).toContain(successMessage)
           expect(toastOutput[0].type).toContain(successMessageClass)
         })
 
         test('should send success toast when PUT request returns successfully', async () => {
-          await requestFunc('PUT', urlTrail, dataObject, null, successMessage, failureMessage)
+          await requestFunc({methodName: 'PUT', url, data, successMessage, failureMessage})
           expect(toastOutput[0].message).toContain(successMessage)
           expect(toastOutput[0].type).toContain(successMessageClass)
         })
 
         test('should send success toast when POST request returns successfully', async () => {
-          await requestFunc('POST', urlTrail, dataObject, null, successMessage, failureMessage)
+          await requestFunc({methodName: 'POST', url, data, successMessage, failureMessage})
           expect(toastOutput[0].message).toContain(successMessage)
           expect(toastOutput[0].type).toContain(successMessageClass)
         })
 
         test('should send success toast when DELETE request returns successfully', async () => {
-          await requestFunc('DELETE', urlTrail, null, null, successMessage, failureMessage)
+          await requestFunc({methodName: 'DELETE', url, successMessage, failureMessage})
           expect(toastOutput[0].message).toContain(successMessage)
           expect(toastOutput[0].type).toContain(successMessageClass)
         })
@@ -178,7 +169,7 @@ describe('RequestsUtils.ts', () => {
             expect(toastOutput.length).toEqual(0)
             done()
           }
-          requestFunc('GET', urlTrail, null, null, successMessage, null, null, onFail)
+          requestFunc({methodName: 'GET', url, successMessage, onFail})
         })
 
         test('should send failure toast when GET request is rejected', (done) => {
@@ -188,7 +179,7 @@ describe('RequestsUtils.ts', () => {
             expect(toastOutput[0].type).toContain(failureMessageClass)
             done()
           }
-          requestFunc('GET', urlTrail, null, null, successMessage, failureMessage, null, onFail)
+          requestFunc({methodName: 'GET', url, successMessage, failureMessage, onFail})
         })
 
         test('should send failure toast when PUT request is rejected', (done) => {
@@ -198,7 +189,7 @@ describe('RequestsUtils.ts', () => {
             expect(toastOutput[0].type).toContain(failureMessageClass)
             done()
           }
-          requestFunc('PUT', urlTrail, dataObject, null, successMessage, failureMessage, null, onFail)
+          requestFunc({methodName: 'PUT', url, data, successMessage, failureMessage, onFail})
         })
 
         test('should send failure toast when POST request is rejected', (done) => {
@@ -208,7 +199,7 @@ describe('RequestsUtils.ts', () => {
             expect(toastOutput[0].type).toContain(failureMessageClass)
             done()
           }
-          requestFunc('POST', urlTrail, dataObject, null, successMessage, failureMessage, null, onFail)
+          requestFunc({methodName: 'POST', url, data, successMessage, failureMessage, onFail})
         })
 
         test('should send failure toast when DELETE request is rejected', (done) => {
@@ -218,7 +209,7 @@ describe('RequestsUtils.ts', () => {
             expect(toastOutput[0].type).toContain(failureMessageClass)
             done()
           }
-          requestFunc('DELETE', urlTrail, null, null, successMessage, failureMessage, null, onFail)
+          requestFunc({methodName: 'DELETE', url, successMessage, failureMessage, onFail})
         })
       })
     })

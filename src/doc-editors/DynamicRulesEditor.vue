@@ -531,7 +531,7 @@ export default defineComponent({
       this.setLoadingDocStatus(true)
       this.isDeleteLoading = true
       const dynamicRuleText = this.titles['dynamic-rules-singular']
-      const url = `configs/${this.selectedBranch}/d/dynamic-rules/e/${this.selectedDynamicRule.id}/`
+      const url = `configs/${this.selectedBranch}/d/dynamic-rules/e/${this.selectedDocID}/`
       const successMessage = `The ${dynamicRuleText} was deleted.`
       const failureMessage = `Failed while attempting to delete the ${dynamicRuleText}.`
       await RequestsUtils.sendReblazeRequest({
@@ -539,6 +539,12 @@ export default defineComponent({
         url: url,
         successMessage,
         failureMessage,
+      })
+      // delete global filter
+      const globalFilterURL = `configs/${this.selectedBranch}/d/globalfilters/e/dr_${this.selectedDocID}/`
+      await RequestsUtils.sendRequest({
+        methodName: 'DELETE',
+        url: globalFilterURL,
       })
       this.redirectToList()
       this.isDeleteLoading = false
@@ -612,8 +618,7 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
-    async addNewDynamicRule(dynamicRuleToAdd?: DynamicRule, successMessage?: string, failureMessage?: string,
-    ) {
+    async addNewDynamicRule(dynamicRuleToAdd?: DynamicRule, successMessage?: string, failureMessage?: string) {
       this.setLoadingDocStatus(true)
       this.isNewLoading = true
 
