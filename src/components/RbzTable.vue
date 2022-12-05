@@ -217,13 +217,13 @@
         class="pagination-row">
       <td :colspan="totalColumns">
         <div class="pagination is-small">
-          <button class="pagination-button mx-1 my-2"
+          <button class="pagination-button mx-1 my-2 pagination-next-check"
                   @click="prevPage"
                   :disabled="currentPage === 1"
                   :class="{'pagination-button-active' : currentPage !== 1 }">
             Previous Page
           </button>
-          <button class="pagination-button mx-1 my-2"
+          <button class="pagination-button mx-1 my-2 pagination-previous-check"
                   @click="nextPage"
                   :disabled="currentPage === totalPages"
                   :class="{'pagination-button-active' : currentPage !== totalPages }">
