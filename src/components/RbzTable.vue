@@ -218,16 +218,16 @@
           class="pagination-row">
         <td :colspan="totalColumns">
           <div class="pagination is-small">
-            <button class="pagination-previous"
-                    @click="prevPage"
-                    :disabled="currentPage === 1">
+            <a class="my-2 mx-1"
+               @click="prevPage"
+               :disabled="currentPage === 1">
               Previous Page
-            </button>
-            <button class="pagination-next"
-                    @click="nextPage"
-                    :disabled="currentPage === totalPages">
+            </a>
+            <a class="my-2 mx-1"
+               @click="nextPage"
+               :disabled="currentPage === totalPages">
               Next Page
-            </button>
+            </a>
           </div>
         </td>
       </tr>
@@ -517,8 +517,6 @@ export default defineComponent({
 
 <style scoped
        lang="scss">
-@import '../assets/styles/colors';
-
 .scrollable {
   border-collapse: separate;
   overflow-x: hidden;
@@ -570,7 +568,7 @@ export default defineComponent({
 }
 
 .rbz-table th {
-  background-color: $color-wild-sand;
+  background-color: #eef6fc;
   padding: 0.25em 0.5em;
   vertical-align: baseline;
 }
