@@ -166,7 +166,6 @@ export default defineComponent({
       selectedDocMatchingGlobalFilter: null as GlobalFilter,
       matchedDocsData: null as any,
       customResponsesNames: [] as [CustomResponse['id'], CustomResponse['name']][],
-      counter: 0,
     }
   },
   computed: {
@@ -207,7 +206,9 @@ export default defineComponent({
             displayFunction: (item: GlobalFilter) => {
               return item?.tags?.length
             },
+            isSortable: true,
             isSearchable: true,
+            isNumber: true,
             classes: 'width-100px',
             cellContentClasses: 'white-space-pre ellipsis',
           },
@@ -258,8 +259,9 @@ export default defineComponent({
             displayFunction: (item: FlowControlPolicy) => {
               return item?.tags?.length
             },
-            isSortable: false,
+            isSortable: true,
             isSearchable: true,
+            isNumber: true,
             classes: 'width-100px',
             cellContentClasses: 'white-space-pre ellipsis',
           },
@@ -325,6 +327,7 @@ export default defineComponent({
             },
             isSortable: true,
             isSearchable: true,
+            isNumber: true,
             classes: 'width-100px',
             cellContentClasses: 'white-space-pre ellipsis',
           },
@@ -384,8 +387,9 @@ export default defineComponent({
             displayFunction: (item: RateLimit) => {
               return item?.tags?.length
             },
-            isSortable: false,
+            isSortable: true,
             isSearchable: true,
+            isNumber: true,
             classes: 'width-100px',
             cellContentClasses: 'white-space-pre ellipsis',
           },
@@ -463,8 +467,9 @@ export default defineComponent({
             displayFunction: (item: ACLProfile) => {
               return item?.tags?.length
             },
-            isSortable: false,
+            isSortable: true,
             isSearchable: true,
+            isNumber: true,
             classes: 'width-100px',
             cellContentClasses: 'white-space-pre ellipsis',
           },
@@ -517,8 +522,9 @@ export default defineComponent({
             displayFunction: (item: CustomResponse) => {
               return item?.tags?.length
             },
-            isSortable: false,
+            isSortable: true,
             isSearchable: true,
+            isNumber: true,
             classes: 'width-100px',
             cellContentClasses: 'white-space-pre ellipsis',
           },
@@ -553,8 +559,9 @@ export default defineComponent({
             displayFunction: (item: ContentFilterProfile) => {
               return item?.tags?.length
             },
-            isSortable: false,
+            isSortable: true,
             isSearchable: true,
+            isNumber: true,
             classes: 'width-100px',
             cellContentClasses: 'white-space-pre ellipsis',
           },
@@ -652,6 +659,7 @@ export default defineComponent({
             },
             isSortable: true,
             isSearchable: true,
+            isNumber: true,
             classes: 'width-100px',
             cellContentClasses: 'white-space-pre ellipsis',
           },

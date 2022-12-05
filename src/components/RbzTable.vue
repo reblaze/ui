@@ -218,16 +218,16 @@
         class="pagination-row">
       <td :colspan="totalColumns">
         <div class="pagination is-small">
-          <button class="pagination-buttons mx-1 my-2"
+          <button class="pagination-button mx-1 my-2"
                   @click="prevPage"
                   :disabled="currentPage === 1"
-                  :class="{'is-button-active' : currentPage !== 1 }">
+                  :class="{'pagination-button-active' : currentPage !== 1 }">
             Previous Page
           </button>
-          <button class="pagination-buttons mx-1 my-2"
+          <button class="pagination-button mx-1 my-2"
                   @click="nextPage"
                   :disabled="currentPage === totalPages"
-                  :class="{'is-button-active' : currentPage !== totalPages }">
+                  :class="{'pagination-button-active' : currentPage !== totalPages }">
             Next Page
           </button>
         </div>
@@ -519,6 +519,7 @@ export default defineComponent({
 
 <style scoped
        lang="scss">
+@import 'src/assets/styles/colors';
 .scrollable {
   border-collapse: separate;
   overflow-x: hidden;
@@ -645,14 +646,14 @@ export default defineComponent({
   max-height: 1.75rem;
 }
 
-.pagination-buttons {
-  background: none !important;
+.pagination-button {
+  background: none;
   border: 0;
-  padding: 0 !important;
+  padding: 0;
 }
 
-.is-button-active {
-  color: #069;
+.pagination-button-active {
+  color: $color-cornflower-blue;
   cursor: pointer;
 }
 </style>

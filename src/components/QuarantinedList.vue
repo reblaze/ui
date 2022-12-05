@@ -148,13 +148,14 @@ export default defineComponent({
         {
           title: 'Tags',
           fieldNames: ['tags'],
-          isSortable: true,
           displayFunction: (item: Quarantined) => {
             return item.tags?.length
           },
+          isSortable: true,
           isSearchable: true,
+          isNumber: true,
           classes: 'width-110px',
-          cellContentClasses: 'multi-line ellipsis',
+          cellContentClasses: 'ellipsis',
         },
       ] as ColumnOptions[],
       quarantinedData: null as Quarantined[],

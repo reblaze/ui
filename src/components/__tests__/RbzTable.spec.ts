@@ -34,7 +34,9 @@ describe('RbzTable.vue', () => {
         displayFunction: (item: GlobalFilter) => {
           return item?.tags?.length
         },
+        isSortable: true,
         isSearchable: true,
+        isNumber: true,
         classes: 'width-100px white-space-pre ellipsis',
       },
       {
