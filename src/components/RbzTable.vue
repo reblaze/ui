@@ -520,6 +520,7 @@ export default defineComponent({
 <style scoped
        lang="scss">
 @import 'src/assets/styles/colors';
+
 .scrollable {
   border-collapse: separate;
   overflow-x: hidden;
