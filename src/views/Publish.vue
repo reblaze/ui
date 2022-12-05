@@ -33,6 +33,13 @@
 
     <div class="content">
       <hr/>
+      <div class="publish-history mb-5">
+        <p class="title is-6 is-expanded">Publish History</p>
+          <rbz-table class="table"
+            :columns="columns"
+            :data="publishHistoryData">
+          </rbz-table>
+      </div>
       <div class="columns">
         <div class="column">
           <p class="title is-6 is-expanded">Version History</p>
@@ -120,17 +127,18 @@ import _ from 'lodash'
 import RequestsUtils, {IRequestParams} from '@/assets/RequestsUtils'
 import {mdiBucket} from '@mdi/js'
 import {defineComponent} from 'vue'
-import {Branch, Commit} from '@/types'
+import {Branch, ColumnOptions, Commit, PublishHistory} from '@/types'
 import {AxiosResponse} from 'axios'
 import Utils from '@/assets/Utils'
 import DateTimeUtils from '@/assets/DateTimeUtils'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
+import RbzTable from '@/components/RbzTable.vue'
 
 export default defineComponent({
   name: 'PublishChanges',
   props: {},
-  components: {},
+  components: {RbzTable},
   data() {
     return {
       mdiBucketPath: mdiBucket,
@@ -150,6 +158,57 @@ export default defineComponent({
       apiVersion: RequestsUtils.confAPIVersion,
       // loading indicator
       isPublishLoading: false,
+
+      // Publish History
+      columns: [
+        {
+          title: 'Date',
+          fieldNames: ['date'],
+          isSortByOriginalValue: true,
+          displayFunction: (item: any) => {
+            const newDate = new Date(item['date'])
+            return DateTimeUtils.isoToNowFullCuriefenseFormat(newDate)
+          },
+          isSortable: true,
+          isSearchable: true,
+          classes: 'width-170px',
+          cellContentClasses: 'ellipsis',
+        },
+        {
+          title: 'Source Branch',
+          fieldNames: ['source_branch'],
+          isSortable: true,
+          isSearchable: true,
+          classes: 'width-130px',
+          cellContentClasses: 'ellipsis',
+        },
+        {
+          title: 'Target Bucket',
+          fieldNames: ['target_bucket'],
+          displayFunction: (item: PublishHistory) => {
+            return item.target_bucket?.join('\n')
+          },
+          isSortable: true,
+          isSearchable: true,
+          classes: 'width-130px',
+        },
+        {
+          title: 'Commit hash ID',
+          fieldNames: ['commit_hash_id'],
+          isSortable: true,
+          isSearchable: true,
+          cellContentClasses: 'ellipsis',
+        },
+        {
+          title: 'Author',
+          fieldNames: ['author'],
+          isSortable: true,
+          isSearchable: true,
+          classes: 'width-170px',
+          cellContentClasses: 'ellipsis',
+        },
+      ] as ColumnOptions[],
+      publishHistoryData: [] as PublishHistory[],
     }
   },
   watch: {
@@ -158,6 +217,7 @@ export default defineComponent({
         if ((this.$route.name as string).includes('PublishChanges') && val) {
           this.loadPublishInfo()
           this.loadBranchLogs()
+          this.loadPublishHistory()
           this.setDefaultBuckets()
         }
       },
@@ -184,6 +244,7 @@ export default defineComponent({
     },
 
     ...mapStores(useBranchesStore),
+
   },
   methods: {
     selectCommit(commit: Commit) {
@@ -202,6 +263,37 @@ export default defineComponent({
         classNames.push('marked')
       }
       return classNames.join(' ')
+    },
+
+    async loadPublishHistory() {
+      const url = '/db/system/k/publishhistory/'
+      const response = await RequestsUtils.sendRequest({methodName: 'GET', url: url})
+      this.publishHistoryData = response?.data || []
+    },
+
+    async savePublishHistory() {
+      if (!this.publishHistoryData) {
+        await this.loadPublishHistory()
+      }
+      if (this.publishHistoryData) {
+        this.addPublishHistory()
+
+        const url = '/db/system/k/publishhistory/'
+        const data = this.publishHistoryData
+        RequestsUtils.sendRequest({methodName: 'PUT', data, url: url})
+      } else {
+        console.log('no publish history')
+      }
+    },
+
+    addPublishHistory() {
+      const history = {} as PublishHistory
+      history.date = Date.now()
+      history.source_branch = this.selectedBranch.id
+      history.commit_hash_id = this.selectedCommit
+      history.target_bucket = this.selectedBucketNames
+      history.author = this.gitLog?.[0].author || 'reblaze default user'
+      this.publishHistoryData.push(history)
     },
 
     loadBranchLogs() {
@@ -267,16 +359,21 @@ export default defineComponent({
       const response = await RequestsUtils.sendReblazeRequest(publishRequestData)
       if (response) {
         this.parsePublishResults(true)
+        await this.savePublishHistory()
+        this.publishMode = false
         this.isPublishLoading = false
       } else {
         console.log(`Reblaze publish ${failureMessage}`)
         console.log('Attempting publish using confserver')
         publishRequestData.failureMessage = failureMessage
         publishRequestData.onFail = () => {
+          this.publishMode = false
           this.isPublishLoading = false
         }
         RequestsUtils.sendRequest(publishRequestData).then((response: AxiosResponse) => {
           this.parsePublishResults(response?.data.ok, response?.data)
+          this.savePublishHistory()
+          this.publishMode = false
           this.isPublishLoading = false
         })
       }
@@ -319,4 +416,5 @@ export default defineComponent({
 .marked {
   font-weight: 400;
 }
+
 </style>
