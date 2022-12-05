@@ -107,7 +107,7 @@
           <rbz-table :columns="topTableColumns"
                      :data="topTargetApps"
                      :default-sort-column-index="1"
-                     :rows-per-page="5"
+                     :rows-per-page="10"
                      default-sort-column-direction="desc"
                      table-title="TOP TARGETED SERVICES/APPS">
           </rbz-table>
@@ -116,7 +116,7 @@
           <rbz-table :columns="topTableColumns"
                      :data="topTargetUris"
                      :default-sort-column-index="1"
-                     :rows-per-page="5"
+                     :rows-per-page="10"
                      default-sort-column-direction="desc"
                      table-title="TOP TARGETED URLs">
           </rbz-table>
@@ -125,7 +125,7 @@
           <rbz-table :columns="topTableColumns"
                      :data="topTargetRTCs"
                      :default-sort-column-index="1"
-                     :rows-per-page="5"
+                     :rows-per-page="10"
                      default-sort-column-direction="desc"
                      table-title="TOP TARGETED RTCs">
           </rbz-table>
@@ -134,7 +134,7 @@
           <rbz-table :columns="topTableColumns"
                      :data="topCountries"
                      :default-sort-column-index="1"
-                     :rows-per-page="5"
+                     :rows-per-page="10"
                      default-sort-column-direction="desc"
                      table-title="TOP COUNTRIES">
           </rbz-table>
@@ -143,7 +143,7 @@
           <rbz-table :columns="topTableColumns"
                      :data="topASNumbers"
                      :default-sort-column-index="1"
-                     :rows-per-page="5"
+                     :rows-per-page="10"
                      default-sort-column-direction="desc"
                      table-title="TOP AS NUMBERS">
           </rbz-table>
@@ -152,7 +152,7 @@
           <rbz-table :columns="topTableColumns"
                      :data="topIPAddresses"
                      :default-sort-column-index="1"
-                     :rows-per-page="5"
+                     :rows-per-page="10"
                      default-sort-column-direction="desc"
                      table-title="TOP IP ADDRESSES">
           </rbz-table>
@@ -161,7 +161,7 @@
           <rbz-table :columns="topTableColumns"
                      :data="topRateLimits"
                      :default-sort-column-index="1"
-                     :rows-per-page="5"
+                     :rows-per-page="10"
                      default-sort-column-direction="desc"
                      table-title="TOP RATE LIMITS">
           </rbz-table>
@@ -170,7 +170,7 @@
           <rbz-table :columns="topTableColumns"
                      :data="topACLs"
                      :default-sort-column-index="1"
-                     :rows-per-page="5"
+                     :rows-per-page="10"
                      default-sort-column-direction="desc"
                      table-title="TOP ACLs">
           </rbz-table>
@@ -179,7 +179,7 @@
           <rbz-table :columns="topTableColumns"
                      :data="topContentFilters"
                      :default-sort-column-index="1"
-                     :rows-per-page="5"
+                     :rows-per-page="10"
                      default-sort-column-direction="desc"
                      table-title="TOP CONTENT FILTERS">
           </rbz-table>
@@ -188,7 +188,7 @@
           <rbz-table :columns="topTableColumns"
                      :data="topUserAgents"
                      :default-sort-column-index="1"
-                     :rows-per-page="5"
+                     :rows-per-page="10"
                      default-sort-column-direction="desc"
                      table-title="TOP USER AGENT">
           </rbz-table>
@@ -197,7 +197,7 @@
           <rbz-table :columns="topTableColumns"
                      :data="topTags"
                      :default-sort-column-index="1"
-                     :rows-per-page="5"
+                     :rows-per-page="10"
                      default-sort-column-direction="desc"
                      table-title="TOP TAGS">
           </rbz-table>
