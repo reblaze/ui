@@ -990,7 +990,6 @@ $event-row-box-horizontal-padding: 1rem;
 }
 
 .event-row-box-open {
-  background-color: $color-black-haze;
   border: 1px solid $color-nobel;
   border-top: 0;
 }
@@ -1018,8 +1017,8 @@ $event-row-box-horizontal-padding: 1rem;
 }
 
 .event-row-summary:hover {
-  background-color: $color-black-haze;
-  border-top: 1px solid $color-black-haze;
+  background-color: $color-mercury;
+  border-top: 1px solid $color-mercury;
 }
 
 .event-row-box-open .event-row-summary:hover {
