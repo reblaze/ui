@@ -501,11 +501,15 @@ export default defineComponent({
 
     isDeleteDisabled(certificate: Certificate) {
       return _.some(this.loadBalancers, (balancer: Balancer) => {
-        return _.some(balancer.certificates, (balancerCertificateLink: string) => {
+        const balancerCertificate = _.some(balancer.certificates, (balancerCertificateLink: string) => {
           return _.some(certificate.links, (certificateLink: Link) => {
             return certificateLink.link === balancerCertificateLink
           })
         })
+        const balancerDefaultCertificate = _.some(certificate.links, (certificateLink: Link) => {
+            return certificateLink.link === balancer.default_certificate
+        })
+        return balancerCertificate || balancerDefaultCertificate
       })
     },
 

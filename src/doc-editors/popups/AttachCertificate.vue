@@ -36,7 +36,7 @@
                 <tr v-for="(certificate, idx) in filteredCertificatesToAttach"
                     :key="idx">
                   <td class="is-size-7 is-vcentered is-60">
-                    {{ certificate.id }}
+                    {{ certificate.name }}
                   </td>
                   <td class="is-size-7 is-vcentered is-20">
                     {{ certificate.exp_date }}

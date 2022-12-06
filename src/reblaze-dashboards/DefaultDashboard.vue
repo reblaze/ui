@@ -3,7 +3,7 @@
     <div v-show="!loading && totalCallsInfo.amount">
       <!--First graph row-->
       <div class="columns height-300px">
-        <div class="column width-200px">
+        <div class="column width-300px">
           <div class="field traffic-info mb-0 height-50px">
             <label class="label is-small has-text-grey-light">
               Total Calls
@@ -22,18 +22,17 @@
           </div>
           <div v-for="(data, trafficCategory) in trafficInfo"
                :key="trafficCategory"
-               class="field traffic-info mb-0 width-50pct height-100px is-inline-block">
-            <label class="label is-small has-text-grey-light is-capitalized">
+               class="field traffic-info mb-1 columns is-gapless">
+            <label class="label is-small has-text-grey-light is-capitalized column">
               {{ trafficCategory }}
             </label>
-            <div class="control">
-              <div class="has-text-weight-bold">
-                {{ data.percentile }}%
-              </div>
-              <div class="has-text-weight-bold">
+              <div class="has-text-weight-bold column">
                 {{ amountSuffixFormatter(data.amount) }}
               </div>
-              <div class="height-2rem country-flags-wrapper">
+              <div class="has-text-weight-bold column">
+                {{ data.percentile }}%
+              </div>
+              <div class="height-2rem column">
                 <template v-if="data.topCountries && data.topCountries.length">
                   <country-flag v-for="topCountry in data.topCountries.slice(0, 3)"
                                 :key="topCountry"
@@ -46,7 +45,6 @@
                   </span>
                 </template>
               </div>
-            </div>
           </div>
         </div>
         <div class="column">
@@ -710,5 +708,9 @@ export default defineComponent({
   margin-right: 4px;
   vertical-align: text-bottom;
   width: 1rem;
+}
+
+.traffic-info {
+  line-height: 1rem;
 }
 </style>
