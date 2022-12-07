@@ -115,6 +115,14 @@ export default defineComponent({
     return {
       trafficChartSeriesOptions: [
         {
+          title: 'Hits',
+          fieldName: 'hits',
+          show: true,
+          drawStyle: 'spline',
+          fillColor: `rgba(${Utils.hexToRgbArray('#7a7a7a').join(', ')}, 0.1)`,
+          strokeColor: '#7a7a7a', // $color-boulder
+        },
+        {
           title: 'Passed',
           fieldName: 'passed',
           show: true,
@@ -184,6 +192,7 @@ export default defineComponent({
         })
       }
       _.forEach(sortedDataGrouped, (events: EventLog[], key: string) => {
+        const hits = events.length
         const passed = _.filter(events, (event: EventLog) => {
           return !this.isEventReported(event) && !event.reason
         })
@@ -200,7 +209,8 @@ export default defineComponent({
           return event.tags.includes('bot')
         })
         returnArray.push({
-          timeframe: new Date(key).getTime() / 1000,
+          timeframe: new Date(key).getTime(),
+          hits: hits > 0 ? hits : 0,
           passed: passed.length > 0 ? passed.length : 0,
           blocked: blocked.length > 0 ? blocked.length : 0,
           reported: reported.length > 0 ? reported.length : 0,

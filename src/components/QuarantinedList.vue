@@ -17,8 +17,8 @@
         <template #menu>
           <button class="button is-size-7 has-text-danger delete-selected-button dropdown-item"
                   title="Delete selected"
-                  :class="{'disabled': !selectedArray || selectedArray.length === 0 }"
-                  :disabled="!selectedArray || selectedArray.length === 0"
+                  :class="{'disabled': selectedArray.length === 0 }"
+                  :disabled="selectedArray.length === 0"
                   @click.stop="deleteSelectedRows">
             <span class="icon is-small">
               <i class="fas fa-trash"></i>
@@ -94,8 +94,7 @@ export default defineComponent({
           },
           tooltipFunction: (item: any) => {
             const date = new Date(item['timestamp'])
-            const adjustedDate = DateTimeUtils.adjustDateToTimezone(date)
-            return DateTimeUtils.isoToNowFullCuriefenseFormat(adjustedDate)
+            return `${DateTimeUtils.isoToNowFullCuriefenseFormat(date)} UTC`
           },
           isSortable: true,
           isSearchable: true,
@@ -112,7 +111,8 @@ export default defineComponent({
           },
           tooltipFunction: (item: any) => {
             const date = new Date(item['last_seen'] * 1000)
-            return DateTimeUtils.isoToNowFullCuriefenseFormat(date)
+            const adjustedDate = DateTimeUtils.adjustDateToUTC(date)
+            return `${DateTimeUtils.isoToNowFullCuriefenseFormat(adjustedDate)} UTC`
           },
           isSortable: true,
           isSearchable: true,
@@ -141,7 +141,8 @@ export default defineComponent({
             const lastSeen = item['last_seen'] ? item['last_seen'] : 0
             const ttl = dynamicRules?.ttl ? dynamicRules?.ttl : 0
             const date = new Date((lastSeen + ttl) * 1000)
-            return DateTimeUtils.isoToNowFullCuriefenseFormat(date)
+            const adjustedDate = DateTimeUtils.adjustDateToUTC(date)
+            return `${DateTimeUtils.isoToNowFullCuriefenseFormat(adjustedDate)} UTC`
           },
           isSortable: true,
           isSearchable: true,

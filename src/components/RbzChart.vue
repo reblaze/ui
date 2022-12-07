@@ -94,6 +94,7 @@ export default defineComponent({
         width: 0,
         height: 0,
         plugins: [],
+        ms: 1,
         series: [
           {
             value: (self, ts) => {
