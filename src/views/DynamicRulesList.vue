@@ -216,7 +216,7 @@ export default defineComponent({
       const url = `configs/${this.selectedBranch}/d/globalfilters/`
       const config = {headers: {'x-fields': 'id, action, tags'}}
       const response = await RequestsUtils.sendRequest({methodName: 'GET', url, config})
-      this.globalFiltersData = response?.data.filter((doc: MiniGlobalFilter) => doc.id.startsWith('dr_'))
+      this.globalFiltersData = response?.data?.filter((doc: MiniGlobalFilter) => doc.id.startsWith('dr_')) || []
     },
 
     loadCustomResponses() {
