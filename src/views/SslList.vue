@@ -507,7 +507,7 @@ export default defineComponent({
           })
         })
         const balancerDefaultCertificate = _.some(certificate.links, (certificateLink: Link) => {
-            return certificateLink.link === balancer.default_certificate
+          return certificateLink.link === balancer.default_certificate
         })
         return balancerCertificate || balancerDefaultCertificate
       })

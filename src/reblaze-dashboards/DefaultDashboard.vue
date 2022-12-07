@@ -4,35 +4,34 @@
       <!--First graph row-->
       <div class="columns height-300px">
         <div class="column width-300px">
-          <div class="field traffic-info mb-0 height-50px">
-            <label class="label is-small has-text-grey-light">
+          <div class="field traffic-info mb-2 columns">
+            <label class="label is-small has-text-grey-light is-capitalized column width-90px">
               Total Calls
             </label>
-            <div class="control columns is-variable is-0">
-              <span class="column is-4 has-text-weight-bold">
+              <span class="has-text-weight-bold column width-70px"
+                    :title="(totalCallsInfo?.amount)?.toString()">
                 {{ amountSuffixFormatter(totalCallsInfo.amount) }}
               </span>
-              <span class="column is-8">
-                <span class="has-text-weight-bold">
-                  {{ amountSuffixFormatter(totalCallsInfo.callsPerHour) }}
+                <span class="has-text-weight-bold column width-120px px-0"
+                      :title="(totalCallsInfo?.callsPerHour)?.toString()">
+                  {{ amountSuffixFormatter(totalCallsInfo.callsPerHour) }} Calls / Hr
                 </span>
-                Calls / Hr
-              </span>
-            </div>
           </div>
           <div v-for="(data, trafficCategory) in trafficInfo"
                :key="trafficCategory"
-               class="field traffic-info mb-1 columns is-gapless">
-            <label class="label is-small has-text-grey-light is-capitalized column">
+               class="field traffic-info mb-2 columns">
+            <label class="label is-small has-text-grey-light is-capitalized column width-90px">
               {{ trafficCategory }}
             </label>
-              <div class="has-text-weight-bold column">
+              <div class="has-text-weight-bold column width-60px"
+                   :title="(data?.amount)?.toString()">
                 {{ amountSuffixFormatter(data.amount) }}
               </div>
-              <div class="has-text-weight-bold column">
+              <div class="has-text-weight-bold column width-60px"
+                   :title="(`${data?.percentile}%`)?.toString()">
                 {{ data.percentile }}%
               </div>
-              <div class="height-2rem column">
+              <div class="height-2rem column width-90px">
                 <template v-if="data.topCountries && data.topCountries.length">
                   <country-flag v-for="topCountry in data.topCountries.slice(0, 3)"
                                 :key="topCountry"
@@ -60,7 +59,7 @@
       </div>
       <!--Second graph row-->
       <div class="columns height-300px">
-        <div class="column width-200px">
+        <div class="column width-300px">
           <div class="height-200px">
             <svg id="doughnut"
                  width="100%"
@@ -436,11 +435,15 @@ export default defineComponent({
       const passed = _.sumBy(this.data, (value) => {
         return value?.counters.passed
       })
+      const reported = _.sumBy(this.data, (value) => {
+        return value?.counters.reported
+      })
       const blocked = _.sumBy(this.data, (value) => {
         return value?.counters.active
       })
       const passedPercentile = Math.round((passed / hits) * 100)
-      const blockedPercentile = 100 - passedPercentile
+      const reportedPercentile = Math.round((reported / hits) * 100)
+      const blockedPercentile = Math.round((blocked / hits) * 100)
       const humans = _.sumBy(this.data, (value) => {
         return value?.counters.human
       })
@@ -448,13 +451,22 @@ export default defineComponent({
         return value?.counters.bot
       })
       const humansPercentile = Math.round((humans / hits) * 100)
-      const botsPercentile = 100 - humansPercentile
+      const botsPercentile = Math.round((bots / hits) * 100)
       return {
         'passed': {
           amount: passed,
           percentile: passedPercentile,
           topCountries: _.map(_.filter(_.orderBy(this.topCountries, ['passed'], ['desc']), (topCountry) => {
             return topCountry.passed > 0
+          }), (topCountry) => {
+            return topCountry.rowIdentification
+          }),
+        },
+        'reported': {
+          amount: reported,
+          percentile: reportedPercentile,
+          topCountries: _.map(_.filter(_.orderBy(this.topCountries, ['reported'], ['desc']), (topCountry) => {
+            return topCountry.reported > 0
           }), (topCountry) => {
             return topCountry.rowIdentification
           }),
