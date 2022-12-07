@@ -104,7 +104,7 @@
           <rbz-table :columns="topTargetAppsTableColumns"
                      :data="topTargetApps"
                      :default-sort-column-index="1"
-                     :rows-per-page="10"
+                     :use-scroll="true"
                      default-sort-column-direction="desc">
           </rbz-table>
         </div>
@@ -112,7 +112,7 @@
           <rbz-table :columns="topTargetURIsTableColumns"
                      :data="topTargetURIs"
                      :default-sort-column-index="1"
-                     :rows-per-page="10"
+                     :use-scroll="true"
                      default-sort-column-direction="desc">
           </rbz-table>
         </div>
@@ -120,7 +120,7 @@
           <rbz-table :columns="topTargetRTCsTableColumns"
                      :data="topTargetRTCs"
                      :default-sort-column-index="1"
-                     :rows-per-page="10"
+                     :use-scroll="true"
                      default-sort-column-direction="desc">
           </rbz-table>
         </div>
@@ -128,7 +128,7 @@
           <rbz-table :columns="topCountriesTableColumns"
                      :data="topCountries"
                      :default-sort-column-index="1"
-                     :rows-per-page="10"
+                     :use-scroll="true"
                      default-sort-column-direction="desc">
           </rbz-table>
         </div>
@@ -136,7 +136,7 @@
           <rbz-table :columns="topASNumbersTableColumns"
                      :data="topASNumbers"
                      :default-sort-column-index="1"
-                     :rows-per-page="10"
+                     :use-scroll="true"
                      default-sort-column-direction="desc">
           </rbz-table>
         </div>
@@ -144,7 +144,7 @@
           <rbz-table :columns="topIPAddressesTableColumns"
                      :data="topIPAddresses"
                      :default-sort-column-index="1"
-                     :rows-per-page="10"
+                     :use-scroll="true"
                      default-sort-column-direction="desc">
           </rbz-table>
         </div>
@@ -152,7 +152,7 @@
           <rbz-table :columns="topRateLimitsTableColumns"
                      :data="topRateLimits"
                      :default-sort-column-index="1"
-                     :rows-per-page="10"
+                     :use-scroll="true"
                      default-sort-column-direction="desc">
           </rbz-table>
         </div>
@@ -160,7 +160,7 @@
           <rbz-table :columns="topACLsTableColumns"
                      :data="topACLs"
                      :default-sort-column-index="1"
-                     :rows-per-page="10"
+                     :use-scroll="true"
                      default-sort-column-direction="desc">
           </rbz-table>
         </div>
@@ -168,7 +168,7 @@
           <rbz-table :columns="topContentFiltersTableColumns"
                      :data="topContentFilters"
                      :default-sort-column-index="1"
-                     :rows-per-page="10"
+                     :use-scroll="true"
                      default-sort-column-direction="desc">
           </rbz-table>
         </div>
@@ -176,7 +176,7 @@
           <rbz-table :columns="topUserAgentsTableColumns"
                      :data="topUserAgents"
                      :default-sort-column-index="1"
-                     :rows-per-page="10"
+                     :use-scroll="true"
                      default-sort-column-direction="desc">
           </rbz-table>
         </div>
@@ -184,7 +184,7 @@
           <rbz-table :columns="topTagsTableColumns"
                      :data="topTags"
                      :default-sort-column-index="1"
-                     :rows-per-page="10"
+                     :use-scroll="true"
                      default-sort-column-direction="desc">
           </rbz-table>
         </div>
@@ -219,6 +219,7 @@ type topTableData = {
   passed?: number
   blocked?: number
   reported?: number
+  hits?: number
 }
 
 export default defineComponent({
@@ -238,6 +239,13 @@ export default defineComponent({
         title: '',
         fieldNames: ['rowIdentification'],
         cellContentClasses: 'horizontal-scroll',
+      },
+      {
+        title: 'Hits',
+        fieldNames: ['hits'],
+        isSortable: true,
+        isNumber: true,
+        classes: 'width-80px',
       },
       {
         title: 'Passed',
@@ -582,8 +590,10 @@ export default defineComponent({
         const passed = _.sumBy(groupedObject[appId], (item) => item.counters.passed)
         const blocked = _.sumBy(groupedObject[appId], (item) => item.counters.active)
         const reported = _.sumBy(groupedObject[appId], (item) => item.counters.reported)
+        const hits = passed + blocked + reported
         returnArray.push({
           rowIdentification: appId,
+          hits: hits > 0 ? hits : 0,
           passed: passed > 0 ? passed : 0,
           blocked: blocked > 0 ? blocked : 0,
           reported: reported > 0 ? reported : 0,
@@ -649,6 +659,8 @@ export default defineComponent({
             }
             groupedObject[escapedKey].blocked = groupedObject[escapedKey].blocked || 0
             groupedObject[escapedKey].blocked += blockedItem.value || 0
+            groupedObject[escapedKey].hits = groupedObject[escapedKey].hits || 0
+            groupedObject[escapedKey].hits += blockedItem.value || 0
           }
         }
         if (item.counters[passedFieldName]) {
@@ -659,6 +671,8 @@ export default defineComponent({
             }
             groupedObject[escapedKey].passed = groupedObject[escapedKey].passed || 0
             groupedObject[escapedKey].passed += passedItem.value || 0
+            groupedObject[escapedKey].hits = groupedObject[escapedKey].hits || 0
+            groupedObject[escapedKey].hits += passedItem.value || 0
           }
         }
         if (item.counters[reportedFieldName]) {
@@ -669,15 +683,22 @@ export default defineComponent({
             }
             groupedObject[escapedKey].reported = groupedObject[escapedKey].reported || 0
             groupedObject[escapedKey].reported += reportededItem.value || 0
+            groupedObject[escapedKey].hits = groupedObject[escapedKey].hits || 0
+            groupedObject[escapedKey].hits += reportededItem.value || 0
           }
         }
       })
       for (const key of Object.keys(groupedObject)) {
+        const passed = groupedObject[key].passed > 0 ? groupedObject[key].passed : 0
+        const blocked = groupedObject[key].blocked > 0 ? groupedObject[key].blocked : 0
+        const reported = groupedObject[key].reported > 0 ? groupedObject[key].reported : 0
+        const hits = passed + blocked + reported
         returnArray.push({
           rowIdentification: key,
-          passed: groupedObject[key].passed > 0 ? groupedObject[key].passed : 0,
-          blocked: groupedObject[key].blocked > 0 ? groupedObject[key].blocked : 0,
-          reported: groupedObject[key].reported > 0 ? groupedObject[key].reported : 0,
+          hits: hits,
+          passed: passed,
+          blocked: blocked,
+          reported: reported,
         })
       }
       return returnArray

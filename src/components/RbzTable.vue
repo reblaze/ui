@@ -208,13 +208,13 @@
                   @click="prevPage"
                   :disabled="currentPage === 1"
                   :class="{'pagination-button-active' : currentPage !== 1 }">
-            Previous Page
+            Previous
           </button>
           <button class="pagination-button mx-1 my-2 pagination-button-next is-size-7"
                   @click="nextPage"
                   :disabled="currentPage === totalPages"
                   :class="{'pagination-button-active' : currentPage !== totalPages }">
-            Next Page
+            Next
           </button>
         </div>
       </td>
