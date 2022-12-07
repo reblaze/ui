@@ -12,7 +12,7 @@ import {nextTick} from 'vue'
 jest.mock('axios')
 
 // TODO: Resolve pinia integration with jest and remove this skip
-describe.skip('Publish.vue', () => {
+describe('Publish.vue', () => {
   let wrapper: any
   let gitData: Branch[]
   let publishInfoData: any

@@ -1,62 +1,37 @@
 // @ts-nocheck
 import SideMenu from '@/components/SideMenu.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
-import {DOMWrapper, mount} from '@vue/test-utils'
-import axios from 'axios'
-import {Branch} from '../../types'
-import {setImmediate} from 'timers'
+import {mount} from '@vue/test-utils'
 import {nextTick} from 'vue'
+import {createTestingPinia} from '@pinia/testing'
+import RequestsUtils, {IRequestParams} from '../../assets/RequestsUtils'
+import _ = require('lodash')
+import {useBranchesStore} from '../../stores/BranchesStore'
+import packageJson from '../../../package.json'
 
-jest.mock('axios')
+jest.mock('../../assets/RequestsUtils.ts')
+const selectedBranch = 'prod'
+const mockRoute = {
+  params: {
+    branch: selectedBranch,
+    doc_id: 'f971e92459e2',
+  },
+  path: '/prod/cloud-functions/config/f971e92459e2',
+  name: 'EdgeFunctions/config',
+}
+jest.mock('vue-router', () => ({
+  useRoute: jest.fn(() => (mockRoute)),
+}))
 
-// TODO: Needs a complete re-write. Resolve pinia integration with jest and remove this skip
-describe.skip('SideMenu.vue', () => {
+describe('SideMenu.vue', () => {
   let wrapper: any
-  let $route: any
-  let gitData: Branch[]
   let swaggerURL: string
   // let kibanaURL: string
   let grafanaURL: string
   // let prometheusURL: string
+  let mockRouter: any
   let dbData: any
-  beforeEach(() => {
-    gitData = [
-      {
-        'id': 'prod',
-        'description': 'Update entry [__acldefault__] of document [aclprofiles]',
-        'date': '2020-11-10T15:49:17+02:00',
-        'logs': [
-          {
-            'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
-            'date': '2020-11-10T15:49:17+02:00',
-            'parents': [],
-            'message': 'Initial empty content',
-            'email': 'curiefense@reblaze.com',
-            'author': 'Curiefense API',
-          },
-        ],
-        'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
-      },
-      {
-        'id': 'zzz_branch',
-        'description': 'Initial empty content',
-        'date': '2020-08-27T16:19:06+00:00',
-        'logs': [
-          {
-            'version': 'a34f979217215060861b58b3f270e82580c20efb',
-            'date': '2020-08-27T16:19:06+00:00',
-            'parents': [],
-            'message': 'Initial empty content',
-            'email': 'curiefense@reblaze.com',
-            'author': 'Curiefense API',
-          },
-        ],
-        'version': 'a34f979217215060861b58b3f270e82580c20efb',
-      },
-    ]
-    $route = {
-      path: '/list',
-    }
+  beforeEach(async () => {
     swaggerURL = 'https://10.0.0.1:30000/api/v3/'
     // kibanaURL = 'https://10.0.0.1:5601/app/discover/'
     grafanaURL = 'https://10.0.0.1:30300/'
@@ -69,304 +44,167 @@ describe.skip('SideMenu.vue', () => {
         // prometheus_url: prometheusURL,
       },
     }
-    jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === `/conf/api/v3/db/system/`) {
-        return Promise.resolve({data: dbData})
-      }
-      if (path === '/conf/api/v3/configs/') {
-        return Promise.resolve({data: gitData})
-      }
-      return Promise.resolve({data: {}})
-    })
+    jest.spyOn(RequestsUtils, 'sendRequest').mockImplementation(
+      (requestParams: IRequestParams) => {
+        if (requestParams.url === `db/system/`) {
+          return Promise.resolve({data: dbData})
+        }
+        return Promise.resolve({data: {}})
+      })
+    mockRouter = {
+      push: jest.fn(),
+    }
     wrapper = mount(SideMenu, {
       global: {
         mocks: {
-          $route,
+          '$route': mockRoute,
+          '$router': mockRouter,
         },
+        plugins: [createTestingPinia()],
+        stubs: ['router-link', 'router-view', 'sidebar-menu'],
       },
-      stubs: ['router-link', 'router-view'],
+    })
+    const store = useBranchesStore()
+    store.selectedBranch = {
+      id: selectedBranch,
+    }
+    await nextTick()
+  })
+
+  test('should render sidebar-menu component', () => {
+    const component = wrapper.findComponent({name: 'SidebarMenu'})
+    expect(component.exists()).toBeTruthy()
+  })
+
+  test('should have all menu headers', () => {
+    const wantedMenuHeaders = ['analytics', 'security', 'premium security', 'saas settings', 'system', 'help']
+
+    const menu = wrapper.vm.menu
+    const actualMenuHeaders = _.filter(_.map(menu, (menuItem) => {
+      return menuItem.header?.toLowerCase() || ''
+    }), (headerName) => {
+      return headerName
+    })
+    _.forEach(wantedMenuHeaders, (wantedMenuHeader) => {
+      expect(actualMenuHeaders).toContain(wantedMenuHeader)
     })
   })
 
-  test('should render all menu labels', () => {
-    const wantedMenuLabels = ['analytics', 'settings', 'git', 'help']
-
-    const actualMenuLabels = wrapper.findAll('.menu-label')
-    for (let i = 0; i < wantedMenuLabels.length; i++) {
-      expect(actualMenuLabels.at(i).text()).toEqual(wantedMenuLabels[i])
+  function menuItemShouldContainWantedSectionItems(menuHeader: string, wantedSectionItems: any[]) {
+    const menu = wrapper.vm.menu
+    let actualSectionItems = _.cloneDeep(menu)
+    const menuHeaderIndex = menu.findIndex((menuItem) => {
+      return menuItem.header?.toLowerCase() === menuHeader
+    })
+    actualSectionItems = actualSectionItems.slice(menuHeaderIndex + 1)
+    const nextMenuHeaderIndex = actualSectionItems.findIndex((menuItem) => {
+      return menuItem.header
+    })
+    if (nextMenuHeaderIndex > -1) {
+      actualSectionItems = actualSectionItems.slice(0, nextMenuHeaderIndex)
     }
-  })
-
-  function menuItemShouldContainWantedSectionItems(menuItemName: string, wantedSectionItems: any[]) {
-    const menuItem = wrapper.findAll('.menu-item').filter((item: any) => item.text()?.includes(menuItemName))
-    const sectionItems = menuItem.at(0).findAll('.section-item')
-    wantedSectionItems.forEach((wantedSectionItem) => {
-      const match: DOMWrapper<any> = sectionItems.find((sectionItem: DOMWrapper<any>) => {
-        return sectionItem.text().includes(wantedSectionItem.title)
-      })
-      expect(match).toBeDefined()
-      expect(match.text()).toContain(wantedSectionItem.title)
+    wantedSectionItems.forEach((wantedSectionItem, index) => {
+      expect(actualSectionItems[index]?.href).toEqual(wantedSectionItem.path)
+      expect(actualSectionItems[index]?.title).toEqual(wantedSectionItem.title)
       if (wantedSectionItem.external) {
-        expect(match.html()).toContain(`href="${wantedSectionItem.path}"`)
-      } else {
-        expect(match.html()).toContain(`to="${wantedSectionItem.path}"`)
+        expect(actualSectionItems[index]?.external).toEqual(wantedSectionItem.external)
       }
     })
   }
 
-  test('should render all static Settings menu items when system db does not exist', () => {
+  test('should render all `Analytics` menu items - external paths from DB', () => {
     const wantedInternalMenuItems = [
-      {path: '/list', title: 'Policies & Rules'},
-      {path: '/CurieDB', title: 'CurieDB'},
-      {path: '/publish', title: 'Publish Changes'},
+      {path: `/${selectedBranch}/dashboard`, title: 'Dashboard'},
+      {path: grafanaURL, title: 'Grafana', external: true},
+      {path: `/${selectedBranch}/events-log`, title: 'Events Log'},
     ]
 
-    menuItemShouldContainWantedSectionItems('settings', wantedInternalMenuItems)
+    menuItemShouldContainWantedSectionItems('analytics', wantedInternalMenuItems)
   })
 
-  test('should render all static Git menu items', () => {
-    const wantedMenuItems = [
-      {path: '/versioncontrol', title: 'Version Control'},
+  test('should render all `Security` menu items', () => {
+    const wantedInternalMenuItems = [
+      {path: `/${selectedBranch}/globalfilters`, title: 'Global Filters'},
+      {path: `/${selectedBranch}/flowcontrol`, title: 'Flow Control Policies'},
+      {path: `/${selectedBranch}/securitypolicies`, title: 'Security Policies'},
+      {path: `/${selectedBranch}/ratelimits`, title: 'Rate Limit Rules'},
+      {path: `/${selectedBranch}/aclprofiles`, title: 'ACL Profiles'},
+      {path: `/${selectedBranch}/contentfilterprofiles`, title: 'Content Filter Profiles'},
+      {path: `/${selectedBranch}/contentfilterrules`, title: 'Content Filter Rules'},
+      {path: `/${selectedBranch}/actions`, title: 'Custom Responses'},
     ]
 
-    menuItemShouldContainWantedSectionItems('git', wantedMenuItems)
+    menuItemShouldContainWantedSectionItems('security', wantedInternalMenuItems)
   })
 
-  test('should render support page', () => {
-    const wantedMenuItems = [
-      {path: '/support', title: 'Support'},
+  test('should render all `Premium Security` menu items', () => {
+    const wantedInternalMenuItems = [
+      {path: `/${selectedBranch}/dynamic-rules`, title: 'Dynamic Rules'},
+      {path: `/${selectedBranch}/quarantined`, title: 'Quarantined'},
+      {path: `/${selectedBranch}/mobile-sdks`, title: 'Mobile SDK'},
     ]
 
-    menuItemShouldContainWantedSectionItems('help', wantedMenuItems)
+    menuItemShouldContainWantedSectionItems('premium security', wantedInternalMenuItems)
   })
 
-  test('should render all static Docs menu items', () => {
-    const wantedMenuItems = [
+  test('should render all `SaaS Settings` menu items', () => {
+    const wantedInternalMenuItems = [
+      {path: `/${selectedBranch}/server-groups`, title: 'Server Groups'},
+      {path: `/${selectedBranch}/backend-services`, title: 'Backend Services'},
+      {path: `/${selectedBranch}/routing-profiles`, title: 'Routing Profiles'},
+      {path: `/${selectedBranch}/proxy-templates`, title: 'Proxy Templates'},
+      {path: `/${selectedBranch}/cloud-functions`, title: 'Edge Functions'},
+      {path: `/${selectedBranch}/ssl`, title: 'SSL'},
+      {path: `/${selectedBranch}/dns-records`, title: 'DNS Records'},
+    ]
+
+    menuItemShouldContainWantedSectionItems('saas settings', wantedInternalMenuItems)
+  })
+
+  test('should render all `System` menu items', () => {
+    const wantedInternalMenuItems = [
+      {path: `/${selectedBranch}/version-control`, title: 'Version Control'},
+      {path: `/${selectedBranch}/system-db`, title: 'System DB'},
+      {path: `/${selectedBranch}/publish`, title: 'Publish Changes'},
+    ]
+
+    menuItemShouldContainWantedSectionItems('system', wantedInternalMenuItems)
+  })
+
+  test('should render all `Help` menu items - external paths from DB', () => {
+    const splitVersion = packageJson.version.split('.')
+    const docsVersion = `${splitVersion[0]}.${splitVersion[1]}`
+    const wantedInternalMenuItems = [
+      {path: `/${selectedBranch}/support`, title: 'Support'},
       {path: 'https://docs.curiefense.io/', title: 'Curiebook', external: true},
+      {path: `https://gb.docs.reblaze.com/v/v${docsVersion}`, title: 'Reblazebook', external: true},
+      {path: 'https://10.0.0.1:30000/api/v3/', title: 'API', external: true},
     ]
 
-    menuItemShouldContainWantedSectionItems('help', wantedMenuItems)
+    menuItemShouldContainWantedSectionItems('help', wantedInternalMenuItems)
   })
 
-  test('should render all dynamic menu items when system db exists with links and URLs data', (done) => {
-    jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === `/conf/api/v3/db/system/`) {
-        return Promise.resolve({data: dbData})
-      }
-      return Promise.resolve({data: {}})
-    })
+  test('should render default external paths for menu items if failed to load from DB', async () => {
+    dbData = {}
     wrapper = mount(SideMenu, {
       global: {
         mocks: {
-          $route,
+          '$route': mockRoute,
+          '$router': mockRouter,
         },
+        plugins: [createTestingPinia()],
+        stubs: ['router-link', 'router-view', 'sidebar-menu'],
       },
-      stubs: ['router-link', 'router-view'],
     })
-    const wantedDocsMenuItems = [
-      {
-        path: swaggerURL,
-        title: 'API',
-        external: true,
-      },
-    ]
-    const wantedAnalyticsMenuItems = [
-      // {
-      //   path: kibanaURL,
-      //   title: 'Kibana',
-      //   external: true,
-      // },
-      {
-        path: grafanaURL,
-        title: 'Grafana',
-        external: true,
-      },
-      // {
-      //   path: prometheusURL,
-      //   title: 'Prometheus',
-      //   external: true,
-      // },
-    ]
-    // allow all requests to finish
-    setImmediate(() => {
-      menuItemShouldContainWantedSectionItems('help', wantedDocsMenuItems)
-      menuItemShouldContainWantedSectionItems('analytics', wantedAnalyticsMenuItems)
-      done()
-    })
-  })
-
-  test('should render all dynamic menu items when system db exists without URLs in links data', (done) => {
-    delete dbData.links.grafana_url
-    // delete dbData.links.kibana_url
-    // delete dbData.links.prometheus_url
-    delete dbData.links.swagger_url
-    jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === `/conf/api/v3/db/system/`) {
-        return Promise.resolve({data: dbData})
-      }
-      return Promise.resolve({data: {}})
-    })
-    wrapper = mount(SideMenu, {
-      global: {
-        mocks: {
-          $route,
-        },
-      },
-      stubs: ['router-link', 'router-view'],
-    })
-    const wantedDocsMenuItems = [
-      {
-        path: `${location.protocol}//${location.hostname}:30000/api/v3/`,
-        title: 'API',
-        external: true,
-      },
-    ]
-    const wantedAnalyticsMenuItems = [
-      // {
-      //   path: `${location.protocol}//${location.hostname}:5601/app/discover`,
-      //   title: 'Kibana',
-      //   external: true,
-      // },
-      {
-        path: `${location.protocol}//${location.hostname}:30300/`,
-        title: 'Grafana',
-        external: true,
-      },
-      // {
-      //   path: `${location.protocol}//${location.hostname}:9090/`,
-      //   title: 'Prometheus',
-      //   external: true,
-      // },
-    ]
-    // allow all requests to finish
-    setImmediate(() => {
-      menuItemShouldContainWantedSectionItems('help', wantedDocsMenuItems)
-      menuItemShouldContainWantedSectionItems('analytics', wantedAnalyticsMenuItems)
-      done()
-    })
-  })
-
-  test('should render all dynamic menu items when system db exists without links data', (done) => {
-    delete dbData.links
-    jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === `/conf/api/v3/db/system/`) {
-        return Promise.resolve({data: dbData})
-      }
-      return Promise.resolve({data: {}})
-    })
-    wrapper = mount(SideMenu, {
-      global: {
-        mocks: {
-          $route,
-        },
-      },
-      stubs: ['router-link', 'router-view'],
-    })
-    const wantedDocsMenuItems = [
-      {
-        path: `${location.protocol}//${location.hostname}:30000/api/v3/`,
-        title: 'API',
-        external: true,
-      },
-    ]
-    const wantedAnalyticsMenuItems = [
-      // {
-      //   path: `${location.protocol}//${location.hostname}:5601/app/discover`,
-      //   title: 'Kibana',
-      //   external: true,
-      // },
-      {
-        path: `${location.protocol}//${location.hostname}:30300/`,
-        title: 'Grafana',
-        external: true,
-      },
-      // {
-      //   path: `${location.protocol}//${location.hostname}:9090/`,
-      //   title: 'Prometheus',
-      //   external: true,
-      // },
-    ]
-    // allow all requests to finish
-    setImmediate(() => {
-      menuItemShouldContainWantedSectionItems('help', wantedDocsMenuItems)
-      menuItemShouldContainWantedSectionItems('analytics', wantedAnalyticsMenuItems)
-      done()
-    })
-  })
-
-  test('should render all dynamic menu items when system db does not exist', (done) => {
-    jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === `/conf/api/v3/db/system/`) {
-        return Promise.resolve({data: {}})
-      }
-      return Promise.resolve({data: {}})
-    })
-    wrapper = mount(SideMenu, {
-      global: {
-        mocks: {
-          $route,
-        },
-      },
-      stubs: ['router-link', 'router-view'],
-    })
-    const wantedDocsMenuItems = [
-      {
-        path: `${location.protocol}//${location.hostname}:30000/api/v3/`,
-        title: 'API',
-        external: true,
-      },
-    ]
-    const wantedAnalyticsMenuItems = [
-      // {
-      //   path: `${location.protocol}//${location.hostname}:5601/app/discover`,
-      //   title: 'Kibana',
-      //   external: true,
-      // },
-      {
-        path: `${location.protocol}//${location.hostname}:30300/`,
-        title: 'Grafana',
-        external: true,
-      },
-      // {
-      //   path: `${location.protocol}//${location.hostname}:9090/`,
-      //   title: 'Prometheus',
-      //   external: true,
-      // },
-    ]
-    // allow all requests to finish
-    setImmediate(() => {
-      menuItemShouldContainWantedSectionItems('help', wantedDocsMenuItems)
-      menuItemShouldContainWantedSectionItems('analytics', wantedAnalyticsMenuItems)
-      done()
-    })
-  })
-
-  test('should take defaultUrl when API call failed', async () => {
-    dbData = {
-      links: {
-        swagger_url: 'Aylon',
-        // kibana_url: kibanaURL,
-        grafana_url: grafanaURL,
-        // prometheus_url: prometheusURL,
-      },
-    }
-    jest.clearAllMocks()
-    jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === `/conf/api/v3/db/system/`) {
-        return Promise.resolve(null)
-      }
-      if (path === '/conf/api/v3/configs/') {
-        return Promise.resolve({data: gitData})
-      }
-      return Promise.resolve({data: {}})
-    })
-    const wrapper = mount(SideMenu)
-    await wrapper.setData({defaultSwaggerURL: 'Aviv'})
-    wrapper.vm.$forceUpdate()
     await nextTick()
-    await nextTick()
-    await nextTick()
-    await nextTick()
-    expect(wrapper.vm.menuItems.help.swagger.url).toEqual(wrapper.vm.defaultSwaggerURL)
+    const menu = wrapper.vm.menu
+    const grafanaSwaggerItem = _.find(menu, (menuItem) => {
+      return menuItem.title === 'Grafana'
+    })
+    expect(grafanaSwaggerItem.href).toEqual('http://localhost:30300/')
+    const swaggerMenuItem = _.find(menu, (menuItem) => {
+      return menuItem.title === 'API'
+    })
+    expect(swaggerMenuItem.href).toEqual('http://localhost:30000/api/v3/')
   })
 })

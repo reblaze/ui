@@ -1,22 +1,34 @@
 // @ts-nocheck
 import MainComponent from '../MainComponent.vue'
-import {describe, test, expect, beforeEach} from '@jest/globals'
+import {beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {DOMWrapper, shallowMount, VueWrapper} from '@vue/test-utils'
+import {createTestingPinia} from '@pinia/testing'
 
-// TODO: Resolve pinia integration with jest and remove this skip
-describe.skip('MainComponent.vue', () => {
+const mockRoute = {
+  params: {
+    branch: 'prod',
+  },
+  path: '/prod/dashboard',
+  name: 'DashboardDisplay',
+}
+jest.mock('vue-router', () => ({
+  useRoute: jest.fn(() => (mockRoute)),
+}))
+
+describe('MainComponent.vue', () => {
   let wrapper: VueWrapper
   beforeEach(() => {
     const $route = {
-      path: '/config',
+      path: '/prod/dashboard',
     }
     wrapper = shallowMount(MainComponent, {
       global: {
         mocks: {
           $route,
         },
+        plugins: [createTestingPinia()],
+        stubs: ['router-link', 'router-view'],
       },
-      stubs: ['router-link', 'router-view'],
     })
   })
 

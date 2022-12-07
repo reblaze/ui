@@ -18,13 +18,13 @@
                   </span>
                 </button>
               </p>
-              <div class="control doc-selection-wrapper"
+              <div class="control document-selection-wrapper"
                    v-if="docIdNames.length">
                 <div class="select is-small">
                   <select v-model="selectedDocID"
                           title="Switch document ID"
                           @change="switchDocID()"
-                          class="doc-selection"
+                          class="document-selection"
                           data-qa="switch-document">
                           <option v-for="doc in docIdNames"
                             :key="doc.id"
@@ -39,7 +39,7 @@
           <div class="column">
             <div class="field is-grouped is-pulled-right">
               <p class="control">
-                <button class="button is-small new-edge-function-document-button"
+                <button class="button is-small new-document-button"
                         :class="{'is-loading': isNewLoading}"
                         @click="addNewEdgeFunction()"
                         title="Add new document"
@@ -70,7 +70,7 @@
                 </button>
               </p>
               <p class="control">
-                <button class="button is-small download-doc-button"
+                <button class="button is-small download-document-button"
                         :class="{'is-loading':isDownloadLoading}"
                         @click="downloadDoc()"
                         title="Download document"
@@ -172,7 +172,7 @@
         <div class="column is-8">
           <div class="field">
             <label class="label is-small">Code</label>
-            <textarea class="is-small textarea edge-functions-code"
+            <textarea class="is-small textarea document-code"
                       data-qa="code-input"
                       title="code"
                       v-model="selectedEdgeFunction.code"
@@ -184,24 +184,11 @@
       <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">{{ documentAPIPath }}</span>
     </div>
     <div class="content no-data-wrapper"
-         v-if="loadingDocCounter || !selectedBranch || !selectedEdgeFunction || !docs">
+         v-if="loadingDocCounter">
       <div v-if="loadingDocCounter > 0">
         <button class="button is-outlined is-text is-small is-loading document-loading">
           Loading
         </button>
-      </div>
-      <div v-else
-           class="no-data-message">
-        No data found.
-        <div>
-          <span v-if="!selectedEdgeFunction?.id">
-            Missing document. To create a new one, click
-            <a title="Add new"
-               @click="addNewEdgeFunction()">
-              here
-            </a>
-          </span>
-        </div>
       </div>
     </div>
   </div>
@@ -237,7 +224,7 @@ export default defineComponent({
       isForkLoading: false,
       isNewLoading: false,
 
-      // To prevent deletion of docs referenced by Security Policies
+      // To prevent deletion of docs referenced by Routing Profiles
       referencedIDsEdgeFunctions: [],
       apiRoot: RequestsUtils.reblazeAPIRoot,
       apiVersion: RequestsUtils.reblazeAPIVersion,
@@ -274,7 +261,7 @@ export default defineComponent({
     },
 
     isDocReferenced(): boolean {
-      return JSON.stringify(this.referencedIDsEdgeFunctions).includes(this.selectedDocID)
+      return this.referencedIDsEdgeFunctions.includes(this.selectedDocID)
     },
 
     selectedDocNotDeletable(): boolean {
@@ -288,13 +275,8 @@ export default defineComponent({
       return `${apiPrefix}/reblaze/configs/${this.selectedBranch}/d/cloud-functions/e/${this.selectedDocID}/`
     },
 
-    selectedEdgeFunction: {
-      get(): EdgeFunction {
-        return this.selectedDocIndex > -1 ? this.docs[this.selectedDocIndex] : null
-      },
-      set(newDoc: EdgeFunction): void {
-        this.docs[this.selectedDocIndex] = newDoc
-      },
+    selectedEdgeFunction(): EdgeFunction {
+      return this.selectedDocIndex > -1 ? this.docs[this.selectedDocIndex] : null
     },
   },
   methods: {
@@ -465,7 +447,6 @@ export default defineComponent({
         url: `configs/${this.selectedBranch}/d/routing-profiles/`,
       })
       const routingProfiles = response?.data || []
-      console.log('routingProfiles', routingProfiles)
       const referencedRoutingProfiles: string[] = []
 
       _.forEach(routingProfiles, (routingProfile) => {
@@ -473,10 +454,7 @@ export default defineComponent({
           referencedRoutingProfiles.push(location['cloud_functions'])
         })
       })
-      this.referencedIDsEdgeFunctions = _.uniq(referencedRoutingProfiles)
-
-      console.log('referencedRoutingProfiles=',
-        JSON.stringify(this.referencedIDsEdgeFunctions).includes(this.selectedDocID))
+      this.referencedIDsEdgeFunctions = _.uniq(_.flatten(referencedRoutingProfiles))
     },
   },
 })

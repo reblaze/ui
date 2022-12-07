@@ -10,7 +10,7 @@ import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 jest.mock('axios')
 
 // TODO: Resolve pinia integration with jest and remove this skip
-describe.skip('DynamicRulesEditor.vue', () => {
+describe('DynamicRulesEditor.vue', () => {
   let dynamicRulesDocs: DynamicRule[]
   let globalFilterMatchingDoc: GlobalFilter[]
   let customResponsesDocs: CustomResponse[]
@@ -62,7 +62,6 @@ describe.skip('DynamicRulesEditor.vue', () => {
     }
 
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      console.log('path', path)
       if (path.includes('dynamic-rules')) {
         return Promise.resolve({data: dynamicRulesDocs})
       } else if (path.includes('globalfilters')) {

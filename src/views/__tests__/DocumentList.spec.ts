@@ -28,7 +28,7 @@ import {routes} from '@/router'
 jest.mock('axios')
 
 // TODO: Resolve pinia integration with jest and remove this skip
-describe.skip('DocumentList.vue', () => {
+describe('DocumentList.vue', () => {
   let wrapper: DOMWrapper
   let mockRoute: any
   let mockRouter: any
