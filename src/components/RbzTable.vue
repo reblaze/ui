@@ -21,7 +21,7 @@
             <input type="checkbox"
                    title="Select all rows"
                    ref="check-box"
-                   :checked="(selectedArray.length === dataArrayDisplay.length) && !!dataArrayDisplay.length"
+                   :checked="selectedArray.length === slicedDataArrayDisplay.length && !!slicedDataArrayDisplay.length"
                    class="is-small header-checkbox"
                    @click="selectAll()"/>
           </div>
@@ -31,19 +31,19 @@
             class="column-header is-size-7 column-title"
             :class="`${col.classes || ''} ${col.isSortable ? 'is-clickable' : ''}`"
             @click="sortColumn(col)">
-          <span class="is-flex is-justify-content-space-between">
-            <span>
+          <div class="is-flex is-justify-content-space-between">
+            <div>
               {{ col.title }}
-            </span>
-            <span v-show="col.isSortable">
+            </div>
+            <div v-show="col.isSortable">
               <div v-show="sortColumnTitle === col.title && sortDirection === 'asc'">
                 <i class="fas fa-sort-up"></i>
               </div>
               <div v-show="sortColumnTitle === col.title && sortDirection === 'desc'">
                 <i class="fas fa-sort-down"></i>
               </div>
-            </span>
-          </span>
+            </div>
+          </div>
         </th>
         <th class="column-header is-relative has-text-centered"
             :class="overrideMenuColumnWidthClass ? overrideMenuColumnWidthClass : 'width-45px'"
@@ -324,11 +324,15 @@ export default defineComponent({
       deep: true,
     },
     dataArrayDisplay: {
-      handler: function(val) {
+      handler: function() {
         this.currentPage = 1
-        const dataIdArrayDisplay = _.map(this.dataArrayDisplay, 'id')
+      },
+    },
+    slicedDataArrayDisplay: {
+      handler: function(val) {
+        const dataIdArrayDisplay = _.map(val, 'id')
         if (val?.length > 0 && this.selectedArray?.length > 0) {
-          // filter out whatever is NOT in dataIdArrayDisplay/dataArrayDisplay
+          // filter out whatever is NOT in dataIdArrayDisplay(slicedDataArrayDisplay)
           this.selectedArray = _.filter(this.selectedArray, (selectedArrayItem) => {
             return _.includes(dataIdArrayDisplay, selectedArrayItem)
           })
@@ -454,7 +458,7 @@ export default defineComponent({
     },
 
     selectAll() {
-      const currentCheckboxes = _.map(this.dataArrayDisplay, 'id')
+      const currentCheckboxes = _.map(this.slicedDataArrayDisplay, 'id')
       if (this.$refs['check-box'].checked) {
         this.selectedArray = _.cloneDeep(currentCheckboxes)
       } else {

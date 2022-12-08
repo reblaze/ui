@@ -21,7 +21,7 @@ describe('DateTimeUtils.ts', () => {
       describe(`${type} type input`, () => {
         describe('Less than a minute', () => {
           test('should display correct message', async () => {
-            const wantedTime = `Less than a minute ago`
+            const wantedTime = `A minute ago`
             date = new Date()
             date.setSeconds(date.getSeconds() - 30)
 
@@ -122,7 +122,7 @@ describe('DateTimeUtils.ts', () => {
             spy = DateTimeUtils.isoToNowFullCuriefenseFormat = jest.fn()
           })
           afterEach(() => {
-            DateTimeUtils.isoToNowFullCuriefenseFormat = original,
+            DateTimeUtils.isoToNowFullCuriefenseFormat = original
             jest.clearAllTimers()
           })
 
@@ -158,17 +158,20 @@ describe('DateTimeUtils.ts', () => {
       }
       describe(`${type} type input`, () => {
         let year: number
-        let month: string
+        let month: number | string
         let day: number | string
         let hours: number | string
         let minutes: number | string
         let seconds: number | string
         const calcWantedTime = () => {
           year = date.getFullYear()
-          month = date.toLocaleString('default', {month: 'short'})
+          month = date.getMonth() + 1
           day = date.getDate()
           if (day < 10) {
             day = `0${day}`
+          }
+          if (month < 10) {
+            month = `0${month}`
           }
           hours = date.getHours()
           if (hours < 10) {

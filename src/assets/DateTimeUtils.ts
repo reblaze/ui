@@ -10,6 +10,15 @@ const adjustDateToTimezone = (date: Date) => {
   return new Date(differenceInMilliseconds)
 }
 
+// Removes timezone from local Date received to UTC
+const adjustDateToUTC = (date: Date) => {
+  const dateInMilliseconds = date.getTime()
+  const timeZoneDifferenceInMinutes = date.getTimezoneOffset()
+  const timeZoneInMilliseconds = timeZoneDifferenceInMinutes * 60 * 1000
+  const differenceInMilliseconds = dateInMilliseconds + timeZoneInMilliseconds
+  return new Date(differenceInMilliseconds)
+}
+
 // Formats the received ISO date into a more user-friendly format
 const isoToNowCuriefenseFormat = (date: string | Date) => {
   if (typeof date === 'string') {
@@ -17,18 +26,16 @@ const isoToNowCuriefenseFormat = (date: string | Date) => {
   }
   const currentDate = new Date()
   // @ts-ignore
-  if (currentDate < date) {
-    return DateTimeUtils.isoToNowFullCuriefenseFormat(date)
-  }
+  const timeSuffix = currentDate < date ? 'from now' : 'ago'
   // @ts-ignore
-  const dateDiff = currentDate - date
+  const dateDiff = Math.abs(currentDate - date)
   const minutesDiff = dateDiff / 6e4
   const hoursDiff = dateDiff / 36e5
-  // if less than 1 minute ago
+  // if less than 1 minute
   if (minutesDiff < 1) {
-    return 'Less than a minute ago'
+    return `A minute ${timeSuffix}`
   }
-  // if less than 24 hours ago
+  // if less than 24 hours
   if (hoursDiff < 24) {
     let returnString = ''
     const flooredHoursDiff = Math.floor(hoursDiff)
@@ -47,7 +54,7 @@ const isoToNowCuriefenseFormat = (date: string | Date) => {
       }
       returnString += ' '
     }
-    returnString += 'ago'
+    returnString += timeSuffix
     return returnString
   }
   return DateTimeUtils.isoToNowFullCuriefenseFormat(date)
@@ -59,7 +66,7 @@ const isoToNowFullCuriefenseFormat = (date: string | Date) => {
     date = new Date(date)
   }
   const year = date.getFullYear()
-  const month = date.toLocaleString('default', {month: 'short'})
+  const month = date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1
   const day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate()
   const hours = date.getHours() < 10 ? `0${date.getHours()}` : date.getHours()
   const minutes = date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes()
@@ -70,6 +77,7 @@ const isoToNowFullCuriefenseFormat = (date: string | Date) => {
 export default {
   name: 'DateTimeUtils',
   adjustDateToTimezone,
+  adjustDateToUTC,
   isoToNowCuriefenseFormat,
   isoToNowFullCuriefenseFormat,
 }
