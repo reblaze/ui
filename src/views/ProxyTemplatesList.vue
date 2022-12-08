@@ -94,6 +94,12 @@ export default defineComponent({
               `<span class="width-50px is-inline-block">Burst:</span> ${item['limit_req_burst']} / second`,
             ].join('\n')
           },
+          tooltipFunction: (item: ProxyTemplate) => {
+            return [
+              `Rate: ${item['limit_req_rate']} / second`,
+              `Burst: ${item['limit_req_burst']} / second`,
+            ].join('\n')
+          },
           classes: 'width-200px',
           cellContentClasses: 'vertical-scroll multi-line white-space-pre ellipsis',
         },
@@ -105,6 +111,13 @@ export default defineComponent({
               `<span class="width-60px is-inline-block">Connect:</span> ${item['proxy_connect_timeout']}`,
               `<span class="width-60px is-inline-block">Send:</span> ${item['proxy_send_timeout']}`,
               `<span class="width-60px is-inline-block">Read:</span> ${item['proxy_read_timeout']}`,
+            ].join('\n')
+          },
+          tooltipFunction: (item: ProxyTemplate) => {
+            return [
+              `Connect: ${item['proxy_connect_timeout']}`,
+              `Send: ${item['proxy_send_timeout']}`,
+              `Read: ${item['proxy_read_timeout']}`,
             ].join('\n')
           },
           classes: 'width-150px',

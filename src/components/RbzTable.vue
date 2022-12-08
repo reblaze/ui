@@ -143,7 +143,7 @@
               class="data-cell is-size-7"
               :class="`${col.classes || ''} ${verticalAlignTop ? 'vertical-align-top' : 'vertical-align-middle'}`">
             <div class="data-cell-content"
-                 :class="col.cellContentClasses">
+                 :class="cellContentClasses(col, row)">
               <span v-if="col.displayFunction"
                     v-html="col.displayFunction(row)"
                     :title="col.tooltipFunction ? col.tooltipFunction(row) : col.displayFunction(row)?.toString()">
@@ -497,6 +497,17 @@ export default defineComponent({
 
     closeMenu() {
       this.menuVisible = false
+    },
+
+    cellContentClasses(col: ColumnOptions, row: GenericObject) {
+      let returnString = ''
+      if (col.cellContentClasses) {
+        returnString += ` ${col.cellContentClasses}`
+      }
+      if (col.cellContentConditionalClasses) {
+        returnString += ` ${col.cellContentConditionalClasses(row)}`
+      }
+      return returnString
     },
   },
   beforeMount() {
