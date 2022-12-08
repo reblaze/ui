@@ -314,7 +314,6 @@ export default defineComponent({
           this.selectedDoc.id.startsWith('action-') || // Reblaze-managed Custom Responses
           this.selectedDoc.id.startsWith('rbz-') || // Reblaze-managed Global Filters
           this.selectedDoc.id.startsWith('dr_') || // Dynamic-Rule-managed Global Filters
-          this.havePoliciesConnections ||
           this.isDocReferenced
     },
 
@@ -362,6 +361,15 @@ export default defineComponent({
 
     setPoliciesConnections(connections: boolean) {
       this.havePoliciesConnections = connections
+      const referencedIDsRateLimitIndex = this.referencedIDsRateLimit.findIndex((rateLimitID) => {
+        return rateLimitID === this.selectedDocID
+      })
+      if (connections && !referencedIDsRateLimitIndex) {
+        this.referencedIDsRateLimit.push(this.selectedDocID)
+      }
+      if (!connections && referencedIDsRateLimitIndex) {
+        this.referencedIDsRateLimit.splice(referencedIDsRateLimitIndex, 1)
+      }
     },
 
     async goToRoute(newRoute?: string) {

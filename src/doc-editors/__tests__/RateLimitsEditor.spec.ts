@@ -495,7 +495,7 @@ describe('RateLimitRulesEditor.vue', () => {
     })
 
     test('should show an appropriate message when there are no available new connections', async () => {
-      const wantedMessage = `All Security Policies entries are currently connected to this entity`
+      const wantedMessage = `All Security Policies entries are currently connected to this Rate Limit`
       securityPoliciesDocs = [
         {
           'id': '__default__',
