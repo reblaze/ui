@@ -236,19 +236,37 @@ export default defineComponent({
     },
 
     assignedCerts() {
-      const assignedCerts: Certificate[] = []
+      const balancerAssignedCerts: Certificate[] = []
+      const sitesAssignedCerts: Certificate[] = []
+      let unionAssignedCerts: Certificate[] = []
       this.balancers.forEach((balancer: Balancer) => {
-        balancer.certificates.forEach((link: string) => {
+        _.forEach(balancer.certificates, (link: string) => {
           const certificateId = this.findLocalCertificateNameWithLink(link)
           const certificate = _.find(this.certificates, (certificate) => {
             return certificate.id === certificateId
           })
           if (certificate) {
-            assignedCerts.push(certificate)
+            balancerAssignedCerts.push(certificate)
           }
         })
+        const defaultCertificateId = this.findLocalCertificateNameWithLink(balancer.default_certificate)
+        const certificate = _.find(this.certificates, (certificate) => {
+          return certificate.id === defaultCertificateId
+        })
+        if (certificate) {
+          balancerAssignedCerts.push(certificate)
+        }
       })
-      return assignedCerts
+      _.forEach(this.sites, (site: Site) => {
+        const certificate = _.find(this.certificates, (certificate) => {
+          return certificate.id === site.ssl_certificate
+        })
+        if (certificate) {
+          sitesAssignedCerts.push(certificate)
+        }
+      })
+      unionAssignedCerts = _.union(balancerAssignedCerts, sitesAssignedCerts)
+      return unionAssignedCerts
     },
 
     assignedCertsExceptCurrent() {

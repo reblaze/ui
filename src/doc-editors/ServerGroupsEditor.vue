@@ -210,14 +210,14 @@
                         data-qa="routing-profile-dropdown"
                         class="document-routing-profile-selection"
                         title="SSL Certificates">
-                        <option value=""
-                        disabled
-                        key="no_value">
-                  {{
-                    selectedServerGroup.ssl_certificate ?
-                      'Select certificate' : '-- No certificates to attach --'
-                  }}
-                </option>
+                  <option value=""
+                  disabled
+                  key="no_value">
+                    {{
+                      certificates?.length ?
+                        'Select certificate' : '-- No certificates to attach --'
+                    }}
+                  </option>
                   <option v-for="certificate in certificates"
                           :value="certificate.id"
                           :key="certificate.id">
