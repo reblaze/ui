@@ -55,14 +55,13 @@ describe.skip('DynamicRulesEditor.vue', () => {
         'name': 'default monitoring action',
       },
     ]
-    selectedBranch = 'prod',
+    selectedBranch = 'prod'
 
     mockRouter = {
       push: jest.fn(),
     }
 
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      console.log('path', path)
       if (path.includes('dynamic-rules')) {
         return Promise.resolve({data: dynamicRulesDocs})
       } else if (path.includes('globalfilters')) {

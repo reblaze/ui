@@ -1,10 +1,11 @@
 // @ts-nocheck
 import GitHistory from '@/components/GitHistory.vue'
-import {describe, test, expect, beforeEach} from '@jest/globals'
+import {beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {mount} from '@vue/test-utils'
+import RequestsUtils, {IRequestParams} from '../../assets/RequestsUtils'
+import {nextTick} from 'vue'
 
-// TODO: Resolve pinia integration with jest and remove this skip
-describe.skip('GitHistory.vue', () => {
+describe('GitHistory.vue', () => {
   // Number of log items = 7
   const gitLog = [
     {
@@ -80,13 +81,25 @@ describe.skip('GitHistory.vue', () => {
   ]
   const apiPath = '/conf/api/v3/configs/prod/d/aclprofiles/e/__acldefault__/v/'
   let wrapper: any
-  beforeEach(() => {
+  let sendRequestSpy
+  beforeEach(async () => {
+    sendRequestSpy = jest.spyOn(RequestsUtils, 'sendRequest').mockImplementation(
+      (requestParams: IRequestParams) => {
+        if (requestParams.url === apiPath) {
+          return Promise.resolve({data: gitLog})
+        }
+        if (requestParams.url === `${apiPath}7dd9580c00bef1049ee9a531afb13db9ef3ee956/revert/`) {
+          return Promise.resolve({data: {}})
+        }
+        return Promise.resolve({data: []})
+      })
     wrapper = mount(GitHistory, {
       props: {
-        gitLog,
         apiPath,
+        isCollapsedInitialState: false,
       },
     })
+    await nextTick()
   })
 
   describe('log table rendering', () => {
@@ -102,26 +115,24 @@ describe.skip('GitHistory.vue', () => {
 
     test('should render footer with expand message' +
       'if table is not expanded and more than five items are present', () => {
-      const lastRow = wrapper.findAll('tr').at(wrapper.findAll('tr').length - 1)
+      const rows = wrapper.findAll('tr')
+      const lastRow = rows.at(rows.length - 1)
       expect(lastRow.text()).toEqual('View More')
     })
 
     test('should render footer with collapse message' +
       'if table is expanded and more than five items are present', async () => {
       await wrapper.setData({expanded: true})
-      const lastRow = wrapper.findAll('tr').at(wrapper.findAll('tr').length - 1)
+      const rows = wrapper.findAll('tr')
+      const lastRow = rows.at(rows.length - 1)
       expect(lastRow.text()).toEqual('View Less')
     })
 
     test('should not render footer if less than five items are present', async () => {
       const shortGitLog = gitLog.slice(0, 4)
-      wrapper = mount(GitHistory, {
-        props: {
-          gitLog: shortGitLog,
-          apiPath,
-        },
-      })
-      const lastRow = wrapper.findAll('tr').at(wrapper.findAll('tr').length - 1)
+      await wrapper.setData({gitLog: shortGitLog})
+      const rows = wrapper.findAll('tr')
+      const lastRow = rows.at(rows.length - 1)
       expect(lastRow.text()).not.toEqual('View More')
       expect(lastRow.text()).not.toEqual('View Less')
     })
@@ -133,28 +144,28 @@ describe.skip('GitHistory.vue', () => {
     })
 
     test('should render a single restore button when hovering over a row', async () => {
-      // 0 is the table header, 1 is our first data
-      const firstDataRow = wrapper.findAll('tr').at(1)
+      const firstDataRow = wrapper.find('tbody').findAll('tr').at(0)
       await firstDataRow.trigger('mouseover')
       expect(firstDataRow.findAll('.restore-button').length).toEqual(1)
     })
 
     test('should stop rendering the restore button when no longer hovering over a row', async () => {
-      // 0 is the table header, 1 is our first data
-      const firstDataRow = wrapper.findAll('tr').at(1)
+      const firstDataRow = wrapper.find('tbody').findAll('tr').at(0)
       await firstDataRow.trigger('mouseover')
       await firstDataRow.trigger('mouseleave')
       expect(firstDataRow.findAll('.restore-button').length).toEqual(0)
     })
 
     test('should emit a restore-version event when restore button is clicked', async () => {
-      // 0 is the table header, 1 is our first data
-      const firstDataRow = wrapper.findAll('tr').at(1)
+      jest.clearAllMocks()
+      const firstDataRow = wrapper.find('tbody').findAll('tr').at(0)
       await firstDataRow.trigger('mouseover')
       const restoreButton = firstDataRow.find('.restore-button')
       await restoreButton.trigger('click')
       expect(wrapper.emitted('restore-version')).toBeTruthy()
-      expect(wrapper.emitted('restore-version')[0]).toEqual([gitLog[0]])
+      expect(sendRequestSpy).toHaveBeenCalledWith(expect.objectContaining({
+        url: `${apiPath}${gitLog[0].version}/revert/`,
+      }))
     })
   })
 })

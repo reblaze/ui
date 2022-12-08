@@ -110,7 +110,7 @@ export default defineComponent({
         if ((this.$route.name as string).includes('DocumentList') && val && val !== oldVal) {
           this.setLoadingDocStatus(true)
           await this.setSelectedDataFromRouteParams(true)
-          this.loadCustomResponses()
+          await this.loadCustomResponses()
           this.setLoadingDocStatus(false)
         }
       },
