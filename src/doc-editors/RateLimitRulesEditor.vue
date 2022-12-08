@@ -72,10 +72,10 @@
                  data-qa="tag-input">
               <tag-autocomplete-input :initial-tag="selectedDocTags"
                                       selection-type="multiple"
-                                      @tag-changed="selectedDocTags = $event" />
+                                      @tag-changed="selectedDocTags = $event"/>
             </div>
             <labeled-tags title="Automatic Tags"
-                          :tags="automaticTags" />
+                          :tags="automaticTags"/>
           </div>
           <div class="field count-by-limit-option">
             <label class="label is-small">
@@ -140,14 +140,14 @@
                 </div>
                 <div class="button-wrapper-column column">
                   <button
-                      class="remove-threshold-option-button button is-light is-small remove-icon"
-                      :class="removable ? 'has-text-grey' : 'has-text-grey-light is-disabled'"
-                      :disabled="!removable"
-                      title="Click to remove"
-                      @click="removeThreshold(index)"
-                      @keypress.space.prevent
-                      @keypress.space="removeThreshold(index)"
-                      @keypress.enter="removeThreshold(index)">
+                    class="remove-threshold-option-button button is-light is-small remove-icon"
+                    :class="removable ? 'has-text-grey' : 'has-text-grey-light is-disabled'"
+                    :disabled="!removable"
+                    title="Click to remove"
+                    @click="removeThreshold(index)"
+                    @keypress.space.prevent
+                    @keypress.space="removeThreshold(index)"
+                    @keypress.enter="removeThreshold(index)">
                     <span class="icon is-small"><i class="fas fa-trash fa-xs"></i></span>
                   </button>
                 </div>
@@ -226,7 +226,7 @@
                                             :selection-type="'single'"
                                             :auto-focus="true"
                                             @keydown.esc="cancelAddNewTag"
-                                            @tag-submitted="addNewTag(filter, $event)" />
+                                            @tag-submitted="addNewTag(filter, $event)"/>
                   </td>
                   <td class="is-size-7 width-20px">
                     <a title="add new entry"
@@ -292,7 +292,9 @@
                           class="new-connection-map"
                           data-qa="site-name-dropdown"
                           title="Type">
-                    <option v-for="map in newSecurityPolicyConnections" :key="map.id" :value="map.id">
+                    <option v-for="map in newSecurityPolicyConnections"
+                            :key="map.id"
+                            :value="map.id">
                       {{ map.name }}
                     </option>
                   </select>
@@ -333,7 +335,8 @@
               </td>
             </template>
           </tr>
-          <tr v-for="(connection, index) in connectedSecurityPoliciesEntries" :key="index">
+          <tr v-for="(connection, index) in connectedSecurityPoliciesEntries"
+              :key="index">
             <td class="is-size-7 is-vcentered py-3 width-200px connected-entry-row"
                 :title="connection[0]">
               <a title="Add new"
@@ -409,7 +412,9 @@ import {
   Dictionary,
   IncludeExcludeType,
   LimitOptionType,
-  RateLimit, SecurityPolicy, SecurityPolicyEntryMatch,
+  RateLimit,
+  SecurityPolicy,
+  SecurityPolicyEntryMatch,
   ThresholdActionPair,
 } from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
@@ -649,7 +654,7 @@ export default defineComponent({
         this.setEntryDeleteIndex(-1)
         this.getConnectedSecurityPoliciesEntries()
         const hasConnection = _.some(this.securityPolicies, (securityPolicy) => {
-          return _.some(doc.map, (mapEntry) => {
+          return _.some(securityPolicy.map, (mapEntry) => {
             return _.some(mapEntry['limit_ids'], (rateLimitId) => {
               return rateLimitId === this.localDoc.id
             })
