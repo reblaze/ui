@@ -4,11 +4,12 @@ import {beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {DOMWrapper, shallowMount, VueWrapper} from '@vue/test-utils'
 import {createTestingPinia} from '@pinia/testing'
 
+const selectedBranch = 'prod'
 const mockRoute = {
   params: {
-    branch: 'prod',
+    branch: selectedBranch,
   },
-  path: '/prod/dashboard',
+  path: `/${selectedBranch}/dashboard`,
   name: 'DashboardDisplay',
 }
 jest.mock('vue-router', () => ({
@@ -19,7 +20,7 @@ describe('MainComponent.vue', () => {
   let wrapper: VueWrapper
   beforeEach(() => {
     const $route = {
-      path: '/prod/dashboard',
+      path: `/${selectedBranch}/dashboard`,
     }
     wrapper = shallowMount(MainComponent, {
       global: {

@@ -16,7 +16,7 @@ const mockRoute = {
     branch: selectedBranch,
     doc_id: 'f971e92459e2',
   },
-  path: '/prod/cloud-functions/config/f971e92459e2',
+  path: `/${selectedBranch}/cloud-functions/config/f971e92459e2`,
   name: 'EdgeFunctions/config',
 }
 jest.mock('vue-router', () => ({

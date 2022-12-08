@@ -10,19 +10,18 @@ import RequestsUtils, {IRequestParams} from '../../assets/RequestsUtils'
 import Utils from '../../assets/Utils'
 import DatasetsUtils from '../../assets/DatasetsUtils'
 
+const selectedBranch = 'prod'
 const mockRoute = {
   params: {
-    branch: 'prod',
+    branch: selectedBranch,
     doc_id: 'f971e92459e2',
   },
-  path: '/prod/cloud-functions/config/f971e92459e2',
+  path: `/${selectedBranch}/cloud-functions/config/f971e92459e2`,
   name: 'EdgeFunctions/config',
 }
 jest.mock('vue-router', () => ({
   useRoute: jest.fn(() => (mockRoute)),
 }))
-
-const selectedBranch = 'prod'
 jest.mock('../../assets/RequestsUtils.ts')
 
 describe('EdgeFunctionsEditor.vue', () => {
