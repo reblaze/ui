@@ -491,7 +491,7 @@ export default defineComponent({
         const humans = dataItem.counters.human
         const bots = dataItem.counters.bot
         returnArray.push({
-          timeframe: Math.floor(new Date(dataItem['timestamp']).getTime() / 1000),
+          timeframe: new Date(dataItem['timestamp']).getTime(),
           hits: hits > 0 ? hits : 0,
           passed: passed > 0 ? passed : 0,
           blocked: blocked > 0 ? blocked : 0,
@@ -511,7 +511,7 @@ export default defineComponent({
         })).sort()
         for (const dataItem of this.data) {
           const statusesObject: GenericObject = {
-            'timeframe': Math.floor(new Date(dataItem['timestamp']).getTime() / 1000),
+            'timeframe': new Date(dataItem['timestamp']).getTime(),
           }
           for (const statusKey of existingStatusKeys) {
             const statusClass = _.find(dataItem.counters.status_classes, (statusClass) => {
@@ -527,7 +527,7 @@ export default defineComponent({
         })).sort()
         for (const dataItem of this.data) {
           const statusesObject: GenericObject = {
-            'timeframe': Math.floor(new Date(dataItem['timestamp']).getTime() / 1000),
+            'timeframe': new Date(dataItem['timestamp']).getTime(),
           }
           for (const statusKey of existingStatusKeys) {
             const status = _.find(dataItem.counters.status, (status) => {
