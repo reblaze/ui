@@ -62,8 +62,7 @@ const downloadFile = (fileName: string, fileType: string, data: any) => {
   }
   let blob
   if (fileType === 'json') {
-    let content: BlobPart = ''
-    content = JSON.stringify(data)
+    const content: BlobPart = JSON.stringify(data)
     blob = new Blob([content], {
       type: `application/${fileType}`,
     })
@@ -198,6 +197,10 @@ const sortArrayByName = (docArray: GenericObject[]) => {
   })
 }
 
+const nextCharacter = (character: string) => {
+  return String.fromCharCode(character.charCodeAt(0) + 1)
+}
+
 export default {
   name: 'Utils',
   validateInput,
@@ -210,4 +213,5 @@ export default {
   amountSuffixFormatterBytes,
   hexToRgbArray,
   sortArrayByName,
+  nextCharacter,
 }

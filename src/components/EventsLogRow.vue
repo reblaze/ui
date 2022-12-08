@@ -203,6 +203,30 @@
           </div>
         </div>
       </div>
+      <div class="card collapsible-card collapsible-card-request-flow mb-3"
+           :class="{ collapsed: isRequestFlowCollapsed }">
+        <div class="card-content px-0 py-0">
+          <div class="media collapsible collapsible-title px-3 py-3 mb-0"
+               @click="toggleRequestFlowCollapse">
+            <div class="media-content">
+              <p class="title is-7 is-uppercase">Request Flow</p>
+            </div>
+            <span v-show="isRequestFlowCollapsed">
+              <i class="fas fa-angle-down"
+                 aria-hidden="true"></i>
+            </span>
+            <span v-show="!isRequestFlowCollapsed">
+              <i class="fas fa-angle-up"
+                 aria-hidden="true"></i>
+            </span>
+          </div>
+          <div class="content collapsible-content px-3 py-3">
+            <pre class="mermaid">
+              {{ eventFlowChart }}
+            </pre>
+          </div>
+        </div>
+      </div>
       <div class="card collapsible-card collapsible-card-session-ids mb-3"
            :class="{ collapsed: isSessionIDsCollapsed }"
            v-if="Object.keys(event.curiesession_ids)?.length > 1">
@@ -249,7 +273,8 @@
         {{ eventUserAgent }}
       </div>
       <div class="card collapsible-card collapsible-card-tags mb-3"
-           :class="{ collapsed: isTagsCollapsed }">
+           :class="{ collapsed: isTagsCollapsed }"
+           v-if="event.tags?.length">
         <div class="card-content px-0 py-0">
           <div class="media collapsible collapsible-title px-3 py-3 mb-0"
                @click="isTagsCollapsed = !isTagsCollapsed">
@@ -591,7 +616,6 @@
 </template>
 
 <script lang="ts">
-/* eslint-disable */
 import {defineComponent, nextTick, PropType} from 'vue'
 import {EventLog, GenericObject} from '@/types'
 import _ from 'lodash'
@@ -600,6 +624,7 @@ import packageJson from '../../package.json'
 import LabeledTags from '@/components/LabeledTags.vue'
 import Utils from '@/assets/Utils'
 import DatasetsUtils from '@/assets/DatasetsUtils'
+import mermaid from 'mermaid'
 
 const PROCESSING_STAGE = {
   0: 'Initialization',
@@ -629,12 +654,13 @@ export default defineComponent({
 
       // Full Details
       eventFullDetails: false,
+      isRequestFlowCollapsed: false,
       isSessionIDsCollapsed: false,
-      isArgumentsCollapsed: false,
-      isCookiesCollapsed: false,
-      isHeadersCollapsed: false,
       isTagsCollapsed: false,
       isPathPartsCollapsed: false,
+      isCookiesCollapsed: false,
+      isHeadersCollapsed: false,
+      isArgumentsCollapsed: false,
       isLogsCollapsed: false,
 
       // Context Menu
@@ -651,25 +677,6 @@ export default defineComponent({
       handler: function(val: EventLog, oldVal: EventLog) {
         if (val && !_.isEqual(val, oldVal)) {
           val.tags.sort()
-          // Collapsible cards
-          if (!Object.keys(val.arguments)?.length) {
-            this.isArgumentsCollapsed = true
-          }
-          if (!Object.keys(val.cookies)?.length) {
-            this.isCookiesCollapsed = true
-          }
-          if (!Object.keys(val.headers)?.length) {
-            this.isHeadersCollapsed = true
-          }
-          if (!val.tags?.length) {
-            this.isTagsCollapsed = true
-          }
-          if (Object.keys(val.path_parts)?.length <= 1) {
-            this.isPathPartsCollapsed = true
-          }
-          if (!val.logs?.length) {
-            this.isLogsCollapsed = true
-          }
         }
       },
       immediate: true,
@@ -744,6 +751,64 @@ export default defineComponent({
       return userAgentHeader || ''
     },
 
+    eventFlowChart(): string {
+      let returnMarkdownString = ''
+      returnMarkdownString += 'graph LR\n'
+      returnMarkdownString += `A(Client)\n`
+      returnMarkdownString += `A --> |Request| B\n`
+      returnMarkdownString += `B(Reblaze)\n`
+      returnMarkdownString += `B --> C\n`
+      let character = 'C'
+      let nextCharacter = Utils.nextCharacter(character)
+      if (this.event['global_filter_triggers']?.length) {
+        returnMarkdownString += `${character}(Global Filters)\n`
+        _.forEach(this.event['global_filter_triggers'], (trigger, index) => {
+          const text = trigger.active ? 'Block' : 'Report'
+          returnMarkdownString += `${character} --> |${text}| ${character}${index + 1}[${trigger.ruleid}]`
+          returnMarkdownString += ` --> ${nextCharacter}\n`
+        })
+        character = Utils.nextCharacter(character)
+        nextCharacter = Utils.nextCharacter(character)
+      }
+      if (this.event['rate_limit_triggers']?.length) {
+        returnMarkdownString += `${character}(Rate Limit Rules)\n`
+        _.forEach(this.event['rate_limit_triggers'], (trigger, index) => {
+          const text = trigger.active ? 'Block' : 'Report'
+          returnMarkdownString += `${character} --> |${text}| ${character}${index + 1}[${trigger.ruleid}]`
+          returnMarkdownString += ` --> ${nextCharacter}\n`
+        })
+        character = Utils.nextCharacter(character)
+        nextCharacter = Utils.nextCharacter(character)
+      }
+      if (this.event['acl_triggers']?.length) {
+        returnMarkdownString += `${character}(ACL Profiles)\n`
+        _.forEach(this.event['acl_triggers'], (trigger, index) => {
+          const text = trigger.active ? 'Block' : 'Report'
+          returnMarkdownString += `${character} --> |${text}| ${character}${index + 1}[${trigger.ruleid}]`
+          returnMarkdownString += ` --> ${nextCharacter}\n`
+        })
+        character = Utils.nextCharacter(character)
+        nextCharacter = Utils.nextCharacter(character)
+      }
+      if (this.event['content_filter_triggers']?.length) {
+        returnMarkdownString += `${character}(Content Filter Rules)\n`
+        _.forEach(this.event['content_filter_triggers'], (trigger, index) => {
+          const text = trigger.active ? 'Block' : 'Report'
+          returnMarkdownString += `${character} --> |${text}| ${character}${index + 1}[${trigger.ruleid}]`
+          returnMarkdownString += ` --> ${nextCharacter}\n`
+        })
+        character = Utils.nextCharacter(character)
+        nextCharacter = Utils.nextCharacter(character)
+      }
+      returnMarkdownString += `${character}(Route To Upstream)\n`
+      returnMarkdownString += `${character} --> ${nextCharacter}\n`
+      character = Utils.nextCharacter(character)
+      nextCharacter = Utils.nextCharacter(character)
+      returnMarkdownString += `${character}(Response)\n`
+      returnMarkdownString += `${character} --> |status code: ${this.event['response_code']}| B --> A`
+      return returnMarkdownString
+    },
+
     eventHeaders(): EventLog['headers'] {
       const hiddenHeaders: string[] = [
         'host',
@@ -764,7 +829,9 @@ export default defineComponent({
 
     eventLatency(): number {
       // Latency = request time - upstream response time
-      let latency = (Number(this.event.proxy?.request_time) - Number(this.event.proxy?.upstream_response_time || 0))
+      const requestTime = Number(this.event.proxy?.request_time)
+      const upstreamResponseTime = Number(this.event.proxy?.upstream_response_time)
+      const latency = requestTime - upstreamResponseTime || 0
       return this.processTimeDisplay(latency)
     },
 
@@ -833,6 +900,33 @@ export default defineComponent({
   methods: {
     toggleShowFullDetails() {
       this.eventFullDetails = !this.eventFullDetails
+      if (this.eventFullDetails && !this.isRequestFlowCollapsed) {
+        setImmediate(() => {
+          this.initMermaid()
+        })
+      }
+    },
+
+    toggleRequestFlowCollapse() {
+      this.isRequestFlowCollapsed = !this.isRequestFlowCollapsed
+      if (!this.isRequestFlowCollapsed) {
+        setImmediate(() => {
+          this.initMermaid()
+        })
+      }
+    },
+
+    initMermaid() {
+      mermaid.init(
+        {
+          startOnLoad: true,
+          flowchart: {
+            useMaxWidth: false,
+            htmlLabels: true,
+          },
+        },
+        '.mermaid',
+      )
     },
 
     emitToggleShowFullGroup() {
@@ -1085,6 +1179,14 @@ $event-row-box-horizontal-padding: 1rem;
 }
 
 .collapsible-card:hover {
+  background-color: $color-black-haze;
+}
+
+.mermaid {
+  background-color: $color-white;
+}
+
+.collapsible-card:hover .mermaid {
   background-color: $color-black-haze;
 }
 
