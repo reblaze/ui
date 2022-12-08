@@ -362,7 +362,7 @@ export default defineComponent({
 
         },
         {
-          title: '# Of certs',
+          title: '# Of Certs',
           fieldNames: ['cert'],
           displayFunction: (item) => {
             let defaultCertificateNumber = 0
