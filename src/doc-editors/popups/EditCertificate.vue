@@ -238,7 +238,6 @@ export default defineComponent({
     assignedCerts() {
       const balancerAssignedCerts: Certificate[] = []
       const sitesAssignedCerts: Certificate[] = []
-      let unionAssignedCerts: Certificate[] = []
       this.balancers.forEach((balancer: Balancer) => {
         _.forEach(balancer.certificates, (link: string) => {
           const certificateId = this.findLocalCertificateNameWithLink(link)
@@ -265,8 +264,7 @@ export default defineComponent({
           sitesAssignedCerts.push(certificate)
         }
       })
-      unionAssignedCerts = _.union(balancerAssignedCerts, sitesAssignedCerts)
-      return unionAssignedCerts
+      return _.union(balancerAssignedCerts, sitesAssignedCerts)
     },
 
     assignedCertsExceptCurrent() {

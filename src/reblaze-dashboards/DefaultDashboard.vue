@@ -5,7 +5,7 @@
       <div class="columns height-300px">
         <div class="column width-300px">
           <div class="field traffic-info mb-2 columns">
-            <label class="label is-small has-text-grey-light is-capitalized column width-90px">
+            <label class="label is-small has-text-grey-light is-capitalized column width-80px pr-0">
               Total Calls
             </label>
               <span class="has-text-weight-bold column width-70px"
@@ -20,7 +20,7 @@
           <div v-for="(data, trafficCategory) in trafficInfo"
                :key="trafficCategory"
                class="field traffic-info mb-2 columns">
-            <label class="label is-small has-text-grey-light is-capitalized column width-90px">
+            <label class="label is-small has-text-grey-light is-capitalized column width-80px pr-0">
               {{ trafficCategory }}
             </label>
               <div class="has-text-weight-bold column width-60px"
@@ -31,7 +31,7 @@
                    :title="(`${data?.percentile}%`)?.toString()">
                 {{ data.percentile }}%
               </div>
-              <div class="height-2rem column width-90px">
+              <div class="height-2rem column width-110px">
                 <template v-if="data.topCountries && data.topCountries.length">
                   <country-flag v-for="topCountry in data.topCountries.slice(0, 3)"
                                 :key="topCountry"
@@ -659,8 +659,6 @@ export default defineComponent({
             }
             groupedObject[escapedKey].blocked = groupedObject[escapedKey].blocked || 0
             groupedObject[escapedKey].blocked += blockedItem.value || 0
-            groupedObject[escapedKey].hits = groupedObject[escapedKey].hits || 0
-            groupedObject[escapedKey].hits += blockedItem.value || 0
           }
         }
         if (item.counters[passedFieldName]) {
@@ -671,8 +669,6 @@ export default defineComponent({
             }
             groupedObject[escapedKey].passed = groupedObject[escapedKey].passed || 0
             groupedObject[escapedKey].passed += passedItem.value || 0
-            groupedObject[escapedKey].hits = groupedObject[escapedKey].hits || 0
-            groupedObject[escapedKey].hits += passedItem.value || 0
           }
         }
         if (item.counters[reportedFieldName]) {
@@ -683,8 +679,6 @@ export default defineComponent({
             }
             groupedObject[escapedKey].reported = groupedObject[escapedKey].reported || 0
             groupedObject[escapedKey].reported += reportededItem.value || 0
-            groupedObject[escapedKey].hits = groupedObject[escapedKey].hits || 0
-            groupedObject[escapedKey].hits += reportededItem.value || 0
           }
         }
       })

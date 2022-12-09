@@ -49,9 +49,9 @@ export default defineComponent({
   background-color: $color-alto;
   border: 1px solid $color-white;
   border-radius: 5px;
-  margin-right: 0.12rem;
+  margin-right: 2px;
   max-width: 90%;
-  padding: 0.3rem 0.6rem;
+  padding: 5px 10px;
   width: fit-content;
 }
 </style>
