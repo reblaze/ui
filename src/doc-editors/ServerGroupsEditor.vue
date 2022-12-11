@@ -210,6 +210,14 @@
                         data-qa="routing-profile-dropdown"
                         class="document-routing-profile-selection"
                         title="SSL Certificates">
+                  <option value=""
+                  disabled
+                  key="no_value">
+                    {{
+                      certificates?.length ?
+                        'Select certificate' : '-- No certificates to attach --'
+                    }}
+                  </option>
                   <option v-for="certificate in certificates"
                           :value="certificate.id"
                           :key="certificate.id">
@@ -886,3 +894,9 @@ export default defineComponent({
   },
 })
 </script>
+<style scoped lang="scss">
+.doc-selection-wrapper {
+  max-width: 200px;
+  min-width: 0;
+}
+</style>

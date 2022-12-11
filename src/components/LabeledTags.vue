@@ -48,10 +48,10 @@ export default defineComponent({
 .labeled-tag {
   background-color: $color-alto;
   border: 1px solid $color-white;
-  border-radius: 10px;
-  margin-right: 0.25rem;
+  border-radius: 5px;
+  margin-right: 2px;
   max-width: 90%;
-  padding: 0.05rem 0.5rem;
+  padding: 5px 10px;
   width: fit-content;
 }
 </style>

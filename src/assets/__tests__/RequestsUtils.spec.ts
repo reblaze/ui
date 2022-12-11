@@ -237,7 +237,7 @@ describe('RequestsUtils.ts', () => {
         test('should attempt to redirect if redirect info received from the server', async () => {
           const wantedURL = 'http://127.0.0.1/testOtherPath'
           getSpy = jest.spyOn(axios, 'get').mockImplementation(() => Promise.resolve({
-            request: {
+            headers: {
               location: wantedURL,
             },
           }))

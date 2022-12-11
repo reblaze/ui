@@ -3,37 +3,35 @@
     <div v-show="!loading && totalCallsInfo.amount">
       <!--First graph row-->
       <div class="columns height-300px">
-        <div class="column width-200px">
-          <div class="field traffic-info mb-0 height-50px">
-            <label class="label is-small has-text-grey-light">
+        <div class="column width-300px">
+          <div class="field traffic-info mb-2 columns">
+            <label class="label is-small has-text-grey-light is-capitalized column width-80px pr-0">
               Total Calls
             </label>
-            <div class="control columns is-variable is-0">
-              <span class="column is-4 has-text-weight-bold">
+              <span class="has-text-weight-bold column width-70px"
+                    :title="(totalCallsInfo?.amount)?.toString()">
                 {{ amountSuffixFormatter(totalCallsInfo.amount) }}
               </span>
-              <span class="column is-8">
-                <span class="has-text-weight-bold">
-                  {{ amountSuffixFormatter(totalCallsInfo.callsPerHour) }}
+                <span class="has-text-weight-bold column width-120px px-0"
+                      :title="(totalCallsInfo?.callsPerHour)?.toString()">
+                  {{ amountSuffixFormatter(totalCallsInfo.callsPerHour) }} Calls / Hr
                 </span>
-                Calls / Hr
-              </span>
-            </div>
           </div>
           <div v-for="(data, trafficCategory) in trafficInfo"
                :key="trafficCategory"
-               class="field traffic-info mb-0 width-50pct height-100px is-inline-block">
-            <label class="label is-small has-text-grey-light is-capitalized">
+               class="field traffic-info mb-2 columns">
+            <label class="label is-small has-text-grey-light is-capitalized column width-80px pr-0">
               {{ trafficCategory }}
             </label>
-            <div class="control">
-              <div class="has-text-weight-bold">
-                {{ data.percentile }}%
-              </div>
-              <div class="has-text-weight-bold">
+              <div class="has-text-weight-bold column width-60px"
+                   :title="(data?.amount)?.toString()">
                 {{ amountSuffixFormatter(data.amount) }}
               </div>
-              <div class="height-2rem country-flags-wrapper">
+              <div class="has-text-weight-bold column width-60px"
+                   :title="(`${data?.percentile}%`)?.toString()">
+                {{ data.percentile }}%
+              </div>
+              <div class="column width-110px">
                 <template v-if="data.topCountries && data.topCountries.length">
                   <country-flag v-for="topCountry in data.topCountries.slice(0, 3)"
                                 :key="topCountry"
@@ -46,7 +44,6 @@
                   </span>
                 </template>
               </div>
-            </div>
           </div>
         </div>
         <div class="column">
@@ -62,7 +59,7 @@
       </div>
       <!--Second graph row-->
       <div class="columns height-300px">
-        <div class="column width-200px">
+        <div class="column width-300px">
           <div class="height-200px">
             <svg id="doughnut"
                  width="100%"
@@ -107,7 +104,7 @@
           <rbz-table :columns="topTargetAppsTableColumns"
                      :data="topTargetApps"
                      :default-sort-column-index="1"
-                     :rows-per-page="10"
+                     :use-scroll="true"
                      default-sort-column-direction="desc">
           </rbz-table>
         </div>
@@ -115,7 +112,7 @@
           <rbz-table :columns="topTargetURIsTableColumns"
                      :data="topTargetURIs"
                      :default-sort-column-index="1"
-                     :rows-per-page="10"
+                     :use-scroll="true"
                      default-sort-column-direction="desc">
           </rbz-table>
         </div>
@@ -123,7 +120,7 @@
           <rbz-table :columns="topTargetRTCsTableColumns"
                      :data="topTargetRTCs"
                      :default-sort-column-index="1"
-                     :rows-per-page="10"
+                     :use-scroll="true"
                      default-sort-column-direction="desc">
           </rbz-table>
         </div>
@@ -131,7 +128,7 @@
           <rbz-table :columns="topCountriesTableColumns"
                      :data="topCountries"
                      :default-sort-column-index="1"
-                     :rows-per-page="10"
+                     :use-scroll="true"
                      default-sort-column-direction="desc">
           </rbz-table>
         </div>
@@ -139,7 +136,7 @@
           <rbz-table :columns="topASNumbersTableColumns"
                      :data="topASNumbers"
                      :default-sort-column-index="1"
-                     :rows-per-page="10"
+                     :use-scroll="true"
                      default-sort-column-direction="desc">
           </rbz-table>
         </div>
@@ -147,7 +144,7 @@
           <rbz-table :columns="topIPAddressesTableColumns"
                      :data="topIPAddresses"
                      :default-sort-column-index="1"
-                     :rows-per-page="10"
+                     :use-scroll="true"
                      default-sort-column-direction="desc">
           </rbz-table>
         </div>
@@ -155,7 +152,7 @@
           <rbz-table :columns="topRateLimitsTableColumns"
                      :data="topRateLimits"
                      :default-sort-column-index="1"
-                     :rows-per-page="10"
+                     :use-scroll="true"
                      default-sort-column-direction="desc">
           </rbz-table>
         </div>
@@ -163,7 +160,7 @@
           <rbz-table :columns="topACLsTableColumns"
                      :data="topACLs"
                      :default-sort-column-index="1"
-                     :rows-per-page="10"
+                     :use-scroll="true"
                      default-sort-column-direction="desc">
           </rbz-table>
         </div>
@@ -171,7 +168,7 @@
           <rbz-table :columns="topContentFiltersTableColumns"
                      :data="topContentFilters"
                      :default-sort-column-index="1"
-                     :rows-per-page="10"
+                     :use-scroll="true"
                      default-sort-column-direction="desc">
           </rbz-table>
         </div>
@@ -179,7 +176,7 @@
           <rbz-table :columns="topUserAgentsTableColumns"
                      :data="topUserAgents"
                      :default-sort-column-index="1"
-                     :rows-per-page="10"
+                     :use-scroll="true"
                      default-sort-column-direction="desc">
           </rbz-table>
         </div>
@@ -187,7 +184,7 @@
           <rbz-table :columns="topTagsTableColumns"
                      :data="topTags"
                      :default-sort-column-index="1"
-                     :rows-per-page="10"
+                     :use-scroll="true"
                      default-sort-column-direction="desc">
           </rbz-table>
         </div>
@@ -222,6 +219,7 @@ type topTableData = {
   passed?: number
   blocked?: number
   reported?: number
+  hits?: number
 }
 
 export default defineComponent({
@@ -241,6 +239,13 @@ export default defineComponent({
         title: '',
         fieldNames: ['rowIdentification'],
         cellContentClasses: 'horizontal-scroll',
+      },
+      {
+        title: 'Hits',
+        fieldNames: ['hits'],
+        isSortable: true,
+        isNumber: true,
+        classes: 'width-80px',
       },
       {
         title: 'Passed',
@@ -438,11 +443,15 @@ export default defineComponent({
       const passed = _.sumBy(this.data, (value) => {
         return value?.counters.passed
       })
+      const reported = _.sumBy(this.data, (value) => {
+        return value?.counters.reported
+      })
       const blocked = _.sumBy(this.data, (value) => {
         return value?.counters.active
       })
       const passedPercentile = Math.round((passed / hits) * 100)
-      const blockedPercentile = 100 - passedPercentile
+      const reportedPercentile = Math.round((reported / hits) * 100)
+      const blockedPercentile = Math.round((blocked / hits) * 100)
       const humans = _.sumBy(this.data, (value) => {
         return value?.counters.human
       })
@@ -450,13 +459,22 @@ export default defineComponent({
         return value?.counters.bot
       })
       const humansPercentile = Math.round((humans / hits) * 100)
-      const botsPercentile = 100 - humansPercentile
+      const botsPercentile = Math.round((bots / hits) * 100)
       return {
         'passed': {
           amount: passed,
           percentile: passedPercentile,
           topCountries: _.map(_.filter(_.orderBy(this.topCountries, ['passed'], ['desc']), (topCountry) => {
             return topCountry.passed > 0
+          }), (topCountry) => {
+            return topCountry.rowIdentification
+          }),
+        },
+        'reported': {
+          amount: reported,
+          percentile: reportedPercentile,
+          topCountries: _.map(_.filter(_.orderBy(this.topCountries, ['reported'], ['desc']), (topCountry) => {
+            return topCountry.reported > 0
           }), (topCountry) => {
             return topCountry.rowIdentification
           }),
@@ -572,14 +590,16 @@ export default defineComponent({
         const passed = _.sumBy(groupedObject[appId], (item) => item.counters.passed)
         const blocked = _.sumBy(groupedObject[appId], (item) => item.counters.active)
         const reported = _.sumBy(groupedObject[appId], (item) => item.counters.reported)
+        const hits = passed + blocked + reported
         returnArray.push({
           rowIdentification: appId,
+          hits: hits > 0 ? hits : 0,
           passed: passed > 0 ? passed : 0,
           blocked: blocked > 0 ? blocked : 0,
           reported: reported > 0 ? reported : 0,
         })
       }
-      return returnArray
+      return _.sortBy(returnArray, 'hits').slice(0, 50)
     },
 
     topTargetURIs(): topTableData[] {
@@ -663,14 +683,19 @@ export default defineComponent({
         }
       })
       for (const key of Object.keys(groupedObject)) {
+        const passed = groupedObject[key].passed > 0 ? groupedObject[key].passed : 0
+        const blocked = groupedObject[key].blocked > 0 ? groupedObject[key].blocked : 0
+        const reported = groupedObject[key].reported > 0 ? groupedObject[key].reported : 0
+        const hits = passed + blocked + reported
         returnArray.push({
           rowIdentification: key,
-          passed: groupedObject[key].passed > 0 ? groupedObject[key].passed : 0,
-          blocked: groupedObject[key].blocked > 0 ? groupedObject[key].blocked : 0,
-          reported: groupedObject[key].reported > 0 ? groupedObject[key].reported : 0,
+          hits: hits,
+          passed: passed,
+          blocked: blocked,
+          reported: reported,
         })
       }
-      return returnArray
+      return _.sortBy(returnArray, 'hits').slice(0, 50)
     },
 
     amountSuffixFormatter(value: number) {
@@ -710,5 +735,9 @@ export default defineComponent({
   margin-right: 4px;
   vertical-align: text-bottom;
   width: 1rem;
+}
+
+.traffic-info {
+  line-height: 1rem;
 }
 </style>

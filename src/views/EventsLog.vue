@@ -259,6 +259,7 @@ export default defineComponent({
             'cookies',
             'curiesession_ids',
             'headers',
+            'path_parts',
             'proxy',
             'security_config',
             'trigger_counters',
@@ -268,7 +269,7 @@ export default defineComponent({
           if (isNested) {
             const splitField = filterObject.field.split(/_/)
             let field = splitField.shift()
-            if (['curiesession', 'security', 'trigger'].includes(field)) {
+            if (['curiesession', 'path', 'security', 'trigger'].includes(field)) {
               field = `${field}_${splitField.shift()}`
             }
             const key = splitField.join('_')

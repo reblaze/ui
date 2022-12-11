@@ -49,8 +49,8 @@ const processRequest = (requestParams: IRequestParams) => {
   }
   request = request.then((response: AxiosResponse) => {
     // Follow redirect
-    if (response?.request?.location) {
-      window.location.href = response.request.location
+    if (response?.headers?.location) {
+      window.location.href = response.headers.location
     }
     // Toast message
     if (requestParams.successMessage) {

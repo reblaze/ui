@@ -263,6 +263,12 @@ export default defineComponent({
           isSearchable: true,
           classes: 'width-120px',
           cellContentClasses: 'ellipsis',
+          cellContentConditionalClasses: (item: Certificate) => {
+            const sslDateUnix = Number(new Date(`${item['exp_date']}T00:00:00.000Z`))
+            const currentDateUnix = Number(new Date())
+            const ONE_MONTH = 1000 * 60 * 60 * 24 * 30
+            return (sslDateUnix - currentDateUnix) < ONE_MONTH ? 'has-text-danger' : ''
+          },
         },
         {
           title: 'Linked To',
@@ -362,7 +368,7 @@ export default defineComponent({
 
         },
         {
-          title: '# Of certs',
+          title: '# Of Certs',
           fieldNames: ['cert'],
           displayFunction: (item) => {
             let defaultCertificateNumber = 0
@@ -501,11 +507,15 @@ export default defineComponent({
 
     isDeleteDisabled(certificate: Certificate) {
       return _.some(this.loadBalancers, (balancer: Balancer) => {
-        return _.some(balancer.certificates, (balancerCertificateLink: string) => {
+        const balancerCertificate = _.some(balancer.certificates, (balancerCertificateLink: string) => {
           return _.some(certificate.links, (certificateLink: Link) => {
             return certificateLink.link === balancerCertificateLink
           })
         })
+        const balancerDefaultCertificate = _.some(certificate.links, (certificateLink: Link) => {
+          return certificateLink.link === balancer.default_certificate
+        })
+        return balancerCertificate || balancerDefaultCertificate || certificate.id === 'placeholder'
       })
     },
 

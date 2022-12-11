@@ -143,7 +143,7 @@
               class="data-cell is-size-7"
               :class="`${col.classes || ''} ${verticalAlignTop ? 'vertical-align-top' : 'vertical-align-middle'}`">
             <div class="data-cell-content"
-                 :class="col.cellContentClasses">
+                 :class="cellContentClasses(col, row)">
               <span v-if="col.displayFunction"
                     v-html="col.displayFunction(row)"
                     :title="col.tooltipFunction ? col.tooltipFunction(row) : col.displayFunction(row)?.toString()">
@@ -201,24 +201,24 @@
         </td>
       </tr>
       <tr v-if="totalPages > 1 && !useScroll"
-          class="pagination-row">
-        <td :colspan="totalColumns">
-          <div class="pagination is-small">
-            <button class="pagination-button mx-1 my-2 pagination-button-previous is-size-7"
-                    @click="prevPage"
-                    :disabled="currentPage === 1"
-                    :class="{'pagination-button-active' : currentPage !== 1 }">
-              Previous Page
-            </button>
-            <button class="pagination-button mx-1 my-2 pagination-button-next is-size-7"
-                    @click="nextPage"
-                    :disabled="currentPage === totalPages"
-                    :class="{'pagination-button-active' : currentPage !== totalPages }">
-              Next Page
-            </button>
-          </div>
-        </td>
-      </tr>
+        class="pagination-row">
+      <td :colspan="totalColumns">
+        <div class="pagination is-small">
+          <button class="pagination-button mx-1 my-2 pagination-button-previous is-size-7"
+                  @click="prevPage"
+                  :disabled="currentPage === 1"
+                  :class="{'pagination-button-active' : currentPage !== 1 }">
+            Previous
+          </button>
+          <button class="pagination-button mx-1 my-2 pagination-button-next is-size-7"
+                  @click="nextPage"
+                  :disabled="currentPage === totalPages"
+                  :class="{'pagination-button-active' : currentPage !== totalPages }">
+            Next
+          </button>
+        </div>
+      </td>
+    </tr>
       </tbody>
     </table>
   </div>
@@ -497,6 +497,17 @@ export default defineComponent({
 
     closeMenu() {
       this.menuVisible = false
+    },
+
+    cellContentClasses(col: ColumnOptions, row: GenericObject) {
+      let returnString = ''
+      if (col.cellContentClasses) {
+        returnString += ` ${col.cellContentClasses}`
+      }
+      if (col.cellContentConditionalClasses) {
+        returnString += ` ${col.cellContentConditionalClasses(row)}`
+      }
+      return returnString
     },
   },
   beforeMount() {

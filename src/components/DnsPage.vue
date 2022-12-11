@@ -108,7 +108,7 @@ export default defineComponent({
   word-break: break-all;
 }
 
-:deep(.multi-line) {
+:deep(.rbz-table .multi-line) {
   height: fit-content;
   max-height: 10rem;
 }
