@@ -31,7 +31,7 @@
                    :title="(`${data?.percentile}%`)?.toString()">
                 {{ data.percentile }}%
               </div>
-              <div class="height-2rem column width-110px">
+              <div class="column width-110px">
                 <template v-if="data.topCountries && data.topCountries.length">
                   <country-flag v-for="topCountry in data.topCountries.slice(0, 3)"
                                 :key="topCountry"
@@ -599,7 +599,7 @@ export default defineComponent({
           reported: reported > 0 ? reported : 0,
         })
       }
-      return returnArray
+      return _.sortBy(returnArray, 'hits').slice(0, 50)
     },
 
     topTargetURIs(): topTableData[] {
@@ -695,7 +695,7 @@ export default defineComponent({
           reported: reported,
         })
       }
-      return returnArray
+      return _.sortBy(returnArray, 'hits').slice(0, 50)
     },
 
     amountSuffixFormatter(value: number) {
