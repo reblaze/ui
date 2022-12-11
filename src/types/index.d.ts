@@ -305,6 +305,7 @@ declare module CuriefenseClient {
     isNumber?: boolean // True if all values are always numbers, for sorting
     classes?: string
     cellContentClasses?: string
+    cellContentConditionalClasses?: (item: any) => string
   }
 
   type ColumnOptionsMap = {

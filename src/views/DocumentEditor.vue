@@ -364,10 +364,10 @@ export default defineComponent({
       const referencedIDsRateLimitIndex = this.referencedIDsRateLimit.findIndex((rateLimitID) => {
         return rateLimitID === this.selectedDocID
       })
-      if (connections && !referencedIDsRateLimitIndex) {
+      if (connections && referencedIDsRateLimitIndex === -1) {
         this.referencedIDsRateLimit.push(this.selectedDocID)
       }
-      if (!connections && referencedIDsRateLimitIndex) {
+      if (!connections && referencedIDsRateLimitIndex > -1) {
         this.referencedIDsRateLimit.splice(referencedIDsRateLimitIndex, 1)
       }
     },
