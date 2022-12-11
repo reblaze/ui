@@ -201,24 +201,24 @@
         </td>
       </tr>
       <tr v-if="totalPages > 1 && !useScroll"
-          class="pagination-row">
-        <td :colspan="totalColumns">
-          <div class="pagination is-small">
-            <button class="pagination-button mx-1 my-2 pagination-button-previous is-size-7"
-                    @click="prevPage"
-                    :disabled="currentPage === 1"
-                    :class="{'pagination-button-active' : currentPage !== 1 }">
-              Previous Page
-            </button>
-            <button class="pagination-button mx-1 my-2 pagination-button-next is-size-7"
-                    @click="nextPage"
-                    :disabled="currentPage === totalPages"
-                    :class="{'pagination-button-active' : currentPage !== totalPages }">
-              Next Page
-            </button>
-          </div>
-        </td>
-      </tr>
+        class="pagination-row">
+      <td :colspan="totalColumns">
+        <div class="pagination is-small">
+          <button class="pagination-button mx-1 my-2 pagination-button-previous is-size-7"
+                  @click="prevPage"
+                  :disabled="currentPage === 1"
+                  :class="{'pagination-button-active' : currentPage !== 1 }">
+            Previous
+          </button>
+          <button class="pagination-button mx-1 my-2 pagination-button-next is-size-7"
+                  @click="nextPage"
+                  :disabled="currentPage === totalPages"
+                  :class="{'pagination-button-active' : currentPage !== totalPages }">
+            Next
+          </button>
+        </div>
+      </td>
+    </tr>
       </tbody>
     </table>
   </div>
