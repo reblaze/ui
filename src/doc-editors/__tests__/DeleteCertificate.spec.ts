@@ -8,8 +8,8 @@ import {createTestingPinia} from '@pinia/testing'
 import {nextTick} from 'vue'
 import {useBranchesStore} from '../../stores/BranchesStore'
 import RequestsUtils, {IRequestParams} from '../../assets/RequestsUtils'
-import Utils from '../../assets/Utils'
-import DatasetsUtils from '../../assets/DatasetsUtils'
+// import Utils from '../../assets/Utils'
+// import DatasetsUtils from '../../assets/DatasetsUtils'
 
 const selectedBranch = 'prod'
 const mockRoute = {
@@ -28,7 +28,7 @@ describe('DeleteCertificate.vue', () => {
   let certificateMock: Certificate
   let mockRouter: any
   let wrapper: VueWrapper
-  let sendReblazeRequestSpy: any
+  // let sendReblazeRequestSpy: any
   beforeEach(async () => {
     certificateMock = {
       'cert_body': '-----BEGIN CERTIFICATE-----\ntest-cert-1\n-----END CERTIFICATE-----\n',
@@ -39,11 +39,11 @@ describe('DeleteCertificate.vue', () => {
       'le_auto_replace': false,
       'le_hash': '',
       'links': [
-          {
+        {
           'link': 'arn:aws:acm:eu-west-1:588266063552:certificate/e2d3af86-60b7-4d46-a3d2-5b6b1f7b0323',
           'provider': 'aws',
           'region': 'eu-west-1',
-          },
+        },
       ],
       'name': 'test-certificate-name-1',
       'san': [],
@@ -80,15 +80,14 @@ describe('DeleteCertificate.vue', () => {
 
   describe('delete popup', () => {
     test('should delete certificate modal introduce the name of the correct certificate', () => {
-    const remainSentense = 'Are you sure you want to remove certificate '
-    expect(wrapper.find('.certificate-name').text()).toBe(`${remainSentense}${certificateMock.name}?`)
+      const remainSentense = 'Are you sure you want to remove certificate '
+      expect(wrapper.find('.certificate-name').text()).toBe(`${remainSentense}${certificateMock.name}?`)
     })
 
     test('should close the modal on X button', async () => {
-    const xButton = wrapper.find('.exit-delete-modal')
-    await xButton.trigger('click')
-    expect(wrapper.find('.delete-modal').exists()).toBeFalsy()
+      const xButton = wrapper.find('.exit-delete-modal')
+      await xButton.trigger('click')
+      expect(wrapper.find('.delete-modal').exists()).toBeFalsy()
     })
-
   })
 })

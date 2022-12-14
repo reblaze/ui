@@ -1,19 +1,18 @@
 // @ts-nocheck
 import SslList from '../SslList.vue'
-import RbzTable from '../../components/RbzTable.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {mount, VueWrapper} from '@vue/test-utils'
 import {LoadBalancer, Certificate, Site} from '@/types'
 import GenerateCertificate from '@/doc-editors/popups/GenerateCertificate.vue'
 import DeleteCertificate from '@/doc-editors/popups/DeleteCertificate.vue'
 import EditCertificate from '@/doc-editors/popups/EditCertificate.vue'
-import AttachCertificate from '@/doc-editors/popups/AttachCertificate.vue'
+// import AttachCertificate from '@/doc-editors/popups/AttachCertificate.vue'
 import {createTestingPinia} from '@pinia/testing'
 import {nextTick} from 'vue'
 import {useBranchesStore} from '../../stores/BranchesStore'
 import RequestsUtils, {IRequestParams} from '../../assets/RequestsUtils'
-import Utils from '../../assets/Utils'
-import DatasetsUtils from '../../assets/DatasetsUtils'
+// import Utils from '../../assets/Utils'
+// import DatasetsUtils from '../../assets/DatasetsUtils'
 
 const selectedBranch = 'prod'
 const mockRoute = {
