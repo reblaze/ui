@@ -1,4 +1,4 @@
-<template>
+<template>filteredCertificates
   <div class="modal is-active is-large">
     <div class="modal-background">
       <div class="modal-card is-size-7">
@@ -14,7 +14,7 @@
         <section class="modal-card-body">
           <div id="attach-modal-content">
             <div class="mb-1 certificate-search">
-              <input v-model="certsToAttach"
+              <input v-model="certsFilter"
                      type="text"
                      class="input is-small search-input"
                      placeholder="Filter by name">
@@ -77,7 +77,7 @@
 <script lang="ts">
 import {Certificate, Link} from '@/types'
 import _ from 'lodash'
-import {defineComponent, PropType, ref} from 'vue'
+import {defineComponent, PropType} from 'vue'
 
 export default defineComponent({
   props: {
@@ -89,13 +89,13 @@ export default defineComponent({
   emits: ['attach-shown-changed', 'attach-certificate-to-load-balancer'],
   data() {
     return {
-      certsToAttach: ref(''),
+      certsFilter: '',
     }
   },
   computed: {
     filteredCertificates(): Certificate[] {
       return _.filter(this.certificates, (certificate: Certificate) => {
-        return certificate.id.toLowerCase().includes(this.certsToAttach.toLowerCase())
+        return certificate.name.toLowerCase().includes(this.certsFilter.toLowerCase())
       })
     },
 
@@ -129,7 +129,7 @@ export default defineComponent({
   methods: {
     closeAttachCertPopup() {
       this.$emit('attach-shown-changed', false)
-      this.certsToAttach = ''
+      this.certsFilter = ''
     },
 
     emitAttachCertificateToLoadBalancer(certificate: Certificate) {

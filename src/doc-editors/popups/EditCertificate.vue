@@ -3,9 +3,9 @@
     <div class="modal-background">
       <div class="modal-card is-size-7">
         <header class="modal-card-head">
-          <h5 class="modal-card-title is-size-6 mb-0"
-              :title="clickedRow">
-            Edit certificate - {{ clickedRow }}
+          <h5 class="modal-card-title is-size-6 mb-0 ellipsis is-fullwidth"
+              :title="certificate.name">
+            Edit certificate - {{ certificate.name }}
           </h5>
           <button class="delete"
                   aria-label="close"
@@ -159,9 +159,8 @@ import {defineComponent, PropType} from 'vue'
 
 export default defineComponent({
   props: {
-    clickedRow: String,
-    certificate: Object,
-    loadBalancer: Object,
+    certificate: Object as PropType<Certificate>,
+    loadBalancer: Object as PropType<Balancer>,
     sites: Array as PropType<Site[]>,
     selectedBranch: String,
     balancers: Array as PropType<Balancer[]>,
@@ -337,6 +336,7 @@ export default defineComponent({
       const sitesToRemove = _.differenceBy(this.assignedApps, this.selectedApps, 'id')
       const sitesToAdd = _.differenceBy(this.selectedApps, this.assignedApps, 'id')
       const methodName = 'PUT'
+      let urlArgs = ''
       sitesToRemove.forEach(async (site: Site) => {
         const url = `configs/${this.selectedBranch}/d/sites/e/${site.id}/`
         site.ssl_certificate = ''
@@ -347,10 +347,17 @@ export default defineComponent({
         site.ssl_certificate = this.localCert.id
         await RequestsUtils.sendReblazeRequest({methodName: methodName, url, data: site})
       })
-      const urlArgs = `?le_auto_renew=${this.localCert.le_auto_renew}&le_auto_replace=${this.localCert.le_auto_replace}`
+      urlArgs = `?le_auto_renew=${this.localCert.le_auto_renew}&le_auto_replace=${this.localCert.le_auto_replace}`
+      if (!this.selectedCertId) {
+        urlArgs.concat(`&replace_cert_id=${this.selectedCertId}`)
+      }
       const url = `configs/${this.selectedBranch}/d/certificates/e/${this.localCert.id}${urlArgs}`
       const data = this.localCert
-      await RequestsUtils.sendReblazeRequest({methodName: methodName, url, data})
+      await RequestsUtils.sendReblazeRequest({
+        methodName: methodName,
+        url,
+        data,
+      }).then(Utils.toast('Certificate was successfully attached', 'is-success'))
       this.isLoading = false
       this.$emit('edit-shown-changed', false)
       this.$emit('call-load-certificate')

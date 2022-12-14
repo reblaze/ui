@@ -1,19 +1,19 @@
 <template>
   <div class="modal is-active">
     <div class="modal-background">
-      <div class="modal-card modal-location">
+      <div class="modal-card modal-location delete-modal">
         <header class="modal-card-head">
           <h5 class="modal-card-title is-size-6 mb-0">
             Remove certificate
           </h5>
-          <button class="delete"
+          <button class="exit-delete-modal delete"
                   aria-label="close"
                   @click="$emit('delete-shown-changed', false)"/>
         </header>
         <section class="modal-card-body is-size-6 has-text-centered">
-          <p class="is-small is-size-6">
-            Are you sure you want to remove certificate<br>
-            <strong>{{ clickedRow }}</strong>?
+          <p class="is-small is-size-6 certificate-name">
+            Are you sure you want to remove certificate <br>
+            <strong>{{ certificate?.name }}</strong>?
           </p>
           <p v-if="attachedApps"
              class="is-small is-size-6 mt-2"
@@ -39,29 +39,30 @@
 <script lang="ts">
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
-import {defineComponent} from 'vue'
+import {Certificate, Site} from '@/types'
+import {defineComponent, PropType} from 'vue'
 
 export default defineComponent({
   props: {
     deleteShown: Boolean,
-    clickedRow: String,
+    certificate: Object as PropType<Certificate>,
+    sites: Array as PropType<Site[]>,
     selectedBranch: String,
+    attachedApps: String,
   },
 
   emits: ['delete-shown-changed', 'call-load-certificate'],
 
   data() {
     return {
-      attachedApps: '',
       isLoading: false,
       titles: DatasetsUtils.titles,
     }
   },
-
   methods: {
     async deleteCertificate() {
       const certificateText = this.titles['certificates-singular']
-      const url = `configs/${this.selectedBranch}/d/certificates/e/${this.clickedRow}/`
+      const url = `configs/${this.selectedBranch}/d/certificates/e/${this.certificate.id}/`
       const successMessage = `The ${certificateText} was deleted.`
       const failureMessage = `Failed while attempting to delete the ${certificateText}.`
       await RequestsUtils.sendReblazeRequest({
