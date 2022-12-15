@@ -372,29 +372,12 @@ describe('SslList.vue', () => {
         const editButton = wrapper.findAll('.row-entity-button').at(0)
         await editButton.trigger('click')
         const editComponent = wrapper.findComponent(EditCertificate)
-        editComponent.vm.$emit('call-load-certificate')
+        editComponent.vm.$emit('call-loaders')
         expect(sendReblazeRequestSpy).toHaveBeenCalled()
         expect(sendReblazeRequestSpy).toHaveBeenCalledWith(expect.objectContaining({
-          url: `configs/${selectedBranch}/d/certificates/`,
+          url: `config/load-balancers/`,
         }))
       })
     })
   })
-
-
-  // TODO: This tests is for DeleteCertificate spec
-  /* test('should delete certificate modal open on click', () => {
-        expect(wrapper.find('.delete-modal')).toBeTruthy()
-      })
-
-      test('should delete certificate modal introduce the name of the correct certificate', () => {
-        const remainSentense = 'Are you sure you want to remove certificate '
-        expect(wrapper.find('.certificate-name').text()).toBe(`${remainSentense}${certificateMock[2].name}?`)
-      })
-
-      test('should close the modal on X button', async () => {
-        const xButton = wrapper.find('.exit-delete-modal')
-        await xButton.trigger('click')
-        expect(wrapper.find('.delete-modal').exists()).toBeFalsy()
-      }) */
 })

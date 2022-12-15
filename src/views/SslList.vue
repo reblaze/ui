@@ -143,27 +143,27 @@
       </div>
     </div>
     <generate-certificate v-if="generateShown"
-                          @generate-shown-changed="generateShown = false"
+                          @close-modal="generateShown = false"
                           :selected-branch="selectedBranch"
                           @call-load-certificate="loadCertificates"/>
     <delete-certificate v-if="deleteShown"
-                        @delete-shown-changed="deleteShown = false"
+                        @close-modal="deleteShown = false"
                         :certificate="certificateByID"
                         :attachedApps="attachedApps"
                         :selected-branch="selectedBranch"
                         @call-load-certificate="loadCertificates"/>
     <edit-certificate v-if="editShown"
-                      @edit-shown-changed="editShown = false"
+                      @close-modal="editShown = false"
                       :balancers="loadBalancers"
                       :certificate="certificateByID"
                       :certificates="certificates"
                       :sites="sites"
                       :selected-branch="selectedBranch"
-                      @call-load-certificate="loadCertificates"/>
+                      @call-loaders="callLoaders"/>
     <attach-certificate v-if="attachCertPopupShown"
                         :selected-balancer="selectedBalancer"
                         :certificates="certificates"
-                        @attach-shown-changed="attachCertPopupShown = false"
+                        @close-modal="attachCertPopupShown = false"
                         @attach-certificate-to-load-balancer="attachCertificateToLoadBalancer(
                           $event.selectedBalancer,
                           $event.certificate.id,
@@ -518,12 +518,13 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
+    // TODO: need to add that to DeleteCertificate and send only the attachedApps
     openDeleteCertWarn(certificateId:string) {
       const attachedApps = this.sitesByCertNameMap[certificateId]
       if (attachedApps?.length > 1) {
         this.attachedApps =
           `This certificate is already attached to apps: <ul>
-            ${attachedApps.map((cert:any) => `<li><strong>${cert}</strong></li>`).join('')}
+            ${attachedApps.map((cert:any) => `<li><strong class="attached-apps">${cert}</strong></li>`).join('\n')}
           </ul>`
       } else if (attachedApps?.length) {
         this.attachedApps =

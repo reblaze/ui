@@ -167,7 +167,7 @@ export default defineComponent({
     certificates: Array as PropType<Certificate[]>,
   },
 
-  emits: ['edit-shown-changed', 'call-load-certificate'],
+  emits: ['close-modal', 'call-loaders'],
 
   watch: {
     assignedApps: {
@@ -291,7 +291,7 @@ export default defineComponent({
   },
   methods: {
     resetEditModal() {
-      this.$emit('edit-shown-changed', false)
+      this.$emit('close-modal')
       this.cert = ''
       this.selectedApps = []
       this.selectedCertId = ''
@@ -352,15 +352,17 @@ export default defineComponent({
         urlArgs = `?le_auto_renew=${this.localCert.le_auto_renew}&le_auto_replace=${this.localCert.le_auto_replace}&replace_cert_id=${this.selectedCertId}`
       }
       const url = `configs/${this.selectedBranch}/d/certificates/e/${this.localCert.id}${urlArgs}`
+      const successMessage = 'Certificate was successfully attached'
       const data = this.localCert
       await RequestsUtils.sendReblazeRequest({
         methodName: methodName,
         url,
         data,
-      }).then(Utils.toast('Certificate was successfully attached', 'is-success'))
+        successMessage,
+      })
       this.isLoading = false
-      this.$emit('edit-shown-changed', false)
-      this.$emit('call-load-certificate')
+      this.$emit('close-modal')
+      this.$emit('call-loaders')
     },
   },
 })

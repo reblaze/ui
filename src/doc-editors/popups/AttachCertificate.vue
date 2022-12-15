@@ -86,7 +86,7 @@ export default defineComponent({
     selectedBalancer: Object,
     isAttachLoading: Boolean,
   },
-  emits: ['attach-shown-changed', 'attach-certificate-to-load-balancer'],
+  emits: ['close-modal', 'attach-certificate-to-load-balancer'],
   data() {
     return {
       certsFilter: '',
@@ -128,7 +128,7 @@ export default defineComponent({
   },
   methods: {
     closeAttachCertPopup() {
-      this.$emit('attach-shown-changed', false)
+      this.$emit('close-modal')
       this.certsFilter = ''
     },
 

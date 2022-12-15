@@ -8,7 +8,7 @@
           </h5>
           <button class="exit-delete-modal delete"
                   aria-label="close"
-                  @click="$emit('delete-shown-changed', false)"/>
+                  @click="$emit('close-modal')"/>
         </header>
         <section class="modal-card-body is-size-6 has-text-centered">
           <p class="is-small is-size-6 certificate-name">
@@ -22,7 +22,7 @@
         <footer class="modal-card-foot">
           <div class="buttons is-right is-fullwidth">
             <button class="button is-small"
-                    @click="$emit('delete-shown-changed', false)">
+                    @click="$emit('close-modal')">
               Cancel
             </button>
             <button class="button is-small is-light is-outlined is-danger"
@@ -49,7 +49,7 @@ export default defineComponent({
     attachedApps: String,
   },
 
-  emits: ['delete-shown-changed', 'call-load-certificate'],
+  emits: ['close-modal', 'call-load-certificate'],
 
   data() {
     return {
@@ -70,7 +70,7 @@ export default defineComponent({
         failureMessage,
       })
       this.$emit('call-load-certificate')
-      this.$emit('delete-shown-changed', false)
+      this.$emit('close-modal')
     },
   },
 })
