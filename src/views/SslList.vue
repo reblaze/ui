@@ -149,7 +149,6 @@
     <delete-certificate v-if="deleteShown"
                         @delete-shown-changed="deleteShown = false"
                         :certificate="certificateByID"
-                        :sites="sites"
                         :attachedApps="attachedApps"
                         :selected-branch="selectedBranch"
                         @call-load-certificate="loadCertificates"/>

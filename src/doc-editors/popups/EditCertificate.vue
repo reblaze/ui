@@ -348,8 +348,8 @@ export default defineComponent({
         await RequestsUtils.sendReblazeRequest({methodName: methodName, url, data: site})
       })
       urlArgs = `?le_auto_renew=${this.localCert.le_auto_renew}&le_auto_replace=${this.localCert.le_auto_replace}`
-      if (!this.selectedCertId) {
-        urlArgs.concat(`&replace_cert_id=${this.selectedCertId}`)
+      if (this.selectedCertId) {
+        urlArgs = `?le_auto_renew=${this.localCert.le_auto_renew}&le_auto_replace=${this.localCert.le_auto_replace}&replace_cert_id=${this.selectedCertId}`
       }
       const url = `configs/${this.selectedBranch}/d/certificates/e/${this.localCert.id}${urlArgs}`
       const data = this.localCert

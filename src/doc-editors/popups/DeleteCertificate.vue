@@ -39,14 +39,12 @@
 <script lang="ts">
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
-import {Certificate, Site} from '@/types'
+import {Certificate} from '@/types'
 import {defineComponent, PropType} from 'vue'
 
 export default defineComponent({
   props: {
-    deleteShown: Boolean,
     certificate: Object as PropType<Certificate>,
-    sites: Array as PropType<Site[]>,
     selectedBranch: String,
     attachedApps: String,
   },
