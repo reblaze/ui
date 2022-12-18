@@ -5,14 +5,13 @@
          aria-label="main navigation">
       <header-main/>
     </nav>
-    <br/>
     <div class="content-container is-fullheight">
-      <div class="columns">
+      <div class="columns my-0">
         <div class="column side-menu-column">
           <side-menu></side-menu>
         </div>
         <div class="column router-view-column">
-          <div class="card is-fullheight has-overflow-y-auto"
+          <div class="card is-fullheight has-overflow-y-auto mb-0"
                ref="viewCardScroll">
             <router-view></router-view>
           </div>
@@ -61,8 +60,11 @@ html {
 }
 
 .navbar.is-fixed-top {
-  margin-bottom: 1rem;
   z-index: 100000;
+}
+
+.content-container {
+  padding-top: 60px;
 }
 
 .columns {

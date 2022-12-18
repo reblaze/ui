@@ -17,22 +17,10 @@ html {
 
 /* Element width */
 
-.width-10px {
-  max-width: 10px;
-  min-width: 10px;
-  width: 10px;
-}
-
 .width-20px {
   max-width: 20px;
   min-width: 20px;
   width: 20px;
-}
-
-.width-30px {
-  max-width: 30px;
-  min-width: 30px;
-  width: 30px;
 }
 
 .width-40px {
@@ -71,12 +59,6 @@ html {
   width: 80px;
 }
 
-.width-90px {
-  max-width: 90px;
-  min-width: 90px;
-  width: 90px;
-}
-
 .width-100px {
   max-width: 100px;
   min-width: 100px;
@@ -101,12 +83,6 @@ html {
   width: 130px;
 }
 
-.width-140px {
-  max-width: 140px;
-  min-width: 140px;
-  width: 140px;
-}
-
 .width-150px {
   max-width: 150px;
   min-width: 150px;
@@ -117,12 +93,6 @@ html {
   max-width: 170px;
   min-width: 170px;
   width: 170px;
-}
-
-.width-180px {
-  max-width: 180px;
-  min-width: 180px;
-  width: 180px;
 }
 
 .width-200px {
@@ -137,22 +107,10 @@ html {
   width: 220px;
 }
 
-.width-230px {
-  max-width: 230px;
-  min-width: 230px;
-  width: 230px;
-}
-
 .width-250px {
   max-width: 250px;
   min-width: 250px;
   width: 250px;
-}
-
-.width-260px {
-  max-width: 260px;
-  min-width: 260px;
-  width: 260px;
 }
 
 .width-300px {
@@ -225,10 +183,6 @@ html {
   min-height: 30px;
 }
 
-.min-height-40 {
-  min-height: 40px;
-}
-
 .height-50px {
   height: 50px;
   max-height: 50px;
@@ -239,12 +193,6 @@ html {
   height: 60px;
   max-height: 60px;
   min-height: 60px;
-}
-
-.height-80px {
-  height: 80px;
-  max-height: 80px;
-  min-height: 80px;
 }
 
 .height-100px {
@@ -259,34 +207,16 @@ html {
   min-height: 120px;
 }
 
-.height-130px {
-  height: 130px;
-  max-height: 130px;
-  min-height: 130px;
-}
-
 .height-140px {
   height: 140px;
   max-height: 140px;
   min-height: 140px;
 }
 
-.height-150px {
-  height: 150px;
-  max-height: 150px;
-  min-height: 150px;
-}
-
 .height-200px {
   height: 200px;
   max-height: 200px;
   min-height: 200px;
-}
-
-.height-250px {
-  height: 250px;
-  max-height: 250px;
-  min-height: 250px;
 }
 
 .height-300px {
@@ -443,6 +373,10 @@ $color-light: hsl(0, 0%, 96%);
   width: 100%;
 }
 
+.is-flex-grow-1 {
+  flex-grow: 1;
+}
+
 /* Modal */
 .modal.is-active {
   z-index: 102;
@@ -561,7 +495,7 @@ $color-light: hsl(0, 0%, 96%);
 }
 
 /* editor dropdown width */
-.doc-selection-wrapper {
+.document-selection-wrapper {
   max-width: 450px;
   min-width: 300px;
 }

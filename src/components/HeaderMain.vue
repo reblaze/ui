@@ -73,7 +73,7 @@ export default defineComponent({
 }
 
 .page-title {
-  left: 300px;
+  left: 250px;
   line-height: 60px;
   position: fixed;
 }

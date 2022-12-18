@@ -1,6 +1,6 @@
 <template>
-  <div class="side-menu-wrapper">
-    <div class="branch-management-wrapper mb-3">
+  <div class="side-menu-wrapper is-fullheight">
+    <div class="branch-management-wrapper">
       <div class="control">
         <div class="select is-small is-fullwidth">
           <select :value="selectedBranch?.id"
@@ -319,36 +319,36 @@ export default defineComponent({
   },
 })
 </script>
-<style lang="scss">
-.side-menu-wrapper {
-  height: 100%;
-  position: fixed;
-}
+<style lang="scss"
+       scoped>
+$branch-management-wrapper-height: 60px;
+$branch-management-wrapper-margin-bottom: 0.75rem;
 
 .branch-management-wrapper {
-  height: 60px;
+  height: $branch-management-wrapper-height;
+  margin-bottom: $branch-management-wrapper-margin-bottom;
 }
 
 .menu-wrapper {
-  height: calc(100% - 150px);
-}
+  height: calc(100% - #{$branch-management-wrapper-height} - #{$branch-management-wrapper-margin-bottom});
 
-.menu-wrapper .v-sidebar-menu .vsm--scroll-bar {
-  left: 2px;
-  right: auto;
-}
+  :deep(.v-sidebar-menu .vsm--scroll-bar) {
+    left: 2px;
+    right: auto;
+  }
 
-.menu-wrapper .v-sidebar-menu .vsm--header {
-  font-size: 0.75rem;
-  line-height: 0.75rem;
-}
+  :deep(.v-sidebar-menu .vsm--heade) {
+    font-size: 0.75rem;
+    line-height: 0.75rem;
+  }
 
-.menu-wrapper .v-sidebar-menu .vsm--item {
-  padding-left: 15px;
-}
+  :deep(.v-sidebar-menu .vsm--item) {
+    padding-left: 15px;
+  }
 
-.menu-wrapper .v-sidebar-menu .vsm--link {
-  font-size: 0.75rem;
-  line-height: 0.5rem;
+  :deep(.v-sidebar-menu .vsm--link) {
+    font-size: 0.75rem;
+    line-height: 0.5rem;
+  }
 }
 </style>

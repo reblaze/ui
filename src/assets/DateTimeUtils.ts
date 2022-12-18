@@ -1,5 +1,6 @@
 // Helper function to add date ordinal
 import DateTimeUtils from '@/assets/DateTimeUtils'
+import _ from 'lodash'
 
 // Removes timezone from Date received as UTC without timezone
 const adjustDateToTimezone = (date: Date) => {
@@ -26,36 +27,44 @@ const isoToNowCuriefenseFormat = (date: string | Date) => {
   }
   const currentDate = new Date()
   // @ts-ignore
-  const timeSuffix = currentDate < date ? 'from now' : 'ago'
+  const timeSuffix = currentDate > date ? 'ago' : ''
+  // @ts-ignore
+  const timePrefix = currentDate > date ? '' : 'in'
   // @ts-ignore
   const dateDiff = Math.abs(currentDate - date)
   const minutesDiff = dateDiff / 6e4
   const hoursDiff = dateDiff / 36e5
-  // if less than 1 minute
-  if (minutesDiff < 1) {
-    return `A minute ${timeSuffix}`
+  let returnString = ''
+  if (timePrefix) {
+    returnString += `${timePrefix}`
   }
   // if less than 24 hours
   if (hoursDiff < 24) {
-    let returnString = ''
     const flooredHoursDiff = Math.floor(hoursDiff)
     if (flooredHoursDiff > 0) {
+      if (returnString) {
+        returnString += ' '
+      }
       returnString += `${flooredHoursDiff} hour`
       if (flooredHoursDiff > 1) {
         returnString += 's'
       }
-      returnString += ' '
     }
     const flooredMinutesDiff = Math.floor(minutesDiff)
     if (flooredMinutesDiff % 60 > 0) {
+      if (returnString) {
+        returnString += ' '
+      }
       returnString += `${flooredMinutesDiff % 60} minute`
       if (flooredMinutesDiff % 60 > 1) {
         returnString += 's'
       }
-      returnString += ' '
     }
-    returnString += timeSuffix
-    return returnString
+    if (!flooredHoursDiff && !flooredMinutesDiff) {
+      returnString += `a minute`
+    }
+    returnString += ` ${timeSuffix}`
+    return _.capitalize(returnString)
   }
   return DateTimeUtils.isoToNowFullCuriefenseFormat(date)
 }

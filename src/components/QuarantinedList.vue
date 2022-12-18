@@ -44,7 +44,7 @@
 <script lang="ts">
 import {defineComponent} from 'vue'
 import RbzTable from '@/components/RbzTable.vue'
-import {ColumnOptions, Quarantined} from '@/types'
+import {ColumnOptions, DynamicRule, QuarantinedEntry} from '@/types'
 import DateTimeUtils from '@/assets/DateTimeUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import {mapStores} from 'pinia'
@@ -87,12 +87,12 @@ export default defineComponent({
           title: 'First Added',
           fieldNames: ['timestamp'],
           isSortByOriginalValue: true,
-          displayFunction: (item: any) => {
+          displayFunction: (item: QuarantinedEntry) => {
             const date = new Date(item['timestamp'])
             const adjustedDate = DateTimeUtils.adjustDateToTimezone(date)
             return DateTimeUtils.isoToNowCuriefenseFormat(adjustedDate)
           },
-          tooltipFunction: (item: any) => {
+          tooltipFunction: (item: QuarantinedEntry) => {
             const date = new Date(item['timestamp'])
             return `${DateTimeUtils.isoToNowFullCuriefenseFormat(date)} UTC`
           },
@@ -105,11 +105,11 @@ export default defineComponent({
           title: 'Last Seen',
           fieldNames: ['last_seen'],
           isSortByOriginalValue: true,
-          displayFunction: (item: any) => {
+          displayFunction: (item: QuarantinedEntry) => {
             const date = new Date(item['last_seen'] * 1000)
             return DateTimeUtils.isoToNowCuriefenseFormat(date)
           },
-          tooltipFunction: (item: any) => {
+          tooltipFunction: (item: QuarantinedEntry) => {
             const date = new Date(item['last_seen'] * 1000)
             const adjustedDate = DateTimeUtils.adjustDateToUTC(date)
             return `${DateTimeUtils.isoToNowFullCuriefenseFormat(adjustedDate)} UTC`
@@ -123,24 +123,12 @@ export default defineComponent({
           title: 'Expires',
           fieldNames: ['expires'],
           isSortByOriginalValue: true,
-          displayFunction: (item: Quarantined) => {
-            const dynamicRules: { id: string, name: string, ttl: number } =
-              _.find(this.dynamicRulesNames, (dynamicRule) => {
-                return dynamicRule.id === item.rule_id
-              })
-            const lastSeen = item['last_seen'] ? item['last_seen'] : 0
-            const ttl = dynamicRules?.ttl ? dynamicRules?.ttl : 0
-            const date = new Date((lastSeen + ttl) * 1000)
+          displayFunction: (item: QuarantinedEntry) => {
+            const date = new Date(item['expires'] * 1000)
             return DateTimeUtils.isoToNowCuriefenseFormat(date)
           },
-          tooltipFunction: (item: any) => {
-            const dynamicRules: { id: string, name: string, ttl: number } =
-              _.find(this.dynamicRulesNames, (dynamicRule) => {
-                return dynamicRule.id === item.rule_id
-              })
-            const lastSeen = item['last_seen'] ? item['last_seen'] : 0
-            const ttl = dynamicRules?.ttl ? dynamicRules?.ttl : 0
-            const date = new Date((lastSeen + ttl) * 1000)
+          tooltipFunction: (item: QuarantinedEntry) => {
+            const date = new Date(item['expires'] * 1000)
             const adjustedDate = DateTimeUtils.adjustDateToUTC(date)
             return `${DateTimeUtils.isoToNowFullCuriefenseFormat(adjustedDate)} UTC`
           },
@@ -152,11 +140,11 @@ export default defineComponent({
         {
           title: 'Dynamic Rule',
           fieldNames: ['rule_id'],
-          displayFunction: (item: Quarantined) => {
-            const dynamicRules: { id: string, name: string } = _.find(this.dynamicRulesNames, (dynamicRule) => {
+          displayFunction: (item: QuarantinedEntry) => {
+            const matchingDynamicRule: Partial<DynamicRule> = _.find(this.dynamicRules, (dynamicRule) => {
               return dynamicRule.id === item.rule_id
             })
-            return dynamicRules?.name.trim() || ''
+            return matchingDynamicRule?.name.trim() || ''
           },
           isSortable: true,
           isSearchable: true,
@@ -166,7 +154,7 @@ export default defineComponent({
         {
           title: 'Tags',
           fieldNames: ['tags'],
-          displayFunction: (item: Quarantined) => {
+          displayFunction: (item: QuarantinedEntry) => {
             return item.tags?.length
           },
           isSortable: true,
@@ -176,9 +164,9 @@ export default defineComponent({
           cellContentClasses: 'ellipsis',
         },
       ] as ColumnOptions[],
-      quarantinedData: null as Quarantined[],
+      quarantinedData: null as QuarantinedEntry[],
       selectedArray: [] as string[],
-      dynamicRulesNames: [] as { id: string, name: string }[],
+      dynamicRules: [] as Partial<DynamicRule>[],
       loadingDocCounter: 0,
     }
   },
@@ -217,11 +205,7 @@ export default defineComponent({
         url: `configs/${this.selectedBranch}/d/dynamic-rules/`,
         config: {headers: {'x-fields': 'id, name, ttl'}},
       })
-      if (response?.data?.length) {
-        this.dynamicRulesNames = _.map(response.data, (rule) => {
-          return {id: rule.id, name: rule.name, ttl: rule.ttl}
-        })
-      }
+      this.dynamicRules = response?.data || []
       this.setLoadingDocStatus(false)
     },
 
@@ -247,8 +231,17 @@ export default defineComponent({
       }
       const response = await RequestsUtils.sendDataLayerRequest({methodName: 'POST', url, data, config})
 
-      this.quarantinedData = _.map(response?.data?.data?.results, (result: any) => {
-        return {...result, id: result._id}
+      this.quarantinedData = _.map(response?.data?.data?.results, (quarantinedEntry: QuarantinedEntry) => {
+        const matchingDynamicRule: Partial<DynamicRule> = _.find(this.dynamicRules, (dynamicRule) => {
+          return dynamicRule.id === quarantinedEntry.rule_id
+        })
+        const lastSeen = quarantinedEntry['last_seen'] ? quarantinedEntry['last_seen'] : 0
+        const ttl = matchingDynamicRule?.ttl ? matchingDynamicRule?.ttl : 0
+        return {
+          ...quarantinedEntry,
+          id: quarantinedEntry._id,
+          expires: lastSeen + ttl,
+        }
       }) || []
       this.selectedArray = []
       this.setLoadingDocStatus(false)

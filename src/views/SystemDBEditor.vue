@@ -208,13 +208,13 @@
                  class="editor">
             </div>
             <textarea
-                v-else
-                @input="validateInput($event, isNewValueValid)"
-                title="Value"
-                data-qa="value-input"
-                rows="20"
-                class="textarea value-input"
-                v-model="selectedKeyValue">
+              v-else
+              @input="validateInput($event, isNewValueValid)"
+              title="Value"
+              data-qa="value-input"
+              rows="20"
+              class="textarea value-input"
+              v-model="selectedKeyValue">
               </textarea>
           </div>
         </div>
@@ -654,8 +654,12 @@ export default defineComponent({
   }
 }
 
-:deep(.jsoneditor-contextmenu ) {
+:deep(.jsoneditor-contextmenu) {
   z-index: 5;
+}
+
+:deep(.jsoneditor-poweredBy) { /* stylelint-disable-line */
+  display: none;
 }
 
 </style>
