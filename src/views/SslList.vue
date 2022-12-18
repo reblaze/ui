@@ -58,7 +58,8 @@
                     </div>
                   </div>
                 </div>
-                <div v-if="selectedBalancer?.certificates?.length" class="attached-certificates">
+                <div v-if="selectedBalancer?.certificates?.length"
+                     class="attached-certificates">
                   <p class="is-small has-text-small mb-2 mb-3">
                     <strong>Certificates:</strong>
                   </p>
@@ -122,7 +123,7 @@
                    :show-new-button="true"
                    @new-button-clicked="addNewCertificate"
                    @row-button-clicked="editProfile"
-                   @second-row-button-clicked="openDeleteCertWarn"
+                   @second-row-button-clicked="openDeleteCertificateModal"
                    :show-row-button="true"
                    :show-second-row-button="true"
                    :second-row-button-title="secondRowButtonTitle"
@@ -274,9 +275,7 @@ export default defineComponent({
         {
           title: 'Linked To',
           displayFunction: (item: Certificate) => {
-            // console.log('this.sites?.length', this.sites?.length)
             if (this.sites?.length > 0) {
-              // console.log('this.sites?.length', this.sites?.length)
               const matchingSites: Site[] = _.filter(this.sites, (site: Site) => {
                 return site.ssl_certificate === item.id
               })
@@ -480,10 +479,7 @@ export default defineComponent({
 
     onSelectedLoadBalancerRow(id: string) {
       this.clickedRow = id
-      console.log('this.selectedBalancer?.id', this.selectedBalancer?.id)
-      console.log('this.clickedRow', this.clickedRow)
       this.selectedBalancer = this.selectedBalancer?.id === this.clickedRow ? null : this.selectedLoadBalancerID
-      console.log('this.selectedBalancer', this.selectedBalancer)
     },
 
     getCertificateByID(id: string) {
@@ -518,8 +514,7 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
-    // TODO: need to add that to DeleteCertificate and send only the attachedApps
-    openDeleteCertWarn(certificateId:string) {
+    openDeleteCertificateModal(certificateId:string) {
       this.attachedApps = this.sitesByCertNameMap[certificateId]
       this.clickedRow = certificateId
       this.setLoadingDocStatus(true)

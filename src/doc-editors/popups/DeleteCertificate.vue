@@ -6,7 +6,7 @@
           <h5 class="modal-card-title is-size-6 mb-0">
             Remove certificate
           </h5>
-          <button class="exit-delete-modal delete"
+          <button class="close-delete-modal delete"
                   aria-label="close"
                   @click="$emit('close-modal')"/>
         </header>

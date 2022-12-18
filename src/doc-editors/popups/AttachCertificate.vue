@@ -1,4 +1,5 @@
-<template>filteredCertificates
+<template>
+  filteredCertificates
   <div class="modal is-active is-large">
     <div class="modal-background">
       <div class="modal-card is-size-7">

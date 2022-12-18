@@ -2,8 +2,7 @@
 import GenerateCertificate from '@/doc-editors/popups/GenerateCertificate.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {mount, VueWrapper} from '@vue/test-utils'
-import {Certificate} from '@/types'
-import RequestsUtils, {IRequestParams} from '../../assets/RequestsUtils'
+// import RequestsUtils, {IRequestParams} from '../../assets/RequestsUtils'
 import {nextTick} from 'vue'
 
 const selectedBranch = 'prod'
@@ -20,21 +19,21 @@ jest.mock('vue-router', () => ({
 jest.mock('../../assets/RequestsUtils.ts')
 
 describe('GenerateCertificate.vue', () => {
-  let sendReblazeRequestSpy: any
-  let mockRouter: any
+  // let sendReblazeRequestSpy: any
+  // let mockRouter: any
   let wrapper: VueWrapper
   beforeEach(async () => {
-    sendReblazeRequestSpy = jest.spyOn(RequestsUtils, 'sendReblazeRequest').mockImplementation(
+    /* sendReblazeRequestSpy = jest.spyOn(RequestsUtils, 'sendReblazeRequest').mockImplementation(
         (requestParams: IRequestParams) => {
           if (requestParams.url === `configs/${selectedBranch}/d/certificates/e/placeholder`) {
             return Promise.resolve({data: certificateMock})
           }
           return Promise.resolve({data: []})
         },
-    )
-    mockRouter = {
+    ) */
+    /* mockRouter = {
       push: jest.fn(),
-    }
+    } */
     wrapper = mount(GenerateCertificate, {
       global: {
       },

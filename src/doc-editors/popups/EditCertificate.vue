@@ -349,7 +349,7 @@ export default defineComponent({
       })
       urlArgs = `?le_auto_renew=${this.localCert.le_auto_renew}&le_auto_replace=${this.localCert.le_auto_replace}`
       if (this.selectedCertId) {
-        urlArgs = `?le_auto_renew=${this.localCert.le_auto_renew}&le_auto_replace=${this.localCert.le_auto_replace}&replace_cert_id=${this.selectedCertId}`
+        urlArgs = `${urlArgs}&replace_cert_id=${this.selectedCertId}`
       }
       const url = `configs/${this.selectedBranch}/d/certificates/e/${this.localCert.id}${urlArgs}`
       const successMessage = 'Certificate was successfully attached'
