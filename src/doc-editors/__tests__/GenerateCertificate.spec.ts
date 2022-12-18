@@ -1,5 +1,5 @@
 // @ts-nocheck
-import DeleteCertificate from '@/doc-editors/popups/DeleteCertificate.vue'
+import GenerateCertificate from '@/doc-editors/popups/GenerateCertificate.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {mount, VueWrapper} from '@vue/test-utils'
 import {Certificate} from '@/types'
@@ -19,7 +19,7 @@ jest.mock('vue-router', () => ({
 }))
 jest.mock('../../assets/RequestsUtils.ts')
 
-describe('DeleteCertificate.vue', () => {
+describe('GenerateCertificate.vue', () => {
   let attachedAppsMock: string
   let certificateMock: Certificate
   let mockRouter: any
