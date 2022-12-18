@@ -4,9 +4,8 @@ import {beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {mount, VueWrapper} from '@vue/test-utils'
 import {Certificate} from '@/types'
 import DeleteCertificate from '@/doc-editors/popups/DeleteCertificate.vue'
-import {createTestingPinia} from '@pinia/testing'
+import RequestsUtils, {IRequestParams} from '../../assets/RequestsUtils'
 import {nextTick} from 'vue'
-import {useBranchesStore} from '../../stores/BranchesStore'
 
 const selectedBranch = 'prod'
 const mockRoute = {
@@ -25,6 +24,7 @@ describe('DeleteCertificate.vue', () => {
   let attachedAppsMock: string
   let certificateMock: Certificate
   let mockRouter: any
+  let sendReblazeRequestSpy: any
   let wrapper: VueWrapper
   beforeEach(async () => {
     certificateMock = {
@@ -47,7 +47,15 @@ describe('DeleteCertificate.vue', () => {
       'subject': 'C=US, ST=New York, O=Kramerica Industries, L=New York, CN=kramericaindustries.kramericaindustries',
       'upload_time': '2022-10-20 17:21:46.982976',
     }
-    attachedAppsMock = 'test-site-1\ntest-site-2\ntest-site-3'
+    attachedAppsMock = ['test-site-1', 'test-site-2']
+    sendReblazeRequestSpy = jest.spyOn(RequestsUtils, 'sendReblazeRequest').mockImplementation(
+        (requestParams: IRequestParams) => {
+          if (requestParams.url === `configs/${selectedBranch}/d/certificates/e/placeholder`) {
+            return Promise.resolve({data: certificateMock})
+          }
+          return Promise.resolve({data: []})
+        },
+      )
     mockRouter = {
       push: jest.fn(),
     }
@@ -57,7 +65,6 @@ describe('DeleteCertificate.vue', () => {
           $route: mockRoute,
           $router: mockRouter,
         },
-        plugins: [createTestingPinia()],
       },
       props: {
         certificate: certificateMock,
@@ -83,9 +90,38 @@ describe('DeleteCertificate.vue', () => {
     expect(wrapper.emitted('close-modal')).toBeTruthy()
   })
 
-  /* test('should show if there attached sites', async () => {
-    const firstAttachedApp = wrapper.findAll('.attached-apps').at(0)
-    console.log('firstAttachedApp', firstAttachedApp)
-    expect(firstAttachedApp?.text()).toBe('test-site-1')
-  }) */
+  test('should show if there attached sites', () => {
+    const firstAttachedApp = wrapper.find('.attached-apps')
+    expect(firstAttachedApp.text()).toBe(attachedAppsMock[0])
+  })
+
+  test("shouldn't show if there is no attached sites", () => {
+    const attachedAppsMockFortest = []
+    wrapper = mount(DeleteCertificate, {
+        global: {
+          mocks: {
+            $route: mockRoute,
+            $router: mockRouter,
+          },
+        },
+        props: {
+          certificate: certificateMock,
+          selectedBranch: selectedBranch,
+          attachedApps: attachedAppsMockFortest,
+        },
+    })
+    const firstAttachedApp = wrapper.findAll('.attached-apps').length
+    expect(firstAttachedApp).toBe(0)
+  })
+
+  test('should delete the certificate when click on delete button', async () => {
+    const deleteButton = wrapper.find('.delete-button')
+    await deleteButton.trigger('click')
+    expect(sendReblazeRequestSpy).toHaveBeenCalled()
+    expect(sendReblazeRequestSpy).toHaveBeenCalledWith(expect.objectContaining({
+      url: `configs/${selectedBranch}/d/certificates/e/${certificateMock.id}/`,
+    }))
+    expect(wrapper.emitted('call-load-certificate')).toBeTruthy()
+    expect(wrapper.emitted('close-modal')).toBeTruthy()
+  })
 })

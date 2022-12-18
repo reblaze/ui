@@ -15,9 +15,21 @@
             Are you sure you want to remove certificate <br>
             <strong>{{ certificate?.name }}</strong>?
           </p>
-          <p v-if="attachedApps"
-             class="is-small is-size-6 mt-2"
-             v-html="attachedApps"/>
+          <p v-if="attachedApps?.length > 1"
+             class="is-small is-size-6 mt-2">
+             This certificate is already attached to apps:
+             <ul>
+              <li v-for="attachedApp in attachedApps"
+                  :key="attachedApp"
+                  class="attached-apps">
+                <strong>{{attachedApp}}</strong>
+              </li>
+            </ul>
+          </p>
+          <p v-else-if="attachedApps?.length"
+            class="is-small is-size-6 mt-2">
+            This certificate is already attached to app <strong>{{attachedApps[0]}}</strong>
+          </p>
         </section>
         <footer class="modal-card-foot">
           <div class="buttons is-right is-fullwidth">
@@ -25,7 +37,7 @@
                     @click="$emit('close-modal')">
               Cancel
             </button>
-            <button class="button is-small is-light is-outlined is-danger"
+            <button class="button is-small is-light is-outlined is-danger delete-button"
                     :class="{'is-loading': isLoading}"
                     @click="deleteCertificate()">
               Delete
@@ -46,7 +58,7 @@ export default defineComponent({
   props: {
     certificate: Object as PropType<Certificate>,
     selectedBranch: String,
-    attachedApps: String,
+    attachedApps: Array as PropType<string[]>,
   },
 
   emits: ['close-modal', 'call-load-certificate'],

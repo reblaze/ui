@@ -237,7 +237,7 @@ export default defineComponent({
       selectedBalancer: {} as Balancer,
       isDetachLoading: false,
       isAttachLoading: false,
-      attachedApps: '',
+      attachedApps: [] as string[],
     }
   },
   computed: {
@@ -520,18 +520,7 @@ export default defineComponent({
 
     // TODO: need to add that to DeleteCertificate and send only the attachedApps
     openDeleteCertWarn(certificateId:string) {
-      const attachedApps = this.sitesByCertNameMap[certificateId]
-      if (attachedApps?.length > 1) {
-        this.attachedApps =
-          `This certificate is already attached to apps: <ul>
-            ${attachedApps.map((cert:any) => `<li><strong class="attached-apps">${cert}</strong></li>`).join('\n')}
-          </ul>`
-      } else if (attachedApps?.length) {
-        this.attachedApps =
-        `This certificate is already attached to app <strong>${attachedApps[0]}</strong>`
-      } else {
-        this.attachedApps = ''
-      }
+      this.attachedApps = this.sitesByCertNameMap[certificateId]
       this.clickedRow = certificateId
       this.setLoadingDocStatus(true)
       this.getCertificateByID(certificateId)
