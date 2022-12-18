@@ -142,7 +142,7 @@ export default defineComponent({
     selectedBranch: String,
   },
 
-  emits: ['generate-shown-changed', 'call-load-certificate'],
+  emits: ['close-modal', 'call-load-certificate'],
 
   data() {
     return {
@@ -203,7 +203,7 @@ export default defineComponent({
     },
 
     closeAndResetUploadModal() {
-      this.$emit('generate-shown-changed', false)
+      this.$emit('close-modal')
       this.isManualInput = true
       this.resetInputs()
       this.removeFile()
@@ -267,7 +267,7 @@ export default defineComponent({
           successMessage,
           failureMessage,
         }).then(() => {
-          this.$emit('generate-shown-changed', false)
+          this.$emit('close-modal')
           this.$emit('call-load-certificate')
         })
       } catch (err) {

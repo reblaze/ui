@@ -33,7 +33,7 @@
             <tr class="is-size-7 selected"
                 v-if="selectedBalancer?.id && selectedBalancer.id === rowProps.row.id">
               <td colspan="7">
-                <div class="mb-3">
+                <div class="mb-3 default-certificate">
                   <p>
                     <strong>Default certificate:</strong>
                   </p>
@@ -58,11 +58,12 @@
                     </div>
                   </div>
                 </div>
-                <div v-if="selectedBalancer?.certificates?.length">
+                <div v-if="selectedBalancer?.certificates?.length"
+                     class="attached-certificates">
                   <p class="is-small has-text-small mb-2 mb-3">
                     <strong>Certificates:</strong>
                   </p>
-                  <div class="center-details is-flex balancer-box mb-3"
+                  <div class="center-details is-flex balancer-box mb-3 attached-certificate"
                        v-for="(certificate, index) in selectedBalancer?.certificates"
                        :key="index">
                     <div class="column is-10">
@@ -122,7 +123,7 @@
                    :show-new-button="true"
                    @new-button-clicked="addNewCertificate"
                    @row-button-clicked="editProfile"
-                   @second-row-button-clicked="deleteProfile"
+                   @second-row-button-clicked="openDeleteCertificateModal"
                    :show-row-button="true"
                    :show-second-row-button="true"
                    :second-row-button-title="secondRowButtonTitle"
@@ -130,7 +131,7 @@
                    :second-row-button-disabled-callback="isDeleteDisabled"
                    override-menu-column-width-class="width-70px"/>
       </div>
-      <span class="is-family-monospace has-text-grey-lighter">
+      <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">
         {{ documentListAPIPath }}
       </span>
     </div>
@@ -143,27 +144,27 @@
       </div>
     </div>
     <generate-certificate v-if="generateShown"
-                          @generate-shown-changed="generateShown = false"
+                          @close-modal="generateShown = false"
                           :selected-branch="selectedBranch"
                           @call-load-certificate="loadCertificates"/>
     <delete-certificate v-if="deleteShown"
-                        @delete-shown-changed="deleteShown = false"
-                        :clicked-row="clickedRow"
+                        @close-modal="deleteShown = false"
+                        :certificate="certificateByID"
+                        :attachedApps="attachedApps"
                         :selected-branch="selectedBranch"
                         @call-load-certificate="loadCertificates"/>
     <edit-certificate v-if="editShown"
-                      @edit-shown-changed="editShown = false"
-                      :clicked-row="clickedRow"
+                      @close-modal="editShown = false"
                       :balancers="loadBalancers"
                       :certificate="certificateByID"
                       :certificates="certificates"
                       :sites="sites"
                       :selected-branch="selectedBranch"
-                      @call-load-certificate="loadCertificates"/>
+                      @call-loaders="callLoaders"/>
     <attach-certificate v-if="attachCertPopupShown"
                         :selected-balancer="selectedBalancer"
                         :certificates="certificates"
-                        @attach-shown-changed="attachCertPopupShown = false"
+                        @close-modal="attachCertPopupShown = false"
                         @attach-certificate-to-load-balancer="attachCertificateToLoadBalancer(
                           $event.selectedBalancer,
                           $event.certificate.id,
@@ -237,6 +238,7 @@ export default defineComponent({
       selectedBalancer: {} as Balancer,
       isDetachLoading: false,
       isAttachLoading: false,
+      attachedApps: [] as string[],
     }
   },
   computed: {
@@ -364,7 +366,7 @@ export default defineComponent({
           },
           isSortable: true,
           isSearchable: true,
-          cellContentClasses: 'ellipsis',
+          cellContentClasses: 'ellipsis load-balancer-name',
 
         },
         {
@@ -372,7 +374,7 @@ export default defineComponent({
           fieldNames: ['cert'],
           displayFunction: (item) => {
             let defaultCertificateNumber = 0
-            if (item?.default_certificate) {
+            if (item.default_certificate) {
               defaultCertificateNumber = 1
             }
             if (item.provider === 'aws') {
@@ -441,6 +443,20 @@ export default defineComponent({
       return this.selectedBalancer.certificates?.length + 1 < maxCertsNumber || maxCertsNumber === 1
     },
 
+    sitesByCertNameMap() {
+      const returnValue: { [key: string]: string[] } = {}
+      this.sites?.forEach((site: Site) => {
+        const certId = site.ssl_certificate
+        if (certId) {
+          if (!returnValue[certId]) {
+            returnValue[certId] = []
+          }
+          returnValue[certId].push(site.name)
+        }
+      })
+      return returnValue
+    },
+
     selectedBranch(): string {
       return this.branchesStore.selectedBranchId
     },
@@ -498,9 +514,11 @@ export default defineComponent({
       this.setLoadingDocStatus(false)
     },
 
-    async deleteProfile(id: string) {
-      this.clickedRow = id
+    openDeleteCertificateModal(certificateId:string) {
+      this.attachedApps = this.sitesByCertNameMap[certificateId]
+      this.clickedRow = certificateId
       this.setLoadingDocStatus(true)
+      this.getCertificateByID(certificateId)
       this.deleteShown = true
       this.setLoadingDocStatus(false)
     },

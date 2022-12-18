@@ -172,7 +172,7 @@
               <p class="control mx-0"
                  v-if="showSecondRowButton">
                 <button :title="secondRowButtonTitle"
-                        class="button is-small row-entity-button"
+                        class="button is-small second-row-entity-button"
                         :disabled="secondRowButtonDisabledCallback(row)"
                         :class="secondRowButtonClass"
                         @click="secondRowButtonClicked(row.id)">
