@@ -140,7 +140,7 @@ describe('SideMenu.vue', () => {
   test('should render all `Premium Security` menu items', () => {
     const wantedInternalMenuItems = [
       {path: `/${selectedBranch}/dynamic-rules`, title: 'Dynamic Rules'},
-      {path: `/${selectedBranch}/quarantined`, title: 'QuarantinedEntry'},
+      {path: `/${selectedBranch}/quarantined`, title: 'Quarantined'},
       {path: `/${selectedBranch}/mobile-sdks`, title: 'Mobile SDK'},
     ]
 
