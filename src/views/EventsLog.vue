@@ -307,7 +307,11 @@ export default defineComponent({
             filterObject['key'] = key
           }
           // Number check
-          const isNumber = ['response_code', 'trigger_counters'].includes(filterObject['field'])
+          const isNumber = [
+            'processing_stage',
+            'response_code',
+            'trigger_counters',
+          ].includes(filterObject['field'])
           if (isNumber) {
             filterObject['op'] = 'eq'
             filterObject['value'] = Number(filterObject['value'])
@@ -379,7 +383,9 @@ export default defineComponent({
         url: `logs?limit=${this.eventsLimit}&filters=${query}`,
       })
       this.data = response?.data?.data?.results || []
-      this.filterCollapsed = true
+      if (this.data.length) {
+        this.filterCollapsed = true
+      }
       this.isSearchLoading = false
     },
 
