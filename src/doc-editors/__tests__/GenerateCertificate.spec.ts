@@ -21,7 +21,6 @@ jest.mock('../../assets/RequestsUtils.ts')
 
 describe('GenerateCertificate.vue', () => {
   let sendReblazeRequestSpy: any
-  let mockRouter: any
   let wrapper: VueWrapper
   beforeEach(async () => {
     sendReblazeRequestSpy = jest.spyOn(RequestsUtils, 'sendReblazeRequest').mockImplementation(
@@ -66,25 +65,25 @@ describe('GenerateCertificate.vue', () => {
 
   describe('manual input', () => {
     test('should check if typing correct manual certificate will work', async () => {
-        const privateKeyMock = 'Private key mock'
-        const certificateBodyMock = 'Certificate body mock'
-        const newCertificate = DatasetsUtils.newOperationEntryFactory['certificates']()
-        newCertificate.id = expect.any(String)
-        newCertificate.private_key = privateKeyMock
-        newCertificate.cert_body = certificateBodyMock
-        const privateKeyInput = wrapper.find('.private-key-textarea')
-        await privateKeyInput.setValue(privateKeyMock)
-        const certificateBodyInput = wrapper.find('.certificate-body-textarea')
-        await certificateBodyInput.setValue(certificateBodyMock)
-        const saveButton = wrapper.find('.save-button')
-        await saveButton.trigger('click')
-        expect(sendReblazeRequestSpy).toHaveBeenCalled()
-        expect(sendReblazeRequestSpy).toHaveBeenCalledWith(expect.objectContaining({
-          url: expect.stringMatching(`configs/${selectedBranch}/d/certificates/e/`),
-          data: newCertificate,
-        }))
-        expect(wrapper.emitted('call-load-certificate')).toBeTruthy()
-        expect(wrapper.emitted('close-modal')).toBeTruthy()
+      const privateKeyMock = 'Private key mock'
+      const certificateBodyMock = 'Certificate body mock'
+      const newCertificate = DatasetsUtils.newOperationEntryFactory['certificates']()
+      newCertificate.id = expect.any(String)
+      newCertificate.private_key = privateKeyMock
+      newCertificate.cert_body = certificateBodyMock
+      const privateKeyInput = wrapper.find('.private-key-textarea')
+      await privateKeyInput.setValue(privateKeyMock)
+      const certificateBodyInput = wrapper.find('.certificate-body-textarea')
+      await certificateBodyInput.setValue(certificateBodyMock)
+      const saveButton = wrapper.find('.save-button')
+      await saveButton.trigger('click')
+      expect(sendReblazeRequestSpy).toHaveBeenCalled()
+      expect(sendReblazeRequestSpy).toHaveBeenCalledWith(expect.objectContaining({
+        url: expect.stringMatching(`configs/${selectedBranch}/d/certificates/e/`),
+        data: newCertificate,
+      }))
+      expect(wrapper.emitted('call-load-certificate')).toBeTruthy()
+      expect(wrapper.emitted('close-modal')).toBeTruthy()
     })
   })
 
@@ -97,7 +96,7 @@ describe('GenerateCertificate.vue', () => {
           blob["lastModifiedDate"] = ""
           blob["name"] = "test"
           const file = <File>blob;
-          const fileList : FileList = 
+          const fileList : FileList =
           {
             0: file,
             length: 1,
