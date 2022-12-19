@@ -53,7 +53,8 @@ const processRequest = (requestParams: IRequestParams) => {
     if (response?.headers?.location) {
       window.location.href = response.headers.location
     }
-    if (response?.request?.responseURL && !response.request.responseURL.includes(requestParams.url)) {
+    const strippedURL = requestParams.url.split('?')[0]
+    if (response?.request?.responseURL && !response.request.responseURL.includes(strippedURL)) {
       window.location.href = response.request.responseURL
     }
     // Toast message
