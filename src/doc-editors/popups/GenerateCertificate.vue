@@ -6,7 +6,7 @@
           <h5 class="modal-card-title is-size-6 mb-0">
             Generate certificate
           </h5>
-          <button class="delete"
+          <button class="delete close-modal"
                   aria-label="close"
                   @click="closeAndResetUploadModal"/>
         </header>
@@ -43,7 +43,7 @@
             <hr>
           </div>
           <div v-else>
-            <h3 class="is-size-7 pb-2">
+            <h3 class="is-size-7 pb-2 extract-input-title">
               Extract Certificate From File
             </h3>
             <div class="field has-addons-right">
@@ -53,7 +53,7 @@
                     <input class="file-input"
                            type="file"
                            name="certFile"
-                           @input="loadFile"
+                           @input="loadFile($event)"
                            accept=".pfx">
                     <span class="file-cta">
                       <span class="file-icon">
@@ -74,7 +74,7 @@
                  v-show="certFile && !privateKey">
               <label class="label is-small">Password</label>
               <div class="control tile is-8">
-                <input class="input is-small"
+                <input class="input is-small file-password"
                        ref="pfxPass"
                        type="text"
                        v-model="pfxPassword">
@@ -97,7 +97,7 @@
               <label class="label is-small">Private key</label>
               <div class="control">
                 <textarea v-model="privateKey"
-                          class="textarea is-small"
+                          class="textarea is-small private-key-textarea"
                           :disabled="!isManualInput"
                           :placeholder="EMPTY_CERTIFICATE_KEY_FIELD"/>
               </div>
@@ -106,7 +106,7 @@
               <label class="label is-small">Certificate</label>
               <div class="control">
                 <textarea v-model="certificate"
-                          class="textarea is-small certificate-data"
+                          class="textarea is-small certificate-body-textarea"
                           :placeholder="EMPTY_CERTIFICATE_FIELD"
                           rows="8"/>
               </div>
@@ -119,7 +119,7 @@
                     @click="closeAndResetUploadModal">
               Cancel
             </button>
-            <button class="button is-small is-outlined"
+            <button class="button is-small is-outlined save-button"
                     :class="{ 'is-loading': isLoading }"
                     :disabled="isSaveNewCertDisabled"
                     @click="uploadManualInputCert">
@@ -209,7 +209,8 @@ export default defineComponent({
       this.removeFile()
     },
 
-    loadFile({target}: any) {
+    loadFile(event: Event) {
+      const target = event.target as HTMLInputElement
       const file: File = target.files[0]
       const extension = file.name.split('.').pop()
       if (extension === 'pfx') {
@@ -251,30 +252,25 @@ export default defineComponent({
 
     async uploadManualInputCert() {
       this.isLoading = true
-      try {
-        const manualCertificateToAdd = this.newManualCertificate()
-        const certificateText = this.titles['certificates-singular']
-        const successMessage = `New ${certificateText} was created.`
-        const failureMessage = `Failed while attempting to create the new ${certificateText}.`
-        const url = `configs/${this.selectedBranch}/d/certificates/e/${manualCertificateToAdd.id}`
-        manualCertificateToAdd['private_key'] = this.privateKey
-        manualCertificateToAdd['cert_body'] = this.certificate
-        const data = manualCertificateToAdd
-        await RequestsUtils.sendReblazeRequest({
-          methodName: 'POST',
-          url,
-          data,
-          successMessage,
-          failureMessage,
-        }).then(() => {
-          this.$emit('close-modal')
-          this.$emit('call-load-certificate')
-        })
-      } catch (err) {
-        console.log(err)
-      } finally {
+      const manualCertificateToAdd = this.newManualCertificate()
+      const certificateText = this.titles['certificates-singular']
+      const successMessage = `New ${certificateText} was created.`
+      const failureMessage = `Failed while attempting to create the new ${certificateText}.`
+      const url = `configs/${this.selectedBranch}/d/certificates/e/${manualCertificateToAdd.id}`
+      manualCertificateToAdd['private_key'] = this.privateKey
+      manualCertificateToAdd['cert_body'] = this.certificate
+      const data = manualCertificateToAdd
+      await RequestsUtils.sendReblazeRequest({
+        methodName: 'POST',
+        url,
+        data,
+        successMessage,
+        failureMessage,
+      }).then(() => {
+        this.$emit('close-modal')
+        this.$emit('call-load-certificate')
         this.isLoading = false
-      }
+      })
     },
   },
 })
