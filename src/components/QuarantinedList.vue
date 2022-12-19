@@ -98,7 +98,7 @@ export default defineComponent({
           },
           isSortable: true,
           isSearchable: true,
-          classes: 'width-150px',
+          classes: 'width-160px',
           cellContentClasses: 'ellipsis',
         },
         {
@@ -116,7 +116,7 @@ export default defineComponent({
           },
           isSortable: true,
           isSearchable: true,
-          classes: 'width-150px',
+          classes: 'width-160px',
           cellContentClasses: 'ellipsis',
         },
         {

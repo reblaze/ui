@@ -3,7 +3,6 @@ import Utils from '@/assets/Utils'
 import {HttpRequestMethods} from '@/types'
 import {useBranchesStore} from '@/stores/BranchesStore'
 import _ from 'lodash'
-import DatasetsUtils from '@/assets/DatasetsUtils'
 
 const confAPIRoot = '/conf/api'
 const confAPIVersion = 'v3'
@@ -34,8 +33,7 @@ const processRequest = (requestParams: IRequestParams) => {
   }
 
   // Request
-  const identifier = DatasetsUtils.generateUUID2()
-  console.log(`Sending ${requestParams.methodName} request to url ${requestParams.url} with identifier ${identifier}`)
+  console.log(`Sending ${requestParams.methodName} request to url ${requestParams.url}`)
   let request
   if (requestParams.data) {
     if (requestParams.config) {
@@ -51,12 +49,11 @@ const processRequest = (requestParams: IRequestParams) => {
     }
   }
   request = request.then((response: AxiosResponse) => {
-    console.log(`Response received for request with identifier ${identifier}: ${JSON.stringify(response)}`)
     // Follow redirect
     if (response?.headers?.location) {
       window.location.href = response.headers.location
     }
-    if (response?.request?.responseURL) {
+    if (response?.request?.responseURL && !response.request.responseURL.includes(requestParams.url)) {
       window.location.href = response.request.responseURL
     }
     // Toast message
