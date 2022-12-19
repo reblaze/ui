@@ -7,7 +7,7 @@
               :title="certificate.name">
             Edit certificate - {{ certificate.name }}
           </h5>
-          <button class="delete"
+          <button class="close-modal delete"
                   aria-label="close"
                   @click="resetEditModal"/>
         </header>
@@ -16,7 +16,7 @@
                class="control content is-small mb-2">
             Connected sites:
             <input :value="getConnectedSitesForEditCert"
-                   class="input is-small"
+                   class="input is-small connected-sites"
                    :title="getConnectedSitesForEditCert"
                    type="text"
                    disabled>
@@ -24,7 +24,7 @@
           <div class="control content is-small mb-2">
             Certificate subject:
             <input :value="localCert.subject"
-                   class="input is-small"
+                   class="input is-small subject"
                    :title="localCert.subject"
                    type="text"
                    disabled>
@@ -32,7 +32,7 @@
           <div class="control content is-small mb-2">
             Certificate issuer:
             <input :value="localCert.issuer"
-                   class="input is-small"
+                   class="input is-small issuer"
                    :title="localCert.issuer"
                    type="text"
                    disabled>
@@ -40,7 +40,7 @@
           <div class="control content is-small mb-2">
             SAN:
             <input :value="localCert.san.toString()"
-                   class="input is-small"
+                   class="input is-small san"
                    :title="localCert.san.toString()"
                    type="text"
                    disabled>
@@ -48,7 +48,7 @@
           <div class="control content is-small mb-2">
             Certificate body:
             <textarea v-html="localCert.cert_body"
-                      class="textarea is-small cert-body"
+                      class="textarea is-small certificate-body"
                       disabled/>
           </div>
           <div v-if="certCanReplaceByLE"
@@ -160,7 +160,6 @@ import {defineComponent, PropType} from 'vue'
 export default defineComponent({
   props: {
     certificate: Object as PropType<Certificate>,
-    loadBalancer: Object as PropType<Balancer>,
     sites: Array as PropType<Site[]>,
     selectedBranch: String,
     balancers: Array as PropType<Balancer[]>,
