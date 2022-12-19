@@ -132,7 +132,7 @@
                    override-menu-column-width-class="width-70px"/>
       </div>
       <span class="is-family-monospace has-text-grey-lighter is-inline-block mt-3">
-        {{ documentListAPIPath }}
+        {{ apiPath }}
       </span>
     </div>
     <div class="content no-data-wrapper"
@@ -429,7 +429,7 @@ export default defineComponent({
       })
     },
 
-    documentListAPIPath(): string {
+    apiPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
       if (this.tab === 'LoadBalancers') {
         return `${apiPrefix}/reblaze/config/load-balancers/`

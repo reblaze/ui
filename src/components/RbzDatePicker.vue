@@ -5,8 +5,8 @@
               auto-apply
               model-auto
               utc="preserve"
-              format="dd-MM-yyyy HH:mm"
-              input-class-name="input is-small is-size-7 width-260px date-picker-input"
+              format="yyyy-MM-dd HH:mm"
+              input-class-name="input is-small is-size-7 width-250px date-picker-input"
               :close-on-auto-apply="false"
               :month-change-on-scroll="false"
               :clearable="false"

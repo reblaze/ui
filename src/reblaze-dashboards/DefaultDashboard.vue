@@ -8,12 +8,12 @@
             <label class="label is-small has-text-grey-light is-capitalized column width-80px pr-0">
               Total Calls
             </label>
-              <span class="has-text-weight-bold column width-70px"
-                    :title="(totalCallsInfo?.amount)?.toString()">
+            <span class="has-text-weight-bold column width-70px"
+                  :title="(totalCallsInfo?.amount)?.toString()">
                 {{ amountSuffixFormatter(totalCallsInfo.amount) }}
               </span>
-                <span class="has-text-weight-bold column width-120px px-0"
-                      :title="(totalCallsInfo?.callsPerHour)?.toString()">
+            <span class="has-text-weight-bold column width-120px px-0"
+                  :title="(totalCallsInfo?.callsPerHour)?.toString()">
                   {{ amountSuffixFormatter(totalCallsInfo.callsPerHour) }} Calls / Hr
                 </span>
           </div>
@@ -23,37 +23,37 @@
             <label class="label is-small has-text-grey-light is-capitalized column width-80px pr-0">
               {{ trafficCategory }}
             </label>
-              <div class="has-text-weight-bold column width-60px"
-                   :title="(data?.amount)?.toString()">
-                {{ amountSuffixFormatter(data.amount) }}
-              </div>
-              <div class="has-text-weight-bold column width-60px"
-                   :title="(`${data?.percentile}%`)?.toString()">
-                {{ data.percentile }}%
-              </div>
-              <div class="column width-110px">
-                <template v-if="data.topCountries && data.topCountries.length">
-                  <country-flag v-for="topCountry in data.topCountries.slice(0, 3)"
-                                :key="topCountry"
-                                :country="topCountry"
-                                :title="topCountry"
-                                size="small"
-                                class="flag"/>
-                  <span>
+            <div class="has-text-weight-bold column width-60px"
+                 :title="(data?.amount)?.toString()">
+              {{ amountSuffixFormatter(data.amount) }}
+            </div>
+            <div class="has-text-weight-bold column width-60px"
+                 :title="(`${data?.percentile}%`)?.toString()">
+              {{ data.percentile }}%
+            </div>
+            <div class="column width-110px">
+              <template v-if="data.topCountries && data.topCountries.length">
+                <country-flag v-for="topCountry in data.topCountries.slice(0, 3)"
+                              :key="topCountry"
+                              :country="topCountry"
+                              :title="topCountry"
+                              size="small"
+                              class="flag"/>
+                <span>
                     {{ data.topCountries.length > 3 ? `+${data.topCountries.length - 3}` : '' }}
                   </span>
-                </template>
-              </div>
+              </template>
+            </div>
           </div>
         </div>
         <div class="column">
           <label class="label is-small">
-            Traffic Info
+            Traffic Category
           </label>
           <rbz-chart :data="trafficChartData"
                      :series-options="trafficChartSeriesOptions"
-                     :legend-as-tooltip="true"
-                     :chart-height="250">
+                     :chart-height="200"
+                     sync-key="defaultDashboard">
           </rbz-chart>
         </div>
       </div>
@@ -88,13 +88,17 @@
         </div>
         <div class="column">
           <label class="label is-small is-clickable"
+                 :title="statusesClassTitle"
                  @click="toggleStatusesClassDetails">
-            Response Status {{ statusesClassDetails ? 'Classes' : '' }}
+            Response Status {{ statusesClassDetails ? 'Class' : '' }}
+            <span>
+              <i class="fas fa-info-circle"></i>
+            </span>
           </label>
           <rbz-chart :data="statusesChartData"
                      :series-options="statusesChartSeriesOptions"
-                     :legend-as-tooltip="true"
-                     :chart-height="250">
+                     :chart-height="200"
+                     sync-key="defaultDashboard">
           </rbz-chart>
         </div>
       </div>
@@ -212,7 +216,7 @@ import _ from 'lodash'
 import RbzChart, {SeriesOptions} from '@/components/RbzChart.vue'
 import Utils from '@/assets/Utils'
 import CountryFlag from 'vue-country-flag-next'
-import {STATUS_COLORS} from '@/types/const'
+import {STATUS_COLORS, TRAFFIC_COLORS} from '@/types/const'
 
 type topTableData = {
   rowIdentification?: string
@@ -310,51 +314,53 @@ export default defineComponent({
           fieldName: 'hits',
           show: true,
           drawStyle: 'spline',
-          fillColor: `rgba(${Utils.hexToRgbArray('#7a7a7a').join(', ')}, 0.1)`,
-          strokeColor: '#7a7a7a', // $color-boulder
+          fillColor: `rgba(${Utils.hexToRgbArray(TRAFFIC_COLORS['hits']).join(', ')}, 0.1)`,
+          strokeColor: TRAFFIC_COLORS['hits'],
         },
         {
           title: 'Passed',
           fieldName: 'passed',
           show: true,
           drawStyle: 'spline',
-          fillColor: `rgba(${Utils.hexToRgbArray('#50c878').join(', ')}, 0.1)`,
-          strokeColor: '#50c878', // $color-emerald
-        },
-        {
-          title: 'Blocked',
-          fieldName: 'blocked',
-          show: true,
-          drawStyle: 'spline',
-          fillColor: `rgba(${Utils.hexToRgbArray('#ff355e').join(', ')}, 0.1)`,
-          strokeColor: '#ff355e', // $color-radical-red
+          fillColor: `rgba(${Utils.hexToRgbArray(TRAFFIC_COLORS['passed']).join(', ')}, 0.1)`,
+          strokeColor: TRAFFIC_COLORS['passed'],
         },
         {
           title: 'Reported',
           fieldName: 'reported',
           show: true,
           drawStyle: 'spline',
-          fillColor: `rgba(${Utils.hexToRgbArray('#ffdb58').join(', ')}, 0.1)`,
-          strokeColor: '#ffdb58', // $color-mustard
+          fillColor: `rgba(${Utils.hexToRgbArray(TRAFFIC_COLORS['reported']).join(', ')}, 0.1)`,
+          strokeColor: TRAFFIC_COLORS['reported'],
+        },
+        {
+          title: 'Blocked',
+          fieldName: 'blocked',
+          show: true,
+          drawStyle: 'spline',
+          fillColor: `rgba(${Utils.hexToRgbArray(TRAFFIC_COLORS['blocked']).join(', ')}, 0.1)`,
+          strokeColor: TRAFFIC_COLORS['blocked'],
         },
         {
           title: 'Humans',
           fieldName: 'humans',
           show: true,
           drawStyle: 'spline',
-          fillColor: `rgba(${Utils.hexToRgbArray('#4169e1').join(', ')}, 0.1)`,
-          strokeColor: '#4169e1', // $color-royal-blue
+          fillColor: `rgba(${Utils.hexToRgbArray(TRAFFIC_COLORS['humans']).join(', ')}, 0.1)`,
+          strokeColor: TRAFFIC_COLORS['humans'],
         },
         {
           title: 'Bots',
           fieldName: 'bots',
           show: true,
           drawStyle: 'spline',
-          fillColor: `rgba(${Utils.hexToRgbArray('#843179').join(', ')}, 0.1)`,
-          strokeColor: '#843179', // $color-plum
+          fillColor: `rgba(${Utils.hexToRgbArray(TRAFFIC_COLORS['bots']).join(', ')}, 0.1)`,
+          strokeColor: TRAFFIC_COLORS['bots'],
         },
       ] as SeriesOptions[],
       statusesClassDetails: true,
+      statusesClassTitle:
+        'Click on this label in order to switch the chart data between response status and response status class',
       statusesPieChartLegend: [],
     }
   },
@@ -429,7 +435,8 @@ export default defineComponent({
       })
       const startDate = new Date(_.minBy(this.data, 'timestamp')['timestamp'])
       const endDate = new Date(_.maxBy(this.data, 'timestamp')['timestamp'])
-      const totalTimeInHours = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60)
+      const totalTimeInMinutes = ((endDate.getTime() - startDate.getTime()) / (1000 * 60)) || 1
+      const totalTimeInHours = totalTimeInMinutes / 60
       return {
         amount: hits,
         callsPerHour: Math.floor(hits / totalTimeInHours),
@@ -512,8 +519,8 @@ export default defineComponent({
           timeframe: new Date(dataItem['timestamp']).getTime(),
           hits: hits > 0 ? hits : 0,
           passed: passed > 0 ? passed : 0,
-          blocked: blocked > 0 ? blocked : 0,
           reported: reported > 0 ? reported : 0,
+          blocked: blocked > 0 ? blocked : 0,
           humans: humans > 0 ? humans : 0,
           bots: bots > 0 ? bots : 0,
         })

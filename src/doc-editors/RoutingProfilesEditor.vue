@@ -18,14 +18,15 @@
                   </span>
                 </button>
               </p>
-              <div class="control doc-selection-wrapper" v-if="docIdNames.length">
+              <div class="control document-selection-wrapper"
+                   v-if="docIdNames.length">
                 <div class="select is-small">
                   <select v-model="selectedDocID"
                           title="Switch routing profiles document ID"
                           @change="switchDocID()"
-                          class="doc-selection"
+                          class="document-selection"
                           data-qa="switch-routing-profiles-document">
-                          <option v-for="doc in docIdNames"
+                    <option v-for="doc in docIdNames"
                             :key="doc.id"
                             :value="doc.id">
                       {{ doc.name }}
@@ -222,8 +223,8 @@
                                    ref="mapEntryPath"
                                    v-model="mapEntry.path">
                             <span class="icon is-small is-left has-text-grey">
-                                  <i class="fas fa-code"></i>
-                                </span>
+                              <i class="fas fa-code"></i>
+                            </span>
                           </div>
                         </div>
                         <hr/>
@@ -301,7 +302,7 @@
                                     <select class="select is-small new-edge-function-selection"
                                             title="Edge Function ID"
                                             v-model="edgeFunctionMapEntryId">
-                                            <option v-for="edgeFunction in newEdgeFunctions(mapEntry.cloud_functions)"
+                                      <option v-for="edgeFunction in newEdgeFunctions(mapEntry.cloud_functions)"
                                               :key="edgeFunction.id"
                                               :value="edgeFunction.id">
                                         {{ edgeFunction.name + ' - ' + edgeFunction.description }}
@@ -364,7 +365,9 @@
                                   data-qa="fork-btn"
                                   class="button is-small is-pulled-left is-light fork-entry-button"
                                   @click="addNewProfile(mapEntry, mapIndex)">
-                            <span class="icon"><i class="fas fa-code-branch"></i></span>
+                            <span class="icon">
+                              <i class="fas fa-code-branch"></i>
+                            </span>
                             <span>
                                 Fork path mapping
                             </span>
@@ -415,8 +418,14 @@
 <script lang="ts">
 import _ from 'lodash'
 import RequestsUtils from '@/assets/RequestsUtils'
-import {BackendService, DocumentName, EdgeFunction, HttpRequestMethods, RoutingProfile,
-  RoutingProfileEntryLocation} from '@/types'
+import {
+  BackendService,
+  DocumentName,
+  EdgeFunction,
+  HttpRequestMethods,
+  RoutingProfile,
+  RoutingProfileEntryLocation,
+} from '@/types'
 import Utils from '@/assets/Utils'
 import {defineComponent} from 'vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
@@ -484,8 +493,8 @@ export default defineComponent({
 
     selectedDocNotDeletable(): boolean {
       return !this.selectedRoutingProfile ||
-          this.selectedRoutingProfile.id.startsWith('__') || // Default entries
-          this.isDocReferenced
+        this.selectedRoutingProfile.id.startsWith('__') || // Default entries
+        this.isDocReferenced
     },
 
     isDocReferenced(): boolean {
@@ -501,7 +510,7 @@ export default defineComponent({
     selectedDocIndex(): number {
       if (this.selectedDocID) {
         return _.findIndex(this.docs, (doc) => {
-          return doc.id=== this.selectedDocID
+          return doc.id === this.selectedDocID
         })
       }
       return 0
@@ -555,8 +564,8 @@ export default defineComponent({
       const docName = this.selectedRoutingProfile.name
       if (docName) {
         Utils.toast(
-            `Switched to document "${docName}" with ID: ${this.selectedDocID}.`,
-            'is-info',
+          `Switched to document "${docName}" with ID: ${this.selectedDocID}.`,
+          'is-info',
         )
       }
       this.goToRoute()
@@ -695,7 +704,7 @@ export default defineComponent({
       const newMapEntryPath = this.selectedRoutingProfile.locations[index].path.trim() || ''
       const isMapEntryPathEmpty = newMapEntryPath === ''
       const isMapEntryPathDuplicate = this.entriesLocationNames.includes(
-          newMapEntryPath,
+        newMapEntryPath,
       ) ? this.initialMapEntryPath !== newMapEntryPath : false
       return !isMapEntryPathEmpty && !isMapEntryPathDuplicate
     },

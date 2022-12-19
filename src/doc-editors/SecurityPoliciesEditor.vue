@@ -73,7 +73,9 @@
                            :disabled="localDoc.id === '__default__'"
                            :readonly="localDoc.id === '__default__'"
                            title="Enter a regex to match hosts headers (domain names)">
-                    <span class="icon is-small is-left has-text-grey"><i class="fas fa-code"></i></span>
+                    <span class="icon is-small is-left has-text-grey">
+                      <i class="fas fa-code"></i>
+                    </span>
                   </div>
                 </div>
                 <div class="field">
@@ -253,8 +255,8 @@
                                    @input="emitDocUpdate();
                                                validateInput($event, isSelectedMapEntryMatchValid(mapIndex))">
                             <span class="icon is-small is-left has-text-grey">
-                                  <i class="fas fa-code"></i>
-                                </span>
+                              <i class="fas fa-code"></i>
+                            </span>
                           </div>
                         </div>
                         <hr/>
@@ -436,7 +438,9 @@
                                   data-qa="fork-btn"
                                   class="button is-small is-pulled-left is-light fork-entry-button"
                                   @click="addNewProfile(mapEntry, mapIndex)">
-                            <span class="icon"><i class="fas fa-code-branch"></i></span>
+                            <span class="icon">
+                              <i class="fas fa-code-branch"></i>
+                            </span>
                             <span>
                                   Fork path mapping
                             </span>

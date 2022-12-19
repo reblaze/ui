@@ -523,9 +523,9 @@ describe('DocumentList.vue', () => {
         await nextTick()
         expect(wrapper.vm.columns).toEqual(wrapper.vm.columnOptionMap[docType])
         const defaultDoc = DatasetsUtils.newDocEntryFactory[docType]()
-        wrapper.vm.columnOptionMap[docType].forEach((columnOptions) => {
+        _.forEach(wrapper.vm.columnOptionMap[docType], (columnOptions) => {
           if (typeof columnOptions.displayFunction === 'function') {
-            expect(typeof columnOptions.displayFunction(defaultDoc) === 'string')
+            expect(['string', 'number']).toContain(typeof columnOptions.displayFunction(defaultDoc))
           }
         })
       })

@@ -1165,7 +1165,7 @@ describe.skip('DocumentEditor.vue', () => {
       })
       // allow all requests to finish
       setImmediate(() => {
-        const docSelection = wrapper.find('.doc-selection')
+        const docSelection = wrapper.find('.document-selection')
         expect((docSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
         done()
       })
@@ -1191,7 +1191,7 @@ describe.skip('DocumentEditor.vue', () => {
         expect((branchSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
         const docTypeSelection = wrapper.find('.doc-type-selection')
         expect((docTypeSelection.element as HTMLSelectElement).selectedIndex).toEqual(4)
-        const docSelection = wrapper.find('.doc-selection')
+        const docSelection = wrapper.find('.document-selection')
         expect((docSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
         done()
       })
@@ -1217,7 +1217,7 @@ describe.skip('DocumentEditor.vue', () => {
         expect((branchSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
         const docTypeSelection = wrapper.find('.doc-type-selection')
         expect((docTypeSelection.element as HTMLSelectElement).selectedIndex).toEqual(2)
-        const docSelection = wrapper.find('.doc-selection')
+        const docSelection = wrapper.find('.document-selection')
         expect((docSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
         done()
       })
@@ -1243,7 +1243,7 @@ describe.skip('DocumentEditor.vue', () => {
         expect((branchSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
         const docTypeSelection = wrapper.find('.doc-type-selection')
         expect((docTypeSelection.element as HTMLSelectElement).selectedIndex).toEqual(4)
-        const docSelection = wrapper.find('.doc-selection')
+        const docSelection = wrapper.find('.document-selection')
         expect((docSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
         done()
       })
@@ -1297,7 +1297,7 @@ describe.skip('DocumentEditor.vue', () => {
       })
       // allow all requests to finish
       setImmediate(() => {
-        const docSelection = wrapper.find('.doc-selection')
+        const docSelection = wrapper.find('.document-selection')
         expect((docSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
         done()
       })
@@ -1480,7 +1480,7 @@ describe.skip('DocumentEditor.vue', () => {
     })
 
     test('should not switch selected doc when switching branches', async () => {
-      const docSelection = wrapper.find('.doc-selection')
+      const docSelection = wrapper.find('.document-selection')
       await docSelection.trigger('click')
       const docOptions = docSelection.findAll('option')
       await docSelection.setValue(docOptions.at(1).element.value)
@@ -1506,7 +1506,7 @@ describe.skip('DocumentEditor.vue', () => {
       const docTypeOptions = docTypeSelection.findAll('option')
       await docTypeSelection.setValue(docTypeOptions.at(0).element.value)
       // switch to a different document
-      const docSelection = wrapper.find('.doc-selection')
+      const docSelection = wrapper.find('.document-selection')
       await docSelection.trigger('click')
       const options = docSelection.findAll('option')
       await docSelection.setValue(options.at(1).element.value)
@@ -1671,7 +1671,7 @@ describe.skip('DocumentEditor.vue', () => {
 
     test('should not be able to delete an ACL Profile document if it is referenced by a security policy', () => {
       // switch to a different document
-      const docSelection = wrapper.find('.doc-selection')
+      const docSelection = wrapper.find('.document-selection')
       docSelection.trigger('click')
       const options = docSelection.findAll('option')
       docSelection.setValue(options.at(1).element.value)

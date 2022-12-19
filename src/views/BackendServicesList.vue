@@ -120,7 +120,7 @@ export default defineComponent({
           },
           isSortable: true,
           isSearchable: true,
-          classes: 'width-140px',
+          classes: 'width-130px',
         },
       ] as ColumnOptions[],
       isNewLoading: false,

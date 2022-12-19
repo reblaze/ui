@@ -14,9 +14,10 @@
 <script lang="ts">
 import {defineComponent, PropType} from 'vue'
 import _ from 'lodash'
-import uPlot, {Series} from 'uplot'
+import uPlot, {Cursor, Series} from 'uplot'
 import {GenericObject} from '@/types'
 import Utils from '@/assets/Utils'
+import ScaleKeyMatcher = uPlot.Cursor.Sync.ScaleKeyMatcher
 
 export type SeriesOptions = {
   title: string
@@ -34,6 +35,7 @@ export default defineComponent({
     seriesOptions: Array as PropType<SeriesOptions[]>,
     legendAsTooltip: Boolean,
     chartHeight: Number,
+    syncKey: String,
   },
   data() {
     return {
@@ -89,22 +91,36 @@ export default defineComponent({
           }
         })
       })
+      // Cursor sync over multiple charts
+      const sync = uPlot.sync(this.syncKey)
+      const matchSyncKeys: ScaleKeyMatcher = (own: string | null, ext: string | null) => {
+        return own === ext
+      }
+      const cursorOpts: Cursor = {
+        sync: {
+          key: sync.key,
+          match: [matchSyncKeys, matchSyncKeys],
+        },
+      }
       this.chartOptions = {
         class: 'chart',
         width: 0,
         height: 0,
         plugins: [],
+        cursor: cursorOpts,
         ms: 1,
         series: [
           {
             value: (self, ts) => {
               let timeFormat
-              if (Math.floor(ts) === ts) {
+              if (Math.floor(ts / 60000) * 60 === ts / 1000) {
+                timeFormat = uPlot.fmtDate('{YYYY}-{MM}-{DD} {HH}:{mm}')
+              } else if (Math.floor(ts / 1000) === ts / 1000) {
                 timeFormat = uPlot.fmtDate('{YYYY}-{MM}-{DD} {HH}:{mm}:{ss}')
               } else {
                 timeFormat = uPlot.fmtDate('{YYYY}-{MM}-{DD} {HH}:{mm}:{ss}.{fff}')
               }
-              return timeFormat(new Date(ts * 1000))
+              return timeFormat(new Date(ts))
             },
           }, // timestamps X axis
         ],
@@ -117,13 +133,50 @@ export default defineComponent({
               width: 0.5,
             },
             values: [
-              [3600 * 24 * 365, '{YYYY}-{MM}-{DD}'],
-              [3600 * 24 * 28, '{YYYY}-{MM}-{DD}'],
-              [3600 * 24, '{YYYY}-{MM}-{DD}'],
-              [3600, '{HH}:{mm}', '\n{YYYY}-{MM}-{DD}'],
-              [60, '{HH}:{mm}', '\n{YYYY}-{MM}-{DD}'],
-              [1, ':{ss}', '\n{YYYY}-{MM}-{DD} {HH}:{mm}', null, null, null, '\n{HH}:{mm}'],
-              [0.001, ':{ss}.{fff}', '\n{YYYY}-{MM}-{DD} {HH}:{mm}', null, null, null, '\n{HH}:{mm}'],
+              [
+                3600 * 24 * 365 * 1000, // tick incr
+                '{YYYY}-{MM}-{DD}', // default
+              ],
+              [
+                3600 * 24 * 28 * 1000, // tick incr
+                '{YYYY}-{MM}-{DD}', // default
+              ],
+              [
+                3600 * 24 * 1000, // tick incr
+                '{YYYY}-{MM}-{DD}', // default
+              ],
+              [
+                3600 * 1000, // tick incr
+                '{HH}:{mm}', // default
+                '\n{YYYY}-{MM}-{DD}', // year
+                null, // month
+                '\n{MM}-{DD}', // day
+              ],
+              [
+                60 * 1000, // tick incr
+                '{HH}:{mm}', // default
+                '\n{YYYY}-{MM}-{DD}', // year
+                null, // month
+                '\n{MM}-{DD}', // day
+              ],
+              [
+                1000, // tick incr
+                ':{ss}', // default
+                '\n{YYYY}-{MM}-{DD} {HH}:{mm}', // year
+                null, // month
+                '\n{MM}-{DD} {HH}:{mm}', // day
+                null, // hour
+                '\n{HH}:{mm}', // minute
+              ],
+              [
+                0.001 * 1000, // tick incr
+                ':{ss}.{fff}', // default
+                '\n{YYYY}-{MM}-{DD} {HH}:{mm}', // year
+                null, // month
+                '\n{MM}-{DD} {HH}:{mm}', // day
+                null, // hour
+                '\n{HH}:{mm}', // minute
+              ],
             ],
           },
           {
@@ -148,6 +201,9 @@ export default defineComponent({
           width: 2,
           fill: seriesOptions.fillColor,
           paths: this.paths as Series.PathBuilder,
+          points: {
+            show: false,
+          },
         })
       })
       if (this.legendAsTooltip) {
@@ -160,6 +216,7 @@ export default defineComponent({
       }
       // eslint-disable-next-line new-cap
       this.chart = new uPlot(this.chartOptions, datasets, this.$refs.chart)
+      sync.sub(this.chart)
       // Pushing the resize action to the end of queue in order for the new chart to be rendered beforehand
       setImmediate(() => {
         this.setChartSize()
@@ -223,7 +280,10 @@ export default defineComponent({
 
     paths(uPlotChart: uPlot, seriesIdx: number, idx0: number, idx1: number) {
       const {linear, bars, spline} = uPlot.paths
-      const style = this.seriesOptions[seriesIdx - 1].drawStyle
+      const style = this.seriesOptions[seriesIdx - 1]?.drawStyle
+      if (!style) {
+        return
+      }
       let renderer
       if (style === 'line') {
         renderer = linear()
@@ -275,5 +335,36 @@ export default defineComponent({
   text-align: left;
   top: 0;
   z-index: 100;
+}
+
+:deep(.u-legend.u-inline) {
+  font-size: 0.75rem;
+  text-align: left;
+
+  .u-series {
+    margin-right: 0;
+  }
+
+  .u-series th,
+  .u-series td {
+    padding: 4px 4px 4px 0;
+  }
+
+  .u-series .u-value {
+    text-align: left;
+    vertical-align: bottom;
+  }
+}
+
+:deep(.u-legend.u-inline .u-series:first-child) {
+  width: 300px;
+
+  .u-marker {
+    display: none;
+  }
+}
+
+:deep(.u-legend.u-inline .u-series:not(:first-child)) {
+  width: 150px;
 }
 </style>

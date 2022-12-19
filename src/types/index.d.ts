@@ -484,8 +484,8 @@ declare module CuriefenseClient {
       type: string
   }
 
-  type Quarantined = {
-    id: string
+  type QuarantinedEntry = {
+    _id: string
     config: string
     count: number
     timestamp: string
@@ -494,6 +494,8 @@ declare module CuriefenseClient {
     tags: string[]
     target: string
     value: string
+    id?: string
+    expires?: number
   }
 
   type EventLog = {
@@ -514,23 +516,19 @@ declare module CuriefenseClient {
     logs: string[]
     processing_stage: number
     acl_triggers: {
-      id: string
-      name: string
+      ruleid: string
       active: boolean
     }[]
     rate_limit_triggers: {
-      id: string
-      name: string
+      ruleid: string
       active: boolean
     }[]
     global_filter_triggers: {
-      id: string
-      name: string
+      ruleid: string
       active: boolean
     }[]
     content_filter_triggers: {
-      id: string
-      name: string
+      ruleid: string
       active: boolean
     }[]
     reason: string

@@ -540,7 +540,7 @@ export default defineComponent({
 }
 
 .rbz-table.table.is-hoverable tbody tr:hover {
-  background-color: #e8e8e8;
+  background-color: $color-mercury;
 }
 
 .rbz-table th {
