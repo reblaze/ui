@@ -191,12 +191,15 @@
                       Host
                     </td>
                     <td colspan="2">
-                      <div class="control is-fullwidth">
+                      <div class="control is-fullwidth has-icons-left">
                         <input class="input is-small host-entry-input"
                                data-qa="host-input"
                                title="Host"
                                v-model="sequenceItem.headers.host"
                                @input="emitDocUpdate"/>
+                        <span class="icon is-small is-left has-text-grey">
+                          <i class="fas fa-code"></i>
+                        </span>
                       </div>
                     </td>
                     <td class="width-80px"></td>
@@ -296,7 +299,9 @@
                                title="Name"
                                placeholder="Name"
                                v-model="newEntryItem.name"/>
-                        <span class="icon is-small is-left has-text-grey-light"><i class="fa fa-code"></i></span>
+                        <span class="icon is-small is-left has-text-grey-light">
+                          <i class="fa fa-code"></i>
+                        </span>
                       </div>
                     </td>
                     <td class="is-size-7">
@@ -305,7 +310,9 @@
                                title="Value"
                                placeholder="Value"
                                v-model="newEntryItem.value"/>
-                        <span class="icon is-small is-left has-text-grey-light"><i class="fa fa-code"></i></span>
+                        <span class="icon is-small is-left has-text-grey-light">
+                          <i class="fa fa-code"></i>
+                        </span>
                       </div>
                     </td>
                     <td class="is-size-7 width-80px">

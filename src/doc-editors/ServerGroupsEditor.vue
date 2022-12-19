@@ -18,13 +18,13 @@
                   </span>
                 </button>
               </p>
-              <div class="control doc-selection-wrapper"
+              <div class="control document-selection-wrapper"
                    v-if="docIdNames.length">
                 <div class="select is-small">
                   <select v-model="selectedDocID"
                           title="Switch document ID"
                           @change="switchDocID()"
-                          class="doc-selection"
+                          class="document-selection"
                           data-qa="switch-document">
                     <option v-for="doc in docIdNames"
                             :key="doc.id"
@@ -895,7 +895,7 @@ export default defineComponent({
 })
 </script>
 <style scoped lang="scss">
-.doc-selection-wrapper {
+.document-selection-wrapper {
   max-width: 200px;
   min-width: 0;
 }

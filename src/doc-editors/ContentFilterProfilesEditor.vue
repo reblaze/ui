@@ -71,7 +71,6 @@
                          v-model="maskingSeed"/>
                 </div>
               </div>
-
               <div class="field textarea-field">
                 <label class="label is-small">Description</label>
                 <div class="control">
@@ -82,52 +81,52 @@
                               @input="emitDocUpdate"
                               rows="2">
                     </textarea>
-          </div>
-        </div>
-        <div class="field">
-          <label class="label is-small">
-            Custom Response
-          </label>
-          <div class="control is-expanded">
-            <div class="select is-fullwidth is-small">
-              <select v-model="localDoc.action"
-                      @change="emitDocUpdate"
-                      data-qa="action-dropdown"
-                      class="document-action-selection"
-                      title="Custom Response">
-                <option v-for="customResponse in customResponseNames"
-                        :value="customResponse[0]"
-                        :key="customResponse[0]">
-                  {{ customResponse[1] }}
-                </option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div class="field">
-          <label class="label is-small">Tags</label>
-          <div class="control"
-               data-qa="tag-input">
-            <tag-autocomplete-input :initial-tag="selectedDocTags"
-                                    selection-type="multiple"
-                                    @tag-changed="selectedDocTags = $event"/>
-          </div>
-          <labeled-tags title="Automatic Tags"
-                        :tags="automaticTags"/>
-        </div>
-        <div class="field ignore-alphanumeric-input-field"
-             :title="additionalInfoIgnoreAlphanumericInput">
-          <label class="checkbox is-size-7">
-            <input type="checkbox"
-                   data-qa="ignore-alphanumeric-btn"
-                   class="checkbox-input ignore-alphanumeric-input"
-                   @change="emitDocUpdate"
-                   v-model="localDoc.ignore_alphanum"/>
-            Ignore Alphanumeric Input
-          </label>
-          <span class="icon is-small info-icon">
-                <i class="fas fa-info-circle"></i>
-              </span>
+                </div>
+              </div>
+              <div class="field">
+                <label class="label is-small">
+                  Custom Response
+                </label>
+                <div class="control is-expanded">
+                  <div class="select is-fullwidth is-small">
+                    <select v-model="localDoc.action"
+                            @change="emitDocUpdate"
+                            data-qa="action-dropdown"
+                            class="document-action-selection"
+                            title="Custom Response">
+                      <option v-for="customResponse in customResponseNames"
+                              :value="customResponse[0]"
+                              :key="customResponse[0]">
+                        {{ customResponse[1] }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="field">
+                <label class="label is-small">Tags</label>
+                <div class="control"
+                     data-qa="tag-input">
+                  <tag-autocomplete-input :initial-tag="selectedDocTags"
+                                          selection-type="multiple"
+                                          @tag-changed="selectedDocTags = $event"/>
+                </div>
+                <labeled-tags title="Automatic Tags"
+                              :tags="automaticTags"/>
+              </div>
+              <div class="field ignore-alphanumeric-input-field"
+                   :title="additionalInfoIgnoreAlphanumericInput">
+                <label class="checkbox is-size-7">
+                  <input type="checkbox"
+                         data-qa="ignore-alphanumeric-btn"
+                         class="checkbox-input ignore-alphanumeric-input"
+                         @change="emitDocUpdate"
+                         v-model="localDoc.ignore_alphanum"/>
+                  Ignore Alphanumeric Input
+                </label>
+                <span class="icon is-small info-icon">
+                  <i class="fas fa-info-circle"></i>
+                </span>
               </div>
               <div class="field ignore-body-input-field">
                 <label class="checkbox is-size-7">
@@ -267,14 +266,14 @@
                   <tr>
                     <td>
                       <tag-autocomplete-input
-                          v-if="addNewColName === section"
-                          selection-type="single"
-                          title="Tag"
-                          :minimum-value-length="2"
-                          :clear-input-after-selection="true"
-                          :auto-focus="true"
-                          @keydown.esc="cancelAddNewTag"
-                          @tag-submitted="addTag(section, $event)"/>
+                        v-if="addNewColName === section"
+                        selection-type="single"
+                        title="Tag"
+                        :minimum-value-length="2"
+                        :clear-input-after-selection="true"
+                        :auto-focus="true"
+                        @keydown.esc="cancelAddNewTag"
+                        @tag-submitted="addTag(section, $event)"/>
                     </td>
                     <td class="is-size-7 width-20px">
                       <a title="add new entry"
@@ -327,7 +326,8 @@
                  :key="section.sectionType"
                  :class="`${section.sectionType}-section`"
                  v-show="currentSection === section.sectionType">
-              <div class="columns section-inputs-wrapper" v-if="(section.sectionType !== 'allsections')">
+              <div class="columns section-inputs-wrapper"
+                   v-if="(section.sectionType !== 'allsections')">
                 <div class="column is-4">
                   <div class="field">
                     <label class="label is-small">Max Length</label>
@@ -452,8 +452,8 @@
                                placeholder="Value"
                                title="Value regex"/>
                         <span class="icon is-small is-left has-text-grey">
-                              <i class="fas fa-code"></i>
-                            </span>
+                          <i class="fas fa-code"></i>
+                        </span>
                       </p>
                     </td>
                     <td class="has-text-centered width-5pct">
@@ -474,13 +474,13 @@
                     </td>
                     <td class="width-30pct">
                       <autocomplete-input
-                          :clear-input-after-selection="false"
-                          :auto-focus="false"
-                          class="new-entry-exclusions"
-                          :data-qa="autocompleteTitle"
-                          selection-type="multiple"
-                          :title="autocompleteTitle"
-                          @value-submitted="updateEntryExclusions(newEntry, $event)"/>
+                        :clear-input-after-selection="false"
+                        :auto-focus="false"
+                        class="new-entry-exclusions"
+                        :data-qa="autocompleteTitle"
+                        selection-type="multiple"
+                        :title="autocompleteTitle"
+                        @value-submitted="updateEntryExclusions(newEntry, $event)"/>
                     </td>
                     <td class="has-text-centered width-5pct">
                       <button class="button is-light is-small confirm-add-new-parameter"
@@ -523,8 +523,8 @@
                                placeholder="Value"
                                title="Value regex"/>
                         <span class="icon is-small is-left has-text-grey">
-                              <i class="fas fa-code"></i>
-                            </span>
+                          <i class="fas fa-code"></i>
+                        </span>
                       </p>
                     </td>
                     <td class="has-text-centered width-5pct">
@@ -545,13 +545,13 @@
                     </td>
                     <td class="width-30pct">
                       <autocomplete-input
-                          :clear-input-after-selection="false"
-                          :initial-value="exclusionsToString(entry.exclusions)"
-                          :auto-focus="false"
-                          class="entry-exclusions"
-                          selection-type="multiple"
-                          :title="autocompleteTitle"
-                          @value-submitted="updateEntryExclusions(entry, $event)"/>
+                        :clear-input-after-selection="false"
+                        :initial-value="exclusionsToString(entry.exclusions)"
+                        :auto-focus="false"
+                        class="entry-exclusions"
+                        selection-type="multiple"
+                        :title="autocompleteTitle"
+                        @value-submitted="updateEntryExclusions(entry, $event)"/>
                     </td>
                     <td class="has-text-centered width-5pct">
                       <button title="Delete entry"
@@ -580,8 +580,8 @@
                                  placeholder="Key"
                                  title="Key regex"/>
                           <span class="icon is-small is-left has-text-grey">
-                                <i class="fas fa-code"></i>
-                              </span>
+                            <i class="fas fa-code"></i>
+                          </span>
                         </p>
                       </div>
                     </td>
@@ -596,8 +596,8 @@
                                placeholder="Value"
                                title="Value regex"/>
                         <span class="icon is-small is-left has-text-grey">
-                                  <i class="fas fa-code"></i>
-                            </span>
+                          <i class="fas fa-code"></i>
+                        </span>
                       </p>
                     </td>
                     <td class="has-text-centered width-5pct">
@@ -618,13 +618,13 @@
                     </td>
                     <td class="width-30pct">
                       <autocomplete-input
-                          :clear-input-after-selection="false"
-                          :initial-value="exclusionsToString(entry.exclusions)"
-                          :auto-focus="false"
-                          class="entry-exclusions"
-                          selection-type="multiple"
-                          :title="autocompleteTitle"
-                          @value-submitted="updateEntryExclusions(entry, $event)"/>
+                        :clear-input-after-selection="false"
+                        :initial-value="exclusionsToString(entry.exclusions)"
+                        :auto-focus="false"
+                        class="entry-exclusions"
+                        selection-type="multiple"
+                        :title="autocompleteTitle"
+                        @value-submitted="updateEntryExclusions(entry, $event)"/>
                     </td>
                     <td class="has-text-centered width-5pct">
                       <button title="Delete entry"
@@ -746,9 +746,9 @@ export default defineComponent({
       contentFilterSuggestions: [] as AutocompleteSuggestion[],
       autocompleteTitle: 'Space separated content filter rules tags',
       additionalInfoIgnoreAlphanumericInput: 'When checked, arguments, headers or cookies, ' +
-          'which contain only alpha numeric characters, will be ignored.',
+        'which contain only alpha numeric characters, will be ignored.',
       additionalInfoContentType: 'When checked, only the selected types will be allowed. ' +
-          'Malformed data will get rejected',
+        'Malformed data will get rejected',
       decodingOptions: [
         {
           value: 'base64',

@@ -1,16 +1,37 @@
 <template>
-  <div class="columns height-250px">
+  <div class="columns">
     <div class="column">
-      <label class="label is-small">
-        Traffic Info
-      </label>
+      <div class="toggle-buttons-wrapper">
+        <div class="is-inline-block mr-4">
+          <label class="checkbox is-size-7">
+            <input type="checkbox"
+                   data-qa="active-traffic-category-checkbox"
+                   class="active-traffic-category-checkbox"
+                   v-model="chartTrafficCategoryActive">
+            <span>
+              Traffic Category
+            </span>
+          </label>
+        </div>
+        <div class="is-inline-block">
+          <label class="checkbox is-size-7">
+            <input type="checkbox"
+                   data-qa="active-status-class-checkbox"
+                   class="active-status-class-checkbox"
+                   v-model="chartStatusClassActive">
+            <span>
+              Status Class
+            </span>
+          </label>
+        </div>
+      </div>
       <rbz-chart :data="trafficChartData"
                  :series-options="trafficChartSeriesOptions"
-                 :legend-as-tooltip="true"
-                 :chart-height="200">
+                 :chart-height="150"
+                 sync-key="eventsLog">
       </rbz-chart>
     </div>
-    <div class="column width-230px">
+    <div class="column width-220px">
       <div class="uniques-wrapper height-100px mb-3">
         <span class="has-text-weight-bold">
           UNIQUES
@@ -102,6 +123,7 @@ import {EventLog, GenericObject} from '@/types'
 import _ from 'lodash'
 import RbzChart, {SeriesOptions} from '@/components/RbzChart.vue'
 import Utils from '@/assets/Utils'
+import {STATUS_COLORS, TRAFFIC_COLORS} from '@/types/const'
 
 export default defineComponent({
   name: 'EventsLogCharts',
@@ -113,56 +135,8 @@ export default defineComponent({
   },
   data() {
     return {
-      trafficChartSeriesOptions: [
-        {
-          title: 'Hits',
-          fieldName: 'hits',
-          show: true,
-          drawStyle: 'spline',
-          fillColor: `rgba(${Utils.hexToRgbArray('#7a7a7a').join(', ')}, 0.1)`,
-          strokeColor: '#7a7a7a', // $color-boulder
-        },
-        {
-          title: 'Passed',
-          fieldName: 'passed',
-          show: true,
-          drawStyle: 'spline',
-          fillColor: `rgba(${Utils.hexToRgbArray('#50c878').join(', ')}, 0.1)`,
-          strokeColor: '#50c878', // $color-emerald
-        },
-        {
-          title: 'Blocked',
-          fieldName: 'blocked',
-          show: true,
-          drawStyle: 'spline',
-          fillColor: `rgba(${Utils.hexToRgbArray('#ff355e').join(', ')}, 0.1)`,
-          strokeColor: '#ff355e', // $color-radical-red
-        },
-        {
-          title: 'Reported',
-          fieldName: 'reported',
-          show: true,
-          drawStyle: 'spline',
-          fillColor: `rgba(${Utils.hexToRgbArray('#ffdb58').join(', ')}, 0.1)`,
-          strokeColor: '#ffdb58', // $color-mustard
-        },
-        {
-          title: 'Humans',
-          fieldName: 'humans',
-          show: true,
-          drawStyle: 'spline',
-          fillColor: `rgba(${Utils.hexToRgbArray('#4169e1').join(', ')}, 0.1)`,
-          strokeColor: '#4169e1', // $color-royal-blue
-        },
-        {
-          title: 'Bots',
-          fieldName: 'bots',
-          show: true,
-          drawStyle: 'spline',
-          fillColor: `rgba(${Utils.hexToRgbArray('#843179').join(', ')}, 0.1)`,
-          strokeColor: '#843179', // $color-plum
-        },
-      ] as SeriesOptions[],
+      chartTrafficCategoryActive: true,
+      chartStatusClassActive: true,
     }
   },
   computed: {
@@ -176,7 +150,12 @@ export default defineComponent({
       const end = sortedData[sortedData.length - 1].timestamp
       let sortedDataGrouped
       const timeDiff = new Date(end).getTime() - new Date(start).getTime()
-      if (timeDiff < 2000) { // if data contains less than 2 seconds
+      if (timeDiff < 10) { // if data contains less than 10 milliseconds
+        sortedDataGrouped = _.groupBy(sortedData, (event: EventLog) => {
+          const splitTime = event.timestamp.split('.')
+          return `${splitTime[0]}.${splitTime[1].slice(0, 4)}`
+        })
+      } else if (timeDiff < 2000) { // if data contains less than 2 seconds
         sortedDataGrouped = _.groupBy(sortedData, (event: EventLog) => {
           const splitTime = event.timestamp.split('.')
           return `${splitTime[0]}.${splitTime[1].slice(0, 2)}`
@@ -191,6 +170,9 @@ export default defineComponent({
           return time.split(':').slice(0, 2).join(':')
         })
       }
+      const existingStatusKeys = _.uniq(_.map(this.data, (event: EventLog) => {
+        return event['response_code'].toString().charAt(0)
+      })).sort()
       _.forEach(sortedDataGrouped, (events: EventLog[], key: string) => {
         const hits = events.length
         const passed = _.filter(events, (event: EventLog) => {
@@ -208,6 +190,13 @@ export default defineComponent({
         const bots = _.filter(events, (event: EventLog) => {
           return event.tags.includes('bot')
         })
+        const statusesObject: GenericObject = {}
+        for (const statusKey of existingStatusKeys) {
+          const matchingEvents = _.filter(events, (event: EventLog) => {
+            return event['response_code'].toString().startsWith(statusKey)
+          })
+          statusesObject[`${statusKey}xx`] = matchingEvents.length > 0 ? matchingEvents.length : 0
+        }
         returnArray.push({
           timeframe: new Date(key).getTime(),
           hits: hits > 0 ? hits : 0,
@@ -216,8 +205,87 @@ export default defineComponent({
           reported: reported.length > 0 ? reported.length : 0,
           humans: humans.length > 0 ? humans.length : 0,
           bots: bots.length > 0 ? bots.length : 0,
+          ...statusesObject,
         })
       })
+      return returnArray
+    },
+
+    trafficChartSeriesOptions(): SeriesOptions[] {
+      let returnArray: SeriesOptions[] = []
+      if (this.chartTrafficCategoryActive) {
+        returnArray = [
+          {
+            title: 'Hits',
+            fieldName: 'hits',
+            show: true,
+            drawStyle: 'spline',
+            fillColor: `rgba(${Utils.hexToRgbArray(TRAFFIC_COLORS['hits']).join(', ')}, 0.1)`,
+            strokeColor: TRAFFIC_COLORS['hits'],
+          },
+          {
+            title: 'Passed',
+            fieldName: 'passed',
+            show: true,
+            drawStyle: 'spline',
+            fillColor: `rgba(${Utils.hexToRgbArray(TRAFFIC_COLORS['passed']).join(', ')}, 0.1)`,
+            strokeColor: TRAFFIC_COLORS['passed'],
+          },
+          {
+            title: 'Reported',
+            fieldName: 'reported',
+            show: true,
+            drawStyle: 'spline',
+            fillColor: `rgba(${Utils.hexToRgbArray(TRAFFIC_COLORS['reported']).join(', ')}, 0.1)`,
+            strokeColor: TRAFFIC_COLORS['reported'],
+          },
+          {
+            title: 'Blocked',
+            fieldName: 'blocked',
+            show: true,
+            drawStyle: 'spline',
+            fillColor: `rgba(${Utils.hexToRgbArray(TRAFFIC_COLORS['blocked']).join(', ')}, 0.1)`,
+            strokeColor: TRAFFIC_COLORS['blocked'],
+          },
+          {
+            title: 'Humans',
+            fieldName: 'humans',
+            show: true,
+            drawStyle: 'spline',
+            fillColor: `rgba(${Utils.hexToRgbArray(TRAFFIC_COLORS['humans']).join(', ')}, 0.1)`,
+            strokeColor: TRAFFIC_COLORS['humans'],
+          },
+          {
+            title: 'Bots',
+            fieldName: 'bots',
+            show: true,
+            drawStyle: 'spline',
+            fillColor: `rgba(${Utils.hexToRgbArray(TRAFFIC_COLORS['bots']).join(', ')}, 0.1)`,
+            strokeColor: TRAFFIC_COLORS['bots'],
+          },
+        ]
+      }
+      if (this.chartStatusClassActive) {
+        const emptySeriesOption: SeriesOptions = {
+          title: '',
+          fieldName: '',
+          show: true,
+          drawStyle: 'spline',
+          fillColor: '',
+          strokeColor: '',
+        }
+        const statusKeys = _.uniq(_.map(this.data, (event: EventLog) => {
+          return `${event['response_code'].toString().charAt(0)}xx`
+        })).sort()
+        for (const key of statusKeys) {
+          const seriesOption = _.cloneDeep(emptySeriesOption)
+          seriesOption.title = key
+          seriesOption.fieldName = key
+          seriesOption.fillColor = `rgba(${Utils.hexToRgbArray(this.getStatusColor(key)).join(', ')}, 0.1)`
+          seriesOption.strokeColor = this.getStatusColor(key)
+          returnArray.push(seriesOption)
+        }
+      }
       return returnArray
     },
 
@@ -300,12 +368,26 @@ export default defineComponent({
       ])
       return !event.reason && triggers > 0
     },
+
+    getStatusColor(status: string) {
+      for (const [key, value] of Object.entries(STATUS_COLORS)) {
+        if (status.startsWith(key)) {
+          return value
+        }
+      }
+      return `#000`
+    },
   },
 })
 </script>
 <style scoped
        lang="scss">
 @import 'src/assets/styles/colors';
+
+.active-traffic-category-checkbox,
+.active-status-class-checkbox {
+  vertical-align: bottom;
+}
 
 .bar {
   display: flex;

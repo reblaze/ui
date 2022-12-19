@@ -508,7 +508,7 @@ export default defineComponent({
             title: 'Status Code',
             fieldNames: ['params'],
             displayFunction: (item: CustomResponse) => {
-              return item?.params?.status || null
+              return item?.params?.status || ''
             },
             isSortable: true,
             isSearchable: true,

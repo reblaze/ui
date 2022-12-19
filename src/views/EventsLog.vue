@@ -1,8 +1,10 @@
 <template>
   <div class="events-log-wrapper card-content is-fullwidth is-size-7">
-    <div class="media mb-0 filter-wrapper">
+    <div class="media filter-wrapper"
+         :class="{collapsed: filterCollapsed}"
+         :style="`height: ${filterHeight}px`">
       <div class="media-content">
-        <div class="field is-grouped">
+        <div class="field is-grouped filter">
           <div class="control search-wrapper">
             <textarea class="textarea is-small is-fullwidth filter-textarea"
                       v-model="searchFilter"
@@ -56,19 +58,42 @@
             </div>
           </div>
         </div>
-        <div v-if="!isSearchLoading && data?.length > 0">
-          {{ data.length }} EVENTS
-          <span v-if="groupBy.length"
-                class="group-by-label">
-            {{ groupedByLabel }}
-            <span class="is-clickable px-1"
-                  @click="clearGroupByProperty()">
-              <i class="fas fa-times"></i>
+        <div class="is-flex is-justify-content-space-between">
+          <div class="is-inline-block events-description"
+               v-show="!isSearchLoading && data?.length > 0">
+            <span>
+              {{ data.length }} EVENTS
             </span>
-          </span>
-          <span v-else>
-            ungrouped by any category
-          </span>
+            <span v-if="groupBy.length"
+                  class="group-by-label">
+              {{ groupedByLabel }}
+              <span class="is-clickable px-1"
+                    @click.stop="clearGroupByProperty()">
+                <i class="fas fa-times"></i>
+              </span>
+            </span>
+            <span v-else>
+              ungrouped by any category
+            </span>
+          </div>
+          <button class="button is-small is-inline-block width-80px expand-filter-button"
+                  @click="filterCollapsed = !filterCollapsed"
+                  :title="filterCollapsed ? 'Expand filter' : 'Collapse filter'"
+                  data-qa="expand-filter-button">
+            <span class="icon is-small">
+              <span v-show="filterCollapsed">
+                <i class="fas fa-angle-down"
+                   aria-hidden="true"></i>
+              </span>
+              <span v-show="!filterCollapsed">
+                <i class="fas fa-angle-up"
+                   aria-hidden="true"></i>
+              </span>
+            </span>
+            <span>
+              Filter
+            </span>
+          </button>
         </div>
       </div>
     </div>
@@ -86,6 +111,7 @@
                           :group-property="groupBy[0]"
                           :add-to-summary-property="addToSummaryProperty"
                           :add-to-summary-inner-identifier="addToSummaryInnerIdentifier"
+                          :filter-height="filterHeight"
                           @toggle-show-full-group="toggleShowFullGroup(groupIndex)"
                           @add-filter="addFilter"
                           @add-to-summary="addToSummary"
@@ -99,6 +125,7 @@
                           :group-property="groupBy[0]"
                           :add-to-summary-property="addToSummaryProperty"
                           :add-to-summary-inner-identifier="addToSummaryInnerIdentifier"
+                          :filter-height="filterHeight"
                           @add-filter="addFilter"
                           @add-to-summary="addToSummary"
                           @group-by="setGroupByProperty">
@@ -114,6 +141,7 @@
                           :group-property="groupBy[0]"
                           :add-to-summary-property="addToSummaryProperty"
                           :add-to-summary-inner-identifier="addToSummaryInnerIdentifier"
+                          :filter-height="filterHeight"
                           @add-filter="addFilter"
                           @add-to-summary="addToSummary"
                           @group-by="setGroupByProperty">
@@ -155,6 +183,7 @@ export default defineComponent({
     return {
       data: [] as EventLog[],
       searchFilter: '',
+      filterCollapsed: false,
       eventsLimitOptions: [200, 500, 1000, 1500, 2000, 2500],
       eventsLimit: 200,
       groupBy: [],
@@ -166,6 +195,10 @@ export default defineComponent({
     }
   },
   computed: {
+    filterHeight(): number {
+      return this.filterCollapsed ? 80 : 165
+    },
+
     groupedData(): Dictionary<EventLog[]> {
       if (this.groupBy.length === 2) {
         return _.groupBy(this.data, (dataItem: EventLog) => {
@@ -191,9 +224,6 @@ export default defineComponent({
     },
 
     groupedByLabel(): string {
-      if (!this.groupBy.length) {
-        return 'ungrouped by any category'
-      }
       let groupByText = ''
       if (this.groupBy[1]) {
         let value = this.groupBy[1].toUpperCase()
@@ -277,7 +307,11 @@ export default defineComponent({
             filterObject['key'] = key
           }
           // Number check
-          const isNumber = ['response_code', 'trigger_counters'].includes(filterObject['field'])
+          const isNumber = [
+            'processing_stage',
+            'response_code',
+            'trigger_counters',
+          ].includes(filterObject['field'])
           if (isNumber) {
             filterObject['op'] = 'eq'
             filterObject['value'] = Number(filterObject['value'])
@@ -349,6 +383,9 @@ export default defineComponent({
         url: `logs?limit=${this.eventsLimit}&filters=${query}`,
       })
       this.data = response?.data?.data?.results || []
+      if (this.data.length) {
+        this.filterCollapsed = true
+      }
       this.isSearchLoading = false
     },
 
@@ -399,13 +436,22 @@ export default defineComponent({
 @import 'src/assets/styles/colors';
 
 .filter-wrapper {
-  background: $color-white;
-  height: 150px;
+  background: $color-wild-sand;
+  border-bottom: 1px solid $color-wild-sand;
   margin: -1.5rem;
   padding: 1.5rem;
   position: sticky;
   top: 0;
   z-index: 11;
+}
+
+.filter-wrapper.collapsed .filter {
+  display: none;
+}
+
+.events-description {
+  margin-bottom: auto;
+  margin-top: auto;
 }
 
 .events-log-wrapper {
@@ -414,10 +460,10 @@ export default defineComponent({
 
 .search-wrapper {
   /*
-  (260px + 0.75rem) - width of datepicker and events dropdown + margin-right
+  (250px + 0.75rem) - width of datepicker and events dropdown + margin-right
   (80px + 0.75rem) - width of search and clear buttons + margin-right
   */
-  width: calc(100% - (260px + 0.75rem) - (80px + 0.75rem));
+  width: calc(100% - (250px + 0.75rem) - (80px + 0.75rem));
 }
 
 .filter-textarea {

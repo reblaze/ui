@@ -239,12 +239,12 @@
                              v-model="newEntryItem.secondAttr"/>
                       <span v-show="isCategoryArgsCookiesHeaders(newEntryCategory)"
                             class="icon is-small is-left has-text-grey-light">
-                <i class="fa fa-code"></i>
-              </span>
+                        <i class="fa fa-code"></i>
+                      </span>
                       <span v-show="!isCategoryArgsCookiesHeaders(newEntryCategory)"
                             class="icon is-small is-left has-text-grey-light">
-                <i class="fa fa-font"></i>
-              </span>
+                        <i class="fa fa-font"></i>
+                      </span>
                     </div>
                   </td>
                   <td class="is-size-7 width-80px">
