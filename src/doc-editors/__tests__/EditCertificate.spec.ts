@@ -2,7 +2,7 @@
 import EditCertificate from '@/doc-editors/popups/EditCertificate.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {mount, VueWrapper} from '@vue/test-utils'
-import RequestsUtils, {IRequestParams} from '../../assets/RequestsUtils'
+// import RequestsUtils, {IRequestParams} from '../../assets/RequestsUtils'
 import {nextTick} from 'vue'
 import {Certificate} from 'crypto'
 
@@ -24,8 +24,8 @@ describe('EditCertificate.vue', () => {
   let certificatesMock: Certificate[]
   let certificateMock: Certificate
   let sitesMock: Site[]
-  let mockRouter: any
-  let sendReblazeRequestSpy: any
+  // let mockRouter: any
+  // let sendReblazeRequestSpy: any
   let wrapper: VueWrapper
   beforeEach(async () => {
     loadBalancerMock = [
@@ -202,14 +202,14 @@ describe('EditCertificate.vue', () => {
       'subject': 'C=US, ST=New York, O=Kramerica Industries, L=New York, CN=kramericaindustries.kramericaindustries',
       'upload_time': '2022-10-20 17:21:46.982976',
     }
-    sendReblazeRequestSpy = jest.spyOn(RequestsUtils, 'sendReblazeRequest').mockImplementation(
+    /* sendReblazeRequestSpy = jest.spyOn(RequestsUtils, 'sendReblazeRequest').mockImplementation(
         (requestParams: IRequestParams) => {
           return Promise.resolve({data: []})
         },
     )
     mockRouter = {
       push: jest.fn(),
-    }
+    } */
     wrapper = mount(EditCertificate, {
       global: {
       },
