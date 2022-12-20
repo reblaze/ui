@@ -21,6 +21,7 @@ jest.mock('../../assets/RequestsUtils.ts')
 
 describe('GenerateCertificate.vue', () => {
   let sendReblazeRequestSpy: any
+  let mockRouter: any
   let wrapper: VueWrapper
   beforeEach(async () => {
     sendReblazeRequestSpy = jest.spyOn(RequestsUtils, 'sendReblazeRequest').mockImplementation(
@@ -28,8 +29,15 @@ describe('GenerateCertificate.vue', () => {
           return Promise.resolve({data: []})
         },
     )
+    mockRouter = {
+      push: jest.fn(),
+    }
     wrapper = mount(GenerateCertificate, {
       global: {
+        mocks: {
+          $route: mockRoute,
+          $router: mockRouter,
+        },
       },
       props: {
         selectedBranch: selectedBranch,

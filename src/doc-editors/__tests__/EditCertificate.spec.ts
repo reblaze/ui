@@ -24,6 +24,7 @@ describe('EditCertificate.vue', () => {
   let certificatesMock: Certificate[]
   let certificateMock: Certificate
   let sitesMock: Site[]
+  let mockRouter: any
   let sendReblazeRequestSpy: any
   let wrapper: VueWrapper
   beforeEach(async () => {
@@ -209,8 +210,15 @@ describe('EditCertificate.vue', () => {
           return Promise.resolve({data: []})
         },
     )
+    mockRouter = {
+      push: jest.fn(),
+    }
     wrapper = mount(EditCertificate, {
       global: {
+        mocks: {
+          $route: mockRoute,
+          $router: mockRouter,
+        },
       },
       props: {
         certificate: certificateMock,
