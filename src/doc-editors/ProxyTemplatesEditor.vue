@@ -787,7 +787,7 @@ export default defineComponent({
 
       planetID: null as string,
       planetName: null as string,
-      trustedData: null as TrustedSource[],
+      trustedData: [] as TrustedSource[],
       trustedSourcesColumns: [
         {
           title: 'IP',
@@ -1097,12 +1097,13 @@ export default defineComponent({
       const url = `configs/${this.selectedBranch}/d/planet/`
       const methodName = 'GET'
       const response = await RequestsUtils.sendReblazeRequest({methodName, url})
-      this.planetID = response.data.id
-      this.planetName = response.data.name
-      this.trustedData = response?.data?.trusted_nets?.map(
+      const data = response?.data || {}
+      this.planetID = data.id
+      this.planetName = data.name
+      this.trustedData = data.trusted_nets?.map(
         (trusted: { address: string, comment: string }, index: number) => {
           return {id: index, address: trusted.address, comment: trusted.comment}
-        })
+        }) || []
     },
 
     closeModal() {
@@ -1137,15 +1138,15 @@ export default defineComponent({
       this.isAddModalVisible = false
       this.isDeleteModalVisible = false
       this.currentEditIndex = id
-      this.sourceToAdd.address = this.trustedData[id].address
-      this.sourceToAdd.comment = this.trustedData[id].comment
+      this.sourceToAdd.address = this.trustedData[id]?.address
+      this.sourceToAdd.comment = this.trustedData[id]?.comment
       this.ipToAddIsValid = true
       this.isEditTrustedSource = true
     },
 
     editTrustedSource() {
-      this.trustedData[this.currentEditIndex].address = this.sourceToAdd.address
-      this.trustedData[this.currentEditIndex].comment = this.sourceToAdd.comment
+      this.trustedData[this.currentEditIndex]?.address = this.sourceToAdd.address
+      this.trustedData[this.currentEditIndex]?.comment = this.sourceToAdd.comment
       this.isEditTrustedSource = false
     },
 
