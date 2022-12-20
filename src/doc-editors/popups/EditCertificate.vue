@@ -7,7 +7,7 @@
               :title="certificate.name">
             Edit certificate - {{ certificate.name }}
           </h5>
-          <button class="delete"
+          <button class="close-modal delete"
                   aria-label="close"
                   @click="resetEditModal"/>
         </header>
@@ -16,7 +16,7 @@
                class="control content is-small mb-2">
             Connected sites:
             <input :value="getConnectedSitesForEditCert"
-                   class="input is-small"
+                   class="input is-small connected-sites"
                    :title="getConnectedSitesForEditCert"
                    type="text"
                    disabled>
@@ -24,7 +24,7 @@
           <div class="control content is-small mb-2">
             Certificate subject:
             <input :value="localCert.subject"
-                   class="input is-small"
+                   class="input is-small subject"
                    :title="localCert.subject"
                    type="text"
                    disabled>
@@ -32,7 +32,7 @@
           <div class="control content is-small mb-2">
             Certificate issuer:
             <input :value="localCert.issuer"
-                   class="input is-small"
+                   class="input is-small issuer"
                    :title="localCert.issuer"
                    type="text"
                    disabled>
@@ -40,7 +40,7 @@
           <div class="control content is-small mb-2">
             SAN:
             <input :value="localCert.san.toString()"
-                   class="input is-small"
+                   class="input is-small san"
                    :title="localCert.san.toString()"
                    type="text"
                    disabled>
@@ -48,7 +48,7 @@
           <div class="control content is-small mb-2">
             Certificate body:
             <textarea v-html="localCert.cert_body"
-                      class="textarea is-small cert-body"
+                      class="textarea is-small certificate-body"
                       disabled/>
           </div>
           <div v-if="certCanReplaceByLE"
@@ -57,7 +57,7 @@
               <input type="checkbox"
                      v-model="localCert.le_auto_replace"
                      @change="updateLetsEncrypt = !updateLetsEncrypt"
-                     class="mr-1">
+                     class="mr-1 lets-encrypt">
               Auto Replacement by&nbsp;
               <a href="https://letsencrypt.org"
                  target="_blank">
@@ -80,18 +80,19 @@
           <div class="edit-cert-action-container">
             <div v-if="isAttachSelectedOnEdit">
               <div class="field">
-                <div class="is-size-7 pl-1">
+                <div class="is-size-7 pl-1 selected-apps-number">
                   {{ selectedAppsLabel }}
                 </div>
                 <select v-model="selectedApps"
-                        class="width-400px"
+                        class="width-400px multi-select"
                         multiple
                         title="Select links"
                         :loading="isLoading"
                         :option-height="10">
                   <option v-for="site in sites"
                           :key="site.id"
-                          :value="site">
+                          :value="site"
+                          class="option-multiselect">
                     {{ site.name }}
                   </option>
                 </select>
@@ -140,7 +141,7 @@
             </button>
             <button @click="saveChanges"
                     :disabled="isSaveEditDisabled"
-                    class="button is-small"
+                    class="button is-small save-button"
                     :class="{ 'is-loading': isLoading }">
               Save
             </button>
@@ -160,7 +161,6 @@ import {defineComponent, PropType} from 'vue'
 export default defineComponent({
   props: {
     certificate: Object as PropType<Certificate>,
-    loadBalancer: Object as PropType<Balancer>,
     sites: Array as PropType<Site[]>,
     selectedBranch: String,
     balancers: Array as PropType<Balancer[]>,
@@ -278,7 +278,7 @@ export default defineComponent({
 
     getConnectedSitesForEditCert(): string {
       if (this.sitesByCertNameMap[this.localCert.id]) {
-        return this.sitesByCertNameMap[this.localCert.id].join(' , ')
+        return this.sitesByCertNameMap[this.localCert.id].join(', ')
       }
       return ''
     },
@@ -367,3 +367,12 @@ export default defineComponent({
   },
 })
 </script>
+<style scoped lang="scss">
+.modal-card-head {
+  display: flex;
+}
+
+.modal-card-title {
+  flex-shrink: 1;
+}
+</style>

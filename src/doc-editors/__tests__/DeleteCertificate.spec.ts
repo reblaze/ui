@@ -84,7 +84,7 @@ describe('DeleteCertificate.vue', () => {
   })
 
   test('should close the modal on X button', async () => {
-    const xButton = wrapper.find('.close-delete-modal')
+    const xButton = wrapper.find('.close-modal')
     await xButton.trigger('click')
     expect(wrapper.emitted('close-modal')).toBeTruthy()
   })
