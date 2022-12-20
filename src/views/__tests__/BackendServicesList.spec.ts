@@ -147,25 +147,6 @@ describe('BackendServicesList.vue', () => {
       await nextTick()
       expect(wrapper.vm.backendServices).toEqual([])
     })
-
-    test('should default to empty array when receiving a rejected promise', async () => {
-      jest.spyOn(RequestsUtils, 'sendReblazeRequest').mockImplementation(() => {
-        return Promise.reject(new Error())
-      })
-      wrapper = shallowMount(BackendServicesList, {
-        global: {
-          mocks: {
-            $route: mockRoute,
-            $router: mockRouter,
-          },
-          plugins: [createTestingPinia()],
-        },
-      })
-      const store = useBranchesStore()
-      store.selectedBranchId = selectedBranch
-      await nextTick()
-      expect(wrapper.vm.backendServices).toEqual([])
-    })
   })
 
   describe('loading indicator', () => {

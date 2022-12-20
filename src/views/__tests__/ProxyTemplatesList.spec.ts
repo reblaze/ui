@@ -147,25 +147,6 @@ describe('ProxyTemplatesList.vue', () => {
       await nextTick()
       expect(wrapper.vm.proxyTemplates).toEqual([])
     })
-
-    test('should default to empty array when receiving a rejected promise', async () => {
-      jest.spyOn(RequestsUtils, 'sendReblazeRequest').mockImplementation(() => {
-        return Promise.reject(new Error())
-      })
-      wrapper = shallowMount(ProxyTemplatesList, {
-        global: {
-          mocks: {
-            $route: mockRoute,
-            $router: mockRouter,
-          },
-          plugins: [createTestingPinia()],
-        },
-      })
-      const store = useBranchesStore()
-      store.selectedBranchId = selectedBranch
-      await nextTick()
-      expect(wrapper.vm.proxyTemplates).toEqual([])
-    })
   })
 
   describe('loading indicator', () => {
