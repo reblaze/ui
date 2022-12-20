@@ -28,9 +28,6 @@ describe('GenerateCertificate.vue', () => {
           return Promise.resolve({data: []})
         },
     )
-    mockRouter = {
-      push: jest.fn(),
-    }
     wrapper = mount(GenerateCertificate, {
       global: {
       },

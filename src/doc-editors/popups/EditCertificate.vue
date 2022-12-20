@@ -57,7 +57,7 @@
               <input type="checkbox"
                      v-model="localCert.le_auto_replace"
                      @change="updateLetsEncrypt = !updateLetsEncrypt"
-                     class="mr-1">
+                     class="mr-1 lets-encrypt">
               Auto Replacement by&nbsp;
               <a href="https://letsencrypt.org"
                  target="_blank">
@@ -80,18 +80,19 @@
           <div class="edit-cert-action-container">
             <div v-if="isAttachSelectedOnEdit">
               <div class="field">
-                <div class="is-size-7 pl-1">
+                <div class="is-size-7 pl-1 selected-apps-number">
                   {{ selectedAppsLabel }}
                 </div>
                 <select v-model="selectedApps"
-                        class="width-400px"
+                        class="width-400px multi-select"
                         multiple
                         title="Select links"
                         :loading="isLoading"
                         :option-height="10">
                   <option v-for="site in sites"
                           :key="site.id"
-                          :value="site">
+                          :value="site"
+                          class="option-multiselect">
                     {{ site.name }}
                   </option>
                 </select>
@@ -140,7 +141,7 @@
             </button>
             <button @click="saveChanges"
                     :disabled="isSaveEditDisabled"
-                    class="button is-small"
+                    class="button is-small save-button"
                     :class="{ 'is-loading': isLoading }">
               Save
             </button>
@@ -277,7 +278,7 @@ export default defineComponent({
 
     getConnectedSitesForEditCert(): string {
       if (this.sitesByCertNameMap[this.localCert.id]) {
-        return this.sitesByCertNameMap[this.localCert.id].join(' , ')
+        return this.sitesByCertNameMap[this.localCert.id].join(', ')
       }
       return ''
     },
@@ -366,3 +367,12 @@ export default defineComponent({
   },
 })
 </script>
+<style scoped lang="scss">
+.modal-card-head {
+  display: flex;
+}
+
+.modal-card-title {
+  flex-shrink: 1;
+}
+</style>

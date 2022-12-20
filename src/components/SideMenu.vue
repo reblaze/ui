@@ -350,5 +350,9 @@ $branch-management-wrapper-margin-bottom: 0.75rem;
     font-size: 0.75rem;
     line-height: 0.5rem;
   }
+
+  :deep(.v-sidebar-menu) {
+    z-index: 1;
+  }
 }
 </style>

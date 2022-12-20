@@ -2,7 +2,7 @@
 import EditCertificate from '@/doc-editors/popups/EditCertificate.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {mount, VueWrapper} from '@vue/test-utils'
-// import RequestsUtils, {IRequestParams} from '../../assets/RequestsUtils'
+import RequestsUtils, {IRequestParams} from '../../assets/RequestsUtils'
 import {nextTick} from 'vue'
 import {Certificate} from 'crypto'
 
@@ -25,7 +25,7 @@ describe('EditCertificate.vue', () => {
   let certificateMock: Certificate
   let sitesMock: Site[]
   // let mockRouter: any
-  // let sendReblazeRequestSpy: any
+  let sendReblazeRequestSpy: any
   let wrapper: VueWrapper
   beforeEach(async () => {
     loadBalancerMock = [
@@ -202,12 +202,15 @@ describe('EditCertificate.vue', () => {
       'subject': 'C=US, ST=New York, O=Kramerica Industries, L=New York, CN=kramericaindustries.kramericaindustries',
       'upload_time': '2022-10-20 17:21:46.982976',
     }
-    /* sendReblazeRequestSpy = jest.spyOn(RequestsUtils, 'sendReblazeRequest').mockImplementation(
+    sendReblazeRequestSpy = jest.spyOn(RequestsUtils, 'sendReblazeRequest').mockImplementation(
         (requestParams: IRequestParams) => {
+          if (requestParams.url === `configs/${selectedBranch}/d/certificates/e/placeholder?le_auto_renew=false&le_auto_replace=true`) {
+            return Promise.resolve({data: certificateMock})
+          }
           return Promise.resolve({data: []})
         },
     )
-    mockRouter = {
+    /* mockRouter = {
       push: jest.fn(),
     } */
     wrapper = mount(EditCertificate, {
@@ -231,6 +234,25 @@ describe('EditCertificate.vue', () => {
   test('should close the modal on X button', async () => {
     const xButton = wrapper.find('.close-modal')
     await xButton.trigger('click')
+    expect(wrapper.emitted('close-modal')).toBeTruthy()
+  })
+
+  test('should check the lets encrypt', async () => {
+    const letsEncryptCheckbox = wrapper.find('.lets-encrypt')
+    await letsEncryptCheckbox.setChecked()
+    expect(letsEncryptCheckbox.element.checked).toBeTruthy()
+  })
+
+  test('should check the lets encrypt and save the editation', async () => {
+    const letsEncryptCheckbox = wrapper.find('.lets-encrypt')
+    await letsEncryptCheckbox.setChecked()
+    const saveButton = wrapper.find('.save-button')
+    await saveButton.trigger('click')
+    expect(sendReblazeRequestSpy).toHaveBeenCalled()
+    expect(sendReblazeRequestSpy).toHaveBeenCalledWith(expect.objectContaining({
+      url: expect.stringMatching(`configs/${selectedBranch}/d/certificates/e/`),
+    }))
+    expect(wrapper.emitted('call-loaders')).toBeTruthy()
     expect(wrapper.emitted('close-modal')).toBeTruthy()
   })
 
@@ -295,6 +317,166 @@ describe('EditCertificate.vue', () => {
     test('should display certificate body inside the input', () => {
       const certificateBody = wrapper.find('.certificate-body').element.value
       expect(certificateBody).toBe(certificateMock.cert_body)
+    })
+  })
+
+  describe('sites manipulations', () => {
+    test('should display 0 apps selected in the first load', () => {
+      certificateMock = {
+        'cert_body': '-----BEGIN CERTIFICATE-----\ntest-cert-1\n-----END CERTIFICATE-----\n',
+        'exp_date': '2027-06-09',
+        'id': 'test-id',
+        'issuer': 'C=US, ST=New York, O=Kramerica Industries, L=New York, CN=kramericaindustries.kramericaindustries',
+        'le_auto_renew': false,
+        'le_auto_replace': false,
+        'le_hash': '',
+        'links': [
+          {
+            'link': 'arn:aws:acm:eu-west-1:588266063552:certificate/e2d3af86-60b7-4d46-a3d2-5b6b1f7b0323',
+            'provider': 'aws',
+            'region': 'eu-west-1',
+          },
+        ],
+        'name': 'test-certificate-name-1',
+        'san': ['san-test-1'],
+        'subject': 'C=US, ST=New York, O=Kramerica Industries, L=New York, CN=kramericaindustries.kramericaindustries',
+        'upload_time': '2022-10-20 17:21:46.982976',
+      }
+      wrapper = mount(EditCertificate, {
+        global: {
+        },
+        props: {
+          certificate: certificateMock,
+          sites: sitesMock,
+          selectedBranch: selectedBranch,
+          balancers: loadBalancerMock,
+          certificates: certificatesMock,
+        },
+      })
+      const selectedAppsNumber = wrapper.find('.selected-apps-number')
+      expect(selectedAppsNumber.text()).toBe('0 apps selected')
+    })
+
+    test('should not attach sites to certificatein the first load by default', () => {
+      certificateMock = {
+        'cert_body': '-----BEGIN CERTIFICATE-----\ntest-cert-1\n-----END CERTIFICATE-----\n',
+        'exp_date': '2027-06-09',
+        'id': 'test-id',
+        'issuer': 'C=US, ST=New York, O=Kramerica Industries, L=New York, CN=kramericaindustries.kramericaindustries',
+        'le_auto_renew': false,
+        'le_auto_replace': false,
+        'le_hash': '',
+        'links': [
+          {
+            'link': 'arn:aws:acm:eu-west-1:588266063552:certificate/e2d3af86-60b7-4d46-a3d2-5b6b1f7b0323',
+            'provider': 'aws',
+            'region': 'eu-west-1',
+          },
+        ],
+        'name': 'test-certificate-name-1',
+        'san': ['san-test-1'],
+        'subject': 'C=US, ST=New York, O=Kramerica Industries, L=New York, CN=kramericaindustries.kramericaindustries',
+        'upload_time': '2022-10-20 17:21:46.982976',
+      }
+      wrapper = mount(EditCertificate, {
+        global: {
+        },
+        props: {
+          certificate: certificateMock,
+          sites: sitesMock,
+          selectedBranch: selectedBranch,
+          balancers: loadBalancerMock,
+          certificates: certificatesMock,
+        },
+      })
+      const firstOptionMultiselect = wrapper.findAll('.option-multiselect').at(0)?.element.selected
+      const secondOptionMultiselect = wrapper.findAll('.option-multiselect').at(1)?.element.selected
+      const thirdOptionMultiselect = wrapper.findAll('.option-multiselect').at(2)?.element.selected
+      expect(firstOptionMultiselect).toBeFalsy()
+      expect(secondOptionMultiselect).toBeFalsy()
+      expect(thirdOptionMultiselect).toBeFalsy()
+    })
+
+    test('should attach one site to certificate and select it by default', () => {
+      const firstOptionMultiselect = wrapper.findAll('.option-multiselect').at(0)?.element.selected
+      const secondOptionMultiselect = wrapper.findAll('.option-multiselect').at(1)?.element.selected
+      const thirdOptionMultiselect = wrapper.findAll('.option-multiselect').at(2)?.element.selected
+      expect(firstOptionMultiselect).toBeTruthy()
+      expect(secondOptionMultiselect).toBeFalsy()
+      expect(thirdOptionMultiselect).toBeFalsy()
+    })
+
+    test('should attach two sites to certificate and select it by default', () => {
+      sitesMock = [
+        {
+          'id': '__default__',
+          'mobile_sdk': '',
+          'name': 'test-site-1',
+          'proxy_template': '__default__',
+          'routing_profile': '__default__',
+          'security_policy': '__default__',
+          'server_names': [
+            'fire-asd.rbzdevavih002ohbs.dev.rbzdns.com',
+          ],
+          'ssl_certificate': 'placeholder',
+        },
+        {
+          'description': 'New Site Description and Remarks',
+          'id': '90e76f075a82',
+          'mobile_sdk': '',
+          'name': 'test-site-2',
+          'proxy_template': '__default__',
+          'routing_profile': '__default__',
+          'security_policy': '__default__',
+          'server_names': [
+            'www.example.com',
+          ],
+          'ssl_certificate': 'placeholder',
+        },
+        {
+          'description': 'New Site Description and Remarks',
+          'id': '6523f661e2e3',
+          'mobile_sdk': '',
+          'name': 'test-site-3',
+          'proxy_template': '__default__',
+          'routing_profile': '__default__',
+          'security_policy': '__default__',
+          'server_names': [
+            'www.example.com',
+          ],
+          'ssl_certificate': 'd8ad5b1156c0',
+        },
+        {
+          'description': 'New Site Description and Remarks 4',
+          'id': '6523f661e2e4',
+          'mobile_sdk': '',
+          'name': 'test-site-4',
+          'proxy_template': '__default__4',
+          'routing_profile': '__default__4',
+          'security_policy': '__default__4',
+          'server_names': [
+            'www.example4.com',
+          ],
+          'ssl_certificate': '',
+        },
+      ]
+      wrapper = mount(EditCertificate, {
+        global: {
+        },
+        props: {
+          certificate: certificateMock,
+          sites: sitesMock,
+          selectedBranch: selectedBranch,
+          balancers: loadBalancerMock,
+          certificates: certificatesMock,
+        },
+      })
+      const firstOptionMultiselect = wrapper.findAll('.option-multiselect').at(0)?.element.selected
+      const secondOptionMultiselect = wrapper.findAll('.option-multiselect').at(1)?.element.selected
+      const thirdOptionMultiselect = wrapper.findAll('.option-multiselect').at(2)?.element.selected
+      expect(firstOptionMultiselect).toBeTruthy()
+      expect(secondOptionMultiselect).toBeTruthy()
+      expect(thirdOptionMultiselect).toBeFalsy()
     })
   })
 })
