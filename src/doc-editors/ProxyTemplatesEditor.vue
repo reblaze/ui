@@ -1145,14 +1145,6 @@ export default defineComponent({
     },
 
     editTrustedSource() {
-      // Might not be needed, failsafe for now
-      if (!this.trustedData[this.currentEditIndex]) {
-        this.trustedData[this.currentEditIndex] = {
-          id: DatasetsUtils.generateUUID2(),
-          address: '',
-          comment: '',
-        } as TrustedSource
-      }
       this.trustedData[this.currentEditIndex].address = this.sourceToAdd.address
       this.trustedData[this.currentEditIndex].comment = this.sourceToAdd.comment
       this.isEditTrustedSource = false
