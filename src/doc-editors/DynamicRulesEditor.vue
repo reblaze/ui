@@ -41,7 +41,7 @@
             <div class="field is-grouped is-pulled-right">
               <p class="control">
                 <button
-                  class="button is-small new-dynamic-rule-document-button"
+                  class="button is-small new-document-button"
                   :class="{'is-loading': isNewLoading}"
                   @click="addNewDynamicRule()"
                   title="Add new document"
@@ -70,7 +70,7 @@
               </p>
               <p class="control">
                 <button
-                  class="button is-small download-doc-button"
+                  class="button is-small download-document-button"
                   :class="{'is-loading': isDownloadLoading}"
                   @click="downloadDoc()"
                   title="Download document"
@@ -115,7 +115,7 @@
     <hr/>
     <div
       class="content"
-      v-if="!loadingDocCounter && selectedBranch && selectedDynamicRule && localGlobalFilterDoc && docs">
+      v-if="!loadingDocCounter && selectedBranch && selectedDynamicRule && localGlobalFilterDoc">
       <div class="columns columns-divided">
         <div class="column is-5">
           <div class="field">
@@ -239,7 +239,7 @@
               Quarantine Time
             </label>
             <div class="control suffix seconds-suffix">
-              <input class="input is-small document-quarantine time"
+              <input class="input is-small document-quarantine-time"
                      data-qa="dynamic-rules-quarantine time-input"
                      type="number"
                      title="Dynamic Rule quarantine time"
@@ -259,7 +259,7 @@
           </div>
         </div>
         <div class="column is-7">
-          <div class="columns">
+          <div class="columns filter-columns">
             <div
               class="column is-6 filter-column"
               v-for="filter in filters"
@@ -329,7 +329,7 @@
     </div>
     <div
       class="content no-data-wrapper"
-      v-if="loadingDocCounter || !selectedBranch || !selectedDynamicRule || !docs">
+      v-if="loadingDocCounter || !selectedBranch || !selectedDynamicRule">
       <div v-if="loadingDocCounter > 0">
         <button class="button is-outlined is-text is-small is-loading document-loading">
           Loading
@@ -370,7 +370,6 @@ import DatasetsUtils from '@/assets/DatasetsUtils'
 
 export default defineComponent({
   name: 'DynamicRulesEditor',
-  props: {},
   components: {
     TagAutocompleteInput,
   },
@@ -760,7 +759,7 @@ export default defineComponent({
 
     downloadDoc() {
       if (!this.isDownloadLoading) {
-        Utils.downloadFile('dynamic-rules', 'json', this.selectedDynamicRule)
+        Utils.downloadFile('dynamic-rule', 'json', this.selectedDynamicRule)
       }
     },
 

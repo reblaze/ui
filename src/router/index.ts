@@ -309,7 +309,7 @@ const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: '/:branch/events-log',
+        path: ':branch/events-log',
         name: 'EventsLog',
         component: EventsLog,
         meta: {
@@ -317,7 +317,7 @@ const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: 'premium',
+        path: ':branch/premium',
         name: 'Premium',
         component: PremiumPage,
         meta: {
@@ -333,7 +333,7 @@ const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: '/:branch/quarantined',
+        path: ':branch/quarantined',
         name: 'Quarantined',
         component: QuarantinedList,
         meta: {
@@ -341,7 +341,7 @@ const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: '/:branch/system-db',
+        path: ':branch/system-db',
         name: 'SystemDBEditor',
         component: SystemDBEditor,
         meta: {
@@ -349,7 +349,7 @@ const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: '/:branch/support',
+        path: ':branch/support',
         name: 'Support',
         component: HelpAndSupport,
         meta: {

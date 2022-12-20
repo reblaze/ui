@@ -4,7 +4,7 @@
       <div class="media-content">
         <div class="field is-grouped is-pulled-right">
           <p class="control">
-            <button class="button is-small download-doc-button"
+            <button class="button is-small download-document-button"
                     :class="{'is-loading':isDownloadLoading}"
                     @click="downloadDoc()"
                     title="Download document"
@@ -192,7 +192,7 @@ export default defineComponent({
 
     downloadDoc() {
       if (!this.isDownloadLoading) {
-        Utils.downloadFile('backends', 'json', this.backendServices)
+        Utils.downloadFile('backend-services', 'json', this.backendServices)
       }
     },
 
@@ -201,15 +201,8 @@ export default defineComponent({
       this.isDownloadLoading = true
       const url = `configs/${this.selectedBranch}/d/backends/`
       const response = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
-      this.backendServices = response?.data
+      this.backendServices = response?.data || []
       this.isDownloadLoading = false
-      this.setLoadingDocStatus(false)
-    },
-
-    async switchBranch() {
-      this.setLoadingDocStatus(true)
-      Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
-      await this.loadBackendServices()
       this.setLoadingDocStatus(false)
     },
   },

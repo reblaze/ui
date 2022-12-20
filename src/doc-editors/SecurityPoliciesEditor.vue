@@ -496,7 +496,6 @@ export default defineComponent({
   props: {
     selectedDoc: Object,
     selectedBranch: String,
-    docs: Array,
     apiPath: String,
   },
 

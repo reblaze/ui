@@ -172,10 +172,10 @@ export default defineComponent({
   },
   watch: {
     selectedBranch: {
-      handler: function(val, oldVal) {
+      handler: async function(val, oldVal) {
         if ((this.$route.name as string).includes('Quarantined') && val && val !== oldVal) {
-          this.loadDynamicRules()
-          this.loadQuarantinedData()
+          await this.loadDynamicRules()
+          await this.loadQuarantinedData()
         }
       },
       immediate: true,

@@ -39,7 +39,7 @@
           <div class="column">
             <div class="field is-grouped is-pulled-right">
               <p class="control">
-                <button class="button is-small new-backends-document-button"
+                <button class="button is-small new-document-button"
                         :class="{'is-loading': isNewLoading}"
                         @click="addNewBackendService()"
                         title="Add new document"
@@ -53,7 +53,6 @@
                   </span>
                 </button>
               </p>
-
               <p class="control">
                 <button class="button is-small fork-document-button"
                         :class="{'is-loading': isForkLoading}"
@@ -70,7 +69,7 @@
                 </button>
               </p>
               <p class="control">
-                <button class="button is-small download-doc-button"
+                <button class="button is-small download-document-button"
                         :class="{'is-loading':isDownloadLoading}"
                         @click="downloadDoc()"
                         title="Download document"
@@ -194,8 +193,10 @@
             </label>
             <div class="control is-expanded">
               <div class="select is-fullwidth is-small">
-                <select class="select"
-                        v-model="selectedBackendService.sticky">
+                <select v-model="selectedBackendService.sticky"
+                        data-qa="load-balancing-stickiness-dropdown"
+                        class="document-load-balancing-stickiness-selection"
+                        title="Load balancing stickiness model">
                   <option v-for="stickinessModel in stickinessModels"
                           :key="stickinessModel.value"
                           :value="stickinessModel.value">
@@ -500,7 +501,7 @@ export default defineComponent({
 
     downloadDoc() {
       if (!this.isDownloadLoading) {
-        Utils.downloadFile('backend', 'json', this.selectedBackendService)
+        Utils.downloadFile('backend-service', 'json', this.selectedBackendService)
       }
     },
 

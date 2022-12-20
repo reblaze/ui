@@ -373,7 +373,7 @@ describe('DocumentList.vue', () => {
         const store = useBranchesStore()
         store.selectedBranchId = selectedBranch
         await nextTick()
-        const downloadDocButton = wrapper.find('.download-doc-button')
+        const downloadDocButton = wrapper.find('.download-document-button')
         await downloadDocButton.trigger('click')
         expect(downloadFileSpy).not.toHaveBeenCalled()
       })
@@ -390,7 +390,7 @@ describe('DocumentList.vue', () => {
         const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {
         })
         await nextTick()
-        const downloadDocButton = wrapper.find('.download-doc-button')
+        const downloadDocButton = wrapper.find('.download-document-button')
         await downloadDocButton.trigger('click')
         expect(downloadFileSpy).toHaveBeenCalledWith(wantedFileName, wantedFileType, wantedFileData)
         wrapper.setData({selectedDocType: originalDocType})

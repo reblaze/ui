@@ -1,99 +1,156 @@
 // @ts-nocheck
 import DynamicRulesEditor from '@/doc-editors/DynamicRulesEditor.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
-import {shallowMount, VueWrapper} from '@vue/test-utils'
-import {DynamicRule, GlobalFilter, CustomResponse} from '@/types'
-import axios from 'axios'
+import {mount, VueWrapper} from '@vue/test-utils'
+import {CustomResponse, DynamicRule, GlobalFilter} from '@/types'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
+import {createTestingPinia} from '@pinia/testing'
+import RequestsUtils, {IRequestParams} from '../../assets/RequestsUtils'
+import DatasetsUtils from '../../assets/DatasetsUtils'
+import Utils from '../../assets/Utils'
+import {useBranchesStore} from '../../stores/BranchesStore'
+import {nextTick} from 'vue'
+import _ = require('lodash')
 
+const selectedBranch = 'prod'
+const mockRoute = {
+  params: {
+    branch: selectedBranch,
+    doc_id: '665ea3c4ed60',
+  },
+  path: `/${selectedBranch}/dynamic-rules/config/665ea3c4ed60`,
+  name: 'DynamicRules/config',
+}
+jest.mock('vue-router', () => ({
+  useRoute: jest.fn(() => (mockRoute)),
+}))
+jest.mock('../../assets/RequestsUtils.ts')
 
-jest.mock('axios')
-
-// TODO: Resolve pinia integration with jest and remove this skip
-describe.skip('DynamicRulesEditor.vue', () => {
+describe('DynamicRulesEditor.vue', () => {
   let dynamicRulesDocs: DynamicRule[]
-  let globalFilterMatchingDoc: GlobalFilter[]
+  let globalFiltersDocs: GlobalFilter[]
   let customResponsesDocs: CustomResponse[]
   let mockRouter: any
   let wrapper: VueWrapper
-  let selectedBranch: string
-  beforeEach(() => {
-    dynamicRulesDocs = [{
-      'id': 'abc123',
-      'name': 'New Dynamic Rules',
-      'description': 'New Dynamic Rules Description and Remarks',
-      'timeframe': 180,
-      'threshold': 9999,
-      'include': ['all'],
-      'exclude': [],
-      'ttl': 7200,
-      'target': 'remote_addr',
-    }]
-    globalFilterMatchingDoc = [
+  let sendReblazeRequestSpy: any
+  beforeEach(async () => {
+    dynamicRulesDocs = [
       {
-        'id': 'dr_abc123',
-        'name': 'New Dynamic Rule abc123',
+        'active': true,
+        'description': 'New Dynamic Rule Description and Remarks 2',
+        'exclude': [],
+        'id': '665ea3c4ed60',
+        'include': ['all'],
+        'name': 'test dynamic rule ',
+        'target': 'ip',
+        'threshold': 2,
+        'timeframe': 3,
+        'ttl': 72000,
+      },
+      {
+        'active': false,
+        'description': 'New Dynamic Rule Description and Remarks',
+        'exclude': [],
+        'id': '28eddd47b516',
+        'include': ['all'],
+        'name': 'New Dynamic Rule 28eddd47b516',
+        'target': 'ip',
+        'threshold': 9999,
+        'timeframe': 1,
+        'ttl': 7200,
+      },
+    ]
+    globalFiltersDocs = [
+      {
+        'id': 'dr_665ea3c4ed60',
+        'name': 'Global Filter for Dynamic Rule 665ea3c4ed60',
         'source': 'self-managed',
         'mdate': '2020-05-23T00:04:41',
-        'description': 'Tag API Requests',
+        'description': '',
         'active': true,
         'tags': ['api', 'okay'],
         'action': 'action-dynamic-rule-block',
         'rule': {
           'relation': 'OR',
-          'entries': [
-            {'relation': 'OR', 'entries': [['ip', '1.1.1.1', null]]},
-            {'relation': 'OR', 'entries': [['ip', '2.2.2.2', null]]},
-            {'relation': 'OR', 'entries': [['headers', ['headerrr', 'valueeee'], 'anooo']]},
-          ],
+          'entries': [],
+        },
+      },
+      {
+        'id': 'dr_28eddd47b516',
+        'name': 'Global Filter for Dynamic Rule 28eddd47b516',
+        'source': 'self-managed',
+        'mdate': '2020-05-23T00:04:41',
+        'description': '',
+        'active': true,
+        'tags': ['api', 'okay'],
+        'action': 'action-dynamic-rule-block',
+        'rule': {
+          'relation': 'OR',
+          'entries': [],
         },
       },
     ]
     customResponsesDocs = [
       {
         'id': 'action-dynamic-rule-block',
-        'name': 'default monitoring action',
+        'name': 'Dynamic-rule block',
+      },
+      {
+        'id': 'action-monitor',
+        'name': 'monitor (tag only)',
       },
     ]
-    selectedBranch = 'prod'
-
+    sendReblazeRequestSpy = jest.spyOn(RequestsUtils, 'sendReblazeRequest').mockImplementation(
+      (requestParams: IRequestParams) => {
+        if (requestParams.url === `configs/${selectedBranch}/d/dynamic-rules/`) {
+          return Promise.resolve({data: _.cloneDeep(dynamicRulesDocs)})
+        }
+        if (requestParams.url === `configs/${selectedBranch}/d/dynamic-rules/e/665ea3c4ed60/`) {
+          return Promise.resolve({data: _.cloneDeep(dynamicRulesDocs[0])})
+        }
+        if (requestParams.url === `'configs/${selectedBranch}/d/dynamic-rules/e/28eddd47b516/`) {
+          return Promise.resolve({data: _.cloneDeep(dynamicRulesDocs[1])})
+        }
+        return Promise.resolve({data: []})
+      })
+    jest.spyOn(RequestsUtils, 'sendRequest').mockImplementation(
+      (requestParams: IRequestParams) => {
+        if (requestParams.url === `configs/${selectedBranch}/d/globalfilters/`) {
+          return Promise.resolve({data: _.cloneDeep(globalFiltersDocs)})
+        }
+        if (requestParams.url === `configs/${selectedBranch}/d/globalfilters/e/dr_665ea3c4ed60/`) {
+          return Promise.resolve({data: _.cloneDeep(globalFiltersDocs[0])})
+        }
+        if (requestParams.url === `configs/${selectedBranch}/d/globalfilters/e/dr_28eddd47b516/`) {
+          return Promise.resolve({data: _.cloneDeep(globalFiltersDocs[1])})
+        }
+        if (requestParams.url === `configs/${selectedBranch}/d/actions/`) {
+          return Promise.resolve({data: _.cloneDeep(customResponsesDocs)})
+        }
+        return Promise.resolve({data: []})
+      })
     mockRouter = {
       push: jest.fn(),
     }
-
-    jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path.includes('dynamic-rules')) {
-        return Promise.resolve({data: dynamicRulesDocs})
-      } else if (path.includes('globalfilters')) {
-        return Promise.resolve({data: globalFilterMatchingDoc})
-      } else if (path.includes('actions')) {
-        return Promise.resolve({data: customResponsesDocs})
-      }
-      return Promise.resolve({data: {}})
-    })
-    wrapper = shallowMount(DynamicRulesEditor, {
-      props: {
-        'selectedDoc': dynamicRulesDocs[0],
-        'selectedBranch': selectedBranch,
-        'selectedDocMatchingGlobalFilter': globalFilterMatchingDoc[0],
-      },
+    wrapper = mount(DynamicRulesEditor, {
       global: {
         mocks: {
+          $route: mockRoute,
           $router: mockRouter,
         },
+        plugins: [createTestingPinia()],
       },
     })
+    const store = useBranchesStore()
+    store.selectedBranchId = selectedBranch
+    await nextTick()
+  })
+  afterEach(() => {
+    jest.clearAllMocks()
+    jest.clearAllTimers()
   })
 
   describe('form data', () => {
-    afterEach(() => {
-      jest.clearAllMocks()
-      jest.clearAllTimers()
-    })
-
-    test('should have correct action list', () => {
-      expect(wrapper.vm.customResponseNames.length).toBeGreaterThan(0)
-    })
     test('should have correct ID displayed', () => {
       expect(wrapper.find('.document-id').text()).toEqual(dynamicRulesDocs[0].id)
     })
@@ -113,30 +170,14 @@ describe.skip('DynamicRulesEditor.vue', () => {
       expect(element.value).toEqual(dynamicRulesDocs[0].timeframe.toString())
     })
 
-    test('should have correct Threshold in input', () => {
+    test('should have correct threshold in input', () => {
       const element = wrapper.find('.document-threshold').element as HTMLInputElement
       expect(element.value).toEqual(dynamicRulesDocs[0].threshold.toString())
     })
 
-    test('should have correct time-span in input', () => {
-      const element = wrapper.find('.document-time-span').element as HTMLInputElement
+    test('should have correct quarantined time in input', () => {
+      const element = wrapper.find('.document-quarantine-time').element as HTMLInputElement
       expect(element.value).toEqual(dynamicRulesDocs[0].ttl.toString())
-    })
-
-    test('should not have any warning in the tags table when there are no duplicate tags', () => {
-      const tagsWithWarning = wrapper.findAll('.has-text-danger')
-      expect(tagsWithWarning.length).toEqual(0)
-    })
-
-    test('should emit correct data after input was changed', async () => {
-      const newDesciption = '4 new requests per minute'
-      const description = wrapper.find('.document-description')
-      description.value = newDesciption
-      await description.setValue(newDesciption)
-      await description.trigger('change')
-
-      expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
-      expect(wrapper.emitted('update:selectedDoc')[0][0].description).toContain(newDesciption)
     })
   })
 
@@ -154,7 +195,7 @@ describe.skip('DynamicRulesEditor.vue', () => {
           ],
         },
       }
-      jest.spyOn(axios, 'get').mockImplementation((path) => {
+      jest.spyOn(RequestsUtils, 'sendRequest').mockImplementation((path) => {
         if (path === `db/prod/k/autocomplete/`) {
           return Promise.resolve(tagsData)
         }
@@ -162,21 +203,85 @@ describe.skip('DynamicRulesEditor.vue', () => {
       })
     })
 
-
     test('should have tags input component with correct data', () => {
-      const tagAutocompleteInputComponent = wrapper.findAllComponents(TagAutocompleteInput).at(0)
-      expect(tagAutocompleteInputComponent.props('initialTag')).toEqual(globalFilterMatchingDoc[0].tags.join(' '))
+      const tagAutocompleteInputComponent = wrapper.findComponent(TagAutocompleteInput)
+      expect(tagAutocompleteInputComponent.props('initialTag')).toEqual(globalFiltersDocs[0].tags.join(' '))
     })
 
-    test('should emit doc update when adding tags', async () => {
-      const newTag = 'test-tag'
-      const newTagInputValue = `${globalFilterMatchingDoc[0].tags.join(' ')} ${newTag}`
-      const wantedEmit = JSON.parse(JSON.stringify(globalFilterMatchingDoc[0]))
-      wantedEmit.tags.push(newTag)
-      // add first
-      const tagAutocompleteInput = wrapper.findAllComponents(TagAutocompleteInput).at(0)
-      tagAutocompleteInput.vm.$emit('tag-changed', newTagInputValue)
-      expect(wrapper.emitted('update:selectedDocMatchingGlobalFilter')[0]).toEqual([wantedEmit])
+    test('should not have any warning in the tags table when there are no duplicate tags', () => {
+      const filterColumns = wrapper.find('.filter-columns')
+      const tagsWithWarning = filterColumns.findAll('.has-text-danger')
+      expect(tagsWithWarning.length).toEqual(0)
+    })
+  })
+
+  describe('buttons', () => {
+    test('should redirect to list on button click', (done) => {
+      jest.spyOn(mockRouter, 'push').mockImplementation((path) => {
+        expect(path).toEqual(`/${selectedBranch}/dynamic-rules/list`)
+        done()
+      })
+      const button = wrapper.find('.redirect-list-button')
+      button.trigger('click')
+    })
+
+    test('should be able to save document changes', () => {
+      const doc = wrapper.vm.selectedDynamicRule
+      doc.name = `${doc.name} changed`
+      const saveDocumentButton = wrapper.find('.save-document-button')
+      saveDocumentButton.trigger('click')
+      expect(sendReblazeRequestSpy).toHaveBeenCalledWith(expect.objectContaining({
+        methodName: 'PUT',
+        url: `configs/${selectedBranch}/d/dynamic-rules/e/${doc.id}/`,
+        data: doc,
+      }))
+    })
+
+    test('should be able to fork document', () => {
+      const originalDoc = wrapper.vm.selectedDynamicRule
+      const forkedDoc = {...originalDoc}
+      forkedDoc.id = expect.any(String)
+      forkedDoc.name = expect.stringMatching(`copy of ${forkedDoc.name}`)
+      const forkDocumentButton = wrapper.find('.fork-document-button')
+      forkDocumentButton.trigger('click')
+      expect(sendReblazeRequestSpy).toHaveBeenCalledWith(expect.objectContaining({
+        methodName: 'POST',
+        url: expect.stringMatching(`configs/${selectedBranch}/d/dynamic-rules/e/`),
+        data: forkedDoc,
+      }))
+    })
+
+    test('should be able to add a new document', () => {
+      const newDoc = DatasetsUtils.newDocEntryFactory['dynamic-rules']()
+      newDoc.name = expect.stringMatching('New Dynamic Rule')
+      newDoc.id = expect.any(String)
+      const newDocumentButton = wrapper.find('.new-document-button')
+      newDocumentButton.trigger('click')
+      expect(sendReblazeRequestSpy).toHaveBeenCalledWith(expect.objectContaining({
+        methodName: 'POST',
+        url: expect.stringMatching(`configs/${selectedBranch}/d/dynamic-rules/e/`),
+        data: newDoc,
+      }))
+    })
+
+    test('should be able to delete a document', async () => {
+      const deleteDocumentButton = wrapper.find('.delete-document-button')
+      await deleteDocumentButton.trigger('click')
+      expect(sendReblazeRequestSpy).toHaveBeenCalledWith(expect.objectContaining({
+        methodName: 'DELETE',
+        url: `configs/${selectedBranch}/d/dynamic-rules/e/${dynamicRulesDocs[0].id}/`,
+      }))
+    })
+
+    test('should attempt to download document when download button is clicked', async () => {
+      const wantedFileName = 'dynamic-rule'
+      const wantedFileType = 'json'
+      const wantedFileData = dynamicRulesDocs[0]
+      const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {
+      })
+      const downloadDocButton = wrapper.find('.download-document-button')
+      await downloadDocButton.trigger('click')
+      expect(downloadFileSpy).toHaveBeenCalledWith(wantedFileName, wantedFileType, wantedFileData)
     })
   })
 })

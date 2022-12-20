@@ -71,7 +71,7 @@
               </p>
 
               <p class="control">
-                <button class="button is-small download-doc-button"
+                <button class="button is-small download-document-button"
                         :class="{'is-loading':isDownloadLoading}"
                         @click="downloadDoc()"
                         title="Download document"

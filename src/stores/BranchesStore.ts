@@ -74,7 +74,7 @@ export const useBranchesStore = defineStore('branches', () => {
     _list.value = branchesList
   }
 
-  async function setSelectedBranch(id ?: Branch['id']) {
+  async function setSelectedBranch(id?: Branch['id']) {
     const branches = await list.value
     let newId = 'prod'
     if (id) {
@@ -93,7 +93,6 @@ export const useBranchesStore = defineStore('branches', () => {
   }
 
   return {
-    _list,
     list,
     selectedBranchId,
     selectedBranch,

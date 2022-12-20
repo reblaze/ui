@@ -4,7 +4,7 @@
       <div class="media-content">
         <div class="field is-grouped is-pulled-right">
           <p class="control">
-            <button class="button is-small download-doc-button"
+            <button class="button is-small download-document-button"
                     :class="{'is-loading':isDownloadLoading}"
                     @click="downloadDoc()"
                     title="Download document"
@@ -27,7 +27,7 @@
          v-show="!loadingDocCounter && selectedBranch">
       <div class="content">
         <rbz-table :columns="columns"
-                   :data="docs"
+                   :data="edgeFunctions"
                    :default-sort-column-index="1"
                    :show-menu-column="true"
                    :show-filter-button="true"
@@ -99,7 +99,7 @@ export default defineComponent({
       ] as ColumnOptions[],
       isNewLoading: false,
       titles: DatasetsUtils.titles,
-      docs: [],
+      edgeFunctions: [],
       loadingDocCounter: 0,
       isDownloadLoading: false,
       apiRoot: RequestsUtils.reblazeAPIRoot,
@@ -132,15 +132,14 @@ export default defineComponent({
   },
 
   methods: {
-
     async loadDocs() {
-      this.isDownloadLoading = true
       this.setLoadingDocStatus(true)
+      this.isDownloadLoading = true
       const url = `configs/${this.selectedBranch}/d/cloud-functions/`
       const response = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
-      this.docs = response?.data || []
-      this.setLoadingDocStatus(false)
+      this.edgeFunctions = response?.data || []
       this.isDownloadLoading = false
+      this.setLoadingDocStatus(false)
     },
 
     setLoadingDocStatus(isLoading: boolean) {
@@ -181,15 +180,8 @@ export default defineComponent({
 
     downloadDoc() {
       if (!this.isDownloadLoading) {
-        Utils.downloadFile('cloud-functions', 'json', this.docs)
+        Utils.downloadFile('cloud-functions', 'json', this.edgeFunctions)
       }
-    },
-
-    async switchBranch() {
-      this.setLoadingDocStatus(true)
-      Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
-      await this.loadDocs()
-      this.setLoadingDocStatus(false)
     },
   },
   async created() {

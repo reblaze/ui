@@ -4,7 +4,7 @@
       <div class="media-content">
         <div class="field is-grouped is-pulled-right">
           <p class="control">
-            <button class="button is-small download-doc-button"
+            <button class="button is-small download-document-button"
                     :class="{'is-loading':isDownloadLoading}"
                     @click="downloadDoc()"
                     title="Download document"
@@ -187,15 +187,8 @@ export default defineComponent({
       this.isDownloadLoading = true
       const url = `configs/${this.selectedBranch}/d/mobile-sdks/`
       const response = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
-      this.mobileSDKs = response?.data
+      this.mobileSDKs = response?.data || []
       this.isDownloadLoading = false
-      this.setLoadingDocStatus(false)
-    },
-
-    async switchBranch() {
-      this.setLoadingDocStatus(true)
-      Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
-      await this.loadMobileSDKs()
       this.setLoadingDocStatus(false)
     },
   },
