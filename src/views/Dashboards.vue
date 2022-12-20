@@ -297,7 +297,7 @@ export default defineComponent({
 
     clearSearch() {
       this.proxyFilter = ''
-      this.securityPoliciesOptions = []
+      this.securityPolicyFilter = []
       this.$refs.rbzDatePicker.resetDateToDefault()
     },
   },

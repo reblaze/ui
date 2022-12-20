@@ -150,7 +150,6 @@ export default defineComponent({
 
   data() {
     return {
-      selectedBranchData: null,
       isDownloadLoading: false,
       branches: null as Branch[],
 
@@ -159,17 +158,6 @@ export default defineComponent({
       deleteBranchName: '',
       deleteBranchInputOpen: false,
     }
-  },
-
-  watch: {
-    selectedBranch: {
-      handler: async function(val, oldVal) {
-        if ((this.$route.name as string).includes('VersionControl') && val && val !== oldVal) {
-          await this.loadSelectedBranchData()
-        }
-      },
-      immediate: true,
-    },
   },
 
   computed: {
@@ -222,16 +210,6 @@ export default defineComponent({
       }
     },
 
-    async loadSelectedBranchData() {
-      this.isDownloadLoading = true
-      const response = await RequestsUtils.sendRequest({
-        methodName: 'GET',
-        url: `configs/${this.selectedBranch}/`,
-      })
-      this.selectedBranchData = response?.data
-      this.isDownloadLoading = false
-    },
-
     deleteBranch() {
       RequestsUtils.sendRequest({
         methodName: 'DELETE',
@@ -263,9 +241,17 @@ export default defineComponent({
       })
     },
 
-    downloadBranch() {
+    async downloadBranch() {
       if (!this.isDownloadLoading) {
-        Utils.downloadFile(this.selectedBranch, 'json', this.selectedBranchData)
+        this.isDownloadLoading = true
+        const response = await RequestsUtils.sendRequest({
+          methodName: 'GET',
+          url: `configs/${this.selectedBranch}/`,
+        })
+        if (response?.data) {
+          Utils.downloadFile(this.selectedBranch, 'json', response.data)
+        }
+        this.isDownloadLoading = false
       }
     },
 

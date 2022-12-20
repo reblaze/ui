@@ -4,7 +4,7 @@
       <div class="media-content">
         <div class="field is-grouped is-pulled-right">
           <p class="control">
-            <button class="button is-small download-doc-button"
+            <button class="button is-small download-document-button"
                     :class="{'is-loading':isDownloadLoading}"
                     @click="downloadDoc()"
                     title="Download document"
@@ -24,10 +24,10 @@
     <hr/>
 
     <div class="content document-list-wrapper"
-         v-show="!loadingDocCounter && selectedBranch && dynamicRulesData && globalFiltersData">
+         v-show="!loadingDocCounter && selectedBranch && dynamicRules && globalFiltersData">
       <div class="content">
         <rbz-table :columns="columns"
-                   :data="dynamicRulesData"
+                   :data="dynamicRules"
                    :default-sort-column-index="1"
                    :show-menu-column="true"
                    :show-filter-button="true"
@@ -45,7 +45,7 @@
     </div>
 
     <div class="content no-data-wrapper"
-         v-if="loadingDocCounter || !selectedBranch || !dynamicRulesData || !globalFiltersData">
+         v-if="loadingDocCounter || !selectedBranch || !dynamicRules || !globalFiltersData">
       <button class="button is-outlined is-text is-small is-loading document-loading">
         Loading
       </button>
@@ -156,7 +156,7 @@ export default defineComponent({
       ] as ColumnOptions[],
       isNewLoading: false,
       titles: DatasetsUtils.titles,
-      dynamicRulesData: [] as DynamicRule[],
+      dynamicRules: [] as DynamicRule[],
       globalFiltersData: [] as MiniGlobalFilter[],
       loadingDocCounter: 0,
       isDownloadLoading: false,
@@ -171,7 +171,7 @@ export default defineComponent({
     selectedBranch: {
       handler: async function(val, oldVal) {
         if ((this.$route.name as string).includes('DynamicRules/list') && val && val !== oldVal) {
-          await this.loadDynamicRulesData()
+          await this.loadDocs()
           await this.loadGlobalFilters()
           this.loadCustomResponses()
         }
@@ -194,7 +194,7 @@ export default defineComponent({
   },
 
   methods: {
-    async loadDynamicRulesData() {
+    async loadDocs() {
       this.isDownloadLoading = true
       this.setLoadingDocStatus(true)
       const url = `configs/${this.selectedBranch}/d/dynamic-rules/`
@@ -203,11 +203,11 @@ export default defineComponent({
         url,
         onFail: (error: any) => {
           console.log('Error while attempting to load documents', error)
-          this.dynamicRulesData = []
+          this.dynamicRules = []
           this.isDownloadLoading = false
         },
       })
-      this.dynamicRulesData = response.data || []
+      this.dynamicRules = response?.data || []
       this.setLoadingDocStatus(false)
       this.isDownloadLoading = false
     },
@@ -275,7 +275,7 @@ export default defineComponent({
 
     downloadDoc() {
       if (!this.isDownloadLoading) {
-        Utils.downloadFile('dynamic-rules', 'json', this.dynamicRulesData)
+        Utils.downloadFile('dynamic-rules', 'json', this.dynamicRules)
       }
     },
   },

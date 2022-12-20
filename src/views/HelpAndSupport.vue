@@ -1,6 +1,6 @@
 <template>
   <div class="card-content">
-    <div class="card mb-5">
+    <div class="card mb-5 contact-support-card">
       <div class="card-content">
         <h4 class="title">
           Contact Your Support Team
@@ -15,20 +15,20 @@
         <p>
           For urgent matters, please call:
         </p>
-        <div>
-          <div>
+        <div class="phone-numbers">
+          <div class="phone-number">
             <a href="tel:+18886155996"
                class="phone">
               + 1 (888) 6155996
             </a> (US Toll Free)
           </div>
-          <div>
+          <div class="phone-number">
             <a href="tel:+972732005230"
                class="phone">
               + 972 (73) 2005230
             </a> (Reblaze HQ)
           </div>
-          <div>
+          <div class="phone-number">
             <a href="tel:+448081751950"
                class="phone">
               + 44 (808) 1751950
@@ -37,7 +37,7 @@
         </div>
       </div>
     </div>
-    <div class="card">
+    <div class="card manager-escalation-card">
       <div class="card-content">
         <h4 class="title">
           Manager Escalation

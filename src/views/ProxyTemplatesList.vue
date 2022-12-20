@@ -5,7 +5,7 @@
         <div class="field is-grouped is-pulled-right">
           <p class="control">
             <button :class="{'is-loading':isDownloadLoading}"
-                    class="button is-small download-doc-button"
+                    class="button is-small download-document-button"
                     data-qa="download-document"
                     title="Download document"
                     @click="downloadDoc()">
@@ -191,7 +191,7 @@ export default defineComponent({
 
     downloadDoc() {
       if (!this.isDownloadLoading) {
-        Utils.downloadFile(this.titles['proxy-templates'], 'json', this.proxyTemplates)
+        Utils.downloadFile('proxy-templates', 'json', this.proxyTemplates)
       }
     },
 
@@ -200,15 +200,8 @@ export default defineComponent({
       this.isDownloadLoading = true
       const url = `configs/${this.selectedBranch}/d/proxy-templates/`
       const response = await RequestsUtils.sendReblazeRequest({methodName: 'GET', url})
-      this.proxyTemplates = response?.data
+      this.proxyTemplates = response?.data || []
       this.isDownloadLoading = false
-      this.setLoadingDocStatus(false)
-    },
-
-    async switchBranch() {
-      this.setLoadingDocStatus(true)
-      Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
-      await this.loadProxyTemplates()
       this.setLoadingDocStatus(false)
     },
   },

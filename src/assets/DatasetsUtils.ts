@@ -357,8 +357,8 @@ const newOperationEntryFactory: { [key: string]: Function } = {
     const id = generateUUID2()
     return {
       'id': id,
-      'name': 'New Site ' + id, // TODO: Remove this random uuid once names are no longer unique
-      'description': 'New Site Description and Remarks',
+      'name': 'New Server Group ' + id, // TODO: Remove this random uuid once names are no longer unique
+      'description': 'New Server Group Description and Remarks',
       'server_names': ['www.example.com'],
       'security_policy': '__default__',
       'routing_profile': '__default__',

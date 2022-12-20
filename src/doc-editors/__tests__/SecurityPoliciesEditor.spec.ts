@@ -1,27 +1,39 @@
 // @ts-nocheck
-import {VueWrapper} from '@vue/test-utils'
+import {shallowMount, VueWrapper} from '@vue/test-utils'
 import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
-import {shallowMount} from '@vue/test-utils'
 import {ACLProfile, ContentFilterProfile, RateLimit, SecurityPolicy} from '@/types'
-import axios from 'axios'
 import _ from 'lodash'
 import {setImmediate} from 'timers'
 import {nextTick} from 'vue'
+import RequestsUtils, {IRequestParams} from '../../assets/RequestsUtils'
+import {createTestingPinia} from '@pinia/testing'
+import {useBranchesStore} from '../../stores/BranchesStore'
 
-jest.mock('axios')
+const selectedBranch = 'prod'
+const mockRoute = {
+  params: {
+    branch: selectedBranch,
+    doc_type: 'globalfilters',
+    doc_id: '__default__',
+  },
+  path: `/${selectedBranch}/globalfilters/config/__default__`,
+  name: 'DocumentEditor/DocType/config/DocID',
+}
+jest.mock('vue-router', () => ({
+  useRoute: jest.fn(() => (mockRoute)),
+}))
+jest.mock('../../assets/RequestsUtils.ts')
 
-// TODO: Resolve pinia integration with jest and remove this skip
-describe.skip('SecurityPoliciesEditor.vue', () => {
+describe('SecurityPoliciesEditor.vue', () => {
   let securityPoliciesDocs: SecurityPolicy[]
   let aclDocs: ACLProfile[]
   let contentFilterDocs: ContentFilterProfile[]
   let rateLimitsDocs: RateLimit[]
-  let selectedBranch: string
   let wrapper: VueWrapper
   let mockRouter
-  let axiosGetSpy: any
-  beforeEach(() => {
+  let sendRequestSpy: any
+  beforeEach(async () => {
     securityPoliciesDocs = [
       {
         'id': '__default__',
@@ -56,7 +68,7 @@ describe.skip('SecurityPoliciesEditor.vue', () => {
         'match': 'www.example.com',
         'map': [
           {
-            'id': '__default2__',
+            'id': '123',
             'name': 'default',
             'match': '/',
             'acl_profile': '__acldefault__',
@@ -66,7 +78,7 @@ describe.skip('SecurityPoliciesEditor.vue', () => {
             'limit_ids': ['f971e92459e2', '365757ec0689'],
           },
           {
-            'id': '__default entry__',
+            'id': '456',
             'name': 'entry name',
             'match': '/login',
             'acl_profile': '5828321c37e0',
@@ -119,7 +131,7 @@ describe.skip('SecurityPoliciesEditor.vue', () => {
     ]
     contentFilterDocs = [
       {
-        'id': '__default__',
+        'id': '__defaultcontentfilter__',
         'name': 'default contentfilter',
         'ignore_alphanum': true,
         'headers': {
@@ -233,65 +245,58 @@ describe.skip('SecurityPoliciesEditor.vue', () => {
         'pairwith': {'self': 'self'},
       },
     ]
-    selectedBranch = 'prod'
-    axiosGetSpy = jest.spyOn(axios, 'get').mockImplementation((path, config) => {
-      if (!wrapper) {
+    sendRequestSpy = jest.spyOn(RequestsUtils, 'sendRequest').mockImplementation(
+      (requestParams: IRequestParams) => {
+        if (requestParams.url === `configs/${selectedBranch}/d/aclprofiles/`) {
+          if (requestParams.config?.headers?.['x-fields'] === 'id, name') {
+            return Promise.resolve(
+              {
+                data: _.map(aclDocs, (doc: ACLProfile) => {
+                  return _.pick(doc, 'id', 'name')
+                }),
+              },
+            )
+          }
+          return Promise.resolve({data: _.cloneDeep(aclDocs)})
+        }
+        if (requestParams.url === `configs/${selectedBranch}/d/securitypolicies/`) {
+          if (requestParams.config?.headers?.['x-fields'] === 'match') {
+            return Promise.resolve(
+              {
+                data: _.map(securityPoliciesDocs, (doc: SecurityPolicy) => {
+                  return _.pick(doc, 'match')
+                }),
+              },
+            )
+          }
+          return Promise.resolve({data: _.cloneDeep(securityPoliciesDocs)})
+        }
+        if (requestParams.url === `configs/${selectedBranch}/d/contentfilterprofiles/`) {
+          if (requestParams.config?.headers?.['x-fields'] === 'id, name') {
+            return Promise.resolve(
+              {
+                data: _.map(contentFilterDocs, (doc: ContentFilterProfile) => {
+                  return _.pick(doc, 'id', 'name')
+                }),
+              },
+            )
+          }
+          return Promise.resolve({data: _.cloneDeep(contentFilterDocs)})
+        }
+        if (requestParams.url === `configs/${selectedBranch}/d/ratelimits/`) {
+          if (requestParams.config?.headers?.['x-fields'] === 'id, name') {
+            return Promise.resolve(
+              {
+                data: _.map(rateLimitsDocs, (doc: RateLimit) => {
+                  return _.pick(doc, 'id', 'name')
+                }),
+              },
+            )
+          }
+          return Promise.resolve({data: _.cloneDeep(rateLimitsDocs)})
+        }
         return Promise.resolve({data: []})
-      }
-      const branch = wrapper.vm.selectedBranch
-      if (path === `/conf/api/v3/configs/${branch}/d/aclprofiles/`) {
-        if (config && config.headers && config.headers['x-fields'] === 'id, name') {
-          return Promise.resolve(
-            {
-              data: _.map(aclDocs, (doc: ACLProfile) => {
-                return _.pick(doc, 'id', 'name')
-              }),
-            },
-          )
-        }
-        return Promise.resolve({data: aclDocs})
-      }
-      if (path === `/conf/api/v3/configs/${branch}/d/securitypolicies/`) {
-        if (config && config.headers && config.headers['x-fields'] === 'match') {
-          return Promise.resolve(
-            {
-              data: _.map(securityPoliciesDocs, (doc: SecurityPolicy) => {
-                return _.pick(doc, 'match')
-              }),
-            },
-          )
-        }
-        return Promise.resolve({data: securityPoliciesDocs})
-      }
-      if (path === `/conf/api/v3/configs/${branch}/d/contentfilterprofiles/`) {
-        if (config && config.headers && config.headers['x-fields'] === 'id, name') {
-          return Promise.resolve(
-            {
-              data: _.map(contentFilterDocs, (doc: ContentFilterProfile) => {
-                return _.pick(doc, 'id', 'name')
-              }),
-            },
-          )
-        }
-        return Promise.resolve({data: contentFilterDocs})
-      }
-      if (path === `/conf/api/v3/configs/${branch}/d/ratelimits/`) {
-        if (config && config.headers && config.headers['x-fields'] === 'id, name') {
-          return Promise.resolve(
-            {
-              data: _.map(rateLimitsDocs, (doc: RateLimit) => {
-                return _.pick(doc, 'id', 'name')
-              }),
-            },
-          )
-        }
-        return Promise.resolve({data: rateLimitsDocs})
-      }
-      if (path === `/conf/api/v3/configs/${branch}/d/ratelimits/e/f971e92459e2/`) {
-        return Promise.resolve({data: rateLimitsDocs[0]})
-      }
-      return Promise.resolve({data: []})
-    })
+      })
     mockRouter = {
       push: jest.fn(),
     }
@@ -304,73 +309,67 @@ describe.skip('SecurityPoliciesEditor.vue', () => {
         mocks: {
           $router: mockRouter,
         },
+        plugins: [createTestingPinia()],
       },
     })
+    const store = useBranchesStore()
+    store.selectedBranchId = selectedBranch
+    await nextTick()
   })
   afterEach(() => {
     jest.clearAllMocks()
     jest.clearAllTimers()
   })
 
-  test('should not send new requests to API if selected branch does not update', (done) => {
-    jest.clearAllMocks()
-    const branch = _.cloneDeep(selectedBranch)
-    wrapper.setProps({
-      selectedBranch: branch,
+  describe('API requests', () => {
+    beforeEach(() => {
+      jest.clearAllMocks()
+      jest.clearAllTimers()
     })
-    // allow all requests to finish
-    setImmediate(() => {
-      expect(axiosGetSpy).toHaveBeenCalledTimes(0)
-      done()
-    })
-  })
 
-  test('should not send new requests to API if selected branch updates to empty string', (done) => {
-    jest.clearAllMocks()
-    wrapper.setProps({
-      selectedBranch: '',
+    test('should not send new requests to API if selected branch does not update', (done) => {
+      const branch = _.cloneDeep(selectedBranch)
+      wrapper.setProps({
+        selectedBranch: branch,
+      })
+      // allow all requests to finish
+      setImmediate(() => {
+        expect(sendRequestSpy).toHaveBeenCalledTimes(0)
+        done()
+      })
     })
-    // allow all requests to finish
-    setImmediate(() => {
-      expect(axiosGetSpy).toHaveBeenCalledTimes(0)
-      done()
-    })
-  })
 
-  test('should not send new requests to API if selected branch updates to null', (done) => {
-    jest.clearAllMocks()
-    wrapper.setProps({
-      selectedBranch: null,
+    test('should not send new requests to API if selected branch updates to empty string', (done) => {
+      wrapper.setProps({
+        selectedBranch: '',
+      })
+      // allow all requests to finish
+      setImmediate(() => {
+        expect(sendRequestSpy).toHaveBeenCalledTimes(0)
+        done()
+      })
     })
-    // allow all requests to finish
-    setImmediate(() => {
-      expect(axiosGetSpy).toHaveBeenCalledTimes(0)
-      done()
-    })
-  })
 
-  test('should not send new requests to API if selected branch updates to undefined', (done) => {
-    jest.clearAllMocks()
-    wrapper.setProps({
-      selectedBranch: undefined,
+    test('should not send new requests to API if selected branch updates to null', (done) => {
+      wrapper.setProps({
+        selectedBranch: null,
+      })
+      // allow all requests to finish
+      setImmediate(() => {
+        expect(sendRequestSpy).toHaveBeenCalledTimes(0)
+        done()
+      })
     })
-    // allow all requests to finish
-    setImmediate(() => {
-      expect(axiosGetSpy).toHaveBeenCalledTimes(0)
-      done()
-    })
-  })
 
-  test('should send a single new request to API if selected branch updates', (done) => {
-    jest.clearAllMocks()
-    const branch = 'devops'
-    wrapper.setProps({
-      selectedBranch: branch,
-    })
-    // allow all requests to finish
-    setImmediate(() => {
-      expect(axiosGetSpy).toHaveBeenCalledTimes(1)
-      done()
+    test('should not send new requests to API if selected branch updates to undefined', (done) => {
+      wrapper.setProps({
+        selectedBranch: undefined,
+      })
+      // allow all requests to finish
+      setImmediate(() => {
+        expect(sendRequestSpy).toHaveBeenCalledTimes(0)
+        done()
+      })
     })
   })
 
@@ -437,8 +436,7 @@ describe.skip('SecurityPoliciesEditor.vue', () => {
       const entryContentFilterSelection = currentEntryRow.find('.current-entry-content-filter-selection')
       expect((entryContentFilterSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
       const entryContentFilterActive = currentEntryRow.find('.current-entry-content-filter-active')
-      expect((entryContentFilterActive.element as HTMLInputElement).checked)
-        .toEqual(securityPoliciesDocs[0].map[0].content_filter_active)
+      expect((entryContentFilterActive.element as HTMLInputElement).checked).toEqual(securityPoliciesDocs[0].map[0].content_filter_active)
       const entryACLSelection = currentEntryRow.find('.current-entry-acl-selection')
       expect((entryACLSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
       const entryACLActive = currentEntryRow.find('.current-entry-acl-active')
@@ -520,7 +518,7 @@ describe.skip('SecurityPoliciesEditor.vue', () => {
       const newRateLimitSelection = entryRateLimitsTable.find('.new-rate-limit-selection')
       const options = newRateLimitSelection.findAll('option')
       expect(options.length).toEqual(rateLimitsDocs.length - securityPoliciesDocs[0].map[0].limit_ids.length)
-      expect(options.at(0).text()).toEqual(`${rateLimitsDocs[1].name} ${rateLimitsDocs[1].description}`)
+      expect(options.at(0).text()).toEqual(`${rateLimitsDocs[1].name} - ${rateLimitsDocs[1].description}`)
     })
 
     test('should add selected rate limit from dropdown to table', async () => {
@@ -568,7 +566,7 @@ describe.skip('SecurityPoliciesEditor.vue', () => {
       expect(entryRateLimitsRows.length).toEqual(securityPoliciesDocs[0].map[0].limit_ids.length - 1)
     })
 
-    test.skip('should change route when create new rate limit is clicked', async () => {
+    test('should change route when create new rate limit is clicked', async () => {
       const table = wrapper.find('.entries-table')
       const entryRow = table.findAll('.entry-row').at(0)
       await entryRow.trigger('click')
@@ -580,24 +578,33 @@ describe.skip('SecurityPoliciesEditor.vue', () => {
       await nextTick()
       const referralButton = entryRateLimitsTable.find('.rate-limit-referral-button')
       await referralButton.trigger('click')
-      expect(wrapper.emitted('go-to-route')).toBeTruthy()
-      expect(wrapper.emitted('go-to-route')[0]).toEqual([`/config/${selectedBranch}/ratelimits`])
+      expect(mockRouter.push).toHaveBeenCalledWith(`/${selectedBranch}/ratelimits/list`)
     })
   })
 
   describe('form validation', () => {
     beforeEach(async () => {
-      await wrapper.setProps({
-        selectedDoc: securityPoliciesDocs[1],
+      mockRoute.params = {
+        branch: selectedBranch,
+        doc_type: 'globalfilters',
+        doc_id: '3086b9c5b518',
+      }
+      mockRoute.path = `/${selectedBranch}/globalfilters/config/3086b9c5b518`
+      wrapper = shallowMount(SecurityPoliciesEditor, {
+        props: {
+          selectedDoc: securityPoliciesDocs[1],
+          selectedBranch: selectedBranch,
+        },
+        global: {
+          mocks: {
+            $router: mockRouter,
+          },
+          plugins: [createTestingPinia()],
+        },
       })
-    })
-
-    test('should emit form is invalid when changing match to already existing one', async () => {
-      const input = wrapper.find('.document-domain-name')
-      await input.setValue(securityPoliciesDocs[0].match)
-      await input.trigger('input')
-      expect(wrapper.emitted('form-invalid')).toBeTruthy()
-      expect(wrapper.emitted('form-invalid')[0]).toEqual([true])
+      const store = useBranchesStore()
+      store.selectedBranchId = selectedBranch
+      await nextTick()
     })
 
     // TODO: Fix regex test for rust standards and re-apply this
@@ -887,7 +894,8 @@ describe.skip('SecurityPoliciesEditor.vue', () => {
     })
   })
 
-  describe('add and remove map entries', () => {
+  // TODO: Fix tests
+  describe.skip('add and remove map entries', () => {
     let forkButton: any
     let removeButton: any
     beforeEach(async () => {
@@ -919,8 +927,7 @@ describe.skip('SecurityPoliciesEditor.vue', () => {
         const entryContentFilterSelection = currentEntryRow.find('.current-entry-content-filter-selection')
         expect((entryContentFilterSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
         const entryContentFilterActive = currentEntryRow.find('.current-entry-content-filter-active')
-        expect((entryContentFilterActive.element as HTMLInputElement).checked)
-          .toEqual(securityPoliciesDocs[0].map[1].content_filter_active)
+        expect((entryContentFilterActive.element as HTMLInputElement).checked).toEqual(securityPoliciesDocs[0].map[1].content_filter_active)
         const entryACLSelection = currentEntryRow.find('.current-entry-acl-selection')
         expect((entryACLSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
         const entryACLActive = currentEntryRow.find('.current-entry-acl-active')
@@ -977,8 +984,7 @@ describe.skip('SecurityPoliciesEditor.vue', () => {
         const entryContentFilterSelection = currentEntryRow.find('.current-entry-content-filter-selection')
         expect((entryContentFilterSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
         const entryContentFilterActive = currentEntryRow.find('.current-entry-content-filter-active')
-        expect((entryContentFilterActive.element as HTMLInputElement).checked)
-          .toEqual(securityPoliciesDocs[0].map[1].content_filter_active)
+        expect((entryContentFilterActive.element as HTMLInputElement).checked).toEqual(securityPoliciesDocs[0].map[1].content_filter_active)
         const entryACLSelection = currentEntryRow.find('.current-entry-acl-selection')
         expect((entryACLSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
         const entryACLActive = currentEntryRow.find('.current-entry-acl-active')
@@ -997,6 +1003,7 @@ describe.skip('SecurityPoliciesEditor.vue', () => {
           'match': 'example.com',
           'map': [
             {
+              'id': '123',
               'name': 'one',
               'match': '/one',
               'acl_profile': '5828321c37e0',
@@ -1006,6 +1013,7 @@ describe.skip('SecurityPoliciesEditor.vue', () => {
               'limit_ids': ['365757ec0689'],
             },
             {
+              'id': '234',
               'name': 'two',
               'match': '/two',
               'acl_profile': '__acldefault__',
@@ -1015,6 +1023,7 @@ describe.skip('SecurityPoliciesEditor.vue', () => {
               'limit_ids': ['f971e92459e2'],
             },
             {
+              'id': '345',
               'name': 'three',
               'match': '/three',
               'acl_profile': '__acldefault__',
@@ -1024,6 +1033,7 @@ describe.skip('SecurityPoliciesEditor.vue', () => {
               'limit_ids': ['f971e92459e2'],
             },
             {
+              'id': '456',
               'name': 'four',
               'match': '/four',
               'acl_profile': '__acldefault__',
@@ -1087,7 +1097,8 @@ describe.skip('SecurityPoliciesEditor.vue', () => {
     })
   })
 
-  test('should have forked entry name input focused', (done) => {
+  // TODO: Fix test
+  test.skip('should have forked entry name input focused', async () => {
     const elem = document.createElement('div')
     if (document.body) {
       document.body.appendChild(elem)
@@ -1097,22 +1108,23 @@ describe.skip('SecurityPoliciesEditor.vue', () => {
         selectedDoc: securityPoliciesDocs[0],
         selectedBranch,
       },
+      global: {
+        plugins: [createTestingPinia()],
+      },
       attachTo: elem,
     })
+    const store = useBranchesStore()
+    store.selectedBranchId = selectedBranch
+    await nextTick()
     let table = wrapper.find('.entries-table')
     const entryRow = table.findAll('.entry-row').at(1)
-    entryRow.trigger('click')
-    setImmediate(() => {
-      let currentEntryRow = table.find('.current-entry-row')
-      const forkButton = currentEntryRow.find('.fork-entry-button')
-      forkButton.trigger('click')
-      table = wrapper.find('.entries-table')
-      currentEntryRow = table.find('.current-entry-row')
-      const entryName = currentEntryRow.find('.current-entry-name')
-      setImmediate(() => {
-        expect(entryName.element).toBe(document.activeElement)
-        done()
-      })
-    })
+    await entryRow.trigger('click')
+    let currentEntryRow = table.find('.current-entry-row')
+    const forkButton = currentEntryRow.find('.fork-entry-button')
+    await forkButton.trigger('click')
+    table = wrapper.find('.entries-table')
+    currentEntryRow = table.find('.current-entry-row')
+    const entryName = currentEntryRow.find('.current-entry-name')
+    expect(entryName.element).toBe(document.activeElement)
   })
 })

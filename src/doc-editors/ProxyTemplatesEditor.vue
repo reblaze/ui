@@ -39,7 +39,7 @@
           <div class="column">
             <div class="field is-grouped is-pulled-right">
               <p class="control">
-                <button class="button is-small new-proxy-template-document-button"
+                <button class="button is-small new-document-button"
                         :class="{'is-loading': isNewLoading}"
                         @click="addNewProxyTemplate()"
                         title="Add new document"
@@ -70,7 +70,7 @@
                 </button>
               </p>
               <p class="control">
-                <button class="button is-small download-doc-button"
+                <button class="button is-small download-document-button"
                         :class="{'is-loading':isDownloadLoading}"
                         @click="downloadDoc()"
                         title="Download document"
@@ -374,7 +374,7 @@
                     Proxy Send Timeout
                   </label>
                   <div class="control suffix seconds-suffix">
-                    <input class="input is-small document-proxy-sen-timeout"
+                    <input class="input is-small document-proxy-send-timeout"
                            title="Proxy send timeout"
                            placeholder="Proxy send timeout"
                            v-model="selectedProxyTemplate.proxy_send_timeout">
@@ -517,7 +517,7 @@
                     </label>
                     <div class="control">
                       <textarea rows="5"
-                                class="is-small textarea site-conf"
+                                class="is-small textarea document-site-conf"
                                 v-model="selectedProxyTemplate.conf_specific">
                       </textarea>
                     </div>
@@ -535,7 +535,7 @@
                     </label>
                     <div class="control">
                       <textarea rows="5"
-                                class="is-small textarea site-ssl-conf"
+                                class="is-small textarea document-site-ssl-conf"
                                 v-model="selectedProxyTemplate.ssl_conf_specific">
                       </textarea>
                     </div>
@@ -913,7 +913,7 @@ export default defineComponent({
 
     downloadDoc() {
       if (!this.isDownloadLoading) {
-        Utils.downloadFile(this.titles['proxy-templates-singular'], 'json', this.selectedProxyTemplate)
+        Utils.downloadFile('proxy-template', 'json', this.selectedProxyTemplate)
       }
     },
 

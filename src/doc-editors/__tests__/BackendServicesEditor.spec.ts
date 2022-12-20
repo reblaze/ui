@@ -1,8 +1,8 @@
 // @ts-nocheck
-import EdgeFunctionsEditor from '@/doc-editors/EdgeFunctionsEditor.vue'
+import BackendServicesEditor from '@/doc-editors/BackendServicesEditor.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {mount, VueWrapper} from '@vue/test-utils'
-import {EdgeFunction, RoutingProfile} from '@/types'
+import {BackendService, RoutingProfile} from '@/types'
 import {createTestingPinia} from '@pinia/testing'
 import {nextTick} from 'vue'
 import {useBranchesStore} from '../../stores/BranchesStore'
@@ -15,50 +15,91 @@ const selectedBranch = 'prod'
 const mockRoute = {
   params: {
     branch: selectedBranch,
-    doc_id: 'f971e92459e2',
+    doc_id: '6f6295de664f',
   },
-  path: `/${selectedBranch}/cloud-functions/config/f971e92459e2`,
-  name: 'EdgeFunctions/config',
+  path: `/${selectedBranch}/backend-services/config/6f6295de664f`,
+  name: 'BackendServices/config',
 }
 jest.mock('vue-router', () => ({
   useRoute: jest.fn(() => (mockRoute)),
 }))
 jest.mock('../../assets/RequestsUtils.ts')
 
-describe('EdgeFunctionsEditor.vue', () => {
-  let edgeFunctionsDocs: EdgeFunction[]
+describe('BackendServicesEditor.vue', () => {
+  let backendServicesDocs: BackendService[]
   let routingProfilesDocs: RoutingProfile[]
   let mockRouter: any
   let wrapper: VueWrapper
   let sendReblazeRequestSpy: any
   beforeEach(async () => {
-    edgeFunctionsDocs = [
+    backendServicesDocs = [
       {
-        'id': 'f971e92459e2',
-        'name': 'New Edge Functions',
-        'description': '5 requests per minute',
-        'phase': 'request',
-        'code': `-- begin custom code
-      --custom response header
-      ngx.header['foo'] = 'bar'`,
+        'back_hosts': [
+          {
+            'backup': false,
+            'down': false,
+            'fail_timeout': 10,
+            'host': '127.0.0.1',
+            'http_port': 80,
+            'https_port': 443,
+            'max_fails': 0,
+            'monitor_state': '',
+            'weight': 1,
+          },
+        ],
+        'description': 'New Backend Service Description and Remarks',
+        'http11': true,
+        'id': '6f6295de664f',
+        'least_conn': false,
+        'name': 'New Backend Service 6f6295de664f',
+        'sticky': 'none',
+        'transport_mode': 'default',
       },
       {
-        'id': 'f123456789',
-        'name': 'New Edge Function',
-        'description': '2 requests per minute',
-        'phase': 'response',
-        'code': `-- begin custom code
-      --custom response header
-      ngx.header['foo'] = 'bar'`,
+        'back_hosts': [
+          {
+            'backup': false,
+            'down': false,
+            'fail_timeout': 10,
+            'host': 'test.example.com',
+            'http_port': 80,
+            'https_port': 443,
+            'max_fails': 0,
+            'monitor_state': '0',
+            'weight': 1,
+          },
+        ],
+        'description': '',
+        'http11': true,
+        'id': 'c84a01fbe369',
+        'least_conn': false,
+        'name': 'example-com',
+        'sticky': 'none',
+        'sticky_cookie_name': '',
+        'transport_mode': 'default',
       },
       {
+        'back_hosts': [
+          {
+            'backup': false,
+            'down': false,
+            'fail_timeout': 10,
+            'host': 'example.com',
+            'http_port': 80,
+            'https_port': 443,
+            'max_fails': 0,
+            'monitor_state': '0',
+            'weight': 1,
+          },
+        ],
+        'description': '',
+        'http11': true,
         'id': '__default__',
-        'name': 'Default Edge Function',
-        'description': '2 requests per minute',
-        'phase': 'response',
-        'code': `-- begin custom code
-      --custom response header
-      ngx.header['foo'] = 'bar'`,
+        'least_conn': false,
+        'name': 'example-com',
+        'sticky': 'none',
+        'sticky_cookie_name': '',
+        'transport_mode': 'default',
       },
     ]
     routingProfilesDocs = [
@@ -66,8 +107,8 @@ describe('EdgeFunctionsEditor.vue', () => {
         'id': '__default__',
         'locations': [
           {
-            'backend_id': '__default__',
-            'cloud_functions': ['f123456789'],
+            'backend_id': 'c84a01fbe369',
+            'cloud_functions': [],
             'id': '__root_entry__',
             'path': '/',
           },
@@ -77,17 +118,17 @@ describe('EdgeFunctionsEditor.vue', () => {
     ]
     sendReblazeRequestSpy = jest.spyOn(RequestsUtils, 'sendReblazeRequest').mockImplementation(
       (requestParams: IRequestParams) => {
-        if (requestParams.url === `configs/${selectedBranch}/d/cloud-functions/`) {
-          return Promise.resolve({data: _.cloneDeep(edgeFunctionsDocs)})
+        if (requestParams.url === `configs/${selectedBranch}/d/backends/`) {
+          return Promise.resolve({data: _.cloneDeep(backendServicesDocs)})
         }
-        if (requestParams.url === `configs/${selectedBranch}/d/cloud-functions/e/f971e92459e2/`) {
-          return Promise.resolve({data: _.cloneDeep(edgeFunctionsDocs[0])})
+        if (requestParams.url === `configs/${selectedBranch}/d/backends/e/6f6295de664f/'`) {
+          return Promise.resolve({data: _.cloneDeep(backendServicesDocs[0])})
         }
-        if (requestParams.url === `'configs/${selectedBranch}/d/cloud-functions/e/f123456789/`) {
-          return Promise.resolve({data: _.cloneDeep(edgeFunctionsDocs[1])})
+        if (requestParams.url === `'configs/${selectedBranch}/d/backends/e/__default__/`) {
+          return Promise.resolve({data: _.cloneDeep(backendServicesDocs[1])})
         }
-        if (requestParams.url === `'configs/${selectedBranch}/d/cloud-functions/e/__default__/`) {
-          return Promise.resolve({data: _.cloneDeep(edgeFunctionsDocs[2])})
+        if (requestParams.url === `'configs/${selectedBranch}/d/backends/e/c84a01fbe369/`) {
+          return Promise.resolve({data: _.cloneDeep(backendServicesDocs[2])})
         }
         if (requestParams.url === `configs/${selectedBranch}/d/routing-profiles/`) {
           return Promise.resolve({data: _.cloneDeep(routingProfilesDocs)})
@@ -97,7 +138,7 @@ describe('EdgeFunctionsEditor.vue', () => {
     mockRouter = {
       push: jest.fn(),
     }
-    wrapper = mount(EdgeFunctionsEditor, {
+    wrapper = mount(BackendServicesEditor, {
       global: {
         mocks: {
           $route: mockRoute,
@@ -117,34 +158,34 @@ describe('EdgeFunctionsEditor.vue', () => {
 
   describe('form data', () => {
     test('should have correct ID displayed', () => {
-      expect(wrapper.find('.document-id').text()).toEqual(edgeFunctionsDocs[0].id)
+      expect(wrapper.find('.document-id').text()).toEqual(backendServicesDocs[0].id)
     })
 
     test('should have correct name in input', () => {
       const element = wrapper.find('.document-name').element as HTMLInputElement
-      expect(element.value).toEqual(edgeFunctionsDocs[0].name)
+      expect(element.value).toEqual(backendServicesDocs[0].name)
     })
 
     test('should have correct description in input', () => {
       const element = wrapper.find('.document-description').element as HTMLInputElement
-      expect(element.value).toEqual(edgeFunctionsDocs[0].description)
+      expect(element.value).toEqual(backendServicesDocs[0].description)
     })
 
-    test('should have correct phase in dropdown', () => {
-      const element = wrapper.find('.phase-selection').element as HTMLInputElement
-      expect(element.value).toEqual(edgeFunctionsDocs[0].phase)
+    test('should have correct transport protocol in dropdown', () => {
+      const element = wrapper.find('.document-transport-mode-selection').element as HTMLInputElement
+      expect(element.value).toEqual(backendServicesDocs[0].transport_mode)
     })
 
-    test('should have correct code in input', () => {
-      const element = wrapper.find('.document-code').element as HTMLInputElement
-      expect(element.value).toEqual(edgeFunctionsDocs[0].code)
+    test('should have correct load balancing stickiness model in dropdown', () => {
+      const element = wrapper.find('.document-load-balancing-stickiness-selection').element as HTMLInputElement
+      expect(element.value).toEqual(backendServicesDocs[0].sticky)
     })
   })
 
   describe('buttons', () => {
     test('should redirect to list on button click', (done) => {
       jest.spyOn(mockRouter, 'push').mockImplementation((path) => {
-        expect(path).toEqual(`/${selectedBranch}/cloud-functions/list`)
+        expect(path).toEqual(`/${selectedBranch}/backend-services/list`)
         done()
       })
       const button = wrapper.find('.redirect-list-button')
@@ -152,19 +193,19 @@ describe('EdgeFunctionsEditor.vue', () => {
     })
 
     test('should be able to save document changes', () => {
-      const doc = wrapper.vm.selectedEdgeFunction
+      const doc = wrapper.vm.selectedBackendService
       doc.name = `${doc.name} changed`
       const saveDocumentButton = wrapper.find('.save-document-button')
       saveDocumentButton.trigger('click')
       expect(sendReblazeRequestSpy).toHaveBeenCalledWith(expect.objectContaining({
         methodName: 'PUT',
-        url: `configs/${selectedBranch}/d/cloud-functions/e/${doc.id}/`,
+        url: `configs/${selectedBranch}/d/backends/e/${doc.id}/`,
         data: doc,
       }))
     })
 
     test('should be able to fork document', () => {
-      const originalDoc = wrapper.vm.selectedEdgeFunction
+      const originalDoc = wrapper.vm.selectedBackendService
       const forkedDoc = {...originalDoc}
       forkedDoc.id = expect.any(String)
       forkedDoc.name = expect.stringMatching(`copy of ${forkedDoc.name}`)
@@ -172,20 +213,20 @@ describe('EdgeFunctionsEditor.vue', () => {
       forkDocumentButton.trigger('click')
       expect(sendReblazeRequestSpy).toHaveBeenCalledWith(expect.objectContaining({
         methodName: 'POST',
-        url: expect.stringMatching(`configs/${selectedBranch}/d/cloud-functions/e/`),
+        url: expect.stringMatching(`configs/${selectedBranch}/d/backends/e/`),
         data: forkedDoc,
       }))
     })
 
     test('should be able to add a new document', () => {
-      const newDoc = DatasetsUtils.newDocEntryFactory['cloud-functions']()
-      newDoc.name = expect.stringMatching('New Edge Function')
+      const newDoc = DatasetsUtils.newOperationEntryFactory['backends']()
+      newDoc.name = expect.stringMatching('New Backend Service')
       newDoc.id = expect.any(String)
       const newDocumentButton = wrapper.find('.new-document-button')
       newDocumentButton.trigger('click')
       expect(sendReblazeRequestSpy).toHaveBeenCalledWith(expect.objectContaining({
         methodName: 'POST',
-        url: expect.stringMatching(`configs/${selectedBranch}/d/cloud-functions/e/`),
+        url: expect.stringMatching(`configs/${selectedBranch}/d/backends/e/`),
         data: newDoc,
       }))
     })
@@ -195,7 +236,7 @@ describe('EdgeFunctionsEditor.vue', () => {
       await deleteDocumentButton.trigger('click')
       expect(sendReblazeRequestSpy).toHaveBeenCalledWith(expect.objectContaining({
         methodName: 'DELETE',
-        url: `configs/${selectedBranch}/d/cloud-functions/e/${edgeFunctionsDocs[0].id}/`,
+        url: `configs/${selectedBranch}/d/backends/e/${backendServicesDocs[0].id}/`,
       }))
     })
 
@@ -208,7 +249,7 @@ describe('EdgeFunctionsEditor.vue', () => {
     })
 
     test('should not be able to delete a document if it is referenced by a Routing Profile', async () => {
-      await wrapper.setData({selectedDocID: 'f123456789'})
+      await wrapper.setData({selectedDocID: 'c84a01fbe369'})
       jest.clearAllMocks()
       const deleteDocumentButton = wrapper.find('.delete-document-button')
       await deleteDocumentButton.trigger('click')
@@ -216,9 +257,9 @@ describe('EdgeFunctionsEditor.vue', () => {
     })
 
     test('should attempt to download document when download button is clicked', async () => {
-      const wantedFileName = 'cloud-function'
+      const wantedFileName = 'backend-service'
       const wantedFileType = 'json'
-      const wantedFileData = edgeFunctionsDocs[0]
+      const wantedFileData = backendServicesDocs[0]
       const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {
       })
       const downloadDocButton = wrapper.find('.download-document-button')

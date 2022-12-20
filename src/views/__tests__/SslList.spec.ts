@@ -150,7 +150,7 @@ describe('SslList.vue', () => {
         'ssl_certificate': 'placeholder',
       },
       {
-        'description': 'New Site Description and Remarks',
+        'description': 'New Server Group Description and Remarks',
         'id': '90e76f075a82',
         'mobile_sdk': '',
         'name': 'test-site-2',
@@ -163,7 +163,7 @@ describe('SslList.vue', () => {
         'ssl_certificate': 'd8ad5b1156c0',
       },
       {
-        'description': 'New Site Description and Remarks',
+        'description': 'New Server Group Description and Remarks',
         'id': '6523f661e2e3',
         'mobile_sdk': '',
         'name': 'test-site-3',
@@ -176,7 +176,7 @@ describe('SslList.vue', () => {
         'ssl_certificate': 'd8ad5b1156c0',
       },
       {
-        'description': 'New Site Description and Remarks 4',
+        'description': 'New Server Group Description and Remarks 4',
         'id': '6523f661e2e4',
         'mobile_sdk': '',
         'name': 'test-site-4',

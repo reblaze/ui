@@ -13,12 +13,12 @@
               </div>
               <p class="control">
                 <button
-                    data-qa="publish-changes"
-                    class="button is-small publish-button"
-                    :class="{'is-loading': isPublishLoading}"
-                    @click="publish"
-                    :title="selectedBucketNames.length > 0 ? 'Publish configuration': 'Select one or more buckets'"
-                    :disabled="selectedBucketNames.length === 0">
+                  data-qa="publish-changes"
+                  class="button is-small publish-button"
+                  :class="{'is-loading': isPublishLoading}"
+                  @click="publish"
+                  :title="selectedBucketNames.length > 0 ? 'Publish configuration': 'Select one or more buckets'"
+                  :disabled="selectedBucketNames.length === 0">
                     <span class="icon is-small">
                       <i class="fas fa-cloud-upload-alt"></i>
                     </span>
@@ -78,12 +78,12 @@
                  v-if="gitLog && gitLog.length > 0">
             <tbody>
             <tr
-                v-for="bucket in buckets"
-                :key="bucket.name"
-                :data-qa="bucket.name"
-                class="bucket-row"
-                :class="{'has-background-warning-light': !publishMode && selectedBucketNames.includes(bucket.name)}"
-                @click="bucketNameClicked(bucket.name)">
+              v-for="bucket in buckets"
+              :key="bucket.name"
+              :data-qa="bucket.name"
+              class="bucket-row"
+              :class="{'has-background-warning-light': !publishMode && selectedBucketNames.includes(bucket.name)}"
+              @click="bucketNameClicked(bucket.name)">
               <td class="is-size-7">
                   <span class="icon is-small is-vcentered">
                     <svg :width="14"
@@ -209,13 +209,6 @@ export default defineComponent({
       this.selectedCommit = this.gitLog?.[0]?.version || null
     },
 
-    switchBranch() {
-      this.loadBranchLogs()
-      this.publishMode = false
-      Utils.toast(`Switched to branch "${this.selectedBranch.id}".`, 'is-info')
-      this.setDefaultBuckets()
-    },
-
     setDefaultBuckets() {
       this.selectedBucketNames = []
       const bucketList = _.find(this.publishInfo.branch_buckets, (list) => {
@@ -258,7 +251,7 @@ export default defineComponent({
       }))
 
       const failureMessage = 'Failed while attempting to publish branch ' +
-          `"${this.selectedBranch.id}" version "${this.selectedCommit}".`
+        `"${this.selectedBranch.id}" version "${this.selectedCommit}".`
       const publishRequestData: IRequestParams = {
         methodName: 'PUT',
         url: `tools/publish/${this.selectedBranch.id}/v/${this.selectedCommit}/`,
@@ -285,13 +278,13 @@ export default defineComponent({
     parsePublishResults(success: boolean, data?: any) {
       if (success) {
         Utils.toast(
-            `Branch "${this.selectedBranch.id}" was published with version "${this.selectedCommit}".`,
-            'is-success',
+          `Branch "${this.selectedBranch.id}" was published with version "${this.selectedCommit}".`,
+          'is-success',
         )
       } else {
         Utils.toast(
-            `Failed while attempting to publish branch "${this.selectedBranch.id}" version "${this.selectedCommit}".`,
-            'is-danger',
+          `Failed while attempting to publish branch "${this.selectedBranch.id}" version "${this.selectedCommit}".`,
+          'is-danger',
         )
       }
       _.each(data?.status, (responseStatus) => {

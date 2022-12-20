@@ -39,7 +39,7 @@
           <div class="column">
             <div class="field is-grouped is-pulled-right">
               <p class="control">
-                <button class="button is-small new-mobile-sdks-document-button"
+                <button class="button is-small new-document-button"
                         :class="{'is-loading': isNewLoading}"
                         @click="addNewMobileSDK()"
                         title="Add new document"
@@ -70,7 +70,7 @@
                 </button>
               </p>
               <p class="control">
-                <button class="button is-small download-doc-button"
+                <button class="button is-small download-document-button"
                         :class="{'is-loading':isDownloadLoading}"
                         @click="downloadDoc()"
                         title="Download document"
@@ -157,7 +157,7 @@
             <div class="control suffix seconds-suffix mb-0">
               <input type="text"
                      v-model="selectedMobileSDK.grace"
-                     class="input is-small">
+                     class="input is-small document-grace-period">
             </div>
             <div class="help">
               Number of seconds considered as "grace time" for late arrivals of signatures
@@ -168,7 +168,7 @@
             <div class="control mb-0">
               <input type="text"
                      v-model="selectedMobileSDK.uid_header"
-                     class="input is-small">
+                     class="input is-small document-token-header-name">
             </div>
             <div class="help">
               The header that contains a user or session authentication token
@@ -192,9 +192,9 @@
                    title="Add a signature"
                    data-tooltip="Add a signature"
                    @click="openAddSignatureMode">
-                        <span class="icon is-small">
-                          <i class="fas fa-plus"></i>
-                        </span>
+                  <span class="icon is-small">
+                    <i class="fas fa-plus"></i>
+                  </span>
                 </a>
               </th>
             </tr>

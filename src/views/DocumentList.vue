@@ -4,7 +4,7 @@
       <div class="media-content">
         <div class="field is-grouped is-pulled-right">
           <p class="control">
-            <button class="button is-small download-doc-button"
+            <button class="button is-small download-document-button"
                     :class="{'is-loading':isDownloadLoading}"
                     @click="downloadDoc()"
                     title="Download document"
@@ -743,14 +743,6 @@ export default defineComponent({
         this.docs = response?.data || []
         this.isDownloadLoading = false
       })
-    },
-
-    async switchBranch() {
-      this.setLoadingDocStatus(true)
-      Utils.toast(`Switched to branch '${this.selectedBranch}'.`, 'is-info')
-      await this.loadDocs()
-      this.goToRoute()
-      this.setLoadingDocStatus(false)
     },
 
     downloadDoc() {

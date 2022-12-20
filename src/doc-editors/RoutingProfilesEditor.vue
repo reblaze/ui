@@ -39,7 +39,7 @@
           <div class="column">
             <div class="field is-grouped is-pulled-right">
               <p class="control">
-                <button class="button is-small new-routing-profile-button"
+                <button class="button is-small new-document-button"
                         :class="{'is-loading': isNewLoading}"
                         @click="addNewRoutingProfile()"
                         title="Add new routing profile document"
@@ -70,7 +70,7 @@
                 </button>
               </p>
               <p class="control">
-                <button class="button is-small download-doc-button"
+                <button class="button is-small download-document-button"
                         :class="{'is-loading':isDownloadLoading}"
                         @click="downloadDoc()"
                         title="Download document"
@@ -174,11 +174,11 @@
             <td class="is-size-7 width-50px has-text-right has-text-grey-light entry-index">
               {{ mapIndex + 1 }}
             </td>
-            <td class="is-size-7 width-400px ellipsis entry-match"
+            <td class="is-size-7 width-400px ellipsis entry-path"
                 :title="mapEntry.path">
               {{ mapEntry.path }}
             </td>
-            <td class="is-size-7 width-150px ellipsis entry-content-filter">
+            <td class="is-size-7 width-150px ellipsis entry-backend-service">
               {{ backendServiceName(mapEntry.backend_id) }}
             </td>
             <td class="is-size-7 width-150px entry-edge-functions-count"
@@ -276,7 +276,7 @@
                                     :title="edgeFunctionsDetails(edgeFunctionId).description">
                                   {{ edgeFunctionsDetails(edgeFunctionId).description }}
                                 </td>
-                                <td class="is-size-7 width-80px ellipsis edge-function-timeframe"
+                                <td class="is-size-7 width-80px ellipsis edge-function-phase"
                                     v-if="edgeFunctionsDetails(edgeFunctionId)">
                                   {{ edgeFunctionsDetails(edgeFunctionId).phase }}
                                 </td>
@@ -477,8 +477,8 @@ export default defineComponent({
           if (!this.docs?.[0]?.id || !this.selectedRoutingProfile) {
             this.redirectToList()
           }
-          this.loadBackendServices()
-          this.loadEdgeFunctions()
+          await this.loadBackendServices()
+          await this.loadEdgeFunctions()
           await this.loadReferencedRoutingProfilesIDs()
         }
       },
@@ -508,12 +508,9 @@ export default defineComponent({
     ...mapStores(useBranchesStore),
 
     selectedDocIndex(): number {
-      if (this.selectedDocID) {
-        return _.findIndex(this.docs, (doc) => {
-          return doc.id === this.selectedDocID
-        })
-      }
-      return 0
+      return _.findIndex(this.docs, (doc) => {
+        return doc.id === this.selectedDocID
+      })
     },
 
     selectedRoutingProfile: {
