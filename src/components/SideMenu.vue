@@ -332,6 +332,10 @@ $branch-management-wrapper-margin-bottom: 0.75rem;
 .menu-wrapper {
   height: calc(100% - #{$branch-management-wrapper-height} - #{$branch-management-wrapper-margin-bottom});
 
+  :deep(.v-sidebar-menu) {
+    z-index: 1;
+  }
+
   :deep(.v-sidebar-menu .vsm--scroll-bar) {
     left: 2px;
     right: auto;
@@ -349,10 +353,6 @@ $branch-management-wrapper-margin-bottom: 0.75rem;
   :deep(.v-sidebar-menu .vsm--link) {
     font-size: 0.75rem;
     line-height: 0.5rem;
-  }
-
-  :deep(.v-sidebar-menu) {
-    z-index: 1;
   }
 }
 </style>
