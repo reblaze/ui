@@ -15,6 +15,22 @@ html {
   overflow: hidden;
 }
 
+body {
+  font-size: 10px;
+}
+
+/* Header */
+
+/* .rbz-header {
+  font-family: 'Open Sans';
+  src: url(path/to/file) format(Example: 'truetype' or 'opentype' depending on the file extension of your font);
+} */
+
+.rbz-header-h1 {
+  font-weight: 700;
+  size: 2.4rem;
+}
+
 /* Element width */
 
 .width-20px {
