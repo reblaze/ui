@@ -3,7 +3,7 @@
     <div class="modal-background">
       <div class="modal-card modal-location delete-modal">
         <header class="modal-card-head">
-          <h5 class="modal-card-title is-size-6 mb-0">
+          <h5 class="modal-card-title rbz-header-h5 rbz-header mb-0">
             Remove certificate
           </h5>
           <button class="close-modal delete"

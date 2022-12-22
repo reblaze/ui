@@ -2,7 +2,7 @@
   <div class="card-content">
     <div class="card mb-5 contact-support-card">
       <div class="card-content">
-        <h4 class="title">
+        <h4 class="title rbz-header-h4 rbz-header">
           Contact Your Support Team
         </h4>
         <p>
@@ -39,7 +39,7 @@
     </div>
     <div class="card manager-escalation-card">
       <div class="card-content">
-        <h4 class="title">
+        <h4 class="title rbz-header-h4 rbz-header">
           Manager Escalation
         </h4>
         <p>

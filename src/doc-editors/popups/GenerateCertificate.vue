@@ -3,7 +3,7 @@
     <div class="modal-background">
       <div class="modal-card is-size-7">
         <header class="modal-card-head">
-          <h5 class="modal-card-title is-size-6 mb-0">
+          <h5 class="modal-card-title rbz-header-h5 rbz-header mb-0">
             Generate certificate
           </h5>
           <button class="delete close-modal"
@@ -37,13 +37,13 @@
             </div>
           </div>
           <div v-if="isManualInput">
-            <h3 class="is-size-7 man-input-title">
+            <h3 class="man-input-title rbz-header-h3 rbz-header">
               Input Certificate Manually
             </h3>
             <hr>
           </div>
           <div v-else>
-            <h3 class="is-size-7 pb-2 extract-input-title">
+            <h3 class="pb-2 extract-input-title rbz-header-h3 rbz-header">
               Extract Certificate From File
             </h3>
             <div class="field has-addons-right">

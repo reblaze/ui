@@ -558,7 +558,7 @@
            @keydown.esc="closeModal">
         <div class="modal-card modal-position">
           <div class="modal-card-head">
-            <h5 class="modal-card-title is-size-6 mb-0">
+            <h5 class="modal-card-title mb-0 rbz-header-h5 rbz-header">
               Add Trusted Source
             </h5>
             <button class="button is-small"
@@ -620,7 +620,7 @@
            @keydown.esc="closeModal">
         <div class="modal-card modal-position">
           <div class="modal-card-head">
-            <h5 class="modal-card-title is-size-6 mb-0">
+            <h5 class="modal-card-title rbz-header-h5 rbz-header mb-0">
               Edit Trusted Source
             </h5>
             <button class="button is-small"

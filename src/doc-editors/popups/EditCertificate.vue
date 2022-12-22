@@ -3,7 +3,7 @@
     <div class="modal-background">
       <div class="modal-card is-size-7">
         <header class="modal-card-head">
-          <h5 class="modal-card-title is-size-6 mb-0 ellipsis is-fullwidth"
+          <h5 class="modal-card-title rbz-header-h5 rbz-header mb-0 ellipsis is-fullwidth"
               :title="certificate.name">
             Edit certificate - {{ certificate.name }}
           </h5>

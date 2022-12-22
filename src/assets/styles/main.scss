@@ -9,26 +9,42 @@
 @import 'node_modules/bulma/sass/utilities/mixins.sass';
 @import 'node_modules/bulma/sass/helpers/typography.sass';
 
+@font-face {
+  font-family: 'Red Hat Display';
+  src: url('../fonts/Red_Hat_Display/RedHatDisplay-VariableFont_wght.ttf') format('truetype');
+}
+
 /* System */
 
 html {
   overflow: hidden;
-}
-
-body {
   font-size: 10px;
 }
 
 /* Header */
 
-/* .rbz-header {
-  font-family: 'Open Sans';
-  src: url(path/to/file) format(Example: 'truetype' or 'opentype' depending on the file extension of your font);
-} */
+.rbz-header {
+  font-family: 'Red Hat Display';
+}
 
 .rbz-header-h1 {
   font-weight: 700;
   size: 2.4rem;
+}
+
+.rbz-header-h3 {
+  font-weight: 500;
+  size: 1.8rem;
+}
+
+.rbz-header-h4 {
+  font-weight: 500;
+  size: 1.6rem;
+}
+
+.rbz-header-h5 {
+  font-weight: 500;
+  size: 1.4rem;
 }
 
 /* Element width */

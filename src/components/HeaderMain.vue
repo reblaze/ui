@@ -8,7 +8,7 @@
              alt="logo">
       </a>
     </div>
-    <div class="page-title height-60px is-size-4">
+    <div class="page-title rbz-header-h1 rbz-header">
       {{ pageTitle }}
     </div>
     <div class="width-120px version-box is-size-7 has-text-grey">
