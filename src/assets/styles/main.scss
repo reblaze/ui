@@ -390,14 +390,7 @@ $color-light: hsl(0, 0%, 96%);
 
 .modal-card {
   border-radius: 6px;
-}
-
-.modal-card:not(.modal-content) {
-  top: 10%;
-}
-
-.modal .modal.is-large {
-  top: 2%;
+  top: 80px;
 }
 
 .modal-footer-buttons {

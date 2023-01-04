@@ -61,7 +61,7 @@ export const useBranchesStore = defineStore('branches', () => {
         }))
         resolve(list.value)
       }).catch((err: AxiosError) => {
-        console.log('Error while attempting to get configs')
+        console.log('Error while attempting to load branches')
         console.log(err)
         _loading.value = false
         reject(err)
