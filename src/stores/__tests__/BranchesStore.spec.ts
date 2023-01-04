@@ -262,7 +262,7 @@ describe('Branches Store', () => {
           // should not get here
           expect(false).toBeTruthy()
         } catch (err) {
-          expect(consoleOutput).toContain(`Error while attempting to get configs`)
+          expect(consoleOutput).toContain(`Error while attempting to get branches`)
         } finally {
           console.log = originalLog
         }

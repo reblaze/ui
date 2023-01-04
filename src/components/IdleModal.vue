@@ -55,6 +55,18 @@ export default defineComponent({
     }
   },
   computed: {
+    isIdle(): boolean {
+      return this.idleStore.isIdle
+    },
+
+    reminderIdleTime(): number {
+      return this.idleStore.reminderIdleTime
+    },
+
+    maxIdleTime(): number {
+      return this.idleStore.maxIdleTime
+    },
+
     reminderIdleTimeString(): string {
       let stringValue = ''
       const minutes = Math.floor(this.reminderIdleTime / 60)
@@ -77,29 +89,17 @@ export default defineComponent({
       return stringValue
     },
 
-    remainingIdleTime() {
+    remainingIdleTime(): number {
       return this.maxIdleTime - this.currentIdleTime
     },
 
-    remainingIdleTimeClock(): string[] {
+    remainingIdleTimeClock(): string {
       const remainingIdleTime = this.remainingIdleTime
       const remainingMinutes = Math.floor(remainingIdleTime / 60)
       const remainingSeconds = remainingIdleTime % 60
       const formattedRemainingMinutes = remainingMinutes < 10 ? `0${remainingMinutes}` : remainingMinutes
       const formattedRemainingSeconds = remainingSeconds < 10 ? `0${remainingSeconds}` : remainingSeconds
       return `${formattedRemainingMinutes}:${formattedRemainingSeconds}`
-    },
-
-    isIdle(): boolean {
-      return this.idleStore.isIdle
-    },
-
-    reminderIdleTime(): number {
-      return this.idleStore.reminderIdleTime
-    },
-
-    maxIdleTime(): number {
-      return this.idleStore.maxIdleTime
     },
 
     ...mapStores(useIdleStore),

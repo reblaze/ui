@@ -5,7 +5,6 @@ import RequestsUtils from '@/assets/RequestsUtils'
 import {AxiosError, AxiosResponse} from 'axios'
 
 export const useIdleStore = defineStore('idle', () => {
-
   // Data
   const _isIdle = ref(false)
   const _intervalId = ref(null)
