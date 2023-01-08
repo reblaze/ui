@@ -12,7 +12,7 @@
         </header>
         <section class="modal-card-body">
           <div class="tile is-3">
-            <div class="control modal-location">
+            <div class="control">
               <label for="manual"
                      class="radio is-size-7">
                 <input type="radio"
@@ -275,15 +275,3 @@ export default defineComponent({
   },
 })
 </script>
-<style scoped
-       lang="scss">
-.modal-location {
-  margin-bottom: 8px;
-  margin-top: -5px;
-}
-
-.modal-card {
-  border-radius: 6px;
-  top: 2%;
-}
-</style>

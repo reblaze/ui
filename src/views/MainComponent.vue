@@ -30,7 +30,7 @@ import 'core-js'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
 import IdleModal from '@/components/IdleModal.vue'
-import {useIdleStore} from '@/stores/IdleStore'
+import {useUserStore} from '@/stores/userStore'
 
 export default defineComponent({
   name: 'MainComponent',
@@ -47,14 +47,14 @@ export default defineComponent({
   },
   computed: {
     isIdle(): boolean {
-      return this.idleStore.isIdle
+      return this.userStore.isIdle
     },
 
-    ...mapStores(useBranchesStore, useIdleStore),
+    ...mapStores(useBranchesStore, useUserStore),
   },
   created() {
     this.branchesStore.loadBranches()
-    this.idleStore.trackIdleStateStart()
+    this.userStore.trackIdleStateStart()
   },
 })
 </script>
