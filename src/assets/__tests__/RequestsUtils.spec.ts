@@ -234,9 +234,22 @@ describe('RequestsUtils.ts', () => {
           jest.clearAllMocks()
         })
 
+        test('should not attempt to redirect if response status is not `3xx`', async () => {
+          getSpy = jest.spyOn(axios, 'get').mockImplementation(() => Promise.resolve({
+            status: 200,
+            headers: {
+              location: 'https://example.com',
+            },
+          }))
+          await requestFunc({methodName: 'GET', url})
+          expect(window.location.href).toEqual('http://localhost/test')
+          jest.clearAllMocks()
+        })
+
         test('should attempt to redirect if redirect info received from the server', async () => {
           const wantedURL = 'http://127.0.0.1/testOtherPath'
           getSpy = jest.spyOn(axios, 'get').mockImplementation(() => Promise.resolve({
+            status: 305,
             headers: {
               location: wantedURL,
             },
