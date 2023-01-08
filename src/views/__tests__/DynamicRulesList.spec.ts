@@ -163,7 +163,7 @@ describe('DynamicRulesList.vue', () => {
     })
 
     test('should be able to add a new document', async () => {
-      const newDoc = DatasetsUtils.newOperationEntryFactory['dynamic-rules']()
+      const newDoc = DatasetsUtils.newDocEntryFactory['dynamic-rules']()
       newDoc.name = expect.stringMatching('New Dynamic Rule')
       newDoc.id = expect.any(String)
       const rbzTable = wrapper.findComponent(RbzTable)
@@ -186,7 +186,7 @@ describe('DynamicRulesList.vue', () => {
 
   describe('document column options', () => {
     test(`should load correct column options`, async () => {
-      const defaultDoc = DatasetsUtils.newOperationEntryFactory['dynamic-rules']()
+      const defaultDoc = DatasetsUtils.newDocEntryFactory['dynamic-rules']()
       _.forEach(wrapper.vm.columns, (columnOptions) => {
         if (typeof columnOptions.displayFunction === 'function') {
           expect(['string', 'number']).toContain(typeof columnOptions.displayFunction(defaultDoc))

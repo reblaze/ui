@@ -317,7 +317,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'id': id,
       'name': 'New Dynamic Rule ' + id,
       'description': 'New Dynamic Rule Description and Remarks',
-      'timeframe': 1,
+      'timeframe': 60,
       'threshold': 9999,
       'active': false,
       'include': ['all'],
@@ -326,7 +326,6 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'target': 'ip',
     }
   },
-
 
   'contentfilterrules'(): ContentFilterRule {
     return {
@@ -452,22 +451,6 @@ const newOperationEntryFactory: { [key: string]: Function } = {
         'max_fails': 0,
         'backup': false,
       }],
-    }
-  },
-
-  'dynamic-rules'(): DynamicRule {
-    const id = generateUUID2()
-    return {
-      'id': id,
-      'name': 'New Dynamic Rule ' + id,
-      'description': 'New Dynamic Rule Description and Remarks',
-      'timeframe': 60,
-      'threshold': 9999,
-      'active': false,
-      'include': ['all'],
-      'exclude': [],
-      'ttl': 7200,
-      'target': 'ip',
     }
   },
 

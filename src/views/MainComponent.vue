@@ -17,6 +17,7 @@
           </div>
         </div>
       </div>
+      <idle-modal v-if="isIdle"></idle-modal>
     </div>
   </div>
 </template>
@@ -28,10 +29,12 @@ import {defineComponent} from 'vue'
 import 'core-js'
 import {mapStores} from 'pinia'
 import {useBranchesStore} from '@/stores/BranchesStore'
+import IdleModal from '@/components/IdleModal.vue'
+import {useUserStore} from '@/stores/userStore'
 
 export default defineComponent({
   name: 'MainComponent',
-  components: {HeaderMain, SideMenu},
+  components: {IdleModal, HeaderMain, SideMenu},
   watch: {
     $route: {
       handler: async function(val, oldVal) {
@@ -43,10 +46,15 @@ export default defineComponent({
     },
   },
   computed: {
-    ...mapStores(useBranchesStore),
+    isIdle(): boolean {
+      return this.userStore.isIdle
+    },
+
+    ...mapStores(useBranchesStore, useUserStore),
   },
   created() {
     this.branchesStore.loadBranches()
+    this.userStore.trackIdleStateStart()
   },
 })
 </script>

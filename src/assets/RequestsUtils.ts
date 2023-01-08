@@ -2,6 +2,7 @@ import axios, {AxiosRequestConfig, AxiosResponse} from 'axios'
 import Utils from '@/assets/Utils'
 import {HttpRequestMethods} from '@/types'
 import {useBranchesStore} from '@/stores/BranchesStore'
+// import {useUserStore} from '@/stores/userStore'
 import _ from 'lodash'
 
 const confAPIRoot = '/conf/api'
@@ -49,13 +50,21 @@ const processRequest = (requestParams: IRequestParams) => {
     }
   }
   request = request.then((response: AxiosResponse) => {
+    // Set last seen for the active user
+    // TODO: return last seen once definition is more clear
+    // const lastSeen = response?.headers?.date ? new Date(response.headers.date) : new Date()
+    // const secondsSinceEpoch = Math.round(lastSeen.getTime() / 1000)
+    // const userStore = useUserStore()
+    // userStore.setLastSeen(secondsSinceEpoch)
     // Follow redirect
-    if (response?.headers?.location) {
-      window.location.href = response.headers.location
-    }
-    const encodedURL = encodeURI(requestParams.url.split('?')[0])
-    if (response?.request?.responseURL && !response.request.responseURL.includes(encodedURL)) {
-      window.location.href = response.request.responseURL
+    if (Math.floor(response?.status / 100) === 3) {
+      if (response?.headers?.location) {
+        window.location.href = response.headers.location
+      }
+      const encodedURL = encodeURI(requestParams.url.split('?')[0])
+      if (response?.request?.responseURL && !response.request.responseURL.includes(encodedURL)) {
+        window.location.href = response.request.responseURL
+      }
     }
     // Toast message
     if (requestParams.successMessage) {
@@ -63,8 +72,8 @@ const processRequest = (requestParams: IRequestParams) => {
     }
     // Update commit counters
     if (requestParams.methodName !== 'GET' && !requestParams.skipIncreaseCommitsCounterOnSuccess) {
-      const store = useBranchesStore()
-      store.increaseCommitsCounter()
+      const branchesStore = useBranchesStore()
+      branchesStore.increaseCommitsCounter()
     }
     return response
   }).catch((error: Error) => {

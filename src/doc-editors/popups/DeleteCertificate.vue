@@ -1,7 +1,7 @@
 <template>
   <div class="modal is-active">
     <div class="modal-background">
-      <div class="modal-card modal-location delete-modal">
+      <div class="modal-card delete-modal">
         <header class="modal-card-head">
           <h5 class="modal-card-title is-size-6 mb-0">
             Remove certificate
@@ -87,19 +87,3 @@ export default defineComponent({
   },
 })
 </script>
-<style scoped
-       lang="scss">
-.modal-location {
-  margin-bottom: 8px;
-  margin-top: -5px;
-}
-
-.modal-card {
-  border-radius: 6px;
-  top: 2%;
-}
-
-.buttons.is-fullwidth {
-  width: 100%;
-}
-</style>

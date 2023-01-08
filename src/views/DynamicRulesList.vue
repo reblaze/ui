@@ -238,7 +238,7 @@ export default defineComponent({
     },
 
     newDynamicRuleDoc(): DynamicRule {
-      const factory = DatasetsUtils.newOperationEntryFactory['dynamic-rules']
+      const factory = DatasetsUtils.newDocEntryFactory['dynamic-rules']
       return factory && factory()
     },
 
