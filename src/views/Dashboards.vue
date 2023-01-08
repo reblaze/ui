@@ -236,6 +236,9 @@ export default defineComponent({
               '$lt': endDate,
             },
           },
+          {
+            'branch': this.selectedBranch,
+          },
         ] as GenericObject[],
       } as GenericObject
       if (this.proxyFilter) {

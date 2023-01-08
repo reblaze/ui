@@ -171,6 +171,8 @@ import _ from 'lodash'
 import EventsLogRow from '@/components/EventsLogRow.vue'
 import EventsLogCharts from '@/components/EventsLogCharts.vue'
 import RbzDatePicker from '@/components/RbzDatePicker.vue'
+import {mapStores} from 'pinia'
+import {useBranchesStore} from '@/stores/BranchesStore'
 
 export default defineComponent({
   name: 'EventsLog',
@@ -241,6 +243,12 @@ export default defineComponent({
       const groupByLength = Object.keys(this.groupedData).length
       return `grouped by ${groupByText} with ${groupByLength} UNIQUE VALUE${groupByLength > 1 ? 'S' : ''}`
     },
+
+    selectedBranch(): string {
+      return this.branchesStore.selectedBranchId
+    },
+
+    ...mapStores(useBranchesStore),
   },
   methods: {
     escapeRegex(input: string): string {
@@ -264,6 +272,11 @@ export default defineComponent({
               endDate,
             ],
             'op': 'between',
+          },
+          {
+            'field': 'branch',
+            'value': this.selectedBranch,
+            'op': 'eq',
           },
         ] as GenericObject[],
       }
