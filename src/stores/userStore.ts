@@ -36,7 +36,7 @@ export const useUserStore = defineStore('user', () => {
       while (cookie.charAt(0) === ' ') {
         cookie = cookie.substring(1)
       }
-      if (cookie.indexOf(_cookieName.value) === 0) {
+      if (cookie.startsWith(`${_cookieName.value}=`)) {
         userCookie = cookie.substring(_cookieName.value.length, cookie.length)
         return true
       }
