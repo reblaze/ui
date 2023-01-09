@@ -44,7 +44,7 @@
       </div>
     </div>
     <div class="menu-wrapper">
-      <sidebar-menu :menu="getMenuItems()"
+      <sidebar-menu :menu="menu"
                     :relative="true"
                     :hideToggle="true"
                     width="200px"
@@ -120,30 +120,7 @@ export default defineComponent({
       return this.branchesStore.commitsCounter
     },
 
-    ...mapStores(useBranchesStore, useUserStore),
-  },
-  methods: {
-    switchBranch(event: Event) {
-      const id: Branch['id'] = (event.target as HTMLSelectElement).value
-      Utils.toast(`Switched to branch "${id}".`, 'is-info')
-      this.branchesStore.setSelectedBranch(id)
-      const name = this.$route.name
-      this.$router.push({name: name, params: {branch: id}})
-    },
-
-    async loadLinksFromDB() {
-      const response = await RequestsUtils.sendRequest({
-        methodName: 'GET',
-        url: `db/system/`,
-      })
-      const systemDBData = response?.data
-      this.swaggerURL = systemDBData?.links?.swagger_url || this.defaultSwaggerURL
-      // this.kibanaURL = systemDBData?.links?.kibana_url || this.defaultKibanaURL
-      this.grafanaURL = systemDBData?.links?.grafana_url || this.defaultGrafanaURL
-      // this.prometheusURL = systemDBData?.links?.prometheus_url || this.defaultPrometheusURL
-    },
-
-    getMenuItems() {
+    menu(): any[] {
       return [
         // #########
         // Analytics
@@ -319,6 +296,29 @@ export default defineComponent({
           external: true,
         },
       ]
+    },
+
+    ...mapStores(useBranchesStore, useUserStore),
+  },
+  methods: {
+    switchBranch(event: Event) {
+      const id: Branch['id'] = (event.target as HTMLSelectElement).value
+      Utils.toast(`Switched to branch "${id}".`, 'is-info')
+      this.branchesStore.setSelectedBranch(id)
+      const name = this.$route.name
+      this.$router.push({name: name, params: {branch: id}})
+    },
+
+    async loadLinksFromDB() {
+      const response = await RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: `db/system/`,
+      })
+      const systemDBData = response?.data
+      this.swaggerURL = systemDBData?.links?.swagger_url || this.defaultSwaggerURL
+      // this.kibanaURL = systemDBData?.links?.kibana_url || this.defaultKibanaURL
+      this.grafanaURL = systemDBData?.links?.grafana_url || this.defaultGrafanaURL
+      // this.prometheusURL = systemDBData?.links?.prometheus_url || this.defaultPrometheusURL
     },
   },
   async mounted() {
