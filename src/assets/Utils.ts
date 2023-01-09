@@ -201,6 +201,21 @@ const nextCharacter = (character: string) => {
   return String.fromCharCode(character.charCodeAt(0) + 1)
 }
 
+const parseJwt = (token: string) => {
+  const base64Url = token?.split('.')?.[1] || ''
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+  const jsonPayload = decodeURIComponent(window.atob(base64).split('').map((c) => {
+    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+  }).join(''))
+  let parsedValue
+  try {
+    parsedValue = JSON.parse(jsonPayload)
+  } catch (err) {
+    parsedValue = {}
+  }
+  return parsedValue
+}
+
 export default {
   name: 'Utils',
   validateInput,
@@ -214,4 +229,5 @@ export default {
   hexToRgbArray,
   sortArrayByName,
   nextCharacter,
+  parseJwt,
 }
