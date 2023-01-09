@@ -33,7 +33,7 @@ export const useUserStore = defineStore('user', () => {
     const decodedCookieSplit: string[] = decodedCookie?.split(';') || []
     let userCookie: string
     _.some(decodedCookieSplit, (cookie) => {
-      while (cookie.charAt(0) === ' ') {
+      while (cookie.startsWith(' ')) {
         cookie = cookie.substring(1)
       }
       if (cookie.startsWith(`${_cookieName.value}=`)) {
