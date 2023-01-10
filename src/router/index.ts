@@ -24,24 +24,16 @@ import EdgeFunctionsList from '@/views/EdgeFunctionsList.vue'
 import EdgeFunctionsEditor from '@/doc-editors/EdgeFunctionsEditor.vue'
 import DnsPage from '@/components/DnsPage.vue'
 import PremiumPage from '@/views/PremiumPage.vue'
-import RequestsUtils from '@/assets/RequestsUtils'
 import EventsLog from '@/views/EventsLog.vue'
 import SslList from '@/views/SslList.vue'
+import {useUserStore} from '@/stores/userStore'
 
-async function premiumServerIsLive() {
-  const url = `health/`
-  const response = await RequestsUtils.sendReblazeRequest({
-    methodName: 'GET',
-    url,
-    onFail: () => {
-      console.log('Reblaze server not found, redirecting to Premium info page')
-    },
-  })
-
-  const isLive = response?.status === 200
-  if (!isLive) {
-    return {path: '/premium'}
+const accessLevelGuardReblazeUser = () => {
+  const userStore = useUserStore()
+  if (!userStore.checkAccessLevel(userStore.accessLevels.reblazeUser)) {
+    return {path: '/prod/premium'}
   }
+  return true
 }
 
 const routes: Array<RouteRecordRaw> = [
@@ -61,7 +53,7 @@ const routes: Array<RouteRecordRaw> = [
           {
             path: 'server-groups',
             name: 'ServerGroups',
-            beforeEnter: [premiumServerIsLive],
+            beforeEnter: [accessLevelGuardReblazeUser],
             redirect: (route) => {
               return `/${route.params.branch}/server-groups/list`
             },
@@ -87,7 +79,7 @@ const routes: Array<RouteRecordRaw> = [
           {
             path: 'routing-profiles',
             name: 'RoutingProfiles',
-            beforeEnter: [premiumServerIsLive],
+            beforeEnter: [accessLevelGuardReblazeUser],
             redirect: (route) => {
               return `/${route.params.branch}/routing-profiles/list`
             },
@@ -113,7 +105,7 @@ const routes: Array<RouteRecordRaw> = [
           {
             path: 'mobile-sdks',
             name: 'MobileSDK',
-            beforeEnter: [premiumServerIsLive],
+            beforeEnter: [accessLevelGuardReblazeUser],
             redirect: (route) => {
               return `/${route.params.branch}/mobile-sdks/list`
             },
@@ -139,7 +131,7 @@ const routes: Array<RouteRecordRaw> = [
           {
             path: 'proxy-templates',
             name: 'ProxyTemplates',
-            beforeEnter: [premiumServerIsLive],
+            beforeEnter: [accessLevelGuardReblazeUser],
             redirect: (route) => {
               return `/${route.params.branch}/proxy-templates/list`
             },
@@ -165,7 +157,7 @@ const routes: Array<RouteRecordRaw> = [
           {
             path: 'dynamic-rules',
             name: 'DynamicRules',
-            beforeEnter: [premiumServerIsLive],
+            beforeEnter: [accessLevelGuardReblazeUser],
             redirect: (route) => {
               return `/${route.params.branch}/dynamic-rules/list`
             },
@@ -191,7 +183,7 @@ const routes: Array<RouteRecordRaw> = [
           {
             path: 'backend-services',
             name: 'BackendServices',
-            beforeEnter: [premiumServerIsLive],
+            beforeEnter: [accessLevelGuardReblazeUser],
             redirect: (route) => {
               return `/${route.params.branch}/backend-services/list`
             },
@@ -234,7 +226,7 @@ const routes: Array<RouteRecordRaw> = [
           {
             path: 'cloud-functions',
             name: 'EdgeFunctions',
-            beforeEnter: [premiumServerIsLive],
+            beforeEnter: [accessLevelGuardReblazeUser],
             redirect: (route) => {
               return `/${route.params.branch}/cloud-functions/list`
             },

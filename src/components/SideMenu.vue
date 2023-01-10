@@ -63,6 +63,7 @@ import {Branch} from '@/types'
 import Utils from '@/assets/Utils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import packageJson from '../../package.json'
+import {useUserStore} from '@/stores/userStore'
 
 export default defineComponent({
   name: 'SideMenu',
@@ -197,14 +198,17 @@ export default defineComponent({
         {
           href: `/${this.selectedBranch?.id}/dynamic-rules`,
           title: 'Dynamic Rules',
+          disabled: !this.userStore.checkAccessLevel(this.userStore.accessLevels.reblazeUser),
         },
         {
           href: `/${this.selectedBranch?.id}/quarantined`,
           title: 'Quarantined',
+          disabled: !this.userStore.checkAccessLevel(this.userStore.accessLevels.reblazeUser),
         },
         {
           href: `/${this.selectedBranch?.id}/mobile-sdks`,
           title: 'Mobile SDK',
+          disabled: !this.userStore.checkAccessLevel(this.userStore.accessLevels.reblazeUser),
         },
         // ##############
         // SaaS Settings
@@ -215,30 +219,37 @@ export default defineComponent({
         {
           href: `/${this.selectedBranch?.id}/server-groups`,
           title: 'Server Groups',
+          disabled: !this.userStore.checkAccessLevel(this.userStore.accessLevels.reblazeUser),
         },
         {
           href: `/${this.selectedBranch?.id}/backend-services`,
           title: 'Backend Services',
+          disabled: !this.userStore.checkAccessLevel(this.userStore.accessLevels.reblazeUser),
         },
         {
           href: `/${this.selectedBranch?.id}/routing-profiles`,
           title: 'Routing Profiles',
+          disabled: !this.userStore.checkAccessLevel(this.userStore.accessLevels.reblazeUser),
         },
         {
           href: `/${this.selectedBranch?.id}/proxy-templates`,
           title: 'Proxy Templates',
+          disabled: !this.userStore.checkAccessLevel(this.userStore.accessLevels.reblazeUser),
         },
         {
           href: `/${this.selectedBranch?.id}/cloud-functions`,
           title: 'Edge Functions',
+          disabled: !this.userStore.checkAccessLevel(this.userStore.accessLevels.reblazeUser),
         },
         {
           href: `/${this.selectedBranch?.id}/ssl`,
           title: 'SSL',
+          disabled: !this.userStore.checkAccessLevel(this.userStore.accessLevels.reblazeUser),
         },
         {
           href: `/${this.selectedBranch?.id}/dns-records`,
           title: 'DNS Records',
+          disabled: !this.userStore.checkAccessLevel(this.userStore.accessLevels.reblazeUser),
         },
         // ######
         // System
@@ -277,6 +288,7 @@ export default defineComponent({
           href: `https://gb.docs.reblaze.com/v/v${this.docsVersion}`,
           title: 'Reblazebook',
           external: true,
+          disabled: !this.userStore.checkAccessLevel(this.userStore.accessLevels.reblazeUser),
         },
         {
           href: this.swaggerURL,
@@ -286,7 +298,7 @@ export default defineComponent({
       ]
     },
 
-    ...mapStores(useBranchesStore),
+    ...mapStores(useBranchesStore, useUserStore),
   },
   methods: {
     switchBranch(event: Event) {
